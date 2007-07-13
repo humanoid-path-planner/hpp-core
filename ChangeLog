@@ -1,0 +1,36 @@
+
+2007/05/23
+	1. add a function in hppDevice to ignore another device (as its bounding box for example).
+
+2007/04/26
+	1. Class ChppRoadmap has been moved into package kwsPlus (class CkwsPlusRoadmap) so that it can be used outside HPP.
+	2. Modified files accordingly.
+	3. Added information on main page.
+	
+2007/04/25
+	1. Added class ChppRoadmap in hppCore : This class allows users to display a roadmap in the scene. To do so, change every occurence
+	of CkwsRoadmap by ChppRoadmap, and call method compute(), then display(). Calls to these methods must be done only after a
+	solution path has been found. Linked Device must be ChppDevice.
+	2. Replace occurences of kwsRoadmap by hppRoadmap.
+
+2007/04/23
+	1. Removed @KWSIO_XXX@ from Makefile.am
+	2. Moved first page of documentation to general documentation hppDoc.
+	
+2007/04/22
+	1. Generate doxytag file to access this documentation from depending packages.
+	2. Documentation is now compile at installation.
+	
+2007/04/17
+	1. Correction of a bug in function ChppProblem::ObstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList): 
+	the list of outer objects of each body of the robot was copied and each obstacle of the new obstacle list was added 
+	at the end of the copy of the outer object list, but not in the outer object list.
+	
+2007/03/09 
+
+	2. Added method 
+	   ktStatus addHppProblemAtBeginning(ChppDeviceShPtr robot);
+	   in ChppPlanner.
+	1. Replaced std::vector by std::deque to store vector of problem,
+	in order to be able to add a problem at the beginning of the vector.
+	

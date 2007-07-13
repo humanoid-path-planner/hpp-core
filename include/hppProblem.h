@@ -1,0 +1,220 @@
+/*
+  Research carried out within the scope of the Associated International Laboratory: Joint Japanese-French Robotics Laboratory (JRL)
+
+  Developed by Florent Lamiraux (LAAS-CNRS) and Eiichi Yoshida (JRL-FRANCE/LAAS-CNRS/AIST)
+
+*/
+
+
+#ifndef HPP_PROBLEM_H
+#define HPP_PROBLEM_H
+
+/*************************************
+INCLUDE
+**************************************/
+
+#include "KineoWorks2/kwsPathOptimizer.h"
+#include "KineoWorks2/kwsRoadmapBuilder.h"
+#include "KineoWorks2/kwsConfig.h"
+
+#include "hppDevice.h"
+#include "kwsPlusRoadmap.h"
+#include "KineoUtility/kitNotificator.h"
+
+
+/*************************************
+CLASS
+**************************************/
+/** 
+    \brief Defines a path planning problem for one robot. 
+    A path planning problem is defined by 
+    \li a robot: a KineoWorks device, 
+    \li a set of obstacles: a list of Kcd objects, 
+    \li a steering method: stored in the KwsDevice,    
+    \li initial and goal configurations,
+    \li a roadmap : to store a roadmap
+    \li a roadmapBuilder : roadmap strategy
+    \li a pathOptimizer : to Optimise the path
+*/
+class ChppProblem {
+public:
+  /**
+   * \brief Create a path planning problem with no initial nor goal configuration.
+   * \param inRobot robot associated to the path planning problem.
+   */
+  ChppProblem(ChppDeviceShPtr inRobot);
+
+   /**
+     \name Problem definition
+     @{
+   */
+ 
+  /**
+   * \brief return shared pointer to robot.
+   */
+  ChppDeviceShPtr getRobot() const;
+  /**
+   * \brief Get shared pointer to initial configuration.
+   */
+  CkwsConfigShPtr initConfig() const;
+  /**
+   * \brief Set initial configuration.
+   */
+  void initConfig(CkwsConfigShPtr i_config);
+  /**
+   * \brief Get shared pointer to goal configuration.
+   */
+  CkwsConfigShPtr goalConfig() const;
+  /**
+   * \brief Set goal configuration.
+   */
+  void goalConfig(CkwsConfigShPtr i_config);
+  /**
+     \brief Set device steering method
+  */
+  /** 
+   *@}
+   */
+
+  /**
+     \name Obstacles
+     @{
+  */
+  /**
+   * \brief Store a copy of the list of obstacles.
+   * \param inCollisionList list of obstacles to be taken into account for this problem.
+   *
+   * Replaces previous list of obstacle if any. 
+   * \note Compute collision entities.
+   */
+  ktStatus obstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList);
+  /**
+   * \brief return a shared pointer to the obstacle list
+   */
+  const std::vector<CkcdObjectShPtr>& obstacleList();
+
+  /**
+   * \brief Add obstacle to the list.
+   * \param inObject a new object.
+   * \note Compute collision entities.
+   */
+  ktStatus addObstacle(const CkcdObjectShPtr& inObject);
+
+  /** 
+   *@}
+   */
+
+  /**
+     \name Problem resolution
+     @{
+  */
+
+   /**
+     \brief set device steering method
+  */
+  void steeringMethod(const CkwsSteeringMethodShPtr &inSteeringMethod);
+  /**
+     \brief Get device steering method
+  */
+  CkwsSteeringMethodShPtr steeringMethod() const;
+  /**
+     \brief Set roadmap building strategy.
+  */
+  void roadmapBuilder( CkwsRoadmapBuilderShPtr inroadmapBuilder);
+  /**
+     \brief Get roadmap building strategy.
+  */
+  CkwsRoadmapBuilderShPtr roadmapBuilder() ;
+ /**
+     \brief set roadmap.
+     \param inRoadmap shared pointer to a roadmap.
+  */
+  void roadmap(CkwsPlusRoadmapShPtr inRoadmap) ;
+  /** 
+      \brief Get roadmap.
+      \return shared pointer to the roadmap.
+  */
+  CkwsPlusRoadmapShPtr roadmap() const;
+  /**
+     \brief Set pathOptimizer.
+     \param inPathOptimizer path optimizer.
+  */
+  void pathOptimizer(CkwsPathOptimizerShPtr inPathOptimizer);
+  /**
+     \brief Get path optimizer
+     \return shared pointer to the path optimiser
+  */
+  CkwsPathOptimizerShPtr pathOptimizer() ;
+  /** 
+    \brief Add a path to the vector.
+     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_PATH.
+  */
+  void addPath(CkwsPathShPtr kwsPath);
+  /** 
+      \brief Get I-th path in vector
+  */
+  CkwsPathShPtr getIthPath(unsigned int pathId) const;
+  /**
+     \brief et number of paths in vector
+  */
+  unsigned int getNbPaths() const;
+  
+    /** 
+   *@}
+   */
+
+private : 
+  /**
+     \brief pointer to a KineoWorks notificator.
+  */
+  CkitNotificatorShPtr attNotificator;
+  /** 
+      \brief the robot is a KineoWorks Device.
+   */
+  ChppDeviceShPtr attRobot;
+  /**
+     \brief Shared pointer to initial configuration.
+  */
+  CkwsConfigShPtr attInitConf;
+  /**
+     \brief Shared pointer to goal configuration.
+  */
+  CkwsConfigShPtr attGoalConf;
+ /**
+     \brief Shared pointer to a roadmap associate to the robot
+  */
+  CkwsPlusRoadmapShPtr attRoadmap ;
+ /**
+     \brief Shared pointer to a roadmapBuilder associate to the the robot and the roadMap
+  */
+  CkwsRoadmapBuilderShPtr attRoadmapBuilder;
+   /**
+     \brief Shared pointer to a optimizer for the path
+  */
+  CkwsPathOptimizerShPtr attPathOptimizer ; 
+  /** 
+      \brief The set of mObstacleList are likely to be a copy or reference to the list of obstacles of ChppPlanner. 
+
+      However, to allow more general motion planning strategies, we
+      leave to possiblity to define it differently. Obstacles are a
+      list of KCD objects.
+   */
+  std::vector< CkcdObjectShPtr > attObstacleList;
+  /**
+     \brief A vector of paths corresponding to this problem.
+  */
+  std::vector<CkwsPathShPtr> attPathVector;
+
+ public:
+  // for notification: 
+  static const CkitNotification::TType  ID_HPP_ADD_PATH;
+
+  // key to retrieve
+  static const std::string   PATH_KEY;
+  static const std::string   PATH_ID_KEY;
+  static const std::string   DEVICE_KEY;
+  
+};
+
+
+#endif

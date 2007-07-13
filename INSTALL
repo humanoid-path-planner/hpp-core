@@ -1,0 +1,17 @@
+Installation instructions
+
+Configuration
+-------------
+untar the package
+cd hppCore
+mkdir build
+cd build
+../configure 
+
+Compilation
+-----------
+make
+
+Installation
+------------
+make install
