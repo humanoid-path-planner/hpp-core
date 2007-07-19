@@ -16,4 +16,7 @@ libhppCore_la_SOURCES = \
 	hppPlanner.cpp
 
 libhppCore_la_CPPFLAGS = -I$(srcdir)/../include @KWSPLUS_CFLAGS@
-libhppCore_la_LIBADD = @KWSPLUS_LIBS@
+libhppCore_la_LDFLAGS =\
+	@KWSPLUS_LIBS@	\
+	-release ${PACKAGE_VERSION}
+

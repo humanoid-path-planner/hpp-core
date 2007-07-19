@@ -7,7 +7,8 @@
 
 SUBDIRS = \
 	include \
-	src
+	src	\
+	doc
 
 hppCoredir = $(libdir)/pkgconfig
 hppCore_DATA = hppCore.pc
