@@ -4,9 +4,8 @@
 
 // using namespace std;
 
-ChppColPair::ChppColPair(unsigned int tblDof)
+ChppColPair::ChppColPair()
 {
-  dof = tblDof;
   tmp.clear();
   mapCol.clear();
 }
