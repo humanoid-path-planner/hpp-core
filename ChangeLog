@@ -1,28 +1,31 @@
+hppCore 1.0.1 released July 20, 2007
+	14. remove ChppColPair::dof since it was not used
+	
+hppCore 1.0 released July 10, 2007
 
-2007/05/23
-	1. add a function in hppDevice to ignore another device (as its bounding box for example).
+	13. add a function in hppDevice to ignore another device (as its bounding box for example).
 
 2007/04/26
-	1. Class ChppRoadmap has been moved into package kwsPlus (class CkwsPlusRoadmap) so that it can be used outside HPP.
-	2. Modified files accordingly.
-	3. Added information on main page.
+	12. Class ChppRoadmap has been moved into package kwsPlus (class CkwsPlusRoadmap) so that it can be used outside HPP.
+	11. Modified files accordingly.
+	10. Added information on main page.
 	
 2007/04/25
-	1. Added class ChppRoadmap in hppCore : This class allows users to display a roadmap in the scene. To do so, change every occurence
+	9. Added class ChppRoadmap in hppCore : This class allows users to display a roadmap in the scene. To do so, change every occurence
 	of CkwsRoadmap by ChppRoadmap, and call method compute(), then display(). Calls to these methods must be done only after a
 	solution path has been found. Linked Device must be ChppDevice.
-	2. Replace occurences of kwsRoadmap by hppRoadmap.
+	8. Replace occurences of kwsRoadmap by hppRoadmap.
 
 2007/04/23
-	1. Removed @KWSIO_XXX@ from Makefile.am
-	2. Moved first page of documentation to general documentation hppDoc.
+	7. Removed @KWSIO_XXX@ from Makefile.am
+	6. Moved first page of documentation to general documentation hppDoc.
 	
 2007/04/22
-	1. Generate doxytag file to access this documentation from depending packages.
-	2. Documentation is now compile at installation.
+	5. Generate doxytag file to access this documentation from depending packages.
+	4. Documentation is now compile at installation.
 	
 2007/04/17
-	1. Correction of a bug in function ChppProblem::ObstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList): 
+	3. Correction of a bug in function ChppProblem::ObstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList): 
 	the list of outer objects of each body of the robot was copied and each obstacle of the new obstacle list was added 
 	at the end of the copy of the outer object list, but not in the outer object list.
 	
