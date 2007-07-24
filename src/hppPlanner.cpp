@@ -417,9 +417,10 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 
     // optimizer for the path
     if (hppProblem.pathOptimizer()) {
-      hppProblem.pathOptimizer()->optimizePath(kwsPath);
+      hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
 
-      cout << "ChppPlanner::solveOneProblem: path optimized" << endl;
+      cout << "ChppPlanner::solveOneProblem: path optimized with penetration " 
+	   << hppProblem.roadmapBuilder()->penetration()<<endl;
 
     } else {
       cerr << " no Optimizer Defined " << endl ;
