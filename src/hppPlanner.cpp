@@ -509,3 +509,13 @@ ChppBodyConstShPtr ChppPlanner::findBodyByName(std::string inBodyName) const
 }
 
 
+ktStatus ChppPlanner::solve()
+{
+  ktStatus ktStatus=KD_OK;
+  for (unsigned int iProblem=0; iProblem<getNbHppProblems(); iProblem++) {
+    if (solveOneProblem(iProblem) != KD_OK) {
+      success = KD_ERROR;
+    }
+  }
+  return success;
+}
