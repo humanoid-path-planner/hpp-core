@@ -43,6 +43,9 @@ public:
 
   
   void 	setInnerObjects (const std::vector< CkcdObjectShPtr > &i_innerObjects);
+  void 	setInnerObjects (const std::vector< CkcdObjectShPtr > &i_innerObjects,  
+				const std::vector< CkitMat4 > &matList);
+
   void 	setOuterObjects (const std::vector< CkcdObjectShPtr > &i_outerObjects);
 
   void getInnerObjects (std::vector< CkcdObjectShPtr > & list);
@@ -59,7 +62,7 @@ public:
   bool getCollision(unsigned int &nbCollisions,
 		    CkcdObjectShPtr &object1, CkcdObjectShPtr &object2);
 
-  void printCollisionStatus();
+  bool printCollisionStatus(const bool& detailInfoFlag = false);
   void printCollisionStatusFast();
  
   /**

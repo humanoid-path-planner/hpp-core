@@ -45,9 +45,27 @@ std::string ChppBody::name()
 
 //=============================================================================
 
+void ChppBody::setInnerObjects (const std::vector< CkcdObjectShPtr > &i_innerObjects, 
+				const std::vector< CkitMat4 > &matList)
+{
+  innerObjects(i_innerObjects, matList);
+    
+  inner = i_innerObjects;
+  //debug
+  //std::cout<<"ChppBody::setInnerObjects() called "<<std::endl;
+  
+  // retrieve the test trees associated with the objects and the ignored object list
+  CkcdTestTreeShPtr tree1 = CkcdTestTree::collectTestTrees(i_innerObjects, std::vector< CkcdObjectShPtr >());
+
+  m_exact_analyzer->leftTestTree(tree1);
+}
+
+//=============================================================================
+
 void ChppBody::setInnerObjects (const std::vector< CkcdObjectShPtr > &i_innerObjects)
 {
   innerObjects(i_innerObjects);
+    
   inner = i_innerObjects;
   //debug
   //std::cout<<"ChppBody::setInnerObjects() called "<<std::endl;
@@ -266,23 +284,26 @@ bool ChppBody::getCollision(unsigned int &nbCollisions,
 
 //=============================================================================
 
-void ChppBody::printCollisionStatus()
+bool ChppBody::printCollisionStatus(const bool& detailInfoFlag )
 {
   unsigned int nbCollisions;
   std::vector<CkcdObjectShPtr> objectVec1, objectVec2;
 
   if(getCollisionVec(nbCollisions, objectVec1, objectVec2) == true){
-    std::cout<<std::endl<<" ------- "<<nbCollisions<<" collision(s) detected.-------- " <<std::endl;
+    std::cout<<" ------- "<<nbCollisions<<" collision(s) detected.-------- " <<std::endl;
     for(unsigned int i=0; i<nbCollisions; i++){
 
-      ChppPolyhedronShPtr hppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, objectVec1[i]);
-      ChppPolyhedronShPtr hppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, objectVec2[i]);
+      CkppPolyhedronShPtr kppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, objectVec1[i]);
+      CkppPolyhedronShPtr kppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, objectVec2[i]);
       
-      std::cout<<hppPolyhedron1->name()<<" and "<<hppPolyhedron2->name()<<std::endl;
+      std::cout<<kppPolyhedron1->name()<<" and "<<kppPolyhedron2->name()<<std::endl;
     }
     std::cout<<" --------------------------"<<std::endl;
+    return true;
   }
-  else{
+
+  if(detailInfoFlag){
+
     std::cout<<std::endl<<" no collision detected. Closest objects: ";
     double dist;
     CkitPoint3 o_point1,  o_point2;
@@ -290,10 +311,10 @@ void ChppBody::printCollisionStatus()
       
     if(getExactDistance(dist, o_point1, o_point2, object1, object2) == KD_OK){
 
-      ChppPolyhedronShPtr hppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, object1);
-      ChppPolyhedronShPtr hppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, object2);
+      CkppPolyhedronShPtr kppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, object1);
+      CkppPolyhedronShPtr kppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, object2);
 
-      std::cout<<std::endl<<" hppPolyhedron "<<hppPolyhedron1->name()<<" and "<<hppPolyhedron2->name()
+      std::cout<<std::endl<<" kppPolyhedron "<<kppPolyhedron1->name()<<" and "<<kppPolyhedron2->name()
 	       <<", distance "<<dist<<std::endl;
       std::cout<<" at ["<<o_point1[0]<<"] ["<<o_point1[1]<<"] ["<<o_point1[0]<<"] and ["
 	       <<o_point2[0]<<"] ["<<o_point2[1]<<"] ["<<o_point2[0]<<"]"<<std::endl;
@@ -303,6 +324,7 @@ void ChppBody::printCollisionStatus()
       std::cout<<"no outerlist registered for getExactDistance"<<std::endl;
     }
   }
+  return false;
 }
 
 //=============================================================================
@@ -318,12 +340,12 @@ void ChppBody::printCollisionStatusFast()
 
     getCollision(nbCollisions, object1, object2);
 
-    ChppPolyhedronShPtr hppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, object1);
-    ChppPolyhedronShPtr hppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, object2);
+    CkppPolyhedronShPtr kppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, object1);
+    CkppPolyhedronShPtr kppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, object2);
 
     std::cout<<"here"<<std::endl;
-    std::cout<<hppPolyhedron1->name();
-    std::cout<<" and "<<hppPolyhedron2->name()<<std::endl;
+    std::cout<<kppPolyhedron1->name();
+    std::cout<<" and "<<kppPolyhedron2->name()<<std::endl;
     std::cout<<" --------------------------"<<std::endl;
   }
   else{
@@ -334,10 +356,10 @@ void ChppBody::printCollisionStatusFast()
 
       std::cout<<std::endl<<" no collision detected. Closest objects: ";
 
-      ChppPolyhedronShPtr hppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, object1);
-      ChppPolyhedronShPtr hppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(ChppPolyhedron, object2);
+      CkppPolyhedronShPtr kppPolyhedron1 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, object1);
+      CkppPolyhedronShPtr kppPolyhedron2 = KIT_DYNAMIC_PTR_CAST(CkppPolyhedron, object2);
 
-      std::cout<<std::endl<<" hppPolyhedron "<<hppPolyhedron1->name()<<" and "<<hppPolyhedron2->name()
+      std::cout<<std::endl<<" kppPolyhedron "<<kppPolyhedron1->name()<<" and "<<kppPolyhedron2->name()
 	       <<", distance "<<dist<<std::endl;
       
     }
