@@ -210,10 +210,10 @@ class ChppPlanner {
      @{
   */
     /**
-       \brief Compute a solution path.
+       \brief Compute a solution path for each problem.
        \return KD_OK or KD_ERROR
     */
-    virtual ktStatus solve()=0;
+    virtual ktStatus solve();
 
     /**
        \brief Solve a problem in the vector.
