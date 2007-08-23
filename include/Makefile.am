@@ -7,14 +7,13 @@
 
 hppCoredir = @includedir@/hpp
 hppCore_HEADERS = \
-	hppBody.h \
-	hppDevice.h \
-	hppColPair.h \
-	hppPolyhedron.h \
-	hppBox.h \
-	hppProblem.h \
-	hppPlanner.h
+	hppCore/hppColPair.h \
+	hppCore/hppProblem.h \
+	hppCore/hppPlanner.h
 
-#	hppNotification.h 
+if BODY
+hppCore_HEADERS += \
+	hppBody/hppBody.h
+endif
 
 

@@ -158,7 +158,8 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
 #---------------------------------------------------------------------------
-TAGFILES               = @KWSPLUS_PREFIX@/share/doc/doxytag/kwsPlus.doxytag=@KWSPLUS_PREFIX@/share/doc/kwsPlus
+TAGFILES               = @HPPMODEL_TAGFILE@ \
+			@KWSPLUS_PREFIX@/share/doc/doxytag/kwsPlus.doxytag=@KWSPLUS_PREFIX@/share/doc/kwsPlus 
 GENERATE_TAGFILE       = hppCore.doxytag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
@@ -207,7 +208,8 @@ SHOW_DIRECTORIES       = NO
 #---------------------------------------------------------------------------
 FILE_PATTERNS          = *.h *.idl
 EXCLUDE_PATTERNS       = 
-INPUT                  = @top_srcdir@/include \
+INPUT                  = @top_srcdir@/include/hppCore \
+                         @top_srcdir@/include/@BODY_HEADER_PATH@ \
                          @srcdir@/additionalDoc
 
 #---------------------------------------------------------------------------

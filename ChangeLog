@@ -1,4 +1,11 @@
 2007/08/23
+	First version of package that compiles with hppModel package.
+	Robot modelling (dynamic part and geometric part) have been extracted from hppCore to hppModel.
+	hppCore can now be installed 
+	  either with a dependence to hppModel (implementing ChppDevice, ChppBody, ChppJoint)
+	  or with a simplified implementation of ChppBody without dynamics but with enhanced distance computation facilities.
+	
+2007/08/23
 	Replaced ChppDevice by CkppDeviceComponent in ChppPlanner and ChppProblem since
 	  1 ChppDevice derives from CkppDeviceComponent and
 	  2 The operations performed on objects of this type only concern CkppDeviceComponent part.

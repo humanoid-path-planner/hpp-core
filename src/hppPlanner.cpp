@@ -20,7 +20,12 @@
 
 #include "hppPlanner.h"
 #include "hppProblem.h"
+
+#ifdef IMPLEMENT_HPPBODY
 #include "hppBody.h"
+#else
+#include "hppModel/hppBody.h"
+#endif
 
 #include "KineoUtility/kitNotificator.h"
 
