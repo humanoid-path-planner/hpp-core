@@ -19,8 +19,9 @@ INCLUDE
 
 #include "hppProblem.h"
 
+#ifndef WITHOUT_CHPPDEVICE
 KIT_PREDEF_CLASS( ChppBody );
-KIT_PREDEF_CLASS( ChppDevice );
+#endif
 
 
 using namespace std ;
@@ -59,7 +60,7 @@ class ChppPlanner {
      \return a int
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
   */
-  ktStatus addHppProblem(ChppDeviceShPtr robot);
+  ktStatus addHppProblem(CkppDeviceComponentShPtr robot);
 
   /**
      \brief Add a Problem at beginning of the Problem vector with the associed robot.
@@ -68,7 +69,7 @@ class ChppPlanner {
      \return a int
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
   */
-  ktStatus addHppProblemAtBeginning(ChppDeviceShPtr robot);
+  ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot);
 
   /**
      \brief Get the number of problems in vector.
@@ -82,7 +83,7 @@ class ChppPlanner {
      \param rank 
      \return the shared pointer on the robot
   */
-  const ChppDeviceShPtr robotIthProblem(unsigned int rank) const;
+  const CkppDeviceComponentShPtr robotIthProblem(unsigned int rank) const;
 
   /**
      \brief Get current configuration of i-th robot.
@@ -258,6 +259,7 @@ class ChppPlanner {
 
    */
   ChppBodyConstShPtr findBodyByName(std::string inBodyName) const;
+
   /** 
    *@}* 
    */

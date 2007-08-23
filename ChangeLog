@@ -1,3 +1,8 @@
+2007/08/23
+	Replaced ChppDevice by CkppDeviceComponent in ChppPlanner and ChppProblem since
+	  1 ChppDevice derives from CkppDeviceComponent and
+	  2 The operations performed on objects of this type only concern CkppDeviceComponent part.
+
 2007/08/01
 	15. Added a default implementation of ChppPlanner::solve so that the class is not pure virtual.
 

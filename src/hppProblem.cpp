@@ -31,7 +31,7 @@ const std::string ChppProblem::DEVICE_KEY("device");
 
 // ==========================================================================
 
-ChppProblem::ChppProblem(ChppDeviceShPtr inRobot)
+ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot)
 {
   attNotificator = CkitNotificator::defaultNotificator(); 
   attRobot = inRobot;
@@ -39,7 +39,7 @@ ChppProblem::ChppProblem(ChppDeviceShPtr inRobot)
 
 // ==========================================================================
 
-ChppDeviceShPtr ChppProblem::getRobot() const
+CkppDeviceComponentShPtr ChppProblem::getRobot() const
 {
   return attRobot;
 }
@@ -121,7 +121,31 @@ const std::vector<CkcdObjectShPtr>& ChppProblem::obstacleList()
 
 ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject)
 {
-  return attRobot->addObstacle(inObject);  
+  // Get robot vector of bodies.
+  CkwsDevice::TBodyVector bodyVector;
+  attRobot->getBodyVector(bodyVector);
+    
+  // Loop over bodies of robot.
+  for (CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); bodyIter < bodyVector.end(); bodyIter++) {
+    // Try to cast body into CkwsKCDBody
+    CkwsKCDBodyShPtr kcdBody;
+    ChppBodyShPtr hppBody;
+    if (kcdBody = boost::dynamic_pointer_cast<CkwsKCDBody>(*bodyIter)) {
+      std::vector< CkcdObjectShPtr > collisionList = kcdBody->outerObjects();
+      collisionList.push_back(inObject);
+
+      if(hppBody = boost::dynamic_pointer_cast<ChppBody>(kcdBody)){
+	hppBody->setOuterObjects(collisionList);
+      }
+      else
+	kcdBody->outerObjects(collisionList);
+
+    }
+    else {
+      std::cout << "ChppProblem::addObstacle: body is not KCD body. Obstacle is not inserted." << std::endl;
+    }
+  }
+  return KD_OK;
 }
 
 // ==========================================================================
@@ -151,7 +175,7 @@ void ChppProblem::addPath(CkwsPathShPtr kwsPath)
      = CkitNotification::createWithPtr<ChppProblem>(ChppProblem::ID_HPP_ADD_PATH, this);
   // set attribute to retreave
   notification->shPtrValue<CkwsPath>(PATH_KEY, kwsPath);
-  notification->shPtrValue<ChppDevice>(DEVICE_KEY, attRobot);
+  notification->shPtrValue<CkppDeviceComponent>(DEVICE_KEY, attRobot);
   // set path number
   notification->unsignedIntValue(PATH_ID_KEY, attPathVector.size());
   attNotificator->notify(notification);

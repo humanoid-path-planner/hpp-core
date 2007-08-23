@@ -17,7 +17,10 @@ INCLUDE
 #include "KineoWorks2/kwsRoadmapBuilder.h"
 #include "KineoWorks2/kwsConfig.h"
 
-#include "hppDevice.h"
+#include "KineoModel/kppDeviceComponent.h"
+#include "kcd2/kcdInterface.h"
+#include "kwsKcd2/kwsKCDBody.h"
+
 #include "kwsPlusRoadmap.h"
 #include "KineoUtility/kitNotificator.h"
 
@@ -42,7 +45,7 @@ public:
    * \brief Create a path planning problem with no initial nor goal configuration.
    * \param inRobot robot associated to the path planning problem.
    */
-  ChppProblem(ChppDeviceShPtr inRobot);
+  ChppProblem(CkppDeviceComponentShPtr inRobot);
 
    /**
      \name Problem definition
@@ -52,7 +55,7 @@ public:
   /**
    * \brief return shared pointer to robot.
    */
-  ChppDeviceShPtr getRobot() const;
+  CkppDeviceComponentShPtr getRobot() const;
   /**
    * \brief Get shared pointer to initial configuration.
    */
@@ -171,7 +174,7 @@ private :
   /** 
       \brief the robot is a KineoWorks Device.
    */
-  ChppDeviceShPtr attRobot;
+  CkppDeviceComponentShPtr attRobot;
   /**
      \brief Shared pointer to initial configuration.
   */

@@ -15,9 +15,11 @@
 
 #include <iostream>
 #include <fstream>
+
+#include "KineoModel/kppDeviceComponent.h"
+
 #include "hppPlanner.h"
 #include "hppProblem.h"
-#include "hppDevice.h"
 #include "hppBody.h"
 
 #include "KineoUtility/kitNotificator.h"
@@ -55,7 +57,7 @@ ChppPlanner::~ChppPlanner()
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addHppProblem(ChppDeviceShPtr robot)
+ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 {
   ChppProblem hppProblem(robot);
 
@@ -67,7 +69,7 @@ ktStatus ChppPlanner::addHppProblem(ChppDeviceShPtr robot)
   CkitNotificationShPtr notification 
     = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
   // set attribute if necessary
-  notification->shPtrValue<ChppDevice>(ROBOT_KEY, robot);
+  notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
   attNotificator->notify(notification);
 
 
@@ -77,7 +79,7 @@ ktStatus ChppPlanner::addHppProblem(ChppDeviceShPtr robot)
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addHppProblemAtBeginning(ChppDeviceShPtr robot)
+ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 {
   ChppProblem hppProblem(robot);
 
@@ -87,7 +89,7 @@ ktStatus ChppPlanner::addHppProblemAtBeginning(ChppDeviceShPtr robot)
 
   CkitNotificationShPtr notification  = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
   // set attribute if necessary
-  notification->shPtrValue<ChppDevice>(ROBOT_KEY, robot);
+  notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
   attNotificator->notify(notification);
 
 
@@ -97,9 +99,9 @@ ktStatus ChppPlanner::addHppProblemAtBeginning(ChppDeviceShPtr robot)
 
 // ==========================================================================
 
-const ChppDeviceShPtr ChppPlanner::robotIthProblem(unsigned int rank) const
+const CkppDeviceComponentShPtr ChppPlanner::robotIthProblem(unsigned int rank) const
 {
-  ChppDeviceShPtr nullShPtr;
+  CkppDeviceComponentShPtr nullShPtr;
 
   if (rank < getNbHppProblems()) {
     return hppProblemVector[rank].getRobot();
@@ -115,7 +117,7 @@ CkwsConfigShPtr ChppPlanner::robotCurrentConfIthProblem(unsigned int rank) const
   CkwsConfigShPtr outConfig;
 
   if (rank < getNbHppProblems()) {
-    const ChppDeviceShPtr robot = robotIthProblem(rank);
+    const CkppDeviceComponentShPtr robot = robotIthProblem(rank);
     CkwsConfig config(robot);
     status = robot->getCurrentConfig(config);
     if (status == KD_OK) {
@@ -394,7 +396,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   ChppProblem& hppProblem = hppProblemVector[problemId];
   CkwsPathShPtr kwsPath;
 
-  ChppDeviceShPtr hppDevice = hppProblem.getRobot();
+  CkppDeviceComponentShPtr hppDevice = hppProblem.getRobot();
   if (!hppDevice)
     return KD_ERROR ;
 
@@ -489,7 +491,7 @@ ChppBodyConstShPtr ChppPlanner::findBodyByName(std::string inBodyName) const
   // Loop over hppProblem.
   for (unsigned int iProblem=0; iProblem < nbProblems; iProblem++) {
     CkwsDevice::TBodyVector bodyVector;
-    const ChppDeviceShPtr hppRobot = robotIthProblem(iProblem);
+    const CkppDeviceComponentShPtr hppRobot = robotIthProblem(iProblem);
     hppRobot->getBodyVector(bodyVector);
 
     // Loop over bodies of the robot.
