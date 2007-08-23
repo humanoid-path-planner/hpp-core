@@ -18,6 +18,9 @@ INCLUDE
 #include "kcd2/kcdInterface.h"
 #include "kwsKcd2/kwsKCDBody.h"
 
+#include "hppPolyhedron.h"
+
+
 KIT_PREDEF_CLASS(ChppBody);
 
 
@@ -62,7 +65,6 @@ public:
   bool printCollisionStatus(const bool& detailInfoFlag = false);
   void printCollisionStatusFast();
  
-#if 0
   /**
      \brief Functions for physical properties : Setting and getting mass.
   */
@@ -86,7 +88,7 @@ public:
    \brief Calculate absolute position of CoM from Joint information
   */
   ktStatus currentComPos(CkitPoint3 &pos);
-#endif
+
 protected:
 
   ChppBody(std::string inName) : bodyName(inName) {};
@@ -98,6 +100,11 @@ private:
 
   CkcdAnalysisShPtr m_exact_analyzer;
   std::vector< CkcdObjectShPtr > inner, outer;
+
+  /// physical properties
+  double _mass;
+  std::vector<double> _inertia;
+  CkitVect3 _relComVec;
 };
 
 

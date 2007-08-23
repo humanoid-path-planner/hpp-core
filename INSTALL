@@ -6,12 +6,7 @@ untar the package
 cd hppCore
 mkdir build
 cd build
-../configure [OPTIONS]
-
-Specific options are the following:
---enable-body: Provides an implementation of class ChppBody deriving from CkwsKCDBody.
-               If not set, the package depends from hppModel that provides an implementation of this class.
-
+../configure 
 
 Compilation
 -----------

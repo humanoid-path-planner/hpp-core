@@ -13,15 +13,7 @@
 #include <iostream>
 #include "hppProblem.h"
 
-/*
-  If this packages does not implement ChppBody class,
-  this class need to be found in package hppModel.
-*/
-#ifdef IMPLEMENT_HPPBODY
 #include "hppBody.h"
-#else
-#include "hppModel/hppBody.h"
-#endif
 
 const CkitNotification::TType  ChppProblem::ID_HPP_ADD_PATH(CkitNotification::makeID());
 
@@ -145,9 +137,9 @@ ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject)
       if(hppBody = boost::dynamic_pointer_cast<ChppBody>(kcdBody)){
 	hppBody->setOuterObjects(collisionList);
       }
-      else {
+      else
 	kcdBody->outerObjects(collisionList);
-      }
+
     }
     else {
       std::cout << "ChppProblem::addObstacle: body is not KCD body. Obstacle is not inserted." << std::endl;
