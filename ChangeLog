@@ -1,47 +1,50 @@
-2007/08/23
-	Replaced ChppDevice by CkppDeviceComponent in ChppPlanner and ChppProblem since
+$Id: ChangeLog 2007/08/27 14:54:42 mallet $
+	
+hppCore 1.1 released August 27, 2007
+
+	17. Replaced ChppDevice by CkppDeviceComponent in ChppPlanner and
+	    ChppProblem since
 	  1 ChppDevice derives from CkppDeviceComponent and
-	  2 The operations performed on objects of this type only concern CkppDeviceComponent part.
-
-2007/08/01
-	15. Added a default implementation of ChppPlanner::solve so that the class is not pure virtual.
-
+	  2 The operations performed on objects of this type only concern
+ 	    CkppDeviceComponent part.
+	15. Added a default implementation of ChppPlanner::solve so that
+	    the class is not pure virtual.
+	17. Added a default implementation of ChppPlanner::solve.
+	16. Improvement of collision information displaying.
+	15. Call path opthmizer with the penetration specified for roadmap
+	    builder.
+	
 hppCore 1.0.1 released July 20, 2007
+
 	14. remove ChppColPair::dof since it was not used
 	
 hppCore 1.0 released July 10, 2007
 
-	13. add a function in hppDevice to ignore another device (as its bounding box for example).
-
-2007/04/26
-	12. Class ChppRoadmap has been moved into package kwsPlus (class CkwsPlusRoadmap) so that it can be used outside HPP.
+	13. add a function in hppDevice to ignore another device (as its
+	    bounding box for example).
+	12. Class ChppRoadmap has been moved into package kwsPlus (class
+  	    CkwsPlusRoadmap) so that it can be used outside HPP.
 	11. Modified files accordingly.
 	10. Added information on main page.
-	
-2007/04/25
-	9. Added class ChppRoadmap in hppCore : This class allows users to display a roadmap in the scene. To do so, change every occurence
-	of CkwsRoadmap by ChppRoadmap, and call method compute(), then display(). Calls to these methods must be done only after a
-	solution path has been found. Linked Device must be ChppDevice.
+	9. Added class ChppRoadmap in hppCore : This class allows users to
+ 	   display a roadmap in the scene. To do so, change every occurence
+	   of CkwsRoadmap by ChppRoadmap, and call method compute(), then
+	   display(). Calls to these methods must be done only after a
+	   solution path has been found. Linked Device must be ChppDevice.
 	8. Replace occurences of kwsRoadmap by hppRoadmap.
-
-2007/04/23
 	7. Removed @KWSIO_XXX@ from Makefile.am
 	6. Moved first page of documentation to general documentation hppDoc.
-	
-2007/04/22
 	5. Generate doxytag file to access this documentation from depending packages.
 	4. Documentation is now compile at installation.
-	
-2007/04/17
-	3. Correction of a bug in function ChppProblem::ObstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList): 
-	the list of outer objects of each body of the robot was copied and each obstacle of the new obstacle list was added 
-	at the end of the copy of the outer object list, but not in the outer object list.
-	
-2007/03/09 
-
+	3. Correction of a bug in function ChppProblem::ObstacleList(const
+	   std::vector<CkcdObjectShPtr>& inCollisionList):
+	   the list of outer objects of each body of the robot was copied and
+	   each obstacle of the new obstacle list was added  
+	   at the end of the copy of the outer object list, but not in the
+	   outer object list.
 	2. Added method 
 	   ktStatus addHppProblemAtBeginning(ChppDeviceShPtr robot);
 	   in ChppPlanner.
 	1. Replaced std::vector by std::deque to store vector of problem,
-	in order to be able to add a problem at the beginning of the vector.
+	   in order to be able to add a problem at the beginning of the vector.
 	
