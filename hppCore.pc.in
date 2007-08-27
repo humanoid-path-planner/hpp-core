@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: @PACKAGE@
 Description: Core functions of humanoid path planner
 Version: @VERSION@
-Requires: kwsPlus >= 1.0
-Libs: -L${libdir} -lhppCore @KWSPLUS_LIBS@ 
-Cflags: -I${includedir}/hpp @KWSPLUS_CFLAGS@
+Requires: @KWPLUS_REQD@
+Libs: -Wl,-R${libdir} -L${libdir} -lhppCore
+Cflags: -I${includedir}/hpp
