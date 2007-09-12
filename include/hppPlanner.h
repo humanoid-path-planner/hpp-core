@@ -207,6 +207,20 @@ class ChppPlanner {
    */
 
   /**
+     \name Initialization
+     @{
+  */
+
+  /**
+     \brief Initialization of the path planning problem
+  */
+  virtual ktStatus initializeProblem() {return KD_OK;};
+
+  /** 
+   *@}
+   */
+
+  /**
      \name Problem resolution
      @{
   */
