@@ -239,6 +239,13 @@ class ChppPlanner {
     */
     ktStatus solveOneProblem(unsigned int problemId);
 
+    /**
+       \brief Optimize a given path
+       \param inProblemId Id of the problem owning the path.
+       \param inPathId Id of the path in this problem.
+    */
+    ktStatus optimizePath(unsigned int inProblemId, unsigned int inPathId);
+
     /** 
       \brief Get number of paths in given problem.
     */
@@ -254,7 +261,34 @@ class ChppPlanner {
       \return KD_ERROR if problemId too big, KD_OK otherwise.
       
     */
-    ktStatus addPath(unsigned int problemId, CkwsPathShPtr kwsPath);
+  ktStatus addPath(unsigned int problemId, CkwsPathShPtr kwsPath);
+
+  /** 
+   *@}* 
+   */
+  /**
+     \name Drawing the roadmap
+     @{
+  */
+  /**
+     \brief Draws the roadmap of given problem in interface.
+     \param inProblemId the rank of the problem in vector.
+ 
+     Works only if the roadmap builder of corresponding problem has been initialized with 
+     a CkwsPlusRoadmap.
+
+  */
+  ktStatus drawRoadmap(unsigned int inProblemId);
+
+  /**
+     \brief Stop drawing the roadmap of given problem in interface.
+     \param inProblemId the rank of the problem in vector.
+ 
+     Works only if the roadmap builder of corresponding problem has been initialized with 
+     a CkwsPlusRoadmap.
+
+  */
+  ktStatus stopdrawingRoadmap(unsigned int inProblemId);
 
   /** 
    *@}* 

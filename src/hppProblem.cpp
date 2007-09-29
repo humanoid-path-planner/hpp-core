@@ -11,8 +11,10 @@
 *******************************************/
 
 #include <iostream>
-#include "hppProblem.h"
 
+#include "kwsPlusDrawRdmBuilderDelegate.h"
+
+#include "hppProblem.h"
 #include "hppBody.h"
 
 const CkitNotification::TType  ChppProblem::ID_HPP_ADD_PATH(CkitNotification::makeID());
@@ -21,17 +23,13 @@ const std::string ChppProblem::PATH_KEY("path");
 const std::string ChppProblem::PATH_ID_KEY("path_id");
 const std::string ChppProblem::DEVICE_KEY("device");
 
-/*! \addtogroup hpp
- *@{
- */
-
 /*****************************************
  PUBLIC METHODS
 *******************************************/
 
 // ==========================================================================
 
-ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot)
+ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot) : attDrawRoadmapDelegate(NULL)
 {
   attNotificator = CkitNotificator::defaultNotificator(); 
   attRobot = inRobot;
@@ -245,7 +243,25 @@ CkwsPathOptimizerShPtr ChppProblem::pathOptimizer() {
 }
 
 
+ktStatus ChppProblem::drawRoadmap()
+{
+  if (attDrawRoadmapDelegate != NULL) {
+    return KD_OK;
+  }
+  attDrawRoadmapDelegate = new CkwsPlusDrawRdmBuilderDelegate();
+  if (!attRoadmapBuilder) {
+    return KD_ERROR;
+  }
+  attRoadmapBuilder->addDelegate(attDrawRoadmapDelegate);
+}
 
-/** @}
- */
-
+ktStatus ChppProblem::stopDrawingRoadmap()
+{
+  if (attDrawRoadmapDelegate == NULL) {
+    return KD_OK;
+  }
+  if (!attRoadmapBuilder) {
+    return KD_OK;
+  }
+  return attRoadmapBuilder->removeDelegate(attDrawRoadmapDelegate);
+}

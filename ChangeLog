@@ -1,6 +1,9 @@
-$Id: ChangeLog 2007/08/27 14:54:42 mallet $
+2007/09/29
+	20. Added API function to optimize a path.
+	19. Added API functions to display a roadmap in the interface.
+	
 2007/09/12
-	Add virtual method ChppPlanner::initializeProblem(). This method implemented in ChppWalkPlanner can thus be called by Corba server.
+	18. Add virtual method ChppPlanner::initializeProblem(). This method implemented in ChppWalkPlanner can thus be called by Corba server.
 	
 hppCore 1.1 released August 27, 2007
 

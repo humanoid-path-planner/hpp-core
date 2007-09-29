@@ -24,6 +24,7 @@ INCLUDE
 #include "kwsPlusRoadmap.h"
 #include "KineoUtility/kitNotificator.h"
 
+class CkwsPlusDrawRdmBuilderDelegate;
 
 /*************************************
 CLASS
@@ -162,6 +163,25 @@ public:
   */
   unsigned int getNbPaths() const;
   
+  /** 
+   *@}
+   */
+
+  /**
+     \name Drawing the roadmap
+     @{
+  */
+
+  /**
+     \brief Draws the roadmap by inserting a delegate in the roadmapBuilder
+  */
+  ktStatus drawRoadmap();
+
+  /**
+     \brief Stop drawing the roadmap
+  */
+  ktStatus stopDrawingRoadmap();
+
     /** 
    *@}
    */
@@ -208,6 +228,10 @@ private :
   */
   std::vector<CkwsPathShPtr> attPathVector;
 
+  /**
+     \brief Pointer to a drawing roadmap delegate.
+  */
+  CkwsPlusDrawRdmBuilderDelegate* attDrawRoadmapDelegate;
  public:
   // for notification: 
   static const CkitNotification::TType  ID_HPP_ADD_PATH;
