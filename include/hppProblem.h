@@ -48,7 +48,15 @@ public:
    */
   ChppProblem(CkppDeviceComponentShPtr inRobot);
 
-   /**
+  /**
+   * \brief Create a path planning problem with no initial nor goal configuration.
+   * \param inRobot robot associated to the path planning problem.
+   * \param inObstacleList list of obstacle of this problem.
+   */ 
+  ChppProblem(CkppDeviceComponentShPtr inRobot,
+	      const std::vector<CkcdObjectShPtr>& inObstacleList);   
+
+  /**
      \name Problem definition
      @{
    */

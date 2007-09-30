@@ -29,10 +29,20 @@ const std::string ChppProblem::DEVICE_KEY("device");
 
 // ==========================================================================
 
-ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot) : attDrawRoadmapDelegate(NULL)
+ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot) : 
+  attNotificator(CkitNotificator::defaultNotificator()), 
+  attRobot(inRobot), attDrawRoadmapDelegate(NULL)
 {
-  attNotificator = CkitNotificator::defaultNotificator(); 
-  attRobot = inRobot;
+}
+
+// ==========================================================================
+
+ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot,
+			 const std::vector<CkcdObjectShPtr>& inObstacleList) : 
+  attNotificator(CkitNotificator::defaultNotificator()), 
+  attRobot(inRobot), attDrawRoadmapDelegate(NULL)
+{
+  obstacleList(inObstacleList);
 }
 
 // ==========================================================================

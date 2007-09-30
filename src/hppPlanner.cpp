@@ -59,7 +59,7 @@ ChppPlanner::~ChppPlanner()
 
 ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 {
-  ChppProblem hppProblem(robot);
+  ChppProblem hppProblem(robot, mObstacleList);
 
   cout<<"adding a problem in vector"<<endl;
   // Add robot in vector .
@@ -81,7 +81,7 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 
 ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 {
-  ChppProblem hppProblem(robot);
+  ChppProblem hppProblem(robot, mObstacleList);
 
   cout<<"adding a problem at beginning of vector"<<endl;
   // Add robot in vector .
