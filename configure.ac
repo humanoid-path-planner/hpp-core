@@ -43,6 +43,8 @@ if test x${body} = xyes; then
 	BODY_HEADER_PATH="hppBody"
 else
 	PKG_CHECK_MODULES(HPPMODEL, hppModel)
+	AC_SUBST(HPPMODEL_CFLAGS)
+	AC_SUBST(HPPMODEL_LIBS)
 	HPPMODEL_PREFIX=`$PKG_CONFIG --variable=prefix hppModel`
 	HPPMODEL_TAGFILE="$HPPMODEL_PREFIX/share/doc/doxytag/hppModel.doxytag=$HPPMODEL_PREFIX/share/doc/hppModel"
 	HPPCORE_REQUIRE="hppModel"
