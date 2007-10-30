@@ -5,6 +5,7 @@
 
 */
 
+#include "hppBody.h"
 #include <iostream>
 #include "KineoKCDModel/kppKCDPolyhedron.h"
 #include "KineoKCDModel/kppKCDAssembly.h"
@@ -404,7 +405,6 @@ void ChppBody::printCollisionStatusFast()
 }
 
 
-#if 0
 //=============================================================================
 
 void ChppBody::mass(double m)
@@ -473,5 +473,3 @@ ktStatus ChppBody::currentComPos(CkitPoint3 &pos)
 
   return KD_OK;
 }
-
-#endif

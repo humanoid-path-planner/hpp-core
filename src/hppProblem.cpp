@@ -15,26 +15,13 @@
 #include "kwsPlusDrawRdmBuilderDelegate.h"
 
 #include "hppProblem.h"
-
-/*
-  If this packages does not implement ChppBody class,
-  this class need to be found in package hppModel.
-*/
-#ifdef IMPLEMENT_HPPBODY
 #include "hppBody.h"
-#else
-#include "hppModel/hppBody.h"
-#endif
 
 const CkitNotification::TType  ChppProblem::ID_HPP_ADD_PATH(CkitNotification::makeID());
 
 const std::string ChppProblem::PATH_KEY("path");
 const std::string ChppProblem::PATH_ID_KEY("path_id");
 const std::string ChppProblem::DEVICE_KEY("device");
-
-/*! \addtogroup hpp
- *@{
- */
 
 /*****************************************
  PUBLIC METHODS
