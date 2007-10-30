@@ -6,9 +6,11 @@
 */
 
 #include <iostream>
-#include "hppBody.h"
-
 #include "KineoKCDModel/kppKCDPolyhedron.h"
+#include "KineoKCDModel/kppKCDAssembly.h"
+#include "KineoModel/kppJointComponent.h"
+
+#include "hppBody.h"
 
 //=============================================================================
 
@@ -96,18 +98,51 @@ void ChppBody::setOuterObjects (const std::vector< CkcdObjectShPtr > &i_outerObj
 
 //=============================================================================
 
-void ChppBody::getInnerObjects (std::vector< CkcdObjectShPtr > & list)
+bool ChppBody::addSolidComponent(const CkppSolidComponentRefShPtr& inSolidComponentRef)
 {
-  list = inner;
+  CkppSolidComponentShPtr solidComponent = inSolidComponentRef->referencedSolidComponent();
+
+  /*
+    The input solid component is dynamically cast into
+     1. a CkppKCDPolyhedron or 
+     2. a CkppKCDAssembly
+  */
+  
+  CkcdObjectShPtr kcdObject;
+  if (CkppKCDPolyhedronShPtr polyhedron = KIT_DYNAMIC_PTR_CAST(CkppKCDPolyhedron, solidComponent)) {
+    kcdObject = polyhedron;
+  }
+  else if (CkppKCDAssemblyShPtr assembly = KIT_DYNAMIC_PTR_CAST(CkppKCDAssembly, solidComponent)) {
+    kcdObject = assembly;
+  }
+  else {
+    std::cerr << "ChppBody::addSolidComponent: solid component is neither an assembly nor a polyhedron" << std::endl;
+    return false;
+  }
+
+  /*
+    Add object to the inner object list
+  */
+  std::vector<CkcdObjectShPtr> innerObjectList = innerObjects();
+  innerObjectList.push_back(kcdObject);
+
+  setInnerObjects(innerObjectList);
+
+  /*
+    Attach solid component to the joint associated to the body
+  */
+  CkwsJointShPtr bodyJoint = joint();
+  if (bodyJoint) {
+    if (CkppJointComponentShPtr kppJoint = KIT_DYNAMIC_PTR_CAST(CkppJointComponent, bodyJoint)) {
+      kppJoint->addSolidComponentRef(inSolidComponentRef); 
+      return true;
+    }  
+  }
+  else {
+    std::cerr << "ChppBody::addSolidComponent: the body is not attached to any joint" << std::endl;
+  }
+  return false;
 }
-
-//=============================================================================
-
-void ChppBody::getOuterObjects (std::vector< CkcdObjectShPtr > & list)
-{
-  list = outer;
-}
-
 
 //=============================================================================
 

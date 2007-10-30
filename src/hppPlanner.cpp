@@ -64,7 +64,7 @@ ChppPlanner::~ChppPlanner()
 
 ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 {
-  ChppProblem hppProblem(robot);
+  ChppProblem hppProblem(robot, mObstacleList);
 
   cout<<"adding a problem in vector"<<endl;
   // Add robot in vector .
@@ -86,7 +86,7 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 
 ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 {
-  ChppProblem hppProblem(robot);
+  ChppProblem hppProblem(robot, mObstacleList);
 
   cout<<"adding a problem at beginning of vector"<<endl;
   // Add robot in vector .
@@ -445,30 +445,62 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   return KD_OK ;
 }
 
+ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPathId)
+{
+  if (inProblemId >= getNbHppProblems()) {
+    cerr << "ChppPlanner::optimizePath: problem Id="
+	 << inProblemId << " is bigger than vector size="
+	 << getNbHppProblems();
+
+    return KD_ERROR;
+  }
+
+  ChppProblem& hppProblem = hppProblemVector[inProblemId];
+
+  if (inPathId >= hppProblem.getNbPaths()) {
+    cerr << "ChppPlanner::optimizePath: problem Id="
+	 << inPathId << " is bigger than number of paths="
+	 << hppProblem.getNbPaths();
+    return KD_ERROR;
+  }
+  CkwsPathShPtr kwsPath = hppProblem.getIthPath(inPathId);
+
+  // optimizer for the path
+  if (hppProblem.pathOptimizer()) {
+    hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
+    
+    cout << "ChppPlanner::solveOneProblem: path optimized with penetration " 
+	 << hppProblem.roadmapBuilder()->penetration()<<endl;
+    
+  } else {
+    cerr << " no Optimizer Defined " << endl ;
+  }
+  return KD_OK;
+}
 
 // ==========================================================================
 
-unsigned int ChppPlanner::getNbPaths(unsigned int problemId) const
+unsigned int ChppPlanner::getNbPaths(unsigned int inProblemId) const
 {
   unsigned int nbPaths = 0;
-  if (problemId < getNbHppProblems()) {
-    nbPaths =  hppProblemVector[problemId].getNbPaths();
+  if (inProblemId < getNbHppProblems()) {
+    nbPaths =  hppProblemVector[inProblemId].getNbPaths();
   } else {
-    cerr << "ChppPlanner::getNbPaths : problemId = "<< problemId << " should be smaller than nb of problems: " << getNbHppProblems() << endl;
+    cerr << "ChppPlanner::getNbPaths : inProblemId = "<< inProblemId << " should be smaller than nb of problems: " << getNbHppProblems() << endl;
   }
   return nbPaths;
 }
 
 // ==========================================================================
 
-CkwsPathShPtr ChppPlanner::getPath(unsigned int problemId,
-                                   unsigned int pathId) const
+CkwsPathShPtr ChppPlanner::getPath(unsigned int inProblemId,
+                                   unsigned int inPathId) const
 {
   CkwsPathShPtr resultPath;
 
-  if (problemId < getNbHppProblems()) {
-    if (pathId < hppProblemVector[problemId].getNbPaths()) {
-      resultPath = hppProblemVector[problemId].getIthPath(pathId);
+  if (inProblemId < getNbHppProblems()) {
+    if (inPathId < hppProblemVector[inProblemId].getNbPaths()) {
+      resultPath = hppProblemVector[inProblemId].getIthPath(inPathId);
     }
   }
   return resultPath;
@@ -476,13 +508,42 @@ CkwsPathShPtr ChppPlanner::getPath(unsigned int problemId,
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addPath(unsigned int problemId, CkwsPathShPtr kwsPath)
+ktStatus ChppPlanner::addPath(unsigned int inProblemId, CkwsPathShPtr kwsPath)
 {
-  if (problemId > hppProblemVector.size()) {
-    cerr << "ChppPlanner::addPath : problemId bigger than vector size." << endl;
+  if (inProblemId >= hppProblemVector.size()) {
+    cerr << "ChppPlanner::addPath : inProblemId bigger than vector size." << endl;
     return KD_ERROR;
   }
-  hppProblemVector[problemId].addPath(kwsPath);
+  hppProblemVector[inProblemId].addPath(kwsPath);
+  return KD_OK;
+}
+
+// ==========================================================================
+
+ktStatus ChppPlanner::drawRoadmap(unsigned int inProblemId)
+{
+  if (inProblemId >= hppProblemVector.size()) {
+    cerr << "ChppPlanner::drawRoadmap : inProblemId bigger than vector size." << endl;
+    return KD_ERROR;
+  }
+  ChppProblem& hppProblem = hppProblemVector[inProblemId];
+
+  if (hppProblem.drawRoadmap() == KD_ERROR) {
+    return KD_ERROR;
+  }
+  return KD_OK;
+}
+
+// ==========================================================================
+
+ktStatus ChppPlanner::stopdrawingRoadmap(unsigned int inProblemId)
+{
+  if (inProblemId >= hppProblemVector.size()) {
+    cerr << "ChppPlanner::drawRoadmap : inProblemId bigger than vector size." << endl;
+    return KD_ERROR;
+  }
+  ChppProblem& hppProblem = hppProblemVector[inProblemId];
+  hppProblem.stopDrawingRoadmap();
   return KD_OK;
 }
 

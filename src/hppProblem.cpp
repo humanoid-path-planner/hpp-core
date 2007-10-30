@@ -11,6 +11,9 @@
 *******************************************/
 
 #include <iostream>
+
+#include "kwsPlusDrawRdmBuilderDelegate.h"
+
 #include "hppProblem.h"
 
 /*
@@ -39,10 +42,20 @@ const std::string ChppProblem::DEVICE_KEY("device");
 
 // ==========================================================================
 
-ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot)
+ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot) : 
+  attNotificator(CkitNotificator::defaultNotificator()), 
+  attRobot(inRobot), attDrawRoadmapDelegate(NULL)
 {
-  attNotificator = CkitNotificator::defaultNotificator(); 
-  attRobot = inRobot;
+}
+
+// ==========================================================================
+
+ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot,
+			 const std::vector<CkcdObjectShPtr>& inObstacleList) : 
+  attNotificator(CkitNotificator::defaultNotificator()), 
+  attRobot(inRobot), attDrawRoadmapDelegate(NULL)
+{
+  obstacleList(inObstacleList);
 }
 
 // ==========================================================================
@@ -145,9 +158,9 @@ ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject)
       if(hppBody = boost::dynamic_pointer_cast<ChppBody>(kcdBody)){
 	hppBody->setOuterObjects(collisionList);
       }
-      else {
+      else
 	kcdBody->outerObjects(collisionList);
-      }
+
     }
     else {
       std::cout << "ChppProblem::addObstacle: body is not KCD body. Obstacle is not inserted." << std::endl;
@@ -253,7 +266,25 @@ CkwsPathOptimizerShPtr ChppProblem::pathOptimizer() {
 }
 
 
+ktStatus ChppProblem::drawRoadmap()
+{
+  if (attDrawRoadmapDelegate != NULL) {
+    return KD_OK;
+  }
+  attDrawRoadmapDelegate = new CkwsPlusDrawRdmBuilderDelegate();
+  if (!attRoadmapBuilder) {
+    return KD_ERROR;
+  }
+  attRoadmapBuilder->addDelegate(attDrawRoadmapDelegate);
+}
 
-/** @}
- */
-
+ktStatus ChppProblem::stopDrawingRoadmap()
+{
+  if (attDrawRoadmapDelegate == NULL) {
+    return KD_OK;
+  }
+  if (!attRoadmapBuilder) {
+    return KD_OK;
+  }
+  return attRoadmapBuilder->removeDelegate(attDrawRoadmapDelegate);
+}

@@ -17,6 +17,7 @@ INCLUDE
 #include "KineoUtility/kitInterface.h"
 #include "kcd2/kcdInterface.h"
 #include "kwsKcd2/kwsKCDBody.h"
+#include "KineoModel/kppSolidComponentRef.h"
 
 KIT_PREDEF_CLASS(ChppBody);
 
@@ -45,9 +46,21 @@ public:
 
   void 	setOuterObjects (const std::vector< CkcdObjectShPtr > &i_outerObjects);
 
-  void getInnerObjects (std::vector< CkcdObjectShPtr > & list);
-  void getOuterObjects (std::vector< CkcdObjectShPtr > & list);
+  /**
+     \brief Add geometry to the body
+     
+     \param inSolidComponentRef Reference to the solid component to add.
+     \return true if success, false otherwise.
 
+     The input solid component is dynamically cast into
+     \li a CkppKCDPolyhedron or 
+     \li a CkppKCDAssembly
+     The object is then added to the inner object list of the body.
+     The collision analyser attExactAnalyzer is also updated.
+
+     \note The body must be attached to a joint.
+  */
+  bool addSolidComponent(const CkppSolidComponentRefShPtr& inSolidComponentRef);
 
   ktStatus getExactDistance(double &dist, CkitPoint3& o_point1, CkitPoint3& o_point2,
 			    CkcdObjectShPtr &object1, CkcdObjectShPtr &object2);

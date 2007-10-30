@@ -5,7 +5,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppCore],[1.0.1],[openrobots@laas.fr])
+AC_INIT([hppCore],[1.2],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 AM_INIT_AUTOMAKE

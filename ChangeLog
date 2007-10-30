@@ -1,3 +1,14 @@
+2007/10/30
+	Added ChppBody::addSolidComponent to add an object to a body and insert it in the inner object list.
+	Added virtual method ChppPlanner::initializeProblem() to enable customized initialization of objects 
+	deriving from ChppPlanner.
+	Added functionalities to display a roadmap. Might be quickly obsolete.
+	
+2007/10/23
+	void getInnerObjects (std::vector< CkcdObjectShPtr > & list);
+	void getOuterObjects (std::vector< CkcdObjectShPtr > & list);
+	have been removed use CkwsKCDBody::innerObjects() and CkwsKCDBody::outerObjects() instead.
+
 2007/08/23
 	First version of package that compiles with hppModel package.
 	Robot modelling (dynamic part and geometric part) have been extracted from hppCore to hppModel.
