@@ -21,7 +21,6 @@ PKG_CHECK_MODULES(KWSPLUS, kwplus_reqd)
 KWSPLUS_PREFIX=`$PKG_CONFIG kwsPlus --variable=prefix`
 AC_SUBST(KWSPLUS_PREFIX)
 
-<<<<<<< master
 AC_ARG_ENABLE(body, AC_HELP_STRING([--enable-body],
 	[Implement ChppBody class (see INSTALL for more information)]), body=no, body=no)
 
@@ -54,8 +53,6 @@ fi
 
 AM_CONDITIONAL(BODY, test x${body} = xyes)
 
-=======
->>>>>>> origin
 AC_OUTPUT(Makefile
 	src/Makefile
 	include/Makefile

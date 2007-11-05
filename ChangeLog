@@ -1,4 +1,8 @@
-<<<<<<< master
+2007/11/05
+	Pre-release of version compiling with hppModel (--disable-body). ChppBody and ChppDevice are now
+	implemented in hppModel. 
+	WARNING: some methods and attribute names might have changed.
+	
 2007/10/30
 	Added ChppBody::addSolidComponent to add an object to a body and insert it in the inner object list.
 	Added virtual method ChppPlanner::initializeProblem() to enable customized initialization of objects 
@@ -16,9 +20,8 @@
 	hppCore can now be installed 
 	  either with a dependence to hppModel (implementing ChppDevice, ChppBody, ChppJoint)
 	  or with a simplified implementation of ChppBody without dynamics but with enhanced distance computation facilities.
-=======
+
 hppCore 1.2 released October 10, 2007
->>>>>>> origin
 	
 2007/09/30
 	21. When inserting a new problem, attach existing obstacles to the robot.

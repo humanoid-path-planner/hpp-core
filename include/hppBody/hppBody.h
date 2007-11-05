@@ -75,31 +75,6 @@ public:
   bool printCollisionStatus(const bool& detailInfoFlag = false);
   void printCollisionStatusFast();
  
-#if 0
-  /**
-     \brief Functions for physical properties : Setting and getting mass.
-  */
-  void mass(double m);
-  double mass();
-
-  /**
-   \brief Setting and getting moments of inertia.
-  */
-  void intertia(std::vector<double> i);
-  std::vector<double> inertia();
-
-  /** 
-    \brief Setting and getting relative CoM vector.
-  */
-  void relComVec(double x, double y, double z);
-  void relComVec(const CkitVect3& vec);
-  const CkitVect3& relComVec() const;
-
-  /**
-   \brief Calculate absolute position of CoM from Joint information
-  */
-  ktStatus currentComPos(CkitPoint3 &pos);
-#endif
 protected:
 
   ChppBody(std::string inName) : bodyName(inName) {};
