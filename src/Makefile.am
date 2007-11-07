@@ -9,11 +9,15 @@ lib_LTLIBRARIES = libhppCore.la
 libhppCore_la_SOURCES = \
 	hppPolyhedron.cpp \
 	hppBox.cpp \
-	hppBody.cpp \
 	hppDevice.cpp \
 	hppColPair.cpp \
 	hppProblem.cpp \
 	hppPlanner.cpp
+
+if BODY
+libhppCore_la_SOURCES += \
+	hppBody.cpp 
+endif
 
 libhppCore_la_CPPFLAGS = -I$(srcdir)/../include @KWSPLUS_CFLAGS@
 libhppCore_la_LDFLAGS =\
