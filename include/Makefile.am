@@ -7,7 +7,6 @@
 
 hppCoredir = @includedir@/hpp
 hppCore_HEADERS = \
-	hppDevice.h \
 	hppColPair.h \
 	hppPolyhedron.h \
 	hppBox.h \
@@ -16,6 +15,7 @@ hppCore_HEADERS = \
 
 if BODY
 hppCore_HEADERS += \
+	hppDevice.h \
 	hppBody.h 
 endif
 

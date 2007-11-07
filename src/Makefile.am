@@ -9,13 +9,13 @@ lib_LTLIBRARIES = libhppCore.la
 libhppCore_la_SOURCES = \
 	hppPolyhedron.cpp \
 	hppBox.cpp \
-	hppDevice.cpp \
 	hppColPair.cpp \
 	hppProblem.cpp \
 	hppPlanner.cpp
 
 if BODY
 libhppCore_la_SOURCES += \
+	hppDevice.cpp \
 	hppBody.cpp 
 endif
 
