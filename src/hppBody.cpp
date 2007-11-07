@@ -5,7 +5,7 @@
 
 */
 
-#include "hppBody.h"
+#include "hppModel/hppBody.h"
 #include <iostream>
 #include "KineoKCDModel/kppKCDPolyhedron.h"
 #include "KineoKCDModel/kppKCDAssembly.h"

@@ -1,3 +1,6 @@
+2007/11/07
+	Reorganization of header files to solve some compilation problems.
+
 2007/11/05
 	Pre-release of version compiling with hppModel (--disable-body). ChppBody and ChppDevice are now
 	implemented in hppModel. 

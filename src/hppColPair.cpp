@@ -1,4 +1,4 @@
-#include "hppColPair.h"
+#include "hppCore/hppColPair.h"
 
 #include <algorithm>
 

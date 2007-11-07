@@ -18,9 +18,9 @@
 
 #include "KineoModel/kppDeviceComponent.h"
 
-#include "hppPlanner.h"
-#include "hppProblem.h"
-#include "hppBody.h"
+#include "hppCore/hppPlanner.h"
+#include "hppCore/hppProblem.h"
+#include "hppModel/hppBody.h"
 
 #include "KineoUtility/kitNotificator.h"
 

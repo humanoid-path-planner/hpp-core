@@ -5,18 +5,16 @@
 # Author: Florent Lamiraux
 #
 
-hppCoredir = @includedir@/hpp
+hppCoredir = @includedir@/hppCore
 hppCore_HEADERS = \
-	hppColPair.h \
-	hppPolyhedron.h \
-	hppBox.h \
-	hppProblem.h \
-	hppPlanner.h
+	hppCore/hppColPair.h \
+	hppCore/hppProblem.h \
+	hppCore/hppPlanner.h
 
 if BODY
-hppCore_HEADERS += \
-	hppDevice.h \
-	hppBody.h 
+hppModeldir = @includedir@/hppModel
+hppModel_HEADERS = \
+	hppModel/hppModel/hppBody.h 
 endif
 
 

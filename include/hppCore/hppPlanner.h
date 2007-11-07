@@ -17,7 +17,7 @@ INCLUDE
 #include "KineoWorks2/kwsRoadmapBuilder.h"
 #include "KineoUtility/kitNotificator.h"
 
-#include "hppProblem.h"
+#include "hppCore/hppProblem.h"
 
 #ifndef WITHOUT_CHPPDEVICE
 KIT_PREDEF_CLASS( ChppBody );

@@ -7,20 +7,22 @@
 
 lib_LTLIBRARIES = libhppCore.la
 libhppCore_la_SOURCES = \
-	hppPolyhedron.cpp \
-	hppBox.cpp \
 	hppColPair.cpp \
 	hppProblem.cpp \
 	hppPlanner.cpp
 
-if BODY
-libhppCore_la_SOURCES += \
-	hppDevice.cpp \
-	hppBody.cpp 
-endif
-
-libhppCore_la_CPPFLAGS = -I$(srcdir)/../include @KWSPLUS_CFLAGS@
+libhppCore_la_CPPFLAGS = -I$(srcdir)/../include 
 libhppCore_la_LDFLAGS =\
 	@KWSPLUS_LIBS@	\
 	-release ${PACKAGE_VERSION}
 
+if BODY
+libhppCore_la_SOURCES += \
+	hppBody.cpp 
+libhppCore_la_CPPFLAGS += -I$(srcdir)/../include/hppModel
+else
+libhppCore_la_CPPFLAGS += @HPPMODEL_CFLAGS@
+libhppCore_la_LDFLAGS += @HPPMODEL_LIBS@
+endif
+
+libhppCore_la_CPPFLAGS += @KWSPLUS_CFLAGS@

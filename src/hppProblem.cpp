@@ -14,8 +14,8 @@
 
 #include "kwsPlusDrawRdmBuilderDelegate.h"
 
-#include "hppProblem.h"
-#include "hppBody.h"
+#include "hppCore/hppProblem.h"
+#include "hppModel/hppBody.h"
 
 const CkitNotification::TType  ChppProblem::ID_HPP_ADD_PATH(CkitNotification::makeID());
 
