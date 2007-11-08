@@ -11,8 +11,6 @@
 #include "KineoKCDModel/kppKCDAssembly.h"
 #include "KineoModel/kppJointComponent.h"
 
-#include "hppBody.h"
-
 //=============================================================================
 
 ChppBodyShPtr ChppBody::create(std::string inName)
@@ -405,71 +403,3 @@ void ChppBody::printCollisionStatusFast()
 }
 
 
-//=============================================================================
-
-void ChppBody::mass(double m)
-{
-  _mass = m;
-}
-
-//=============================================================================
-
-double ChppBody::mass()
-{
-  return _mass;
-}
-
-//=============================================================================
-
-void ChppBody::intertia(std::vector<double> i)
-{
-  _inertia = i;
-}
- 
-//=============================================================================
-
-std::vector<double> ChppBody::inertia()
-{
-  return _inertia; 
-}
-
-//=============================================================================
-
-void ChppBody::relComVec(double x, double y, double z)
-{
-  _relComVec = CkitVect3(x, y, z);
-}
-
-//=============================================================================
-
-void ChppBody::relComVec(const CkitVect3& vec)
-{
-  _relComVec = CkitVect3(vec);
-}
-
-//=============================================================================
-
-const CkitVect3& ChppBody::relComVec() const
-{
-  return _relComVec;
-}
-
-
-//=============================================================================
-
-ktStatus ChppBody::currentComPos(CkitPoint3 &pos)
-{
-  CkwsJointShPtr kwsJoint;
-  if(!(kwsJoint = joint())){
-    std::cerr<<" in ChppBody::currentComPos(): for "<<name()<<", joint not attached. "
-	     <<std::endl;
-    return KD_ERROR;
-  }
-
-  // it should be "point" so that translation is taken into account.
-  CkitPoint3 relCom(_relComVec);
-  CkitMat4 currentPos = kwsJoint->currentPosition();
-  pos = currentPos * relCom;
-
-  return KD_OK;
-}

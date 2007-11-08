@@ -1,3 +1,6 @@
+2007/11/08
+	Removed implementation of methods that have disappeared from the ChppBody.
+	
 2007/11/07
 	Reorganization of header files to solve some compilation problems.
 
