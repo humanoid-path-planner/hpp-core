@@ -266,33 +266,7 @@ class ChppPlanner {
   /** 
    *@}* 
    */
-  /**
-     \name Drawing the roadmap
-     @{
-  */
-  /**
-     \brief Draws the roadmap of given problem in interface.
-     \param inProblemId the rank of the problem in vector.
- 
-     Works only if the roadmap builder of corresponding problem has been initialized with 
-     a CkwsPlusRoadmap.
 
-  */
-  ktStatus drawRoadmap(unsigned int inProblemId);
-
-  /**
-     \brief Stop drawing the roadmap of given problem in interface.
-     \param inProblemId the rank of the problem in vector.
- 
-     Works only if the roadmap builder of corresponding problem has been initialized with 
-     a CkwsPlusRoadmap.
-
-  */
-  ktStatus stopdrawingRoadmap(unsigned int inProblemId);
-
-  /** 
-   *@}* 
-   */
   /**
      \name Search functions
      @{

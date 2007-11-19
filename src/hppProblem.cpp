@@ -12,8 +12,6 @@
 
 #include <iostream>
 
-#include "kwsPlusDrawRdmBuilderDelegate.h"
-
 #include "hppCore/hppProblem.h"
 #include "hppModel/hppBody.h"
 
@@ -31,7 +29,7 @@ const std::string ChppProblem::DEVICE_KEY("device");
 
 ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot) : 
   attNotificator(CkitNotificator::defaultNotificator()), 
-  attRobot(inRobot), attDrawRoadmapDelegate(NULL)
+  attRobot(inRobot)
 {
 }
 
@@ -40,7 +38,7 @@ ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot) :
 ChppProblem::ChppProblem(CkppDeviceComponentShPtr inRobot,
 			 const std::vector<CkcdObjectShPtr>& inObstacleList) : 
   attNotificator(CkitNotificator::defaultNotificator()), 
-  attRobot(inRobot), attDrawRoadmapDelegate(NULL)
+  attRobot(inRobot)
 {
   obstacleList(inObstacleList);
 }
@@ -227,14 +225,14 @@ CkwsRoadmapBuilderShPtr ChppProblem::roadmapBuilder() {
  
 // ==========================================================================
 
-CkwsPlusRoadmapShPtr ChppProblem::roadmap() const {
+CkwsRoadmapShPtr ChppProblem::roadmap() const {
   
   return attRoadmap ;
 }
 
 // ==========================================================================
 
-void ChppProblem::roadmap(CkwsPlusRoadmapShPtr inRoadmap)  {
+void ChppProblem::roadmap(CkwsRoadmapShPtr inRoadmap)  {
   
   attRoadmap = inRoadmap ;
 }
@@ -252,26 +250,3 @@ CkwsPathOptimizerShPtr ChppProblem::pathOptimizer() {
   return attPathOptimizer ;
 }
 
-
-ktStatus ChppProblem::drawRoadmap()
-{
-  if (attDrawRoadmapDelegate != NULL) {
-    return KD_OK;
-  }
-  attDrawRoadmapDelegate = new CkwsPlusDrawRdmBuilderDelegate();
-  if (!attRoadmapBuilder) {
-    return KD_ERROR;
-  }
-  attRoadmapBuilder->addDelegate(attDrawRoadmapDelegate);
-}
-
-ktStatus ChppProblem::stopDrawingRoadmap()
-{
-  if (attDrawRoadmapDelegate == NULL) {
-    return KD_OK;
-  }
-  if (!attRoadmapBuilder) {
-    return KD_OK;
-  }
-  return attRoadmapBuilder->removeDelegate(attDrawRoadmapDelegate);
-}

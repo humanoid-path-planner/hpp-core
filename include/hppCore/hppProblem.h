@@ -21,10 +21,8 @@ INCLUDE
 #include "kcd2/kcdInterface.h"
 #include "kwsKcd2/kwsKCDBody.h"
 
-#include "kwsPlusRoadmap.h"
 #include "KineoUtility/kitNotificator.h"
 
-class CkwsPlusDrawRdmBuilderDelegate;
 
 /*************************************
 CLASS
@@ -141,12 +139,12 @@ public:
      \brief set roadmap.
      \param inRoadmap shared pointer to a roadmap.
   */
-  void roadmap(CkwsPlusRoadmapShPtr inRoadmap) ;
+  void roadmap(CkwsRoadmapShPtr inRoadmap) ;
   /** 
       \brief Get roadmap.
       \return shared pointer to the roadmap.
   */
-  CkwsPlusRoadmapShPtr roadmap() const;
+  CkwsRoadmapShPtr roadmap() const;
   /**
      \brief Set pathOptimizer.
      \param inPathOptimizer path optimizer.
@@ -175,24 +173,6 @@ public:
    *@}
    */
 
-  /**
-     \name Drawing the roadmap
-     @{
-  */
-
-  /**
-     \brief Draws the roadmap by inserting a delegate in the roadmapBuilder
-  */
-  ktStatus drawRoadmap();
-
-  /**
-     \brief Stop drawing the roadmap
-  */
-  ktStatus stopDrawingRoadmap();
-
-    /** 
-   *@}
-   */
 
 private : 
   /**
@@ -214,7 +194,7 @@ private :
  /**
      \brief Shared pointer to a roadmap associate to the robot
   */
-  CkwsPlusRoadmapShPtr attRoadmap ;
+  CkwsRoadmapShPtr attRoadmap ;
  /**
      \brief Shared pointer to a roadmapBuilder associate to the the robot and the roadMap
   */
@@ -236,10 +216,6 @@ private :
   */
   std::vector<CkwsPathShPtr> attPathVector;
 
-  /**
-     \brief Pointer to a drawing roadmap delegate.
-  */
-  CkwsPlusDrawRdmBuilderDelegate* attDrawRoadmapDelegate;
  public:
   // for notification: 
   static const CkitNotification::TType  ID_HPP_ADD_PATH;

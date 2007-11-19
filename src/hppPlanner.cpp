@@ -515,35 +515,6 @@ ktStatus ChppPlanner::addPath(unsigned int inProblemId, CkwsPathShPtr kwsPath)
 
 // ==========================================================================
 
-ktStatus ChppPlanner::drawRoadmap(unsigned int inProblemId)
-{
-  if (inProblemId >= hppProblemVector.size()) {
-    cerr << "ChppPlanner::drawRoadmap : inProblemId bigger than vector size." << endl;
-    return KD_ERROR;
-  }
-  ChppProblem& hppProblem = hppProblemVector[inProblemId];
-
-  if (hppProblem.drawRoadmap() == KD_ERROR) {
-    return KD_ERROR;
-  }
-  return KD_OK;
-}
-
-// ==========================================================================
-
-ktStatus ChppPlanner::stopdrawingRoadmap(unsigned int inProblemId)
-{
-  if (inProblemId >= hppProblemVector.size()) {
-    cerr << "ChppPlanner::drawRoadmap : inProblemId bigger than vector size." << endl;
-    return KD_ERROR;
-  }
-  ChppProblem& hppProblem = hppProblemVector[inProblemId];
-  hppProblem.stopDrawingRoadmap();
-  return KD_OK;
-}
-
-// ==========================================================================
-
 ChppBodyConstShPtr ChppPlanner::findBodyByName(std::string inBodyName) const
 {
   ChppBodyConstShPtr hppBody;
