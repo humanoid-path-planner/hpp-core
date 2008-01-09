@@ -36,20 +36,66 @@ CLASS
 class ChppBody : public CkwsKCDBody
 {
 public:
-  std::string name();
+  /**
+     \brief Creation of a body
+     \param inName Name of the new body.
+     \return A shared pointer to a new body.
+  */
   static ChppBodyShPtr create(std::string inName);
 
-  
-  void 	setInnerObjects (const std::vector< CkcdObjectShPtr > &i_innerObjects);
-  void 	setInnerObjects (const std::vector< CkcdObjectShPtr > &i_innerObjects,  
-				const std::vector< CkitMat4 > &matList);
+  /**
+     \brief Get name of object.
+  */
+  const std::string& name() {return attName;};
 
-  void 	setOuterObjects (const std::vector< CkcdObjectShPtr > &i_outerObjects);
+  /**
+     \name Collision lists
+     @{
+  */
+  /**
+     \brief Attach objects to the body.
+     \param inInnerObjects list of objects to attach to the body
 
+     Previous objects if any are detached. 
+
+     Objects are put in the left test tree of attExactAnalyzer for exact distance computation.
+  */
+
+  void 	setInnerObjects (const std::vector< CkcdObjectShPtr > &inInnerObjects);
+
+  /**
+     \brief Attach objects to the body in specified position
+     \param inInnerObjects list of objects to attach to the body
+     \param inPlacementVector Vector of homogeneous matrix specifying the position of each object in inInnerObjects.
+
+     Previous objects if any are detached. 
+
+     Objects are put in the left test tree of attExactAnalyzer for exact distance computation.
+  */
+
+  void 	setInnerObjects (const std::vector< CkcdObjectShPtr > &inInnerObjects, 
+			 const std::vector< CkitMat4 > &inPlacementVector);
+
+
+  /**
+     \brief Defines the list of objects to be tested for collision with this body.
+     \param inOuterObjects list of objects to be tested for collision for this body
+
+     Previous objects if any are removed. 
+
+     Objects are put in the right test tree of attExactAnalyzer for exact distance computation.
+  */
+
+  void 	setOuterObjects (const std::vector< CkcdObjectShPtr > &inOuterObjects);
+
+  /**
+     @}
+  */
   /**
      \brief Add geometry to the body
      
      \param inSolidComponentRef Reference to the solid component to add.
+     \param inPosition Position of the object before attaching it to the body (default value=Identity).
      \return true if success, false otherwise.
 
      The input solid component is dynamically cast into
@@ -60,32 +106,99 @@ public:
 
      \note The body must be attached to a joint.
   */
-  bool addSolidComponent(const CkppSolidComponentRefShPtr& inSolidComponentRef);
+  bool addSolidComponent(const CkppSolidComponentRefShPtr& inSolidComponentRef, const CkitMat4& inPosition=CkitMat4());
 
-  ktStatus getExactDistance(double &dist, CkitPoint3& o_point1, CkitPoint3& o_point2,
-			    CkcdObjectShPtr &object1, CkcdObjectShPtr &object2);
-  ktStatus getEstimatedDistance(double &dist, 
-				CkcdObjectShPtr &object1, CkcdObjectShPtr &object2);
+  /**
+     \name Collision and distance computation
+     @{
+  */
+
+  /**
+     \brief Compute exact distance and closest points between body and set of outer objects.
+
+     \retval outDistance Distance between body and outer objects
+     \retval outPointBody Closest point on body
+     \retval outPointEnv Closest point in outer object set
+     \retval outObjectBody Closest object on body
+     \retval outObjectEnv Closest object in outer object list
+  */
+  ktStatus getExactDistance(double& outDistance, CkitPoint3& outPointBody, CkitPoint3& outPointEnv,
+			    CkcdObjectShPtr &outObjectBody, CkcdObjectShPtr &outObjectEnv);
+
+
+  /**
+     \brief Compute a lower bound of distance between body and set of outer objects.
+
+     \retval outDistance Distance between body and outer objects
+     \retval outPointBody Closest point on body
+     \retval outPointEnv Closest point in outer object set
+     \retval outObjectBody Closest object on body
+     \retval outObjectEnv Closest object in outer object list
+  */
+  ktStatus getEstimatedDistance(double &outDistance, 
+				CkcdObjectShPtr &outObjectBody, CkcdObjectShPtr &outObjectEnv);
    
-  bool getCollisionVec(unsigned int &nbCollisions, std::vector<CkcdObjectShPtr> &objectVec1, 
-		       std::vector<CkcdObjectShPtr> &objectVec2);
-  bool getCollision(unsigned int &nbCollisions,
-		    CkcdObjectShPtr &object1, CkcdObjectShPtr &object2);
+  
+  /**
+     \brief Compute the set of inner and outer objects that are in collision with each other.
+
+     \retval outNbCollision Number of pairs of objects in collision.
+     \retval outObjectBodyVector Vector of objects in collision of the body.
+     \retval outObjectEnvVector Vector of objects in collision in the outer object list.
+
+     \return Whether there is a collision.
+  */
+  bool getCollisionVec(unsigned int &outNbCollision, std::vector<CkcdObjectShPtr>& outObjectBodyVector, 
+		       std::vector<CkcdObjectShPtr>& outObjectEnvVector);
+
+  /**
+     \brief Compute collision and return the two first objects found in collision.
+
+     \retval outNbCollision Number of pairs of object in collision found.
+     \retval outObjectBody First object of the body found in collision.
+     \retval outObjectEnv First object in the body outer list found in collision.
+
+     \return Whether there is a collision.
+  */
+  bool getCollision(unsigned int& outNbCollision,
+		    CkcdObjectShPtr &outObjectBody, CkcdObjectShPtr &outObjectEnv);
 
   bool printCollisionStatus(const bool& detailInfoFlag = false);
   void printCollisionStatusFast();
- 
+
+  /**
+     \brief Compute the minimum distance to the obstacle
+
+     \return the minimum distance to the obstacle
+  */
+  double getMinDistance();
+
+  /**
+     @}
+  */
 protected:
 
-  ChppBody(std::string inName) : bodyName(inName) {};
+  /**
+     \brief Constructor by name.
+  */
+  ChppBody(std::string inName) : attName(inName) {};
+
+  /**
+     \brief Initialization of body
+  */
   ktStatus init(const ChppBodyWkPtr bodyWkPtr);
   
 private:
 
-  std::string bodyName;
+  /**
+     \brief Name of the body.
+  */
+  std::string attName;
 
-  CkcdAnalysisShPtr m_exact_analyzer;
-  std::vector< CkcdObjectShPtr > inner, outer;
+  /**
+     \brief Collision analyser for this body
+  */
+  CkcdAnalysisShPtr attExactAnalyzer;
 };
 
 
