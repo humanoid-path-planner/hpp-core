@@ -63,6 +63,13 @@ class ChppPlanner {
   ktStatus addHppProblem(CkppDeviceComponentShPtr robot);
 
   /**
+     \brief Remove a Problem at the end of the Problem vector.
+ 
+     \return a int
+  */
+  ktStatus removeHppProblem();
+
+  /**
      \brief Add a Problem at beginning of the Problem vector with the associed robot.
  
      \param robot : a shared pointer to a robot
@@ -70,6 +77,13 @@ class ChppPlanner {
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
   */
   ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot);
+
+  /**
+     \brief Remove a Problem at the beginning the Problem vector.
+ 
+     \return a int
+  */
+  ktStatus removeHppProblemAtBeginning();
 
   /**
      \brief Get the number of problems in vector.

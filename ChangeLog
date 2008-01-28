@@ -1,3 +1,5 @@
+2008/01/28
+	Added remove functions for hppProblemVector
 2008/01/09
 	Make ChppCore class closer to hppModel implementation.
 	

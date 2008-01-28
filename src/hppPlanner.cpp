@@ -75,7 +75,19 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 
   return KD_OK;
 }
+// ==========================================================================
 
+ktStatus ChppPlanner::removeHppProblem(){
+
+  if(hppProblemVector.size()){
+    hppProblemVector.pop_back();
+    mObstacleList.clear();
+    return KD_OK;
+  }
+
+  return KD_ERROR;
+
+}
 
 // ==========================================================================
 
@@ -94,6 +106,19 @@ ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 
 
   return KD_OK;
+}
+// ==========================================================================
+
+ktStatus ChppPlanner::removeHppProblemAtBeginning(){
+
+  if(hppProblemVector.size()){
+    hppProblemVector.pop_front();
+    mObstacleList.clear();
+    return KD_OK;
+  }
+
+  return KD_ERROR;
+
 }
 
 
