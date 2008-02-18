@@ -1,50 +1,43 @@
-2008/01/28
-	Added remove functions for hppProblemVector
-2008/01/09
-	Make ChppCore class closer to hppModel implementation.
-	
-2007/11/19
-	Remove reference to kwsPlusRoadmap.
-2007/11/08
-	Removed implementation of methods that have disappeared from the ChppBody.
-	
-2007/11/07
-	Reorganization of header files to solve some compilation problems.
 
-2007/11/05
-	Pre-release of version compiling with hppModel (--disable-body). ChppBody and ChppDevice are now
-	implemented in hppModel. 
-	WARNING: some methods and attribute names might have changed.
-	
-2007/10/30
-	Added ChppBody::addSolidComponent to add an object to a body and insert it in the inner object list.
-	Added virtual method ChppPlanner::initializeProblem() to enable customized initialization of objects 
-	deriving from ChppPlanner.
-	Added functionalities to display a roadmap. Might be quickly obsolete.
-	
-2007/10/23
-	void getInnerObjects (std::vector< CkcdObjectShPtr > & list);
-	void getOuterObjects (std::vector< CkcdObjectShPtr > & list);
-	have been removed use CkwsKCDBody::innerObjects() and CkwsKCDBody::outerObjects() instead.
+hppCore 1.3 released February 18, 2008
 
-2007/08/23
-	First version of package that compiles with hppModel package.
-	Robot modelling (dynamic part and geometric part) have been extracted from hppCore to hppModel.
-	hppCore can now be installed 
-	  either with a dependence to hppModel (implementing ChppDevice, ChppBody, ChppJoint)
-	  or with a simplified implementation of ChppBody without dynamics but with enhanced distance computation facilities.
+	34. Added remove functions for hppProblemVector
+	33. Make ChppCore class closer to hppModel implementation.
+	32. Remove reference to kwsPlusRoadmap.
+	31. Removed implementation of methods that have disappeared from
+	    the ChppBody.
+	30. Reorganization of header files to solve some compilation problems.
+	29. Pre-release of version compiling with hppModel
+	    (--disable-body). ChppBody and ChppDevice are now implemented
+	    in hppModel. WARNING: some methods and attribute names might
+	    have changed. 
+	28. Added ChppBody::addSolidComponent to add an object to a body
+	    and insert it in the inner object list.
+	27. Added virtual method ChppPlanner::initializeProblem() to
+	    enable customized initialization of objects deriving from
+	    ChppPlanner.
+	26. Added functionalities to display a roadmap. Might be quickly
+	    obsolete.
+	25. void getInnerObjects(std::vector< CkcdObjectShPtr > & list);
+	    and void getOuterObjects (std::vector< CkcdObjectShPtr > & list);
+	    have been removed. Use CkwsKCDBody::innerObjects() and
+	    CkwsKCDBody::outerObjects() instead.
+	24. First version of package that compiles with hppModel package.
+	23. Robot modelling (dynamic part and geometric part) have been
+	    extracted from hppCore to hppModel.
+	22. hppCore can now be installed either with a dependence to
+	    hppModel (implementing ChppDevice, ChppBody, ChppJoint) or
+	    with a simplified implementation of ChppBody without dynamics but
+	    with enhanced distance computation facilities.
 
 hppCore 1.2 released October 10, 2007
 	
-2007/09/30
 	21. When inserting a new problem, attach existing obstacles to the robot.
-	
-2007/09/29
 	20. Added API function to optimize a path.
 	19. Added API functions to display a roadmap in the interface.
-	
-2007/09/12
-	18. Add virtual method ChppPlanner::initializeProblem(). This method implemented in ChppWalkPlanner can thus be called by Corba server.
+	18. Add virtual method ChppPlanner::initializeProblem(). This
+	    method implemented in ChppWalkPlanner can thus be called by Corba
+	    server.
 	
 hppCore 1.1 released August 27, 2007
 
