@@ -5,6 +5,7 @@ body {
 
 dl {
     border: 1.5px #82b6d7 solid;
+  width: 97%;
     padding: 5px;
     color: #330077;
 }
@@ -55,6 +56,39 @@ a:visited {
     text-decoration: none;
 }
 
+
+DIV.memitem
+{ 
+  spacing: 10px;
+  width:100%;
+  background:#FFFFFF;
+  font-size:100%;
+  line-height:normal;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #808080;
+  -moz-border-radius: 8px 8px 8px 8px;
+}
+
+DIV.memproto
+{ 
+  width:100%;
+  background:#F0F0F0;
+  font-size:100%;
+  line-height:normal;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #808080;
+  -moz-border-radius: 8px 8px 8px 8px;
+}
+
+DIV.memdoc
+{ 
+  padding: 10px;
+  width:100%;
+  font-size:100%;
+  line-height:normal;
+}
 
 /* tabs styles, based on http://www.alistapart.com/articles/slidingdoors */
 
@@ -129,8 +163,6 @@ DIV.tabs TD
    text-decoration  : none;
 }
 
-
-
 /* Commented Backslash Hack hides rule from IE5-Mac \*/
 DIV.tabs SPAN {float : none;}
 /* End IE5-Mac hack */
@@ -198,4 +230,5 @@ DIV.groupHeader
     text-decoration: none;
     color:#0066CC
 }
+
 
