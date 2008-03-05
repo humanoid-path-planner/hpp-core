@@ -1,4 +1,6 @@
-
+2008/03/05
+	35. In ChppPlanner::solveOneProblem, try direct path before roadmap builder.
+	
 hppCore 1.3 released February 18, 2008
 
 	34. Added remove functions for hppProblemVector

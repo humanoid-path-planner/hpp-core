@@ -432,8 +432,30 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   if (!goalConfig)
     return KD_ERROR ;
 
+  /*
+    Try first a direct path.
+  */
+  CkwsSteeringMethodShPtr steeringMethod = hppDevice->steeringMethod();
+
+  if ( initConfig && goalConfig && steeringMethod) {
+    CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
+    hppDevice->directPathValidators()->validate(*directPath);
+    if (directPath->isValid()) {
+      kwsPath = CkwsPath::create(hppDevice);
+      kwsPath->appendDirectPath(directPath);
+      // Add the path to vector of paths of the problem.
+      hppProblem.addPath(kwsPath);
+
+      return KD_OK;
+    }
+  } else {
+    cerr << "  ChppPlanner::solveOneProblem: problem ill-defined:initConfig, GoalConfig or steering method not defined" << endl ;
+    return KD_ERROR ;
+  }
+
+
   // solve the problem with the roadmapBuilder
-  if ( initConfig && goalConfig && hppProblem.roadmapBuilder() ) {
+  if (hppProblem.roadmapBuilder()) {
 
     if(KD_OK == hppProblem.roadmapBuilder()->solveProblem( *initConfig , *goalConfig , kwsPath)) {
       cout << "--- Problem solved.----" << endl;
@@ -458,7 +480,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     // Add the path to vector of paths of the problem.
     hppProblem.addPath(kwsPath);
   } else {
-    cerr << "  ChppPlanner::solveOneProblem: problem ill-defined:initConfig, GoalConfig or RoadmapBuilder not initialised" << endl ;
+    cerr << "  ChppPlanner::solveOneProblem: no roadmap builder" << endl ;
     return KD_ERROR ;
   }
 

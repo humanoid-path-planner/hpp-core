@@ -1,5 +1,5 @@
 /** \mainpage 
-\section sec_intro Introduction
+\section hppCore_sec_intro Introduction
 
 This package implements basic classes used as interfaces with KineoWorks. 
 The main classes are:
