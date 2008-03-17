@@ -432,6 +432,13 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   if (!goalConfig)
     return KD_ERROR ;
 
+  if(!hppProblem.roadmapBuilder()){
+    cerr << "ChppPlanner::solveOneProblem: problem Id="
+	 << problemId << ": Define a roadmap builder with penetration"
+	 << endl;
+    return KD_ERROR ;
+  }
+
   /*
     Try first a direct path.
   */
@@ -439,12 +446,19 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 
   if ( initConfig && goalConfig && steeringMethod) {
     CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
-    hppDevice->directPathValidators()->validate(*directPath);
+
+    double penetration = hppProblem.roadmapBuilder()->penetration();
+    CkwsValidatorDPCollisionShPtr dpValidator = CkwsValidatorDPCollision::create(hppDevice, penetration);
+
+    dpValidator->validate(*directPath);
+
     if (directPath->isValid()) {
       kwsPath = CkwsPath::create(hppDevice);
       kwsPath->appendDirectPath(directPath);
       // Add the path to vector of paths of the problem.
       hppProblem.addPath(kwsPath);
+
+      cout<<"Problem solved with direct connection. "<<endl;
 
       return KD_OK;
     }
