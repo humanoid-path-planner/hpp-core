@@ -86,6 +86,13 @@ class ChppPlanner {
   ktStatus removeHppProblemAtBeginning();
 
   /**
+     \brief Retrieve the problem in the problem vector at the given rank.
+     \param i_rank Rank of the hppProblem to retrieve
+     \return The i_rank-th problem
+   */
+  ChppProblem * hppProblem(int i_rank){ if(i_rank<getNbHppProblems()) return &(hppProblemVector.at(i_rank)); else return NULL;}
+
+  /**
      \brief Get the number of problems in vector.
      \return the number of problems in the vector
   */
