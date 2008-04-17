@@ -9,11 +9,28 @@ dnl
 AC_INIT([hppCore],[1.3.99],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
+if test "$CFLAGS$CXXFLAGS" = ""; then
+  setdefaultflags=yes
+else
+  setdefaultflags=no
+fi
+
 AM_INIT_AUTOMAKE([foreign no-define])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
 AC_PROG_CXX
+
+if test "$setdefaultflags" = "yes"; then
+  if test "$GCC" = "yes"; then
+    CFLAGS="$CFLAGS -Wall"
+    AC_MSG_NOTICE([adding default "-Wall" c flags])
+  fi
+  if test "$GXX" = "yes"; then
+    CXXFLAGS="$CXXFLAGS -Wall"
+    AC_MSG_NOTICE([adding default "-Wall" c++ flags])
+  fi
+fi
 
 define(kwplus_reqd, [kwsPlus >= 1.1])
 AC_SUBST(KWPLUS_REQD, "kwplus_reqd")
