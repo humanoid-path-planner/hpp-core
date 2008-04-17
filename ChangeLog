@@ -1,5 +1,8 @@
 2008/04/17
-	36. If CXXFLAGS and CFLAGS are not defined at configuration, they are set to "-Wall".
+	37. If CXXFLAGS and CFLAGS are not defined at configuration, they are set to "-Wall".
+
+2008/04/14
+	36. Added access function to problems in the problem vector
 
 2008/03/05
 	35. In ChppPlanner::solveOneProblem, try direct path before roadmap builder.
