@@ -91,8 +91,8 @@ class ChppPlanner {
      \return The i_rank-th problem
    */
   ChppProblem * hppProblem(unsigned int inRank) { 
-    if(i_rank<getNbHppProblems()) 
-      return &(hppProblemVector.at(i_rank)); 
+    if(inRank<getNbHppProblems()) 
+      return &(hppProblemVector.at(inRank)); 
     else 
       return NULL;
   };
