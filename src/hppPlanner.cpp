@@ -29,10 +29,13 @@ const CkitNotification::TType ChppPlanner::ID_HPP_SET_CURRENT_CONFIG(CkitNotific
 const CkitNotification::TType ChppPlanner::ID_HPP_REMOVE_OBSTACLES(CkitNotification::makeID());
 const CkitNotification::TType ChppPlanner::ID_HPP_SET_OBSTACLE_LIST(CkitNotification::makeID());
 const CkitNotification::TType ChppPlanner::ID_HPP_ADD_OBSTACLE(CkitNotification::makeID());
+const CkitNotification::TType ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER(CkitNotification::makeID());
+const CkitNotification::TType ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER(CkitNotification::makeID());
 
 const std::string ChppPlanner::ROBOT_KEY("robot");
 const std::string ChppPlanner::OBSTACLE_KEY("obstacle");
 const std::string ChppPlanner::CONFIG_KEY("config");
+const std::string ChppPlanner::ROADMAP_KEY("roadmap");
 
 /*****************************************
  PUBLIC METHODS
@@ -251,14 +254,36 @@ CkwsConfigShPtr ChppPlanner::goalConfIthProblem(unsigned int rank) const
 
 
 ktStatus ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
-					       CkwsRoadmapBuilderShPtr inRoadmapBuilder)
+					       CkwsRoadmapBuilderShPtr inRoadmapBuilder,
+					       bool inDisplay)
 {
   if (rank >= getNbHppProblems()) {
     return KD_ERROR;
   }
 
+  /*
+    If a roadmap was already stored, it will be removed. If this roadmap is displayed 
+    in the interface, we need first to remove the corresponding data-structure in the 
+    interface. This is done by sending a notification.
+  */
+  CkitNotificationShPtr notification  = 
+    CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER, this);
+  notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
+  attNotificator->notify(notification);
+
   ChppProblem& hppProblem =  hppProblemVector[rank];
   hppProblem.roadmapBuilder(inRoadmapBuilder);
+  
+  /* 
+     If the new roadmap is displayed in the interface, send a notification to 
+     trigger appropriate action.
+  */
+  if (inDisplay) {
+    notification = 
+      CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER, this);
+    notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
+    attNotificator->notify(notification);
+  }
 
   return KD_OK;
 }

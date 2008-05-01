@@ -285,7 +285,7 @@ unsigned int ChppProblem::getNbPaths() const
 void ChppProblem::roadmapBuilder ( CkwsRoadmapBuilderShPtr inRoadmapBuilder )
 {
 
-	attRoadmapBuilder = inRoadmapBuilder ;
+	attRoadmapBuilder = inRoadmapBuilder;
 }
 
 // ==========================================================================

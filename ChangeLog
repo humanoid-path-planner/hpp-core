@@ -1,3 +1,8 @@
+2008/05/01
+	38. Added boolean argument in ChppPlanner::roadmapBuilderIthProblem to specify whether roadmap
+	    developed by roadmap builder should be displayed in the interface.
+	    Communication with interface is handled using notifications.
+	
 2008/04/17
 	37. If CXXFLAGS and CFLAGS are not defined at configuration, they are set to "-Wall".
 

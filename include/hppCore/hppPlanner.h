@@ -87,8 +87,8 @@ class ChppPlanner {
 
   /**
      \brief Retrieve the problem in the problem vector at the given rank.
-     \param i_rank Rank of the hppProblem to retrieve
-     \return The i_rank-th problem
+     \param inRank Rank of the hppProblem to retrieve
+     \return The inRank-th problem
    */
   ChppProblem * hppProblem(unsigned int inRank) { 
     if(inRank<getNbHppProblems()) 
@@ -169,8 +169,12 @@ class ChppPlanner {
     \brief Set roadmap builder of i-th problem.
     \param rank Rank of problem in ChppPlanner::hppProblemVector.
     \param inRoadmapBuilder roadmap builder.
+    \param inDisplay whether the roadmap should be displayed in the interface.
+     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROADMAP.
+     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_REMOVE_ROADMAP.
   */
-  ktStatus roadmapBuilderIthProblem(unsigned int rank, CkwsRoadmapBuilderShPtr inRoadmapBuilder);
+  ktStatus roadmapBuilderIthProblem(unsigned int rank, CkwsRoadmapBuilderShPtr inRoadmapBuilder,
+				    bool inDisplay=false);
 
   /** 
     \brief Get roadmap builder of i-th problem.
@@ -290,7 +294,7 @@ class ChppPlanner {
   ktStatus addPath(unsigned int problemId, CkwsPathShPtr kwsPath);
 
   /** 
-   *@}* 
+   *@}
    */
 
   /**
@@ -309,28 +313,8 @@ class ChppPlanner {
   ChppBodyConstShPtr findBodyByName(std::string inBodyName) const;
 
   /** 
-   *@}* 
+   *@} 
    */
-  /**
-     \name Notification management
-     @{
-  */
-  /**
-     \brief Subscribe to an event by calling kwsNotificator->subscribe;
-  */
-  // CkitNotificator::eventRegisterPair subscribe(int inEventType, ktStatus(*inCallback)(void*,void*),void* inPt);
-
-  /**
-     \brief Unsubscribe to an event by calling kwsNotificator->unsubscribe;
-  */
-  // ktStatus unsubscribe(const CkitNotificator::eventRegisterPair& inPair);
-  /**
-   * \brief return a pointer to notificator in order for interface to get notification information.
-   */
-  // const ChppNotificator* notificator() const;
-  /**
-    @}
-  */
 
 protected:
 
@@ -359,11 +343,14 @@ protected:
   static const CkitNotification::TType ID_HPP_REMOVE_OBSTACLES;
   static const CkitNotification::TType ID_HPP_SET_OBSTACLE_LIST;
   static const CkitNotification::TType ID_HPP_ADD_OBSTACLE;
+  static const CkitNotification::TType ID_HPP_REMOVE_ROADMAPBUILDER;
+  static const CkitNotification::TType ID_HPP_ADD_ROADMAPBUILDER;
 
   // key to retrieve for notification.
   static const std::string ROBOT_KEY;
   static const std::string OBSTACLE_KEY;
   static const std::string CONFIG_KEY;
+  static const std::string ROADMAP_KEY;
    
 };
 

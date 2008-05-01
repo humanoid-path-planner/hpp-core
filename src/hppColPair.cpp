@@ -34,7 +34,9 @@ bool ChppColPair::addColPair(unsigned int j1, unsigned int j2)
       v.push_back(j2);
       sort(v.begin(), v.end());
     }
+    return true;
   }
+  return false;
 }
 
 bool ChppColPair::addColPairRange(unsigned int j1, unsigned int j2from, unsigned int j2to)
@@ -44,9 +46,10 @@ bool ChppColPair::addColPairRange(unsigned int j1, unsigned int j2from, unsigned
     return false;
   }
 
-  for(int j = j2from; j<= j2to; j++){
+  for(unsigned int j = j2from; j<= j2to; j++) {
     addColPair(j1, j);
   }
+  return true;
 }
 
 bool ChppColPair::existKey(unsigned int j1)
@@ -126,7 +129,7 @@ void ChppColPair::printPair()
 
     std::vector<unsigned int> v;
     v = getColPairList(current_key, flag);
-    for(int j=0; j<v.size(); j++)
+    for(unsigned int j=0; j<v.size(); j++)
       std::cout<<" "<<v[j];
     std::cout<<std::endl;
   }
