@@ -37,6 +37,17 @@ const std::string ChppPlanner::OBSTACLE_KEY("obstacle");
 const std::string ChppPlanner::CONFIG_KEY("config");
 const std::string ChppPlanner::ROADMAP_KEY("roadmap");
 
+#if DEBUG==2
+#define ODEBUG2(x) std::cout << "ChppPlanner:" << x << std::endl
+#define ODEBUG1(x) std::cerr << "ChppPlanner:" << x << std::endl
+#elif DEBUG==1
+#define ODEBUG2(x)
+#define ODEBUG1(x) std::cerr << "ChppPlanner:" << x << std::endl
+#else
+#define ODEBUG2(x)
+#define ODEBUG1(x)
+#endif
+
 /*****************************************
  PUBLIC METHODS
 *******************************************/
@@ -64,7 +75,7 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 {
   ChppProblem hppProblem(robot, mObstacleList);
 
-  cout<<"adding a problem in vector"<<endl;
+  ODEBUG2(":addHppProblem: adding a problem in vector");
   // Add robot in vector .
   hppProblemVector.push_back(hppProblem);
 
@@ -98,7 +109,7 @@ ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 {
   ChppProblem hppProblem(robot, mObstacleList);
 
-  cout<<"adding a problem at beginning of vector"<<endl;
+  ODEBUG2(":addHppProblemAtBeginning: adding a problem");
   // Add robot in vector .
   hppProblemVector.push_front(hppProblem);
 
@@ -436,9 +447,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 
   //TODO : rajouter le extraDOf - essayer les precondition des SM ou dP -- FAIT mais pas notifier !!
   if (problemId >= getNbHppProblems()) {
-    cerr << "ChppPlanner::solveOneProblem: problem Id="
-	 << problemId << "is bigger than vector size="
-	 << getNbHppProblems();
+    ODEBUG1(":solveOneProblem: problem Id=" << problemId << "is bigger than vector size=" << getNbHppProblems());
 
     return KD_ERROR;
   }
@@ -458,9 +467,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     return KD_ERROR ;
 
   if(!hppProblem.roadmapBuilder()){
-    cerr << "ChppPlanner::solveOneProblem: problem Id="
-	 << problemId << ": Define a roadmap builder with penetration"
-	 << endl;
+    ODEBUG1(":solveOneProblem: problem Id=" << problemId << ": Define a roadmap builder with penetration");
     return KD_ERROR ;
   }
 
@@ -472,23 +479,58 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   if ( initConfig && goalConfig && steeringMethod) {
     CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
 
-    double penetration = hppProblem.roadmapBuilder()->penetration();
-    CkwsValidatorDPCollisionShPtr dpValidator = CkwsValidatorDPCollision::create(hppDevice, penetration);
+    if (directPath) {
+      double penetration = hppProblem.roadmapBuilder()->penetration();
+      CkwsValidatorDPCollisionShPtr dpValidator = CkwsValidatorDPCollision::create(hppDevice, penetration);
+      
+      dpValidator->validate(*directPath);
 
-    dpValidator->validate(*directPath);
+      if (directPath->isValid()) {
 
-    if (directPath->isValid()) {
-      kwsPath = CkwsPath::create(hppDevice);
-      kwsPath->appendDirectPath(directPath);
-      // Add the path to vector of paths of the problem.
-      hppProblem.addPath(kwsPath);
+	ODEBUG2(":solveOneProblem: Problem solved with direct connection. ");
 
-      cout<<"Problem solved with direct connection. "<<endl;
+	/* Add direct path to roadmap if not already included */
+	if (hppProblem.roadmapBuilder()) {
+	  CkwsRoadmapShPtr roadmap = hppProblem.roadmapBuilder()->roadmap();
+	  ODEBUG2(":solveOneProblem: number of edges in roadmap before inserting nodes = " << roadmap->countEdges());
+	  
+	  CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*initConfig);
+	  CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*goalConfig);
 
-      return KD_OK;
+	  ODEBUG2(":solveOneProblem: number of edges in roadmap after creating nodes = " << roadmap->countEdges());
+
+	  /* If start and goal node are not in roadmap, add them. */
+	  if (!startNode) {
+	    startNode = CkwsNode::create(*initConfig);
+	    roadmap->addNode(startNode);
+	  }
+	  if (!goalNode) {
+	    goalNode = CkwsNode::create(*goalConfig);
+	    roadmap->addNode(goalNode);
+	  }
+	  
+	  ODEBUG2(":solveOneProblem: number of edges in roadmap after adding nodes = " << roadmap->countEdges());
+
+	  /* Add edge only if goal node is not accessible from initial node */
+	  if (!startNode->hasTransitiveOutNode(goalNode)) {
+	    CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
+	    
+	    if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
+	      ODEBUG2(":solveOneProblem: Failed to add direct path in roadmap.");
+	    }
+	  }
+	  ODEBUG2(":solveOneProblem: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
+	}
+	kwsPath = CkwsPath::create(hppDevice);
+	kwsPath->appendDirectPath(directPath);
+	// Add the path to vector of paths of the problem.
+	hppProblem.addPath(kwsPath);
+
+	return KD_OK;
+      }
     }
   } else {
-    cerr << "  ChppPlanner::solveOneProblem: problem ill-defined:initConfig, GoalConfig or steering method not defined" << endl ;
+    ODEBUG1(":solveOneProblem: problem ill-defined:initConfig, GoalConfig or steering method not defined");
     return KD_ERROR ;
   }
 
@@ -497,9 +539,9 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   if (hppProblem.roadmapBuilder()) {
 
     if(KD_OK == hppProblem.roadmapBuilder()->solveProblem( *initConfig , *goalConfig , kwsPath)) {
-      cout << "--- Problem solved.----" << endl;
+      ODEBUG2(":solveOneProblem: --- Problem solved.----");
     } else {
-      cout << "---- Problem NOT solved.----" << endl ;
+      ODEBUG2(":solveOneProblem: ---- Problem NOT solved.----");
       return KD_ERROR;
     }
 
@@ -507,19 +549,19 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     if (hppProblem.pathOptimizer()) {
       hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
 
-      cout << "ChppPlanner::solveOneProblem: path optimized with penetration " 
-	   << hppProblem.roadmapBuilder()->penetration()<<endl;
+      ODEBUG2(":solveOneProblem: path optimized with penetration " 
+	      << hppProblem.roadmapBuilder()->penetration());
 
     } else {
-      cerr << " no Optimizer Defined " << endl ;
+      ODEBUG1(":solveOneProblem: no Optimizer Defined ");
     }
 
-    cout<<" number of direct path: "<<kwsPath->countDirectPaths()<<endl;
+    ODEBUG2(":solveOneProblem: number of direct path: "<<kwsPath->countDirectPaths());
 
     // Add the path to vector of paths of the problem.
     hppProblem.addPath(kwsPath);
   } else {
-    cerr << "  ChppPlanner::solveOneProblem: no roadmap builder" << endl ;
+    ODEBUG1(":solveOneProblem: no roadmap builder");
     return KD_ERROR ;
   }
 
@@ -529,9 +571,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPathId)
 {
   if (inProblemId >= getNbHppProblems()) {
-    cerr << "ChppPlanner::optimizePath: problem Id="
-	 << inProblemId << " is bigger than vector size="
-	 << getNbHppProblems();
+    ODEBUG1(":optimizePath: problem Id=" << inProblemId << " is bigger than vector size=" << getNbHppProblems());
 
     return KD_ERROR;
   }
@@ -539,9 +579,9 @@ ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPath
   ChppProblem& hppProblem = hppProblemVector[inProblemId];
 
   if (inPathId >= hppProblem.getNbPaths()) {
-    cerr << "ChppPlanner::optimizePath: problem Id="
-	 << inPathId << " is bigger than number of paths="
-	 << hppProblem.getNbPaths();
+    ODEBUG1(":optimizePath: problem Id="
+	    << inPathId << " is bigger than number of paths="
+	    << hppProblem.getNbPaths());
     return KD_ERROR;
   }
   CkwsPathShPtr kwsPath = hppProblem.getIthPath(inPathId);
@@ -550,11 +590,11 @@ ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPath
   if (hppProblem.pathOptimizer()) {
     hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
     
-    cout << "ChppPlanner::solveOneProblem: path optimized with penetration " 
-	 << hppProblem.roadmapBuilder()->penetration()<<endl;
+    ODEBUG2(":optimizePath: path optimized with penetration " 
+	    << hppProblem.roadmapBuilder()->penetration());
     
   } else {
-    cerr << " no Optimizer Defined " << endl ;
+    ODEBUG1(":optimizePath: no optimizer defined");
   }
   return KD_OK;
 }
@@ -567,7 +607,7 @@ unsigned int ChppPlanner::getNbPaths(unsigned int inProblemId) const
   if (inProblemId < getNbHppProblems()) {
     nbPaths =  hppProblemVector[inProblemId].getNbPaths();
   } else {
-    cerr << "ChppPlanner::getNbPaths : inProblemId = "<< inProblemId << " should be smaller than nb of problems: " << getNbHppProblems() << endl;
+    ODEBUG1(":getNbPaths : inProblemId = "<< inProblemId << " should be smaller than nb of problems: " << getNbHppProblems());
   }
   return nbPaths;
 }
@@ -592,7 +632,7 @@ CkwsPathShPtr ChppPlanner::getPath(unsigned int inProblemId,
 ktStatus ChppPlanner::addPath(unsigned int inProblemId, CkwsPathShPtr kwsPath)
 {
   if (inProblemId >= hppProblemVector.size()) {
-    cerr << "ChppPlanner::addPath : inProblemId bigger than vector size." << endl;
+    ODEBUG1(":addPath : inProblemId bigger than vector size.");
     return KD_ERROR;
   }
   hppProblemVector[inProblemId].addPath(kwsPath);
@@ -621,7 +661,7 @@ ChppBodyConstShPtr ChppPlanner::findBodyByName(std::string inBodyName) const
 	  return hppBody;
 	}
       } else {
-	cerr << "ChppPlanner::findBodyByName : one body of robot in hppProblem "<< iProblem << " is not a ChppBody." << endl;
+	ODEBUG1(":findBodyByName : one body of robot in hppProblem "<< iProblem << " is not a ChppBody.");
       }
     }
   }

@@ -1,3 +1,9 @@
+2008/05/13
+	40. In ChppPlanner::solveOneProblem(): if direct path is valid between initial and goal 
+	configurations, add it in the roadmap.
+	39. Correction of a bug in ChppPlanner::solveOneProblem(). If the steering method between 
+	initial and goal configurations returned NULL, the function crashed.
+	
 2008/05/01
 	38. Added boolean argument in ChppPlanner::roadmapBuilderIthProblem to specify whether roadmap
 	    developed by roadmap builder should be displayed in the interface.
