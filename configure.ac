@@ -6,7 +6,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppCore],[1.3.99],[openrobots@laas.fr])
+AC_INIT([hppCore],[1.4],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 if test "$CFLAGS$CXXFLAGS" = ""; then
@@ -32,7 +32,7 @@ if test "$setdefaultflags" = "yes"; then
   fi
 fi
 
-define(kwplus_reqd, [kwsPlus >= 1.1])
+define(kwplus_reqd, [kwsPlus >= 1.4])
 AC_SUBST(KWPLUS_REQD, "kwplus_reqd")
 PKG_CHECK_MODULES(KWSPLUS, kwplus_reqd)
 
@@ -65,7 +65,7 @@ else
 	AC_SUBST(HPPMODEL_LIBS)
 	HPPMODEL_PREFIX=`$PKG_CONFIG --variable=prefix hppModel`
 	HPPMODEL_TAGFILE="$HPPMODEL_PREFIX/share/doc/doxytag/hppModel.doxytag=$HPPMODEL_PREFIX/share/doc/hppModel"
-	HPPMODEL_REQD=", hppModel >= 1.0"
+	HPPMODEL_REQD=", hppModel >= 1.1"
 	AC_MSG_NOTICE([using external implementation of ChppBody])
 fi
 
