@@ -19,6 +19,8 @@ INCLUDE
 
 #include "hppCore/hppProblem.h"
 
+#include "kwsPlusStopRdmBuilderDelegate.h"
+
 #ifndef WITHOUT_CHPPDEVICE
 KIT_PREDEF_CLASS( ChppBody );
 #endif
@@ -269,6 +271,13 @@ class ChppPlanner {
     */
     ktStatus solveOneProblem(unsigned int problemId);
 
+  /**
+     \brief Interrupt current roadmap builder.
+
+     \note if no roadmap builder is running, this will interrupt the next one that starts.
+  */
+  void interruptPathPlanning();
+
     /**
        \brief Optimize a given path
        \param inProblemId Id of the problem owning the path.
@@ -336,7 +345,16 @@ protected:
   */
   std::vector< CkcdObjectShPtr > mObstacleList;
 
-  // for nortification.
+private:
+
+  /**
+     \brief Roadmap builder delegate enabling to interrupt roadmap builder.
+  */
+  CkwsPlusStopRdmBuilderDelegate* attStopRdmBuilderDelegate;
+
+
+
+  // for notification.
  public:
   static const CkitNotification::TType ID_HPP_ADD_ROBOT;
   static const CkitNotification::TType ID_HPP_SET_CURRENT_CONFIG;

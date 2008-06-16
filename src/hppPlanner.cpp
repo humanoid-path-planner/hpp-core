@@ -58,6 +58,8 @@ ChppPlanner::ChppPlanner()
 {
   attNotificator = CkitNotificator::defaultNotificator(); 
   mObstacleList.clear();
+  attStopRdmBuilderDelegate = new CkwsPlusStopRdmBuilderDelegate;
+
 }
 
 
@@ -66,7 +68,7 @@ ChppPlanner::ChppPlanner()
 
 ChppPlanner::~ChppPlanner()
 {
-  // delete hppNotificator;
+  delete attStopRdmBuilderDelegate;
 }
 
 // ==========================================================================
@@ -282,6 +284,10 @@ ktStatus ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
   notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
   attNotificator->notify(notification);
 
+  /*
+    Add an interruption delegate to the roadmap builder
+  */
+  inRoadmapBuilder->addDelegate(attStopRdmBuilderDelegate);
   ChppProblem& hppProblem =  hppProblemVector[rank];
   hppProblem.roadmapBuilder(inRoadmapBuilder);
   
@@ -678,4 +684,13 @@ ktStatus ChppPlanner::solve()
     }
   }
   return success;
+}
+
+void ChppPlanner::interruptPathPlanning()
+{
+  if (attStopRdmBuilderDelegate == NULL) {
+    ODEBUG1(":interruptPathPlanning: no stop delegate.");
+    return;
+  }
+  attStopRdmBuilderDelegate->shouldStop(true);
 }

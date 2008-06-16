@@ -1,4 +1,6 @@
-hppCore 1.4 released May 13, 2008
+	41. Added a method to interrupt the roadmap builder during path planning process.
+	
+hppCore 1.4 released June 13, 2008
 	
 	40. In ChppPlanner::solveOneProblem(): if direct path is valid between initial and goal 
 	configurations, add it in the roadmap.
