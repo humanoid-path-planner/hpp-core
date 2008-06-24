@@ -287,7 +287,9 @@ ktStatus ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
   /*
     Add an interruption delegate to the roadmap builder
   */
+#if 0
   inRoadmapBuilder->addDelegate(attStopRdmBuilderDelegate);
+#endif
   ChppProblem& hppProblem =  hppProblemVector[rank];
   hppProblem.roadmapBuilder(inRoadmapBuilder);
   
@@ -551,6 +553,12 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
       return KD_ERROR;
     }
 
+    if (!kwsPath) {
+      ODEBUG1(":solveOneProblem: no path after successfully solving the problem");
+      ODEBUG1(":solveOneProblem: this should not happen.");
+      return KD_ERROR;
+    }
+
     // optimizer for the path
     if (hppProblem.pathOptimizer()) {
       hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
@@ -562,10 +570,11 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
       ODEBUG1(":solveOneProblem: no Optimizer Defined ");
     }
 
-    ODEBUG2(":solveOneProblem: number of direct path: "<<kwsPath->countDirectPaths());
-
-    // Add the path to vector of paths of the problem.
-    hppProblem.addPath(kwsPath);
+    if (kwsPath) {
+      ODEBUG2(":solveOneProblem: number of direct path: "<<kwsPath->countDirectPaths());
+      // Add the path to vector of paths of the problem.
+      hppProblem.addPath(kwsPath);
+    }
   } else {
     ODEBUG1(":solveOneProblem: no roadmap builder");
     return KD_ERROR ;
