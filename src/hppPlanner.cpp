@@ -461,11 +461,12 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   }
 
   ChppProblem& hppProblem = hppProblemVector[problemId];
-  CkwsPathShPtr kwsPath;
 
   CkppDeviceComponentShPtr hppDevice = hppProblem.getRobot();
   if (!hppDevice)
     return KD_ERROR ;
+
+  CkwsPathShPtr	kwsPath = CkwsPath::create(hppDevice);
 
   CkwsConfigShPtr initConfig = hppProblem.initConfig() ;
   if (!initConfig)
@@ -529,10 +530,9 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 	  }
 	  ODEBUG2(":solveOneProblem: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
 	}
-	kwsPath = CkwsPath::create(hppDevice);
 	kwsPath->appendDirectPath(directPath);
 	// Add the path to vector of paths of the problem.
-	hppProblem.addPath(kwsPath);
+	hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, kwsPath->clone()));
 
 	return KD_OK;
       }
@@ -552,20 +552,30 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
       ODEBUG2(":solveOneProblem: ---- Problem NOT solved.----");
       return KD_ERROR;
     }
-
     if (!kwsPath) {
       ODEBUG1(":solveOneProblem: no path after successfully solving the problem");
       ODEBUG1(":solveOneProblem: this should not happen.");
       return KD_ERROR;
     }
 
+    /*
+      Store path before optimization
+    */
+    hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, kwsPath->clone()));
+
     // optimizer for the path
     if (hppProblem.pathOptimizer()) {
-      hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
-
-      ODEBUG2(":solveOneProblem: path optimized with penetration " 
-	      << hppProblem.roadmapBuilder()->penetration());
-
+      if (hppProblem.pathOptimizer()->optimizePath(kwsPath, 
+						   hppProblem.roadmapBuilder()->penetration())
+	  == KD_OK) {
+	
+	ODEBUG2(":solveOneProblem: path optimized with penetration " 
+		<< hppProblem.roadmapBuilder()->penetration());
+      }
+      else {
+	ODEBUG1(":solveOneProblem: path optimization failed.");
+      }
+      
     } else {
       ODEBUG1(":solveOneProblem: no Optimizer Defined ");
     }
@@ -573,7 +583,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     if (kwsPath) {
       ODEBUG2(":solveOneProblem: number of direct path: "<<kwsPath->countDirectPaths());
       // Add the path to vector of paths of the problem.
-      hppProblem.addPath(kwsPath);
+      hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, kwsPath->clone()));
     }
   } else {
     ODEBUG1(":solveOneProblem: no roadmap builder");

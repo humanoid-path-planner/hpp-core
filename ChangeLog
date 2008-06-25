@@ -1,5 +1,5 @@
+	43. Added some tests in ChppPlanner::solveOneProblem() for robustness purposes.
 	42. In ChppPlanner::solveOneProblem, if path is null after calling rdmBuilder return KD_ERROR.
-
 	41. Added a method to interrupt the roadmap builder during path planning process.
 	
 hppCore 1.4 released June 13, 2008
