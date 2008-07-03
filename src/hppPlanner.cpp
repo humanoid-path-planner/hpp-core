@@ -489,9 +489,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
 
     if (directPath) {
-      double penetration = hppProblem.roadmapBuilder()->penetration();
-      CkwsValidatorDPCollisionShPtr dpValidator = CkwsValidatorDPCollision::create(hppDevice, penetration);
-      
+      CkwsDirectPathValidatorSetConstShPtr dpValidator = hppDevice->directPathValidators();
       dpValidator->validate(*directPath);
 
       if (directPath->isValid()) {
