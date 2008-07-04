@@ -480,6 +480,8 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     return KD_ERROR ;
   }
 
+  double penetration = hppProblem.roadmapBuilder()->penetration();
+
   /*
     Try first a direct path.
   */
@@ -489,9 +491,16 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
 
     if (directPath) {
-      CkwsDirectPathValidatorSetConstShPtr dpValidator = hppDevice->directPathValidators();
-      dpValidator->validate(*directPath);
+      CkwsDirectPathValidatorSetConstShPtr dpValidator = 
+	CkwsDirectPathValidatorSet::createCopy(hppDevice->directPathValidators());
+      
+      CkwsValidatorDPCollisionShPtr collisionValidator = 
+	dpValidator->retrieve<CkwsValidatorDPCollision>();
+      if (collisionValidator) {
+	collisionValidator->penetration(penetration);
+      }
 
+      dpValidator->validate(*directPath);
       if (directPath->isValid()) {
 
 	ODEBUG2(":solveOneProblem: Problem solved with direct connection. ");
@@ -564,11 +573,11 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     // optimizer for the path
     if (hppProblem.pathOptimizer()) {
       if (hppProblem.pathOptimizer()->optimizePath(kwsPath, 
-						   hppProblem.roadmapBuilder()->penetration())
+						   penetration)
 	  == KD_OK) {
 	
 	ODEBUG2(":solveOneProblem: path optimized with penetration " 
-		<< hppProblem.roadmapBuilder()->penetration());
+		<< penetration);
       }
       else {
 	ODEBUG1(":solveOneProblem: path optimization failed.");
@@ -600,7 +609,13 @@ ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPath
   }
 
   ChppProblem& hppProblem = hppProblemVector[inProblemId];
-
+  CkwsRoadmapBuilderShPtr roadmapBuilder = hppProblem.roadmapBuilder();
+  if (!roadmapBuilder) {
+    ODEBUG1(":optimizePath: roadmap builder should be set to define penetration.");
+    return KD_ERROR;
+  }
+  double penetration = roadmapBuilder->penetration();
+    
   if (inPathId >= hppProblem.getNbPaths()) {
     ODEBUG1(":optimizePath: problem Id="
 	    << inPathId << " is bigger than number of paths="
@@ -611,10 +626,10 @@ ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPath
 
   // optimizer for the path
   if (hppProblem.pathOptimizer()) {
-    hppProblem.pathOptimizer()->optimizePath(kwsPath, hppProblem.roadmapBuilder()->penetration());
+    hppProblem.pathOptimizer()->optimizePath(kwsPath, penetration);
     
     ODEBUG2(":optimizePath: path optimized with penetration " 
-	    << hppProblem.roadmapBuilder()->penetration());
+	    << penetration);
     
   } else {
     ODEBUG1(":optimizePath: no optimizer defined");

@@ -1,3 +1,4 @@
+	46. Before validating direct path, set penetration in validatorDPCollision.
 	45. Make ChppPlanner::roadmapBuilderIthProblem() virtual.
 	44. In ChppPlanner::solveOneProblem, test direct path with all validators of device.
 	43. Added some tests in ChppPlanner::solveOneProblem() for robustness purposes.
