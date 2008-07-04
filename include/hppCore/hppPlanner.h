@@ -175,8 +175,8 @@ class ChppPlanner {
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROADMAP.
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_REMOVE_ROADMAP.
   */
-  ktStatus roadmapBuilderIthProblem(unsigned int rank, CkwsRoadmapBuilderShPtr inRoadmapBuilder,
-				    bool inDisplay=false);
+  virtual ktStatus roadmapBuilderIthProblem(unsigned int rank, CkwsRoadmapBuilderShPtr inRoadmapBuilder,
+					    bool inDisplay=false);
 
   /** 
     \brief Get roadmap builder of i-th problem.
