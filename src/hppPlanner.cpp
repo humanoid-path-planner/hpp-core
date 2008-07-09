@@ -480,6 +480,16 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     return KD_ERROR ;
   }
 
+  /*
+    Test that configurations are valid
+  */
+  if (validateConfig(hppDevice, initConfig) != KD_OK) {
+    return KD_ERROR;
+  }
+  if (validateConfig(hppDevice, goalConfig) != KD_OK) {
+    return KD_ERROR;
+  }
+
   double penetration = hppProblem.roadmapBuilder()->penetration();
 
   /*
@@ -550,7 +560,9 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   }
 
 
-  // solve the problem with the roadmapBuilder
+  /*
+    solve the problem with the roadmapBuilder
+  */
   if (hppProblem.roadmapBuilder()) {
 
     if(KD_OK == hppProblem.roadmapBuilder()->solveProblem( *initConfig , *goalConfig , kwsPath)) {
@@ -725,4 +737,35 @@ void ChppPlanner::interruptPathPlanning()
     return;
   }
   attStopRdmBuilderDelegate->shouldStop(true);
+}
+
+ktStatus ChppPlanner::validateConfig(CkppDeviceComponentShPtr inDevice, 
+				     const CkwsConfigShPtr& inConfig)
+{
+  inDevice->configValidators()->validate(*inConfig);
+  
+  if (inConfig->isValid()) {
+    return KD_OK;
+  }
+  for(unsigned int i=0; i<inConfig->countReports(); ++i) {
+    std::string theValidatorName;
+    CkwsValidationReportConstShPtr theReport(inConfig->report(i, theValidatorName));
+    if(!theReport->isValid()) {
+      ODEBUG1(" " << theValidatorName << 
+	      " failed at validating the configuration.");
+      
+      // If this is a CkwsDofReport then we can retrieve more information...
+      CkwsReportCfgDofConstShPtr theDofReport;
+      theDofReport = KIT_DYNAMIC_PTR_CAST(CkwsReportCfgDof const, theReport);
+      if(theDofReport) {
+	for(unsigned int j=0; j<theDofReport->countDofs(); ++j) {
+	  if(!theDofReport->isDofValid(j)) {
+	    ODEBUG1(" Dof #" << j << " is invalid.");
+	  }
+	}
+      }
+
+    }
+  }
+  return KD_ERROR;
 }

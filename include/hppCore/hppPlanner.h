@@ -348,6 +348,11 @@ protected:
 private:
 
   /**
+     \brief Validate configuration and track validation reports.
+  */
+  ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, const CkwsConfigShPtr& inConfig);
+
+  /**
      \brief Roadmap builder delegate enabling to interrupt roadmap builder.
   */
   CkwsPlusStopRdmBuilderDelegate* attStopRdmBuilderDelegate;
