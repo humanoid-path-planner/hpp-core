@@ -515,6 +515,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 
 	ODEBUG2(":solveOneProblem: Problem solved with direct connection. ");
 
+#if 0
 	/* Add direct path to roadmap if not already included */
 	if (hppProblem.roadmapBuilder()) {
 	  CkwsRoadmapShPtr roadmap = hppProblem.roadmapBuilder()->roadmap();
@@ -547,6 +548,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 	  }
 	  ODEBUG2(":solveOneProblem: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
 	}
+#endif
 	kwsPath->appendDirectPath(directPath);
 	// Add the path to vector of paths of the problem.
 	hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, kwsPath->clone()));
