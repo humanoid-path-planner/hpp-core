@@ -579,6 +579,12 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
       return KD_ERROR;
     }
 
+    if (kwsPath->length()== 0) {
+      ODEBUG1(":solveOneProblem: Path length is 0 after successfully solving the problem");
+      ODEBUG1(":solveOneProblem: this should not happen.");
+      return KD_ERROR;
+    }
+
     /*
       Store path before optimization
     */

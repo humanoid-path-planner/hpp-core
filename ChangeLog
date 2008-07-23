@@ -1,3 +1,4 @@
+	48. Add a tests in ChppPlanner::solveOneProblem() the check the lenght of kwsPath.
 	47. Validate config before solving problem in ChppPlanner::solveOneProblem.
 	46. Before validating direct path, set penetration in validatorDPCollision.
 	45. Make ChppPlanner::roadmapBuilderIthProblem() virtual.
