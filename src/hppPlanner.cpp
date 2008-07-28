@@ -515,7 +515,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 
 	ODEBUG2(":solveOneProblem: Problem solved with direct connection. ");
 
-#if 0
+#if 1
 	/* Add direct path to roadmap if not already included */
 	if (hppProblem.roadmapBuilder()) {
 	  CkwsRoadmapShPtr roadmap = hppProblem.roadmapBuilder()->roadmap();
@@ -529,24 +529,32 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
 	  /* If start and goal node are not in roadmap, add them. */
 	  if (!startNode) {
 	    startNode = CkwsNode::create(*initConfig);
-	    roadmap->addNode(startNode);
+	    if (roadmap->addNode(startNode) != KD_OK) {
+	      ODEBUG1(":solveOneProblem: failed to add start node in roadmap.");
+	      startNode.reset();
+	    }
 	  }
 	  if (!goalNode) {
 	    goalNode = CkwsNode::create(*goalConfig);
-	    roadmap->addNode(goalNode);
+	    if (roadmap->addNode(goalNode) != KD_OK) {
+	      ODEBUG1(":solveOneProblem: failed to add goal node in roadmap.");
+	      goalNode.reset();
+	    }
 	  }
 	  
 	  ODEBUG2(":solveOneProblem: number of edges in roadmap after adding nodes = " << roadmap->countEdges());
 
-	  /* Add edge only if goal node is not accessible from initial node */
-	  if (!startNode->hasTransitiveOutNode(goalNode)) {
-	    CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
-	    
-	    if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
-	      ODEBUG2(":solveOneProblem: Failed to add direct path in roadmap.");
+	  if (startNode && goalNode) {
+	    /* Add edge only if goal node is not accessible from initial node */
+	    if (!startNode->hasTransitiveOutNode(goalNode)) {
+	      CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
+	      
+	      if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
+		ODEBUG2(":solveOneProblem: Failed to add direct path in roadmap.");
+	      }
 	    }
+	    ODEBUG2(":solveOneProblem: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
 	  }
-	  ODEBUG2(":solveOneProblem: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
 	}
 #endif
 	kwsPath->appendDirectPath(directPath);
