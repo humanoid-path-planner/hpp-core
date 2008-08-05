@@ -239,6 +239,21 @@ class ChppPlanner {
    */
 
   /**
+     \name Parser
+     @{
+  */
+  
+  /**
+     \brief Parsing a file
+  */
+  
+  ktStatus parseFile(string inFileName);
+  
+  /** 
+   *@}
+   */
+
+  /**
      \name Initialization
      @{
   */
@@ -356,8 +371,6 @@ private:
      \brief Roadmap builder delegate enabling to interrupt roadmap builder.
   */
   CkwsPlusStopRdmBuilderDelegate* attStopRdmBuilderDelegate;
-
-
 
   // for notification.
  public:

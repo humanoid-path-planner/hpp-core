@@ -24,6 +24,13 @@
 
 #include "KineoUtility/kitNotificator.h"
 
+#include "kprParserXML/kprParserManager.h"
+#include "KineoModel/kppModelTree.h"
+#include "KineoModel/kppDeviceNode.h"
+#include "KineoModel/kppGeometryNode.h"
+#include "KineoModel/kppPathNode.h"
+#include "KineoModel/kppPathComponent.h"
+
 const CkitNotification::TType ChppPlanner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());
 const CkitNotification::TType ChppPlanner::ID_HPP_SET_CURRENT_CONFIG(CkitNotification::makeID());
 const CkitNotification::TType ChppPlanner::ID_HPP_REMOVE_OBSTACLES(CkitNotification::makeID());
@@ -785,3 +792,126 @@ ktStatus ChppPlanner::validateConfig(CkppDeviceComponentShPtr inDevice,
   }
   return KD_ERROR;
 }
+
+ktStatus ChppPlanner::parseFile(string inFileName)
+{
+
+  CkppComponentShPtr modelTreeComponent;
+  CkprParserManagerShPtr parser = CkprParserManager::defaultManager();
+  
+  if(inFileName.length() == 0) { 
+    ODEBUG1(":parseFile: no file name"); 
+    return KD_ERROR;
+  }
+  
+  if(KD_ERROR == parser->loadComponentFromFile(inFileName, modelTreeComponent)) { 
+    ODEBUG1(":parseFile: unable to load file " << inFileName); 
+    ODEBUG2(":parseFile: " << parser->lastError().errorMessage());
+    return KD_ERROR; 
+  }
+
+  CkppModelTreeShPtr modelTree = KIT_DYNAMIC_PTR_CAST(CkppModelTree,modelTreeComponent);
+
+  CkppSolidComponentShPtr solidComponent = KIT_DYNAMIC_PTR_CAST(CkppSolidComponent,modelTreeComponent);
+
+  if(modelTree) { 
+    ODEBUG1(":parseFile: found modelTree"); 
+
+
+    map<CkppDeviceComponentShPtr,unsigned int> devicesIndex;
+    
+    set<CkcdObjectShPtr> devicesBodies;
+    
+    unsigned int currentRank=0;
+    
+    if(!modelTree->deviceNode()) cout<<"No devices"<<endl;
+    else{ 
+      for(unsigned int i = 0; i< modelTree->deviceNode()->countChildComponents(); i++){
+	
+	CkppDeviceComponentShPtr deviceComponent = KIT_DYNAMIC_PTR_CAST(CkppDeviceComponent,modelTree->deviceNode()->childComponent(i));
+	
+	if(deviceComponent){
+	  
+	  addHppProblem(deviceComponent);
+	  
+	  devicesIndex.insert(pair<CkppDeviceComponentShPtr,unsigned int>(deviceComponent,currentRank));
+	  
+	  vector< CkppSolidComponentRefShPtr > solidComponentRefVector;
+	  
+	  deviceComponent->getSolidComponentRefVector (solidComponentRefVector);
+	  
+	  for(vector< CkppSolidComponentRefShPtr >::iterator it=solidComponentRefVector.begin();it!=solidComponentRefVector.end();it++)
+	    {
+	      CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject,(*it)->referencedSolidComponent() );
+	      if(kcdObject) devicesBodies.insert(kcdObject);
+	      else cout<<"Cannot cast component to kcdObject"<<endl;
+	    }
+	  
+	  currentRank++;
+	  
+	}
+	
+      }
+    }
+    
+    
+    
+    if(!modelTree->geometryNode()) cout<<"No geometries"<<endl;
+    else{
+      cout<<"geometries"<<endl;
+      for(unsigned int i = 0; i< modelTree->geometryNode()->countChildComponents(); i++){
+	
+	cout<<i<<" "<<endl;
+	
+	CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject, modelTree->geometryNode()->childComponent(i));
+	if(kcdObject) addObstacle(kcdObject);
+	else cout<<"Cannot cast component to kcdObject"<<endl;
+      }
+    }
+    
+
+    
+  
+    if(!modelTree->pathNode()) cout<<"No paths"<<endl;
+    else{
+      
+      for(unsigned int i = 0; i< modelTree->pathNode()->countChildComponents(); i++){
+	CkppPathComponentShPtr pathComponent = KIT_DYNAMIC_PTR_CAST(CkppPathComponent,modelTree->pathNode()->childComponent(i));
+	
+	map<CkppDeviceComponentShPtr,unsigned int>::iterator it=devicesIndex.find(pathComponent->deviceComponent());
+	
+	if(it==devicesIndex.end()){ cout<<"no device matching path"<<endl; return KD_ERROR;}
+	
+	unsigned int rank=it->second;
+	
+	addPath(rank,pathComponent->kwsPath());
+	
+      }
+      
+    }
+  }
+  
+
+  else if(solidComponent)
+    {
+      ODEBUG1(":parseFile: found solid component");
+      CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject,solidComponent);
+      if(!kcdObject)
+	{
+	  ODEBUG1(":parseFile: cannot cast solidComponent to kcdObject");
+	  return KD_ERROR;
+	}
+      addObstacle(kcdObject);
+    }
+
+  else
+    {
+      ODEBUG1(":parseFile: cannot cast file neither to CkppSolidComponent nor to CkppModelTree ");
+      return KD_ERROR;
+    }
+  
+  ODEBUG1(":parseFile: everything is fine ");
+  return KD_OK ;
+
+}
+
