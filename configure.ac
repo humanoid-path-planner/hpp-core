@@ -6,7 +6,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppCore],[1.4.99],[openrobots@laas.fr])
+AC_INIT([hppCore],[1.5],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 if test "$CFLAGS$CXXFLAGS" = ""; then
@@ -32,7 +32,7 @@ if test "$setdefaultflags" = "yes"; then
   fi
 fi
 
-define(kwplus_reqd, [kwsPlus >= 1.4])
+define(kwplus_reqd, [kwsPlus >= 1.5])
 AC_SUBST(KWPLUS_REQD, "kwplus_reqd")
 PKG_CHECK_MODULES(KWSPLUS, kwplus_reqd)
 
