@@ -1,3 +1,7 @@
+hppCore 1.5.1 released Sep 12, 2008
+	
+	49. Set init and goal config functions now return a status.
+	
 hppCore 1.5 released Sep 09, 2008
 
 	48. Add a tests in ChppPlanner::solveOneProblem() the check the lenght of kwsPath.
