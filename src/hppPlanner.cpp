@@ -250,8 +250,7 @@ ktStatus ChppPlanner::initConfIthProblem(unsigned int rank,
   ktStatus status = KD_ERROR;
 
   if (rank < getNbHppProblems()) {
-    hppProblemVector[rank].initConfig(config);
-    status = KD_OK;
+    status = hppProblemVector[rank].initConfig(config);
   }
 
   return status;
@@ -268,6 +267,21 @@ CkwsConfigShPtr ChppPlanner::goalConfIthProblem(unsigned int rank) const
   }
 
   return config;
+}
+
+// ==========================================================================
+
+ktStatus ChppPlanner::goalConfIthProblem(unsigned int rank,
+					 const CkwsConfigShPtr config)
+
+{
+  ktStatus status = KD_ERROR;
+
+  if (rank < getNbHppProblems()) {
+    status = hppProblemVector[rank].goalConfig(config);
+  }
+
+  return status;
 }
 
 // ==========================================================================
@@ -380,22 +394,6 @@ CkwsSteeringMethodShPtr ChppPlanner::steeringMethodIthProblem(unsigned int rank)
   }
   return inSM ;
 
-}
-
-// ==========================================================================
-
-ktStatus ChppPlanner::goalConfIthProblem(unsigned int rank,
-					 const CkwsConfigShPtr config)
-
-{
-  ktStatus status = KD_ERROR;
-
-  if (rank < getNbHppProblems()) {
-    hppProblemVector[rank].goalConfig(config);
-    status = KD_OK;
-  }
-
-  return status;
 }
 
 // ==========================================================================

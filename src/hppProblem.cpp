@@ -21,6 +21,18 @@ const std::string ChppProblem::PATH_KEY ( "path" );
 const std::string ChppProblem::PATH_ID_KEY ( "path_id" );
 const std::string ChppProblem::DEVICE_KEY ( "device" );
 
+
+#if DEBUG==2
+#define ODEBUG2(x) std::cout << "ChppProblem:" << x << std::endl
+#define ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
+#elif DEBUG==1
+#define ODEBUG2(x)
+#define ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
+#else
+#define ODEBUG2(x)
+#define ODEBUG1(x)
+#endif
+
 /*****************************************
  PUBLIC METHODS
 *******************************************/
@@ -81,9 +93,14 @@ CkwsConfigShPtr ChppProblem::initConfig() const
 
 // ==========================================================================
 
-void ChppProblem::initConfig ( CkwsConfigShPtr inConfig )
+ktStatus ChppProblem::initConfig ( CkwsConfigShPtr inConfig )
 {
-	attInitConf = inConfig;
+  if (inConfig->device() != attRobot) {
+    ODEBUG1(":goalConfig: configuration device does not match problem device.");
+    return KD_ERROR;
+  }
+  attInitConf = inConfig;
+  return KD_OK;
 }
 
 // ==========================================================================
@@ -95,9 +112,14 @@ CkwsConfigShPtr ChppProblem::goalConfig() const
 
 // ==========================================================================
 
-void ChppProblem::goalConfig ( CkwsConfigShPtr inConfig )
+ktStatus ChppProblem::goalConfig ( CkwsConfigShPtr inConfig )
 {
-	attGoalConf = inConfig;
+  if (inConfig->device() != attRobot) {
+    ODEBUG1(":goalConfig: configuration device does not match problem device.");
+    return KD_ERROR;
+  }
+  attGoalConf = inConfig;
+  return KD_OK;
 }
 
 // ==========================================================================

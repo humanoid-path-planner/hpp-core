@@ -71,7 +71,7 @@ class ChppProblem
 		/**
 		 * \brief Set initial configuration.
 		 */
-		void initConfig ( CkwsConfigShPtr i_config );
+		ktStatus initConfig ( CkwsConfigShPtr i_config );
 		/**
 		 * \brief Get shared pointer to goal configuration.
 		 */
@@ -79,7 +79,7 @@ class ChppProblem
 		/**
 		 * \brief Set goal configuration.
 		 */
-		void goalConfig ( CkwsConfigShPtr i_config );
+		ktStatus goalConfig ( CkwsConfigShPtr i_config );
 		/**
 		   \brief Set device steering method
 		*/
