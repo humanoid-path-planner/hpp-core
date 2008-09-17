@@ -1,31 +1,42 @@
 hppCore 1.5.1 released Sep 12, 2008
-	
+
 	49. Set init and goal config functions now return a status.
-	
+
 hppCore 1.5 released Sep 09, 2008
 
-	48. Add a tests in ChppPlanner::solveOneProblem() the check the lenght of kwsPath.
-	47. Validate config before solving problem in ChppPlanner::solveOneProblem.
-	46. Before validating direct path, set penetration in validatorDPCollision.
+	48. Add a tests in ChppPlanner::solveOneProblem() the check the lenght
+	    of kwsPath.
+	47. Validate config before solving problem in
+	    ChppPlanner::solveOneProblem.
+	46. Before validating direct path, set penetration in
+	    validatorDPCollision.
 	45. Make ChppPlanner::roadmapBuilderIthProblem() virtual.
-	44. In ChppPlanner::solveOneProblem, test direct path with all validators of device.
-	43. Added some tests in ChppPlanner::solveOneProblem() for robustness purposes.
-	42. In ChppPlanner::solveOneProblem, if path is null after calling rdmBuilder return KD_ERROR.
-	41. Added a method to interrupt the roadmap builder during path planning process.
-	
+	44. In ChppPlanner::solveOneProblem, test direct path with all
+	    validators of device.
+	43. Added some tests in ChppPlanner::solveOneProblem() for robustness
+	    purposes.
+	42. In ChppPlanner::solveOneProblem, if path is null after calling
+	    rdmBuilder return KD_ERROR.
+	41. Added a method to interrupt the roadmap builder during path
+	    planning process.
+
 hppCore 1.4 released June 13, 2008
-	
-	40. In ChppPlanner::solveOneProblem(): if direct path is valid between initial and goal 
-	configurations, add it in the roadmap.
-	39. Correction of a bug in ChppPlanner::solveOneProblem(). If the steering method between 
-	initial and goal configurations returned NULL, the function crashed.
-	38. Added boolean argument in ChppPlanner::roadmapBuilderIthProblem to specify whether roadmap
-	    developed by roadmap builder should be displayed in the interface.
+
+	40. In ChppPlanner::solveOneProblem(): if direct path is valid between
+	    initial and goal configurations, add it in the roadmap.
+	39. Correction of a bug in ChppPlanner::solveOneProblem(). If the
+	    steering method between initial and goal configurations returned
+	    NULL, the function crashed.
+	38. Added boolean argument in ChppPlanner::roadmapBuilderIthProblem to
+	    specify whether roadmap developed by roadmap builder should be
+	    displayed in the interface.
 	    Communication with interface is handled using notifications.
-	37. If CXXFLAGS and CFLAGS are not defined at configuration, they are set to "-Wall".
+	37. If CXXFLAGS and CFLAGS are not defined at configuration, they are
+	    set to "-Wall".
 	36. Added access function to problems in the problem vector
-	35. In ChppPlanner::solveOneProblem, try direct path before roadmap builder.
-	
+	35. In ChppPlanner::solveOneProblem, try direct path before roadmap
+	    builder.
+
 hppCore 1.3 released February 18, 2008
 
 	34. Added remove functions for hppProblemVector
@@ -37,7 +48,7 @@ hppCore 1.3 released February 18, 2008
 	29. Pre-release of version compiling with hppModel
 	    (--disable-body). ChppBody and ChppDevice are now implemented
 	    in hppModel. WARNING: some methods and attribute names might
-	    have changed. 
+	    have changed.
 	28. Added ChppBody::addSolidComponent to add an object to a body
 	    and insert it in the inner object list.
 	27. Added virtual method ChppPlanner::initializeProblem() to
@@ -58,14 +69,14 @@ hppCore 1.3 released February 18, 2008
 	    with enhanced distance computation facilities.
 
 hppCore 1.2 released October 10, 2007
-	
+
 	21. When inserting a new problem, attach existing obstacles to the robot.
 	20. Added API function to optimize a path.
 	19. Added API functions to display a roadmap in the interface.
 	18. Add virtual method ChppPlanner::initializeProblem(). This
 	    method implemented in ChppWalkPlanner can thus be called by Corba
 	    server.
-	
+
 hppCore 1.1 released August 27, 2007
 
 	17. Replaced ChppDevice by CkppDeviceComponent in ChppPlanner and
@@ -79,11 +90,11 @@ hppCore 1.1 released August 27, 2007
 	16. Improvement of collision information displaying.
 	15. Call path opthmizer with the penetration specified for roadmap
 	    builder.
-	
+
 hppCore 1.0.1 released July 20, 2007
 
 	14. remove ChppColPair::dof since it was not used
-	
+
 hppCore 1.0 released July 10, 2007
 
 	13. add a function in hppDevice to ignore another device (as its
@@ -105,12 +116,12 @@ hppCore 1.0 released July 10, 2007
 	3. Correction of a bug in function ChppProblem::ObstacleList(const
 	   std::vector<CkcdObjectShPtr>& inCollisionList):
 	   the list of outer objects of each body of the robot was copied and
-	   each obstacle of the new obstacle list was added  
+	   each obstacle of the new obstacle list was added
 	   at the end of the copy of the outer object list, but not in the
 	   outer object list.
-	2. Added method 
+	2. Added method
 	   ktStatus addHppProblemAtBeginning(ChppDeviceShPtr robot);
 	   in ChppPlanner.
 	1. Replaced std::vector by std::deque to store vector of problem,
 	   in order to be able to add a problem at the beginning of the vector.
-	
+
