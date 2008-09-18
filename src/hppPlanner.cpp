@@ -100,7 +100,8 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 }
 // ==========================================================================
 
-ktStatus ChppPlanner::removeHppProblem(){
+ktStatus ChppPlanner::removeHppProblem()
+{
 
   if(hppProblemVector.size()){
     hppProblemVector.pop_back();
@@ -108,6 +109,7 @@ ktStatus ChppPlanner::removeHppProblem(){
     return KD_OK;
   }
 
+  ODEBUG1(":removeHppProblem: no problem to remove.");
   return KD_ERROR;
 
 }
@@ -140,6 +142,7 @@ ktStatus ChppPlanner::removeHppProblemAtBeginning(){
     return KD_OK;
   }
 
+  ODEBUG1(":removeHppProblem: no problem to remove.");
   return KD_ERROR;
 
 }
@@ -292,6 +295,7 @@ ktStatus ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
 					       bool inDisplay)
 {
   if (rank >= getNbHppProblems()) {
+    ODEBUG1(":roadmapBuilderIthProblem: rank should be less than number of problems.");
     return KD_ERROR;
   }
 
@@ -346,6 +350,7 @@ ktStatus ChppPlanner::pathOptimizerIthProblem(unsigned int rank,
 					      CkwsPathOptimizerShPtr inPathOptimizer)
 {
   if (rank >= getNbHppProblems()) {
+    ODEBUG1(":pathOptimizerIthProblem: rank should be less than number of problems.");
     return KD_ERROR;
   }
 
@@ -375,6 +380,7 @@ ktStatus ChppPlanner::steeringMethodIthProblem(unsigned int rank, CkwsSteeringMe
 {
 
   if (rank >= getNbHppProblems()) {
+    ODEBUG1(":steeringMethodIthProblem: rank should be less than number of problems.");
     return KD_ERROR;
   }
 
@@ -468,17 +474,23 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
   ChppProblem& hppProblem = hppProblemVector[problemId];
 
   CkppDeviceComponentShPtr hppDevice = hppProblem.getRobot();
-  if (!hppDevice)
-    return KD_ERROR ;
+  if (!hppDevice) {
+    ODEBUG1(":solveOneProblem: no device in problem " << problemId << ".");
+    return KD_ERROR;
+  }
 
   CkwsPathShPtr	kwsPath = CkwsPath::create(hppDevice);
 
   CkwsConfigShPtr initConfig = hppProblem.initConfig() ;
-  if (!initConfig)
-    return KD_ERROR ;
+  if (!initConfig) {
+    ODEBUG1(":solveOneProblem: no init config in problem " << problemId << ".");
+    return KD_ERROR;
+  }
   CkwsConfigShPtr goalConfig = hppProblem.goalConfig() ;
-  if (!goalConfig)
-    return KD_ERROR ;
+  if (!goalConfig) {
+    ODEBUG1(":solveOneProblem: no goal config in problem " << problemId << ".");
+    return KD_ERROR;
+  }
 
   if(!hppProblem.roadmapBuilder()){
     ODEBUG1(":solveOneProblem: problem Id=" << problemId << ": Define a roadmap builder with penetration");
@@ -583,7 +595,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int problemId)
     if(KD_OK == hppProblem.roadmapBuilder()->solveProblem( *initConfig , *goalConfig , kwsPath)) {
       ODEBUG2(":solveOneProblem: --- Problem solved.----");
     } else {
-      ODEBUG2(":solveOneProblem: ---- Problem NOT solved.----");
+      ODEBUG1(":solveOneProblem: ---- Problem NOT solved.----");
       return KD_ERROR;
     }
     if (!kwsPath) {
@@ -878,7 +890,10 @@ ktStatus ChppPlanner::parseFile(string inFileName)
 	
 	map<CkppDeviceComponentShPtr,unsigned int>::iterator it=devicesIndex.find(pathComponent->deviceComponent());
 	
-	if(it==devicesIndex.end()){ cout<<"no device matching path"<<endl; return KD_ERROR;}
+	if(it==devicesIndex.end()) { 
+	  ODEBUG1(":parseFile: no device matching path"); 
+	  return KD_ERROR;
+	}
 	
 	unsigned int rank=it->second;
 	
