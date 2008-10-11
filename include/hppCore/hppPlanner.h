@@ -25,6 +25,7 @@ INCLUDE
 KIT_PREDEF_CLASS( ChppBody );
 #endif
 
+KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
 using namespace std ;
 
@@ -108,110 +109,125 @@ class ChppPlanner {
 
   /**
      \brief Get robot at given rank in the Problem vector.
-     \param rank 
+     \param inRank 
      \return the shared pointer on the robot
   */
-  const CkppDeviceComponentShPtr robotIthProblem(unsigned int rank) const;
+  const CkppDeviceComponentShPtr robotIthProblem(unsigned int inRank) const;
 
   /**
      \brief Get current configuration of i-th robot.
-     \param rank : Id of problem in vector.
+     \param inRank : Id of problem in vector.
      \return : return a copy of the current configuration of robot.
   */
-  CkwsConfigShPtr robotCurrentConfIthProblem(unsigned int rank) const;
+  CkwsConfigShPtr robotCurrentConfIthProblem(unsigned int inRank) const;
 
   /**
      \brief Set current configuration of i-th robot.
-     \param rank Id of robot in vector.
+     \param inRank Id of robot in vector.
      \param config A new config is allocated and placed into current config of robot.
      \return KD_OK or KD_ERROR
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_SET_CURRENT_CONFIG.
   */
-  ktStatus robotCurrentConfIthProblem(unsigned int rank,
+  ktStatus robotCurrentConfIthProblem(unsigned int inRank,
 				      const CkwsConfigShPtr& config);
-  ktStatus robotCurrentConfIthProblem(unsigned int rank,
+  ktStatus robotCurrentConfIthProblem(unsigned int inRank,
 				      const CkwsConfig& config);
   
   /**
      \brief Get initial configuration of i-th robot.
-     \param rank : Id of problem in vector.
+     \param inRank : Id of problem in vector.
      \return initial configuration of robot.
      \return KD_OK or KD_ERROR
   */
-   CkwsConfigShPtr initConfIthProblem(unsigned int rank) const;
+   CkwsConfigShPtr initConfIthProblem(unsigned int inRank) const;
 
   /**
      \brief Set initial configuration of i-th robot.
-     \param rank Id of robot in vector.
+     \param inRank Id of robot in vector.
      \param config A new config is allocated and placed into initial config of robot.
      \return KD_OK or KD_ERROR
   */
-  ktStatus initConfIthProblem(unsigned int rank, 
+  ktStatus initConfIthProblem(unsigned int inRank, 
 			      const CkwsConfigShPtr config);
 
   /**
      \brief Get goal configuration of i-th robot.
-     \param rank : Id of problem in vector.
+     \param inRank : Id of problem in vector.
      \return the goal configuration of robot.
      \return KD_OK or KD_ERROR
   */
-  CkwsConfigShPtr goalConfIthProblem(unsigned int rank) const;
+  CkwsConfigShPtr goalConfIthProblem(unsigned int inRank) const;
   
   /**
      \brief Set goal configuration of i-th robot.
-     \param rank Id of robot in vector.
+     \param inRank Id of robot in vector.
      \param config A new config is allocated and placed into goal config of robot.
      \return KD_OK or KD_ERROR
   */
-  ktStatus goalConfIthProblem(unsigned int rank,
+  ktStatus goalConfIthProblem(unsigned int inRank,
 			      const CkwsConfigShPtr config);
 
 
   /** 
     \brief Set roadmap builder of i-th problem.
-    \param rank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
     \param inRoadmapBuilder roadmap builder.
     \param inDisplay whether the roadmap should be displayed in the interface.
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROADMAP.
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_REMOVE_ROADMAP.
   */
-  virtual ktStatus roadmapBuilderIthProblem(unsigned int rank, CkwsRoadmapBuilderShPtr inRoadmapBuilder,
+  virtual ktStatus roadmapBuilderIthProblem(unsigned int inRank, CkwsRoadmapBuilderShPtr inRoadmapBuilder,
 					    bool inDisplay=false);
 
   /** 
     \brief Get roadmap builder of i-th problem.
-    \param rank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
     \return shared pointer to roadmap builder.
   */
-  CkwsRoadmapBuilderShPtr roadmapBuilderIthProblem(unsigned int rank);
+  CkwsRoadmapBuilderShPtr roadmapBuilderIthProblem(unsigned int inRank);
 
   /** 
     \brief Set path optimizer of i-th problem.
-    \param rank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
     \param inPathOptimizer path optimizer.
   */
-  ktStatus pathOptimizerIthProblem(unsigned int rank, CkwsPathOptimizerShPtr inPathOptimizer);
+  ktStatus pathOptimizerIthProblem(unsigned int inRank, CkwsPathOptimizerShPtr inPathOptimizer);
 
   /** 
     \brief Get path optimizer of i-th problem.
-    \param rank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
     \return shared pointer to path optimizer.
   */
-  CkwsPathOptimizerShPtr pathOptimizerIthProblem(unsigned int rank);
+  CkwsPathOptimizerShPtr pathOptimizerIthProblem(unsigned int inRank);
    /** 
     \brief Set steering Method of i-th problem.
-    \param rank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
     \param inSM steering Method.
   */
-  ktStatus steeringMethodIthProblem(unsigned int rank, CkwsSteeringMethodShPtr inSM);
+  ktStatus steeringMethodIthProblem(unsigned int inRank, CkwsSteeringMethodShPtr inSM);
 
   /** 
     \brief Get steering Method of i-th problem.
-    \param rank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
     \return shared pointer to steering Method.
   */
-  CkwsSteeringMethodShPtr steeringMethodIthProblem(unsigned int rank);
+  CkwsSteeringMethodShPtr steeringMethodIthProblem(unsigned int inRank);
  
+  /**
+     \brief Set configuration extractor to given problem
+
+    \param inRank Rank of problem in ChppPlanner::hppProblemVector.
+    \param inConfigExtractor Configuration extractor
+
+     A configuration extractor attempts at extracting a collision-free
+     configuration in the neighborhood of the initial configuration of
+     a path planning problem when the initial configuration is in
+     collision.
+  */
+  ktStatus configExtractorIthProblem(unsigned int inRank, 
+				     const CkwsConfigExtractorShPtr& inConfigExtractor);
+
+
   /**
    * \brief Initialize the list of obstacles.
    * \param collisionList list of obstacles.
@@ -279,12 +295,12 @@ class ChppPlanner {
 
     /**
        \brief Solve a problem in the vector.
-       \param problemId the rank of the problem in vector.
+       \param inRank the rank of the problem in vector.
        \return KD_OK or KD_ERROR
        
-       If successful, the function stores the resulting path in the hppProblem (hppProblemVector[problemId].addPath()).
+       If successful, the function stores the resulting path in the hppProblem (hppProblemVector[inRank].addPath()).
     */
-    ktStatus solveOneProblem(unsigned int problemId);
+    ktStatus solveOneProblem(unsigned int inRank);
 
   /**
      \brief Interrupt current roadmap builder.
@@ -303,19 +319,19 @@ class ChppPlanner {
     /** 
       \brief Get number of paths in given problem.
     */
-    unsigned int getNbPaths(unsigned int problemId) const;
+    unsigned int getNbPaths(unsigned int inRank) const;
     /** 
       \brief Get path of given rank in given problem.
     */
-    CkwsPathShPtr getPath(unsigned int problemId, unsigned int pathId) const;
+    CkwsPathShPtr getPath(unsigned int inRank, unsigned int pathId) const;
     /** 
       \brief Add a path to a given problem.
-      \param problemId rank of problem in vector.
+      \param inRank rank of problem in vector.
       \param kwsPath the path to add.
-      \return KD_ERROR if problemId too big, KD_OK otherwise.
+      \return KD_ERROR if inRank too big, KD_OK otherwise.
       
     */
-  ktStatus addPath(unsigned int problemId, CkwsPathShPtr kwsPath);
+  ktStatus addPath(unsigned int inRank, CkwsPathShPtr kwsPath);
 
   /** 
    *@}

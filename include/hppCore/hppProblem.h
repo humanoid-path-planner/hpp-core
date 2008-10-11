@@ -23,6 +23,7 @@ INCLUDE
 
 #include "KineoUtility/kitNotificator.h"
 
+KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
 /*************************************
 CLASS
@@ -156,6 +157,19 @@ class ChppProblem
 		   \return shared pointer to the path optimiser
 		*/
 		CkwsPathOptimizerShPtr pathOptimizer() ;
+
+		/**
+		   \brief Set configuration extractor
+		   \param inConfigExtractor
+		*/
+		void configExtractor(const CkwsConfigExtractorShPtr& inConfigExtractor);
+
+		/**
+		   \brief Get configuration extractor
+		*/
+		const CkwsConfigExtractorShPtr& configExtractor();
+		   
+
 		/**
 		  \brief Add a path to the vector.
 		   \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_PATH.
@@ -210,6 +224,18 @@ class ChppProblem
 		  \brief Shared pointer to a optimizer for the path
 		*/
 		CkwsPathOptimizerShPtr attPathOptimizer ;
+
+		/**
+		   \brief Configuration extractor 
+
+		    A configuration extractor attempts at extracting a
+		    collision-free configuration in the neighborhood
+		    of the initial configuration of a path planning
+		    problem when the initial configuration is in
+		    collision.
+		*/
+		CkwsConfigExtractorShPtr attConfigExtractor;
+
 		/**
 		    \brief The set of mObstacleList are likely to be a copy or reference to the list of obstacles of ChppPlanner. 
 

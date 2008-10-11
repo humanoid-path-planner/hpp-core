@@ -22,13 +22,20 @@ const std::string ChppProblem::PATH_ID_KEY ( "path_id" );
 const std::string ChppProblem::DEVICE_KEY ( "device" );
 
 
-#if DEBUG==2
+#if DEBUG==3
+#define ODEBUG3(x) std::cout << "ChppProblem:" << x << std::endl
+#define ODEBUG2(x) std::cout << "ChppProblem:" << x << std::endl
+#define ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
+#elif DEBUG==2
+#define ODEBUG3(x)
 #define ODEBUG2(x) std::cout << "ChppProblem:" << x << std::endl
 #define ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
 #elif DEBUG==1
+#define ODEBUG3(x)
 #define ODEBUG2(x)
 #define ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
 #else
+#define ODEBUG3(x)
 #define ODEBUG2(x)
 #define ODEBUG1(x)
 #endif
@@ -347,5 +354,15 @@ void ChppProblem::pathOptimizer ( CkwsPathOptimizerShPtr inOptimizer )
 CkwsPathOptimizerShPtr ChppProblem::pathOptimizer()
 {
 	return attPathOptimizer ;
+}
+
+void ChppProblem::configExtractor(const CkwsConfigExtractorShPtr& inConfigExtractor)
+{
+  attConfigExtractor = inConfigExtractor;
+}
+
+const CkwsConfigExtractorShPtr& ChppProblem::configExtractor()
+{
+  return attConfigExtractor;
 }
 
