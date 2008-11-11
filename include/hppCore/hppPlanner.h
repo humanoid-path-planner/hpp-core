@@ -45,10 +45,20 @@ class ChppPlanner {
 
  public: 
   /**
-     \brief Allocate a KineoWorks CkitNotificator object.
+     \brief Empty constructor
+
+     Allocate a KineoWorks CkitNotificator object.
   */
   ChppPlanner();
+
+  /**
+     \brief Copy constructor
+  */
+  ChppPlanner(const ChppPlanner& inPlanner);
   
+  /**
+     \brief Destructor
+  */
   virtual ~ChppPlanner();
 
   /**
@@ -60,10 +70,25 @@ class ChppPlanner {
      \brief Add a Problem to the Problem vector with the associed robot.
  
      \param robot : a shared pointer to a robot
-     \return a int
+     \return KD_OK if success, KD_ERROR otherwise
+
+     \deprecated Call addHppProblem(CkppDeviceComponentShPtr inRobot, double inPenetration) instead.
+
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
   */
-  ktStatus addHppProblem(CkppDeviceComponentShPtr robot);
+  ktStatus addHppProblem(CkppDeviceComponentShPtr robot) __attribute__ ((deprecated));
+
+  /**
+     \brief Add a Problem to the Problem vector with the associed robot.
+ 
+     \param inRobot : a shared pointer to a robot
+     \param inPenetration dynamic penetration allowed for validating direct paths.
+
+     \return KD_OK if success, KD_ERROR otherwise
+
+     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
+  */
+  ktStatus addHppProblem(CkppDeviceComponentShPtr inRobot, double inPenetration);
 
   /**
      \brief Remove a Problem at the end of the Problem vector.
@@ -76,10 +101,24 @@ class ChppPlanner {
      \brief Add a Problem at beginning of the Problem vector with the associed robot.
  
      \param robot : a shared pointer to a robot
-     \return a int
+     \return KD_OK if success, KD_ERROR otherwise
+
+     \deprecated Call addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot, double inPenetration) instead.
+
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
   */
-  ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot);
+  ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot) __attribute__ ((deprecated));
+
+  /**
+     \brief Add a Problem at beginning of the Problem vector with the associed robot.
+ 
+     \param inRobot : a shared pointer to a robot
+     \param inPenetration dynamic penetration allowed for validating direct paths.
+     \return KD_OK if success, KD_ERROR otherwise
+
+     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
+  */
+  ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot, double inPenetration);
 
   /**
      \brief Remove a Problem at the beginning the Problem vector.
@@ -227,6 +266,21 @@ class ChppPlanner {
   ktStatus configExtractorIthProblem(unsigned int inRank, 
 				     const CkwsConfigExtractorShPtr& inConfigExtractor);
 
+  /**
+     \brief Set dynamic penetration of given problem
+
+     \param inRank Rank of problem in ChppPlanner::hppProblemVector.
+     \param inPenetration dynamic penetration allowed for validating a direct path.
+  */
+  ktStatus penetration(unsigned int inRank, double inPenetration);
+
+  /**
+     \brief Get dynamic penetration of given problem
+
+     \param inRank Rank of problem in ChppPlanner::hppProblemVector.
+     \return dynamic penetration allowed for validating a direct path.
+  */
+  double penetration(unsigned int inRank) const;
 
   /**
    * \brief Initialize the list of obstacles.
@@ -356,7 +410,12 @@ class ChppPlanner {
    *@} 
    */
 
-protected:
+private:
+
+  /**
+     \brief Validate configuration and track validation reports.
+  */
+  ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, const CkwsConfigShPtr& inConfig);
 
   /**
      \brief pointer to a KineoWorks notificator.
@@ -374,14 +433,7 @@ protected:
   /** 
       \brief Obstacles are a list of KCD fobjects. 
   */
-  std::vector< CkcdObjectShPtr > mObstacleList;
-
-private:
-
-  /**
-     \brief Validate configuration and track validation reports.
-  */
-  ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, const CkwsConfigShPtr& inConfig);
+  std::vector< CkcdObjectShPtr > attObstacleList;
 
   /**
      \brief Roadmap builder delegate enabling to interrupt roadmap builder.

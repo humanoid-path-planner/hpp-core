@@ -46,22 +46,43 @@ const std::string ChppProblem::DEVICE_KEY ( "device" );
 
 // ==========================================================================
 
-ChppProblem::ChppProblem ( CkppDeviceComponentShPtr inRobot ) :
-		attNotificator ( CkitNotificator::defaultNotificator() ),
-		attRobot ( inRobot )
+ChppProblem::ChppProblem ( CkppDeviceComponentShPtr inRobot, double inPenetration ) :
+  attNotificator ( CkitNotificator::defaultNotificator() ),
+  attRobot ( inRobot ),
+  attPenetration(inPenetration)
 {
 	initMapOuter();
 }
 
 // ==========================================================================
 
-ChppProblem::ChppProblem ( CkppDeviceComponentShPtr inRobot,
-                           const std::vector<CkcdObjectShPtr>& inObstacleList ) :
-		attNotificator ( CkitNotificator::defaultNotificator() ),
-		attRobot ( inRobot )
+ChppProblem::ChppProblem (CkppDeviceComponentShPtr inRobot,
+                          const std::vector<CkcdObjectShPtr>& inObstacleList, 
+			  double inPenetration) :
+  attNotificator ( CkitNotificator::defaultNotificator() ),
+  attRobot ( inRobot ),
+  attPenetration(inPenetration)
 {
 	initMapOuter();
 	obstacleList ( inObstacleList );
+}
+
+// ==========================================================================
+
+ChppProblem::ChppProblem(const ChppProblem& inProblem) :
+  attNotificator(inProblem.attNotificator),
+  attRobot(inProblem.attRobot),
+  attInitConf(inProblem.attInitConf),
+  attGoalConf(inProblem.attGoalConf),
+  attRoadmap(inProblem.attRoadmap),
+  attRoadmapBuilder(inProblem.attRoadmapBuilder),
+  attPathOptimizer(inProblem.attPathOptimizer),
+  attConfigExtractor(inProblem.attConfigExtractor),
+  attObstacleList(inProblem.attObstacleList),
+  attPathVector(inProblem.attPathVector),
+  attMapOuter(inProblem.attMapOuter),
+  attPenetration(inProblem.attPenetration)
+{
 }
 
 // ==========================================================================
@@ -366,3 +387,12 @@ const CkwsConfigExtractorShPtr& ChppProblem::configExtractor()
   return attConfigExtractor;
 }
 
+void ChppProblem::penetration(double inPenetration)
+{
+  attPenetration = inPenetration;
+}
+
+double ChppProblem::penetration() const
+{ 
+  return attPenetration;
+}

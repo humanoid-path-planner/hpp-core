@@ -44,17 +44,26 @@ class ChppProblem
 	public:
 		/**
 		 * \brief Create a path planning problem with no initial nor goal configuration.
+		 *
 		 * \param inRobot robot associated to the path planning problem.
+		 * \param inPenetration dynamic penetration allowed for validating direct paths.
 		 */
-		ChppProblem ( CkppDeviceComponentShPtr inRobot );
+		ChppProblem (CkppDeviceComponentShPtr inRobot, double inPenetration);
 
 		/**
 		 * \brief Create a path planning problem with no initial nor goal configuration.
 		 * \param inRobot robot associated to the path planning problem.
 		 * \param inObstacleList list of obstacle of this problem.
+		 * \param inPenetration dynamic penetration allowed for validating direct paths.
 		 */
-		ChppProblem ( CkppDeviceComponentShPtr inRobot,
-		              const std::vector<CkcdObjectShPtr>& inObstacleList );
+		ChppProblem (CkppDeviceComponentShPtr inRobot,
+			     const std::vector<CkcdObjectShPtr>& inObstacleList,
+			     double inPenetration);
+
+		/**
+		   \brief Copy constructor
+		*/
+		ChppProblem(const ChppProblem& inProblem);
 
 		/**
 		   \name Problem definition
@@ -171,6 +180,20 @@ class ChppProblem
 		   
 
 		/**
+		   \brief Set dynamic penetration of given problem
+		   
+		   \param inPenetration dynamic penetration allowed for validating a direct path.
+		*/
+		void penetration(double inPenetration);
+		
+		/**
+		   \brief Get dynamic penetration of given problem
+		   
+		   \return dynamic penetration allowed for validating a direct path.
+		*/
+		double penetration() const;
+
+		/**
 		  \brief Add a path to the vector.
 		   \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_PATH.
 		*/
@@ -237,8 +260,10 @@ class ChppProblem
 		CkwsConfigExtractorShPtr attConfigExtractor;
 
 		/**
-		    \brief The set of mObstacleList are likely to be a copy or reference to the list of obstacles of ChppPlanner. 
+		    \brief Get the list of obstacle of this problem.
 
+		    The set of obstacles is likely to be a copy or reference to 
+		    the list of obstacles of ChppPlanner. 
 		    However, to allow more general motion planning strategies, we
 		    leave to possiblity to define it differently. Obstacles are a
 		    list of KCD objects.
@@ -254,6 +279,11 @@ class ChppProblem
 		   \brief A map of each body to the a vector of its outer bodies.
 		*/
 		std::map<CkwsKCDBodyShPtr,std::vector<CkcdObjectShPtr> > attMapOuter;
+
+		/**
+		   \brief Penetration
+		*/
+		double attPenetration;
 
 	public:
 		// for notification:

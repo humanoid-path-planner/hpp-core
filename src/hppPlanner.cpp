@@ -5,6 +5,7 @@
   and Mathieu Poirier (LAAS-CNRS)
 */
 
+#define HPPPLANNER_DEFAULT_PENETRATION 0.05
 
 // TODO : nettoyer les reste de la classe hppProblem
 
@@ -74,11 +75,20 @@ const std::string ChppPlanner::ROADMAP_KEY("roadmap");
 ChppPlanner::ChppPlanner()
 {
   attNotificator = CkitNotificator::defaultNotificator(); 
-  mObstacleList.clear();
+  attObstacleList.clear();
   attStopRdmBuilderDelegate = new CkwsPlusStopRdmBuilderDelegate;
 
 }
 
+// ==========================================================================
+
+ChppPlanner::ChppPlanner(const ChppPlanner& inPlanner) :
+  attNotificator(inPlanner.attNotificator), 
+  hppProblemVector(inPlanner.hppProblemVector),
+  attObstacleList(inPlanner.attObstacleList),
+  attStopRdmBuilderDelegate(new CkwsPlusStopRdmBuilderDelegate(*attStopRdmBuilderDelegate))
+{
+}
 
 // ==========================================================================
 
@@ -92,7 +102,7 @@ ChppPlanner::~ChppPlanner()
 
 ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 {
-  ChppProblem hppProblem(robot, mObstacleList);
+  ChppProblem hppProblem(robot, attObstacleList, HPPPLANNER_DEFAULT_PENETRATION);
 
   ODEBUG2(":addHppProblem: adding a problem in vector");
   // Add robot in vector .
@@ -108,6 +118,29 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
 
   return KD_OK;
 }
+
+// ==========================================================================
+
+ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr inRobot, 
+				    double inPenetration)
+{
+  ChppProblem hppProblem(inRobot, attObstacleList, inPenetration);
+
+  ODEBUG2(":addHppProblem: adding a problem in vector");
+  // Add robot in vector .
+  hppProblemVector.push_back(hppProblem);
+
+ 
+  CkitNotificationShPtr notification 
+    = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
+  // set attribute if necessary
+  notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, inRobot);
+  attNotificator->notify(notification);
+
+
+  return KD_OK;
+}
+
 // ==========================================================================
 
 ktStatus ChppPlanner::removeHppProblem()
@@ -115,7 +148,7 @@ ktStatus ChppPlanner::removeHppProblem()
 
   if(hppProblemVector.size()){
     hppProblemVector.pop_back();
-    mObstacleList.clear();
+    attObstacleList.clear();
     return KD_OK;
   }
 
@@ -128,7 +161,7 @@ ktStatus ChppPlanner::removeHppProblem()
 
 ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 {
-  ChppProblem hppProblem(robot, mObstacleList);
+  ChppProblem hppProblem(robot, attObstacleList, HPPPLANNER_DEFAULT_PENETRATION);
 
   ODEBUG2(":addHppProblemAtBeginning: adding a problem");
   // Add robot in vector .
@@ -144,11 +177,31 @@ ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
 }
 // ==========================================================================
 
+ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot, 
+					       double inPenetration)
+{
+  ChppProblem hppProblem(inRobot, attObstacleList, inPenetration);
+
+  ODEBUG2(":addHppProblemAtBeginning: adding a problem");
+  // Add robot in vector .
+  hppProblemVector.push_front(hppProblem);
+
+  CkitNotificationShPtr notification  = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
+  // set attribute if necessary
+  notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, inRobot);
+  attNotificator->notify(notification);
+
+
+  return KD_OK;
+}
+
+// ==========================================================================
+
 ktStatus ChppPlanner::removeHppProblemAtBeginning(){
 
   if(hppProblemVector.size()){
     hppProblemVector.pop_front();
-    mObstacleList.clear();
+    attObstacleList.clear();
     return KD_OK;
   }
 
@@ -251,6 +304,9 @@ CkwsConfigShPtr ChppPlanner::initConfIthProblem(unsigned int rank) const
   if (rank < getNbHppProblems()) {
     config = hppProblemVector[rank].initConfig();
   }
+  else {
+    ODEBUG1(":initConfIthProblem: wrong problem id");
+  }
 
   return config;
 }
@@ -265,6 +321,9 @@ ktStatus ChppPlanner::initConfIthProblem(unsigned int rank,
   if (rank < getNbHppProblems()) {
     status = hppProblemVector[rank].initConfig(config);
   }
+  else {
+    ODEBUG1(":initConfIthProblem: wrong problem id");
+  }
 
   return status;
 }
@@ -277,6 +336,9 @@ CkwsConfigShPtr ChppPlanner::goalConfIthProblem(unsigned int rank) const
 
   if (rank < getNbHppProblems()) {
     config = hppProblemVector[rank].goalConfig();
+  }
+  else {
+    ODEBUG1(":goalConfIthProblem: wrong problem id");
   }
 
   return config;
@@ -292,6 +354,9 @@ ktStatus ChppPlanner::goalConfIthProblem(unsigned int rank,
 
   if (rank < getNbHppProblems()) {
     status = hppProblemVector[rank].goalConfig(config);
+  }
+  else {
+    ODEBUG1(":goalConfIthProblem: wrong problem id");
   }
 
   return status;
@@ -428,6 +493,29 @@ ktStatus ChppPlanner::configExtractorIthProblem(unsigned int inRank,
 
 // ==========================================================================
 
+ktStatus ChppPlanner::penetration(unsigned int inRank, double inPenetration)
+{
+  if (inRank >= getNbHppProblems()) {
+    ODEBUG1(":penetration: rank should be less than number of problems.");
+    return KD_ERROR;
+  }
+  hppProblemVector[inRank].penetration(inPenetration);
+  return KD_OK;
+}
+
+// ==========================================================================
+
+double ChppPlanner::penetration(unsigned int inRank) const
+{
+  if (inRank >= getNbHppProblems()) {
+    ODEBUG1(":penetration: rank should be less than number of problems.");
+    return KD_ERROR;
+  }
+  return   hppProblemVector[inRank].penetration();
+}
+
+// ==========================================================================
+
 ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
 {
   // Send notification to destroy current obstacles in Kpp.
@@ -436,7 +524,7 @@ ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
   attNotificator->notify(notification);
 
   // Set list of obstacles.
-  mObstacleList = collisionList;
+  attObstacleList = collisionList;
 
   // Set the list of obstacles for each robot.
   unsigned int nProblem = getNbHppProblems();
@@ -448,7 +536,7 @@ ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
   // Send notification for new list of obstacles.
   notification = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_SET_OBSTACLE_LIST, this);
   // set attributes if necessary
-  notification->ptrValue< std::vector<CkcdObjectShPtr> >(OBSTACLE_KEY, &mObstacleList);
+  notification->ptrValue< std::vector<CkcdObjectShPtr> >(OBSTACLE_KEY, &attObstacleList);
   attNotificator->notify(notification);
 	
   return KD_OK;
@@ -458,14 +546,14 @@ ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
 
 const std::vector< CkcdObjectShPtr > ChppPlanner::obstacleList()
 {
-  return mObstacleList;
+  return attObstacleList;
 }
 
 // ==========================================================================
 
 ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object)
 {
-  mObstacleList.push_back(object);
+  attObstacleList.push_back(object);
 
   // Set the list of obstacles for each robot.
   unsigned int nProblem = getNbHppProblems();
@@ -477,7 +565,7 @@ ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object)
   // Send notification
   CkitNotificationShPtr notification = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_OBSTACLE, this);
   // set attributes if necessary
-  notification->ptrValue< std::vector<CkcdObjectShPtr> >(OBSTACLE_KEY, &mObstacleList);
+  notification->ptrValue< std::vector<CkcdObjectShPtr> >(OBSTACLE_KEY, &attObstacleList);
   attNotificator->notify(notification);
 
   return KD_OK;
@@ -591,16 +679,23 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int inRank)
     CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
 
     if (directPath) {
-      CkwsDirectPathValidatorSetConstShPtr dpValidator = 
+      /*
+	Copy validators of device
+      */
+      CkwsDirectPathValidatorSetConstShPtr dpValidators = 
 	CkwsDirectPathValidatorSet::createCopy(hppDevice->directPathValidators());
       
+      /*
+	Retrieve collision validator if any and set penetration as penetration 
+	distance of roadmap builder.
+      */
       CkwsValidatorDPCollisionShPtr collisionValidator = 
-	dpValidator->retrieve<CkwsValidatorDPCollision>();
+	dpValidators->retrieve<CkwsValidatorDPCollision>();
       if (collisionValidator) {
 	collisionValidator->penetration(penetration);
       }
 
-      dpValidator->validate(*directPath);
+      dpValidators->validate(*directPath);
       if (directPath->isValid()) {
 
 	ODEBUG2(":solveOneProblem: Problem solved with direct connection. ");
@@ -918,7 +1013,7 @@ ktStatus ChppPlanner::parseFile(string inFileName)
 	
 	if(deviceComponent){
 	  
-	  addHppProblem(deviceComponent);
+	  addHppProblem(deviceComponent, HPPPLANNER_DEFAULT_PENETRATION);
 	  
 	  devicesIndex.insert(pair<CkppDeviceComponentShPtr,unsigned int>(deviceComponent,currentRank));
 	  
