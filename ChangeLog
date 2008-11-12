@@ -1,3 +1,14 @@
+	54. In ChppPlanner::solveOneProblem(), changed the validation 
+	    of direct connection.
+
+	53. Added penetration attribute and related methods in ChppProblem.
+	
+	52. Added copy constructors in ChppPlanner and ChppProblem. 
+
+	51. Added configuration extractor for solving problems with colliding initial config.
+	
+	50. Added error messages in several methods before returning KD_ERROR.	
+	
 hppCore 1.5.1 released Sep 12, 2008
 
 	49. Set init and goal config functions now return a status.
