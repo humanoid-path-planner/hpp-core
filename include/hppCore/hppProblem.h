@@ -219,6 +219,15 @@ class ChppProblem
 
 
 	private :
+		
+		/*
+		  \brief Set the penetration of the collision direct path validator of the robot
+
+		  \param inRobot the robot
+		  \param inPenetration the penetration
+		*/
+		void setPenetration(CkppDeviceComponentShPtr inRobot, 
+				    double inPenetration);
 		/**
 		   \brief pointer to a KineoWorks notificator.
 		*/

@@ -680,21 +680,11 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int inRank)
 
     if (directPath) {
       /*
-	Copy validators of device
+	Retrieve validators of device
       */
       CkwsDirectPathValidatorSetConstShPtr dpValidators = 
-	CkwsDirectPathValidatorSet::createCopy(hppDevice->directPathValidators());
+	hppDevice->directPathValidators();
       
-      /*
-	Retrieve collision validator if any and set penetration as penetration 
-	distance of roadmap builder.
-      */
-      CkwsValidatorDPCollisionShPtr collisionValidator = 
-	dpValidators->retrieve<CkwsValidatorDPCollision>();
-      if (collisionValidator) {
-	collisionValidator->penetration(penetration);
-      }
-
       dpValidators->validate(*directPath);
       if (directPath->isValid()) {
 
