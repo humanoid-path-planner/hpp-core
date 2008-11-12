@@ -54,7 +54,7 @@ ChppProblem::ChppProblem ( CkppDeviceComponentShPtr inRobot, double inPenetratio
   /*
     Set the input penetration in the direct path collision validator of the robot
   */
-  setPenetration(inRobot, inPenetration);
+  setPenetration();
 	initMapOuter();
 }
 
@@ -70,7 +70,7 @@ ChppProblem::ChppProblem (CkppDeviceComponentShPtr inRobot,
   /*
     Set the input penetration in the direct path collision validator of the robot
   */
-  setPenetration(inRobot, inPenetration);
+  setPenetration();
 	initMapOuter();
 	obstacleList ( inObstacleList );
 }
@@ -404,6 +404,7 @@ const CkwsConfigExtractorShPtr& ChppProblem::configExtractor()
 void ChppProblem::penetration(double inPenetration)
 {
   attPenetration = inPenetration;
+  setPenetration();
 }
 
 // ==========================================================================
@@ -413,10 +414,10 @@ double ChppProblem::penetration() const
   return attPenetration;
 }
 
-void ChppProblem::setPenetration(CkppDeviceComponentShPtr inRobot, double inPenetration)
+void ChppProblem::setPenetration()
 {
   CkwsDirectPathValidatorSetConstShPtr dpValidators = 
-    inRobot->directPathValidators();
+    attRobot->directPathValidators();
 
   /*
     Retrieve collision validator if any and set penetration as penetration 
@@ -425,6 +426,6 @@ void ChppProblem::setPenetration(CkppDeviceComponentShPtr inRobot, double inPene
   CkwsValidatorDPCollisionShPtr collisionValidator = 
     dpValidators->retrieve<CkwsValidatorDPCollision>();
   if (collisionValidator) {
-    collisionValidator->penetration(inPenetration);
+    collisionValidator->penetration(attPenetration);
   }
 }
