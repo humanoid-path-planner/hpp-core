@@ -611,7 +611,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int inRank)
     Test that goal configuration is valid
   */
   if (validateConfig(hppDevice, goalConfig) != KD_OK) {
-    ODEBUG1(":solveOneProblem: initial configuration not valid.");
+    ODEBUG1(":solveOneProblem: goal configuration not valid.");
     return KD_ERROR;
   }
 
