@@ -5,7 +5,7 @@
 # Author: Florent Lamiraux
 #
 
-hppCoredir = $(datadir)/doc/hppCore
+hppCoredir = $(datadir)/doc/hppCore/html
 
 EXTRA_DIST = \
 	header.html \
@@ -23,8 +23,7 @@ install: html-doc
 	$(INSTALL_DATA) html/* $(hppCoredir)
 	mkdir -p $(hppCoredir)/pictures
 	$(INSTALL_DATA) $(srcdir)/pictures/* $(hppCoredir)/pictures
-	mkdir -p $(datadir)/doc/doxytag
-	$(INSTALL_DATA) hppCore.doxytag $(datadir)/doc/doxytag
+	$(INSTALL_DATA) hppCore.doxytag $(hppCoredir)
 
 html-doc: hpp.dox
 	doxygen $<
