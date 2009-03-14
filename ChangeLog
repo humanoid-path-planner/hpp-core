@@ -1,4 +1,7 @@
+hppCore 1.7 released Mar 14, 2009
 
+	56. Update documentation build and install
+	
 hppCore 1.6 released Dec  9, 2008
 
 	55. Implemented ChppProblem::penetration(double) method.
