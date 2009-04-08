@@ -354,7 +354,7 @@ class ChppPlanner {
        
        If successful, the function stores the resulting path in the hppProblem (hppProblemVector[inRank].addPath()).
     */
-    ktStatus solveOneProblem(unsigned int inRank);
+    virtual ktStatus solveOneProblem(unsigned int inRank);
 
   /**
      \brief Interrupt current roadmap builder.
