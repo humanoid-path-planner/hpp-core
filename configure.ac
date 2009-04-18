@@ -36,8 +36,8 @@ define(kwplus_reqd, [kwsPlus >= 1.6])
 AC_SUBST(KWPLUS_REQD, "kwplus_reqd")
 PKG_CHECK_MODULES(KWSPLUS, kwplus_reqd)
 
-KWSPLUS_PREFIX=`$PKG_CONFIG kwsPlus --variable=prefix`
-AC_SUBST(KWSPLUS_PREFIX)
+KWSPLUS_DOCDIR=`$PKG_CONFIG kwsPlus --variable=docdir`
+AC_SUBST(KWSPLUS_DOCDIR)
 AC_SUBST(KWSPLUS_CFLAGS)
 AC_SUBST(KWSPLUS_LIBS)
 
@@ -65,6 +65,7 @@ else
 	PKG_CHECK_MODULES(HPPMODEL, hppmodel_reqd)
 	AC_SUBST(HPPMODEL_CFLAGS)
 	AC_SUBST(HPPMODEL_LIBS)
+	AC_SUBST(HPPMODEL_DOCDIR)
 	HPPMODEL_DOCDIR=`$PKG_CONFIG --variable=docdir hppModel`
 	AC_MSG_NOTICE([using external implementation of ChppBody])
 fi
