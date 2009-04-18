@@ -1,3 +1,7 @@
+hppCore 1.8 released Apr 18, 2009
+
+	59. Fix documentation dependency (doxytag files)
+	58. Comply with latest changes in kwsPlus
 	57. Make ChppPlanner::solveOneProblem() virtual
 
 hppCore 1.7 released Mar 14, 2009
