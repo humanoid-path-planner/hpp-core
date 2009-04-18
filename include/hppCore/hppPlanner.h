@@ -19,7 +19,7 @@ INCLUDE
 
 #include "hppCore/hppProblem.h"
 
-#include "kwsPlusStopRdmBuilderDelegate.h"
+class CkwsPlusStopRdmBuilderDelegate;
 
 #ifndef WITHOUT_CHPPDEVICE
 KIT_PREDEF_CLASS( ChppBody );

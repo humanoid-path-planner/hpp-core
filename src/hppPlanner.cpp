@@ -31,6 +31,7 @@
 #include "KineoModel/kppGeometryNode.h"
 #include "KineoModel/kppPathNode.h"
 #include "KineoModel/kppPathComponent.h"
+#include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
 
 
 const CkitNotification::TType ChppPlanner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());

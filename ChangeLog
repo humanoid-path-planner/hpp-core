@@ -1,6 +1,7 @@
+	57. Make ChppPlanner::solveOneProblem() virtual
+
 hppCore 1.7 released Mar 14, 2009
 	
-	57. Make ChppPlanner::solveOneProblem() virtual
 	56. Update documentation build and install
 	
 hppCore 1.6 released Dec  9, 2008
