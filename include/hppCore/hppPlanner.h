@@ -21,6 +21,8 @@ INCLUDE
 
 class CkwsPlusStopRdmBuilderDelegate;
 
+KIT_PREDEF_CLASS(CkppKCDBody);
+
 #ifndef WITHOUT_CHPPDEVICE
 KIT_PREDEF_CLASS( ChppBody );
 #endif
@@ -397,14 +399,16 @@ class ChppPlanner {
   */
 
   /** 
-   * \brief Find a body by name.
-   * \param inBodyName name of the body
+   * \brief Find a body by the name of its joint
+
+   * \param inJointName name of the joint
    * \return const shared pointer to the body
    *
-      Look among all the bodies of the robot of each problem for a given name.
+      Look among all the joitns of the robot of each problem for a given name.
 
    */
-  ChppBodyConstShPtr findBodyByName(std::string inBodyName) const;
+  CkwsKCDBodyConstShPtr findBodyByJointName(const std::string& inJointName) const;
+
 
   /** 
    *@} 

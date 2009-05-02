@@ -886,31 +886,38 @@ ktStatus ChppPlanner::addPath(unsigned int inProblemId, CkwsPathShPtr kwsPath)
 
 // ==========================================================================
 
-ChppBodyConstShPtr ChppPlanner::findBodyByName(std::string inBodyName) const
+CkwsKCDBodyConstShPtr 
+ChppPlanner::findBodyByJointName(const std::string& inJointName) const
 {
-  ChppBodyConstShPtr hppBody;
+  CkwsKCDBodyConstShPtr kcdBody;
   unsigned int nbProblems = getNbHppProblems();
 
   // Loop over hppProblem.
   for (unsigned int iProblem=0; iProblem < nbProblems; iProblem++) {
-    CkwsDevice::TBodyVector bodyVector;
+    CkwsDevice::TJointVector jointVector;
     const CkppDeviceComponentShPtr hppRobot = robotIthProblem(iProblem);
-    hppRobot->getBodyVector(bodyVector);
+    hppRobot->getJointVector(jointVector);
 
     // Loop over bodies of the robot.
-    for (CkwsDevice::TBodyIterator bodyIter=bodyVector.begin(); bodyIter < bodyVector.end(); bodyIter++) {
-      // Cast body into ChppBody
-      if (ChppBodyShPtr hppBodyInRobot = boost::dynamic_pointer_cast<ChppBody>(*bodyIter)) {
-	if (hppBodyInRobot->name() == inBodyName) {
-	  hppBody = hppBodyInRobot;
-	  return hppBody;
+    for (CkwsDevice::TJointIterator jointIter=jointVector.begin(); 
+	 jointIter < jointVector.end(); 
+	 jointIter++) {
+      // Cast joint into CkppJointComponent
+      if (CkppJointComponentShPtr kppJointInRobot = 
+	  KIT_DYNAMIC_PTR_CAST(CkppJointComponent, *jointIter)) {
+	if (kppJointInRobot->name() == inJointName) {
+	  kcdBody = 
+	    KIT_DYNAMIC_PTR_CAST(const CkwsKCDBody, 
+				 kppJointInRobot->kwsJoint()->attachedBody());
+	  return kcdBody;
 	}
       } else {
-	ODEBUG1(":findBodyByName : one body of robot in hppProblem "<< iProblem << " is not a ChppBody.");
+	ODEBUG1(":findBodyByJointName : one body of robot in hppProblem "
+		<< iProblem << " is not a CkppJointComponent.");
       }
     }
   }
-  return hppBody;
+  return kcdBody;
 }
 
 

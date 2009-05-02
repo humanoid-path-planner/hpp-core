@@ -1,3 +1,12 @@
+2009-05-02  Florent Lamiraux  <florent@laas.fr>
+
+	Replace method findBodyByName by findBodyByJointName.
+	* include/hppCore/hppPlanner.h,
+	* src/hppPlanner.cpp: In case the bodies of a 
+	device are not of type ChppBody, they do not have
+	a name. It is therefore better to retrieve bodies
+	by the name of the joint they are attached to.
+
 hppCore 1.8 released Apr 18, 2009
 
 	59. Fix documentation dependency (doxytag files)
