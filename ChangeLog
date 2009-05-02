@@ -1,5 +1,10 @@
 2009-05-02  Florent Lamiraux  <florent@laas.fr>
 
+	Re-indent and remove commented code.
+	* src/hppProblem.cpp: Code cleaning
+
+2009-05-02  Florent Lamiraux  <florent@laas.fr>
+
 	Replace method findBodyByName by findBodyByJointName.
 	* include/hppCore/hppPlanner.h,
 	* src/hppPlanner.cpp: In case the bodies of a 
