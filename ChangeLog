@@ -1,3 +1,8 @@
+2009-05-03  Florent Lamiraux  <florent@laas.fr>
+
+	Reindent hppProblem.h.
+	* include/hppCore/hppProblem.h: use emacs indentation.
+
 2009-05-02  Florent Lamiraux  <florent@laas.fr>
 
 	Re-indent and remove commented code.
