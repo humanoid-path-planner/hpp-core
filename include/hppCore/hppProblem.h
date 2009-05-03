@@ -102,24 +102,30 @@ class ChppProblem
      @{
   */
   /**
-   * \brief Store a copy of the list of obstacles.
-   * \param inCollisionList list of obstacles to be taken into account for this problem.
-   *
-   * Replaces previous list of obstacle if any. 
-   * \note Compute collision entities.
+     \brief Store a copy of the list of obstacles.
+     \param inCollisionList list of obstacles to be taken into account 
+     for this problem.
+     
+     \note It is not recommended to call this method several times for 
+     the same problem.
    */
   ktStatus obstacleList ( const std::vector<CkcdObjectShPtr>& inCollisionList );
+
   /**
    * \brief return a shared pointer to the obstacle list
    */
   const std::vector<CkcdObjectShPtr>& obstacleList();
 
   /**
-   * \brief Add obstacle to the list.
-   * \param inObject a new object.
-   * \note Compute collision entities.
+     \brief Add obstacle to the list.
+     \param inObject a new object.
+     \param inDistanceComputation whether distance computation should be 
+     performed for this object.
+
+     \note Compute collision entities.
    */
-  ktStatus addObstacle ( const CkcdObjectShPtr& inObject );
+  ktStatus addObstacle (const CkcdObjectShPtr& inObject, 
+			bool inDistanceComputation=true);
 
   /**
    *@}

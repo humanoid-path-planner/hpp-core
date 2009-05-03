@@ -24,6 +24,14 @@
 #include "hppModel/hppBody.h"
 
 #include "KineoUtility/kitNotificator.h"
+#include "KineoWorks2/kwsConfigExtractor.h"
+#include "KineoWorks2/kwsDirectPath.h"
+#include "KineoWorks2/kwsRoadmap.h"
+#include "KineoWorks2/kwsNode.h"
+#include "KineoWorks2/kwsEdge.h"
+#include "KineoWorks2/kwsSteeringMethod.h"
+#include "KineoWorks2/kwsJoint.h"
+#include "KineoWorks2/kwsReportCfgDof.h"
 
 #include "kprParserXML/kprParserManager.h"
 #include "KineoModel/kppModelTree.h"
@@ -31,6 +39,8 @@
 #include "KineoModel/kppGeometryNode.h"
 #include "KineoModel/kppPathNode.h"
 #include "KineoModel/kppPathComponent.h"
+#include "KineoModel/kppJointComponent.h"
+
 #include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
 
 

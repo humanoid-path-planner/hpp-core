@@ -15,6 +15,8 @@
 #include "hppCore/hppProblem.h"
 #include "hppModel/hppBody.h"
 
+#include "KineoWorks2/kwsValidatorDPCollision.h"
+
 const CkitNotification::TType  ChppProblem::ID_HPP_ADD_PATH ( CkitNotification::makeID() );
 
 const std::string ChppProblem::PATH_KEY ( "path" );
@@ -160,45 +162,15 @@ ktStatus ChppProblem::goalConfig ( CkwsConfigShPtr inConfig )
 
 // ==========================================================================
 
-ktStatus ChppProblem::obstacleList ( const std::vector<CkcdObjectShPtr>& inCollisionList )
+ktStatus 
+ChppProblem::obstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList)
 {
-  // Copy collision list in problem.
-  attObstacleList = inCollisionList;
-
-  // For each obstacle,
-  //   - insert the obstacle in outer object of each body of the robot.
-
-  // Loop over object in the collision list.
-  // Get robot vector of bodies.
-  CkwsDevice::TBodyVector bodyVector;
-  attRobot->getBodyVector ( bodyVector );
-
-  // Loop over bodies of robot.
-  for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); bodyIter < bodyVector.end(); bodyIter++ )
-    {
-      // Try to cast body into CkwsKCDBody
-      CkwsKCDBodyShPtr kcdBody;
-      if ( kcdBody = boost::dynamic_pointer_cast<CkwsKCDBody> ( *bodyIter ) )
-	{
-	  // Copy list of outer objects
-	  std::vector<CkcdObjectShPtr> collisionList = attMapOuter[kcdBody];
-	  unsigned int nObjects = attObstacleList.size();
-	  for ( unsigned int iObject=0; iObject<nObjects; iObject++ )
-	    {
-	      CkcdObjectShPtr kcdObject = attObstacleList[iObject];
-	      // Add object to list of outer objects
-	      collisionList.push_back ( kcdObject );
-	    }
-	  // Set updated list as new list of outer objects
-	  kcdBody->outerObjects ( collisionList );
-	}
-      else
-	{
-	  std::cout << "CcppProblem::obstacleList: body is not KCD body. Obstacle not inserted." << std::endl;
-	}
-    }
-
-  //----------------------------------
+  for (std::vector<CkcdObjectShPtr>::const_iterator it = 
+	 inCollisionList.begin();
+       it < inCollisionList.end();
+       it++) {
+    addObstacle(*it, true);
+  }
   return KD_OK;
 }
 
@@ -211,36 +183,22 @@ const std::vector<CkcdObjectShPtr>& ChppProblem::obstacleList()
 
 // ==========================================================================
 
-ktStatus ChppProblem::addObstacle ( const CkcdObjectShPtr& inObject )
+ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject, 
+				  bool inDistanceComputation)
 {
+  // Add object in local list
+  attObstacleList.push_back(inObject);
+
   // Get robot vector of bodies.
   CkwsDevice::TBodyVector bodyVector;
   attRobot->getBodyVector ( bodyVector );
 
   // Loop over bodies of robot.
-  for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); bodyIter < bodyVector.end(); bodyIter++ )
-    {
-      // Try to cast body into CkwsKCDBody
-      CkwsKCDBodyShPtr kcdBody;
-      ChppBodyShPtr hppBody;
-      if ( kcdBody = boost::dynamic_pointer_cast<CkwsKCDBody> ( *bodyIter ) )
-	{
-	  std::vector< CkcdObjectShPtr > collisionList = kcdBody->outerObjects();
-	  collisionList.push_back ( inObject );
-
-	  if ( hppBody = boost::dynamic_pointer_cast<ChppBody> ( kcdBody ) )
-	    {
-	      hppBody->setOuterObjects ( collisionList );
-	    }
-	  else
-	    kcdBody->outerObjects ( collisionList );
-
-	}
-      else
-	{
-	  std::cout << "ChppProblem::addObstacle: body is not KCD body. Obstacle is not inserted." << std::endl;
-	}
-    }
+  for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); 
+	bodyIter < bodyVector.end(); 
+	bodyIter++ ) {
+    ChppBody::addOuterObject(*bodyIter, inObject, inDistanceComputation);
+  }
   return KD_OK;
 }
 

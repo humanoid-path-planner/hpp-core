@@ -1,5 +1,12 @@
 2009-05-03  Florent Lamiraux  <florent@laas.fr>
 
+	Reimplement obstacle management in ChppProblem.
+	* include/hppCore/hppProblem.h, src/hppProblem.cpp:
+	Specify whether obstacle should give rise to distance computation.
+	* src/hppPlanner.cpp: added missing includes.
+
+2009-05-03  Florent Lamiraux  <florent@laas.fr>
+
 	Reindent hppProblem.h.
 	* include/hppCore/hppProblem.h: use emacs indentation.
 
