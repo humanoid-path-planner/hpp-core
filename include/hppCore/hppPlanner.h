@@ -304,7 +304,8 @@ class ChppPlanner {
    *
    * Add the obstacle to each problem of the object.
    */
-  virtual ktStatus addObstacle(CkcdObjectShPtr object);
+  virtual ktStatus addObstacle(CkcdObjectShPtr object, 
+			       bool inDistanceComputation = true);
 
   /** 
    *@}

@@ -1,3 +1,10 @@
+2009-05-04  Florent Lamiraux  <florent@laas.fr>
+
+	Add boolean argument in addObstacle().
+	* include/hppCore/hppPlanner.h,
+	* src/hppPlanner.cpp: 
+	argument specifies whether distance to obstacle should be computed.
+
 2009-05-03  Florent Lamiraux  <florent@laas.fr>
 
 	Reimplement obstacle management in ChppProblem.

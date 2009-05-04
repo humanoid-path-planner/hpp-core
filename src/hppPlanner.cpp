@@ -562,7 +562,8 @@ const std::vector< CkcdObjectShPtr > ChppPlanner::obstacleList()
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object)
+ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object, 
+				  bool inDistanceComputation)
 {
   attObstacleList.push_back(object);
 
@@ -570,7 +571,7 @@ ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object)
   unsigned int nProblem = getNbHppProblems();
   for (unsigned int iProblem=0; iProblem<nProblem; iProblem++) {
     ChppProblem& problem = hppProblemVector[iProblem];
-    problem.addObstacle(object);
+    problem.addObstacle(object, inDistanceComputation);
   }
 
   // Send notification
