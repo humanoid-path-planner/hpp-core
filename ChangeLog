@@ -1,3 +1,9 @@
+2009-05-08  Florent Lamiraux  <florent@laas.fr>
+
+	Modified implementation of ChppProblem::addObstacle().
+	* src/hppProblem.cpp: ChppProblem::addObstacle now dynamic 
+	casts CkwsBody into subtypes and takes approriate actions.
+
 2009-05-04  Florent Lamiraux  <florent@laas.fr>
 
 	Add boolean argument in addObstacle().

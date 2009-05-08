@@ -197,7 +197,22 @@ ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject,
   for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); 
 	bodyIter < bodyVector.end(); 
 	bodyIter++ ) {
-    ChppBody::addOuterObject(*bodyIter, inObject, inDistanceComputation);
+
+    if (ChppBodyShPtr hppBody = KIT_DYNAMIC_PTR_CAST(ChppBody, *bodyIter)) {
+      ODEBUG2(":addOuterObject: ChppBody type.");
+      hppBody->addOuterObject(inObject, inDistanceComputation);
+    }
+    else if (CkwsKCDBodyShPtr kcdBody = 
+	     KIT_DYNAMIC_PTR_CAST(CkwsKCDBody, *bodyIter)) {
+      ODEBUG2(":addOuterObject: CkwsKCDBody type.");
+      /*
+	Append object at the end of KineoWorks set of outer objects
+	for collision checking
+      */
+      std::vector<CkcdObjectShPtr> outerList = kcdBody->outerObjects();
+      outerList.push_back(inObject);
+      kcdBody->outerObjects(outerList);
+    }
   }
   return KD_OK;
 }
