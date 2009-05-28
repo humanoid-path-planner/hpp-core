@@ -1,3 +1,8 @@
+2009-05-28  Florent Lamiraux  <florent@laas.fr>
+
+	Make syntax compatible with up-coming versions of autoconf.
+	* configure.ac: Add brackets around arguments in macros.
+
 2009-05-08  Florent Lamiraux  <florent@laas.fr>
 
 	Modified implementation of ChppProblem::addObstacle().

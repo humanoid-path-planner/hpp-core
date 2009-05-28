@@ -32,25 +32,29 @@ if test "$setdefaultflags" = "yes"; then
   fi
 fi
 
+#look for doxygen
+AC_ARG_VAR([DOXYGEN], [the Doxygen documentation generation program])
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+
 define(kwplus_reqd, [kwsPlus >= 1.7])
-AC_SUBST(KWPLUS_REQD, "kwplus_reqd")
-PKG_CHECK_MODULES(KWSPLUS, kwplus_reqd)
+AC_SUBST([KWPLUS_REQD], ["kwplus_reqd"])
+PKG_CHECK_MODULES([KWSPLUS], [kwplus_reqd])
 
 KWSPLUS_DOCDIR=`$PKG_CONFIG kwsPlus --variable=docdir`
-AC_SUBST(KWSPLUS_DOCDIR)
-AC_SUBST(KWSPLUS_CFLAGS)
-AC_SUBST(KWSPLUS_LIBS)
+AC_SUBST([KWSPLUS_DOCDIR])
+AC_SUBST([KWSPLUS_CFLAGS])
+AC_SUBST([KWSPLUS_LIBS])
 
 AC_ARG_ENABLE(body, AC_HELP_STRING([--enable-body],
 	[Implement ChppBody class (see INSTALL for more information)]),,[enable_body=no])
 
-AC_SUBST(BODY_CFLAGS)
-AC_SUBST(BODY_HEADER_PATH)
-AC_SUBST(HPPMODEL_REQD)
-AC_SUBST(HPPMODEL_CFLAGS)
-AC_SUBST(HPPMODEL_LIBS)
-AC_SUBST(HPPMODEL_TAGFILE, [])
-AC_SUBST(HPPMODEL_PREFIX)
+AC_SUBST([BODY_CFLAGS])
+AC_SUBST([BODY_HEADER_PATH])
+AC_SUBST([HPPMODEL_REQD])
+AC_SUBST([HPPMODEL_CFLAGS])
+AC_SUBST([HPPMODEL_LIBS])
+AC_SUBST([HPPMODEL_TAGFILE], [])
+AC_SUBST([HPPMODEL_PREFIX])
 
 BODY_CFLAGS="IMPLEMENT_BODY=0"
 BODY_HEADER_PATH="hppCore"
@@ -60,22 +64,24 @@ if test x${enable_body} = xyes; then
 	BODY_HEADER_PATH="hppModel"
 	AC_MSG_NOTICE([using internal implementation of ChppBody])
 else
-	define(hppmodel_reqd, [hppModel >= 1.5])
-	AC_SUBST(HPPMODEL_REQD, [", hppmodel_reqd"])
-	PKG_CHECK_MODULES(HPPMODEL, hppmodel_reqd)
-	AC_SUBST(HPPMODEL_CFLAGS)
-	AC_SUBST(HPPMODEL_LIBS)
-	AC_SUBST(HPPMODEL_DOCDIR)
+	define(hppmodel_reqd, [hppModel >= 1.6])
+	AC_SUBST([HPPMODEL_REQD], [", hppmodel_reqd"])
+	PKG_CHECK_MODULES([HPPMODEL], [hppmodel_reqd])
+	AC_SUBST([HPPMODEL_CFLAGS])
+	AC_SUBST([HPPMODEL_LIBS])
+	AC_SUBST([HPPMODEL_DOCDIR])
 	HPPMODEL_DOCDIR=`$PKG_CONFIG --variable=docdir hppModel`
 	AC_MSG_NOTICE([using external implementation of ChppBody])
 fi
 
-AM_CONDITIONAL(BODY, test x${enable_body} = xyes)
+AM_CONDITIONAL([BODY], [test x${enable_body} = xyes])
 
-AC_OUTPUT(Makefile
+AC_CONFIG_FILES([Makefile
 	src/Makefile
 	include/Makefile
 	doc/Makefile
 	doc/hpp.dox
-	hppCore.pc
+	hppCore.pc]
 )
+
+AC_OUTPUT
