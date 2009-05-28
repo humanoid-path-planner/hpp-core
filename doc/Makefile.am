@@ -5,7 +5,14 @@
 # Author: Florent Lamiraux
 #
 
+.PHONY: doc html install-doxygen-html uninstall-doxygen-html
+
 hppCoredir = $(datadir)/doc/hppCore/html
+
+doc: html
+
+html-local: hpp.dox
+	$(DOXYGEN) hpp.dox
 
 EXTRA_DIST = \
 	header.html \
@@ -18,12 +25,18 @@ EXTRA_DIST = \
 	pictures/HRP2.jpg
 
 
-install: html-doc
-	mkdir -p $(hppCoredir)
-	$(INSTALL_DATA) html/* $(hppCoredir)
-	mkdir -p $(hppCoredir)/pictures
-	$(INSTALL_DATA) $(srcdir)/pictures/* $(hppCoredir)/pictures
-	$(INSTALL_DATA) hppCore.doxytag $(hppCoredir)
+CLEANFILES = hppCore.doxytag
 
-html-doc: hpp.dox
-	doxygen $<
+clean-local:
+	rm -rf html
+
+install-data-local: install-doxygen-html
+uninstall-local: uninstall-doxygen-html
+
+install-doxygen-html: html-local
+	$(mkdir_p) "$(DESTDIR)$(htmldir)/html"
+	cp -rf html/* "$(DESTDIR)$(htmldir)/html"
+	$(INSTALL_DATA) hppCore.doxytag "$(DESTDIR)$(htmldir)/html"
+
+uninstall-doxygen-html:
+	rm -rf "$(DESTDIR)$(htmldir)"

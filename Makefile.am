@@ -4,6 +4,7 @@
 #
 # Author: Florent Lamiraux
 #
+ACLOCAL_AMFLAGS = -I build-aux
 
 SUBDIRS = \
 	include \
@@ -13,7 +14,7 @@ SUBDIRS = \
 hppCoredir = $(libdir)/pkgconfig
 hppCore_DATA = hppCore.pc
 
-install-data-hook: documentation
-
-documentation:
-	cd doc; $(MAKE) install
+# -- Generate documentation
+.PHONY: doc html
+doc html:
+	cd doc && $(MAKE) $(AM_MAKEFLAGS) $@
