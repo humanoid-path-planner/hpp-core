@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 datarootdir=@datarootdir@
-docdir=@datadir@/doc/@PACKAGE_NAME@
+docdir=@datadir@/doc/hppCore
 
-Name: @PACKAGE@
+Name: hppCore
 Description: Core functions of humanoid path planner
 Version: @VERSION@
 Requires: @KWPLUS_REQD@@HPPMODEL_REQD@ 

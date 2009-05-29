@@ -7,7 +7,7 @@
 
 .PHONY: doc html install-doxygen-html uninstall-doxygen-html
 
-hppCoredir = $(datadir)/doc/hppCore/html
+htmldir = $(datadir)/doc/hppCore
 
 doc: html
 

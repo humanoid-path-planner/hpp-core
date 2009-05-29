@@ -1,3 +1,9 @@
+2009-05-29  Thomas Moulard  <thomas.moulard@gmail.com>
+
+	Fix documentation installation.
+	* doc/Makefile.am: replace hppcore by hppCore.
+	* hppCore.pc.in: replace variables by values.
+
 2009-05-28  Florent Lamiraux  <florent@laas.fr>
 
 	Dump current version as 1.8.1.99.
