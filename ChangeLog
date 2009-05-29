@@ -1,5 +1,10 @@
 2009-05-29  Thomas Moulard  <thomas.moulard@gmail.com>
 
+	Release 1.8.2.
+	* configure.ac: upgrade version number.
+
+2009-05-29  Thomas Moulard  <thomas.moulard@gmail.com>
+
 	Fix documentation installation.
 	* doc/Makefile.am: replace hppcore by hppCore.
 	* hppCore.pc.in: replace variables by values.
