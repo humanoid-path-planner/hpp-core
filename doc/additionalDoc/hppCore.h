@@ -3,9 +3,14 @@
 
 This package implements basic classes used as interfaces with KineoWorks. 
 The main classes are:
-\li ChppDevice: implement a humanoid robot with a dynamical model.
 \li ChppProblem: define a canonical path planning problem.
 \li ChppPlanner: contains a vector of above path planning problems to implement iterative planning algorithms that use several instaciations of a robot.
+
+Depending on configuration, classes 
+\li ChppDevice implementing a robot and
+\li ChppBody implementing a robot body
+
+are defined locally or in hppModel package.
 
 This package and depending packages implementing algorithms can be
 used with or without GUI, depending on whether we are developing and

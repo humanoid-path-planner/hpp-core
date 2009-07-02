@@ -1,3 +1,9 @@
+2009-07-03  Florent Lamiraux  <florent@laas.fr>
+
+	Modification in main documentation page.
+	* doc/additionalDoc/hppCore.h: Explain that ChppBody and ChppDevice are
+	defined either locally or in hppModel package.
+
 2009-05-29  Thomas Moulard  <thomas.moulard@gmail.com>
 
 	Dump current version as 1.8.2.99.
