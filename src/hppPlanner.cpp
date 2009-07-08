@@ -24,14 +24,8 @@
 #include "hppModel/hppBody.h"
 
 #include "KineoUtility/kitNotificator.h"
-#include "KineoWorks2/kwsConfigExtractor.h"
 #include "KineoWorks2/kwsDirectPath.h"
-#include "KineoWorks2/kwsRoadmap.h"
-#include "KineoWorks2/kwsNode.h"
-#include "KineoWorks2/kwsEdge.h"
-#include "KineoWorks2/kwsSteeringMethod.h"
 #include "KineoWorks2/kwsJoint.h"
-#include "KineoWorks2/kwsReportCfgDof.h"
 
 #include "kprParserXML/kprParserManager.h"
 #include "KineoModel/kppModelTree.h"
@@ -43,6 +37,7 @@
 
 #include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
 
+KIT_PREDEF_CLASS(CkwsSteeringMethod);
 
 const CkitNotification::TType ChppPlanner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());
 const CkitNotification::TType ChppPlanner::ID_HPP_SET_CURRENT_CONFIG(CkitNotification::makeID());
@@ -558,225 +553,7 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int inRank)
 
   ChppProblem& hppProblem = hppProblemVector[inRank];
 
-  CkppDeviceComponentShPtr hppDevice = hppProblem.getRobot();
-  if (!hppDevice) {
-    ODEBUG1(":solveOneProblem: no device in problem " << inRank << ".");
-    return KD_ERROR;
-  }
-
-  CkwsConfigShPtr initConfig = hppProblem.initConfig() ;
-  if (!initConfig) {
-    ODEBUG1(":solveOneProblem: no init config in problem " << inRank << ".");
-    return KD_ERROR;
-  }
-  CkwsConfigShPtr goalConfig = hppProblem.goalConfig() ;
-  if (!goalConfig) {
-    ODEBUG1(":solveOneProblem: no goal config in problem " << inRank << ".");
-    return KD_ERROR;
-  }
-
-  if(!hppProblem.roadmapBuilder()){
-    ODEBUG1(":solveOneProblem: problem Id=" << inRank << ": Define a roadmap builder with penetration");
-    return KD_ERROR ;
-  }
-
-  /*
-    Test that goal configuration is valid
-  */
-  if (validateConfig(hppDevice, goalConfig) != KD_OK) {
-    ODEBUG1(":solveOneProblem: goal configuration not valid.");
-    return KD_ERROR;
-  }
-
-  /*
-    Test that initial configuration is valid
-  */
-  CkwsPathShPtr solutionPath = CkwsPath::create(hppDevice);
-
-  if (validateConfig(hppDevice, initConfig) != KD_OK) {
-    /*
-      If initial configuration is not valid and configuration extractor
-      has been set, try to extract a valid configuration in the neighborhood 
-      of the initial configuration.
-    */
-    if (CkwsConfigExtractorShPtr configExtractor = hppProblemVector[inRank].configExtractor()) {
-      ODEBUG3(":solveOneProblem: configExtractor->minRadius = " << configExtractor->minRadius());
-      ODEBUG3(":solveOneProblem: configExtractor->maxRadius = " << configExtractor->maxRadius());
-      ODEBUG3(":solveOneProblem: configExtractor->scaleFactor = " << configExtractor->scaleFactor());
-      CkwsPathShPtr initConfigPath = CkwsPath::createWithConfig(*initConfig);
-	ODEBUG3(":solveOneProblem: number of configurations in initConfigPath = "
-		<< initConfigPath->countConfigurations());
-	for (unsigned int i=0; i<initConfigPath->countConfigurations(); i++ ) {
-	  CkwsConfig config(hppDevice);
-	  initConfigPath->getConfiguration(i, config);
-	  ODEBUG3(":solveOneProblem: configuration # " << i 
-		  << " = " << config);
-	}
-      if (configExtractor->plan(initConfigPath, CkwsPathPlanner::STABLE_START,
-				solutionPath) == KD_OK) {
-	ODEBUG3(":solveOneProblem: number of configurations in extracted path = "
-		<< solutionPath->countConfigurations());
-	for (unsigned int i=0; i<solutionPath->countConfigurations(); i++ ) {
-	  CkwsConfig config(hppDevice);
-	  solutionPath->getConfiguration(i, config);
-	  ODEBUG3(":solveOneProblem: configuration # " << i 
-		  << " = " << config);
-	}
-	/*
-	  Replace initConfig by end of extraction path for path planning problem
-	*/
-	initConfig = solutionPath->configAtEnd();
-	if (!initConfig) {
-	  ODEBUG1(":solveOneProblem: no configuration at end of extraction path.");
-	  return KD_ERROR;
-	}
-      }
-      else {
-	ODEBUG1(":solveOneProblem: failed to extract initial configuration.");
-	return KD_ERROR;
-      }
-    }
-    else {
-      ODEBUG2(":solveOneProblem: initial configuration not valid.");
-      return KD_ERROR;
-    }
-  }
-  double penetration = hppProblem.roadmapBuilder()->penetration();
-
-  /*
-    Try first a direct path.
-  */
-  CkwsSteeringMethodShPtr steeringMethod = hppDevice->steeringMethod();
-
-  if ( initConfig && goalConfig && steeringMethod) {
-    CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConfig, *goalConfig);
-
-    if (directPath) {
-      /*
-	Retrieve validators of device
-      */
-      CkwsDirectPathValidatorSetConstShPtr dpValidators = 
-	hppDevice->directPathValidators();
-      
-      dpValidators->validate(*directPath);
-      if (directPath->isValid()) {
-
-	ODEBUG2(":solveOneProblem: Problem solved with direct connection. ");
-
-	/* Add direct path to roadmap if not already included */
-	if (hppProblem.roadmapBuilder()) {
-	  CkwsRoadmapShPtr roadmap = hppProblem.roadmapBuilder()->roadmap();
-	  ODEBUG2(":solveOneProblem: number of edges in roadmap before inserting nodes = " << roadmap->countEdges());
-	  
-	  CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*initConfig);
-	  CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*goalConfig);
-
-	  ODEBUG2(":solveOneProblem: number of edges in roadmap after creating nodes = " << roadmap->countEdges());
-
-	  /* If start and goal node are not in roadmap, add them. */
-	  if (!startNode) {
-	    startNode = CkwsNode::create(*initConfig);
-	    if (roadmap->addNode(startNode) != KD_OK) {
-	      ODEBUG1(":solveOneProblem: failed to add start node in roadmap.");
-	      startNode.reset();
-	    }
-	  }
-	  if (!goalNode) {
-	    goalNode = CkwsNode::create(*goalConfig);
-	    if (roadmap->addNode(goalNode) != KD_OK) {
-	      ODEBUG1(":solveOneProblem: failed to add goal node in roadmap.");
-	      goalNode.reset();
-	    }
-	  }
-	  
-	  ODEBUG2(":solveOneProblem: number of edges in roadmap after adding nodes = " << roadmap->countEdges());
-
-	  if (startNode && goalNode) {
-	    /* Add edge only if goal node is not accessible from initial node */
-	    if (!startNode->hasTransitiveOutNode(goalNode)) {
-	      CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
-	      
-	      if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
-		ODEBUG2(":solveOneProblem: Failed to add direct path in roadmap.");
-	      }
-	    }
-	    ODEBUG2(":solveOneProblem: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
-	  }
-	}
-	solutionPath->appendDirectPath(directPath);
-	// Add the path to vector of paths of the problem.
-	hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
-
-	return KD_OK;
-      }
-    }
-  } else {
-    ODEBUG1(":solveOneProblem: problem ill-defined:initConfig, GoalConfig or steering method not defined");
-    return KD_ERROR ;
-  }
-
-
-  /*
-    solve the problem with the roadmapBuilder
-  */
-  if (hppProblem.roadmapBuilder()) {
-
-    CkwsPathShPtr kwsPath = CkwsPath::create(hppDevice);
-
-    if(KD_OK == hppProblem.roadmapBuilder()->solveProblem( *initConfig , *goalConfig , kwsPath)) {
-      ODEBUG2(":solveOneProblem: --- Problem solved.----");
-    } else {
-      ODEBUG1(":solveOneProblem: ---- Problem NOT solved.----");
-      return KD_ERROR;
-    }
-    if (!kwsPath) {
-      ODEBUG1(":solveOneProblem: no path after successfully solving the problem");
-      ODEBUG1(":solveOneProblem: this should not happen.");
-      return KD_ERROR;
-    }
-
-    if (kwsPath->length()== 0) {
-      ODEBUG1(":solveOneProblem: Path length is 0 after successfully solving the problem");
-      ODEBUG1(":solveOneProblem: this should not happen.");
-      return KD_ERROR;
-    }
-
-    /*
-      Store path before optimization
-    */
-    if (solutionPath->appendPath(kwsPath) != KD_OK) {
-      ODEBUG1(":solveOneProblem: failed at appending solution path to extraction path.");
-      return KD_ERROR;
-    }
-    hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
-
-    // optimizer for the path
-    if (hppProblem.pathOptimizer()) {
-      if (hppProblem.pathOptimizer()->optimizePath(solutionPath, penetration)
-	  == KD_OK) {
-	
-	ODEBUG2(":solveOneProblem: path optimized with penetration " 
-		<< penetration);
-      }
-      else {
-	ODEBUG1(":solveOneProblem: path optimization failed.");
-      }
-      
-    } else {
-      ODEBUG1(":solveOneProblem: no Optimizer Defined ");
-    }
-
-    if (solutionPath) {
-      ODEBUG2(":solveOneProblem: number of direct path: "<<kwsPath->countDirectPaths());
-      // Add the path to vector of paths of the problem.
-      hppProblem.addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
-    }
-  } else {
-    ODEBUG1(":solveOneProblem: no roadmap builder");
-    return KD_ERROR ;
-  }
-
-  return KD_OK ;
+  return hppProblem.solve();
 }
 
 ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPathId)
@@ -911,37 +688,6 @@ void ChppPlanner::interruptPathPlanning()
     return;
   }
   attStopRdmBuilderDelegate->shouldStop(true);
-}
-
-ktStatus ChppPlanner::validateConfig(CkppDeviceComponentShPtr inDevice, 
-				     const CkwsConfigShPtr& inConfig)
-{
-  inDevice->configValidators()->validate(*inConfig);
-  
-  if (inConfig->isValid()) {
-    return KD_OK;
-  }
-  for(unsigned int i=0; i<inConfig->countReports(); ++i) {
-    std::string theValidatorName;
-    CkwsValidationReportConstShPtr theReport(inConfig->report(i, theValidatorName));
-    if(!theReport->isValid()) {
-      ODEBUG2(" " << theValidatorName << 
-	      " failed at validating the configuration.");
-      
-      // If this is a CkwsDofReport then we can retrieve more information...
-      CkwsReportCfgDofConstShPtr theDofReport;
-      theDofReport = KIT_DYNAMIC_PTR_CAST(CkwsReportCfgDof const, theReport);
-      if(theDofReport) {
-	for(unsigned int j=0; j<theDofReport->countDofs(); ++j) {
-	  if(!theDofReport->isDofValid(j)) {
-	    ODEBUG1(" Dof #" << j << " is invalid.");
-	  }
-	}
-      }
-
-    }
-  }
-  return KD_ERROR;
 }
 
 ktStatus ChppPlanner::parseFile(string inFileName)

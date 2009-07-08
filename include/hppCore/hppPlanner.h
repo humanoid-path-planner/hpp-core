@@ -394,11 +394,6 @@ class ChppPlanner {
 private:
 
   /**
-     \brief Validate configuration and track validation reports.
-  */
-  ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, const CkwsConfigShPtr& inConfig);
-
-  /**
      \brief pointer to a KineoWorks notificator.
   */
   CkitNotificatorShPtr attNotificator;

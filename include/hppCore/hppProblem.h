@@ -200,6 +200,13 @@ class ChppProblem
   double penetration() const;
 
   /**
+     \brief Solve the problem
+
+     \return KD_OK if success, KD_ERROR if failure
+  */
+  ktStatus solve();
+
+  /**
      \brief Add a path to the vector.
      \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_PATH.
   */
@@ -225,6 +232,13 @@ class ChppProblem
 
 
  private :
+
+  /**
+     \brief Validate configuration and track validation reports.
+  */
+  ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, 
+			  const CkwsConfigShPtr& inConfig);
+
 		
   /**
      \brief Set the penetration of the collision direct path validator of the robot
