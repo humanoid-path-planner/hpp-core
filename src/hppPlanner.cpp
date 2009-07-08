@@ -111,27 +111,6 @@ ChppPlanner::~ChppPlanner()
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot)
-{
-  ChppProblem hppProblem(robot, attObstacleList, HPPPLANNER_DEFAULT_PENETRATION);
-
-  ODEBUG2(":addHppProblem: adding a problem in vector");
-  // Add robot in vector .
-  hppProblemVector.push_back(hppProblem);
-
- 
-  CkitNotificationShPtr notification 
-    = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
-  // set attribute if necessary
-  notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
-  attNotificator->notify(notification);
-
-
-  return KD_OK;
-}
-
-// ==========================================================================
-
 ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr inRobot, 
 				    double inPenetration)
 {
@@ -168,24 +147,6 @@ ktStatus ChppPlanner::removeHppProblem()
 
 }
 
-// ==========================================================================
-
-ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot)
-{
-  ChppProblem hppProblem(robot, attObstacleList, HPPPLANNER_DEFAULT_PENETRATION);
-
-  ODEBUG2(":addHppProblemAtBeginning: adding a problem");
-  // Add robot in vector .
-  hppProblemVector.push_front(hppProblem);
-
-  CkitNotificationShPtr notification  = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
-  // set attribute if necessary
-  notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
-  attNotificator->notify(notification);
-
-
-  return KD_OK;
-}
 // ==========================================================================
 
 ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot, 

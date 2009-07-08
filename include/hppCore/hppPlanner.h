@@ -71,18 +71,6 @@ class ChppPlanner {
   /**
      \brief Add a Problem to the Problem vector with the associed robot.
  
-     \param robot : a shared pointer to a robot
-     \return KD_OK if success, KD_ERROR otherwise
-
-     \deprecated Call addHppProblem(CkppDeviceComponentShPtr inRobot, double inPenetration) instead.
-
-     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
-  */
-  ktStatus addHppProblem(CkppDeviceComponentShPtr robot) __attribute__ ((deprecated));
-
-  /**
-     \brief Add a Problem to the Problem vector with the associed robot.
- 
      \param inRobot : a shared pointer to a robot
      \param inPenetration dynamic penetration allowed for validating direct paths.
 
@@ -98,18 +86,6 @@ class ChppPlanner {
      \return a int
   */
   ktStatus removeHppProblem();
-
-  /**
-     \brief Add a Problem at beginning of the Problem vector with the associed robot.
- 
-     \param robot : a shared pointer to a robot
-     \return KD_OK if success, KD_ERROR otherwise
-
-     \deprecated Call addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot, double inPenetration) instead.
-
-     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_ROBOT.
-  */
-  ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot) __attribute__ ((deprecated));
 
   /**
      \brief Add a Problem at beginning of the Problem vector with the associed robot.
