@@ -1,28 +1,24 @@
-# Research carried out within the scope of the Associated
-# International Laboratory: Joint Japanese-French Robotics Laboratory
-# (JRL)
-#
-# Author: Florent Lamiraux
-#
+include $(top_srcdir)/build-aux/init.mk
+
+# Add available warnings flags.
+AM_CXXFLAGS += $(WARNING_CXXFLAGS)
+
+# Add kwsPlus CPPFLAGS.
+AM_CPPFLAGS += @KWSPLUS_CFLAGS@
 
 lib_LTLIBRARIES = libhppCore.la
-libhppCore_la_SOURCES = \
-	hppColPair.cpp \
-	hppProblem.cpp \
-	hppPlanner.cpp
+libhppCore_la_SOURCES = 	\
+	hppColPair.cpp 		\
+	hppPlanner.cpp		\
+	hppProblem.cpp
 
-libhppCore_la_CPPFLAGS = -I$(srcdir)/../include 
-libhppCore_la_LDFLAGS =\
-	@KWSPLUS_LIBS@	\
-	-release ${PACKAGE_VERSION}
+libhppCore_la_LIBADD = @KWSPLUS_LIBS@
+libhppCore_la_LDFLAGS = -release ${PACKAGE_VERSION}
 
 if BODY
-libhppCore_la_SOURCES += \
-	hppBody.cpp 
-libhppCore_la_CPPFLAGS += -I$(srcdir)/../include/hppModel
+ AM_CPPFLAGS += -I$(top_srcdir)/include/hppModel
+ libhppCore_la_SOURCES += hppBody.cpp
 else
-libhppCore_la_CPPFLAGS += @HPPMODEL_CFLAGS@
-libhppCore_la_LDFLAGS += @HPPMODEL_LIBS@
+ AM_CPPFLAGS += @HPPMODEL_CFLAGS@
+ libhppCore_la_LIBADD += @HPPMODEL_LIBS@
 endif
-
-libhppCore_la_CPPFLAGS += @KWSPLUS_CFLAGS@

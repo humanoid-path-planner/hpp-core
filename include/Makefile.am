@@ -1,20 +1,14 @@
-# Research carried out within the scope of the Associated
-# International Laboratory: Joint Japanese-French Robotics Laboratory
-# (JRL)
-#
-# Author: Florent Lamiraux
-#
+include $(top_srcdir)/build-aux/init.mk
 
-hppCoredir = @includedir@/hppCore
-hppCore_HEADERS = \
-	hppCore/hppColPair.h \
-	hppCore/hppProblem.h \
-	hppCore/hppPlanner.h
+# --- Distribute and install headers.
+nobase_include_HEADERS =			 	\
+	hppCore/hppColPair.h 				\
+	hppCore/hppPlanner.h				\
+	hppCore/hppProblem.h
 
 if BODY
-hppModeldir = @includedir@/hppModel
-hppModel_HEADERS = \
-	hppModel/hppModel/hppBody.h 
+ hppModeldir = $(includedir)/hppModel
+ hppModel_HEADERS = hppModel/hppModel/hppBody.h
 endif
 
 

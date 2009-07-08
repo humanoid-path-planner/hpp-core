@@ -1,40 +1,64 @@
-dnl autoconf script for hppCore libs
-dnl
-dnl  Research carried out within the scope of the Associated
-dnl  International Laboratory: Joint Japanese-French Robotics Laboratory (JRL) 
-dnl
-dnl   Author: Florent Lamiraux LAAS-CNRS
-dnl
+# Don't expend macros beginning by JRL_.
+m4_pattern_forbid([^JRL_])
+AC_PREREQ([2.59])
 
-AC_INIT([hppCore],[1.8.2.99],[openrobots@laas.fr])
-AC_PREREQ(2.59)
+## --------------------- ##
+## Package configuration ##
+## --------------------- ##
+AC_INIT([hppCore], [1.8.2.99], [openrobots@laas.fr], [hppCore])
 
-if test "$CFLAGS$CXXFLAGS" = ""; then
-  setdefaultflags=yes
-else
-  setdefaultflags=no
-fi
+# Auxiliary files.
+AC_CONFIG_AUX_DIR([build-aux])
 
-AM_INIT_AUTOMAKE([foreign no-define])
-AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+# Automake.
+AM_INIT_AUTOMAKE([1.9.6 dist-bzip2 -Wall nostdinc])
 
+## ------------- ##
+## C++ compiler  ##
+## ------------- ##
+
+# Search for a C++ compiler.
+AC_LANG([C++])
 AC_PROG_CXX
 
-if test "$setdefaultflags" = "yes"; then
-  if test "$GCC" = "yes"; then
-    CFLAGS="$CFLAGS -Wall"
-    AC_MSG_NOTICE([adding default "-Wall" c flags])
-  fi
-  if test "$GXX" = "yes"; then
-    CXXFLAGS="$CXXFLAGS -Wall"
-    AC_MSG_NOTICE([adding default "-Wall" c++ flags])
-  fi
+# Speed-up compilation.
+if test "$GXX" = yes; then
+  CXXFLAGS="$CXXFLAGS -pipe"
 fi
 
-#look for doxygen
-AC_ARG_VAR([DOXYGEN], [the Doxygen documentation generation program])
-AC_CHECK_PROGS([DOXYGEN], [doxygen])
+# Macros are stored in build-aux.
+AC_CONFIG_MACRO_DIR([build-aux])
+
+## ------------------- ##
+## Additionnal tools.  ##
+## ------------------- ##
+
+# Search for misc. common tools.
+AC_PROG_MKDIR_P
+AC_PROG_SED
+AC_PROG_INSTALL
+
+# Customize warnings.
+JRL_CXX_WARNINGS([[-Wall],
+                   [-Wcast-align],
+                   [-Wcast-qual],
+                   [-Wformat],
+                   [-Wmissing-prototypes],
+                   [-Wstrict-prototypes],
+                   [-Wwrite-strings],
+                   [-Wbad-function-cast],
+                   [-Wmissing-declarations],
+                   [-Wnested-externs]])
+
+# Search for Libtool.
+LT_INIT([dlopen])
+
+# Search for Doxygen.
+JRL_PROG_DOXYGEN
+
+## ------------------------- ##
+## Search for dependencies.  ##
+## ------------------------- ##
 
 define(kwplus_reqd, [kwsPlus >= 1.7])
 AC_SUBST([KWPLUS_REQD], ["kwplus_reqd"])
@@ -65,7 +89,7 @@ if test x${enable_body} = xyes; then
 	AC_MSG_NOTICE([using internal implementation of ChppBody])
 else
 	define(hppmodel_reqd, [hppModel >= 1.6])
-	AC_SUBST([HPPMODEL_REQD], [", hppmodel_reqd"])
+	AC_SUBST([HPPMODEL_REQD], ["hppmodel_reqd"])
 	PKG_CHECK_MODULES([HPPMODEL], [hppmodel_reqd])
 	AC_SUBST([HPPMODEL_CFLAGS])
 	AC_SUBST([HPPMODEL_LIBS])
@@ -76,12 +100,29 @@ fi
 
 AM_CONDITIONAL([BODY], [test x${enable_body} = xyes])
 
-AC_CONFIG_FILES([Makefile
-	src/Makefile
-	include/Makefile
-	doc/Makefile
-	doc/hpp.dox
-	hppCore.pc]
-)
 
-AC_OUTPUT
+## ------------ ##
+## Pkg-config.  ##
+## ------------ ##
+
+AC_SUBST([PKGCONFIG_DESCRIPTION], ['HPP Core'])
+AC_SUBST([PKGCONFIG_REQUIRES],
+	 ["${KWPLUS_REQD}, ${HPPMODEL_REQD}"])
+AC_SUBST([PKGCONFIG_CONFLICTS], [])
+AC_SUBST([PKGCONFIG_LIBS], [-lhppCore])
+AC_SUBST([PKGCONFIG_CFLAGS], [])
+
+## -------------- ##
+## Write output.  ##
+## -------------- ##
+
+# Create config.h
+AC_CONFIG_HEADERS([config.h])
+
+# Creating Makefiles.
+AC_OUTPUT([
+	Makefile
+	include/Makefile
+	src/Makefile
+	doc/Makefile
+])

@@ -1,3 +1,39 @@
+2009-07-08  Thomas Moulard  <thomas.moulard@gmail.com>
+
+	Clean package.
+	* .gitignore: Update ignore list.
+	* Makefile.am: Add pkg-config, Libtool, doc rules.
+	* NEWS: New.
+	* build-aux/bootstrap: Do not overwrite generated files.
+	* build-aux/config.guess: New.
+	* build-aux/config.sub: New.
+	* build-aux/depcomp: New.
+	* build-aux/doxygen.m4: New.
+	* build-aux/init.mk: New.
+	* build-aux/install-sh: New.
+	* build-aux/kineo.mk: New.
+	* build-aux/libtool.m4: New.
+	* build-aux/ltmain.sh: New.
+	* build-aux/ltoptions.m4: New.
+	* build-aux/ltsugar.m4: New.
+	* build-aux/ltversion.m4: New.
+	* build-aux/lt~obsolete.m4: New.
+	* build-aux/missing: New.
+	* build-aux/move-if-change: New.
+	* build-aux/pkg-config.mk: New.
+	* build-aux/pkg-config.pc.in: New.
+	* build-aux/warning.m4: New.
+	* configure.ac: Clean.
+	* doc/Doxyfile.in: Rename from doc/hpp.dox.in.
+	* doc/Makefile.am: Use generic rules.
+	* doc/additionalDoc/package.h: New.
+	* doc/footer.html,
+	* doc/header.html: Make generic.
+	* doc/package.css: Rename from doc/hpp.css.
+	* doc/pictures/footer.jpg: Rename from doc/pictures/HRP2.jpg.
+	* include/Makefile.am: Simplify.
+	* src/Makefile.am: Simplify.
+
 2009-07-03  Florent Lamiraux  <florent@laas.fr>
 
 	Modification in main documentation page.

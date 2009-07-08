@@ -1,42 +1,52 @@
-# Research carried out within the scope of the Associated
-# International Laboratory: Joint Japanese-French Robotics Laboratory
-# (JRL)
-#
-# Author: Florent Lamiraux
-#
+# Distributed files.
+EXTRA_DIST = 				\
+	Doxyfile.in			\
+	additionalDoc/package.h 	\
+	footer.html 			\
+	header.html 			\
+	package.css 			\
+	pictures/footer.jpg
 
-.PHONY: doc html install-doxygen-html uninstall-doxygen-html
+# Generated files.
+CLEANFILES =				\
+	$(PACKAGE_TARNAME).doxytag	\
+	Doxyfile			\
+	config.log
 
-htmldir = $(datadir)/doc/hppCore
+.PHONY: 				\
+	doc				\
+	html				\
+	doxygen 			\
+	install-doxygen-html		\
+	uninstall-doxygen-html
 
+# Rules.
 doc: html
 
-html-local: hpp.dox
-	$(DOXYGEN) hpp.dox
+html-local: doxygen
 
-EXTRA_DIST = \
-	header.html \
-	footer.html \
-	hpp.css \
-	additionalDoc/hppCore.h \
-	figures/archi.fig \
-	figures/archi.png \
-	figures/archi.pdf \
-	pictures/HRP2.jpg
+doxygen: Doxyfile
+	$(DOXYGEN) "$<" \
+	&& cp -rf $(top_srcdir)/doc/pictures/* html
 
+# Doxygen generation rule.
+Doxyfile: $(srcdir)/Doxyfile.in
+	$(top_builddir)/config.status --file="$@":"$<" \
+	&& sed -i -e 's/^#.*//' -e '/^$$/d' "$@"
 
-CLEANFILES = hppCore.doxytag
-
+# Clean rule.
 clean-local:
-	rm -rf html
+	rm -rf html latex
 
+# Install rules.
 install-data-local: install-doxygen-html
 uninstall-local: uninstall-doxygen-html
 
 install-doxygen-html: html-local
-	$(mkdir_p) "$(DESTDIR)$(htmldir)/html"
-	cp -rf html/* "$(DESTDIR)$(htmldir)/html"
-	$(INSTALL_DATA) hppCore.doxytag "$(DESTDIR)$(htmldir)/html"
+	$(mkdir_p) "$(DESTDIR)$(htmldir)"
+	cp -rf html "$(DESTDIR)$(htmldir)"
+	$(INSTALL_DATA) $(PACKAGE_TARNAME).doxytag \
+		"$(DESTDIR)$(htmldir)/html"
 
 uninstall-doxygen-html:
 	rm -rf "$(DESTDIR)$(htmldir)"
