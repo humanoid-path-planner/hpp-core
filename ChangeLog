@@ -1,5 +1,13 @@
 2009-07-09  Thomas Moulard  <thomas.moulard@gmail.com>
 
+	Embed properly images in documentation.
+	* doc/Makefile.am: Distribute images properly.
+	* doc/pictures/archi.fig: Rename from doc/figures/archi.fig.
+	* doc/pictures/archi.pdf: Rename from doc/figures/archi.pdf.
+	* doc/pictures/archi.png: Rename from doc/figures/archi.png.
+
+2009-07-09  Thomas Moulard  <thomas.moulard@gmail.com>
+
 	Fix URL field in pkg-config file.
 	* build-aux/pkg-config.pc.in,
 	* configure.ac: Use configure defined value for URL

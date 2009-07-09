@@ -5,7 +5,10 @@ EXTRA_DIST = 				\
 	footer.html 			\
 	header.html 			\
 	package.css 			\
-	pictures/footer.jpg
+	pictures/footer.jpg		\
+	pictures/archi.fig		\
+	pictures/archi.png		\
+	pictures/archi.pdf
 
 # Generated files.
 CLEANFILES =				\
