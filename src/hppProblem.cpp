@@ -126,13 +126,6 @@ void ChppProblem::initMapOuter()
 
 // ==========================================================================
 
-CkppDeviceComponentShPtr ChppProblem::getRobot() const
-{
-  return attRobot;
-}
-
-// ==========================================================================
-
 CkwsConfigShPtr ChppProblem::initConfig() const
 {
   return attInitConf;

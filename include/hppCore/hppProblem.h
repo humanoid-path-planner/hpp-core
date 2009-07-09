@@ -73,7 +73,10 @@ class ChppProblem
   /**
    * \brief return shared pointer to robot.
    */
-  CkppDeviceComponentShPtr getRobot() const;
+  const CkppDeviceComponentShPtr& getRobot() const {
+    return attRobot;
+  };
+
   /**
    * \brief Get shared pointer to initial configuration.
    */
