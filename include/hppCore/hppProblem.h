@@ -20,6 +20,7 @@
 #define HPPPROBLEM_ODEBUG2(x) std::cout << "ChppProblem:" << x << std::endl
 #define HPPPROBLEM_ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
 #elif DEBUG==1
+#include "kwsioConfig.h"
 #define HPPPROBLEM_ODEBUG3(x)
 #define HPPPROBLEM_ODEBUG2(x)
 #define HPPPROBLEM_ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
