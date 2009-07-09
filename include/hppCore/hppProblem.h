@@ -174,6 +174,18 @@ class ChppProblem
   CkwsPathOptimizerShPtr pathOptimizer() ;
 
   /**
+     \brief Determine whether the path optimizer should always be called
+
+     In the default behaviour, ChppProblem::solve() does not call the path
+     optimizer if the path resulting from path planning includes one single
+     direct path. This behaviour can be changed by calling this function 
+     with true as an argument.
+  */
+  void alwaysOptimize(bool inAlwaysOptimize) {
+    attAlwaysOptimize = inAlwaysOptimize;
+  };
+
+  /**
      \brief Set configuration extractor
      \param inConfigExtractor
   */
@@ -201,6 +213,18 @@ class ChppProblem
 
   /**
      \brief Solve the problem
+
+     This function successively performs the following steps
+     \li check that the problem is well defined,
+     \li solve the path planning problem
+     \li optimize the resulting path if success.
+
+     The path planning step performs the following operations:
+     \li call the steering method and validate the resulting path,
+     \li if failure, call the roadmap builder.
+
+     Unless otherwise specified (see ChppProblem::alwaysOptimize()), a path
+     containing only one direct path is not optimized.
 
      \return KD_OK if success, KD_ERROR if failure
   */
@@ -309,6 +333,11 @@ class ChppProblem
      \brief Penetration
   */
   double attPenetration;
+
+  /**
+     \brief Whether the path optimizer should be called anyway
+  */
+  bool attAlwaysOptimize;
 
  public:
   // for notification:

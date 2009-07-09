@@ -57,7 +57,8 @@ const std::string ChppProblem::DEVICE_KEY ( "device" );
 ChppProblem::ChppProblem ( CkppDeviceComponentShPtr inRobot, double inPenetration ) :
   attNotificator ( CkitNotificator::defaultNotificator() ),
   attRobot ( inRobot ),
-  attPenetration(inPenetration)
+  attPenetration(inPenetration),
+  attAlwaysOptimize(false)
 {
   /*
     Set the input penetration in the direct path collision validator of the robot
@@ -73,7 +74,8 @@ ChppProblem::ChppProblem (CkppDeviceComponentShPtr inRobot,
 			  double inPenetration) :
   attNotificator ( CkitNotificator::defaultNotificator() ),
   attRobot ( inRobot ),
-  attPenetration(inPenetration)
+  attPenetration(inPenetration),
+  attAlwaysOptimize(false)
 {
   /*
     Set the input penetration in the direct path collision validator of the robot
@@ -97,7 +99,8 @@ ChppProblem::ChppProblem(const ChppProblem& inProblem) :
   attObstacleList(inProblem.attObstacleList),
   attPathVector(inProblem.attPathVector),
   attMapOuter(inProblem.attMapOuter),
-  attPenetration(inProblem.attPenetration)
+  attPenetration(inProblem.attPenetration),
+  attAlwaysOptimize(inProblem.attAlwaysOptimize)
 {
 }
 

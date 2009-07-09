@@ -328,10 +328,13 @@ class ChppPlanner {
 
     /**
        \brief Solve a problem in the vector.
+
        \param inRank the rank of the problem in vector.
        \return KD_OK or KD_ERROR
        
-       If successful, the function stores the resulting path in the hppProblem (hppProblemVector[inRank].addPath()).
+       See ChppProblem::solve() for more information.
+
+       If successful, the function stores the resulting path in the hppProblem.
     */
     virtual ktStatus solveOneProblem(unsigned int inRank);
 
