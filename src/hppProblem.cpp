@@ -239,6 +239,10 @@ ktStatus ChppProblem::checkProblem() const
 ktStatus ChppProblem::validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
 					 CkwsPathShPtr& inOutPath) const
 {
+  if (validateConfig(getRobot(), initConfig()) == KD_OK) {
+    ODEBUG2(":validateInitConfig: initial configuration is valid.");
+    return KD_OK;
+  }
   /*
     If initial configuration is not valid and configuration extractor
     has been set, try to extract a valid configuration in the neighborhood
