@@ -233,24 +233,18 @@ CkwsSteeringMethodShPtr ChppProblem::steeringMethod() const
   return attRobot->steeringMethod();
 }
 
-// ==========================================================================
-
-ktStatus ChppProblem::solve()
+ktStatus ChppProblem::checkProblem() const
 {
-
-  CkppDeviceComponentShPtr hppDevice = getRobot();
-  if (!hppDevice) {
+  if (!getRobot()) {
     ODEBUG1(":solve: no device in problem " << inRank << ".");
     return KD_ERROR;
   }
-
-  CkwsConfigShPtr initConf = attInitConf;
-  if (!initConf) {
+  
+  if (!initConfig()) {
     ODEBUG1(":solve: no init config in problem " << inRank << ".");
     return KD_ERROR;
   }
-  CkwsConfigShPtr goalConf = attGoalConf;
-  if (!goalConf) {
+  if (!goalConfig()) {
     ODEBUG1(":solve: no goal config in problem " << inRank << ".");
     return KD_ERROR;
   }
@@ -263,17 +257,30 @@ ktStatus ChppProblem::solve()
   /*
     Test that goal configuration is valid
   */
-  if (validateConfig(hppDevice, goalConf) != KD_OK) {
+  if (validateConfig(getRobot(), goalConfig()) != KD_OK) {
     ODEBUG1(":solve: goal configuration not valid.");
     return KD_ERROR;
   }
+  return KD_OK;
+}
 
+// ==========================================================================
+
+ktStatus ChppProblem::solve()
+{
+  if (checkProblem() != KD_OK) {
+    ODEBUG1(":solve: problem formulation is not correct.");
+    return KD_ERROR;
+  }
+
+  CkwsConfigShPtr initConf = attInitConf;
+  CkwsConfigShPtr goalConf = attGoalConf;
   /*
     Test that initial configuration is valid
   */
-  CkwsPathShPtr solutionPath = CkwsPath::create(hppDevice);
+  CkwsPathShPtr solutionPath = CkwsPath::create(getRobot());
 
-  if (validateConfig(hppDevice, initConf) != KD_OK) {
+  if (validateConfig(getRobot(), initConf) != KD_OK) {
     /*
       If initial configuration is not valid and configuration extractor
       has been set, try to extract a valid configuration in the neighborhood 
@@ -287,7 +294,7 @@ ktStatus ChppProblem::solve()
 	ODEBUG3(":solve: number of configurations in initConfigPath = "
 		<< initConfigPath->countConfigurations());
 	for (unsigned int i=0; i<initConfigPath->countConfigurations(); i++ ) {
-	  CkwsConfig config(hppDevice);
+	  CkwsConfig config(getRobot());
 	  initConfigPath->getConfiguration(i, config);
 	  ODEBUG3(":solve: configuration # " << i 
 		  << " = " << config);
@@ -297,7 +304,7 @@ ktStatus ChppProblem::solve()
 	ODEBUG3(":solve: number of configurations in extracted path = "
 		<< solutionPath->countConfigurations());
 	for (unsigned int i=0; i<solutionPath->countConfigurations(); i++ ) {
-	  CkwsConfig config(hppDevice);
+	  CkwsConfig config(getRobot());
 	  solutionPath->getConfiguration(i, config);
 	  ODEBUG3(":solve: configuration # " << i 
 		  << " = " << config);
@@ -326,7 +333,7 @@ ktStatus ChppProblem::solve()
   /*
     Try first a direct path.
   */
-  CkwsSteeringMethodShPtr steeringMethod = hppDevice->steeringMethod();
+  CkwsSteeringMethodShPtr steeringMethod = getRobot()->steeringMethod();
 
   if ( initConf && goalConf && steeringMethod) {
     CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConf, *goalConf);
@@ -336,7 +343,7 @@ ktStatus ChppProblem::solve()
 	Retrieve validators of device
       */
       CkwsDirectPathValidatorSetConstShPtr dpValidators = 
-	hppDevice->directPathValidators();
+	getRobot()->directPathValidators();
       
       dpValidators->validate(*directPath);
       if (directPath->isValid()) {
@@ -401,7 +408,7 @@ ktStatus ChppProblem::solve()
   */
   if (roadmapBuilder()) {
 
-    CkwsPathShPtr kwsPath = CkwsPath::create(hppDevice);
+    CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
 
     if(KD_OK == roadmapBuilder()->solveProblem( *initConf , *goalConf , kwsPath)) {
       ODEBUG2(":solve: --- Problem solved.----");
@@ -510,7 +517,7 @@ void ChppProblem::roadmapBuilder ( CkwsRoadmapBuilderShPtr inRoadmapBuilder )
 
 // ==========================================================================
 
-CkwsRoadmapBuilderShPtr ChppProblem::roadmapBuilder()
+CkwsRoadmapBuilderShPtr ChppProblem::roadmapBuilder() const
 {
 
   return attRoadmapBuilder ;
@@ -594,8 +601,9 @@ void ChppProblem::setPenetration()
 
 // ==========================================================================
 
-ktStatus ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice, 
-				     const CkwsConfigShPtr& inConfig)
+ktStatus 
+ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice, 
+				     const CkwsConfigConstShPtr& inConfig) const
 {
   inDevice->configValidators()->validate(*inConfig);
   

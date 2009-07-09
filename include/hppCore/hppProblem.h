@@ -94,8 +94,10 @@ class ChppProblem
    */
   ktStatus goalConfig ( CkwsConfigShPtr i_config );
   /**
-     \brief Set device steering method
+     \brief Check that problem is well formulated
   */
+  ktStatus checkProblem() const;
+
   /**
    *@}
    */
@@ -154,7 +156,7 @@ class ChppProblem
   /**
      \brief Get roadmap building strategy.
   */
-  CkwsRoadmapBuilderShPtr roadmapBuilder() ;
+  CkwsRoadmapBuilderShPtr roadmapBuilder() const;
   /**
      \brief set roadmap.
      \param inRoadmap shared pointer to a roadmap.
@@ -264,7 +266,7 @@ class ChppProblem
      \brief Validate configuration and track validation reports.
   */
   ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, 
-			  const CkwsConfigShPtr& inConfig);
+			  const CkwsConfigConstShPtr& inConfig) const;
 
 		
   /**
