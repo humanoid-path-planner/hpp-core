@@ -80,19 +80,38 @@ class ChppProblem
   /**
    * \brief Get shared pointer to initial configuration.
    */
-  CkwsConfigShPtr initConfig() const;
+  CkwsConfigShPtr initConfig() const {
+    return attInitConf;
+  };
+
   /**
    * \brief Set initial configuration.
    */
-  ktStatus initConfig ( CkwsConfigShPtr i_config );
+  ktStatus initConfig ( CkwsConfigShPtr inConfig ) {
+    if (inConfig->device() != attRobot) {
+      ODEBUG1(":goalConfig: configuration device does not match problem device.");
+      return KD_ERROR;
+    }
+    attInitConf = inConfig;
+    return KD_OK;
+  };
   /**
    * \brief Get shared pointer to goal configuration.
    */
-  CkwsConfigShPtr goalConfig() const;
+  CkwsConfigShPtr goalConfig() const {
+    return attGoalConf;
+  };
   /**
    * \brief Set goal configuration.
    */
-  ktStatus goalConfig ( CkwsConfigShPtr i_config );
+  ktStatus goalConfig ( CkwsConfigShPtr inConfig ) {
+    if (inConfig->device() != attRobot) {
+      ODEBUG1(":goalConfig: configuration device does not match problem device.");
+      return KD_ERROR;
+    }
+    attGoalConf = inConfig;
+    return KD_OK;
+  };
   /**
      \brief Check that problem is well formulated
   */
