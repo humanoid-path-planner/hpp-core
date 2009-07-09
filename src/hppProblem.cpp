@@ -126,18 +126,6 @@ void ChppProblem::initMapOuter()
 
 // ==========================================================================
 
-ktStatus ChppProblem::goalConfig ( CkwsConfigShPtr inConfig )
-{
-  if (inConfig->device() != attRobot) {
-    ODEBUG1(":goalConfig: configuration device does not match problem device.");
-    return KD_ERROR;
-  }
-  attGoalConf = inConfig;
-  return KD_OK;
-}
-
-// ==========================================================================
-
 ktStatus 
 ChppProblem::obstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList)
 {

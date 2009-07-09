@@ -9,6 +9,24 @@
 #ifndef HPP_PROBLEM_H
 #define HPP_PROBLEM_H
 
+#if DEBUG==3
+#define HPPPROBLEM_ODEBUG3(x) std::cout << "ChppProblem:" << x << std::endl
+#define HPPPROBLEM_ODEBUG2(x) std::cout << "ChppProblem:" << x << std::endl
+#define HPPPROBLEM_ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
+#elif DEBUG==2
+#define HPPPROBLEM_ODEBUG3(x)
+#define HPPPROBLEM_ODEBUG2(x) std::cout << "ChppProblem:" << x << std::endl
+#define HPPPROBLEM_ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
+#elif DEBUG==1
+#define HPPPROBLEM_ODEBUG3(x)
+#define HPPPROBLEM_ODEBUG2(x)
+#define HPPPROBLEM_ODEBUG1(x) std::cerr << "ChppProblem:" << x << std::endl
+#else
+#define HPPPROBLEM_ODEBUG3(x)
+#define HPPPROBLEM_ODEBUG2(x)
+#define HPPPROBLEM_ODEBUG1(x)
+#endif
+
 /*************************************
 INCLUDE
 **************************************/
@@ -89,7 +107,8 @@ class ChppProblem
    */
   ktStatus initConfig ( CkwsConfigShPtr inConfig ) {
     if (inConfig->device() != attRobot) {
-      ODEBUG1(":goalConfig: configuration device does not match problem device.");
+      HPPPROBLEM_ODEBUG1
+	(":goalConfig: configuration device does not match problem device.");
       return KD_ERROR;
     }
     attInitConf = inConfig;
@@ -106,7 +125,8 @@ class ChppProblem
    */
   ktStatus goalConfig ( CkwsConfigShPtr inConfig ) {
     if (inConfig->device() != attRobot) {
-      ODEBUG1(":goalConfig: configuration device does not match problem device.");
+      HPPPROBLEM_ODEBUG1
+	(":goalConfig: configuration device does not match problem device.");
       return KD_ERROR;
     }
     attGoalConf = inConfig;
