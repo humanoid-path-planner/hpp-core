@@ -450,8 +450,18 @@ ktStatus ChppProblem::solve()
 
   double penetration = roadmapBuilder()->penetration();
 
+  /*
+    Optimize if 
+      - there is a path optimizer and
+      - the path has more than one direct path or the user has requested 
+      that optimization is always performed.
+  */
+  bool shouldOptimize = 
+    pathOptimizer() && (attAlwaysOptimize || 
+			solutionPath->countDirectPaths() > 1);
+
   // optimizer for the path
-  if (pathOptimizer()) {
+  if (shouldOptimize) {
     if (pathOptimizer()->optimizePath(solutionPath, penetration)
 	== KD_OK) {
 
@@ -460,19 +470,20 @@ ktStatus ChppProblem::solve()
     }
     else {
       ODEBUG1(":solve: path optimization failed.");
+      return KD_ERROR;
     }
 
   } else {
-    ODEBUG1(":solve: no Optimizer Defined ");
+    ODEBUG2(":solve: no optimization performed ");
+    return KD_OK;
   }
 
   if (solutionPath) {
     ODEBUG2(":solve: number of direct path: "
 	    << solutionPath->countDirectPaths());
     // Add the path to vector of paths of the problem.
-    addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
+    addPath(solutionPath);
   }
-
 
   return KD_OK ;
 }
