@@ -7,7 +7,7 @@ docdir=@datarootdir@/doc/@PACKAGE_TARNAME@
 
 Name: @PACKAGE@
 Description: @PKGCONFIG_DESCRIPTION@
-URL: http://roboptim.sourceforge.net/
+URL: @PKGCONFIG_URL@
 Version: @VERSION@
 Requires: @PKGCONFIG_REQUIRES@
 Conflicts: @PKGCONFIG_CONFLICTS@

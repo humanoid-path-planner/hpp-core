@@ -1,3 +1,9 @@
+2009-07-09  Thomas Moulard  <thomas.moulard@gmail.com>
+
+	Fix URL field in pkg-config file.
+	* build-aux/pkg-config.pc.in,
+	* configure.ac: Use configure defined value for URL
+
 2009-07-08  Thomas Moulard  <thomas.moulard@gmail.com>
 
 	Clean package.
