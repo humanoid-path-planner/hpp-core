@@ -274,11 +274,13 @@ class ChppPlanner {
    */
   const std::vector< CkcdObjectShPtr > obstacleList();
   /**
-   * \brief Add obstacle to the list.
-   * \param object a new object.
-   * \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_OBSTACLE.
-   *
-   * Add the obstacle to each problem of the object.
+     \brief Add obstacle to the list.
+     \param object a new object.
+     \param inDistanceComputation whether distance to this object should be computed in ChppBody class.
+
+     \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_OBSTACLE.
+     
+     Add the obstacle to each problem of the object.
    */
   virtual ktStatus addObstacle(CkcdObjectShPtr object, 
 			       bool inDistanceComputation = true);
