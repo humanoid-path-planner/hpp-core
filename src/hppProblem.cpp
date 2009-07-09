@@ -195,32 +195,40 @@ CkwsSteeringMethodShPtr ChppProblem::steeringMethod() const
   return attRobot->steeringMethod();
 }
 
+// ==========================================================================
+
 ktStatus ChppProblem::checkProblem() const
 {
   if (!getRobot()) {
-    ODEBUG1(":solve: no device in problem " << inRank << ".");
+    ODEBUG1(":checkProblem: no device in problem.");
     return KD_ERROR;
   }
 
   if (!initConfig()) {
-    ODEBUG1(":solve: no init config in problem " << inRank << ".");
+    ODEBUG1(":checkProblem: no init config in problem.");
     return KD_ERROR;
   }
   if (!goalConfig()) {
-    ODEBUG1(":solve: no goal config in problem " << inRank << ".");
+    ODEBUG1(":checkProblem: no goal config in problem.");
     return KD_ERROR;
   }
 
   if(!roadmapBuilder()){
-    ODEBUG1(":solve: problem Id=" << inRank << ": Define a roadmap builder with penetration");
-    return KD_ERROR ;
+    ODEBUG1(":checkProblem: define a roadmap builder with penetration");
+    return KD_ERROR;
   }
+
+  if (!steeringMethod()) {
+    ODEBUG1(":checkProblem: define a steering method.");
+    return KD_ERROR;
+  }
+
 
   /*
     Test that goal configuration is valid
   */
   if (validateConfig(getRobot(), goalConfig()) != KD_OK) {
-    ODEBUG1(":solve: goal configuration not valid.");
+    ODEBUG1("checkProblem:: goal configuration not valid.");
     return KD_ERROR;
   }
   return KD_OK;
