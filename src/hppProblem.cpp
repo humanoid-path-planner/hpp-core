@@ -310,6 +310,121 @@ ktStatus ChppProblem::validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
 
 // ==========================================================================
 
+ktStatus ChppProblem::planPath(const CkwsConfigConstShPtr inInitConfig,
+			       const CkwsConfigConstShPtr inGoalConfig,
+			       const CkwsPathShPtr& inOutPath)
+{
+  /*
+    Try first a direct path.
+  */
+  CkwsSteeringMethodShPtr steeringMethod = getRobot()->steeringMethod();
+
+  CkwsDirectPathShPtr directPath = 
+    steeringMethod->makeDirectPath(*inInitConfig, *inGoalConfig);
+
+  if (directPath) {
+    /*
+      Retrieve validators of device
+    */
+    CkwsDirectPathValidatorSetConstShPtr dpValidators =
+      getRobot()->directPathValidators();
+
+    dpValidators->validate(*directPath);
+    if (directPath->isValid()) {
+
+      ODEBUG2(":planPath: Problem solved with direct connection. ");
+
+      /* Add direct path to roadmap if not already included */
+
+      CkwsRoadmapShPtr roadmap = roadmapBuilder()->roadmap();
+      ODEBUG2
+	(":planPath: number of edges in roadmap before inserting nodes = " 
+	 << roadmap->countEdges());
+
+      CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*inInitConfig);
+      CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*inGoalConfig);
+
+      ODEBUG2(":planPath: number of edges in roadmap after creating nodes = " 
+	      << roadmap->countEdges());
+
+      /* If start and goal node are not in roadmap, add them. */
+      if (!startNode) {
+	startNode = CkwsNode::create(*inInitConfig);
+	if (roadmap->addNode(startNode) != KD_OK) {
+	  ODEBUG1(":planPath: failed to add start node in roadmap.");
+	  startNode.reset();
+	}
+      }
+      if (!goalNode) {
+	goalNode = CkwsNode::create(*inGoalConfig);
+	if (roadmap->addNode(goalNode) != KD_OK) {
+	  ODEBUG1(":planPath: failed to add goal node in roadmap.");
+	  goalNode.reset();
+	}
+      }
+      
+      ODEBUG2(":planPath: number of edges in roadmap after adding nodes = " 
+	      << roadmap->countEdges());
+      
+      if (startNode && goalNode) {
+	/* Add edge only if goal node is not accessible from initial node */
+	if (!startNode->hasTransitiveOutNode(goalNode)) {
+	  CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
+	  
+	  if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
+	    ODEBUG2(":planPath: Failed to add direct path in roadmap.");
+	  }
+	}
+	ODEBUG2
+	  (":planPath: number edges in roadmap after attempt at adding edge= " 
+	   << roadmap->countEdges());
+      }
+      inOutPath->appendDirectPath(directPath);
+      // Add the path to vector of paths of the problem.
+      addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, inOutPath->clone()));
+      return KD_OK;
+    }
+  } /* if (directPath) */
+
+  /*
+    solve the problem with the roadmapBuilder
+  */
+  CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
+
+  if(KD_OK == roadmapBuilder()->solveProblem(*inInitConfig , 
+					     *inGoalConfig , kwsPath)) {
+    ODEBUG2(":planPath: --- Problem solved.----");
+  } else {
+    ODEBUG1(":planPath: ---- Problem NOT solved.----");
+    return KD_ERROR;
+  }
+  if (!kwsPath) {
+    ODEBUG1(":planPath: no path after successfully solving the problem");
+    ODEBUG1(":planPath: this should not happen.");
+    return KD_ERROR;
+  }
+
+  if (kwsPath->length()== 0) {
+    ODEBUG1
+      (":planPath: Path length is 0 after successfully solving the problem");
+    ODEBUG1(":planPath: this should not happen.");
+    return KD_ERROR;
+  }
+
+  /*
+    Store path before optimization
+  */
+  if (inOutPath->appendPath(kwsPath) != KD_OK) {
+    ODEBUG1
+      (":planPath: failed at appending solution path to extraction path.");
+    return KD_ERROR;
+  }
+  addPath(CkwsPath::createCopy(inOutPath));
+  return KD_OK;
+}
+
+// ==========================================================================
+
 ktStatus ChppProblem::solve()
 {
   if (checkProblem() != KD_OK) {
@@ -327,140 +442,37 @@ ktStatus ChppProblem::solve()
   if (validateInitConfig(initConf, solutionPath) != KD_OK) {
     return KD_ERROR;
   }
+
+  if (planPath(initConf, goalConf, solutionPath) != KD_OK) {
+    ODEBUG1(":solve: failed to plan a path between init and goal config.");
+    return KD_ERROR;
+  }
+
   double penetration = roadmapBuilder()->penetration();
 
-  /*
-    Try first a direct path.
-  */
-  CkwsSteeringMethodShPtr steeringMethod = getRobot()->steeringMethod();
+  // optimizer for the path
+  if (pathOptimizer()) {
+    if (pathOptimizer()->optimizePath(solutionPath, penetration)
+	== KD_OK) {
 
-  if ( initConf && goalConf && steeringMethod) {
-    CkwsDirectPathShPtr directPath = steeringMethod->makeDirectPath(*initConf, *goalConf);
-
-    if (directPath) {
-      /*
-	Retrieve validators of device
-      */
-      CkwsDirectPathValidatorSetConstShPtr dpValidators =
-	getRobot()->directPathValidators();
-
-      dpValidators->validate(*directPath);
-      if (directPath->isValid()) {
-
-	ODEBUG2(":solve: Problem solved with direct connection. ");
-
-	/* Add direct path to roadmap if not already included */
-	if (roadmapBuilder()) {
-	  CkwsRoadmapShPtr roadmap = roadmapBuilder()->roadmap();
-	  ODEBUG2(":solve: number of edges in roadmap before inserting nodes = " << roadmap->countEdges());
-
-	  CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*initConf);
-	  CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*goalConf);
-
-	  ODEBUG2(":solve: number of edges in roadmap after creating nodes = " << roadmap->countEdges());
-
-	  /* If start and goal node are not in roadmap, add them. */
-	  if (!startNode) {
-	    startNode = CkwsNode::create(*initConf);
-	    if (roadmap->addNode(startNode) != KD_OK) {
-	      ODEBUG1(":solve: failed to add start node in roadmap.");
-	      startNode.reset();
-	    }
-	  }
-	  if (!goalNode) {
-	    goalNode = CkwsNode::create(*goalConf);
-	    if (roadmap->addNode(goalNode) != KD_OK) {
-	      ODEBUG1(":solve: failed to add goal node in roadmap.");
-	      goalNode.reset();
-	    }
-	  }
-
-	  ODEBUG2(":solve: number of edges in roadmap after adding nodes = " << roadmap->countEdges());
-
-	  if (startNode && goalNode) {
-	    /* Add edge only if goal node is not accessible from initial node */
-	    if (!startNode->hasTransitiveOutNode(goalNode)) {
-	      CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
-
-	      if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
-		ODEBUG2(":solve: Failed to add direct path in roadmap.");
-	      }
-	    }
-	    ODEBUG2(":solve: number of edges in roadmap after attempting at adding edge= " << roadmap->countEdges());
-	  }
-	}
-	solutionPath->appendDirectPath(directPath);
-	// Add the path to vector of paths of the problem.
-	addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
-
-	return KD_OK;
-      }
+      ODEBUG2(":solve: path optimized with penetration "
+	      << penetration);
     }
+    else {
+      ODEBUG1(":solve: path optimization failed.");
+    }
+
   } else {
-    ODEBUG1(":solve: problem ill-defined:initConf, GoalConfig or steering method not defined");
-    return KD_ERROR ;
+    ODEBUG1(":solve: no Optimizer Defined ");
   }
 
-
-  /*
-    solve the problem with the roadmapBuilder
-  */
-  if (roadmapBuilder()) {
-
-    CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
-
-    if(KD_OK == roadmapBuilder()->solveProblem( *initConf , *goalConf , kwsPath)) {
-      ODEBUG2(":solve: --- Problem solved.----");
-    } else {
-      ODEBUG1(":solve: ---- Problem NOT solved.----");
-      return KD_ERROR;
-    }
-    if (!kwsPath) {
-      ODEBUG1(":solve: no path after successfully solving the problem");
-      ODEBUG1(":solve: this should not happen.");
-      return KD_ERROR;
-    }
-
-    if (kwsPath->length()== 0) {
-      ODEBUG1(":solve: Path length is 0 after successfully solving the problem");
-      ODEBUG1(":solve: this should not happen.");
-      return KD_ERROR;
-    }
-
-    /*
-      Store path before optimization
-    */
-    if (solutionPath->appendPath(kwsPath) != KD_OK) {
-      ODEBUG1(":solve: failed at appending solution path to extraction path.");
-      return KD_ERROR;
-    }
+  if (solutionPath) {
+    ODEBUG2(":solve: number of direct path: "
+	    << solutionPath->countDirectPaths());
+    // Add the path to vector of paths of the problem.
     addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
-
-    // optimizer for the path
-    if (pathOptimizer()) {
-      if (pathOptimizer()->optimizePath(solutionPath, penetration)
-	  == KD_OK) {
-
-	ODEBUG2(":solve: path optimized with penetration "
-		<< penetration);
-      }
-      else {
-	ODEBUG1(":solve: path optimization failed.");
-      }
-
-    } else {
-      ODEBUG1(":solve: no Optimizer Defined ");
-    }
-
-    if (solutionPath) {
-      ODEBUG2(":solve: number of direct path: "<<kwsPath->countDirectPaths());
-      // Add the path to vector of paths of the problem.
-      addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, solutionPath->clone()));
-    }
-  } else {
-    ODEBUG1(":solve: no roadmap builder");
-    return KD_ERROR ;
   }
+
 
   return KD_OK ;
 }

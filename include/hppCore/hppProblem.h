@@ -319,6 +319,15 @@ class ChppProblem
 			      CkwsPathShPtr& inOutPath) const;
 
   /**
+     \brief Plan a path between initial and goal configurations
+
+     First, tries a direct path and then calls the roadmap builder.
+  */
+  ktStatus planPath(const CkwsConfigConstShPtr inInitConfig,
+		    const CkwsConfigConstShPtr inGoalConfig,
+		    const CkwsPathShPtr& inOutPath);
+
+  /**
      \brief Set penetration of collision direct path validator of the robot
   */
   void setPenetration();
