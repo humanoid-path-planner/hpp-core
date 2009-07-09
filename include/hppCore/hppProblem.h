@@ -98,14 +98,14 @@ class ChppProblem
   /**
    * \brief Get shared pointer to initial configuration.
    */
-  CkwsConfigShPtr initConfig() const {
+  const CkwsConfigShPtr& initConfig() const {
     return attInitConf;
   };
 
   /**
    * \brief Set initial configuration.
    */
-  ktStatus initConfig ( CkwsConfigShPtr inConfig ) {
+  ktStatus initConfig ( const CkwsConfigShPtr& inConfig ) {
     if (inConfig->device() != attRobot) {
       HPPPROBLEM_ODEBUG1
 	(":goalConfig: configuration device does not match problem device.");
@@ -117,13 +117,13 @@ class ChppProblem
   /**
    * \brief Get shared pointer to goal configuration.
    */
-  CkwsConfigShPtr goalConfig() const {
+  const CkwsConfigShPtr& goalConfig() const {
     return attGoalConf;
   };
   /**
    * \brief Set goal configuration.
    */
-  ktStatus goalConfig ( CkwsConfigShPtr inConfig ) {
+  ktStatus goalConfig ( const CkwsConfigShPtr& inConfig ) {
     if (inConfig->device() != attRobot) {
       HPPPROBLEM_ODEBUG1
 	(":goalConfig: configuration device does not match problem device.");
@@ -307,9 +307,17 @@ class ChppProblem
   ktStatus validateConfig(CkppDeviceComponentShPtr inDevice, 
 			  const CkwsConfigConstShPtr& inConfig) const;
 
-		
   /**
-     \brief Set the penetration of the collision direct path validator of the robot
+     \brief Validate initial configuration
+
+     If initial configuration is not valid, and if a config extractor
+     is set, try to build an extraction path.
+  */
+  ktStatus validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
+			      CkwsPathShPtr& inOutPath) const;
+
+  /**
+     \brief Set penetration of collision direct path validator of the robot
   */
   void setPenetration();
   /**

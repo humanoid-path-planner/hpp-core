@@ -70,7 +70,7 @@ ChppProblem::ChppProblem ( CkppDeviceComponentShPtr inRobot, double inPenetratio
 // ==========================================================================
 
 ChppProblem::ChppProblem (CkppDeviceComponentShPtr inRobot,
-                          const std::vector<CkcdObjectShPtr>& inObstacleList, 
+			  const std::vector<CkcdObjectShPtr>& inObstacleList,
 			  double inPenetration) :
   attNotificator ( CkitNotificator::defaultNotificator() ),
   attRobot ( inRobot ),
@@ -126,10 +126,10 @@ void ChppProblem::initMapOuter()
 
 // ==========================================================================
 
-ktStatus 
+ktStatus
 ChppProblem::obstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList)
 {
-  for (std::vector<CkcdObjectShPtr>::const_iterator it = 
+  for (std::vector<CkcdObjectShPtr>::const_iterator it =
 	 inCollisionList.begin();
        it < inCollisionList.end();
        it++) {
@@ -147,7 +147,7 @@ const std::vector<CkcdObjectShPtr>& ChppProblem::obstacleList()
 
 // ==========================================================================
 
-ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject, 
+ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject,
 				  bool inDistanceComputation)
 {
   // Add object in local list
@@ -158,15 +158,15 @@ ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject,
   attRobot->getBodyVector ( bodyVector );
 
   // Loop over bodies of robot.
-  for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); 
-	bodyIter < bodyVector.end(); 
+  for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin();
+	bodyIter < bodyVector.end();
 	bodyIter++ ) {
 
     if (ChppBodyShPtr hppBody = KIT_DYNAMIC_PTR_CAST(ChppBody, *bodyIter)) {
       ODEBUG2(":addOuterObject: ChppBody type.");
       hppBody->addOuterObject(inObject, inDistanceComputation);
     }
-    else if (CkwsKCDBodyShPtr kcdBody = 
+    else if (CkwsKCDBodyShPtr kcdBody =
 	     KIT_DYNAMIC_PTR_CAST(CkwsKCDBody, *bodyIter)) {
       ODEBUG2(":addOuterObject: CkwsKCDBody type.");
       /*
@@ -201,7 +201,7 @@ ktStatus ChppProblem::checkProblem() const
     ODEBUG1(":solve: no device in problem " << inRank << ".");
     return KD_ERROR;
   }
-  
+
   if (!initConfig()) {
     ODEBUG1(":solve: no init config in problem " << inRank << ".");
     return KD_ERROR;
@@ -228,6 +228,80 @@ ktStatus ChppProblem::checkProblem() const
 
 // ==========================================================================
 
+ktStatus ChppProblem::validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
+					 CkwsPathShPtr& inOutPath) const
+{
+  /*
+    If initial configuration is not valid and configuration extractor
+    has been set, try to extract a valid configuration in the neighborhood
+    of the initial configuration.
+  */
+  if (CkwsConfigExtractorShPtr confExtractor = attConfigExtractor) {
+    ODEBUG3(":validateInitConfig: confExtractor->minRadius = " 
+	    << confExtractor->minRadius());
+    ODEBUG3
+      (":validateInitConfig: confExtractor->maxRadius = " 
+       << confExtractor->maxRadius());
+    ODEBUG3
+      (":validateInitConfig: confExtractor->scaleFactor = " 
+       << confExtractor->scaleFactor());
+    CkwsPathShPtr initConfigPath = 
+      CkwsPath::createWithConfig(*inOutInitConfig);
+
+    ODEBUG3
+      (":validateInitConfig: number of configurations in initConfigPath = "
+       << initConfigPath->countConfigurations());
+
+#if DEBUG >= 3
+    for (unsigned int i=0; i<initConfigPath->countConfigurations(); i++ ) {
+      CkwsConfig config(getRobot());
+      initConfigPath->getConfiguration(i, config);
+      ODEBUG3(":validateInitConfig: configuration # " << i
+	      << " = " << config);
+    }
+#endif
+
+    if (confExtractor->plan(initConfigPath, CkwsPathPlanner::STABLE_START,
+			    inOutPath) == KD_OK) {
+      ODEBUG2
+	(":validateInitConfig: number of configurations in extracted path = "
+	 << inOutPath->countConfigurations());
+
+#if DEBUG >= 3
+      for (unsigned int i=0; i<inOutPath->countConfigurations(); i++ ) {
+	CkwsConfig config(getRobot());
+	inOutPath->getConfiguration(i, config);
+	ODEBUG3(":validateInitConfig: configuration # " << i
+		<< " = " << config);
+      }
+#endif
+
+      /*
+	Replace inOutInitConfig by end of extraction path for path planning problem
+      */
+      inOutInitConfig = inOutPath->configAtEnd();
+      if (!inOutInitConfig) {
+	ODEBUG1
+	  (":validateInitConfig: no configuration at end of extraction path.");
+	return KD_ERROR;
+      }
+    }
+    else {
+      ODEBUG1
+	(":validateInitConfig: failed to extract initial configuration.");
+      return KD_ERROR;
+    }
+  }
+  else {
+    ODEBUG2
+      (":validateInitConfig: initial configuration not valid.");
+    return KD_ERROR;
+  }
+  return KD_OK;
+}
+
+// ==========================================================================
+
 ktStatus ChppProblem::solve()
 {
   if (checkProblem() != KD_OK) {
@@ -235,60 +309,15 @@ ktStatus ChppProblem::solve()
     return KD_ERROR;
   }
 
-  CkwsConfigShPtr initConf = attInitConf;
-  CkwsConfigShPtr goalConf = attGoalConf;
+  CkwsConfigShPtr initConf = initConfig();
+  CkwsConfigShPtr goalConf = goalConfig();
   /*
     Test that initial configuration is valid
   */
   CkwsPathShPtr solutionPath = CkwsPath::create(getRobot());
 
-  if (validateConfig(getRobot(), initConf) != KD_OK) {
-    /*
-      If initial configuration is not valid and configuration extractor
-      has been set, try to extract a valid configuration in the neighborhood 
-      of the initial configuration.
-    */
-    if (CkwsConfigExtractorShPtr confExtractor = attConfigExtractor) {
-      ODEBUG3(":solve: confExtractor->minRadius = " << confExtractor->minRadius());
-      ODEBUG3(":solve: confExtractor->maxRadius = " << confExtractor->maxRadius());
-      ODEBUG3(":solve: confExtractor->scaleFactor = " << confExtractor->scaleFactor());
-      CkwsPathShPtr initConfigPath = CkwsPath::createWithConfig(*initConf);
-	ODEBUG3(":solve: number of configurations in initConfigPath = "
-		<< initConfigPath->countConfigurations());
-	for (unsigned int i=0; i<initConfigPath->countConfigurations(); i++ ) {
-	  CkwsConfig config(getRobot());
-	  initConfigPath->getConfiguration(i, config);
-	  ODEBUG3(":solve: configuration # " << i 
-		  << " = " << config);
-	}
-      if (confExtractor->plan(initConfigPath, CkwsPathPlanner::STABLE_START,
-				solutionPath) == KD_OK) {
-	ODEBUG3(":solve: number of configurations in extracted path = "
-		<< solutionPath->countConfigurations());
-	for (unsigned int i=0; i<solutionPath->countConfigurations(); i++ ) {
-	  CkwsConfig config(getRobot());
-	  solutionPath->getConfiguration(i, config);
-	  ODEBUG3(":solve: configuration # " << i 
-		  << " = " << config);
-	}
-	/*
-	  Replace initConf by end of extraction path for path planning problem
-	*/
-	initConf = solutionPath->configAtEnd();
-	if (!initConf) {
-	  ODEBUG1(":solve: no configuration at end of extraction path.");
-	  return KD_ERROR;
-	}
-      }
-      else {
-	ODEBUG1(":solve: failed to extract initial configuration.");
-	return KD_ERROR;
-      }
-    }
-    else {
-      ODEBUG2(":solve: initial configuration not valid.");
-      return KD_ERROR;
-    }
+  if (validateInitConfig(initConf, solutionPath) != KD_OK) {
+    return KD_ERROR;
   }
   double penetration = roadmapBuilder()->penetration();
 
@@ -304,9 +333,9 @@ ktStatus ChppProblem::solve()
       /*
 	Retrieve validators of device
       */
-      CkwsDirectPathValidatorSetConstShPtr dpValidators = 
+      CkwsDirectPathValidatorSetConstShPtr dpValidators =
 	getRobot()->directPathValidators();
-      
+
       dpValidators->validate(*directPath);
       if (directPath->isValid()) {
 
@@ -316,7 +345,7 @@ ktStatus ChppProblem::solve()
 	if (roadmapBuilder()) {
 	  CkwsRoadmapShPtr roadmap = roadmapBuilder()->roadmap();
 	  ODEBUG2(":solve: number of edges in roadmap before inserting nodes = " << roadmap->countEdges());
-	  
+
 	  CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*initConf);
 	  CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*goalConf);
 
@@ -337,14 +366,14 @@ ktStatus ChppProblem::solve()
 	      goalNode.reset();
 	    }
 	  }
-	  
+
 	  ODEBUG2(":solve: number of edges in roadmap after adding nodes = " << roadmap->countEdges());
 
 	  if (startNode && goalNode) {
 	    /* Add edge only if goal node is not accessible from initial node */
 	    if (!startNode->hasTransitiveOutNode(goalNode)) {
 	      CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
-	      
+
 	      if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
 		ODEBUG2(":solve: Failed to add direct path in roadmap.");
 	      }
@@ -403,14 +432,14 @@ ktStatus ChppProblem::solve()
     if (pathOptimizer()) {
       if (pathOptimizer()->optimizePath(solutionPath, penetration)
 	  == KD_OK) {
-	
-	ODEBUG2(":solve: path optimized with penetration " 
+
+	ODEBUG2(":solve: path optimized with penetration "
 		<< penetration);
       }
       else {
 	ODEBUG1(":solve: path optimization failed.");
       }
-      
+
     } else {
       ODEBUG1(":solve: no Optimizer Defined ");
     }
@@ -541,20 +570,20 @@ void ChppProblem::penetration(double inPenetration)
 // ==========================================================================
 
 double ChppProblem::penetration() const
-{ 
+{
   return attPenetration;
 }
 
 void ChppProblem::setPenetration()
 {
-  CkwsDirectPathValidatorSetConstShPtr dpValidators = 
+  CkwsDirectPathValidatorSetConstShPtr dpValidators =
     attRobot->directPathValidators();
 
   /*
-    Retrieve collision validator if any and set penetration as penetration 
+    Retrieve collision validator if any and set penetration as penetration
     distance of roadmap builder.
   */
-  CkwsValidatorDPCollisionShPtr collisionValidator = 
+  CkwsValidatorDPCollisionShPtr collisionValidator =
     dpValidators->retrieve<CkwsValidatorDPCollision>();
   if (collisionValidator) {
     collisionValidator->penetration(attPenetration);
@@ -563,12 +592,12 @@ void ChppProblem::setPenetration()
 
 // ==========================================================================
 
-ktStatus 
-ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice, 
-				     const CkwsConfigConstShPtr& inConfig) const
+ktStatus
+ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice,
+			    const CkwsConfigConstShPtr& inConfig) const
 {
   inDevice->configValidators()->validate(*inConfig);
-  
+
   if (inConfig->isValid()) {
     return KD_OK;
   }
@@ -576,9 +605,9 @@ ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice,
     std::string theValidatorName;
     CkwsValidationReportConstShPtr theReport(inConfig->report(i, theValidatorName));
     if(!theReport->isValid()) {
-      ODEBUG2(" " << theValidatorName << 
+      ODEBUG2(" " << theValidatorName <<
 	      " failed at validating the configuration.");
-      
+
       // If this is a CkwsDofReport then we can retrieve more information...
       CkwsReportCfgDofConstShPtr theDofReport;
       theDofReport = KIT_DYNAMIC_PTR_CAST(CkwsReportCfgDof const, theReport);
@@ -594,4 +623,3 @@ ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice,
   }
   return KD_ERROR;
 }
-
