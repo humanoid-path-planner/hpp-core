@@ -1,0 +1,18 @@
+2009-07-11 Release 1.9.0
+
+	1. Class ChppProblem has been  modified.
+	  - a method solve has been added and some code has been moved from 
+	    ChppPlanner::solveOneProblem to ChppProblem::solve.
+	  - By default, when solving a path planning problem, the path optimizer is
+	    not called if the path resulting from planning contains only one direct
+	    path. This default behavior can now be overriden by calling method
+	    ChppProblem::alwaysOptimize(true);
+
+	1. The internal structure of the package has been changed in order to use 
+	autotools in a more robust way. 
+
+	
+2009-05-29 Release 1.8.2
+2009-05-28 Release 1.8.1
+2009-04-18 Release 1.8
+2009-03-14 Release 1.7
