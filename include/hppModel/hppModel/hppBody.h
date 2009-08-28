@@ -13,7 +13,6 @@ INCLUDE
 **************************************/
 
 #include "KineoUtility/kitDefine.h"
-#include "KineoWorks2/kwsKCDBody.h"
 #include "kcd2/kcdAnalysisType.h"
 #include "kwsKcd2/kwsKCDBody.h"
 
@@ -62,7 +61,7 @@ public:
      \param inName Name of the new body.
      \return A shared pointer to a new body.
   */
-  static ChppBodyShPtr create(std::string inName);
+  static ChppBodyShPtr create(const std::string& inName);
 
   /**
      \brief Get name of object.
@@ -156,7 +155,7 @@ protected:
   /**
      \brief Constructor by name.
   */
-  ChppBody(std::string inName), attName(inName) {};
+  ChppBody(const std::string& inName): attName(inName) {};
 
   /**
      \brief Initialization of body

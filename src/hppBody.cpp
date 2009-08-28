@@ -34,7 +34,7 @@
 
 //=============================================================================
 
-ChppBodyShPtr ChppBody::create(std::string inName)
+ChppBodyShPtr ChppBody::create(const std::string& inName)
 {
   ChppBody* hppBody = new ChppBody(inName);
   ChppBodyShPtr hppBodyShPtr(hppBody);
