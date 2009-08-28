@@ -3,9 +3,6 @@ include $(top_srcdir)/build-aux/init.mk
 # Add available warnings flags.
 AM_CXXFLAGS += $(WARNING_CXXFLAGS)
 
-# Add kwsPlus CPPFLAGS.
-AM_CPPFLAGS += @KWSPLUS_CFLAGS@
-
 lib_LTLIBRARIES = libhppCore.la
 libhppCore_la_SOURCES = 	\
 	hppColPair.cpp 		\
@@ -22,3 +19,6 @@ else
  AM_CPPFLAGS += @HPPMODEL_CFLAGS@
  libhppCore_la_LIBADD += @HPPMODEL_LIBS@
 endif
+
+# Add kwsPlus CPPFLAGS.
+AM_CPPFLAGS += @KWSPLUS_CFLAGS@
