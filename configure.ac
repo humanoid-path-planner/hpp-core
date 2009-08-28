@@ -89,7 +89,7 @@ if test x${enable_body} = xyes; then
 	AC_MSG_NOTICE([using internal implementation of ChppBody])
 else
 	define(hppmodel_reqd, [hppModel >= 1.6])
-	AC_SUBST([HPPMODEL_REQD], ["hppmodel_reqd"])
+	AC_SUBST([HPPMODEL_REQD], [", hppmodel_reqd"])
 	PKG_CHECK_MODULES([HPPMODEL], [hppmodel_reqd])
 	AC_SUBST([HPPMODEL_CFLAGS])
 	AC_SUBST([HPPMODEL_LIBS])
@@ -108,7 +108,7 @@ AM_CONDITIONAL([BODY], [test x${enable_body} = xyes])
 AC_SUBST([PKGCONFIG_DESCRIPTION], ['HPP Core'])
 AC_SUBST([PKGCONFIG_URL], [])
 AC_SUBST([PKGCONFIG_REQUIRES],
-	 ["${KWPLUS_REQD}, ${HPPMODEL_REQD}"])
+	 ["${KWPLUS_REQD} ${HPPMODEL_REQD}"])
 AC_SUBST([PKGCONFIG_CONFLICTS], [])
 AC_SUBST([PKGCONFIG_LIBS], [-lhppCore])
 AC_SUBST([PKGCONFIG_CFLAGS], [])
