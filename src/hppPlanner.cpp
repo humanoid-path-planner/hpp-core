@@ -99,7 +99,6 @@ namespace hpp {
 
     // ======================================================================
 
-
     ChppPlanner::~ChppPlanner()
     {
       delete stopRdmBuilderDelegate_;
@@ -125,7 +124,6 @@ namespace hpp {
       // set attribute if necessary
       notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
       notificator_->notify(notification);
-
 
       return KD_OK;
     }
@@ -164,7 +162,6 @@ namespace hpp {
       // set attribute if necessary
       notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
       notificator_->notify(notification);
-
 
       return KD_OK;
     }
@@ -244,10 +241,10 @@ namespace hpp {
     // ======================================================================
 
     ktStatus ChppPlanner::robotCurrentConfIthProblem(unsigned int rank,
-						 const CkwsConfig& config)
+						     const CkwsConfig& config)
     {
       ktStatus status = KD_ERROR;
-
+      
       if (rank < getNbHppProblems()) {
 	status = problemVector_[rank].getRobot()->setCurrentConfig(config);
       }
@@ -320,7 +317,6 @@ namespace hpp {
 
     ktStatus ChppPlanner::goalConfIthProblem(unsigned int rank,
 					 const CkwsConfigShPtr config)
-
     {
       ktStatus status = KD_ERROR;
 
