@@ -408,7 +408,7 @@ private:
      solve iteratively different basic path planning problems. Each of these problems is defined by class ChppProblem. 
      These basic problems are put into a vector.
   */
-  deque<ChppProblem> hppProblemVector;
+  std::deque<ChppProblem> hppProblemVector;
   
   
   /** 
