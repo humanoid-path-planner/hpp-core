@@ -715,13 +715,13 @@ ktStatus ChppPlanner::parseFile(const std::string& inFileName)
     ODEBUG1(":parseFile: found modelTree"); 
 
 
-    map<CkppDeviceComponentShPtr,unsigned int> devicesIndex;
+    std::map<CkppDeviceComponentShPtr,unsigned int> devicesIndex;
     
-    set<CkcdObjectShPtr> devicesBodies;
+    std::set<CkcdObjectShPtr> devicesBodies;
     
     unsigned int currentRank=0;
     
-    if(!modelTree->deviceNode()) cout<<"No devices"<<endl;
+    if(!modelTree->deviceNode()) std::cout << "No devices" << std::endl;
     else{ 
       for(unsigned int i = 0; i< modelTree->deviceNode()->countChildComponents(); i++){
 	
@@ -731,17 +731,20 @@ ktStatus ChppPlanner::parseFile(const std::string& inFileName)
 	  
 	  addHppProblem(deviceComponent, HPPPLANNER_DEFAULT_PENETRATION);
 	  
-	  devicesIndex.insert(pair<CkppDeviceComponentShPtr,unsigned int>(deviceComponent,currentRank));
+	  devicesIndex.insert
+	    (std::pair<CkppDeviceComponentShPtr,unsigned int>
+	     (deviceComponent,currentRank));
 	  
-	  vector< CkppSolidComponentRefShPtr > solidComponentRefVector;
+	  std::vector< CkppSolidComponentRefShPtr > solidComponentRefVector;
 	  
 	  deviceComponent->getSolidComponentRefVector (solidComponentRefVector);
 	  
-	  for(vector< CkppSolidComponentRefShPtr >::iterator it=solidComponentRefVector.begin();it!=solidComponentRefVector.end();it++)
+	  for(std::vector< CkppSolidComponentRefShPtr >::iterator it=solidComponentRefVector.begin();it!=solidComponentRefVector.end();it++)
 	    {
 	      CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject,(*it)->referencedSolidComponent() );
 	      if(kcdObject) devicesBodies.insert(kcdObject);
-	      else cout<<"Cannot cast component to kcdObject"<<endl;
+	      else std::cout << "Cannot cast component to kcdObject"
+			     << std::endl;
 	    }
 	  
 	  currentRank++;
@@ -753,23 +756,23 @@ ktStatus ChppPlanner::parseFile(const std::string& inFileName)
     
     
     
-    if(!modelTree->geometryNode()) cout<<"No geometries"<<endl;
+    if(!modelTree->geometryNode()) std::cout<<"No geometries"<<std::endl;
     else{
-      cout<<"geometries"<<endl;
+      std::cout<<"geometries"<<std::endl;
       for(unsigned int i = 0; i< modelTree->geometryNode()->countChildComponents(); i++){
 	
-	cout<<i<<" "<<endl;
+	std::cout<<i<<" "<<std::endl;
 	
 	CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject, modelTree->geometryNode()->childComponent(i));
 	if(kcdObject) addObstacle(kcdObject);
-	else cout<<"Cannot cast component to kcdObject"<<endl;
+	else std::cout<<"Cannot cast component to kcdObject"<<std::endl;
       }
     }
     
 
     
   
-    if(!modelTree->pathNode()) cout<<"No paths"<<endl;
+    if(!modelTree->pathNode()) std::cout<<"No paths"<<std::endl;
     else{
       
       for(unsigned int i = 0; i< modelTree->pathNode()->countChildComponents(); i++){
