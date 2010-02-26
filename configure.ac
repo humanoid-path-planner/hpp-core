@@ -5,7 +5,7 @@ AC_PREREQ([2.59])
 ## --------------------- ##
 ## Package configuration ##
 ## --------------------- ##
-AC_INIT([hppCore], [1.11], [openrobots@laas.fr], [hppCore])
+AC_INIT([hppCore], [1.11.0.99], [openrobots@laas.fr], [hppCore])
 
 # Auxiliary files.
 AC_CONFIG_AUX_DIR([build-aux])
