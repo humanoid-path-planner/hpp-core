@@ -778,7 +778,8 @@ ktStatus ChppPlanner::parseFile(const std::string& inFileName)
       for(unsigned int i = 0; i< modelTree->pathNode()->countChildComponents(); i++){
 	CkppPathComponentShPtr pathComponent = KIT_DYNAMIC_PTR_CAST(CkppPathComponent,modelTree->pathNode()->childComponent(i));
 	
-	map<CkppDeviceComponentShPtr,unsigned int>::iterator it=devicesIndex.find(pathComponent->deviceComponent());
+	std::map<CkppDeviceComponentShPtr,unsigned int>::iterator it =
+	  devicesIndex.find(pathComponent->deviceComponent());
 	
 	if(it==devicesIndex.end()) { 
 	  ODEBUG1(":parseFile: no device matching path"); 
