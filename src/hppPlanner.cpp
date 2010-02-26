@@ -690,7 +690,7 @@ void ChppPlanner::interruptPathPlanning()
   attStopRdmBuilderDelegate->shouldStop(true);
 }
 
-ktStatus ChppPlanner::parseFile(string inFileName)
+ktStatus ChppPlanner::parseFile(const std::string& inFileName)
 {
 
   CkppComponentShPtr modelTreeComponent;
