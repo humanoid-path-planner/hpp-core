@@ -29,7 +29,7 @@ KIT_PREDEF_CLASS( ChppBody );
 
 KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
-using namespace std ;
+KIT_PREDEF_CLASS(ChppPlanner);
 
 /*************************************
 CLASS
