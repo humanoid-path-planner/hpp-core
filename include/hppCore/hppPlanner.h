@@ -298,7 +298,7 @@ class ChppPlanner {
      \brief Parsing a file
   */
   
-  ktStatus parseFile(string inFileName);
+  ktStatus parseFile(const std::string& inFileName);
   
   /** 
    *@}
