@@ -5,7 +5,7 @@ AC_PREREQ([2.59])
 ## --------------------- ##
 ## Package configuration ##
 ## --------------------- ##
-AC_INIT([hppCore], [1.10.0.99], [openrobots@laas.fr], [hppCore])
+AC_INIT([hppCore], [1.11], [openrobots@laas.fr], [hppCore])
 
 # Auxiliary files.
 AC_CONFIG_AUX_DIR([build-aux])
@@ -60,7 +60,7 @@ JRL_PROG_DOXYGEN
 ## Search for dependencies.  ##
 ## ------------------------- ##
 
-define(kwplus_reqd, [kwsPlus >= 1.7])
+define(kwplus_reqd, [kwsPlus >= 1.8])
 AC_SUBST([KWPLUS_REQD], ["kwplus_reqd"])
 PKG_CHECK_MODULES([KWSPLUS], [kwplus_reqd])
 
@@ -88,7 +88,7 @@ if test x${enable_body} = xyes; then
 	BODY_HEADER_PATH="hppModel"
 	AC_MSG_NOTICE([using internal implementation of ChppBody])
 else
-	define(hppmodel_reqd, [hppModel >= 1.6])
+	define(hppmodel_reqd, [hppModel >= 1.7.5])
 	AC_SUBST([HPPMODEL_REQD], [", hppmodel_reqd"])
 	PKG_CHECK_MODULES([HPPMODEL], [hppmodel_reqd])
 	AC_SUBST([HPPMODEL_CFLAGS])
