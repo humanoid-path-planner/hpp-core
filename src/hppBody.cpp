@@ -1,4 +1,3 @@
-
 /*
 
   Copyright 2007 LAAS-CNRS
@@ -39,7 +38,7 @@ ChppBodyShPtr ChppBody::create(const std::string& inName)
   ChppBody* hppBody = new ChppBody(inName);
   ChppBodyShPtr hppBodyShPtr(hppBody);
   ChppBodyWkPtr hppBodyWkPtr = hppBodyShPtr;
-  
+
   if (hppBody->init(hppBodyWkPtr) != KD_OK) {
     ODEBUG1(" error in create() ");
     hppBodyShPtr.reset();
@@ -57,13 +56,14 @@ ktStatus ChppBody::init(const ChppBodyWkPtr inBodyWkPtr)
 
 //=============================================================================
 
-bool 
-ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef, 
-			 const CkitMat4& inPosition, 
+bool
+ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
+			 const CkitMat4& inPosition,
 			 bool inDistanceComputation)
 {
-  CkppSolidComponentShPtr solidComponent = inSolidComponentRef->referencedSolidComponent();
-  
+  CkppSolidComponentShPtr solidComponent =
+    inSolidComponentRef->referencedSolidComponent();
+
 #if DEBUG >= 2
   std::string innerName = solidComponent->name();
   std::string outerName;
@@ -72,25 +72,26 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
     Attach solid component to the joint associated to the body
   */
   CkwsJointShPtr bodyKwsJoint = CkwsBody::joint();
-  CkppJointComponentShPtr bodyKppJoint = 
+  CkppJointComponentShPtr bodyKppJoint =
     KIT_DYNAMIC_PTR_CAST(CkppJointComponent, bodyKwsJoint);
-  
+
   // Test that body is attached to a joint
   if (bodyKppJoint) {
     solidComponent->setAbsolutePosition(inPosition);
     bodyKppJoint->addSolidComponentRef(inSolidComponentRef);
   }
   else {
-    ODEBUG1("ChppBody::addSolidComponent: the body is not attached to any joint");
+    ODEBUG1
+      ("ChppBody::addSolidComponent: the body is not attached to any joint");
     return false;
   }
-  
+
   /*
-    If requested, add the object in the list of objects the distance to which 
+    If requested, add the object in the list of objects the distance to which
     needs to be computed and build the corresponding analyses.
   */
   if (inDistanceComputation) {
-    CkcdObjectShPtr innerObject = 
+    CkcdObjectShPtr innerObject =
       KIT_DYNAMIC_PTR_CAST(CkcdObject, solidComponent);
     if (innerObject) {
       ODEBUG2(":addInnerObject: adding " << solidComponent->name()
@@ -128,9 +129,9 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 	// associate the lists with the analysis object
 	analysis->leftTestTree(leftTree);
 	analysis->rightTestTree(rightTree);
-	
+
 	ODEBUG2(":addInnerObject: creating analysis between "
-		<< innerName << " and " 
+		<< innerName << " and "
 		<< outerName);
 	attDistCompPairs.push_back(analysis);
       }
@@ -144,7 +145,7 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 
 //=============================================================================
 
-void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject, 
+void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
 			      bool inDistanceComputation)
 
 {
@@ -166,9 +167,9 @@ void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
   std::vector<CkcdObjectShPtr> outerList = outerObjects();
   outerList.push_back(inOuterObject);
   outerObjects(outerList);
-    
+
   /**
-     If distance computation is requested, build necessary CkcdAnalysis 
+     If distance computation is requested, build necessary CkcdAnalysis
      objects
   */
   if (inDistanceComputation) {
@@ -198,11 +199,11 @@ void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
       /* retrieve the test trees associated with the objects */
       CkcdTestTreeShPtr leftTree = innerObject->collectTestTrees();
       CkcdTestTreeShPtr rightTree = outerObject->collectTestTrees();
-      
+
       // associate the lists with the analysis object
       analysis->leftTestTree(leftTree);
       analysis->rightTestTree(rightTree);
-      
+
 #if DEBUG >= 2
       solidComp = KIT_DYNAMIC_PTR_CAST(CkppSolidComponent, innerObject);
       if (solidComp) {
@@ -212,7 +213,7 @@ void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
       }
 #endif
       ODEBUG2(":addInnerObject: creating analysis between "
-	      << innerName << " and " 
+	      << innerName << " and "
 	      << outerName);
 
       attDistCompPairs.push_back(analysis);
@@ -231,13 +232,13 @@ void ChppBody::resetOuterObjects()
 
 //=============================================================================
 
-ktStatus 
+ktStatus
 ChppBody::distAndPairsOfPoints(unsigned int inPairId,
-			       double& outDistance, 
-			       CkitPoint3& outPointBody, 
+			       double& outDistance,
+			       CkitPoint3& outPointBody,
 			       CkitPoint3& outPointEnv,
-			       CkcdObjectShPtr &outObjectBody, 
-			       CkcdObjectShPtr &outObjectEnv, 
+			       CkcdObjectShPtr &outObjectBody,
+			       CkcdObjectShPtr &outObjectEnv,
 			       CkcdAnalysisType::Type inType)
 {
   KWS_PRECONDITION(inPairId < nbDistPairs());
@@ -249,28 +250,29 @@ ChppBody::distAndPairsOfPoints(unsigned int inPairId,
   if (KD_SUCCEEDED(status)) {
     ODEBUG2(":distAndPairsOfPoints: compute succeeded.");
     unsigned int nbDistances = analysis->countExactDistanceReports();
-    
+
     if(nbDistances == 0) {
       //no distance information available, return 0 for instance;
       ODEBUG2(":distAndPairsOfPoints: no distance report.");
       outDistance = 0;
-      
-      outObjectBody.reset(); 
+
+      outObjectBody.reset();
       outObjectEnv.reset();
-      
+
       return KD_OK;
-    } 
+    }
     else{
-      
+
       CkcdExactDistanceReportShPtr distanceReport;
       CkitPoint3 leftPoint, rightPoint;
-      
-      //distances are ordered from lowest value, to highest value. 
-      distanceReport = analysis->exactDistanceReport(0); 
-      
-      //exact distance between two lists is always stored at the first rank of Distance reports.
+
+      //distances are ordered from lowest value, to highest value.
+      distanceReport = analysis->exactDistanceReport(0);
+
+      //exact distance between two lists is always stored at the first
+      //rank of Distance reports.
       outDistance = distanceReport->distance();
-      
+
       if(distanceReport->countPairs()>0) {
 	CkitMat4 firstPos, secondPos;
 	// get points in the frame of the object
@@ -280,19 +282,20 @@ ChppBody::distAndPairsOfPoints(unsigned int inPairId,
 	outObjectEnv = distanceReport->pair(0).second->geometry();
 	outObjectBody->getAbsolutePosition(firstPos);
 	outObjectEnv->getAbsolutePosition(secondPos);
-	//from these geometry points we can get points in absolute frame(world) or relative frame(geometry).
+	//from these geometry points we can get points in absolute
+	//frame(world) or relative frame(geometry).
 	//here we want points in the absolute frame.
 	outPointBody= firstPos * leftPoint;
 	outPointEnv = secondPos * rightPoint;
       }
-      
+
       // get object
       outObjectBody = distanceReport->leftCollisionEntity();
       outObjectEnv = distanceReport->rightCollisionEntity();
-      
+
       return KD_OK;
     }
-    
+
   } else {
     ODEBUG1(":distAndPairsOfPoints: compute failed.");
     return KD_ERROR;

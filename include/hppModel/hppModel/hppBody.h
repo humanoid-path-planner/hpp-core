@@ -26,12 +26,12 @@ class CkitMat4;
 CLASS
 **************************************/
 /**
- \brief This class represents bodies (geometric objects attached to a joint). 
+ \brief This class represents bodies (geometric objects attached to a joint).
 
  It derives from KineoWorks CkwsKCDBody class and from an implementation of 
  CjrlJoint.
 
- Objects attached to a body (called inner objects) are used for collision 
+ Objects attached to a body (called inner objects) are used for collision
  checking with selected objects of the environment (called outer objects).
 
  To attach an object to the body, call addInnerObject(). To select an object
@@ -45,7 +45,7 @@ CLASS
  distAndPairsOfPoints(). The number of such pairs can be retrieved by
  calling nbDistPairs(). distAndPairsOfPoints() also returns distances
  and pairs of closest points for each computed pair.
- 
+
  The constructor is protected and method create returns a shared
  pointer to the device.
 
@@ -74,11 +74,11 @@ public:
   */
   /**
      \brief Add a geometric object to the body
-     
+
      \param inSolidComponentRef Reference to the solid component to add.
-     \param inPosition Position of the object before attaching it to the body 
+     \param inPosition Position of the object before attaching it to the body
      (default value=Identity).
-     \param inDistanceComputation whether this object should be put in the 
+     \param inDistanceComputation whether this object should be put in the
      distance computation analysis.
 
      \return true if success, false otherwise.
@@ -87,7 +87,7 @@ public:
 
      \note The body must be attached to a joint.
   */
-  bool addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef, 
+  bool addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 		      const CkitMat4& inPosition=CkitMat4(),
 		      bool inDistanceComputation=false);
 
@@ -99,7 +99,7 @@ public:
      this object.
   */
 
-  void 	addOuterObject(const CkcdObjectShPtr& inOuterObject, 
+  void	addOuterObject(const CkcdObjectShPtr& inOuterObject,
 		       bool inDistanceComputation=true);
 
   /**
@@ -126,8 +126,8 @@ public:
      \brief Compute exact distance and closest points between body and set of outer objects.
 
      \param inPairId id of the pair of objects
-     \param inType Type of distance computation 
-     (either CkcdAnalysisType::EXACT_DISTANCE or 
+     \param inType Type of distance computation
+     (either CkcdAnalysisType::EXACT_DISTANCE or
      CkcdAnalysisType::ESTIMATED_DISTANCE)
 
      \retval outDistance Distance between body and outer objects
@@ -136,12 +136,12 @@ public:
      \retval outObjectBody Closest object on body
      \retval outObjectEnv Closest object in outer object list
   */
-  ktStatus distAndPairsOfPoints(unsigned int inPairId, 
-				double& outDistance, 
-				CkitPoint3& outPointBody, 
+  ktStatus distAndPairsOfPoints(unsigned int inPairId,
+				double& outDistance,
+				CkitPoint3& outPointBody,
 				CkitPoint3& outPointEnv,
-				CkcdObjectShPtr &outObjectBody, 
-				CkcdObjectShPtr &outObjectEnv, 
+				CkcdObjectShPtr &outObjectBody,
+				CkcdObjectShPtr &outObjectEnv,
 				CkcdAnalysisType::Type inType=
 				CkcdAnalysisType::EXACT_DISTANCE);
 
@@ -151,7 +151,7 @@ public:
   */
 
 protected:
-  
+
   /**
      \brief Constructor by name.
   */
@@ -163,7 +163,7 @@ protected:
      \param inBodyWkPtr weak pointer to itself
   */
   ktStatus init(const ChppBodyWkPtr inBodyWkPtr);
-  
+
 private:
 
   /**
