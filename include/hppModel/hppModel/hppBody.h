@@ -28,8 +28,7 @@ CLASS
 /**
  \brief This class represents bodies (geometric objects attached to a joint).
 
- It derives from KineoWorks CkwsKCDBody class and from an implementation of 
- CjrlJoint.
+ It derives from KineoWorks CkwsKCDBody class.
 
  Objects attached to a body (called inner objects) are used for collision
  checking with selected objects of the environment (called outer objects).
