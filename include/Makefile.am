@@ -9,6 +9,10 @@ nobase_include_HEADERS =			 	\
 if BODY
  hppModeldir = $(includedir)/hppModel
  hppModel_HEADERS = hppModel/hppModel/hppBody.h
+else
+ nobase_include_HEADERS +=			 	\
+	hpp/core/parser.hh \
+	hpp/core/joint-properties.hh
 endif
 
 

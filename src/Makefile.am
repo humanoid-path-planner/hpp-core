@@ -18,6 +18,9 @@ if BODY
 else
  AM_CPPFLAGS += @HPPMODEL_CFLAGS@
  libhppCore_la_LIBADD += @HPPMODEL_LIBS@
+ libhppCore_la_SOURCES += 	\
+	parser.cc \
+	joint-properties.cc
 endif
 
 # Add kwsPlus CPPFLAGS.
