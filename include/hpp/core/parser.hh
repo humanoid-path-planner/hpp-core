@@ -19,7 +19,7 @@ namespace hpp {
       Parser();
       ~Parser();
 
-      ktStatus propertyFiller(const std::string& inContent, 
+      ktStatus propertyFiller(const std::string& inContent,
 			      CkppPropertyShPtr& inOutProperty);
 
       ktStatus writeHumanoidRobot(const CkppComponentConstShPtr& inComponent,
@@ -44,6 +44,30 @@ namespace hpp {
 			     inPrebuiltChildComponentVector,
 			     CkprXMLBuildingContextShPtr& inOutContext,
 			     CkppComponentShPtr& outComponent);
+      ktStatus
+      writeHppRotationJoint(const CkppComponentConstShPtr& inComponent,
+			    CkprXMLWriterShPtr& inOutWriter,
+			    CkprXMLTagShPtr& inOutTag);
+      ktStatus
+      buildHppRotationJoint(const CkprXMLTagConstShPtr& inTag,
+			    const CkppComponentShPtr&
+			    inOutParentComponent,
+			    std::vector< CkppComponentShPtr >&
+			    inPrebuiltChildComponentVector,
+			    CkprXMLBuildingContextShPtr& inOutContext,
+			    CkppComponentShPtr& outComponent);
+      ktStatus
+      writeHppTranslationJoint(const CkppComponentConstShPtr& inComponent,
+			       CkprXMLWriterShPtr& inOutWriter,
+			       CkprXMLTagShPtr& inOutTag);
+      ktStatus
+      buildHppTranslationJoint(const CkprXMLTagConstShPtr& inTag,
+			       const CkppComponentShPtr&
+			       inOutParentComponent,
+			       std::vector< CkppComponentShPtr >&
+			       inPrebuiltChildComponentVector,
+			       CkprXMLBuildingContextShPtr& inOutContext,
+			       CkppComponentShPtr& outComponent);
     }; // Parser
   } // namespace core
 } // namespace hpp

@@ -24,26 +24,41 @@ ktStatus hpp::core::Parser::propertyFiller(const std::string& inContent,
 hpp::core::Parser::Parser()
 {
   ktStatus status = KD_ERROR;
-  std::cout << "Registering Parser::writeHumanoidRobot" << std::endl;
+  // Write humanoid robot
   CkprParserManager::defaultManager()->addXMLWriterMethod < Parser >
     (this, &Parser::writeHumanoidRobot);
-  std::cout << "Registering Parser::buildHumanoidRobot" << std::endl;
+  // Read humanoid robot
   status =
     CkprParserManager::defaultManager()->addXMLInheritedBuilderMethod < Parser >
     ("HPP_HUMANOID_ROBOT", "DEVICE", this, &Parser::buildHumanoidRobot, NULL);
   assert(status == KD_OK);
-  std::cout << "Registering Parser::writeHppFreeflyerJoint" << std::endl;
+  // Write freeflyer joint
   CkprParserManager::defaultManager()->addXMLWriterMethod < Parser >
     (this, &Parser::writeHppFreeflyerJoint);
-  std::cout << "Registering Parser::buildHppFreeflyerJoint" << std::endl;
+  // Read freeflyer joint
   status =
     CkprParserManager::defaultManager()->addXMLInheritedBuilderMethod < Parser >
     ("HPP_FREEFLYER_JOINT", "FREEFLYER_JOINT", this,
      &Parser::buildHppFreeflyerJoint, NULL);
   assert(status == KD_OK);
-  // std::cout << "Registering " << std::endl;
-  // CkprParserManager::defaultManager()->addPropertyFillerMethod < Parser >
-  //   (this, &hpp::core::Parser::propertyFiller);
+  // Write rotation joint
+  CkprParserManager::defaultManager()->addXMLWriterMethod < Parser >
+    (this, &Parser::writeHppRotationJoint);
+  // Read rotation joint
+  status =
+    CkprParserManager::defaultManager()->addXMLInheritedBuilderMethod < Parser >
+    ("HPP_ROTATION_JOINT", "ROTATION_JOINT", this,
+     &Parser::buildHppRotationJoint, NULL);
+  assert(status == KD_OK);
+  // Write translation joint
+  CkprParserManager::defaultManager()->addXMLWriterMethod < Parser >
+    (this, &Parser::writeHppTranslationJoint);
+  // Read translation joint
+  status =
+    CkprParserManager::defaultManager()->addXMLInheritedBuilderMethod < Parser >
+    ("HPP_TRANSLATION_JOINT", "TRANSLATION_JOINT", this,
+     &Parser::buildHppTranslationJoint, NULL);
+  assert(status == KD_OK);
 }
 
 hpp::core::Parser::~Parser()
@@ -80,7 +95,6 @@ writeHppFreeflyerJoint(const CkppComponentConstShPtr& inComponent,
 		       CkprXMLWriterShPtr& inOutWriter,
 		       CkprXMLTagShPtr& inOutTag)
 {
-  std::cout << "hpp::core::Parser::writeHppFreeflyerJoint" << std::endl;
   if (KIT_DYNAMIC_PTR_CAST(const FreeflyerJoint, inComponent)) {
     inOutTag->name("HPP_FREEFLYER_JOINT");
     return KD_OK;
@@ -96,8 +110,55 @@ buildHppFreeflyerJoint(const CkprXMLTagConstShPtr& inTag,
 		       CkprXMLBuildingContextShPtr& inOutContext,
 		       CkppComponentShPtr& outComponent)
 {
-  std::cout << "Creating a joint" << std::endl;
   outComponent = FreeflyerJoint::create("FREEFLYER");
+  return KD_OK;
+}
+
+ktStatus hpp::core::Parser::
+writeHppRotationJoint(const CkppComponentConstShPtr& inComponent,
+		       CkprXMLWriterShPtr& inOutWriter,
+		       CkprXMLTagShPtr& inOutTag)
+{
+  if (KIT_DYNAMIC_PTR_CAST(const RotationJoint, inComponent)) {
+    inOutTag->name("HPP_ROTATION_JOINT");
+    return KD_OK;
+  }
+  return KD_ERROR;
+}
+
+ktStatus hpp::core::Parser::
+buildHppRotationJoint(const CkprXMLTagConstShPtr& inTag,
+		       const CkppComponentShPtr& inOutParentComponent,
+		       std::vector< CkppComponentShPtr >&
+		       inPrebuiltChildComponentVector,
+		       CkprXMLBuildingContextShPtr& inOutContext,
+		       CkppComponentShPtr& outComponent)
+{
+  outComponent = RotationJoint::create("ROTATION");
+  return KD_OK;
+}
+
+ktStatus hpp::core::Parser::
+writeHppTranslationJoint(const CkppComponentConstShPtr& inComponent,
+		       CkprXMLWriterShPtr& inOutWriter,
+		       CkprXMLTagShPtr& inOutTag)
+{
+  if (KIT_DYNAMIC_PTR_CAST(const TranslationJoint, inComponent)) {
+    inOutTag->name("HPP_TRANSLATION_JOINT");
+    return KD_OK;
+  }
+  return KD_ERROR;
+}
+
+ktStatus hpp::core::Parser::
+buildHppTranslationJoint(const CkprXMLTagConstShPtr& inTag,
+		       const CkppComponentShPtr& inOutParentComponent,
+		       std::vector< CkppComponentShPtr >&
+		       inPrebuiltChildComponentVector,
+		       CkprXMLBuildingContextShPtr& inOutContext,
+		       CkppComponentShPtr& outComponent)
+{
+  outComponent = TranslationJoint::create("TRANSLATION");
   return KD_OK;
 }
 

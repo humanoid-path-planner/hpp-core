@@ -1,14 +1,14 @@
-#ifndef HPP_CORE_FREEFLYER_JOINT_HH
-#define HPP_CORE_FREEFLYER_JOINT_HH
+#ifndef HPP_CORE_ROTATION_JOINT_HH
+#define HPP_CORE_ROTATION_JOINT_HH
 
-#include <KineoModel/kppFreeFlyerJointComponent.h>
+#include <KineoModel/kppRotationJointComponent.h>
 
 #include "hpp/core/joint-properties.hh"
 
 namespace hpp {
   namespace core {
-    KIT_PREDEF_CLASS(FreeflyerJoint);
-    class FreeflyerJoint : public CkppFreeFlyerJointComponent,
+    KIT_PREDEF_CLASS(RotationJoint);
+    class RotationJoint : public CkppRotationJointComponent,
 			   public JointProperties
     {
     public:
@@ -16,11 +16,11 @@ namespace hpp {
       {
 	return false;
       }
-      static FreeflyerJointShPtr create(const std::string& inName)
+      static RotationJointShPtr create(const std::string& inName)
       {
-	FreeflyerJoint *ptr = new FreeflyerJoint();
-	FreeflyerJointShPtr shPtr = FreeflyerJointShPtr(ptr);
-	FreeflyerJointWkPtr wkPtr = FreeflyerJointWkPtr(shPtr);
+	RotationJoint *ptr = new RotationJoint();
+	RotationJointShPtr shPtr = RotationJointShPtr(ptr);
+	RotationJointWkPtr wkPtr = RotationJointWkPtr(shPtr);
 
 	if (ptr->init(wkPtr, inName) != KD_OK) {
 	  shPtr.reset();
@@ -32,7 +32,7 @@ namespace hpp {
       fillPropertyVector(std::vector<CkppPropertyShPtr>& inOutPropertyVector)
 	const
       {
-	CkppFreeFlyerJointComponent::fillPropertyVector(inOutPropertyVector);
+	CkppRotationJointComponent::fillPropertyVector(inOutPropertyVector);
 	inOutPropertyVector.push_back(mass);
 	inOutPropertyVector.push_back(comX);
 	inOutPropertyVector.push_back(comY);
@@ -46,16 +46,16 @@ namespace hpp {
       }
 
     protected:
-      FreeflyerJoint() : CkppFreeFlyerJointComponent() {}
-      ktStatus init (const FreeflyerJointWkPtr &inWeakPtr,
+      RotationJoint() : CkppRotationJointComponent() {}
+      ktStatus init (const RotationJointWkPtr &inWeakPtr,
 		     const std::string &inName)
       {
 	ktStatus status = KD_OK;
-	status = CkppFreeFlyerJointComponent::init(inWeakPtr, inName);
+	status = CkppRotationJointComponent::init(inWeakPtr, inName);
 	if (status == KD_ERROR) return KD_ERROR;
 	return JointProperties::init(inWeakPtr);
       }
     };
   } // namespace core
 } // namespace hpp
-#endif //HPP_CORE_FREEFLYER_JOINT_HH
+#endif //HPP_CORE_ROTATION_JOINT_HH

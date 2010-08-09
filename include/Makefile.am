@@ -14,6 +14,8 @@ else
 	hpp/core/parser.hh \
 	hpp/core/joint-properties.hh \
 	hpp/core/freeflyer-joint.hh \
+	hpp/core/rotation-joint.hh \
+	hpp/core/translation-joint.hh \
 	hpp/core/fwd.hh
 endif
 
