@@ -9,7 +9,7 @@ namespace hpp {
   namespace core {
     KIT_PREDEF_CLASS(FreeflyerJoint);
     class FreeflyerJoint : public CkppFreeFlyerJointComponent,
-			   public hpp::core::JointProperties
+			   public JointProperties
     {
     public:
       virtual bool isComponentClonable () const
@@ -29,20 +29,20 @@ namespace hpp {
 	return shPtr;
       }
       void 
-      fillPropertyVector(std::vector<CkppPropertyShPtr>& outPropertyVector)
+      fillPropertyVector(std::vector<CkppPropertyShPtr>& inOutPropertyVector)
 	const
       {
-	CkppFreeFlyerJointComponent::fillPropertyVector(outPropertyVector);
-	outPropertyVector.push_back(mass);
-	outPropertyVector.push_back(comX);
-	outPropertyVector.push_back(comY);
-	outPropertyVector.push_back(comZ);
-	outPropertyVector.push_back(inertiaMatrixXX);
-	outPropertyVector.push_back(inertiaMatrixYY);
-	outPropertyVector.push_back(inertiaMatrixZZ);
-	outPropertyVector.push_back(inertiaMatrixXY);
-	outPropertyVector.push_back(inertiaMatrixXZ);
-	outPropertyVector.push_back(inertiaMatrixYZ);
+	CkppFreeFlyerJointComponent::fillPropertyVector(inOutPropertyVector);
+	inOutPropertyVector.push_back(mass);
+	inOutPropertyVector.push_back(comX);
+	inOutPropertyVector.push_back(comY);
+	inOutPropertyVector.push_back(comZ);
+	inOutPropertyVector.push_back(inertiaMatrixXX);
+	inOutPropertyVector.push_back(inertiaMatrixYY);
+	inOutPropertyVector.push_back(inertiaMatrixZZ);
+	inOutPropertyVector.push_back(inertiaMatrixXY);
+	inOutPropertyVector.push_back(inertiaMatrixXZ);
+	inOutPropertyVector.push_back(inertiaMatrixYZ);
       }
 
     protected:

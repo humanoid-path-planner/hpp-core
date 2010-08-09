@@ -19,6 +19,9 @@ namespace hpp {
       Parser();
       ~Parser();
 
+      ktStatus propertyFiller(const std::string& inContent, 
+			      CkppPropertyShPtr& inOutProperty);
+
       ktStatus writeHumanoidRobot(const CkppComponentConstShPtr& inComponent,
 				  CkprXMLWriterShPtr& inOutWriter,
 				  CkprXMLTagShPtr& inOutTag);
