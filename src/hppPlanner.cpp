@@ -607,7 +607,7 @@ ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPathId)
       (":optimizePath: roadmap builder should be set to define penetration.");
     return KD_ERROR;
   }
-  double penetration = roadmapBuilder->penetration();
+  double penetration = hppProblem.penetration();
 
   if (inPathId >= hppProblem.getNbPaths()) {
     ODEBUG1(":optimizePath: problem Id="
