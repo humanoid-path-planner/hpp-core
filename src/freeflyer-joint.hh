@@ -1,3 +1,9 @@
+/*
+ *  Copyright (c) 2010 LAAS-CNRS
+ *
+ *  Author: Florent Lamiraux
+ */
+
 #ifndef HPP_CORE_FREEFLYER_JOINT_HH
 #define HPP_CORE_FREEFLYER_JOINT_HH
 
