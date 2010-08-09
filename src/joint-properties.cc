@@ -5,9 +5,9 @@
 
 #include <KineoModel/kppDoubleProperty.h>
 
-#include "hpp/core/joint-properties.hh"
+#include "joint-properties.hh"
 
-using hpp::core::JointProperties;
+using hpp::core::io::JointProperties;
 
 // Mass
 const CkppProperty::TPropertyID

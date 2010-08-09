@@ -9,7 +9,10 @@
 #include <kprParserXML/kprParserManager.h>
 #include <hppModel/hppHumanoidRobot.h>
 #include "hpp/core/parser.hh"
-#include "hpp/core/freeflyer-joint.hh"
+#include "freeflyer-joint.hh"
+#include "rotation-joint.hh"
+#include "translation-joint.hh"
+#include "humanoid-robot.hh"
 
 hpp::core::Parser::Parser()
 {
@@ -60,8 +63,7 @@ ktStatus hpp::core::Parser::writeHumanoidRobot
  CkprXMLWriterShPtr& inOutWriter,
  CkprXMLTagShPtr& inOutTag)
 {
-  std::cout << "hpp::core::Parser::writeHumanoidRobot" << std::endl;
-  if (KIT_DYNAMIC_PTR_CAST(const ChppHumanoidRobot, inComponent)) {
+  if (KIT_DYNAMIC_PTR_CAST(const io::HumanoidRobot, inComponent)) {
     inOutTag->name("HPP_HUMANOID_ROBOT");
     return KD_OK;
   }
@@ -75,8 +77,7 @@ ktStatus hpp::core::Parser::buildHumanoidRobot
  CkprXMLBuildingContextShPtr& inOutContext,
  CkppComponentShPtr& outComponent)
 {
-  std::cout << "Creating a humanoid robot" << std::endl;
-  outComponent = ChppHumanoidRobot::create("Humanoid Robot");
+  outComponent = io::HumanoidRobot::create("Humanoid Robot");
   return KD_OK;
 }
 
@@ -85,7 +86,7 @@ writeHppFreeflyerJoint(const CkppComponentConstShPtr& inComponent,
 		       CkprXMLWriterShPtr& inOutWriter,
 		       CkprXMLTagShPtr& inOutTag)
 {
-  if (KIT_DYNAMIC_PTR_CAST(const FreeflyerJoint, inComponent)) {
+  if (KIT_DYNAMIC_PTR_CAST(const io::FreeflyerJoint, inComponent)) {
     inOutTag->name("HPP_FREEFLYER_JOINT");
     return KD_OK;
   }
@@ -100,7 +101,7 @@ buildHppFreeflyerJoint(const CkprXMLTagConstShPtr& inTag,
 		       CkprXMLBuildingContextShPtr& inOutContext,
 		       CkppComponentShPtr& outComponent)
 {
-  outComponent = FreeflyerJoint::create("FREEFLYER");
+  outComponent = io::FreeflyerJoint::create("FREEFLYER");
   return KD_OK;
 }
 
@@ -109,7 +110,7 @@ writeHppRotationJoint(const CkppComponentConstShPtr& inComponent,
 		       CkprXMLWriterShPtr& inOutWriter,
 		       CkprXMLTagShPtr& inOutTag)
 {
-  if (KIT_DYNAMIC_PTR_CAST(const RotationJoint, inComponent)) {
+  if (KIT_DYNAMIC_PTR_CAST(const io::RotationJoint, inComponent)) {
     inOutTag->name("HPP_ROTATION_JOINT");
     return KD_OK;
   }
@@ -124,7 +125,7 @@ buildHppRotationJoint(const CkprXMLTagConstShPtr& inTag,
 		       CkprXMLBuildingContextShPtr& inOutContext,
 		       CkppComponentShPtr& outComponent)
 {
-  outComponent = RotationJoint::create("ROTATION");
+  outComponent = io::RotationJoint::create("ROTATION");
   return KD_OK;
 }
 
@@ -133,7 +134,7 @@ writeHppTranslationJoint(const CkppComponentConstShPtr& inComponent,
 		       CkprXMLWriterShPtr& inOutWriter,
 		       CkprXMLTagShPtr& inOutTag)
 {
-  if (KIT_DYNAMIC_PTR_CAST(const TranslationJoint, inComponent)) {
+  if (KIT_DYNAMIC_PTR_CAST(const io::TranslationJoint, inComponent)) {
     inOutTag->name("HPP_TRANSLATION_JOINT");
     return KD_OK;
   }
@@ -148,7 +149,17 @@ buildHppTranslationJoint(const CkprXMLTagConstShPtr& inTag,
 		       CkprXMLBuildingContextShPtr& inOutContext,
 		       CkppComponentShPtr& outComponent)
 {
-  outComponent = TranslationJoint::create("TRANSLATION");
+  outComponent = io::TranslationJoint::create("TRANSLATION");
   return KD_OK;
+}
+
+CkppDeviceComponentShPtr hpp::core::Parser::buildDummyDevice()
+{
+  // Create a humanoid robot with one freeflyer joint
+  io::HumanoidRobotShPtr robot = io::HumanoidRobot::create("TEST");
+  io::FreeflyerJointShPtr joint = io::FreeflyerJoint::create("FF");
+  joint->mass->value(1.55);
+  robot->setRootJoint(joint);
+  return robot;
 }
 

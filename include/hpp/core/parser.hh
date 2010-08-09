@@ -12,6 +12,8 @@
 #include <kprParserXML/kprXMLBuildingContext.h>
 #include <kprParserXML/kprXMLWriter.h>
 
+KIT_PREDEF_CLASS(CkppDeviceComponent);
+
 namespace hpp {
   namespace core {
     class Parser {
@@ -78,6 +80,7 @@ namespace hpp {
 			       CkprXMLBuildingContextShPtr& inOutContext,
 			       CkppComponentShPtr& outComponent);
       /// @}
+      static CkppDeviceComponentShPtr buildDummyDevice();
     }; // Parser
   } // namespace core
 } // namespace hpp
