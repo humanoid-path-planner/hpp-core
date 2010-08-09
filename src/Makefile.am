@@ -24,7 +24,9 @@ else
 	joint.hh \
 	freeflyer-joint.hh \
 	rotation-joint.hh \
-	translation-joint.hh
+	translation-joint.hh \
+	humanoid-robot.h \
+	humanoid-robot.cc
 endif
 
 # Add kwsPlus CPPFLAGS.

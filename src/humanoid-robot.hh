@@ -10,6 +10,8 @@
 #include <KineoModel/kppDeviceComponent.h>
 
 KIT_PREDEF_CLASS(ChppHumanoidRobot);
+class ChppJoint;
+
 namespace hpp {
   namespace core {
     namespace io {
@@ -80,8 +82,9 @@ namespace hpp {
 	}
       private:
 	/// Recursively builds the kinematic chain of the ChppHumanoidRobot
-	void
-	buildKinematicChain(const CkppJointComponentConstShPtr& root) const;
+	ChppJoint*
+	buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
+			    const CkppJointComponentShPtr& inJoint) const;
       };
     } // namespace io
   } // namespace core
