@@ -8,6 +8,18 @@
 namespace hpp {
   namespace core {
     KIT_PREDEF_CLASS(FreeflyerJoint);
+    ///
+    /// \brief Intermediate freeflyer joint.
+    ///
+    /// This class implements a freeflyer joint deriving from
+    /// CkppFreeFlyerJointComponent only for kxml input output purposes.
+    ///
+    /// Joints of this class contain inertia data as CkppDoubleProperty
+    /// attributes.
+    ///
+    /// Once read from a file the device containing this joint will be
+    /// transformed into a ChppHumanoidRobot.
+
     class FreeflyerJoint : public CkppFreeFlyerJointComponent,
 			   public JointProperties
     {

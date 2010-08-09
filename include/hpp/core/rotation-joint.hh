@@ -8,6 +8,18 @@
 namespace hpp {
   namespace core {
     KIT_PREDEF_CLASS(RotationJoint);
+    ///
+    /// \brief Intermediate rotation joint.
+    ///
+    /// This class implements a rotation joint deriving from
+    /// CkppRotationJointComponent only for kxml input output purposes.
+    ///
+    /// Joints of this class contain inertia data as CkppDoubleProperty
+    /// attributes.
+    ///
+    /// Once read from a file the device containing this joint will be
+    /// transformed into a ChppHumanoidRobot.
+
     class RotationJoint : public CkppRotationJointComponent,
 			   public JointProperties
     {

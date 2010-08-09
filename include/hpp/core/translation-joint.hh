@@ -8,6 +8,18 @@
 namespace hpp {
   namespace core {
     KIT_PREDEF_CLASS(TranslationJoint);
+    ///
+    /// \brief Intermediate translation joint.
+    ///
+    /// This class implements a translation joint deriving from
+    /// CkppTranslationJointComponent only for kxml input output purposes.
+    ///
+    /// Joints of this class contain inertia data as CkppDoubleProperty
+    /// attributes.
+    ///
+    /// Once read from a file the device containing this joint will be
+    /// transformed into a ChppHumanoidRobot.
+
     class TranslationJoint : public CkppTranslationJointComponent,
 			   public JointProperties
     {
