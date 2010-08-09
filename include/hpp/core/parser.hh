@@ -19,12 +19,15 @@ namespace hpp {
       Parser();
       ~Parser();
 
-      ktStatus propertyFiller(const std::string& inContent,
-			      CkppPropertyShPtr& inOutProperty);
+      ///
+      /// \name Call back for kxml read write
+      /// @{
 
+      /// \brief Write local class representing a humanoid robot into kxml file.
       ktStatus writeHumanoidRobot(const CkppComponentConstShPtr& inComponent,
 				  CkprXMLWriterShPtr& inOutWriter,
 				  CkprXMLTagShPtr& inOutTag);
+      /// \brief Build local class representing a humanoid robot from kxml file.
       ktStatus buildHumanoidRobot(const CkprXMLTagConstShPtr& inTag,
 				  const CkppComponentShPtr&
 				  inOutParentComponent,
@@ -32,10 +35,12 @@ namespace hpp {
 				  inPrebuiltChildComponentVector,
 				  CkprXMLBuildingContextShPtr& inOutContext,
 				  CkppComponentShPtr& outComponent);
+      /// \brief Write local class representing a freeflyer joint into kxml file.
       ktStatus
       writeHppFreeflyerJoint(const CkppComponentConstShPtr& inComponent,
 			     CkprXMLWriterShPtr& inOutWriter,
 			     CkprXMLTagShPtr& inOutTag);
+      /// \brief Build local class representing a freeflyer joint from kxml file.
       ktStatus
       buildHppFreeflyerJoint(const CkprXMLTagConstShPtr& inTag,
 			     const CkppComponentShPtr&
@@ -44,10 +49,12 @@ namespace hpp {
 			     inPrebuiltChildComponentVector,
 			     CkprXMLBuildingContextShPtr& inOutContext,
 			     CkppComponentShPtr& outComponent);
+      /// \brief Write local class representing a rotation joint into kxml file.
       ktStatus
       writeHppRotationJoint(const CkppComponentConstShPtr& inComponent,
 			    CkprXMLWriterShPtr& inOutWriter,
 			    CkprXMLTagShPtr& inOutTag);
+      /// \brief Build local class representing a rotation joint from kxml file.
       ktStatus
       buildHppRotationJoint(const CkprXMLTagConstShPtr& inTag,
 			    const CkppComponentShPtr&
@@ -56,10 +63,12 @@ namespace hpp {
 			    inPrebuiltChildComponentVector,
 			    CkprXMLBuildingContextShPtr& inOutContext,
 			    CkppComponentShPtr& outComponent);
+      /// \brief Write local class representing a translation joint into kxml file.
       ktStatus
       writeHppTranslationJoint(const CkppComponentConstShPtr& inComponent,
 			       CkprXMLWriterShPtr& inOutWriter,
 			       CkprXMLTagShPtr& inOutTag);
+      /// \brief Build local class representing a translation joint from kxml file.
       ktStatus
       buildHppTranslationJoint(const CkprXMLTagConstShPtr& inTag,
 			       const CkppComponentShPtr&
@@ -68,6 +77,7 @@ namespace hpp {
 			       inPrebuiltChildComponentVector,
 			       CkprXMLBuildingContextShPtr& inOutContext,
 			       CkppComponentShPtr& outComponent);
+      /// @}
     }; // Parser
   } // namespace core
 } // namespace hpp

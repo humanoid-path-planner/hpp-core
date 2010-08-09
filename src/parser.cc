@@ -11,16 +11,6 @@
 #include "hpp/core/parser.hh"
 #include "hpp/core/freeflyer-joint.hh"
 
-ktStatus hpp::core::Parser::propertyFiller(const std::string& inContent,
-					   CkppPropertyShPtr& inOutProperty)
-{
-  std::cout << "propertyFiller(" << inContent << ")"
-	    << std::endl
-	    << "property type: " << typeid(inOutProperty.get()).name()
-	    << std::endl;
-  return KD_OK;
-}
-
 hpp::core::Parser::Parser()
 {
   ktStatus status = KD_ERROR;
