@@ -1,6 +1,6 @@
 /*
   Research carried out within the scope of the Associated International Laboratory: Joint Japanese-French Robotics Laboratory (JRL)
- 
+
   Developed by Florent Lamiraux (LAAS-CNRS)
   and Mathieu Poirier (LAAS-CNRS)
 */
@@ -21,6 +21,7 @@
 
 #include "hppCore/hppPlanner.h"
 #include "hppCore/hppProblem.h"
+#include "humanoid-robot.hh"
 #include "hppModel/hppBody.h"
 
 #include "KineoUtility/kitNotificator.h"
@@ -39,13 +40,20 @@
 
 KIT_PREDEF_CLASS(CkwsSteeringMethod);
 
-const CkitNotification::TType ChppPlanner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());
-const CkitNotification::TType ChppPlanner::ID_HPP_SET_CURRENT_CONFIG(CkitNotification::makeID());
-const CkitNotification::TType ChppPlanner::ID_HPP_REMOVE_OBSTACLES(CkitNotification::makeID());
-const CkitNotification::TType ChppPlanner::ID_HPP_SET_OBSTACLE_LIST(CkitNotification::makeID());
-const CkitNotification::TType ChppPlanner::ID_HPP_ADD_OBSTACLE(CkitNotification::makeID());
-const CkitNotification::TType ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER(CkitNotification::makeID());
-const CkitNotification::TType ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_SET_CURRENT_CONFIG(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_REMOVE_OBSTACLES(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_SET_OBSTACLE_LIST(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_ADD_OBSTACLE(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER(CkitNotification::makeID());
+const CkitNotification::TType
+ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER(CkitNotification::makeID());
 
 const std::string ChppPlanner::ROBOT_KEY("robot");
 const std::string ChppPlanner::OBSTACLE_KEY("obstacle");
@@ -80,7 +88,7 @@ const std::string ChppPlanner::ROADMAP_KEY("roadmap");
 
 ChppPlanner::ChppPlanner()
 {
-  attNotificator = CkitNotificator::defaultNotificator(); 
+  attNotificator = CkitNotificator::defaultNotificator();
   attObstacleList.clear();
   attStopRdmBuilderDelegate = new CkwsPlusStopRdmBuilderDelegate;
 
@@ -89,10 +97,11 @@ ChppPlanner::ChppPlanner()
 // ==========================================================================
 
 ChppPlanner::ChppPlanner(const ChppPlanner& inPlanner) :
-  attNotificator(inPlanner.attNotificator), 
+  attNotificator(inPlanner.attNotificator),
   hppProblemVector(inPlanner.hppProblemVector),
   attObstacleList(inPlanner.attObstacleList),
-  attStopRdmBuilderDelegate(new CkwsPlusStopRdmBuilderDelegate(*attStopRdmBuilderDelegate))
+  attStopRdmBuilderDelegate
+  (new CkwsPlusStopRdmBuilderDelegate(*attStopRdmBuilderDelegate))
 {
 }
 
@@ -106,7 +115,7 @@ ChppPlanner::~ChppPlanner()
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr inRobot, 
+ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr inRobot,
 				    double inPenetration)
 {
   ChppProblem hppProblem(inRobot, attObstacleList, inPenetration);
@@ -115,9 +124,10 @@ ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr inRobot,
   // Add robot in vector .
   hppProblemVector.push_back(hppProblem);
 
- 
-  CkitNotificationShPtr notification 
-    = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
+
+  CkitNotificationShPtr notification
+    = CkitNotification::createWithPtr<ChppPlanner>
+    (ChppPlanner::ID_HPP_ADD_ROBOT, this);
   // set attribute if necessary
   notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, inRobot);
   attNotificator->notify(notification);
@@ -144,8 +154,9 @@ ktStatus ChppPlanner::removeHppProblem()
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot, 
-					       double inPenetration)
+ktStatus
+ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot,
+				      double inPenetration)
 {
   ChppProblem hppProblem(inRobot, attObstacleList, inPenetration);
 
@@ -153,7 +164,9 @@ ktStatus ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr inRobot,
   // Add robot in vector .
   hppProblemVector.push_front(hppProblem);
 
-  CkitNotificationShPtr notification  = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT, this);
+  CkitNotificationShPtr notification  =
+    CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT,
+						 this);
   // set attribute if necessary
   notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, inRobot);
   attNotificator->notify(notification);
@@ -180,7 +193,8 @@ ktStatus ChppPlanner::removeHppProblemAtBeginning(){
 
 // ==========================================================================
 
-const CkppDeviceComponentShPtr ChppPlanner::robotIthProblem(unsigned int rank) const
+const CkppDeviceComponentShPtr
+ChppPlanner::robotIthProblem(unsigned int rank) const
 {
   CkppDeviceComponentShPtr nullShPtr;
 
@@ -222,17 +236,14 @@ ktStatus ChppPlanner::robotCurrentConfIthProblem(unsigned int rank,
   }
 
   /* send notification */
-  // I think there is no need to notify because CkppDeviceComponent::applyCurrentConfig()
-  // will reflect the configuration change. To be tested.
   if (status == KD_OK) {
-    CkitNotificationShPtr notification 
-      = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_SET_CURRENT_CONFIG, this);
+    CkitNotificationShPtr notification
+      = CkitNotification::createWithPtr<ChppPlanner>
+      (ChppPlanner::ID_HPP_SET_CURRENT_CONFIG, this);
     notification->shPtrValue<CkwsConfig>(CONFIG_KEY, config);
     attNotificator->notify(notification);
-
-    // status = hppNotificator->sendNotification(ID_HPP_SET_CURRENT_CONFIG);
   }
-	
+
   return status;
 }
 
@@ -252,13 +263,14 @@ ktStatus ChppPlanner::robotCurrentConfIthProblem(unsigned int rank,
   /* send notification */
   if (status == KD_OK) {
     // status = hppNotificator->sendNotification(ID_HPP_SET_CURRENT_CONFIG);
-    CkitNotificationShPtr notification 
-      = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_SET_CURRENT_CONFIG, this);
+    CkitNotificationShPtr notification
+      = CkitNotification::createWithPtr<ChppPlanner>
+      (ChppPlanner::ID_HPP_SET_CURRENT_CONFIG, this);
     attNotificator->notify(notification);
     // set attribute if necessary
 
   }
-	
+
   return status;
 }
 
@@ -332,22 +344,26 @@ ktStatus ChppPlanner::goalConfIthProblem(unsigned int rank,
 // ==========================================================================
 
 
-ktStatus ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
-					       CkwsRoadmapBuilderShPtr inRoadmapBuilder,
-					       bool inDisplay)
+ktStatus
+ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
+				      CkwsRoadmapBuilderShPtr inRoadmapBuilder,
+				      bool inDisplay)
 {
   if (rank >= getNbHppProblems()) {
-    ODEBUG1(":roadmapBuilderIthProblem: rank should be less than number of problems.");
+    ODEBUG1
+      (":roadmapBuilderIthProblem: "
+       << "rank should be less than number of problems.");
     return KD_ERROR;
   }
 
   /*
-    If a roadmap was already stored, it will be removed. If this roadmap is displayed 
-    in the interface, we need first to remove the corresponding data-structure in the 
-    interface. This is done by sending a notification.
+    If a roadmap was already stored, it will be removed. If this roadmap is
+    displayed in the interface, we need first to remove the corresponding
+    data-structure in the interface. This is done by sending a notification.
   */
-  CkitNotificationShPtr notification  = 
-    CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER, this);
+  CkitNotificationShPtr notification  =
+    CkitNotification::createWithPtr<ChppPlanner>
+    (ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER, this);
   notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
   attNotificator->notify(notification);
 
@@ -359,14 +375,15 @@ ktStatus ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
 #endif
   ChppProblem& hppProblem =  hppProblemVector[rank];
   hppProblem.roadmapBuilder(inRoadmapBuilder);
-  
-  /* 
-     If the new roadmap is displayed in the interface, send a notification to 
+
+  /*
+     If the new roadmap is displayed in the interface, send a notification to
      trigger appropriate action.
   */
   if (inDisplay) {
-    notification = 
-      CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER, this);
+    notification =
+      CkitNotification::createWithPtr<ChppPlanner>
+      (ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER, this);
     notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
     attNotificator->notify(notification);
   }
@@ -388,11 +405,14 @@ CkwsRoadmapBuilderShPtr ChppPlanner::roadmapBuilderIthProblem(unsigned int rank)
 
 // ==========================================================================
 
-ktStatus ChppPlanner::pathOptimizerIthProblem(unsigned int rank,
-					      CkwsPathOptimizerShPtr inPathOptimizer)
+ktStatus
+ChppPlanner::pathOptimizerIthProblem(unsigned int rank,
+				     CkwsPathOptimizerShPtr inPathOptimizer)
 {
   if (rank >= getNbHppProblems()) {
-    ODEBUG1(":pathOptimizerIthProblem: rank should be less than number of problems.");
+    ODEBUG1
+      (":pathOptimizerIthProblem: "
+       << "rank should be less than number of problems.");
     return KD_ERROR;
   }
 
@@ -418,11 +438,15 @@ CkwsPathOptimizerShPtr ChppPlanner::pathOptimizerIthProblem(unsigned int rank)
 // ==========================================================================
 
 
-ktStatus ChppPlanner::steeringMethodIthProblem(unsigned int rank, CkwsSteeringMethodShPtr inSM)
+ktStatus
+ChppPlanner::steeringMethodIthProblem(unsigned int rank,
+				      CkwsSteeringMethodShPtr inSM)
 {
 
   if (rank >= getNbHppProblems()) {
-    ODEBUG1(":steeringMethodIthProblem: rank should be less than number of problems.");
+    ODEBUG1
+      (":steeringMethodIthProblem: "
+       << "rank should be less than number of problems.");
     return KD_ERROR;
   }
 
@@ -446,11 +470,14 @@ CkwsSteeringMethodShPtr ChppPlanner::steeringMethodIthProblem(unsigned int rank)
 
 // ==========================================================================
 
-ktStatus ChppPlanner::configExtractorIthProblem(unsigned int inRank, 
-						const CkwsConfigExtractorShPtr& inConfigExtractor)
+ktStatus ChppPlanner::configExtractorIthProblem(unsigned int inRank,
+						const CkwsConfigExtractorShPtr&
+						inConfigExtractor)
 {
   if (inRank >= getNbHppProblems()) {
-    ODEBUG1(":configExtractorIthProblem: rank should be less than number of problems.");
+    ODEBUG1
+      (":configExtractorIthProblem: "
+       << "rank should be less than number of problems.");
     return KD_ERROR;
   }
 
@@ -486,8 +513,10 @@ double ChppPlanner::penetration(unsigned int inRank) const
 ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
 {
   // Send notification to destroy current obstacles in Kpp.
- 
-  CkitNotificationShPtr notification  = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_REMOVE_OBSTACLES, this);
+
+  CkitNotificationShPtr notification  =
+    CkitNotification::createWithPtr<ChppPlanner>
+    (ChppPlanner::ID_HPP_REMOVE_OBSTACLES, this);
   attNotificator->notify(notification);
 
   // Set list of obstacles.
@@ -501,11 +530,13 @@ ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
   }
 
   // Send notification for new list of obstacles.
-  notification = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_SET_OBSTACLE_LIST, this);
+  notification = CkitNotification::createWithPtr<ChppPlanner>
+    (ChppPlanner::ID_HPP_SET_OBSTACLE_LIST, this);
   // set attributes if necessary
-  notification->ptrValue< std::vector<CkcdObjectShPtr> >(OBSTACLE_KEY, &attObstacleList);
+  notification->ptrValue< std::vector<CkcdObjectShPtr> >
+    (OBSTACLE_KEY, &attObstacleList);
   attNotificator->notify(notification);
-	
+
   return KD_OK;
 }
 
@@ -518,7 +549,7 @@ const std::vector< CkcdObjectShPtr > ChppPlanner::obstacleList()
 
 // ==========================================================================
 
-ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object, 
+ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object,
 				  bool inDistanceComputation)
 {
   attObstacleList.push_back(object);
@@ -531,9 +562,12 @@ ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object,
   }
 
   // Send notification
-  CkitNotificationShPtr notification = CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_OBSTACLE, this);
+  CkitNotificationShPtr notification =
+    CkitNotification::createWithPtr<ChppPlanner>
+    (ChppPlanner::ID_HPP_ADD_OBSTACLE, this);
   // set attributes if necessary
-  notification->ptrValue< std::vector<CkcdObjectShPtr> >(OBSTACLE_KEY, &attObstacleList);
+  notification->ptrValue< std::vector<CkcdObjectShPtr> >
+    (OBSTACLE_KEY, &attObstacleList);
   attNotificator->notify(notification);
 
   return KD_OK;
@@ -544,9 +578,9 @@ ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object,
 ktStatus ChppPlanner::solveOneProblem(unsigned int inRank)
 {
 
-  //TODO : rajouter le extraDOf - essayer les precondition des SM ou dP -- FAIT mais pas notifier !!
   if (inRank >= getNbHppProblems()) {
-    ODEBUG1(":solveOneProblem: problem Id=" << inRank << "is bigger than vector size=" << getNbHppProblems());
+    ODEBUG1(":solveOneProblem: problem Id=" << inRank
+	    << "is bigger than vector size=" << getNbHppProblems());
 
     return KD_ERROR;
   }
@@ -556,10 +590,12 @@ ktStatus ChppPlanner::solveOneProblem(unsigned int inRank)
   return hppProblem.solve();
 }
 
-ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPathId)
+ktStatus
+ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPathId)
 {
   if (inProblemId >= getNbHppProblems()) {
-    ODEBUG1(":optimizePath: problem Id=" << inProblemId << " is bigger than vector size=" << getNbHppProblems());
+    ODEBUG1(":optimizePath: problem Id=" << inProblemId
+	    << " is bigger than vector size=" << getNbHppProblems());
 
     return KD_ERROR;
   }
@@ -567,11 +603,12 @@ ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPath
   ChppProblem& hppProblem = hppProblemVector[inProblemId];
   CkwsRoadmapBuilderShPtr roadmapBuilder = hppProblem.roadmapBuilder();
   if (!roadmapBuilder) {
-    ODEBUG1(":optimizePath: roadmap builder should be set to define penetration.");
+    ODEBUG1
+      (":optimizePath: roadmap builder should be set to define penetration.");
     return KD_ERROR;
   }
   double penetration = roadmapBuilder->penetration();
-    
+
   if (inPathId >= hppProblem.getNbPaths()) {
     ODEBUG1(":optimizePath: problem Id="
 	    << inPathId << " is bigger than number of paths="
@@ -583,10 +620,10 @@ ktStatus ChppPlanner::optimizePath(unsigned int inProblemId, unsigned int inPath
   // optimizer for the path
   if (hppProblem.pathOptimizer()) {
     hppProblem.pathOptimizer()->optimizePath(kwsPath, penetration);
-    
-    ODEBUG2(":optimizePath: path optimized with penetration " 
+
+    ODEBUG2(":optimizePath: path optimized with penetration "
 	    << penetration);
-    
+
   } else {
     ODEBUG1(":optimizePath: no optimizer defined");
   }
@@ -601,7 +638,9 @@ unsigned int ChppPlanner::getNbPaths(unsigned int inProblemId) const
   if (inProblemId < getNbHppProblems()) {
     nbPaths =  hppProblemVector[inProblemId].getNbPaths();
   } else {
-    ODEBUG1(":getNbPaths : inProblemId = "<< inProblemId << " should be smaller than nb of problems: " << getNbHppProblems());
+    ODEBUG1(":getNbPaths : inProblemId = "<< inProblemId
+	    << " should be smaller than nb of problems: "
+	    << getNbHppProblems());
   }
   return nbPaths;
 }
@@ -635,7 +674,7 @@ ktStatus ChppPlanner::addPath(unsigned int inProblemId, CkwsPathShPtr kwsPath)
 
 // ==========================================================================
 
-CkwsKCDBodyConstShPtr 
+CkwsKCDBodyConstShPtr
 ChppPlanner::findBodyByJointName(const std::string& inJointName) const
 {
   CkwsKCDBodyConstShPtr kcdBody;
@@ -648,15 +687,15 @@ ChppPlanner::findBodyByJointName(const std::string& inJointName) const
     hppRobot->getJointVector(jointVector);
 
     // Loop over bodies of the robot.
-    for (CkwsDevice::TJointIterator jointIter=jointVector.begin(); 
-	 jointIter < jointVector.end(); 
+    for (CkwsDevice::TJointIterator jointIter=jointVector.begin();
+	 jointIter < jointVector.end();
 	 jointIter++) {
       // Cast joint into CkppJointComponent
-      if (CkppJointComponentShPtr kppJointInRobot = 
+      if (CkppJointComponentShPtr kppJointInRobot =
 	  KIT_DYNAMIC_PTR_CAST(CkppJointComponent, *jointIter)) {
 	if (kppJointInRobot->name() == inJointName) {
-	  kcdBody = 
-	    KIT_DYNAMIC_PTR_CAST(const CkwsKCDBody, 
+	  kcdBody =
+	    KIT_DYNAMIC_PTR_CAST(const CkwsKCDBody,
 				 kppJointInRobot->kwsJoint()->attachedBody());
 	  return kcdBody;
 	}
@@ -695,127 +734,126 @@ ktStatus ChppPlanner::parseFile(const std::string& inFileName)
 
   CkppComponentShPtr modelTreeComponent;
   CkprParserManagerShPtr parser = CkprParserManager::defaultManager();
-  
-  if(inFileName.length() == 0) { 
-    ODEBUG1(":parseFile: no file name"); 
+
+  if(inFileName.length() == 0) {
+    ODEBUG1(":parseFile: no file name");
     return KD_ERROR;
   }
-  
-  if(KD_ERROR == parser->loadComponentFromFile(inFileName, modelTreeComponent)) { 
-    ODEBUG1(":parseFile: unable to load file " << inFileName); 
+
+  if(KD_ERROR == parser->loadComponentFromFile(inFileName,
+					       modelTreeComponent)) {
+    ODEBUG1(":parseFile: unable to load file " << inFileName);
     ODEBUG2(":parseFile: " << parser->lastError().errorMessage());
-    return KD_ERROR; 
+    return KD_ERROR;
   }
 
-  CkppModelTreeShPtr modelTree = KIT_DYNAMIC_PTR_CAST(CkppModelTree,modelTreeComponent);
+  CkppModelTreeShPtr modelTree =
+    KIT_DYNAMIC_PTR_CAST(CkppModelTree,modelTreeComponent);
 
-  CkppSolidComponentShPtr solidComponent = KIT_DYNAMIC_PTR_CAST(CkppSolidComponent,modelTreeComponent);
+  CkppSolidComponentShPtr solidComponent =
+    KIT_DYNAMIC_PTR_CAST(CkppSolidComponent,modelTreeComponent);
 
-  if(modelTree) { 
-    ODEBUG1(":parseFile: found modelTree"); 
+  if(modelTree) {
+    ODEBUG1(":parseFile: found modelTree");
 
 
     std::map<CkppDeviceComponentShPtr,unsigned int> devicesIndex;
-    
+
     std::set<CkcdObjectShPtr> devicesBodies;
-    
+
     unsigned int currentRank=0;
-    
+
     if(!modelTree->deviceNode()) std::cout << "No devices" << std::endl;
-    else{ 
-      for(unsigned int i = 0; i< modelTree->deviceNode()->countChildComponents(); i++){
-	
-	CkppDeviceComponentShPtr deviceComponent = KIT_DYNAMIC_PTR_CAST(CkppDeviceComponent,modelTree->deviceNode()->childComponent(i));
-	
-	if(deviceComponent){
-	  
+    else {
+      for(unsigned int i = 0;
+	  i< modelTree->deviceNode()->countChildComponents(); i++) {
+
+	CkppDeviceComponentShPtr deviceComponent =
+	  KIT_DYNAMIC_PTR_CAST(CkppDeviceComponent,
+			       modelTree->deviceNode()->childComponent(i));
+
+	if(deviceComponent) {
 	  addHppProblem(deviceComponent, HPPPLANNER_DEFAULT_PENETRATION);
-	  
 	  devicesIndex.insert
-	    (std::pair<CkppDeviceComponentShPtr,unsigned int>
-	     (deviceComponent,currentRank));
-	  
+	    (std::pair<CkppDeviceComponentShPtr,unsigned int>(deviceComponent,
+							      currentRank));
+
 	  std::vector< CkppSolidComponentRefShPtr > solidComponentRefVector;
-	  
+
 	  deviceComponent->getSolidComponentRefVector (solidComponentRefVector);
-	  
-	  for(std::vector< CkppSolidComponentRefShPtr >::iterator it=solidComponentRefVector.begin();it!=solidComponentRefVector.end();it++)
-	    {
-	      CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject,(*it)->referencedSolidComponent() );
-	      if(kcdObject) devicesBodies.insert(kcdObject);
-	      else std::cout << "Cannot cast component to kcdObject"
-			     << std::endl;
-	    }
-	  
+
+	  for(std::vector< CkppSolidComponentRefShPtr >::iterator
+		it=solidComponentRefVector.begin();
+	      it!=solidComponentRefVector.end();it++) {
+	    CkcdObjectShPtr kcdObject =
+	      KIT_DYNAMIC_PTR_CAST(CkcdObject,
+				   (*it)->referencedSolidComponent());
+	    if(kcdObject) devicesBodies.insert(kcdObject);
+	    else std::cout << "Cannot cast component to kcdObject"
+			   << std::endl;
+	  }
 	  currentRank++;
-	  
 	}
-	
       }
     }
-    
-    
-    
     if(!modelTree->geometryNode()) std::cout<<"No geometries"<<std::endl;
     else{
       std::cout<<"geometries"<<std::endl;
-      for(unsigned int i = 0; i< modelTree->geometryNode()->countChildComponents(); i++){
-	
+      for(unsigned int i = 0;
+	  i< modelTree->geometryNode()->countChildComponents(); i++){
 	std::cout<<i<<" "<<std::endl;
-	
-	CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject, modelTree->geometryNode()->childComponent(i));
+	CkcdObjectShPtr kcdObject =
+	  KIT_DYNAMIC_PTR_CAST(CkcdObject,
+			       modelTree->geometryNode()->childComponent(i));
 	if(kcdObject) addObstacle(kcdObject);
 	else std::cout<<"Cannot cast component to kcdObject"<<std::endl;
       }
     }
-    
 
-    
-  
     if(!modelTree->pathNode()) std::cout<<"No paths"<<std::endl;
-    else{
-      
-      for(unsigned int i = 0; i< modelTree->pathNode()->countChildComponents(); i++){
-	CkppPathComponentShPtr pathComponent = KIT_DYNAMIC_PTR_CAST(CkppPathComponent,modelTree->pathNode()->childComponent(i));
-	
+    else {
+      for(unsigned int i = 0; i< modelTree->pathNode()->countChildComponents();
+	  i++){
+	CkppPathComponentShPtr pathComponent =
+	  KIT_DYNAMIC_PTR_CAST(CkppPathComponent,
+			       modelTree->pathNode()->childComponent(i));
+
 	std::map<CkppDeviceComponentShPtr,unsigned int>::iterator it =
 	  devicesIndex.find(pathComponent->deviceComponent());
-	
-	if(it==devicesIndex.end()) { 
-	  ODEBUG1(":parseFile: no device matching path"); 
+
+	if(it==devicesIndex.end()) {
+	  ODEBUG1(":parseFile: no device matching path");
 	  return KD_ERROR;
 	}
-	
+
 	unsigned int rank=it->second;
-	
+
 	addPath(rank,pathComponent->kwsPath());
-	
+
       }
-      
+
     }
   }
-  
+
 
   else if(solidComponent)
     {
       ODEBUG1(":parseFile: found solid component");
-      CkcdObjectShPtr kcdObject = KIT_DYNAMIC_PTR_CAST(CkcdObject,solidComponent);
-      if(!kcdObject)
-	{
+      CkcdObjectShPtr kcdObject =
+	KIT_DYNAMIC_PTR_CAST(CkcdObject,solidComponent);
+      if(!kcdObject) {
 	  ODEBUG1(":parseFile: cannot cast solidComponent to kcdObject");
 	  return KD_ERROR;
 	}
       addObstacle(kcdObject);
     }
 
-  else
-    {
-      ODEBUG1(":parseFile: cannot cast file neither to CkppSolidComponent nor to CkppModelTree ");
+  else {
+      ODEBUG1(":parseFile: cannot cast file neither to CkppSolidComponent "
+	      << "nor to CkppModelTree ");
       return KD_ERROR;
     }
-  
+
   ODEBUG1(":parseFile: everything is fine ");
   return KD_OK ;
-
 }
-
