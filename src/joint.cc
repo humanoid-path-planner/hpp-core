@@ -5,66 +5,66 @@
 
 #include <KineoModel/kppDoubleProperty.h>
 
-#include "joint-properties.hh"
+#include "joint.hh"
 
-using hpp::core::io::JointProperties;
+using hpp::core::io::Joint;
 
 // Mass
 const CkppProperty::TPropertyID
-JointProperties::MASS_ID(CkppProperty::makeID());
-const std::string JointProperties::MASS_STRING_ID("MASS");
+Joint::MASS_ID(CkppProperty::makeID());
+const std::string Joint::MASS_STRING_ID("MASS");
 const CkppProperty::TPropertyID
 
 // Center of mass
 // X coordinate
-JointProperties::COM_X_ID(CkppProperty::makeID());
-const std::string JointProperties::COM_X_STRING_ID("COM_X");
+Joint::COM_X_ID(CkppProperty::makeID());
+const std::string Joint::COM_X_STRING_ID("COM_X");
 // Y coordinate
 const CkppProperty::TPropertyID
-JointProperties::COM_Y_ID(CkppProperty::makeID());
-const std::string JointProperties::COM_Y_STRING_ID("COM_Y");
+Joint::COM_Y_ID(CkppProperty::makeID());
+const std::string Joint::COM_Y_STRING_ID("COM_Y");
 // Z coordinate
 const CkppProperty::TPropertyID
-JointProperties::COM_Z_ID(CkppProperty::makeID());
-const std::string JointProperties::COM_Z_STRING_ID("COM_Z");
+Joint::COM_Z_ID(CkppProperty::makeID());
+const std::string Joint::COM_Z_STRING_ID("COM_Z");
 
 // Inertia matrix
 // XX coefficient
 const CkppProperty::TPropertyID
-JointProperties::INERTIA_MATRIX_XX_ID(CkppProperty::makeID());
+Joint::INERTIA_MATRIX_XX_ID(CkppProperty::makeID());
 const std::string
-JointProperties::INERTIA_MATRIX_XX_STRING_ID("INERTIA_MATRIX_XX");
+Joint::INERTIA_MATRIX_XX_STRING_ID("INERTIA_MATRIX_XX");
 // YY coefficient
 const CkppProperty::TPropertyID
-JointProperties::INERTIA_MATRIX_YY_ID(CkppProperty::makeID());
+Joint::INERTIA_MATRIX_YY_ID(CkppProperty::makeID());
 const std::string
-JointProperties::INERTIA_MATRIX_YY_STRING_ID("INERTIA_MATRIX_YY");
+Joint::INERTIA_MATRIX_YY_STRING_ID("INERTIA_MATRIX_YY");
 // ZZ coefficient
 const CkppProperty::TPropertyID
-JointProperties::INERTIA_MATRIX_ZZ_ID(CkppProperty::makeID());
+Joint::INERTIA_MATRIX_ZZ_ID(CkppProperty::makeID());
 const std::string
-JointProperties::INERTIA_MATRIX_ZZ_STRING_ID("INERTIA_MATRIX_ZZ");
+Joint::INERTIA_MATRIX_ZZ_STRING_ID("INERTIA_MATRIX_ZZ");
 // XY coefficient
 const CkppProperty::TPropertyID
-JointProperties::INERTIA_MATRIX_XY_ID(CkppProperty::makeID());
+Joint::INERTIA_MATRIX_XY_ID(CkppProperty::makeID());
 const std::string
-JointProperties::INERTIA_MATRIX_XY_STRING_ID("INERTIA_MATRIX_XY");
+Joint::INERTIA_MATRIX_XY_STRING_ID("INERTIA_MATRIX_XY");
 // XZ coefficient
 const CkppProperty::TPropertyID
-JointProperties::INERTIA_MATRIX_XZ_ID(CkppProperty::makeID());
+Joint::INERTIA_MATRIX_XZ_ID(CkppProperty::makeID());
 const std::string
-JointProperties::INERTIA_MATRIX_XZ_STRING_ID("INERTIA_MATRIX_XZ");
+Joint::INERTIA_MATRIX_XZ_STRING_ID("INERTIA_MATRIX_XZ");
 // YZ coefficient
 const CkppProperty::TPropertyID
-JointProperties::INERTIA_MATRIX_YZ_ID(CkppProperty::makeID());
+Joint::INERTIA_MATRIX_YZ_ID(CkppProperty::makeID());
 const std::string
-JointProperties::INERTIA_MATRIX_YZ_STRING_ID("INERTIA_MATRIX_YZ");
+Joint::INERTIA_MATRIX_YZ_STRING_ID("INERTIA_MATRIX_YZ");
 
-JointProperties::JointProperties()
+Joint::Joint()
 {
 }
 
-ktStatus JointProperties::init(const CkppComponentWkPtr& inWeakPtr)
+ktStatus Joint::init(const CkppComponentWkPtr& inWeakPtr)
 {
   CkppComponentShPtr component = inWeakPtr.lock();
   mass = CkppDoubleProperty::create("MASS", component,

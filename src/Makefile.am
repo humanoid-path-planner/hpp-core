@@ -20,8 +20,8 @@ else
  libhppCore_la_LIBADD += @HPPMODEL_LIBS@
  libhppCore_la_SOURCES += 	\
 	parser.cc \
-	joint-properties.cc \
-	joint-properties.hh \
+	joint.cc \
+	joint.hh \
 	freeflyer-joint.hh \
 	rotation-joint.hh \
 	translation-joint.hh

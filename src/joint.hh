@@ -3,8 +3,8 @@
   Author: Florent Lamiraux
 */
 
-#ifndef HPP_CORE_JOINT_PROPERTIES_HH
-#define HPP_CORE_JOINT_PROPERTIES_HH
+#ifndef HPP_CORE_JOINT_HH
+#define HPP_CORE_JOINT_HH
 
 #include <KineoModel/kppProperty.h>
 
@@ -13,8 +13,8 @@ KIT_PREDEF_CLASS(CkppDoubleProperty);
 namespace hpp {
   namespace core {
     namespace io {
-      KIT_PREDEF_CLASS(JointProperties)
-      class JointProperties
+      KIT_PREDEF_CLASS(Joint)
+      class Joint
       {
       public:
 	// Mass
@@ -55,7 +55,7 @@ namespace hpp {
 	CkppDoublePropertyShPtr inertiaMatrixYZ;
       
       protected:
-	JointProperties();
+	Joint();
 	/// Create properties
 	ktStatus init(const CkppComponentWkPtr& inComponent);
       };
@@ -63,4 +63,4 @@ namespace hpp {
   } // namespace core
 } // namespace hpp
 
-#endif // HPP_CORE_JOINT_PROPERTIES_HH
+#endif // HPP_CORE_JOINT_HH

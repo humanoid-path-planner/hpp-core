@@ -9,7 +9,7 @@
 
 #include <KineoModel/kppTranslationJointComponent.h>
 
-#include "joint-properties.hh"
+#include "joint.hh"
 
 namespace hpp {
   namespace core {
@@ -28,7 +28,7 @@ namespace hpp {
       /// transformed into a ChppHumanoidRobot.
 
       class TranslationJoint : public CkppTranslationJointComponent,
-			       public JointProperties
+			       public Joint
       {
       public:
 	virtual bool isComponentClonable () const
@@ -72,7 +72,7 @@ namespace hpp {
 	  ktStatus status = KD_OK;
 	  status = CkppTranslationJointComponent::init(inWeakPtr, inName);
 	  if (status == KD_ERROR) return KD_ERROR;
-	  return JointProperties::init(inWeakPtr);
+	  return Joint::init(inWeakPtr);
 	}
       };
     } // namespace io
