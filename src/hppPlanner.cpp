@@ -23,6 +23,7 @@
 #include "hppCore/hppProblem.h"
 #include "humanoid-robot.hh"
 #include "hppModel/hppBody.h"
+#include <hppModel/hppHumanoidRobot.h>
 
 #include "KineoUtility/kitNotificator.h"
 #include "KineoWorks2/kwsDirectPath.h"
@@ -773,6 +774,17 @@ ktStatus ChppPlanner::parseFile(const std::string& inFileName)
 			       modelTree->deviceNode()->childComponent(i));
 
 	if(deviceComponent) {
+	  // If device is of type io::hpp::core::HumanoidRobot, transform it
+	  // into a ChppHumanoidRobot
+	  hpp::core::io::HumanoidRobotShPtr humanoidRobot =
+	    KIT_DYNAMIC_PTR_CAST(hpp::core::io::HumanoidRobot, deviceComponent);
+	  if (humanoidRobot) {
+	    // Set config to 0
+	    CkwsConfig config(deviceComponent);
+	    deviceComponent->setCurrentConfig(config);
+	    deviceComponent = humanoidRobot->createHppHumanoidRobot();
+	    if (!deviceComponent) return KD_ERROR;
+	  }
 	  addHppProblem(deviceComponent, HPPPLANNER_DEFAULT_PENETRATION);
 	  devicesIndex.insert
 	    (std::pair<CkppDeviceComponentShPtr,unsigned int>(deviceComponent,

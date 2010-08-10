@@ -29,6 +29,7 @@ ChppHumanoidRobotShPtr HumanoidRobot::createHppHumanoidRobot() const
   try {
     ChppJoint* rootJoint = buildKinematicChain(robot, rootJointComponent());
     robot->setRootJoint(rootJoint);
+    robot->initialize();
   }
   catch (const std::exception& exc) {
     std::cerr <<
