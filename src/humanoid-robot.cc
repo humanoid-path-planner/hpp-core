@@ -538,6 +538,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   // Get right foot values by symmetry
   anklePosInFootFrame(1) *= -1;
   soleCenterInFootFrame(1) *= -1;
+  foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
   foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
   foot->setSoleSize(soleLength->value(), soleWidth->value());
   foot->setProjectionCenterLocalFrameInSole(vzero);
@@ -553,6 +554,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   inRobot->leftWrist(jrlJoint);
   CjrlHand* hand=objectFactory_.createHand(jrlJoint);
   hand->setAssociatedWrist(jrlJoint);
+  inRobot->leftHand(hand);
   vector3d handCenter;
   handCenter(0) = leftHandCenterX->value();
   handCenter(1) = leftHandCenterY->value();
@@ -584,6 +586,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   inRobot->rightWrist(jrlJoint);
   hand=objectFactory_.createHand(jrlJoint);
   hand->setAssociatedWrist(jrlJoint);
+  inRobot->rightHand(hand);
   handCenter(1) *= -1;
   hand->setCenter(handCenter);
   thumbAxis(1) *= -1;
