@@ -23,6 +23,10 @@ using hpp::core::io::RotationJointShPtr;
 using hpp::core::io::TranslationJoint;
 using hpp::core::io::TranslationJointShPtr;
 
+CimplObjectFactory HumanoidRobot::objectFactory_=CimplObjectFactory();
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZE_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZE_STRING_ID("GAZE");
 const CkppProperty::TPropertyID
 HumanoidRobot::LEFTANKLE_ID(CkppProperty::makeID());
 const std::string HumanoidRobot::LEFTANKLE_STRING_ID("LEFTANKLE");
@@ -41,6 +45,24 @@ const std::string HumanoidRobot::WAIST_STRING_ID("WAIST");
 const CkppProperty::TPropertyID
 HumanoidRobot::CHEST_ID(CkppProperty::makeID());
 const std::string HumanoidRobot::CHEST_STRING_ID("CHEST");
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZEORIGINX_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZEORIGINX_STRING_ID("GAZEORIGINX");
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZEORIGINY_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZEORIGINY_STRING_ID("GAZEORIGINY");
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZEORIGINZ_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZEORIGINZ_STRING_ID("GAZEORIGINZ");
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZEDIRECTIONX_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZEDIRECTIONX_STRING_ID("GAZEDIRECTIONX");
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZEDIRECTIONY_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZEDIRECTIONY_STRING_ID("GAZEDIRECTIONY");
+const CkppProperty::TPropertyID
+HumanoidRobot::GAZEDIRECTIONZ_ID(CkppProperty::makeID());
+const std::string HumanoidRobot::GAZEDIRECTIONZ_STRING_ID("GAZEDIRECTIONZ");
 const CkppProperty::TPropertyID
 HumanoidRobot::ANKLEPOSINLEFTFOOTFRAMEX_ID(CkppProperty::makeID());
 const std::string
@@ -121,6 +143,11 @@ ktStatus HumanoidRobot::init (const HumanoidRobotWkPtr &inWeakPtr,
   // Initialize properties
   CkppComponentShPtr component = inWeakPtr.lock();
 
+  gaze = CkppStringProperty::create("GAZE", component,
+				    GAZE_ID,
+				    GAZE_STRING_ID);
+  if (!gaze) return KD_ERROR;
+
   leftAnkle = CkppStringProperty::create("LEFTANKLE", component,
 					 LEFTANKLE_ID,
 					 LEFTANKLE_STRING_ID);
@@ -150,6 +177,42 @@ ktStatus HumanoidRobot::init (const HumanoidRobotWkPtr &inWeakPtr,
 				     CHEST_ID,
 				     CHEST_STRING_ID);
   if (!chest) return KD_ERROR;
+
+  gazeOriginX =
+    CkppDoubleProperty::create("GAZEORIGINX", component,
+			       GAZEORIGINX_ID,
+			       GAZEORIGINX_STRING_ID);
+  if (!gazeOriginX) return KD_ERROR;
+
+  gazeOriginY =
+    CkppDoubleProperty::create("GAZEORIGINY", component,
+			       GAZEORIGINY_ID,
+			       GAZEORIGINY_STRING_ID);
+  if (!gazeOriginY) return KD_ERROR;
+
+  gazeOriginZ =
+    CkppDoubleProperty::create("GAZEORIGINZ", component,
+			       GAZEORIGINZ_ID,
+			       GAZEORIGINZ_STRING_ID);
+  if (!gazeOriginZ) return KD_ERROR;
+
+  gazeDirectionX =
+    CkppDoubleProperty::create("GAZEDIRECTIONX", component,
+			       GAZEDIRECTIONX_ID,
+			       GAZEDIRECTIONX_STRING_ID);
+  if (!gazeDirectionX) return KD_ERROR;
+
+  gazeDirectionY =
+    CkppDoubleProperty::create("GAZEDIRECTIONY", component,
+			       GAZEDIRECTIONY_ID,
+			       GAZEDIRECTIONY_STRING_ID);
+  if (!gazeDirectionY) return KD_ERROR;
+
+  gazeDirectionZ =
+    CkppDoubleProperty::create("GAZEDIRECTIONZ", component,
+			       GAZEDIRECTIONZ_ID,
+			       GAZEDIRECTIONZ_STRING_ID);
+  if (!gazeDirectionZ) return KD_ERROR;
 
   anklePosInLeftFootFrameX =
     CkppDoubleProperty::create("ANKLEPOSINLEFTFOOTFRAMEX", component,
@@ -268,12 +331,19 @@ HumanoidRobot::fillPropertyVector(std::vector<CkppPropertyShPtr>&
 				  inOutPropertyVector) const
 {
   CkppDeviceComponent::fillPropertyVector(inOutPropertyVector);
+  inOutPropertyVector.push_back(gaze);
   inOutPropertyVector.push_back(leftAnkle);
   inOutPropertyVector.push_back(rightAnkle);
   inOutPropertyVector.push_back(leftWrist);
   inOutPropertyVector.push_back(rightWrist);
   inOutPropertyVector.push_back(waist);
   inOutPropertyVector.push_back(chest);
+  inOutPropertyVector.push_back(gazeOriginX);
+  inOutPropertyVector.push_back(gazeOriginY);
+  inOutPropertyVector.push_back(gazeOriginZ);
+  inOutPropertyVector.push_back(gazeDirectionX);
+  inOutPropertyVector.push_back(gazeDirectionY);
+  inOutPropertyVector.push_back(gazeDirectionZ);
   inOutPropertyVector.push_back(anklePosInLeftFootFrameX);
   inOutPropertyVector.push_back(anklePosInLeftFootFrameY);
   inOutPropertyVector.push_back(anklePosInLeftFootFrameZ);
@@ -296,13 +366,15 @@ HumanoidRobot::fillPropertyVector(std::vector<CkppPropertyShPtr>&
   inOutPropertyVector.push_back(leftPalmNormalZ);
 }
 
-ChppHumanoidRobotShPtr HumanoidRobot::createHppHumanoidRobot() const
+ChppHumanoidRobotShPtr HumanoidRobot::createHppHumanoidRobot()
 {
   ChppHumanoidRobotShPtr robot = ChppHumanoidRobot::create(name());
+  std::cout << "HumanoidRobot::createHppHumanoidRobot()" << std::endl;
   try {
     ChppJoint* rootJoint = buildKinematicChain(robot, rootJointComponent());
     robot->setRootJoint(rootJoint);
     robot->initialize();
+    setHumanoidProperties(robot);
   }
   catch (const std::exception& exc) {
     std::cerr <<
@@ -316,7 +388,6 @@ ChppHumanoidRobotShPtr HumanoidRobot::createHppHumanoidRobot() const
 ChppJoint*
 HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
 				   const CkppJointComponentShPtr& inJoint)
-  const
 {
   std::string message;
   JointShPtr kxmlJoint;
@@ -344,6 +415,9 @@ HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
       " is neither of type FreeflyerJoint, RotationJoint nor TranslationJoint.";
     throw exception(message);
   }
+  // Register joint in map
+  jointMap_[inJoint->name()] = hppJoint;
+
   // create ChppBody
   ChppBodyShPtr hppBody = ChppBody::create(std::string(inJoint->name()));
   matrix3d inertiaMatrix
@@ -403,3 +477,133 @@ HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
   return hppJoint;
 }
 
+void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
+{
+  CjrlJoint* jrlJoint = NULL;
+  std::string name;
+  std::string message;
+
+  //gaze
+  name = gaze->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->gazeJoint(jrlJoint);
+  vector3d dir,origin;
+  origin[0] = gazeOriginX->value();
+  origin[1] = gazeOriginY->value();
+  origin[2] = gazeOriginZ->value();
+  dir[0] = gazeDirectionX->value();
+  dir[1] = gazeDirectionY->value();
+  dir[2] = gazeDirectionZ->value();
+  inRobot->gaze(dir, origin);
+
+  // left ankle
+  name = leftAnkle->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->leftAnkle(jrlJoint);
+  CjrlFoot *foot = objectFactory_.createFoot(jrlJoint);
+  foot->setAssociatedAnkle(jrlJoint);
+  vector3d anklePosInFootFrame;
+  anklePosInFootFrame(0) = anklePosInLeftFootFrameX->value();
+  anklePosInFootFrame(1) = anklePosInLeftFootFrameY->value();
+  anklePosInFootFrame(2) = anklePosInLeftFootFrameZ->value();
+  foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
+  vector3d soleCenterInFootFrame;
+  soleCenterInFootFrame(0) = soleCenterInLeftFootFrameX->value();
+  soleCenterInFootFrame(1) = soleCenterInLeftFootFrameY->value();
+  soleCenterInFootFrame(2) = soleCenterInLeftFootFrameZ->value();
+  foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
+  foot->setSoleSize(soleLength->value(), soleWidth->value());
+  inRobot->leftFoot(foot);
+  // right ankle
+  name = rightAnkle->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->rightAnkle(jrlJoint);
+  foot = objectFactory_.createFoot(jrlJoint);
+  foot->setAssociatedAnkle(jrlJoint);
+  // Get right foot values by symmetry
+  anklePosInFootFrame(1) *= -1;
+  soleCenterInFootFrame(1) *= -1;
+  foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
+  foot->setSoleSize(soleLength->value(), soleWidth->value());
+  inRobot->rightFoot(foot);
+
+  // left wrist
+  name = leftWrist->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->leftWrist(jrlJoint);
+  CjrlHand* hand=objectFactory_.createHand(jrlJoint);
+  hand->setAssociatedWrist(jrlJoint);
+  vector3d handCenter;
+  handCenter(0) = leftHandCenterX->value();
+  handCenter(1) = leftHandCenterY->value();
+  handCenter(2) = leftHandCenterZ->value();
+  hand->setCenter(handCenter);
+  vector3d thumbAxis;
+  thumbAxis(0) = leftThumbAxisX->value();
+  thumbAxis(1) = leftThumbAxisY->value();
+  thumbAxis(2) = leftThumbAxisZ->value();
+  hand->setThumbAxis(thumbAxis);
+  vector3d foreFingerAxis;
+  foreFingerAxis(0) = leftForeFingerAxisX->value();
+  foreFingerAxis(1) = leftForeFingerAxisY->value();
+  foreFingerAxis(2) = leftForeFingerAxisZ->value();
+  hand->setForeFingerAxis(foreFingerAxis);
+  vector3d palmNormal;
+  palmNormal(0) = leftPalmNormalX->value();
+  palmNormal(1) = leftPalmNormalY->value();
+  palmNormal(2) = leftPalmNormalZ->value();
+  hand->setPalmNormal(palmNormal);
+
+  // right wrist
+  name = rightWrist->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->rightWrist(jrlJoint);
+  hand=objectFactory_.createHand(jrlJoint);
+  hand->setAssociatedWrist(jrlJoint);
+  handCenter(1) *= -1;
+  hand->setCenter(handCenter);
+  thumbAxis(1) *= -1;
+  hand->setThumbAxis(thumbAxis);
+  foreFingerAxis(1) *= -1;
+  hand->setForeFingerAxis(foreFingerAxis);
+  palmNormal(1) *= -1;
+  hand->setPalmNormal(palmNormal);
+
+  // waist
+  name = waist->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->waist(jrlJoint);
+
+  // chest
+  name = chest->value();
+  if (jointMap_.count(name) != 1) {
+    message = "Joint with name " + name + "does not seem to exist.";
+    throw exception(message);
+  }
+  jrlJoint = jointMap_[name]->jrlJoint();
+  inRobot->chest(jrlJoint);
+}

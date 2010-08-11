@@ -7,7 +7,10 @@
 #ifndef HPP_CORE_HUMANOID_ROBOT_HH
 #define HPP_CORE_HUMANOID_ROBOT_HH
 
+#include <map>
+#include <string>
 #include <KineoModel/kppDeviceComponent.h>
+#include <hppModel/hppImplRobotDynamics.h>
 
 KIT_PREDEF_CLASS(ChppHumanoidRobot);
 class ChppJoint;
@@ -66,9 +69,11 @@ namespace hpp {
 	  const;
 
 	/// Create an instance of ChppHumanoidRobot from this object.
-	ChppHumanoidRobotShPtr createHppHumanoidRobot() const;
+	ChppHumanoidRobotShPtr createHppHumanoidRobot();
 
 	// Properties
+	static const CkppProperty::TPropertyID GAZE_ID;
+	static const std::string GAZE_STRING_ID;
 	static const CkppProperty::TPropertyID LEFTANKLE_ID;
 	static const std::string LEFTANKLE_STRING_ID;
 	static const CkppProperty::TPropertyID RIGHTANKLE_ID;
@@ -81,6 +86,18 @@ namespace hpp {
 	static const std::string WAIST_STRING_ID;
 	static const CkppProperty::TPropertyID CHEST_ID;
 	static const std::string CHEST_STRING_ID;
+	static const CkppProperty::TPropertyID GAZEORIGINX_ID;
+	static const std::string GAZEORIGINX_STRING_ID;
+	static const CkppProperty::TPropertyID GAZEORIGINY_ID;
+	static const std::string GAZEORIGINY_STRING_ID;
+	static const CkppProperty::TPropertyID GAZEORIGINZ_ID;
+	static const std::string GAZEORIGINZ_STRING_ID;
+	static const CkppProperty::TPropertyID GAZEDIRECTIONX_ID;
+	static const std::string GAZEDIRECTIONX_STRING_ID;
+	static const CkppProperty::TPropertyID GAZEDIRECTIONY_ID;
+	static const std::string GAZEDIRECTIONY_STRING_ID;
+	static const CkppProperty::TPropertyID GAZEDIRECTIONZ_ID;
+	static const std::string GAZEDIRECTIONZ_STRING_ID;
 	static const CkppProperty::TPropertyID ANKLEPOSINLEFTFOOTFRAMEX_ID;
 	static const std::string ANKLEPOSINLEFTFOOTFRAMEX_STRING_ID;
 	static const CkppProperty::TPropertyID ANKLEPOSINLEFTFOOTFRAMEY_ID;
@@ -122,6 +139,8 @@ namespace hpp {
 	static const CkppProperty::TPropertyID LEFTPALMNORMALZ_ID;
 	static const std::string LEFTPALMNORMALZ_STRING_ID;
 
+	/// Gaze joint name
+	CkppStringPropertyShPtr gaze;
 	/// Left ankle joint name
 	CkppStringPropertyShPtr leftAnkle;
 	/// Right ankle joint name
@@ -134,6 +153,13 @@ namespace hpp {
 	CkppStringPropertyShPtr waist;
 	/// chest joint name
 	CkppStringPropertyShPtr chest;
+	/// Gaze origin and direction
+	CkppDoublePropertyShPtr gazeOriginX;
+	CkppDoublePropertyShPtr gazeOriginY;
+	CkppDoublePropertyShPtr gazeOriginZ;
+	CkppDoublePropertyShPtr gazeDirectionX;
+	CkppDoublePropertyShPtr gazeDirectionY;
+	CkppDoublePropertyShPtr gazeDirectionZ;
 	/// Ankle position in left foot frame
 	CkppDoublePropertyShPtr anklePosInLeftFootFrameX;
 	CkppDoublePropertyShPtr anklePosInLeftFootFrameY;
@@ -145,19 +171,19 @@ namespace hpp {
 	/// Sole size
 	CkppDoublePropertyShPtr soleLength;
 	CkppDoublePropertyShPtr soleWidth;
-	// Left hand center
+	/// Left hand center
 	CkppDoublePropertyShPtr leftHandCenterX;
 	CkppDoublePropertyShPtr leftHandCenterY;
 	CkppDoublePropertyShPtr leftHandCenterZ;
-	// left hand thumb axis
+	/// left hand thumb axis
 	CkppDoublePropertyShPtr leftThumbAxisX;
 	CkppDoublePropertyShPtr leftThumbAxisY;
 	CkppDoublePropertyShPtr leftThumbAxisZ;
-	// Left fore-finger axis
+	/// Left fore-finger axis
 	CkppDoublePropertyShPtr leftForeFingerAxisX;
 	CkppDoublePropertyShPtr leftForeFingerAxisY;
 	CkppDoublePropertyShPtr leftForeFingerAxisZ;
-	// Left palm normal
+	/// Left palm normal
 	CkppDoublePropertyShPtr leftPalmNormalX;
 	CkppDoublePropertyShPtr leftPalmNormalY;
 	CkppDoublePropertyShPtr leftPalmNormalZ;
@@ -170,7 +196,14 @@ namespace hpp {
 	/// Recursively builds the kinematic chain of the ChppHumanoidRobot
 	ChppJoint*
 	buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
-			    const CkppJointComponentShPtr& inJoint) const;
+			    const CkppJointComponentShPtr& inJoint);
+	void setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot);
+
+	// Mapping from name to joint
+	std::map < const std::string, ChppJoint*> jointMap_;
+	// Object factory
+	static CimplObjectFactory objectFactory_;
+
       };
     } // namespace io
   } // namespace core
