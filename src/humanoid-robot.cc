@@ -521,6 +521,9 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   soleCenterInFootFrame(2) = soleCenterInLeftFootFrameZ->value();
   foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
   foot->setSoleSize(soleLength->value(), soleWidth->value());
+  vector3d vzero;
+  vzero(0) =  vzero(1) =  vzero(2) = 0.0;
+  foot->setProjectionCenterLocalFrameInSole(vzero);
   inRobot->leftFoot(foot);
   // right ankle
   name = rightAnkle->value();
@@ -537,6 +540,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   soleCenterInFootFrame(1) *= -1;
   foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
   foot->setSoleSize(soleLength->value(), soleWidth->value());
+  foot->setProjectionCenterLocalFrameInSole(vzero);
   inRobot->rightFoot(foot);
 
   // left wrist
