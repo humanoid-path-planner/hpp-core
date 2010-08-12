@@ -98,7 +98,7 @@ else
 	AC_MSG_NOTICE([using external implementation of ChppBody])
 fi
 
-AM_CONDITIONAL([BODY], [test x${enable_body} = xyes])
+AM_CONDITIONAL([BODY], [test "x${enable_body}" = xyes])
 
 
 ## ------------ ##
