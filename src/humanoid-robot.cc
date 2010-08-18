@@ -415,6 +415,20 @@ HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
       " is neither of type FreeflyerJoint, RotationJoint nor TranslationJoint.";
     throw exception(message);
   }
+  // Set joint bounds
+  for (unsigned int iDof = 0; iDof < kxmlJoint->kwsJoint()->countDofs();
+       iDof++) {
+    bool isBounded = kxmlJoint->kwsJoint()->dof(iDof)->isBounded();
+    double vmin = kxmlJoint->kwsJoint()->dof(iDof)->vmin();
+    double vmax = kxmlJoint->kwsJoint()->dof(iDof)->vmax();
+    
+    hppJoint->kppJoint()->kwsJoint()->dof(iDof)->isBounded(isBounded);
+    hppJoint->kppJoint()->kwsJoint()->dof(iDof)->vmin(vmin);
+    hppJoint->kppJoint()->kwsJoint()->dof(iDof)->vmax(vmax);
+
+    hppJoint->jrlJoint()->lowerBound(iDof, vmin);
+    hppJoint->jrlJoint()->upperBound(iDof, vmax);
+  }
   // Register joint in map
   jointMap_[inJoint->name()] = hppJoint;
 
