@@ -6,9 +6,9 @@ untar the package
 cd hppCore
 mkdir build
 cd build
-../configure [OPTIONS]
+cmake [OPTIONS] ..
 
-  --disable-body : Configuration with dependence to hppModel 
+  -DENABLE_BODY=YES : Configuration with dependence to hppModel 
   ----------------------------------------------------------
 
   hppCore can be compiled with a dependence to package hppModel that 
@@ -21,17 +21,11 @@ cd build
       derives from CkppDeviceComponent for the geometric part and from 
       an implementation of CjrlDynamicRobot for the dynamic part.
 
-  --enable-body : Configuration with or without dependence to hppModel
-  --------------------------------------------------------------------
-
   If the dependence to hppModel is not required, hppCore provides a 
   simplified implementation of class ChppBody deriving from CkwsKCDBody.
   
 
-Compilation
------------
-make
+Compilation and Installation
+----------------------------
 
-Installation
-------------
 make install

@@ -1,0 +1,92 @@
+#
+#  Copyright 2010 CNRS-LAAS
+#  Author: Florent Lamiraux
+#
+
+SET(LIBRARY_NAME ${PROJECT_NAME})
+
+# provide path to library libkwsPlus.so
+LINK_DIRECTORIES(${KWSPLUS_LIBRARY_DIRS})
+
+
+# provide path to library libhppModel.so
+LINK_DIRECTORIES(${HPPMODEL_LIBRARY_DIRS})
+
+SET(${LIBRARY_NAME}_SOURCE_FILES
+  hppColPair.cpp
+  hppPlanner.cpp
+  hppProblem.cpp
+  )
+
+SET(${LIBRARY_NAME}_LINK_LIBRARIES "")
+
+# Add kwsPlus compilation flags and link to library libkwsPlus.so
+ADD_DEFINITIONS(${KWSPLUS_CFLAGS})
+IF(UNIX)
+  SET(${LIBRARY_NAME}_LINK_LIBRARIES 
+    ${${LIBRARY_NAME}_LINK_LIBRARIES}  ${KWSPLUS_LIBRARIES})
+ENDIF(UNIX)
+
+IF(WIN32)
+  FOREACH(dlink ${KWSPLUS_LDFLAGS})
+    SET ( ${PROJECT_NAME}_src_LDFLAGS "${${PROJECT_NAME}_src_LDFLAGS}  ${dlink}")
+  ENDFOREACH(dlink)
+ENDIF(WIN32)
+
+IF(${ENABLE_BODY} STREQUAL YES)
+  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/hppModel)
+  SET(${LIBRARY_NAME}_SOURCE_FILES
+    ${${LIBRARY_NAME}_SOURCE_FILES}
+    hppBody.cpp)
+ELSE(${ENABLE_BODY} STREQUAL YES)
+  # Add hppModel compilation flags and link to library libhppModel.so
+  ADD_DEFINITIONS(${HPPMODEL_CFLAGS})
+  SET(${LIBRARY_NAME}_SOURCE_FILES
+    ${${LIBRARY_NAME}_SOURCE_FILES}
+    parser.cc
+    joint.cc
+    joint.hh
+    freeflyer-joint.hh
+    rotation-joint.hh
+    translation-joint.hh
+    humanoid-robot.hh
+    humanoid-robot.cc
+    )
+  IF(UNIX)
+    SET(${LIBRARY_NAME}_LINK_LIBRARIES
+      ${${LIBRARY_NAME}_LINK_LIBRARIES}  ${HPPMODEL_LIBRARIES})
+  ENDIF(UNIX)
+
+  IF(WIN32)
+    foreach(dlink ${HPPMODEL_LDFLAGS})
+      SET ( ${PROJECT_NAME}_src_LDFLAGS "${${PROJECT_NAME}_src_LDFLAGS}  ${dlink}")
+    endforeach(dlink)
+  ENDIF(WIN32)
+ENDIF(${ENABLE_BODY} STREQUAL YES)
+
+MESSAGE(STATUS "sources: "${${LIBRARY_NAME}_SOURCE_FILES})
+ADD_LIBRARY(${LIBRARY_NAME}
+  SHARED
+  ${${LIBRARY_NAME}_SOURCE_FILES}
+)
+
+SET_TARGET_PROPERTIES(${LIBRARY_NAME}
+  PROPERTIES
+  SOVERSION ${PROJECT_VERSION}
+  INSTALL_RPATH lib)
+
+SET_TARGET_PROPERTIES(${PROJECT_NAME_LIB}
+  PROPERTIES
+  COMPILE_FLAGS ${${PROJECT_NAME}_src_CXXFLAGS}
+  LINK_FLAGS ${${PROJECT_NAME}_src_LDFLAGS}
+)
+
+SET_TARGET_PROPERTIES(${LIBRARY_NAME}
+  PROPERTIES
+  LINK_FLAGS "${${PROJECT_NAME}_src_LDFLAGS}"
+)
+
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${${LIBRARY_NAME}_LINK_LIBRARIES})
+
+INSTALL(TARGETS ${LIBRARY_NAME}
+  DESTINATION lib)
