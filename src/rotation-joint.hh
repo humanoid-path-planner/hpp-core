@@ -64,6 +64,11 @@ namespace hpp {
 	  inOutPropertyVector.push_back(inertiaMatrixYZ);
 	}
 
+	virtual CkwsJointShPtr kwsJoint() const
+	{
+	  return CkppJointComponent::kwsJoint();
+	}
+
       protected:
 	RotationJoint() : CkppRotationJointComponent() {}
 	ktStatus init (const RotationJointWkPtr &inWeakPtr,

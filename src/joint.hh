@@ -9,6 +9,7 @@
 #include <KineoModel/kppProperty.h>
 
 KIT_PREDEF_CLASS(CkppDoubleProperty);
+KIT_PREDEF_CLASS(CkwsJoint);
 
 namespace hpp {
   namespace core {
@@ -17,6 +18,7 @@ namespace hpp {
       class Joint
       {
       public:
+	virtual CkwsJointShPtr kwsJoint() const = 0;
 	// Mass
 	static const CkppProperty::TPropertyID MASS_ID;
 	static const std::string MASS_STRING_ID;
