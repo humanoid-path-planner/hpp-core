@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "hppCore/hppProblem.h"
+#include "hpp/core/problem.hh"
 #include "hppModel/hppBody.h"
 
 #include "KineoWorks2/kwsConfigExtractor.h"

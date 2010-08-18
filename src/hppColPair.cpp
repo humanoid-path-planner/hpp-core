@@ -1,4 +1,4 @@
-#include "hppCore/hppColPair.h"
+#include "hpp/core/collision-pair.hh"
 
 #include <algorithm>
 

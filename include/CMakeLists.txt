@@ -3,19 +3,34 @@
 #  Author: Florent Lamiraux
 # 
 
-SET(${PROJECT_NAME}_HEADERS
+#----------------------------------------------------
+# Install old style deprecated header files
+#----------------------------------------------------
+
+SET(${PROJECT_NAME}_HEADERS_OLD_STYLE
   hppCore/hppColPair.h
   hppCore/hppPlanner.h
   hppCore/hppProblem.h
 )
 
-#----------------------------------------------------
-# Install procedure for the header files
-#----------------------------------------------------
-INSTALL(FILES ${${PROJECT_NAME}_HEADERS}
+INSTALL(FILES ${${PROJECT_NAME}_HEADERS_OLD_STYLE}
   DESTINATION include/${PROJECT_NAME}
   PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
 )
+
+#----------------------------------------------------
+# Install new style header files
+#----------------------------------------------------
+
+SET(${PROJECT_NAME}_HEADERS 
+  hpp/core/planner.hh
+  hpp/core/problem.hh
+  hpp/core/collision-pair.hh
+  )
+INSTALL(FILES ${${PROJECT_NAME}_HEADERS}
+  DESTINATION include/hpp/core
+  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
+  )
 
 IF(${ENABLE_BODY} STREQUAL YES)
   SET(${PROJECT_NAME}_HEADERS hppModel/hppModel/hppBody.h)

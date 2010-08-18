@@ -19,8 +19,8 @@
 
 #include "KineoModel/kppDeviceComponent.h"
 
-#include "hppCore/hppPlanner.h"
-#include "hppCore/hppProblem.h"
+#include "hpp/core/planner.hh"
+#include "hpp/core/problem.hh"
 #include "humanoid-robot.hh"
 #include "hppModel/hppBody.h"
 #include <hppModel/hppHumanoidRobot.h>
