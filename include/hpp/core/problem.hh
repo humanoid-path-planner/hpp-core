@@ -6,11 +6,8 @@
 */
 
 
-#ifndef HPP_PROBLEM_H
-#define HPP_PROBLEM_H
-
-#warning "This header is deprecated."
-#warning "Include <hpp/core/problem.hh> instead."
+#ifndef HPP_CORE_PROBLEM_H
+#define HPP_CORE_PROBLEM_H
 
 #if DEBUG==3
 #include "kwsioConfig.h"

@@ -5,11 +5,8 @@
 
 */
 
-#ifndef HPP_PLANNER_H
-#define HPP_PLANNER_H
-
-#warning "This header is deprecated."
-#warning "Include <hpp/core/planner.hh> instead."
+#ifndef HPP_CORE_PLANNER_H
+#define HPP_CORE_PLANNER_H
 
 /*************************************
 INCLUDE
@@ -20,7 +17,7 @@ INCLUDE
 #include "KineoWorks2/kwsRoadmapBuilder.h"
 #include "KineoUtility/kitNotificator.h"
 
-#include "hppCore/hppProblem.h"
+#include "hpp/core/problem.hh"
 
 class CkwsPlusStopRdmBuilderDelegate;
 
