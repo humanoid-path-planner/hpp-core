@@ -452,8 +452,6 @@ ktStatus ChppProblem::solve()
     return KD_ERROR;
   }
 
-  double penetration = roadmapBuilder()->penetration();
-
   /*
     Optimize if 
       - there is a path optimizer and
@@ -466,11 +464,11 @@ ktStatus ChppProblem::solve()
 
   // optimizer for the path
   if (shouldOptimize) {
-    if (pathOptimizer()->optimizePath(solutionPath, penetration)
+    if (pathOptimizer()->optimizePath(solutionPath, attPenetration)
 	== KD_OK) {
 
       ODEBUG2(":solve: path optimized with penetration "
-	      << penetration);
+	      << attPenetration);
     }
     else {
       ODEBUG1(":solve: path optimization failed.");
