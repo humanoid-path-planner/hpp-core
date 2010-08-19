@@ -5,8 +5,8 @@
 
 */
 
-#ifndef HPP_PLANNER_H
-#define HPP_PLANNER_H
+#ifndef HPP_CORE_PLANNER_HH
+#define HPP_CORE_PLANNER_HH
 
 #warning "This header is deprecated."
 #warning "Include <hpp/core/planner.hh> instead."

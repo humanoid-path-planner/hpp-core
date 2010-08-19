@@ -5,8 +5,8 @@
 
 */
 
-#ifndef HPP_CORE_PLANNER_H
-#define HPP_CORE_PLANNER_H
+#ifndef HPP_CORE_PLANNER_HH
+#define HPP_CORE_PLANNER_HH
 
 /*************************************
 INCLUDE

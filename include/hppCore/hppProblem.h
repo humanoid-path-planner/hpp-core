@@ -6,8 +6,8 @@
 */
 
 
-#ifndef HPP_PROBLEM_H
-#define HPP_PROBLEM_H
+#ifndef HPP_CORE_PROBLEM_HH
+#define HPP_CORE_PROBLEM_HH
 
 #warning "This header is deprecated."
 #warning "Include <hpp/core/problem.hh> instead."

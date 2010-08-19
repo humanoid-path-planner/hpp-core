@@ -1,5 +1,5 @@
-#ifndef HPP_COLPAIR_H
-#define HPP_COLPAIR_H
+#ifndef HPP_CORE_COLLISION_PAIR_HH
+#define HPP_CORE_COLLISION_PAIR_HH
 
 #warning "This header is deprecated."
 #warning "Include <hpp/core/collision-pair.hh> instead."

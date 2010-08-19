@@ -6,8 +6,8 @@
 */
 
 
-#ifndef HPP_CORE_PROBLEM_H
-#define HPP_CORE_PROBLEM_H
+#ifndef HPP_CORE_PROBLEM_HH
+#define HPP_CORE_PROBLEM_HH
 
 #if DEBUG==3
 #include "kwsioConfig.h"

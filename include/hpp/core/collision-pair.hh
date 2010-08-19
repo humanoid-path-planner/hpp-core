@@ -1,5 +1,5 @@
-#ifndef HPP_CORE_COLLISION_PAIR_H
-#define HPP_CORE_COLLISION_PAIR_H
+#ifndef HPP_CORE_COLLISION_PAIR_HH
+#define HPP_CORE_COLLISION_PAIR_HH
 
 #include <iostream>
 #include <map>
