@@ -1,3 +1,10 @@
+2010/10/01 Release 1.12.1
+	1. Use same guards for deprecated and new headers
+
+2010/08/18 Release 1.12
+	1. headers have been installed in include/hpp/core
+	2. package is now managed by cmake
+  	3. implementation of an extension of Kineo parser for ChppHumanoidRobot.
 2009/08/28 Release 1.10.0
 
 	1. Class ChppBody has been synchronized with hppModel implementation.
