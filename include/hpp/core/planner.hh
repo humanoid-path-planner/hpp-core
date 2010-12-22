@@ -31,6 +31,12 @@ KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
 KIT_PREDEF_CLASS(ChppPlanner);
 
+namespace hpp {
+  namespace core {
+    class Parser;
+  }
+}
+
 /*************************************
 CLASS
 **************************************/
@@ -420,6 +426,11 @@ private:
      \brief Roadmap builder delegate enabling to interrupt roadmap builder.
   */
   CkwsPlusStopRdmBuilderDelegate* attStopRdmBuilderDelegate;
+
+  /**
+     \brief Parser specialization
+  */
+  hpp::core::Parser* parser_;
 
   // for notification.
  public:

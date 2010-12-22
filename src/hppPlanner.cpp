@@ -21,6 +21,7 @@
 
 #include "hpp/core/planner.hh"
 #include "hpp/core/problem.hh"
+#include "hpp/core/parser.hh"
 #include "humanoid-robot.hh"
 #include "hppModel/hppBody.h"
 #include <hppModel/hppHumanoidRobot.h>
@@ -92,7 +93,7 @@ ChppPlanner::ChppPlanner()
   attNotificator = CkitNotificator::defaultNotificator();
   attObstacleList.clear();
   attStopRdmBuilderDelegate = new CkwsPlusStopRdmBuilderDelegate;
-
+  parser_ = new hpp::core::Parser();
 }
 
 // ==========================================================================
@@ -102,7 +103,8 @@ ChppPlanner::ChppPlanner(const ChppPlanner& inPlanner) :
   hppProblemVector(inPlanner.hppProblemVector),
   attObstacleList(inPlanner.attObstacleList),
   attStopRdmBuilderDelegate
-  (new CkwsPlusStopRdmBuilderDelegate(*attStopRdmBuilderDelegate))
+  (new CkwsPlusStopRdmBuilderDelegate(*attStopRdmBuilderDelegate)),
+  parser_(NULL)
 {
 }
 
@@ -112,6 +114,8 @@ ChppPlanner::ChppPlanner(const ChppPlanner& inPlanner) :
 ChppPlanner::~ChppPlanner()
 {
   delete attStopRdmBuilderDelegate;
+  if (parser_)
+    delete parser_;
 }
 
 // ==========================================================================
