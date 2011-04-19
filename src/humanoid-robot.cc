@@ -76,21 +76,6 @@ HumanoidRobot::ANKLEPOSINLEFTFOOTFRAMEZ_ID(CkppProperty::makeID());
 const std::string
 HumanoidRobot::ANKLEPOSINLEFTFOOTFRAMEZ_STRING_ID("ANKLEPOSINLEFTFOOTFRAMEZ");
 const CkppProperty::TPropertyID
-HumanoidRobot::SOLECENTERINLEFTFOOTFRAMEX_ID(CkppProperty::makeID());
-const std::string
-HumanoidRobot::SOLECENTERINLEFTFOOTFRAMEX_STRING_ID
-("SOLECENTERINLEFTFOOTFRAMEX");
-const CkppProperty::TPropertyID
-HumanoidRobot::SOLECENTERINLEFTFOOTFRAMEY_ID(CkppProperty::makeID());
-const std::string
-HumanoidRobot::SOLECENTERINLEFTFOOTFRAMEY_STRING_ID
-("SOLECENTERINLEFTFOOTFRAMEY");
-const CkppProperty::TPropertyID
-HumanoidRobot::SOLECENTERINLEFTFOOTFRAMEZ_ID(CkppProperty::makeID());
-const std::string
-HumanoidRobot::SOLECENTERINLEFTFOOTFRAMEZ_STRING_ID
-("SOLECENTERINLEFTFOOTFRAMEZ");
-const CkppProperty::TPropertyID
 HumanoidRobot::SOLELENGTH_ID(CkppProperty::makeID());
 const std::string HumanoidRobot::SOLELENGTH_STRING_ID("SOLELENGTH");
 const CkppProperty::TPropertyID
@@ -232,24 +217,6 @@ ktStatus HumanoidRobot::init (const HumanoidRobotWkPtr &inWeakPtr,
 			       ANKLEPOSINLEFTFOOTFRAMEZ_STRING_ID);
   if (!anklePosInLeftFootFrameZ) return KD_ERROR;
 
-  soleCenterInLeftFootFrameX =
-    CkppDoubleProperty::create("SOLECENTERINLEFTFOOTFRAMEX", component,
-			       SOLECENTERINLEFTFOOTFRAMEX_ID,
-			       SOLECENTERINLEFTFOOTFRAMEX_STRING_ID);
-  if (!soleCenterInLeftFootFrameX) return KD_ERROR;
-
-  soleCenterInLeftFootFrameY =
-    CkppDoubleProperty::create("SOLECENTERINLEFTFOOTFRAMEY", component,
-			       SOLECENTERINLEFTFOOTFRAMEY_ID,
-			       SOLECENTERINLEFTFOOTFRAMEY_STRING_ID);
-  if (!soleCenterInLeftFootFrameY) return KD_ERROR;
-
-  soleCenterInLeftFootFrameZ =
-    CkppDoubleProperty::create("SOLECENTERINLEFTFOOTFRAMEZ", component,
-			       SOLECENTERINLEFTFOOTFRAMEZ_ID,
-			       SOLECENTERINLEFTFOOTFRAMEZ_STRING_ID);
-  if (!soleCenterInLeftFootFrameZ) return KD_ERROR;
-
   soleLength = CkppDoubleProperty::create("SOLELENGTH", component,
 					  SOLELENGTH_ID,
 					  SOLELENGTH_STRING_ID);
@@ -347,9 +314,6 @@ HumanoidRobot::fillPropertyVector(std::vector<CkppPropertyShPtr>&
   inOutPropertyVector.push_back(anklePosInLeftFootFrameX);
   inOutPropertyVector.push_back(anklePosInLeftFootFrameY);
   inOutPropertyVector.push_back(anklePosInLeftFootFrameZ);
-  inOutPropertyVector.push_back(soleCenterInLeftFootFrameX);
-  inOutPropertyVector.push_back(soleCenterInLeftFootFrameY);
-  inOutPropertyVector.push_back(soleCenterInLeftFootFrameZ);
   inOutPropertyVector.push_back(soleLength);
   inOutPropertyVector.push_back(soleWidth);
   inOutPropertyVector.push_back(leftHandCenterX);
@@ -529,15 +493,8 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   anklePosInFootFrame(1) = anklePosInLeftFootFrameY->value();
   anklePosInFootFrame(2) = anklePosInLeftFootFrameZ->value();
   foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
-  vector3d soleCenterInFootFrame;
-  soleCenterInFootFrame(0) = soleCenterInLeftFootFrameX->value();
-  soleCenterInFootFrame(1) = soleCenterInLeftFootFrameY->value();
-  soleCenterInFootFrame(2) = soleCenterInLeftFootFrameZ->value();
-  foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
   foot->setSoleSize(soleLength->value(), soleWidth->value());
   vector3d vzero;
-  vzero(0) =  vzero(1) =  vzero(2) = 0.0;
-  foot->setProjectionCenterLocalFrameInSole(vzero);
   inRobot->leftFoot(foot);
   // right ankle
   name = rightAnkle->value();
@@ -551,11 +508,6 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   foot->setAssociatedAnkle(jrlJoint);
   // Get right foot values by symmetry
   anklePosInFootFrame(1) *= -1;
-  soleCenterInFootFrame(1) *= -1;
-  foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
-  foot->setSoleCenterInLocalFrame(soleCenterInFootFrame);
-  foot->setSoleSize(soleLength->value(), soleWidth->value());
-  foot->setProjectionCenterLocalFrameInSole(vzero);
   inRobot->rightFoot(foot);
 
   // left wrist
