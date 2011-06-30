@@ -509,6 +509,8 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   // Get right foot values by symmetry
   anklePosInFootFrame(1) *= -1;
   inRobot->rightFoot(foot);
+  foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
+  foot->setSoleSize(soleLength->value(), soleWidth->value());
 
   // left wrist
   name = leftWrist->value();
