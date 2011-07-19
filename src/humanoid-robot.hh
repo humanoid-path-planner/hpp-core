@@ -75,9 +75,9 @@ namespace hpp {
       private:
 	/// Recursively builds the kinematic chain of the ChppHumanoidRobot
 	ChppJoint*
-	buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
+	buildKinematicChain(ChppHumanoidRobotShPtr robot,
 			    const CkppJointComponentShPtr& inJoint);
-	void setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot);
+	void setHumanoidProperties(const ChppHumanoidRobotShPtr& robot);
 
 	// Mapping from name to joint
 	std::map < const std::string, ChppJoint*> jointMap_;

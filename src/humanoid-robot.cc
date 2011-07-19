@@ -52,7 +52,7 @@ ChppHumanoidRobotShPtr HumanoidRobot::createHppHumanoidRobot()
 }
 
 ChppJoint*
-HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
+HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr robot,
 				   const CkppJointComponentShPtr& inJoint)
 {
   std::string message;
@@ -62,18 +62,18 @@ HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
   // Create ChppJoint depending on input joint type.
   if (FreeflyerJointShPtr joint =
       KIT_DYNAMIC_PTR_CAST(FreeflyerJoint, inJoint)) {
-    hppJoint = inRobot->createFreeFlyer(inJoint->name(),
+    hppJoint = robot->createFreeFlyer(inJoint->name(),
 				       inJoint->kwsJoint()->initialPosition());
     kxmlJoint = joint;
   } else if (RotationJointShPtr joint =
 	     KIT_DYNAMIC_PTR_CAST(RotationJoint, inJoint)) {
-    hppJoint = inRobot->createRotation(inJoint->name(),
+    hppJoint = robot->createRotation(inJoint->name(),
 				      inJoint->kwsJoint()->initialPosition());
     kxmlJoint = joint;
   } else if (TranslationJointShPtr joint =
 	     KIT_DYNAMIC_PTR_CAST(TranslationJoint, inJoint)) {
     hppJoint =
-      inRobot->createTranslation(inJoint->name(),
+      robot->createTranslation(inJoint->name(),
 				 inJoint->kwsJoint()->initialPosition());
     kxmlJoint = joint;
   } else {
@@ -147,7 +147,7 @@ HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
        iJoint < inJoint->countChildJointComponents();
        iJoint++) {
     ChppJoint* childJoint =
-      buildKinematicChain(inRobot, inJoint->childJointComponent(iJoint));
+      buildKinematicChain(robot, inJoint->childJointComponent(iJoint));
     if (!hppJoint->addChildJoint(childJoint)) {
       message = "Cannot add joint " + childJoint->kppJoint()->name()
 	+ " as child of " + hppJoint->kppJoint()->name() + ".";
@@ -157,7 +157,7 @@ HumanoidRobot::buildKinematicChain(ChppHumanoidRobotShPtr inRobot,
   return hppJoint;
 }
 
-void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
+void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& robot)
 {
   CjrlJoint* jrlJoint = NULL;
   std::string name;
@@ -170,7 +170,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->gazeJoint(jrlJoint);
+  robot->gazeJoint(jrlJoint);
   vector3d dir,origin;
   origin[0] = gazeOriginX->value();
   origin[1] = gazeOriginY->value();
@@ -178,7 +178,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   dir[0] = gazeDirectionX->value();
   dir[1] = gazeDirectionY->value();
   dir[2] = gazeDirectionZ->value();
-  inRobot->gaze(dir, origin);
+  robot->gaze(dir, origin);
 
   // left ankle
   name = leftAnkle->value();
@@ -187,7 +187,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->leftAnkle(jrlJoint);
+  robot->leftAnkle(jrlJoint);
   CjrlFoot *foot = objectFactory_.createFoot(jrlJoint);
   foot->setAssociatedAnkle(jrlJoint);
   vector3d anklePosInFootFrame;
@@ -197,7 +197,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
   foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
   foot->setSoleSize(soleLength->value(), soleWidth->value());
   vector3d vzero;
-  inRobot->leftFoot(foot);
+  robot->leftFoot(foot);
   // right ankle
   name = rightAnkle->value();
   if (jointMap_.count(name) != 1) {
@@ -205,12 +205,12 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->rightAnkle(jrlJoint);
+  robot->rightAnkle(jrlJoint);
   foot = objectFactory_.createFoot(jrlJoint);
   foot->setAssociatedAnkle(jrlJoint);
   // Get right foot values by symmetry
   anklePosInFootFrame(1) *= -1;
-  inRobot->rightFoot(foot);
+  robot->rightFoot(foot);
   foot->setAnklePositionInLocalFrame(anklePosInFootFrame);
   foot->setSoleSize(soleLength->value(), soleWidth->value());
 
@@ -221,10 +221,10 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->leftWrist(jrlJoint);
+  robot->leftWrist(jrlJoint);
   CjrlHand* hand=objectFactory_.createHand(jrlJoint);
   hand->setAssociatedWrist(jrlJoint);
-  inRobot->leftHand(hand);
+  robot->leftHand(hand);
   vector3d handCenter;
   handCenter(0) = leftHandCenterX->value();
   handCenter(1) = leftHandCenterY->value();
@@ -253,10 +253,10 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->rightWrist(jrlJoint);
+  robot->rightWrist(jrlJoint);
   hand=objectFactory_.createHand(jrlJoint);
   hand->setAssociatedWrist(jrlJoint);
-  inRobot->rightHand(hand);
+  robot->rightHand(hand);
   handCenter(1) *= -1;
   hand->setCenter(handCenter);
   thumbAxis(1) *= -1;
@@ -273,7 +273,7 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->waist(jrlJoint);
+  robot->waist(jrlJoint);
 
   // chest
   name = chest->value();
@@ -282,5 +282,5 @@ void HumanoidRobot::setHumanoidProperties(const ChppHumanoidRobotShPtr& inRobot)
     throw exception(message);
   }
   jrlJoint = jointMap_[name]->jrlJoint();
-  inRobot->chest(jrlJoint);
+  robot->chest(jrlJoint);
 }

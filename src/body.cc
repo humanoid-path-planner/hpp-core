@@ -59,7 +59,7 @@ ktStatus ChppBody::init(const ChppBodyWkPtr inBodyWkPtr)
 bool
 ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 			 const CkitMat4& inPosition,
-			 bool inDistanceComputation)
+			 bool distanceComputation)
 {
   CkppSolidComponentShPtr solidComponent =
     inSolidComponentRef->referencedSolidComponent();
@@ -90,7 +90,7 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
     If requested, add the object in the list of objects the distance to which
     needs to be computed and build the corresponding analyses.
   */
-  if (inDistanceComputation) {
+  if (distanceComputation) {
     CkcdObjectShPtr innerObject =
       KIT_DYNAMIC_PTR_CAST(CkcdObject, solidComponent);
     if (innerObject) {
@@ -146,7 +146,7 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 //=============================================================================
 
 void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
-			      bool inDistanceComputation)
+			      bool distanceComputation)
 
 {
 #if DEBUG >= 2
@@ -172,7 +172,7 @@ void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
      If distance computation is requested, build necessary CkcdAnalysis
      objects
   */
-  if (inDistanceComputation) {
+  if (distanceComputation) {
     /*
       Store object in case inner objects are added a posteriori
     */
