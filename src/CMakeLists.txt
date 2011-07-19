@@ -13,9 +13,9 @@ LINK_DIRECTORIES(${KWSPLUS_LIBRARY_DIRS})
 LINK_DIRECTORIES(${HPPMODEL_LIBRARY_DIRS})
 
 SET(${LIBRARY_NAME}_SOURCE_FILES
-  hppColPair.cpp
-  hppPlanner.cpp
-  hppProblem.cpp
+  collision-pair.cc
+  planner.cc
+  problem.cc
   )
 
 SET(${LIBRARY_NAME}_LINK_LIBRARIES "")
@@ -34,10 +34,10 @@ IF(WIN32)
 ENDIF(WIN32)
 
 IF(${ENABLE_BODY} STREQUAL YES)
-  INCLUDE_DIRECTORIES(BEFORE ${CMAKE_SOURCE_DIR}/include/hppModel)
+  INCLUDE_DIRECTORIES(BEFORE ${CMAKE_SOURCE_DIR}/include/hpp-model)
   SET(${LIBRARY_NAME}_SOURCE_FILES
     ${${LIBRARY_NAME}_SOURCE_FILES}
-    hppBody.cpp)
+    body.cc)
 ELSE(${ENABLE_BODY} STREQUAL YES)
   # Add hppModel compilation flags and link to library libhppModel.so
   INCLUDE_DIRECTORIES(BEFORE ${CMAKE_SOURCE_DIR}/include)
