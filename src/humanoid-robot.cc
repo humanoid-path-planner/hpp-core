@@ -25,9 +25,9 @@ using hpp::core::io::TranslationJointShPtr;
 
 
 ktStatus HumanoidRobot::init (const HumanoidRobotWkPtr &inWeakPtr,
-			      const std::string &inName)
+			      const std::string &name)
 {
-  if (CkppDeviceComponent::init(inWeakPtr, inName) != KD_OK) return KD_ERROR;
+  if (CkppDeviceComponent::init(inWeakPtr, name) != KD_OK) return KD_ERROR;
 
   return KD_OK;
 }

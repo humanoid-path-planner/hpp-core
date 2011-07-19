@@ -35,13 +35,13 @@ namespace hpp {
 	{
 	  return false;
 	}
-	static TranslationJointShPtr create(const std::string& inName)
+	static TranslationJointShPtr create(const std::string& name)
 	{
 	  TranslationJoint *ptr = new TranslationJoint();
 	  TranslationJointShPtr shPtr = TranslationJointShPtr(ptr);
 	  TranslationJointWkPtr wkPtr = TranslationJointWkPtr(shPtr);
 
-	  if (ptr->init(wkPtr, inName) != KD_OK) {
+	  if (ptr->init(wkPtr, name) != KD_OK) {
 	    shPtr.reset();
 	    return shPtr;
 	  }
@@ -72,10 +72,10 @@ namespace hpp {
       protected:
 	TranslationJoint() : CkppTranslationJointComponent() {}
 	ktStatus init (const TranslationJointWkPtr &inWeakPtr,
-		       const std::string &inName)
+		       const std::string &name)
 	{
 	  ktStatus status = KD_OK;
-	  status = CkppTranslationJointComponent::init(inWeakPtr, inName);
+	  status = CkppTranslationJointComponent::init(inWeakPtr, name);
 	  if (status == KD_ERROR) return KD_ERROR;
 	  return Joint::init(inWeakPtr);
 	}

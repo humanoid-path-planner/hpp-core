@@ -7,8 +7,5 @@ namespace hpp {
     class Planner;
     class Problem;
   }
-  namespace model {
-    KIT_PREDEF_CLASS(Body);
-  }
 }
 #endif // HPP_CORE_FWD_HH

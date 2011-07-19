@@ -35,13 +35,13 @@ namespace hpp {
 	{
 	  return false;
 	}
-	static FreeflyerJointShPtr create(const std::string& inName)
+	static FreeflyerJointShPtr create(const std::string& name)
 	{
 	  FreeflyerJoint *ptr = new FreeflyerJoint();
 	  FreeflyerJointShPtr shPtr = FreeflyerJointShPtr(ptr);
 	  FreeflyerJointWkPtr wkPtr = FreeflyerJointWkPtr(shPtr);
 
-	  if (ptr->init(wkPtr, inName) != KD_OK) {
+	  if (ptr->init(wkPtr, name) != KD_OK) {
 	    shPtr.reset();
 	    return shPtr;
 	  }
@@ -72,10 +72,10 @@ namespace hpp {
       protected:
 	FreeflyerJoint() : CkppFreeFlyerJointComponent() {}
 	ktStatus init (const FreeflyerJointWkPtr &inWeakPtr,
-		       const std::string &inName)
+		       const std::string &name)
 	{
 	  ktStatus status = KD_OK;
-	  status = CkppFreeFlyerJointComponent::init(inWeakPtr, inName);
+	  status = CkppFreeFlyerJointComponent::init(inWeakPtr, name);
 	  if (status == KD_ERROR) return KD_ERROR;
 	  return Joint::init(inWeakPtr);
 	}

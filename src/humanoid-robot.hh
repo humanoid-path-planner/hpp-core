@@ -52,13 +52,13 @@ namespace hpp {
 	{
 	  return false;
 	}
-	static HumanoidRobotShPtr create(const std::string& inName)
+	static HumanoidRobotShPtr create(const std::string& name)
 	{
 	  HumanoidRobot *ptr = new HumanoidRobot();
 	  HumanoidRobotShPtr shPtr = HumanoidRobotShPtr(ptr);
 	  HumanoidRobotWkPtr wkPtr = HumanoidRobotWkPtr(shPtr);
 
-	  if (ptr->init(wkPtr, inName) != KD_OK) {
+	  if (ptr->init(wkPtr, name) != KD_OK) {
 	    shPtr.reset();
 	    return shPtr;
 	  }
@@ -71,7 +71,7 @@ namespace hpp {
       protected:
 	HumanoidRobot() : CkppDeviceComponent() {}
 	ktStatus init (const HumanoidRobotWkPtr &inWeakPtr,
-		       const std::string &inName);
+		       const std::string &name);
       private:
 	/// Recursively builds the kinematic chain of the ChppHumanoidRobot
 	ChppJoint*

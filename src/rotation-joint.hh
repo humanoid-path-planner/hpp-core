@@ -35,13 +35,13 @@ namespace hpp {
 	{
 	  return false;
 	}
-	static RotationJointShPtr create(const std::string& inName)
+	static RotationJointShPtr create(const std::string& name)
 	{
 	  RotationJoint *ptr = new RotationJoint();
 	  RotationJointShPtr shPtr = RotationJointShPtr(ptr);
 	  RotationJointWkPtr wkPtr = RotationJointWkPtr(shPtr);
 
-	  if (ptr->init(wkPtr, inName) != KD_OK) {
+	  if (ptr->init(wkPtr, name) != KD_OK) {
 	    shPtr.reset();
 	    return shPtr;
 	  }
@@ -72,10 +72,10 @@ namespace hpp {
       protected:
 	RotationJoint() : CkppRotationJointComponent() {}
 	ktStatus init (const RotationJointWkPtr &inWeakPtr,
-		       const std::string &inName)
+		       const std::string &name)
 	{
 	  ktStatus status = KD_OK;
-	  status = CkppRotationJointComponent::init(inWeakPtr, inName);
+	  status = CkppRotationJointComponent::init(inWeakPtr, name);
 	  if (status == KD_ERROR) return KD_ERROR;
 	  return Joint::init(inWeakPtr);
 	}
