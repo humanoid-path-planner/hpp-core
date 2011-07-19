@@ -1,40 +1,41 @@
 #
-#  Copyright 2010 CNRS-LAAS
-#  Author: Florent Lamiraux
+# Copyright (c) 2010, 2011 CNRS
+# Authors: Florent Lamiraux
 #
+#
+# This file is part of hpp-core
+# hpp-core is free software: you can redistribute it
+# and/or modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation, either version
+# 3 of the License, or (at your option) any later version.
+#
+# hpp-core is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Lesser Public License for more details.  You should have
+# received a copy of the GNU Lesser General Public License along with
+# hpp-core  If not, see
+# <http://www.gnu.org/licenses/>.
 
 SET(LIBRARY_NAME ${PROJECT_NAME})
 
-# provide path to library libkwsPlus.so
-LINK_DIRECTORIES(${KWSPLUS_LIBRARY_DIRS})
-
-
-# provide path to library libhppModel.so
-LINK_DIRECTORIES(${HPPMODEL_LIBRARY_DIRS})
-
-SET(${LIBRARY_NAME}_SOURCE_FILES
+SET(${LIBRARY_NAME}_SOURCES
   collision-pair.cc
   planner.cc
   problem.cc
-  )
+)
 
-SET(${LIBRARY_NAME}_LINK_LIBRARIES "")
-
-# Add kwsPlus compilation flags and link to library libkwsPlus.so
-ADD_DEFINITIONS(${KWSPLUS_CFLAGS})
-IF(UNIX)
-  SET(${LIBRARY_NAME}_LINK_LIBRARIES 
-    ${${LIBRARY_NAME}_LINK_LIBRARIES}  ${KWSPLUS_LIBRARIES})
-ENDIF(UNIX)
-
-IF(WIN32)
-  FOREACH(dlink ${KWSPLUS_LDFLAGS})
-    SET ( ${PROJECT_NAME}_src_LDFLAGS "${${PROJECT_NAME}_src_LDFLAGS}  ${dlink}")
-  ENDFOREACH(dlink)
-ENDIF(WIN32)
-
-IF(${ENABLE_BODY} STREQUAL YES)
+IF (ENABLE_BODY)
+  SET(${LIBRARY_NAME}_SOURCES
+    ${${LIBRARY_NAME}_SOURCES}
+    body.cc
+    )
   INCLUDE_DIRECTORIES(BEFORE ${CMAKE_SOURCE_DIR}/include/hpp-model)
+ADD_LIBRARY(${LIBRARY_NAME}
+  SHARED
+  ${LIBRARY_NAME}_SOURCES
+)
+
   SET(${LIBRARY_NAME}_SOURCE_FILES
     ${${LIBRARY_NAME}_SOURCE_FILES}
     body.cc)
@@ -42,52 +43,4 @@ ELSE(${ENABLE_BODY} STREQUAL YES)
   # Add hppModel compilation flags and link to library libhppModel.so
   INCLUDE_DIRECTORIES(BEFORE ${CMAKE_SOURCE_DIR}/include)
   ADD_DEFINITIONS(${HPPMODEL_CFLAGS})
-  SET(${LIBRARY_NAME}_SOURCE_FILES
-    ${${LIBRARY_NAME}_SOURCE_FILES}
-    parser.cc
-    joint.cc
-    joint.hh
-    freeflyer-joint.hh
-    rotation-joint.hh
-    translation-joint.hh
-    humanoid-robot.hh
-    humanoid-robot.cc
-    )
-  IF(UNIX)
-    SET(${LIBRARY_NAME}_LINK_LIBRARIES
-      ${${LIBRARY_NAME}_LINK_LIBRARIES}  ${HPPMODEL_LIBRARIES})
-  ENDIF(UNIX)
-
-  IF(WIN32)
-    foreach(dlink ${HPPMODEL_LDFLAGS})
-      SET ( ${PROJECT_NAME}_src_LDFLAGS "${${PROJECT_NAME}_src_LDFLAGS}  ${dlink}")
-    endforeach(dlink)
-  ENDIF(WIN32)
-ENDIF(${ENABLE_BODY} STREQUAL YES)
-
-MESSAGE(STATUS "sources: "${${LIBRARY_NAME}_SOURCE_FILES})
-ADD_LIBRARY(${LIBRARY_NAME}
-  SHARED
-  ${${LIBRARY_NAME}_SOURCE_FILES}
-)
-
-SET_TARGET_PROPERTIES(${LIBRARY_NAME}
-  PROPERTIES
-  SOVERSION ${PROJECT_VERSION}
-  INSTALL_RPATH lib)
-
-SET_TARGET_PROPERTIES(${PROJECT_NAME_LIB}
-  PROPERTIES
-  COMPILE_FLAGS ${${PROJECT_NAME}_src_CXXFLAGS}
-  LINK_FLAGS ${${PROJECT_NAME}_src_LDFLAGS}
-)
-
-SET_TARGET_PROPERTIES(${LIBRARY_NAME}
-  PROPERTIES
-  LINK_FLAGS "${${PROJECT_NAME}_src_LDFLAGS}"
-)
-
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${${LIBRARY_NAME}_LINK_LIBRARIES})
-
-INSTALL(TARGETS ${LIBRARY_NAME}
-  DESTINATION lib)
+ENDIF()

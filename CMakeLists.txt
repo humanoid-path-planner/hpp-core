@@ -1,162 +1,74 @@
 #
-#  Copyright 2010 CNRS-LAAS
-#  Author: Florent Lamiraux
+# Copyright (c) 2010, 2011 CNRS
+# Authors: Florent Lamiraux
 #
+#
+# This file is part of hpp-core
+# hpp-core is free software: you can redistribute it
+# and/or modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation, either version
+# 3 of the License, or (at your option) any later version.
+#
+# hpp-core is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Lesser Public License for more details.  You should have
+# received a copy of the GNU Lesser General Public License along with
+# hpp-core  If not, see
+# <http://www.gnu.org/licenses/>.
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(PROJECT_NAME hppCore)
-project(${PROJECT_NAME})
+SET(CXX_DISABLE_WERROR TRUE)
+INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/cpack.cmake)
 
-SET(PROJECT_VERSION 1.14.0.99)
+SET(PROJECT_NAME hpp-core)
+SET(PROJECT_DESCRIPTION
+  "Implement basic classes used as interfaces with KineoPathPlanner"
+  )
+SET(PROJECT_URL "")
 
-SET(CMAKE_VERBOSE_MAKEFILE true)
+# Where to compile shared objects
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-IF(WIN32)
-  SET(LIBDIR_KW "/LIBPATH:")
-  SET(LIBINCL_KW "")
-  SET(LIB_EXT ".lib")
-ENDIF(WIN32)
+SETUP_PROJECT()
 
-IF(UNIX)
-  SET(LIBDIR_KW "-L")
-  SET(LIBINCL_KW "-l")
-  SET(LIB_EXT "")
-ENDIF(UNIX)
-
-#
-# Look for dependencies
-#
-
-# Load Pkgconfig macros
-INCLUDE(FindPkgConfig)
-SET(PACKAGE_REQUIREMENTS "")
-
-#
-#  Dependency to package kwsPlus
-#
-SET(KWSPLUS_FOUND 0)
-SET(KWSPLUS_REQUIRED "kwsPlus >= 1.8")
-PKG_CHECK_MODULES(KWSPLUS REQUIRED ${KWSPLUS_REQUIRED})
-EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS  --variable=docdir kwsPlus
-  OUTPUT_VARIABLE KWSPLUS_DOCDIR)
-MESSAGE(STATUS "pkg-config: ${PKG_CONFIG_EXECUTABLE}")
-MESSAGE(STATUS "KWSPLUS_DOCDIR=${KWSPLUS_DOCDIR}")
-SET(KWSPLUS_FOUND 1)
-
-IF(NOT ${KWSPLUS_FOUND})
-  MESSAGE(FATAL_ERROR "Check that package kwsPlus is installed in a directory pointed out by PKG_CONFIG_PATH.")
-ENDIF(NOT ${KWSPLUS_FOUND})
-
-IF(PACKAGE_REQUIREMENTS STREQUAL "")
-  SET(PACKAGE_REQUIREMENTS ${KWSPLUS_REQUIRED})
-ELSE(PACKAGE_REQUIREMENTS STREQUAL "")
-  SET(PACKAGE_REQUIREMENTS "${PACKAGE_REQUIREMENTS}, ${KWSPLUS_REQUIRED}")
-ENDIF(PACKAGE_REQUIREMENTS STREQUAL "")
-
+# Activate hpp-util logging if requested
+IF (HPP_DEBUG)
+  MESSAGE(STATUS "Activate hpp-util logging.")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
+ENDIF()
 
 #
 #  Optional Dependency to package hppModel
 #
-IF (NOT DEFINED ENABLE_BODY)
-  SET(ENABLE_BODY NO)
-ENDIF(NOT DEFINED ENABLE_BODY)
-
-MESSAGE (STATUS "ENABLE_BODY "${ENABLE_BODY})
-
-IF(${ENABLE_BODY} STREQUAL YES)
+IF(ENABLE_BODY)
   MESSAGE(STATUS "using internal implementation of ChppBody")
   SET(BODY_CFLAGS "IMPLEMENT_BODY=1")
-  SET(BODY_HEADER_PATH="hppModel")
-ELSE(${ENABLE_BODY} STREQUAL YES)
-  MESSAGE(STATUS "using external implementation of ChppBody")
-  SET(HPPMODEL_FOUND 0)
-  SET(HPPMODEL_REQUIRED "hppModel >= 1.7.6")
-  PKG_CHECK_MODULES(HPPMODEL REQUIRED ${HPPMODEL_REQUIRED})
-  EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS  --variable=docdir hppModel
-    OUTPUT_VARIABLE HPPMODEL_DOCDIR)
-  MESSAGE(STATUS "pkg-config: ${PKG_CONFIG_EXECUTABLE}")
-  MESSAGE(STATUS "HPPMODEL_DOCDIR=${HPPMODEL_DOCDIR}")
-  SET(HPPMODEL_FOUND 1)
+  SET(BODY_HEADER_PATH="hpp-model")
+  # install hpp/model/body.hh
+  INSTALL(FILES include/hpp-model/hpp/model/body.hh
+    DESTINATION include/hpp/model
+    )
+ELSE(ENABLE_BODY)
+  MESSAGE(STATUS "using external implementation of hpp::model::Body")
+  ADD_REQUIRED_DEPENDENCY("hpp-model >= 2.0")
+ENDIF(ENABLE_BODY)
 
-  IF(NOT ${HPPMODEL_FOUND})
-    MESSAGE(FATAL_ERROR "Check that package hppModel is installed in a directory pointed out by PKG_CONFIG_PATH.")
-  ENDIF(NOT ${HPPMODEL_FOUND})
+# Declare Headers
+SET(${PROJECT_NAME}_HEADERS
+  include/hpp/core/collision-pair.hh
+  include/hpp/core/planner.hh
+  include/hpp/core/problem.hh
+)
 
-  IF(PACKAGE_REQUIREMENTS STREQUAL "")
-    SET(PACKAGE_REQUIREMENTS ${HPPMODEL_REQUIRED})
-  ELSE(PACKAGE_REQUIREMENTS STREQUAL "")
-    SET(PACKAGE_REQUIREMENTS "${PACKAGE_REQUIREMENTS}, ${HPPMODEL_REQUIRED}")
-  ENDIF(PACKAGE_REQUIREMENTS STREQUAL "")
-ENDIF(${ENABLE_BODY} STREQUAL YES)
+ADD_REQUIRED_DEPENDENCY("kwsPlus >= 1.8")
 
-#
-# pkg-config file
-#
-
-SET(install_pkg_prefix "\${prefix}")
-SET(install_pkg_exec_prefix "\${exec_prefix}")
-SET(install_pkg_libdir "\${libdir}")
-SET(install_pkg_datarootdir "\${datarootdir}")
-SET(install_pkg_include_dir "\${includedir}")
-
-IF(UNIX)
-  SET (${PROJECT_NAME}_LDFLAGS "-Wl,-R${install_pkg_libdir} ${LIBINCL_KW}${PROJECT_NAME}${LIB_EXT} ${${PROJECT_NAME}_LDFLAGS}")
-ENDIF(UNIX)
-
-IF(WIN32)
-  SET (${PROJECT_NAME}_LDFLAGS "${LIBINCL_KW}${PROJECT_NAME}${LIB_EXT} ${${PROJECT_NAME}_LDFLAGS}")
-ENDIF(WIN32)
-
-# Install the file in the appropriate place.
-SET(install_libdir_pkgconfig lib/pkgconfig)
-
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc)
-
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
-  DESTINATION ${install_libdir_pkgconfig}
-  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+# Add dependency toward hpp-model library in pkg-config file.
+PKG_CONFIG_APPEND_LIBS("hpp-core")
 
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(include)
 
-#
-# Documentation produced by doxygen
-#
-INCLUDE(FindDoxygen)
-IF(DOXYGEN_FOUND)
-  add_subdirectory(doc)
-ENDIF(DOXYGEN_FOUND)
-
-#
-# Uninstall target
-#
-CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-  IMMEDIATE )
-
-ADD_CUSTOM_TARGET(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-#
-# Package
-#
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "hppCore")
-set(CPACK_PACKAGE_VENDOR "Your laboratory")
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README)
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your name")
-set(CPACK_GENERATOR DEB)
-set(
-CPACK_SOURCE_PACKAGE_FILE_NAME
-"hppCore-${PROJECT_VERSION}"
-CACHE INTERNAL "tarball basename"
-)
-set(CPACK_SOURCE_GENERATOR TGZ)
-
-set(CPACK_SOURCE_IGNORE_FILES
-"~$""^${PROJECT_SOURCE_DIR}/build/"
-"^${PROJECT_SOURCE_DIR}/.git/"
-)
-include(CPack)
+SETUP_PROJECT_FINALIZE()
+SETUP_PROJECT_CPACK()
