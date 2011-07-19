@@ -4,21 +4,6 @@
 # 
 
 #----------------------------------------------------
-# Install old style deprecated header files
-#----------------------------------------------------
-
-SET(${PROJECT_NAME}_HEADERS_OLD_STYLE
-  hppCore/hppColPair.h
-  hppCore/hppPlanner.h
-  hppCore/hppProblem.h
-)
-
-INSTALL(FILES ${${PROJECT_NAME}_HEADERS_OLD_STYLE}
-  DESTINATION include/${PROJECT_NAME}
-  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
-)
-
-#----------------------------------------------------
 # Install new style header files
 #----------------------------------------------------
 
