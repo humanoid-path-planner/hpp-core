@@ -1,9 +1,20 @@
-/*
-
-  Copyright 2007 LAAS-CNRS
-  Author: Florent Lamiraux (LAAS-CNRS)
-
-*/
+//
+// Copyright (c) 2007, 2008, 2009, 2010, 2011 CNRS
+// Authors: Florent Lamiraux
+//
+// This file is part of hpp-core
+// hpp-core is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// hpp-core is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Lesser Public License for more details.  You should have
+// received a copy of the GNU Lesser General Public License along with
+// hpp-core  If not, see
+// <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
@@ -16,28 +27,15 @@
 #include "kcd2/kcdGeometrySubElement.h"
 #include "KineoWorks2/kwsJoint.h"
 
-#include "hppModel/hppBody.h"
-
-#if DEBUG==2
-#undef NDEBUG
-#define ODEBUG2(x) std::cout << "ChppBody:" << x << std::endl
-#define ODEBUG1(x) std::cerr << "ChppBody:" << x << std::endl
-#elif DEBUG==1
-#undef NDEBUG
-#define ODEBUG2(x)
-#define ODEBUG1(x) std::cerr << "ChppBody:" << x << std::endl
-#else
-#define ODEBUG2(x)
-#define ODEBUG1(x)
-#endif
+#include "hpp/model/body.hh"
 
 //=============================================================================
 
-ChppBodyShPtr ChppBody::create(const std::string& inName)
+BodyShPtr Body::create(const std::string& inName)
 {
-  ChppBody* hppBody = new ChppBody(inName);
-  ChppBodyShPtr hppBodyShPtr(hppBody);
-  ChppBodyWkPtr hppBodyWkPtr = hppBodyShPtr;
+  Body* hppBody = new Body(inName);
+  BodyShPtr hppBodyShPtr(hppBody);
+  BodyWkPtr hppBodyWkPtr = hppBodyShPtr;
 
   if (hppBody->init(hppBodyWkPtr) != KD_OK) {
     ODEBUG1(" error in create() ");
@@ -48,7 +46,7 @@ ChppBodyShPtr ChppBody::create(const std::string& inName)
 
 //=============================================================================
 
-ktStatus ChppBody::init(const ChppBodyWkPtr inBodyWkPtr)
+ktStatus Body::init(const BodyWkPtr inBodyWkPtr)
 {
   attWeakPtr = inBodyWkPtr;
   return CkwsKCDBody::init(inBodyWkPtr);
@@ -57,7 +55,7 @@ ktStatus ChppBody::init(const ChppBodyWkPtr inBodyWkPtr)
 //=============================================================================
 
 bool
-ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
+Body::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 			 const CkitMat4& inPosition,
 			 bool distanceComputation)
 {
@@ -82,7 +80,7 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
   }
   else {
     ODEBUG1
-      ("ChppBody::addSolidComponent: the body is not attached to any joint");
+      ("Body::addSolidComponent: the body is not attached to any joint");
     return false;
   }
 
@@ -145,7 +143,7 @@ ChppBody::addInnerObject(const CkppSolidComponentRefShPtr& inSolidComponentRef,
 
 //=============================================================================
 
-void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
+void Body::addOuterObject(const CkcdObjectShPtr& inOuterObject,
 			      bool distanceComputation)
 
 {
@@ -223,7 +221,7 @@ void ChppBody::addOuterObject(const CkcdObjectShPtr& inOuterObject,
 
 //=============================================================================
 
-void ChppBody::resetOuterObjects()
+void Body::resetOuterObjects()
 {
   attOuterObjForDist.clear();
   attDistCompPairs.clear();
@@ -233,7 +231,7 @@ void ChppBody::resetOuterObjects()
 //=============================================================================
 
 ktStatus
-ChppBody::distAndPairsOfPoints(unsigned int inPairId,
+Body::distAndPairsOfPoints(unsigned int inPairId,
 			       double& outDistance,
 			       CkitPoint3& outPointBody,
 			       CkitPoint3& outPointEnv,

@@ -16,7 +16,7 @@ INCLUDE
 #include "kcd2/kcdAnalysisType.h"
 #include "kwsKcd2/kwsKCDBody.h"
 
-KIT_PREDEF_CLASS(ChppBody);
+KIT_PREDEF_CLASS(Body);
 KIT_PREDEF_CLASS(CkcdObject);
 KIT_PREDEF_CLASS(CkppSolidComponentRef);
 
@@ -52,7 +52,7 @@ CLASS
  http://www.boost.org/libs/smart_ptr/smart_ptr.htm
 */
 
-class ChppBody : public CkwsKCDBody
+class Body : public CkwsKCDBody
 {
 public:
   /**
@@ -60,7 +60,7 @@ public:
      \param inName Name of the new body.
      \return A shared pointer to a new body.
   */
-  static ChppBodyShPtr create(const std::string& inName);
+  static BodyShPtr create(const std::string& inName);
 
   /**
      \brief Get name of object.
@@ -154,14 +154,14 @@ protected:
   /**
      \brief Constructor by name.
   */
-  ChppBody(const std::string& inName): attName(inName) {};
+  Body(const std::string& inName): attName(inName) {};
 
   /**
      \brief Initialization of body
 
      \param inBodyWkPtr weak pointer to itself
   */
-  ktStatus init(const ChppBodyWkPtr inBodyWkPtr);
+  ktStatus init(const BodyWkPtr inBodyWkPtr);
 
 private:
 
@@ -192,7 +192,7 @@ private:
   /**
      \brief Weak pointer to itself
   */
-  ChppBodyWkPtr attWeakPtr;
+  BodyWkPtr attWeakPtr;
 };
 
 

@@ -171,7 +171,7 @@ namespace hpp {
 	    bodyIter < bodyVector.end();
 	    bodyIter++ ) {
 
-	if (ChppBodyShPtr hppBody = KIT_DYNAMIC_PTR_CAST(ChppBody, *bodyIter)) {
+	if (BodyShPtr hppBody = KIT_DYNAMIC_PTR_CAST(Body, *bodyIter)) {
 	  hppDout(info, "hpp::model::Body type.");
 	  hppBody->addOuterObject(inObject, distanceComputation);
 	}
