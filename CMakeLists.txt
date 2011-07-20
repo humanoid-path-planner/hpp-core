@@ -40,22 +40,6 @@ IF (HPP_DEBUG)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
 ENDIF()
 
-#
-#  Optional Dependency to package hppModel
-#
-IF(ENABLE_BODY)
-  MESSAGE(STATUS "using internal implementation of ChppBody")
-  SET(BODY_CFLAGS "IMPLEMENT_BODY=1")
-  SET(BODY_HEADER_PATH="hpp-model")
-  # install hpp/model/body.hh
-  INSTALL(FILES include/hpp-model/hpp/model/body.hh
-    DESTINATION include/hpp/model
-    )
-ELSE(ENABLE_BODY)
-  MESSAGE(STATUS "using external implementation of hpp::model::Body")
-  ADD_REQUIRED_DEPENDENCY("hpp-model >= 1.8")
-ENDIF(ENABLE_BODY)
-
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/fwd.hh
@@ -65,6 +49,7 @@ SET(${PROJECT_NAME}_HEADERS
 )
 
 ADD_REQUIRED_DEPENDENCY("kwsPlus >= 1.8")
+ADD_REQUIRED_DEPENDENCY("hpp-model >= 1.8")
 
 # Add dependency toward hpp-model library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")
