@@ -7,7 +7,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <kprParserXML/kprParserManager.h>
-#include <hppModel/hppHumanoidRobot.h>
+#include <hpp/model/humanoid-robot.hh>
 #include "hpp/core/parser.hh"
 #include "freeflyer-joint.hh"
 #include "rotation-joint.hh"

@@ -34,9 +34,8 @@
 #include "hpp/core/planner.hh"
 #include "hpp/core/problem.hh"
 #include "hpp/core/parser.hh"
-#include "humanoid-robot.hh"
-#include "hppModel/hppBody.h"
-#include <hppModel/hppHumanoidRobot.h>
+#include "hpp/model/body.hh"
+#include <hpp/model/humanoid-robot.hh>
 
 #include "KineoUtility/kitNotificator.h"
 #include "KineoWorks2/kwsDirectPath.h"
@@ -751,23 +750,22 @@ namespace hpp {
 	    if(deviceComponent) {
 	      // If device is of type io::hpp::core::HumanoidRobot, transform it
 	      // into a ChppHumanoidRobot
-	      hpp::core::io::HumanoidRobotShPtr humanoidRobot =
-		KIT_DYNAMIC_PTR_CAST(hpp::core::io::HumanoidRobot, deviceComponent);
+	      hpp::model::HumanoidRobotShPtr humanoidRobot =
+		KIT_DYNAMIC_PTR_CAST(hpp::model::HumanoidRobot,
+				     deviceComponent);
 	      if (humanoidRobot) {
 		// Set config to 0
 		CkwsConfig config(deviceComponent);
 		deviceComponent->setCurrentConfig(config);
-		deviceComponent = humanoidRobot->createHppHumanoidRobot();
-		if (!deviceComponent) return KD_ERROR;
 	      }
-	      addHppProblem(deviceComponent, HPPPLANNER_DEFAULT_PENETRATION);
+	      addHppProblem(humanoidRobot, HPPPLANNER_DEFAULT_PENETRATION);
 	      devicesIndex.insert
-		(std::pair<CkppDeviceComponentShPtr,unsigned int>(deviceComponent,
+		(std::pair<CkppDeviceComponentShPtr,unsigned int>(humanoidRobot,
 								  currentRank));
 
 	      std::vector< CkppSolidComponentRefShPtr > solidComponentRefVector;
 
-	      deviceComponent->getSolidComponentRefVector (solidComponentRefVector);
+	      humanoidRobot->getSolidComponentRefVector (solidComponentRefVector);
 
 	      for(std::vector< CkppSolidComponentRefShPtr >::iterator
 		    it=solidComponentRefVector.begin();

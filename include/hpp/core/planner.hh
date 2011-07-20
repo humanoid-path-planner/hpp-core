@@ -29,13 +29,14 @@ INCLUDE
 #include "KineoUtility/kitNotificator.h"
 
 #include "hpp/core/problem.hh"
+#include "hpp/core/fwd.hh"
+
+class CkwsPlusStopRdmBuilderDelegate;
+KIT_PREDEF_CLASS(CkppKCDBody);
+KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
 namespace hpp {
   namespace core {
-    class CkwsPlusStopRdmBuilderDelegate;
-    KIT_PREDEF_CLASS(CkppKCDBody);
-    KIT_PREDEF_CLASS(CkwsConfigExtractor);
-
     /// \brief Motion planning strategies for humanoid robots among obstacles.
 
     /// This abstract class defines motion planning strategies for a

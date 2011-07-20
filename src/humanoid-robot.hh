@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 #include <KineoModel/kppDeviceComponent.h>
-#include <hppModel/hppImplRobotDynamics.h>
+#include <hpp/model/robot-dynamics-impl.hh>
 
 KIT_PREDEF_CLASS(ChppHumanoidRobot);
 class ChppJoint;

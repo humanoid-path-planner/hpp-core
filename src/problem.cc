@@ -18,8 +18,9 @@
 
 #include <iostream>
 
-#include "hpp/core/problem.hh"
-#include "hppModel/hppBody.h"
+#include <hpp/util/debug.hh>
+#include <hpp/core/problem.hh>
+#include "hpp/model/body.hh"
 
 #include "KineoWorks2/kwsConfigExtractor.h"
 #include "KineoWorks2/kwsValidatorDPCollision.h"
@@ -56,7 +57,7 @@ namespace hpp {
     // ======================================================================
 
     Problem::Problem (CkppDeviceComponentShPtr robot,
-		      const std::vector<CkcdObjectShPtr>& obstacleList,
+		      const std::vector<CkcdObjectShPtr>& obstacles,
 		      double penetration) :
       notificator_ ( CkitNotificator::defaultNotificator() ),
       robot_ ( robot ),
@@ -67,7 +68,7 @@ namespace hpp {
       // validator of the robot
       setPenetration();
       initMapOuter();
-      obstacleList ( obstacleList );
+      obstacleList ( obstacles );
     }
 
     // ======================================================================
@@ -171,9 +172,10 @@ namespace hpp {
 	    bodyIter < bodyVector.end();
 	    bodyIter++ ) {
 
-	if (BodyShPtr hppBody = KIT_DYNAMIC_PTR_CAST(Body, *bodyIter)) {
+	if (model::BodyShPtr body =
+	    KIT_DYNAMIC_PTR_CAST(model::Body, *bodyIter)) {
 	  hppDout(info, "hpp::model::Body type.");
-	  hppBody->addOuterObject(inObject, distanceComputation);
+	  body->addOuterObject(inObject, distanceComputation);
 	}
 	else if (CkwsKCDBodyShPtr kcdBody =
 		 KIT_DYNAMIC_PTR_CAST(CkwsKCDBody, *bodyIter)) {

@@ -5,9 +5,9 @@
  */
 
 #include <KineoModel/kppSolidComponentRef.h>
-#include <hppModel/hppHumanoidRobot.h>
-#include <hppModel/hppBody.h>
-#include <hppModel/hppJoint.h>
+#include <hpp/model/humanoid-robot.hh>
+#include <hpp/model/body.hh>
+#include <hpp/model/joint.hh>
 #include "humanoid-robot.hh"
 #include "joint.hh"
 #include "freeflyer-joint.hh"
