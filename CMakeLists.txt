@@ -53,7 +53,7 @@ IF(ENABLE_BODY)
     )
 ELSE(ENABLE_BODY)
   MESSAGE(STATUS "using external implementation of hpp::model::Body")
-  ADD_REQUIRED_DEPENDENCY("hpp-model >= 2.0")
+  ADD_REQUIRED_DEPENDENCY("hpp-model >= 1.8")
 ENDIF(ENABLE_BODY)
 
 # Declare Headers
