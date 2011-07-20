@@ -38,7 +38,7 @@ namespace hpp {
       
       /// \brief self collision table
       map_t collisionPairs_; 
-    
+      std::vector<unsigned int> emptyVector_;
     public:
       /// \brief Constructor
       CollisionPair();

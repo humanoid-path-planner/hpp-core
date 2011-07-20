@@ -26,6 +26,7 @@ namespace hpp {
     CollisionPair::CollisionPair()
     {
       collisionPairs_.clear();
+      emptyVector_.clear();
     }
 
     CollisionPair::~CollisionPair()
@@ -130,7 +131,7 @@ namespace hpp {
 
       else{
 	flag =  false;
-	return std::vector<unsigned int>();
+	return emptyVector_;
       }
     }
 
