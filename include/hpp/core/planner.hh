@@ -28,6 +28,8 @@ INCLUDE
 #include "KineoWorks2/kwsRoadmapBuilder.h"
 #include "KineoUtility/kitNotificator.h"
 
+#include <hpp/util/deprecated.hh>
+
 #include "hpp/core/problem.hh"
 #include "hpp/core/fwd.hh"
 
@@ -360,6 +362,6 @@ namespace hpp {
     }; // class Planner
   } // namespace core
 } // namespace namespace hpp
+
+typedef hpp::core::Planner ChppPlanner HPP_DEPRECATED;
 #endif
-
-

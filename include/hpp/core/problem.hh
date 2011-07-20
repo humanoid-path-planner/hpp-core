@@ -29,6 +29,8 @@
 
 #include "KineoUtility/kitNotificator.h"
 
+#include <hpp/util/deprecated.hh>
+
 KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
 namespace hpp {
@@ -267,4 +269,5 @@ namespace hpp {
     }; // class Problem
   } // namespace core
 } // namespace hpp
+typedef hpp::core::Problem ChppProblem HPP_DEPRECATED;
 #endif // HPP_CORE_PROBLEM_HH

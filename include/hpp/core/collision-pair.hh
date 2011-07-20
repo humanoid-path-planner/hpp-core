@@ -25,6 +25,8 @@
 #include <utility>    // pair
 #include <functional> // greater
 
+#include <hpp/util/deprecated.hh>
+
 namespace hpp {
   namespace core {
 
@@ -63,4 +65,5 @@ namespace hpp {
     }; // class CollisionPair
   } // namespace core
 } // namespace hpp
+typedef hpp::core::CollisionPair ChppColPair HPP_DEPRECATED;
 #endif // HPP_CORE_COLLISION_PAIR_HH
