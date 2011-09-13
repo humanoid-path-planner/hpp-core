@@ -17,7 +17,8 @@
 # hpp-core  If not, see
 # <http://www.gnu.org/licenses/>.
 
-SET(${PROJECT_NAME}_HEADERS 
+SET(${PROJECT_NAME}_HEADERS
+  hpp/core/fwd.hh
   hpp/core/planner.hh
   hpp/core/problem.hh
   hpp/core/collision-pair.hh

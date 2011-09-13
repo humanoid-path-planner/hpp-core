@@ -33,7 +33,7 @@
 #include <hpp/util/debug.hh>
 #include "hpp/core/planner.hh"
 #include "hpp/core/problem.hh"
-#include "hpp/core/parser.hh"
+#include "hpp/model/parser.hh"
 #include "hpp/model/body.hh"
 #include <hpp/model/humanoid-robot.hh>
 
@@ -82,7 +82,7 @@ namespace hpp {
       notificator_ = CkitNotificator::defaultNotificator();
       obstacleVector_.clear();
       stopRdmBuilderDelegate_ = new CkwsPlusStopRdmBuilderDelegate;
-      parser_ = new hpp::core::Parser();
+      parser_ = new hpp::model::Parser();
     }
 
     // ======================================================================

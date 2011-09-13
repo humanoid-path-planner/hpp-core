@@ -58,6 +58,7 @@ ENDIF(ENABLE_BODY)
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
+  include/hpp/core/fwd.hh
   include/hpp/core/collision-pair.hh
   include/hpp/core/planner.hh
   include/hpp/core/problem.hh

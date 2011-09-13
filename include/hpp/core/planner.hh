@@ -33,6 +33,8 @@ INCLUDE
 #include "hpp/core/problem.hh"
 #include "hpp/core/fwd.hh"
 
+#include <hpp/model/parser.hh>
+
 class CkwsPlusStopRdmBuilderDelegate;
 KIT_PREDEF_CLASS(CkppKCDBody);
 KIT_PREDEF_CLASS(CkwsConfigExtractor);
@@ -341,7 +343,7 @@ namespace hpp {
       CkwsPlusStopRdmBuilderDelegate* stopRdmBuilderDelegate_;
 
       /// \brief Parser specialization
-      Parser* parser_;
+      model::Parser* parser_;
 
       // for notification.
     public:
