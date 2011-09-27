@@ -784,15 +784,16 @@ namespace hpp {
 	}
 	if(!modelTree->geometryNode()) std::cout<<"No geometries"<<std::endl;
 	else{
-	  std::cout<<"geometries"<<std::endl;
+	  hppDout(info, "geometries");
 	  for(unsigned int i = 0;
 	      i< modelTree->geometryNode()->countChildComponents(); i++){
-	    std::cout<<i<<" "<<std::endl;
+	    CkppComponentShPtr child =
+	      modelTree->geometryNode()->childComponent(i);
 	    CkcdObjectShPtr kcdObject =
-	      KIT_DYNAMIC_PTR_CAST(CkcdObject,
-				   modelTree->geometryNode()->childComponent(i));
+	      KIT_DYNAMIC_PTR_CAST(CkcdObject, child);
+	    hppDout(info, child->name());
 	    if(kcdObject) addObstacle(kcdObject);
-	    else std::cout<<"Cannot cast component to kcdObject"<<std::endl;
+	    else std::cerr << "Cannot cast component to kcdObject" << std::endl;
 	  }
 	}
 
