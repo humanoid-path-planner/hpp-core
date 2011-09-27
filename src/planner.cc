@@ -729,7 +729,7 @@ namespace hpp {
 	KIT_DYNAMIC_PTR_CAST(CkppSolidComponent,modelTreeComponent);
 
       if(modelTree) {
-	hppDout(error, "Found modelTree");
+	hppDout(info, "Found modelTree");
 
 
 	std::map<CkppDeviceComponentShPtr,unsigned int> devicesIndex;
@@ -755,6 +755,7 @@ namespace hpp {
 				     deviceComponent);
 	      if (humanoidRobot) {
 		humanoidRobot->initialize();
+		hppDout(info, *humanoidRobot);
 		// Set config to 0
 		CkwsConfig config(deviceComponent);
 		deviceComponent->setCurrentConfig(config);
@@ -825,7 +826,7 @@ namespace hpp {
 
       else if(solidComponent)
 	{
-	  hppDout(error, "Found solid component");
+	  hppDout(info, "Found solid component");
 	  CkcdObjectShPtr kcdObject =
 	    KIT_DYNAMIC_PTR_CAST(CkcdObject,solidComponent);
 	  if(!kcdObject) {
@@ -841,7 +842,7 @@ namespace hpp {
 	return KD_ERROR;
       }
 
-      hppDout(error, "Everything is fine ");
+      hppDout(info, "Everything is fine ");
       return KD_OK ;
     }
   } // namespace core
