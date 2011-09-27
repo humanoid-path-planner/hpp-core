@@ -734,7 +734,7 @@ namespace hpp {
 
 	std::map<CkppDeviceComponentShPtr,unsigned int> devicesIndex;
 
-	std::set<CkcdObjectShPtr> devicesBodies;
+	std::set<CkcdObjectShPtr> deviceBodies;
 
 	unsigned int currentRank=0;
 
@@ -772,12 +772,13 @@ namespace hpp {
 	      for(std::vector< CkppSolidComponentRefShPtr >::iterator
 		    it=solidComponentRefVector.begin();
 		  it!=solidComponentRefVector.end();it++) {
+		CkppComponentShPtr component =
+		  (*it)->referencedSolidComponent();
 		CkcdObjectShPtr kcdObject =
-		  KIT_DYNAMIC_PTR_CAST(CkcdObject,
-				       (*it)->referencedSolidComponent());
-		if(kcdObject) devicesBodies.insert(kcdObject);
-		else std::cout << "Cannot cast component to kcdObject"
-			       << std::endl;
+		  KIT_DYNAMIC_PTR_CAST(CkcdObject, component);
+		if(kcdObject) deviceBodies.insert(kcdObject);
+		else std::cerr << "Cannot cast component " << component->name()
+			       << " to CkcdObject" << std::endl;
 	      }
 	      currentRank++;
 	    }
@@ -793,8 +794,12 @@ namespace hpp {
 	    CkcdObjectShPtr kcdObject =
 	      KIT_DYNAMIC_PTR_CAST(CkcdObject, child);
 	    hppDout(info, child->name());
-	    if(kcdObject) addObstacle(kcdObject);
-	    else std::cerr << "Cannot cast component to kcdObject" << std::endl;
+	    // Add in obstacle list only elements that are not robot bodies.
+	    if(kcdObject &&
+	       deviceBodies.find(kcdObject) == deviceBodies.end()) {
+	      hppDout(info, "adding obstacle " << child->name());
+	      addObstacle(kcdObject);
+	    }
 	  }
 	}
 
