@@ -748,12 +748,13 @@ namespace hpp {
 				   modelTree->deviceNode()->childComponent(i));
 
 	    if(deviceComponent) {
-	      // If device is of type io::hpp::core::HumanoidRobot, transform it
-	      // into a ChppHumanoidRobot
+	      // If device is of type hpp::model::HumanoidRobot, initialize
+	      // kinematic chain.
 	      hpp::model::HumanoidRobotShPtr humanoidRobot =
 		KIT_DYNAMIC_PTR_CAST(hpp::model::HumanoidRobot,
 				     deviceComponent);
 	      if (humanoidRobot) {
+		humanoidRobot->initialize();
 		// Set config to 0
 		CkwsConfig config(deviceComponent);
 		deviceComponent->setCurrentConfig(config);
