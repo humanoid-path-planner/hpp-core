@@ -49,7 +49,7 @@ SET(${PROJECT_NAME}_HEADERS
 )
 
 ADD_REQUIRED_DEPENDENCY("kwsPlus >= 1.8")
-ADD_REQUIRED_DEPENDENCY("hpp-model >= 1.8")
+ADD_REQUIRED_DEPENDENCY("hpp-model >= 2.0")
 
 # Add dependency toward hpp-model library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")
