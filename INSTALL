@@ -3,27 +3,10 @@ Installation instructions
 Configuration
 -------------
 untar the package
-cd hppCore
-mkdir build
-cd build
+cd hpp-core
+mkdir _build
+cd _build
 cmake [OPTIONS] ..
-
-  -DENABLE_BODY=YES : Configuration with dependence to hppModel 
-  ----------------------------------------------------------
-
-  hppCore can be compiled with a dependence to package hppModel that 
-  provides implementation of the following classes:
-    - ChppBody that implements a dynamic and geometric body. This class 
-      derives from CkwsKCDBody for the geometric part and from an 
-      implementation of CjrlBody for the dynamic part,
-
-    - ChppDevice that implements a dynamic and geometric robot. This class
-      derives from CkppDeviceComponent for the geometric part and from 
-      an implementation of CjrlDynamicRobot for the dynamic part.
-
-  If the dependence to hppModel is not required, hppCore provides a 
-  simplified implementation of class ChppBody deriving from CkwsKCDBody.
-  
 
 Compilation and Installation
 ----------------------------
