@@ -44,28 +44,28 @@ namespace hpp {
     /// \li a roadmap : to store a roadmap
     /// \li a roadmapBuilder : roadmap strategy
     /// \li a pathOptimizer : to Optimise the path
-    class ChppProblem
+    class Problem
     {
     public:
       /// \brief Create a path planning problem.
       /// \param robot robot associated to the path planning problem.
       /// \param penetration dynamic penetration for validating direct paths.
-      ChppProblem (CkppDeviceComponentShPtr robot, double penetration);
+      Problem (CkppDeviceComponentShPtr robot, double penetration);
 
       ///
       /// \brief Create a path planning problem.
       /// \param robot robot associated to the path planning problem.
       /// \param obstacleList list of obstacle of this problem.
       /// \param penetration dynamic penetration for validating direct paths.
-      ChppProblem (CkppDeviceComponentShPtr robot,
+      Problem (CkppDeviceComponentShPtr robot,
 	       const std::vector<CkcdObjectShPtr>& obstacleList,
 	       double penetration);
 
 
       /// \brief Copy constructor
-      ChppProblem(const ChppProblem& inChppProblem);
+      Problem(const Problem& inProblem);
 
-      /// \name ChppProblem definition
+      /// \name Problem definition
       /// @{
 
       /// \brief return shared pointer to robot.
@@ -86,7 +86,7 @@ namespace hpp {
       /// \brief Set goal configuration.
       ktStatus goalConfig ( const CkwsConfigShPtr& inConfig );
       /// \brief Check that problem is well formulated
-      ktStatus checkChppProblem() const;
+      ktStatus checkProblem() const;
 
       /// @}
 
@@ -117,7 +117,7 @@ namespace hpp {
 
       /// @}
 
-      /// \name ChppProblem resolution
+      /// \name Problem resolution
       ///	 @{
 
       /// \brief set device steering method
@@ -143,7 +143,7 @@ namespace hpp {
 
       /// \brief Determine whether the path optimizer should always be called
 
-      /// In the default behaviour, ChppProblem::solve() does not call the path
+      /// In the default behaviour, Problem::solve() does not call the path
       /// optimizer if the path resulting from path planning includes one single
       /// direct path. This behaviour can be changed by calling this function
       /// with true as an argument.
@@ -177,7 +177,7 @@ namespace hpp {
       /// \li call the steering method and validate the resulting path,
       /// \li if failure, call the roadmap builder.
 
-      /// Unless otherwise specified (see ChppProblem::alwaysOptimize()), a path
+      /// Unless otherwise specified (see Problem::alwaysOptimize()), a path
       /// containing only one direct path is not optimized.
 
       /// \return KD_OK if success, KD_ERROR if failure
@@ -266,8 +266,8 @@ namespace hpp {
       static const std::string   PATH_ID_KEY;
       static const std::string   DEVICE_KEY;
 
-    }; // class ChppProblem
+    }; // class Problem
   } // namespace core
 } // namespace hpp
-typedef hpp::core::ChppProblem ChppChppProblem HPP_DEPRECATED;
+typedef hpp::core::Problem ChppProblem HPP_DEPRECATED;
 #endif // HPP_CORE_PROBLEM_HH

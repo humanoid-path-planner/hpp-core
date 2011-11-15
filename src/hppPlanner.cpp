@@ -56,28 +56,28 @@ KIT_PREDEF_CLASS(CkwsSteeringMethod);
 namespace hpp {
   namespace core {
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());
+    Planner::ID_HPP_ADD_ROBOT(CkitNotification::makeID());
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_SET_CURRENT_CONFIG(CkitNotification::makeID());
+    Planner::ID_HPP_SET_CURRENT_CONFIG(CkitNotification::makeID());
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_REMOVE_OBSTACLES(CkitNotification::makeID());
+    Planner::ID_HPP_REMOVE_OBSTACLES(CkitNotification::makeID());
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_SET_OBSTACLE_LIST(CkitNotification::makeID());
+    Planner::ID_HPP_SET_OBSTACLE_LIST(CkitNotification::makeID());
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_ADD_OBSTACLE(CkitNotification::makeID());
+    Planner::ID_HPP_ADD_OBSTACLE(CkitNotification::makeID());
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER(CkitNotification::makeID());
+    Planner::ID_HPP_REMOVE_ROADMAPBUILDER(CkitNotification::makeID());
     const CkitNotification::TType
-    ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER(CkitNotification::makeID());
+    Planner::ID_HPP_ADD_ROADMAPBUILDER(CkitNotification::makeID());
 
-    const std::string ChppPlanner::ROBOT_KEY("robot");
-    const std::string ChppPlanner::OBSTACLE_KEY("obstacle");
-    const std::string ChppPlanner::CONFIG_KEY("config");
-    const std::string ChppPlanner::ROADMAP_KEY("roadmap");
+    const std::string Planner::ROBOT_KEY("robot");
+    const std::string Planner::OBSTACLE_KEY("obstacle");
+    const std::string Planner::CONFIG_KEY("config");
+    const std::string Planner::ROADMAP_KEY("roadmap");
 
     // ======================================================================
 
-    ChppPlanner::ChppPlanner()
+    Planner::Planner()
     {
       notificator_ = CkitNotificator::defaultNotificator();
       obstacleVector_.clear();
@@ -87,10 +87,10 @@ namespace hpp {
 
     // ======================================================================
 
-    ChppPlanner::ChppPlanner(const ChppPlanner& inChppPlanner) :
-      notificator_(inChppPlanner.notificator_),
-      problemVector_(inChppPlanner.problemVector_),
-      obstacleVector_(inChppPlanner.obstacleVector_),
+    Planner::Planner(const Planner& inPlanner) :
+      notificator_(inPlanner.notificator_),
+      problemVector_(inPlanner.problemVector_),
+      obstacleVector_(inPlanner.obstacleVector_),
       stopRdmBuilderDelegate_
       (new CkwsPlusStopRdmBuilderDelegate(*stopRdmBuilderDelegate_)),
       parser_(NULL)
@@ -99,7 +99,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ChppPlanner::~ChppPlanner()
+    Planner::~Planner()
     {
       delete stopRdmBuilderDelegate_;
       if (parser_)
@@ -108,7 +108,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::addHppProblem(CkppDeviceComponentShPtr robot,
+    ktStatus Planner::addHppProblem(CkppDeviceComponentShPtr robot,
 				    double penetration)
     {
       Problem hppProblem(robot, obstacleVector_, penetration);
@@ -119,8 +119,8 @@ namespace hpp {
 
 
       CkitNotificationShPtr notification
-	= CkitNotification::createWithPtr<ChppPlanner>
-	(ChppPlanner::ID_HPP_ADD_ROBOT, this);
+	= CkitNotification::createWithPtr<Planner>
+	(Planner::ID_HPP_ADD_ROBOT, this);
       // set attribute if necessary
       notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
       notificator_->notify(notification);
@@ -130,7 +130,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::removeHppProblem()
+    ktStatus Planner::removeHppProblem()
     {
 
       if(problemVector_.size()){
@@ -147,7 +147,7 @@ namespace hpp {
     // ======================================================================
 
     ktStatus
-    ChppPlanner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot,
+    Planner::addHppProblemAtBeginning(CkppDeviceComponentShPtr robot,
 				      double penetration)
     {
       Problem hppProblem(robot, obstacleVector_, penetration);
@@ -157,7 +157,7 @@ namespace hpp {
       problemVector_.push_front(hppProblem);
 
       CkitNotificationShPtr notification  =
-	CkitNotification::createWithPtr<ChppPlanner>(ChppPlanner::ID_HPP_ADD_ROBOT,
+	CkitNotification::createWithPtr<Planner>(Planner::ID_HPP_ADD_ROBOT,
 						 this);
       // set attribute if necessary
       notification->shPtrValue<CkppDeviceComponent>(ROBOT_KEY, robot);
@@ -168,7 +168,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::removeHppProblemAtBeginning(){
+    ktStatus Planner::removeHppProblemAtBeginning(){
 
       if(problemVector_.size()){
 	problemVector_.pop_front();
@@ -185,7 +185,7 @@ namespace hpp {
     // ======================================================================
 
     const CkppDeviceComponentShPtr
-    ChppPlanner::robotIthProblem(unsigned int rank) const
+    Planner::robotIthProblem(unsigned int rank) const
     {
       CkppDeviceComponentShPtr nullShPtr;
 
@@ -197,7 +197,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsConfigShPtr ChppPlanner::robotCurrentConfIthProblem(unsigned int rank) const
+    CkwsConfigShPtr Planner::robotCurrentConfIthProblem(unsigned int rank) const
     {
       ktStatus status = KD_ERROR;
       CkwsConfigShPtr outConfig;
@@ -215,7 +215,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::robotCurrentConfIthProblem(unsigned int rank,
+    ktStatus Planner::robotCurrentConfIthProblem(unsigned int rank,
 						 const CkwsConfigShPtr& config)
     {
       ktStatus status = KD_ERROR;
@@ -229,8 +229,8 @@ namespace hpp {
       /* send notification */
       if (status == KD_OK) {
 	CkitNotificationShPtr notification
-	  = CkitNotification::createWithPtr<ChppPlanner>
-	  (ChppPlanner::ID_HPP_SET_CURRENT_CONFIG, this);
+	  = CkitNotification::createWithPtr<Planner>
+	  (Planner::ID_HPP_SET_CURRENT_CONFIG, this);
 	notification->shPtrValue<CkwsConfig>(CONFIG_KEY, config);
 	notificator_->notify(notification);
       }
@@ -240,8 +240,8 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::robotCurrentConfIthProblem(unsigned int rank,
-						     const CkwsConfig& config)
+    ktStatus Planner::robotCurrentConfIthProblem(unsigned int rank,
+						 const CkwsConfig& config)
     {
       ktStatus status = KD_ERROR;
       
@@ -254,8 +254,8 @@ namespace hpp {
       /* send notification */
       if (status == KD_OK) {
 	CkitNotificationShPtr notification
-	  = CkitNotification::createWithPtr<ChppPlanner>
-	  (ChppPlanner::ID_HPP_SET_CURRENT_CONFIG, this);
+	  = CkitNotification::createWithPtr<Planner>
+	  (Planner::ID_HPP_SET_CURRENT_CONFIG, this);
 	notificator_->notify(notification);
 	// set attribute if necessary
 
@@ -266,7 +266,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsConfigShPtr ChppPlanner::initConfIthProblem(unsigned int rank) const
+    CkwsConfigShPtr Planner::initConfIthProblem(unsigned int rank) const
     {
       CkwsConfigShPtr config;
 
@@ -282,7 +282,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::initConfIthProblem(unsigned int rank,
+    ktStatus Planner::initConfIthProblem(unsigned int rank,
 					 const CkwsConfigShPtr config)
     {
       ktStatus status = KD_ERROR;
@@ -299,7 +299,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsConfigShPtr ChppPlanner::goalConfIthProblem(unsigned int rank) const
+    CkwsConfigShPtr Planner::goalConfIthProblem(unsigned int rank) const
     {
       CkwsConfigShPtr config;
 
@@ -315,7 +315,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::goalConfIthProblem(unsigned int rank,
+    ktStatus Planner::goalConfIthProblem(unsigned int rank,
 					 const CkwsConfigShPtr config)
     {
       ktStatus status = KD_ERROR;
@@ -334,7 +334,7 @@ namespace hpp {
 
 
     ktStatus
-    ChppPlanner::roadmapBuilderIthProblem(unsigned int rank,
+    Planner::roadmapBuilderIthProblem(unsigned int rank,
 				      CkwsRoadmapBuilderShPtr roadmapBuilder,
 				      bool display)
     {
@@ -347,9 +347,9 @@ namespace hpp {
       //displayed in the interface, we need first to remove the corresponding
       //data-structure in the interface. This is done by sending a notification.
       CkitNotificationShPtr notification  =
-	CkitNotification::createWithPtr<ChppPlanner>
-	(ChppPlanner::ID_HPP_REMOVE_ROADMAPBUILDER, this);
-      notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
+	CkitNotification::createWithPtr<Planner>
+	(Planner::ID_HPP_REMOVE_ROADMAPBUILDER, this);
+      notification->unsignedIntValue(Planner::ROADMAP_KEY, rank);
       notificator_->notify(notification);
 
       //Add an interruption delegate to the roadmap builder
@@ -360,9 +360,9 @@ namespace hpp {
       //trigger appropriate action.
       if (display) {
 	notification =
-	  CkitNotification::createWithPtr<ChppPlanner>
-	  (ChppPlanner::ID_HPP_ADD_ROADMAPBUILDER, this);
-	notification->unsignedIntValue(ChppPlanner::ROADMAP_KEY, rank);
+	  CkitNotification::createWithPtr<Planner>
+	  (Planner::ID_HPP_ADD_ROADMAPBUILDER, this);
+	notification->unsignedIntValue(Planner::ROADMAP_KEY, rank);
 	notificator_->notify(notification);
       }
 
@@ -371,7 +371,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsRoadmapBuilderShPtr ChppPlanner::roadmapBuilderIthProblem(unsigned int rank)
+    CkwsRoadmapBuilderShPtr Planner::roadmapBuilderIthProblem(unsigned int rank)
     {
       CkwsRoadmapBuilderShPtr roadmapBuilder;
       if (rank < getNbHppProblems()) {
@@ -384,7 +384,7 @@ namespace hpp {
     // ======================================================================
 
     ktStatus
-    ChppPlanner::pathOptimizerIthProblem(unsigned int rank,
+    Planner::pathOptimizerIthProblem(unsigned int rank,
 				     CkwsPathOptimizerShPtr pathOptimizer)
     {
       if (rank >= getNbHppProblems()) {
@@ -401,7 +401,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsPathOptimizerShPtr ChppPlanner::pathOptimizerIthProblem(unsigned int rank)
+    CkwsPathOptimizerShPtr Planner::pathOptimizerIthProblem(unsigned int rank)
     {
       CkwsPathOptimizerShPtr pathOptimizer;
       if (rank < getNbHppProblems()) {
@@ -413,9 +413,8 @@ namespace hpp {
 
     // ======================================================================
 
-
     ktStatus
-    ChppPlanner::steeringMethodIthProblem(unsigned int rank,
+    Planner::steeringMethodIthProblem(unsigned int rank,
 				      CkwsSteeringMethodShPtr sm)
     {
 
@@ -431,7 +430,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsSteeringMethodShPtr ChppPlanner::steeringMethodIthProblem(unsigned int rank)
+    CkwsSteeringMethodShPtr Planner::steeringMethodIthProblem(unsigned int rank)
     {
 
       CkwsSteeringMethodShPtr sm ;
@@ -444,7 +443,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::configExtractorIthProblem(unsigned int rank,
+    ktStatus Planner::configExtractorIthProblem(unsigned int rank,
 						const CkwsConfigExtractorShPtr&
 						inConfigExtractor)
     {
@@ -459,7 +458,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::penetration(unsigned int rank, double penetration)
+    ktStatus Planner::penetration(unsigned int rank, double penetration)
     {
       if (rank >= getNbHppProblems()) {
 	hppDout(error, "Rank should be less than number of problems.");
@@ -471,7 +470,7 @@ namespace hpp {
 
     // ======================================================================
 
-    double ChppPlanner::penetration(unsigned int rank) const
+    double Planner::penetration(unsigned int rank) const
     {
       if (rank >= getNbHppProblems()) {
 	hppDout(error, "Rank should be less than number of problems.");
@@ -482,13 +481,13 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
+    ktStatus Planner::obstacleList(std::vector<CkcdObjectShPtr> collisionList)
     {
       // Send notification to destroy current obstacles in Kpp.
 
       CkitNotificationShPtr notification  =
-	CkitNotification::createWithPtr<ChppPlanner>
-	(ChppPlanner::ID_HPP_REMOVE_OBSTACLES, this);
+	CkitNotification::createWithPtr<Planner>
+	(Planner::ID_HPP_REMOVE_OBSTACLES, this);
       notificator_->notify(notification);
 
       // Set list of obstacles.
@@ -502,8 +501,8 @@ namespace hpp {
       }
 
       // Send notification for new list of obstacles.
-      notification = CkitNotification::createWithPtr<ChppPlanner>
-	(ChppPlanner::ID_HPP_SET_OBSTACLE_LIST, this);
+      notification = CkitNotification::createWithPtr<Planner>
+	(Planner::ID_HPP_SET_OBSTACLE_LIST, this);
       // set attributes if necessary
       notification->ptrValue< std::vector<CkcdObjectShPtr> >
 	(OBSTACLE_KEY, &obstacleVector_);
@@ -514,14 +513,14 @@ namespace hpp {
 
     // ======================================================================
 
-    const std::vector< CkcdObjectShPtr > ChppPlanner::obstacleList()
+    const std::vector< CkcdObjectShPtr > Planner::obstacleList()
     {
       return obstacleVector_;
     }
 
     // ======================================================================
 
-    ktStatus ChppPlanner::addObstacle(CkcdObjectShPtr object,
+    ktStatus Planner::addObstacle(CkcdObjectShPtr object,
 				  bool distanceComputation)
     {
       obstacleVector_.push_back(object);
@@ -535,8 +534,8 @@ namespace hpp {
 
       // Send notification
       CkitNotificationShPtr notification =
-	CkitNotification::createWithPtr<ChppPlanner>
-	(ChppPlanner::ID_HPP_ADD_OBSTACLE, this);
+	CkitNotification::createWithPtr<Planner>
+	(Planner::ID_HPP_ADD_OBSTACLE, this);
       // set attributes if necessary
       notification->ptrValue< std::vector<CkcdObjectShPtr> >
 	(OBSTACLE_KEY, &obstacleVector_);
@@ -547,7 +546,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::solveOneProblem(unsigned int rank)
+    ktStatus Planner::solveOneProblem(unsigned int rank)
     {
 
       if (rank >= getNbHppProblems()) {
@@ -563,7 +562,7 @@ namespace hpp {
     }
 
     ktStatus
-    ChppPlanner::optimizePath(unsigned int problemId, unsigned int pathId)
+    Planner::optimizePath(unsigned int problemId, unsigned int pathId)
     {
       if (problemId >= getNbHppProblems()) {
 	hppDout(error, "Problem Id=" << problemId
@@ -603,7 +602,7 @@ namespace hpp {
 
     // ======================================================================
 
-    unsigned int ChppPlanner::getNbPaths(unsigned int problemId) const
+    unsigned int Planner::getNbPaths(unsigned int problemId) const
     {
       unsigned int nbPaths = 0;
       if (problemId < getNbHppProblems()) {
@@ -618,7 +617,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsPathShPtr ChppPlanner::getPath(unsigned int problemId,
+    CkwsPathShPtr Planner::getPath(unsigned int problemId,
                                    unsigned int pathId) const
     {
       CkwsPathShPtr resultPath;
@@ -633,7 +632,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppPlanner::addPath(unsigned int problemId, CkwsPathShPtr kwsPath)
+    ktStatus Planner::addPath(unsigned int problemId, CkwsPathShPtr kwsPath)
     {
       if (problemId >= problemVector_.size()) {
 	hppDout(error, "ProblemId bigger than vector size.");
@@ -646,7 +645,7 @@ namespace hpp {
     // ======================================================================
 
     CkwsKCDBodyConstShPtr
-    ChppPlanner::findBodyByJointName(const std::string& inJointName) const
+    Planner::findBodyByJointName(const std::string& inJointName) const
     {
       CkwsKCDBodyConstShPtr kcdBody;
       unsigned int nbProblems = getNbHppProblems();
@@ -680,7 +679,7 @@ namespace hpp {
     }
 
 
-    ktStatus ChppPlanner::solve()
+    ktStatus Planner::solve()
     {
       ktStatus success=KD_OK;
       for (unsigned int iProblem=0; iProblem<getNbHppProblems(); iProblem++) {
@@ -691,7 +690,7 @@ namespace hpp {
       return success;
     }
 
-    void ChppPlanner::interruptPathPlanning()
+    void Planner::interruptPathPlanning()
     {
       if (stopRdmBuilderDelegate_ == NULL) {
 	hppDout(error, "No stop delegate.");
@@ -700,7 +699,7 @@ namespace hpp {
       stopRdmBuilderDelegate_->shouldStop(true);
     }
 
-    ktStatus ChppPlanner::parseFile(const std::string& inFileName)
+    ktStatus Planner::parseFile(const std::string& inFileName)
     {
 
       CkppComponentShPtr modelTreeComponent;

@@ -33,16 +33,16 @@
 namespace hpp {
   namespace core {
     const CkitNotification::TType
-    ChppProblem::ID_HPP_ADD_PATH ( CkitNotification::makeID() );
+    Problem::ID_HPP_ADD_PATH ( CkitNotification::makeID() );
 
-    const std::string ChppProblem::PATH_KEY ( "path" );
-    const std::string ChppProblem::PATH_ID_KEY ( "path_id" );
-    const std::string ChppProblem::DEVICE_KEY ( "device" );
+    const std::string Problem::PATH_KEY ( "path" );
+    const std::string Problem::PATH_ID_KEY ( "path_id" );
+    const std::string Problem::DEVICE_KEY ( "device" );
 
 
     // ======================================================================
 
-    ChppProblem::ChppProblem ( CkppDeviceComponentShPtr robot, double penetration ) :
+    Problem::Problem ( CkppDeviceComponentShPtr robot, double penetration ) :
       notificator_ ( CkitNotificator::defaultNotificator() ),
       robot_ ( robot ),
       penetration_(penetration),
@@ -56,7 +56,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ChppProblem::ChppProblem (CkppDeviceComponentShPtr robot,
+    Problem::Problem (CkppDeviceComponentShPtr robot,
 		      const std::vector<CkcdObjectShPtr>& obstacles,
 		      double penetration) :
       notificator_ ( CkitNotificator::defaultNotificator() ),
@@ -73,26 +73,26 @@ namespace hpp {
 
     // ======================================================================
 
-    ChppProblem::ChppProblem(const ChppProblem& inChppProblem) :
-      notificator_(inChppProblem.notificator_),
-      robot_(inChppProblem.robot_),
-      initConf_(inChppProblem.initConf_),
-      goalConf_(inChppProblem.goalConf_),
-      roadmap_(inChppProblem.roadmap_),
-      roadmapBuilder_(inChppProblem.roadmapBuilder_),
-      pathOptimizer_(inChppProblem.pathOptimizer_),
-      configExtractor_(inChppProblem.configExtractor_),
-      obstacleVector_(inChppProblem.obstacleVector_),
-      pathVector_(inChppProblem.pathVector_),
-      mapOuter_(inChppProblem.mapOuter_),
-      penetration_(inChppProblem.penetration_),
-      alwaysOptimize_(inChppProblem.alwaysOptimize_)
+    Problem::Problem(const Problem& inProblem) :
+      notificator_(inProblem.notificator_),
+      robot_(inProblem.robot_),
+      initConf_(inProblem.initConf_),
+      goalConf_(inProblem.goalConf_),
+      roadmap_(inProblem.roadmap_),
+      roadmapBuilder_(inProblem.roadmapBuilder_),
+      pathOptimizer_(inProblem.pathOptimizer_),
+      configExtractor_(inProblem.configExtractor_),
+      obstacleVector_(inProblem.obstacleVector_),
+      pathVector_(inProblem.pathVector_),
+      mapOuter_(inProblem.mapOuter_),
+      penetration_(inProblem.penetration_),
+      alwaysOptimize_(inProblem.alwaysOptimize_)
     {
     }
 
     // ======================================================================
 
-    ktStatus ChppProblem::initConfig ( const CkwsConfigShPtr& inConfig )
+    ktStatus Problem::initConfig ( const CkwsConfigShPtr& inConfig )
     {
       if (inConfig->device() != robot_) {
 	hppDout(error, "Configuration device does not match problem device.");
@@ -104,7 +104,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppProblem::goalConfig ( const CkwsConfigShPtr& inConfig )
+    ktStatus Problem::goalConfig ( const CkwsConfigShPtr& inConfig )
     {
       if (inConfig->device() != robot_) {
 	hppDout(error, "Configuration device does not match problem device.");
@@ -116,7 +116,7 @@ namespace hpp {
 
     // ======================================================================
 
-    void ChppProblem::initMapOuter()
+    void Problem::initMapOuter()
     {
       CkwsDevice::TBodyVector bodyVector;
       robot_->getBodyVector ( bodyVector );
@@ -137,7 +137,7 @@ namespace hpp {
     // ======================================================================
 
     ktStatus
-    ChppProblem::obstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList)
+    Problem::obstacleList(const std::vector<CkcdObjectShPtr>& inCollisionList)
     {
       for (std::vector<CkcdObjectShPtr>::const_iterator it =
 	     inCollisionList.begin();
@@ -150,14 +150,14 @@ namespace hpp {
 
     // ======================================================================
 
-    const std::vector<CkcdObjectShPtr>& ChppProblem::obstacleList()
+    const std::vector<CkcdObjectShPtr>& Problem::obstacleList()
     {
       return obstacleVector_;
     }
 
     // ======================================================================
 
-    ktStatus ChppProblem::addObstacle(const CkcdObjectShPtr& inObject,
+    ktStatus Problem::addObstacle(const CkcdObjectShPtr& inObject,
 				  bool distanceComputation)
     {
       // Add object in local list
@@ -194,21 +194,21 @@ namespace hpp {
 
     // ======================================================================
 
-    void ChppProblem::steeringMethod ( const CkwsSteeringMethodShPtr &inSteeringMethod )
+    void Problem::steeringMethod ( const CkwsSteeringMethodShPtr &inSteeringMethod )
     {
       robot_->steeringMethod ( inSteeringMethod );
     }
 
     // ======================================================================
 
-    CkwsSteeringMethodShPtr ChppProblem::steeringMethod() const
+    CkwsSteeringMethodShPtr Problem::steeringMethod() const
     {
       return robot_->steeringMethod();
     }
 
     // ======================================================================
 
-    ktStatus ChppProblem::checkChppProblem() const
+    ktStatus Problem::checkProblem() const
     {
       if (!getRobot()) {
 	hppDout(error, "No device in problem.");
@@ -243,7 +243,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppProblem::validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
+    ktStatus Problem::validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
 					 CkwsPathShPtr& inOutPath) const
     {
       if (validateConfig(getRobot(), initConfig()) == KD_OK) {
@@ -295,7 +295,7 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppProblem::planPath(const CkwsConfigConstShPtr inInitConfig,
+    ktStatus Problem::planPath(const CkwsConfigConstShPtr inInitConfig,
 			       const CkwsConfigConstShPtr inGoalConfig,
 			       const CkwsPathShPtr& inOutPath)
     {
@@ -317,7 +317,7 @@ namespace hpp {
 	dpValidators->validate(*directPath);
 	if (directPath->isValid()) {
 
-	  hppDout(info,"ChppProblem solved with direct connection. ");
+	  hppDout(info,"Problem solved with direct connection. ");
 
 	  /* Add direct path to roadmap if not already included */
 
@@ -375,11 +375,11 @@ namespace hpp {
       */
       CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
 
-      if(KD_OK == roadmapBuilder()->solveChppProblem(*inInitConfig ,
+      if(KD_OK == roadmapBuilder()->solveProblem(*inInitConfig ,
 						 *inGoalConfig , kwsPath)) {
-	hppDout(info,"--- ChppProblem solved.----");
+	hppDout(info,"--- Problem solved.----");
       } else {
-	hppDout(error,"---- ChppProblem NOT solved.----");
+	hppDout(error,"---- Problem NOT solved.----");
 	return KD_ERROR;
       }
       if (!kwsPath) {
@@ -408,10 +408,10 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus ChppProblem::solve()
+    ktStatus Problem::solve()
     {
-      if (checkChppProblem() != KD_OK) {
-	hppDout(error,"ChppProblem formulation is not correct.");
+      if (checkProblem() != KD_OK) {
+	hppDout(error,"Problem formulation is not correct.");
 	return KD_ERROR;
       }
 
@@ -471,14 +471,14 @@ namespace hpp {
 
     // ======================================================================
 
-    void ChppProblem::addPath ( CkwsPathShPtr kwsPath )
+    void Problem::addPath ( CkwsPathShPtr kwsPath )
     {
       pathVector_.push_back ( kwsPath );
       std::string robotName = robot_->name();
 
       // notificator_->sendNotification(ID_HPP_ADD_PATH, this);
       CkitNotificationShPtr notification
-	= CkitNotification::createWithPtr<ChppProblem> ( ChppProblem::ID_HPP_ADD_PATH, this );
+	= CkitNotification::createWithPtr<Problem> ( Problem::ID_HPP_ADD_PATH, this );
       // set attribute to retreave
       notification->shPtrValue<CkwsPath> ( PATH_KEY, kwsPath );
       notification->shPtrValue<CkppDeviceComponent> ( DEVICE_KEY, robot_ );
@@ -491,7 +491,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsPathShPtr ChppProblem::getIthPath ( unsigned int pathId ) const
+    CkwsPathShPtr Problem::getIthPath ( unsigned int pathId ) const
     {
       CkwsPathShPtr resultPath;
 
@@ -504,7 +504,7 @@ namespace hpp {
 
     // ======================================================================
 
-    unsigned int ChppProblem::getNbPaths() const
+    unsigned int Problem::getNbPaths() const
     {
       return pathVector_.size();
     }
@@ -512,7 +512,7 @@ namespace hpp {
 
     // ======================================================================
 
-    void ChppProblem::roadmapBuilder ( CkwsRoadmapBuilderShPtr roadmapBuilder )
+    void Problem::roadmapBuilder ( CkwsRoadmapBuilderShPtr roadmapBuilder )
     {
 
       roadmapBuilder_ = roadmapBuilder;
@@ -520,7 +520,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsRoadmapBuilderShPtr ChppProblem::roadmapBuilder() const
+    CkwsRoadmapBuilderShPtr Problem::roadmapBuilder() const
     {
 
       return roadmapBuilder_ ;
@@ -528,7 +528,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsRoadmapShPtr ChppProblem::roadmap() const
+    CkwsRoadmapShPtr Problem::roadmap() const
     {
 
       return roadmap_ ;
@@ -536,7 +536,7 @@ namespace hpp {
 
     // ======================================================================
 
-    void ChppProblem::roadmap ( CkwsRoadmapShPtr inRoadmap )
+    void Problem::roadmap ( CkwsRoadmapShPtr inRoadmap )
     {
 
       roadmap_ = inRoadmap ;
@@ -544,7 +544,7 @@ namespace hpp {
 
     // ======================================================================
 
-    void ChppProblem::pathOptimizer ( CkwsPathOptimizerShPtr inOptimizer )
+    void Problem::pathOptimizer ( CkwsPathOptimizerShPtr inOptimizer )
     {
 
       pathOptimizer_ = inOptimizer ;
@@ -552,28 +552,28 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsPathOptimizerShPtr ChppProblem::pathOptimizer()
+    CkwsPathOptimizerShPtr Problem::pathOptimizer()
     {
       return pathOptimizer_ ;
     }
 
     // ======================================================================
 
-    void ChppProblem::configExtractor(const CkwsConfigExtractorShPtr& inConfigExtractor)
+    void Problem::configExtractor(const CkwsConfigExtractorShPtr& inConfigExtractor)
     {
       configExtractor_ = inConfigExtractor;
     }
 
     // ======================================================================
 
-    const CkwsConfigExtractorShPtr& ChppProblem::configExtractor()
+    const CkwsConfigExtractorShPtr& Problem::configExtractor()
     {
       return configExtractor_;
     }
 
     // ======================================================================
 
-    void ChppProblem::penetration(double penetration)
+    void Problem::penetration(double penetration)
     {
       penetration_ = penetration;
       setPenetration();
@@ -581,12 +581,12 @@ namespace hpp {
 
     // ======================================================================
 
-    double ChppProblem::penetration() const
+    double Problem::penetration() const
     {
       return penetration_;
     }
 
-    void ChppProblem::setPenetration()
+    void Problem::setPenetration()
     {
       CkwsDirectPathValidatorSetConstShPtr dpValidators =
 	robot_->directPathValidators();
@@ -605,7 +605,7 @@ namespace hpp {
     // ======================================================================
 
     ktStatus
-    ChppProblem::validateConfig(CkppDeviceComponentShPtr inDevice,
+    Problem::validateConfig(CkppDeviceComponentShPtr inDevice,
 			    const CkwsConfigConstShPtr& inConfig) const
     {
       inDevice->configValidators()->validate(*inConfig);

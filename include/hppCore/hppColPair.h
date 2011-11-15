@@ -31,7 +31,7 @@ namespace hpp {
   namespace core {
 
     /// \brief Generate collision checking between bodies of a robot
-    class ChppColPair
+    class CollisionPair
     {
       
       typedef std::pair<unsigned int, std::vector<unsigned int> > pair_t;
@@ -43,9 +43,9 @@ namespace hpp {
       std::vector<unsigned int> emptyVector_;
     public:
       /// \brief Constructor
-      ChppColPair();
+      CollisionPair();
       /// \brief Destructor
-      ~ChppColPair();
+      ~CollisionPair();
       /// \brief Add a link joint j1 as collision-checking pair of j2
       bool addColPair(unsigned int j1, unsigned int j2);
       /// \brief Add collision pairs between joint j1 and joints [j2from:j2to]
@@ -62,8 +62,8 @@ namespace hpp {
       /// \brief Write list of pairs in standard output
       void printPair();
       
-    }; // class ChppColPair
+    }; // class CollisionPair
   } // namespace core
 } // namespace hpp
-typedef hpp::core::ChppColPair ChppColPair HPP_DEPRECATED;
+typedef hpp::core::CollisionPair ChppColPair HPP_DEPRECATED;
 #endif // HPP_CORE_COLLISION_PAIR_HH
