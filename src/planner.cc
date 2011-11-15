@@ -28,6 +28,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <KineoUtility/kitParameterMap.h>
+
 #include "KineoModel/kppDeviceComponent.h"
 
 #include <hpp/util/debug.hh>
@@ -48,6 +50,7 @@
 #include "KineoModel/kppPathNode.h"
 #include "KineoModel/kppPathComponent.h"
 #include "KineoModel/kppJointComponent.h"
+#include <KineoModel/kppComponentFactoryRegistry.h>
 
 #include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
 
@@ -710,8 +713,11 @@ namespace hpp {
 	return KD_ERROR;
       }
 
-      if(KD_ERROR == parser->loadComponentFromFile(inFileName,
-						   modelTreeComponent)) {
+      if(KD_ERROR == parser
+	 ->loadComponentFromFile(inFileName,
+				 modelTreeComponent,
+				 CkppComponentFactoryRegistry::create (),
+				 CkitParameterMap::create ())) {
 	hppDout(error, "Unable to load file " << inFileName);
 	hppDout(error, parser->lastError().errorMessage());
 	return KD_ERROR;
