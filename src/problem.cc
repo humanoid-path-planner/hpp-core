@@ -24,6 +24,7 @@
 
 #include "KineoWorks2/kwsConfigExtractor.h"
 #include "KineoWorks2/kwsValidatorDPCollision.h"
+#include "KineoWorks2/kwsValidatorSet.h"
 #include "KineoWorks2/kwsSteeringMethod.h"
 #include "KineoWorks2/kwsRoadmap.h"
 #include "KineoWorks2/kwsNode.h"
@@ -312,7 +313,7 @@ namespace hpp {
 	/*
 	  Retrieve validators of device
 	*/
-	CkwsDirectPathValidatorSetConstShPtr dpValidators =
+	CkwsValidatorSetConstShPtr dpValidators =
 	  getRobot()->directPathValidators();
 
 	dpValidators->validate(*directPath);
@@ -589,7 +590,7 @@ namespace hpp {
 
     void Problem::setPenetration()
     {
-      CkwsDirectPathValidatorSetConstShPtr dpValidators =
+      CkwsValidatorSetConstShPtr dpValidators =
 	robot_->directPathValidators();
 
       /*
