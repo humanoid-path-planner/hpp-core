@@ -822,7 +822,7 @@ namespace hpp {
 
 	    unsigned int rank=it->second;
 
-	    addPath(rank,pathComponent->kwsPath());
+	    addPath (rank,CkwsPath::createCopy (pathComponent->kwsPath ()));
 
 	  }
 
