@@ -23,17 +23,17 @@
 namespace hpp {
   namespace core {
 
-    CollisionPair::CollisionPair()
+    ChppColPair::ChppColPair()
     {
       collisionPairs_.clear();
       emptyVector_.clear();
     }
 
-    CollisionPair::~CollisionPair()
+    ChppColPair::~ChppColPair()
     {
     }
 
-    bool CollisionPair::addColPair(unsigned int j1, unsigned int j2)
+    bool ChppColPair::addColPair(unsigned int j1, unsigned int j2)
     {
       if(!existPair(j1, j2)){
 
@@ -58,7 +58,7 @@ namespace hpp {
       return false;
     }
 
-    bool CollisionPair::addColPairRange(unsigned int j1, unsigned int j2from, unsigned int j2to)
+    bool ChppColPair::addColPairRange(unsigned int j1, unsigned int j2from, unsigned int j2to)
     {
       if(j2from > j2to){
 	std::cout << " addColpairRange: j2from " << j2from 
@@ -72,7 +72,7 @@ namespace hpp {
       return true;
     }
 
-    bool CollisionPair::existKey(unsigned int j1)
+    bool ChppColPair::existKey(unsigned int j1)
     {
       map_t::iterator tbl;
 
@@ -81,7 +81,7 @@ namespace hpp {
       return tbl != collisionPairs_.end();
     }
 
-    bool CollisionPair::existPair(unsigned int j1, unsigned int j2)
+    bool ChppColPair::existPair(unsigned int j1, unsigned int j2)
     {
 
       if(existPairNarrow(j1, j2)){
@@ -105,7 +105,7 @@ namespace hpp {
       return false;
     }
 
-    bool CollisionPair::existPairNarrow(unsigned int j1, unsigned int j2)
+    bool ChppColPair::existPairNarrow(unsigned int j1, unsigned int j2)
     {
       map_t::iterator tbl;
 
@@ -121,7 +121,7 @@ namespace hpp {
       return false;
     }
 
-    std::vector<unsigned int>& CollisionPair::
+    std::vector<unsigned int>& ChppColPair::
     getColPairList(unsigned int j, bool& flag)
     {
       if(existKey(j)){
@@ -136,7 +136,7 @@ namespace hpp {
     }
 
 
-    void CollisionPair::printPair()
+    void ChppColPair::printPair()
     {
       std::cout<<" table size "<<collisionPairs_.size()<<std::endl;
       map_t::iterator it = collisionPairs_.begin();

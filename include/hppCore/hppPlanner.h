@@ -50,17 +50,17 @@ namespace hpp {
     /// Several strategies instantiate several robots and classical
     /// path planning problems. Therefore, this class contains a vector
     /// of Problem describing basic motion planning problems.
-    class Planner {
+    class ChppPlanner {
     public: 
       /// \brief Empty constructor
       /// Allocate a KineoWorks CkitNotificator object.
-      Planner();
+      ChppPlanner();
 
       /// \brief Copy constructor
-      Planner(const Planner& inPlanner);
+      ChppPlanner(const ChppPlanner& inChppPlanner);
   
       /// \brief Destructor
-      virtual ~Planner();
+      virtual ~ChppPlanner();
 
       /// \name Problem definition
       /// @{
@@ -167,7 +167,7 @@ namespace hpp {
 
 
       /// \brief Set roadmap builder of i-th problem.
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \param roadmapBuilder roadmap builder.
       /// \param display whether the roadmap should be displayed in gui.
 
@@ -182,34 +182,34 @@ namespace hpp {
 			       bool display=false);
 
       /// \brief Get roadmap builder of i-th problem.
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \return shared pointer to roadmap builder.
       CkwsRoadmapBuilderShPtr roadmapBuilderIthProblem(unsigned int rank);
 
       /// \brief Set path optimizer of i-th problem.
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \param pathOptimizer path optimizer.
       ktStatus pathOptimizerIthProblem(unsigned int rank,
 				       CkwsPathOptimizerShPtr pathOptimizer);
 
       /// \brief Get path optimizer of i-th problem.
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \return shared pointer to path optimizer.
       CkwsPathOptimizerShPtr pathOptimizerIthProblem(unsigned int rank);
 
       /// \brief Set steering Method of i-th problem.
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \param sm steering Method.
       ktStatus steeringMethodIthProblem(unsigned int rank,
 					CkwsSteeringMethodShPtr sm);
 
       /// \brief Get steering Method of i-th problem.
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \return shared pointer to steering Method.
       CkwsSteeringMethodShPtr steeringMethodIthProblem(unsigned int rank);
  
       /// \brief Set configuration extractor to given problem
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \param inConfigExtractor Configuration extractor
       /// A configuration extractor attempts at extracting a collision-free
       /// configuration in the neighborhood of the initial configuration of
@@ -219,12 +219,12 @@ namespace hpp {
       (unsigned int rank, const CkwsConfigExtractorShPtr& inConfigExtractor);
       
       /// \brief Set dynamic penetration of given problem
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \param penetration dynamic penetration for validating direct paths.
       ktStatus penetration(unsigned int rank, double penetration);
 
       /// \brief Get dynamic penetration of given problem
-      /// \param rank Rank of problem in Planner::problemVector_.
+      /// \param rank Rank of problem in ChppPlanner::problemVector_.
       /// \return dynamic penetration allowed for validating a direct path.
       double penetration(unsigned int rank) const;
 
@@ -361,9 +361,9 @@ namespace hpp {
       static const std::string CONFIG_KEY;
       static const std::string ROADMAP_KEY;
    
-    }; // class Planner
+    }; // class ChppPlanner
   } // namespace core
 } // namespace namespace hpp
 
-typedef hpp::core::Planner ChppPlanner HPP_DEPRECATED;
+typedef hpp::core::ChppPlanner ChppChppPlanner HPP_DEPRECATED;
 #endif
