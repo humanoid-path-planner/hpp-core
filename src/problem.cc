@@ -306,8 +306,7 @@ namespace hpp {
       CkwsSteeringMethodShPtr steeringMethod = getRobot()->steeringMethod();
 
       CkwsDirectPathShPtr directPath =
-	steeringMethod->kwsSteeringMethod ()
-	->makeDirectPath(*inInitConfig, *inGoalConfig);
+	steeringMethod->makeDirectPath(*inInitConfig, *inGoalConfig);
 
       if (directPath) {
 	/*
