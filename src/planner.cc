@@ -80,12 +80,12 @@ namespace hpp {
 
     // ======================================================================
 
-    Planner::Planner()
+    Planner::Planner(bool addon)
     {
       notificator_ = CkitNotificator::defaultNotificator();
       obstacleVector_.clear();
       stopRdmBuilderDelegate_ = new CkwsPlusStopRdmBuilderDelegate;
-      parser_ = new hpp::model::Parser();
+      parser_ = new hpp::model::Parser(addon);
     }
 
     // ======================================================================

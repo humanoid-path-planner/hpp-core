@@ -52,9 +52,13 @@ namespace hpp {
     /// of Problem describing basic motion planning problems.
     class Planner {
     public: 
-      /// \brief Empty constructor
+      /// \brief Constructor
+      /// \param addon whether the object is embedded in and addon application.
+      /// \note Initialization is slightly different depending on whether the
+      /// object is constructed by an addon application of by a plug-in to
+      /// Kitelab.
       /// Allocate a KineoWorks CkitNotificator object.
-      Planner();
+      Planner(bool addon = true);
 
       /// \brief Copy constructor
       Planner(const Planner& inPlanner);
