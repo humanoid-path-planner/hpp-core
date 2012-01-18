@@ -41,6 +41,8 @@
 
 #include "KineoUtility/kitNotificator.h"
 #include "KineoWorks2/kwsDirectPath.h"
+#include "KineoWorks2/kwsRoadmapBuilder.h"
+#include "KineoWorks2/kwsPathOptimizer.h"
 #include "KineoWorks2/kwsJoint.h"
 
 #include "kprParserXML/kprParserManager.h"
@@ -53,8 +55,6 @@
 #include <KineoModel/kppComponentFactoryRegistry.h>
 
 #include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
-
-KIT_PREDEF_CLASS(CkwsSteeringMethod);
 
 namespace hpp {
   namespace core {
@@ -418,7 +418,7 @@ namespace hpp {
 
     ktStatus
     Planner::steeringMethodIthProblem(unsigned int rank,
-				      CkwsSteeringMethodShPtr sm)
+				      CkppSteeringMethodComponentShPtr sm)
     {
 
       if (rank >= getNbHppProblems()) {
@@ -426,19 +426,20 @@ namespace hpp {
 	return KD_ERROR;
       }
 
-      problemVector_[rank].getRobot()->steeringMethod(sm) ;
+      problemVector_[rank].getRobot()->steeringMethodComponent(sm) ;
 
       return KD_OK ;
     }
 
     // ======================================================================
 
-    CkwsSteeringMethodShPtr Planner::steeringMethodIthProblem(unsigned int rank)
+    CkppSteeringMethodComponentShPtr
+    Planner::steeringMethodIthProblem(unsigned int rank)
     {
 
-      CkwsSteeringMethodShPtr sm ;
+      CkppSteeringMethodComponentShPtr sm ;
       if (rank < getNbHppProblems()) {
-	sm = problemVector_[rank].getRobot()->steeringMethod() ;
+	sm = problemVector_[rank].getRobot()->steeringMethodComponent() ;
       }
       return sm ;
 

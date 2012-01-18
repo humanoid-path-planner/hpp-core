@@ -24,10 +24,6 @@ INCLUDE
 **************************************/
 #include <deque>
 
-#include "KineoWorks2/kwsPathOptimizer.h"
-#include "KineoWorks2/kwsRoadmapBuilder.h"
-#include "KineoUtility/kitNotificator.h"
-
 #include <hpp/util/deprecated.hh>
 
 #include "hpp/core/problem.hh"
@@ -36,8 +32,12 @@ INCLUDE
 #include <hpp/model/parser.hh>
 
 class CkwsPlusStopRdmBuilderDelegate;
-KIT_PREDEF_CLASS(CkppKCDBody);
-KIT_PREDEF_CLASS(CkwsConfigExtractor);
+KIT_PREDEF_CLASS (CkppKCDBody)
+KIT_PREDEF_CLASS (CkwsConfigExtractor)
+KIT_PREDEF_CLASS (CkppSteeringMethodComponent)
+KIT_PREDEF_CLASS (CkwsPathOptimizer)
+KIT_PREDEF_CLASS (CkwsRoadmapBuilder)
+KIT_PREDEF_CLASS (CkitNotificator)
 
 namespace hpp {
   namespace core {
@@ -205,12 +205,13 @@ namespace hpp {
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \param sm steering Method.
       ktStatus steeringMethodIthProblem(unsigned int rank,
-					CkwsSteeringMethodShPtr sm);
+					CkppSteeringMethodComponentShPtr sm);
 
       /// \brief Get steering Method of i-th problem.
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \return shared pointer to steering Method.
-      CkwsSteeringMethodShPtr steeringMethodIthProblem(unsigned int rank);
+      CkppSteeringMethodComponentShPtr
+      steeringMethodIthProblem(unsigned int rank);
  
       /// \brief Set configuration extractor to given problem
       /// \param rank Rank of problem in Planner::problemVector_.

@@ -25,11 +25,12 @@
 #include "KineoWorks2/kwsConfigExtractor.h"
 #include "KineoWorks2/kwsValidatorDPCollision.h"
 #include "KineoWorks2/kwsValidatorSet.h"
-#include "KineoWorks2/kwsSteeringMethod.h"
 #include "KineoWorks2/kwsRoadmap.h"
 #include "KineoWorks2/kwsNode.h"
 #include "KineoWorks2/kwsEdge.h"
 #include "KineoWorks2/kwsReportCfgDof.h"
+#include "KineoWorks2/kwsSteeringMethod.h"
+#include "KineoModel/kppSteeringMethodComponent.h"
 
 namespace hpp {
   namespace core {
@@ -195,16 +196,17 @@ namespace hpp {
 
     // ======================================================================
 
-    void Problem::steeringMethod ( const CkwsSteeringMethodShPtr &inSteeringMethod )
+    void Problem::steeringMethod
+    (const CkppSteeringMethodComponentShPtr& inSteeringMethod)
     {
-      robot_->steeringMethod ( inSteeringMethod );
+      robot_->steeringMethodComponent (inSteeringMethod);
     }
 
     // ======================================================================
 
-    CkwsSteeringMethodShPtr Problem::steeringMethod() const
+    CkppSteeringMethodComponentShPtr Problem::steeringMethod() const
     {
-      return robot_->steeringMethod();
+      return robot_->steeringMethodComponent();
     }
 
     // ======================================================================
@@ -303,10 +305,12 @@ namespace hpp {
       /*
 	Try first a direct path.
       */
-      CkwsSteeringMethodShPtr steeringMethod = getRobot()->steeringMethod();
+      CkppSteeringMethodComponentShPtr steeringMethod =
+	getRobot()->steeringMethodComponent ();
 
       CkwsDirectPathShPtr directPath =
-	steeringMethod->makeDirectPath(*inInitConfig, *inGoalConfig);
+	steeringMethod->kwsSteeringMethod ()->makeDirectPath
+	(*inInitConfig, *inGoalConfig);
 
       if (directPath) {
 	/*

@@ -31,7 +31,7 @@
 
 #include <hpp/util/deprecated.hh>
 
-KIT_PREDEF_CLASS(CkwsConfigExtractor);
+KIT_PREDEF_CLASS(CkwsConfigExtractor)
 
 namespace hpp {
   namespace core {
@@ -121,9 +121,10 @@ namespace hpp {
       ///	 @{
 
       /// \brief set device steering method
-      void steeringMethod ( const CkwsSteeringMethodShPtr &inSteeringMethod );
+      void steeringMethod 
+      (const CkppSteeringMethodComponentShPtr &inSteeringMethod);
       /// \brief Get device steering method
-      CkwsSteeringMethodShPtr steeringMethod() const;
+      CkppSteeringMethodComponentShPtr steeringMethod() const;
       /// \brief Set roadmap building strategy.
       void roadmapBuilder ( CkwsRoadmapBuilderShPtr inroadmapBuilder );
       /// \brief Get roadmap building strategy.
