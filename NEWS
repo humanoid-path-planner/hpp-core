@@ -1,3 +1,17 @@
+20112/01/27 Release 2.2
+
+	1. Replace CkwsPathOptimizer by CkwsPathPlanner
+	  CkwsPathPlanner is a more general class than CkwsPathOptimizer. This
+          modification allows to post-process the solution of a path planning
+	  problem with greater variety of algorithms.
+
+2011/12/18 Release 2.1
+        1. Use steering method component instead of simple steering methods.
+
+2011/12/21 Release 2.0
+
+        1. Compatibility with Kitelab 2.06.
+
 2010/10/01 Release 1.12.1
 	1. Use same guards for deprecated and new headers
 
