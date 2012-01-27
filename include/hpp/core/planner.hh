@@ -51,7 +51,7 @@ namespace hpp {
     /// path planning problems. Therefore, this class contains a vector
     /// of Problem describing basic motion planning problems.
     class Planner {
-    public: 
+    public:
       /// \brief Constructor
       /// \param addon whether the object is embedded in and addon application.
       /// \note Initialization is slightly different depending on whether the
@@ -62,7 +62,7 @@ namespace hpp {
 
       /// \brief Copy constructor
       Planner(const Planner& inPlanner);
-  
+
       /// \brief Destructor
       virtual ~Planner();
 
@@ -100,21 +100,21 @@ namespace hpp {
       /// \brief Get the problem in the problem vector at the given rank.
       /// \param rank Rank of the hppProblem to retrieve
       /// \return The rank-th problem
-      Problem * hppProblem(unsigned int rank) { 
-	if(rank<getNbHppProblems()) 
-	  return &(problemVector_.at(rank)); 
-	else 
+      Problem * hppProblem(unsigned int rank) {
+	if(rank<getNbHppProblems())
+	  return &(problemVector_.at(rank));
+	else
 	  return NULL;
       }
 
       /// \brief Get the number of problems in vector.
       /// \return the number of problems in the vector
-      unsigned int getNbHppProblems() const { 
+      unsigned int getNbHppProblems() const {
 	return (unsigned int)problemVector_.size();
       }
 
       /// \brief Get robot at given rank in the Problem vector.
-      /// \param rank 
+      /// \param rank
       /// \return the shared pointer on the robot
       const CkppDeviceComponentShPtr robotIthProblem(unsigned int rank) const;
 
@@ -142,7 +142,7 @@ namespace hpp {
       /// Send ID_HPP_SET_CURRENT_CONFIG.
       ktStatus robotCurrentConfIthProblem(unsigned int rank,
 					  const CkwsConfig& config);
-  
+
       /// \brief Get initial configuration of i-th robot.
       /// \param rank : Id of problem in vector.
       /// \return initial configuration of robot.
@@ -153,7 +153,7 @@ namespace hpp {
       /// \param rank Id of robot in vector.
       /// \param config the configuration
       /// \return KD_OK or KD_ERROR
-      ktStatus initConfIthProblem(unsigned int rank, 
+      ktStatus initConfIthProblem(unsigned int rank,
 				  const CkwsConfigShPtr config);
 
       /// \brief Get goal configuration of i-th robot.
@@ -161,7 +161,7 @@ namespace hpp {
       /// \return the goal configuration of robot.
       /// \return KD_OK or KD_ERROR
       CkwsConfigShPtr goalConfIthProblem(unsigned int rank) const;
-  
+
       /// \brief Set goal configuration of i-th robot.
       /// \param rank Id of robot in vector.
       /// \param config the configuration
@@ -180,7 +180,7 @@ namespace hpp {
 
       ///  \xrefitem <send-notif> "Notification" "Send Notification"
       ///  Send ID_HPP_REMOVE_ROADMAP.
-      virtual ktStatus 
+      virtual ktStatus
       roadmapBuilderIthProblem(unsigned int rank,
 			       CkwsRoadmapBuilderShPtr roadmapBuilder,
 			       bool display=false);
@@ -212,7 +212,7 @@ namespace hpp {
       /// \return shared pointer to steering Method.
       CkppSteeringMethodComponentShPtr
       steeringMethodIthProblem(unsigned int rank);
- 
+
       /// \brief Set configuration extractor to given problem
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \param inConfigExtractor Configuration extractor
@@ -222,7 +222,7 @@ namespace hpp {
       /// collision.
       ktStatus configExtractorIthProblem
       (unsigned int rank, const CkwsConfigExtractorShPtr& inConfigExtractor);
-      
+
       /// \brief Set dynamic penetration of given problem
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \param penetration dynamic penetration for validating direct paths.
@@ -253,9 +253,9 @@ namespace hpp {
       /// \param distanceComputation whether distance to this object should be computed in Body class.
 
       /// \xrefitem <send-notif> "Notification" "Send Notification" Send ID_HPP_ADD_OBSTACLE.
-     
+
       /// Add the obstacle to each problem of the object.
-      virtual ktStatus addObstacle(CkcdObjectShPtr object, 
+      virtual ktStatus addObstacle(CkcdObjectShPtr object,
 				   bool distanceComputation = true);
 
       /// @}
@@ -264,7 +264,7 @@ namespace hpp {
 
       /// \brief Parsing a file
       ktStatus parseFile(const std::string& inFileName);
-  
+
       /// @}
 
       /// \name Initialization
@@ -327,21 +327,21 @@ namespace hpp {
       findBodyByJointName(const std::string& inJointName) const;
 
 
-      /// @} 
+      /// @}
     private:
 
       /// \brief pointer to a KineoWorks notificator.
       CkitNotificatorShPtr notificator_;
 
-      /// \brief Vector (deque) of path planning problems. 
+      /// \brief Vector (deque) of path planning problems.
       /// Some iterative path planning methods for humanoid robots
       /// solve iteratively different basic path planning
       /// problems. Each of these problems is defined by class Problem.
       /// These basic problems are put into a vector.
       std::deque<Problem> problemVector_;
-  
-  
-      /// \brief Obstacles are a list of KCD fobjects. 
+
+
+      /// \brief Obstacles are a list of KCD fobjects.
       std::vector< CkcdObjectShPtr > obstacleVector_;
 
       /// \brief Roadmap builder delegate enabling to interrupt roadmap builder.
@@ -365,7 +365,7 @@ namespace hpp {
       static const std::string OBSTACLE_KEY;
       static const std::string CONFIG_KEY;
       static const std::string ROADMAP_KEY;
-   
+
     }; // class Planner
   } // namespace core
 } // namespace namespace hpp

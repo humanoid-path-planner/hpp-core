@@ -247,7 +247,7 @@ namespace hpp {
 						 const CkwsConfig& config)
     {
       ktStatus status = KD_ERROR;
-      
+
       if (rank < getNbHppProblems()) {
 	status = problemVector_[rank].getRobot()->setCurrentConfig(config);
       }

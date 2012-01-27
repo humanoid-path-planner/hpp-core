@@ -121,7 +121,7 @@ namespace hpp {
       ///	 @{
 
       /// \brief set device steering method
-      void steeringMethod 
+      void steeringMethod
       (const CkppSteeringMethodComponentShPtr &inSteeringMethod);
       /// \brief Get device steering method
       CkppSteeringMethodComponentShPtr steeringMethod() const;
