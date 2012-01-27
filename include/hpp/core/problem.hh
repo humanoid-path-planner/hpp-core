@@ -137,10 +137,10 @@ namespace hpp {
       CkwsRoadmapShPtr roadmap() const;
       /// \brief Set pathOptimizer.
       /// \param pathOptimizer path optimizer.
-      void pathOptimizer ( CkwsPathOptimizerShPtr pathOptimizer );
+      void pathOptimizer ( CkwsPathPlannerShPtr pathOptimizer );
       /// \brief Get path optimizer
       /// \return shared pointer to the path optimiser
-      CkwsPathOptimizerShPtr pathOptimizer() ;
+      CkwsPathPlannerShPtr pathOptimizer() ;
 
       /// \brief Determine whether the path optimizer should always be called
 
@@ -230,7 +230,7 @@ namespace hpp {
       /// \brief Shared pointer to a roadmapBuilder
       CkwsRoadmapBuilderShPtr roadmapBuilder_;
       /// \brief Shared pointer to a optimizer for the path
-      CkwsPathOptimizerShPtr pathOptimizer_;
+      CkwsPathPlannerShPtr pathOptimizer_;
 
       /// \brief Configuration extractor
 

@@ -30,6 +30,7 @@
 #include "KineoWorks2/kwsEdge.h"
 #include "KineoWorks2/kwsReportCfgDof.h"
 #include "KineoWorks2/kwsSteeringMethod.h"
+#include "KineoWorks2/kwsPathPlanner.h"
 #include "KineoModel/kppSteeringMethodComponent.h"
 
 namespace hpp {
@@ -447,8 +448,11 @@ namespace hpp {
 			    solutionPath->countDirectPaths() > 1);
 
       // optimizer for the path
+      CkwsPathShPtr optimizedPath;
       if (shouldOptimize) {
-	if (pathOptimizer()->optimizePath(solutionPath, penetration_)
+	
+	if (pathOptimizer()->plan(solutionPath, CkwsPathPlanner::STABLE_ENDS,
+				  optimizedPath)
 	    == KD_OK) {
 
 	  hppDout(info,"Path optimized with penetration "
@@ -464,11 +468,11 @@ namespace hpp {
 	return KD_OK;
       }
 
-      if (solutionPath) {
+      if (optimizedPath) {
 	hppDout(info,"Number of direct path: "
-		<< solutionPath->countDirectPaths());
+		<< optimizedPath->countDirectPaths());
 	// Add the path to vector of paths of the problem.
-	addPath(solutionPath);
+	addPath(optimizedPath);
       }
 
       return KD_OK ;
@@ -549,7 +553,7 @@ namespace hpp {
 
     // ======================================================================
 
-    void Problem::pathOptimizer ( CkwsPathOptimizerShPtr inOptimizer )
+    void Problem::pathOptimizer ( CkwsPathPlannerShPtr inOptimizer )
     {
 
       pathOptimizer_ = inOptimizer ;
@@ -557,7 +561,7 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsPathOptimizerShPtr Problem::pathOptimizer()
+    CkwsPathPlannerShPtr Problem::pathOptimizer()
     {
       return pathOptimizer_ ;
     }

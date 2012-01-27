@@ -388,7 +388,7 @@ namespace hpp {
 
     ktStatus
     Planner::pathOptimizerIthProblem(unsigned int rank,
-				     CkwsPathOptimizerShPtr pathOptimizer)
+				     CkwsPathPlannerShPtr pathOptimizer)
     {
       if (rank >= getNbHppProblems()) {
 	hppDout(error, "rank should be less than number of problems.");
@@ -404,9 +404,9 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsPathOptimizerShPtr Planner::pathOptimizerIthProblem(unsigned int rank)
+    CkwsPathPlannerShPtr Planner::pathOptimizerIthProblem(unsigned int rank)
     {
-      CkwsPathOptimizerShPtr pathOptimizer;
+      CkwsPathPlannerShPtr pathOptimizer;
       if (rank < getNbHppProblems()) {
 	Problem& hppProblem =  problemVector_[rank];
 	pathOptimizer = hppProblem.pathOptimizer();
@@ -593,11 +593,16 @@ namespace hpp {
 
       // optimizer for the path
       if (hppProblem.pathOptimizer()) {
-	hppProblem.pathOptimizer()->optimizePath(kwsPath, penetration);
-
-	hppDout(info, "Path optimized with penetration "
-		<< penetration);
-
+	CkwsPathShPtr newPath;
+	if (hppProblem.pathOptimizer()->plan
+	    (kwsPath, CkwsPathPlanner::STABLE_ENDS, newPath) == KD_OK) {
+	  hppDout(info, "Path optimized.");
+	  hppProblem.addPath (newPath);
+	  return KD_OK;
+	} else {
+	  hppDout(error, "Path optimization failed.");
+	  return KD_ERROR;
+	}
       } else {
 	hppDout(error, "No optimizer defined");
       }

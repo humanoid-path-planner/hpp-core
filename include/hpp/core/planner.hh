@@ -35,7 +35,7 @@ class CkwsPlusStopRdmBuilderDelegate;
 KIT_PREDEF_CLASS (CkppKCDBody)
 KIT_PREDEF_CLASS (CkwsConfigExtractor)
 KIT_PREDEF_CLASS (CkppSteeringMethodComponent)
-KIT_PREDEF_CLASS (CkwsPathOptimizer)
+KIT_PREDEF_CLASS (CkwsPathPlanner)
 KIT_PREDEF_CLASS (CkwsRoadmapBuilder)
 KIT_PREDEF_CLASS (CkitNotificator)
 
@@ -194,12 +194,12 @@ namespace hpp {
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \param pathOptimizer path optimizer.
       ktStatus pathOptimizerIthProblem(unsigned int rank,
-				       CkwsPathOptimizerShPtr pathOptimizer);
+				       CkwsPathPlannerShPtr pathOptimizer);
 
       /// \brief Get path optimizer of i-th problem.
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \return shared pointer to path optimizer.
-      CkwsPathOptimizerShPtr pathOptimizerIthProblem(unsigned int rank);
+      CkwsPathPlannerShPtr pathOptimizerIthProblem(unsigned int rank);
 
       /// \brief Set steering Method of i-th problem.
       /// \param rank Rank of problem in Planner::problemVector_.
