@@ -53,6 +53,7 @@
 #include "KineoModel/kppPathComponent.h"
 #include "KineoModel/kppJointComponent.h"
 #include <KineoModel/kppComponentFactoryRegistry.h>
+#include <KineoController/kppDocument.h>
 
 #include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
 
@@ -719,10 +720,16 @@ namespace hpp {
 	return KD_ERROR;
       }
 
+      CkppDocumentShPtr document = CkppDocument::create
+	(CkprParserManager::defaultManager()->moduleManager ());
+      CkppComponentFactoryRegistryShPtr registry =
+	document->componentFactoryRegistry ();
+
+
       if(KD_ERROR == parser
 	 ->loadComponentFromFile(inFileName,
 				 modelTreeComponent,
-				 CkppComponentFactoryRegistry::create (),
+				 registry,
 				 CkitParameterMap::create ())) {
 	hppDout(error, "Unable to load file " << inFileName);
 	hppDout(error, parser->lastError().errorMessage());
@@ -763,18 +770,19 @@ namespace hpp {
 	      if (humanoidRobot) {
 		humanoidRobot->initialize();
 		hppDout(info, *humanoidRobot);
-		// Set config to 0
-		CkwsConfig config(deviceComponent);
-		deviceComponent->setCurrentConfig(config);
 	      }
-	      addHppProblem(humanoidRobot, HPPPLANNER_DEFAULT_PENETRATION);
+	      // Set config to 0
+	      CkwsConfig config(deviceComponent);
+	      deviceComponent->setCurrentConfig(config);
+	      addHppProblem(deviceComponent, HPPPLANNER_DEFAULT_PENETRATION);
 	      devicesIndex.insert
-		(std::pair<CkppDeviceComponentShPtr,unsigned int>(humanoidRobot,
-								  currentRank));
+		(std::pair<CkppDeviceComponentShPtr,unsigned int>
+		 (deviceComponent, currentRank));
 
-	      std::vector< CkppSolidComponentRefShPtr > solidComponentRefVector;
+	      std::vector< CkppSolidComponentRefShPtr >	solidComponentRefVector;
 
-	      humanoidRobot->getSolidComponentRefVector (solidComponentRefVector);
+	      deviceComponent->getSolidComponentRefVector
+		  (solidComponentRefVector);
 
 	      for(std::vector< CkppSolidComponentRefShPtr >::iterator
 		    it=solidComponentRefVector.begin();
@@ -784,8 +792,9 @@ namespace hpp {
 		CkcdObjectShPtr kcdObject =
 		  KIT_DYNAMIC_PTR_CAST(CkcdObject, component);
 		if(kcdObject) deviceBodies.insert(kcdObject);
-		else std::cerr << "Cannot cast component " << component->name()
-			       << " to CkcdObject" << std::endl;
+		else hppDout (error, "Cannot cast component "
+			      << component->name()
+			      << " to CkcdObject");
 	      }
 	      currentRank++;
 	    }
