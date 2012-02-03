@@ -188,7 +188,7 @@ namespace hpp {
 
     // ======================================================================
 
-    const CkppDeviceComponentShPtr
+    CkppDeviceComponentShPtr
     Planner::robotIthProblem(unsigned int rank) const
     {
       CkppDeviceComponentShPtr nullShPtr;
@@ -792,9 +792,11 @@ namespace hpp {
 		CkcdObjectShPtr kcdObject =
 		  KIT_DYNAMIC_PTR_CAST(CkcdObject, component);
 		if(kcdObject) deviceBodies.insert(kcdObject);
-		else hppDout (error, "Cannot cast component "
-			      << component->name()
-			      << " to CkcdObject");
+		else {
+		  hppDout (error, "Cannot cast component "
+			   << component->name()
+			   << " to CkcdObject");
+		}
 	      }
 	      currentRank++;
 	    }

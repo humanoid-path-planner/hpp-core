@@ -116,7 +116,7 @@ namespace hpp {
       /// \brief Get robot at given rank in the Problem vector.
       /// \param rank
       /// \return the shared pointer on the robot
-      const CkppDeviceComponentShPtr robotIthProblem(unsigned int rank) const;
+      CkppDeviceComponentShPtr robotIthProblem(unsigned int rank) const;
 
       /// \brief Get current configuration of i-th robot.
       /// \param rank : Id of problem in vector.
