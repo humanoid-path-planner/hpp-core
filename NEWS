@@ -1,4 +1,10 @@
-20112/01/27 Release 2.2
+2012/02/03 Release 2.3
+
+	1. Fix parser to handle devices that are not of type hpp::model::Device.
+	2. addHppProblem, removeHppProblem, addHppProblemAtBeginning and
+	   removeHppProblemAtBeginning are now virtual.
+
+2012/01/27 Release 2.2
 
 	1. Replace CkwsPathOptimizer by CkwsPathPlanner
 	  CkwsPathPlanner is a more general class than CkwsPathOptimizer. This

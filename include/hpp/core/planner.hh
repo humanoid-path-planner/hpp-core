@@ -76,12 +76,12 @@ namespace hpp {
 
       /// \xrefitem <send-notif> "Notification" "Send Notification"
       /// Send ID_HPP_ADD_ROBOT.
-      ktStatus addHppProblem(CkppDeviceComponentShPtr robot,
-			     double penetration);
+      virtual ktStatus addHppProblem(CkppDeviceComponentShPtr robot,
+				     double penetration);
 
       /// \brief Remove a Problem at the end of the Problem vector.
       /// \return KD_OK if success, KD_ERROR otherwise
-      ktStatus removeHppProblem();
+      virtual ktStatus removeHppProblem();
 
       /// \brief Add a Problem at beginning of the Problem vector
       /// \param robot A shared pointer to a robot
@@ -90,12 +90,12 @@ namespace hpp {
 
       /// \xrefitem <send-notif> "Notification" "Send Notification"
       /// Send ID_HPP_ADD_ROBOT.
-       ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot,
-					double penetration);
+      virtual ktStatus addHppProblemAtBeginning(CkppDeviceComponentShPtr robot,
+						double penetration);
 
       /// \brief Remove a Problem at the beginning the Problem vector.
       /// \return KD_OK if success, KD_ERROR otherwise
-      ktStatus removeHppProblemAtBeginning();
+      virtual ktStatus removeHppProblemAtBeginning();
 
       /// \brief Get the problem in the problem vector at the given rank.
       /// \param rank Rank of the hppProblem to retrieve
