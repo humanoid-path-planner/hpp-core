@@ -1,3 +1,5 @@
+2012/02/11 Release 2.4
+
 	1. Enable users to define several goal configurations.
 	2. Some methods that used to return ktStatus now assert and return void.
 	See porting notes in the documentation.
