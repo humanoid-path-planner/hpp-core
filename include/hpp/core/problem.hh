@@ -47,6 +47,9 @@ namespace hpp {
     class Problem
     {
     public:
+      typedef std::vector <CkwsConfigShPtr>::iterator goalConfigIterator_t;
+      typedef std::vector <CkwsConfigShPtr>::const_iterator
+      goalConfigConstIterator_t;
       /// \brief Create a path planning problem.
       /// \param robot robot associated to the path planning problem.
       /// \param penetration dynamic penetration for validating direct paths.
@@ -73,19 +76,19 @@ namespace hpp {
 	return robot_;
       };
 
-      /// \brief Get shared pointer to initial configuration.
+      /// Get shared pointer to initial configuration.
       const CkwsConfigShPtr& initConfig() const {
 	return initConf_;
       };
-      /// \brief Set initial configuration.
-      ktStatus initConfig ( const CkwsConfigShPtr& inConfig );
-      /// \brief Get shared pointer to goal configuration.
-      const CkwsConfigShPtr& goalConfig() const {
-	return goalConf_;
-      };
-      /// \brief Set goal configuration.
-      ktStatus goalConfig ( const CkwsConfigShPtr& inConfig );
-      /// \brief Check that problem is well formulated
+      /// Set initial configuration.
+      void initConfig ( const CkwsConfigShPtr& inConfig );
+      /// Get shared pointer to goal configuration.
+      const std::vector <CkwsConfigShPtr>& goalConfigurations () const;
+      /// Add goal configuration.
+      void addGoalConfig ( const CkwsConfigShPtr& inConfig );
+      /// Reset the set of goal configurations
+      void resetGoalConfig ();
+      /// Check that problem is well formulated
       ktStatus checkProblem() const;
 
       /// @}
@@ -212,7 +215,6 @@ namespace hpp {
 
       /// First, tries a direct path and then calls the roadmap builder.
       ktStatus planPath(const CkwsConfigConstShPtr inInitConfig,
-			const CkwsConfigConstShPtr inGoalConfig,
 			const CkwsPathShPtr& inOutPath);
 
       /// \brief Set penetration of collision direct path validator of the robot
@@ -224,7 +226,7 @@ namespace hpp {
       /// \brief Shared pointer to initial configuration.
       CkwsConfigShPtr initConf_;
       /// \brief Shared pointer to goal configuration.
-      CkwsConfigShPtr goalConf_;
+      std::vector <CkwsConfigShPtr> goalConfigurations_;
       /// \brief Shared pointer to a roadmap associate to the robot
       CkwsRoadmapShPtr roadmap_;
       /// \brief Shared pointer to a roadmapBuilder

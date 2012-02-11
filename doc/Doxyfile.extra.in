@@ -1,2 +1,3 @@
 INPUT = @CMAKE_SOURCE_DIR@/include \
       @CMAKE_SOURCE_DIR@/doc \
+      @CMAKE_SOURCE_DIR@/doc/additionalDoc

@@ -80,7 +80,7 @@ namespace hpp {
       notificator_(inProblem.notificator_),
       robot_(inProblem.robot_),
       initConf_(inProblem.initConf_),
-      goalConf_(inProblem.goalConf_),
+      goalConfigurations_(inProblem.goalConfigurations_),
       roadmap_(inProblem.roadmap_),
       roadmapBuilder_(inProblem.roadmapBuilder_),
       pathOptimizer_(inProblem.pathOptimizer_),
@@ -95,26 +95,32 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus Problem::initConfig ( const CkwsConfigShPtr& inConfig )
+    void Problem::initConfig ( const CkwsConfigShPtr& inConfig )
     {
-      if (inConfig->device() != robot_) {
-	hppDout(error, "Configuration device does not match problem device.");
-	return KD_ERROR;
-      }
+      assert (inConfig->device() == robot_);
       initConf_ = inConfig;
-      return KD_OK;
     }
 
     // ======================================================================
 
-    ktStatus Problem::goalConfig ( const CkwsConfigShPtr& inConfig )
+    void Problem::addGoalConfig (const CkwsConfigShPtr& inConfig)
     {
-      if (inConfig->device() != robot_) {
-	hppDout(error, "Configuration device does not match problem device.");
-	return KD_ERROR;
-      }
-      goalConf_ = inConfig;
-      return KD_OK;
+      assert (inConfig->device () == robot_);
+      goalConfigurations_.push_back (inConfig);
+    }
+
+    // ======================================================================
+
+    const std::vector<CkwsConfigShPtr>& Problem::goalConfigurations () const
+    {
+      return goalConfigurations_;
+    };
+
+    // ======================================================================
+
+    void Problem::resetGoalConfig ()
+    {
+      goalConfigurations_.clear ();
     }
 
     // ======================================================================
@@ -223,7 +229,7 @@ namespace hpp {
 	hppDout(error,"No init config in problem.");
 	return KD_ERROR;
       }
-      if (!goalConfig()) {
+      if (!goalConfigurations ().size ()) {
 	hppDout(error,"No goal config in problem.");
 	return KD_ERROR;
       }
@@ -237,10 +243,14 @@ namespace hpp {
 	hppDout(error,"Define a steering method.");
 	return KD_ERROR;
       }
-      // Test that goal configuration is valid
-      if (validateConfig(getRobot(), goalConfig()) != KD_OK) {
-	hppDout(error,"Goal configuration not valid.");
-	return KD_ERROR;
+      // Test that goal configurations are valid
+      for (goalConfigConstIterator_t it = goalConfigurations_.begin ();
+	   it != goalConfigurations_.end (); it++) {
+	CkwsConfigShPtr goalConf (*it);
+	if (validateConfig(getRobot(), goalConf) != KD_OK) {
+	  hppDout(error,"Found one goal configuration not valid.");
+	  return KD_ERROR;
+	}
       }
       return KD_OK;
     }
@@ -300,7 +310,6 @@ namespace hpp {
     // ======================================================================
 
     ktStatus Problem::planPath(const CkwsConfigConstShPtr inInitConfig,
-			       const CkwsConfigConstShPtr inGoalConfig,
 			       const CkwsPathShPtr& inOutPath)
     {
       /*
@@ -309,80 +318,91 @@ namespace hpp {
       CkppSteeringMethodComponentShPtr steeringMethod =
 	getRobot()->steeringMethodComponent ();
 
-      CkwsDirectPathShPtr directPath =
-	steeringMethod->kwsSteeringMethod ()->makeDirectPath
-	(*inInitConfig, *inGoalConfig);
+      for (goalConfigIterator_t it = goalConfigurations_.begin ();
+	   it != goalConfigurations_.end (); it++) {
+	CkwsConfigShPtr goalConfig = *it;
+	CkwsDirectPathShPtr directPath =
+	  steeringMethod->kwsSteeringMethod ()->makeDirectPath
+	  (*inInitConfig, *goalConfig);
 
-      if (directPath) {
-	/*
-	  Retrieve validators of device
-	*/
-	CkwsValidatorSetConstShPtr dpValidators =
-	  getRobot()->directPathValidators();
+	if (directPath) {
+	  // Retrieve validators of device
+	  CkwsValidatorSetConstShPtr dpValidators =
+	    getRobot()->directPathValidators();
 
-	dpValidators->validate(*directPath);
-	if (directPath->isValid()) {
+	  dpValidators->validate(*directPath);
+	  if (directPath->isValid()) {
 
-	  hppDout(info,"Problem solved with direct connection. ");
+	    hppDout(info,"Problem solved with direct connection. ");
 
-	  /* Add direct path to roadmap if not already included */
+	    // Add direct path to roadmap if not already included
 
-	  CkwsRoadmapShPtr roadmap = roadmapBuilder()->roadmap();
-	  hppDout(info, "Number of edges in roadmap before inserting nodes = "
-		  << roadmap->countEdges());
+	    CkwsRoadmapShPtr roadmap = roadmapBuilder()->roadmap();
+	    hppDout(info, "Number of edges in roadmap before inserting nodes = "
+		    << roadmap->countEdges());
 
-	  CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*inInitConfig);
-	  CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*inGoalConfig);
+	    CkwsNodeShPtr startNode = roadmap->nodeWithConfig(*inInitConfig);
+	    CkwsNodeShPtr goalNode = roadmap->nodeWithConfig(*goalConfig);
 
-	  hppDout(info,"Number of edges in roadmap after creating nodes = "
-		  << roadmap->countEdges());
+	    hppDout(info,"Number of edges in roadmap after creating nodes = "
+		    << roadmap->countEdges());
 
-	  /* If start and goal node are not in roadmap, add them. */
-	  if (!startNode) {
-	    startNode = CkwsNode::create(*inInitConfig);
-	    if (roadmap->addNode(startNode) != KD_OK) {
-	      hppDout(error,"Failed to add start node in roadmap.");
-	      startNode.reset();
-	    }
-	  }
-	  if (!goalNode) {
-	    goalNode = CkwsNode::create(*inGoalConfig);
-	    if (roadmap->addNode(goalNode) != KD_OK) {
-	      hppDout(error,"Failed to add goal node in roadmap.");
-	      goalNode.reset();
-	    }
-	  }
-
-	  hppDout(info,"Number of edges in roadmap after adding nodes = "
-		  << roadmap->countEdges());
-
-	  if (startNode && goalNode) {
-	    /* Add edge only if goal node is not accessible from initial node */
-	    if (!startNode->hasTransitiveOutNode(goalNode)) {
-	      CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
-
-	      if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
-		hppDout(info,"Failed to add direct path in roadmap.");
+	    // If start and goal node are not in roadmap, add them.
+	    if (!startNode) {
+	      startNode = CkwsNode::create(*inInitConfig);
+	      if (roadmap->addNode(startNode) != KD_OK) {
+		hppDout(error,"Failed to add start node in roadmap.");
+		startNode.reset();
 	      }
 	    }
-	    hppDout(info,
-		    "Number edges in roadmap after attempt at adding edge = "
+	    if (!goalNode) {
+	      goalNode = CkwsNode::create(*goalConfig);
+	      if (roadmap->addNode(goalNode) != KD_OK) {
+		hppDout(error,"Failed to add goal node in roadmap.");
+		goalNode.reset();
+	      }
+	    }
+
+	    hppDout(info,"Number of edges in roadmap after adding nodes = "
 		    << roadmap->countEdges());
+
+	    if (startNode && goalNode) {
+	      // Add edge only if goal node is not accessible from initial node
+	      if (!startNode->hasTransitiveOutNode(goalNode)) {
+		CkwsEdgeShPtr edge=CkwsEdge::create (directPath);
+
+		if (roadmap->addEdge(startNode, goalNode, edge) == KD_ERROR) {
+		  hppDout(info,"Failed to add direct path in roadmap.");
+		}
+	      }
+	      hppDout(info,
+		      "Number edges in roadmap after attempt at adding edge = "
+		      << roadmap->countEdges());
+	    }
+	    inOutPath->appendDirectPath(directPath);
+	    // Add the path to vector of paths of the problem.
+	    addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, inOutPath->clone()));
+	    return KD_OK;
 	  }
-	  inOutPath->appendDirectPath(directPath);
-	  // Add the path to vector of paths of the problem.
-	  addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, inOutPath->clone()));
-	  return KD_OK;
 	}
       } /* if (directPath) */
 
-      /*
-	solve the problem with the roadmapBuilder
-      */
-      CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
+      // solve the problem with the roadmapBuilder
 
-      if(KD_OK == roadmapBuilder()->solveProblem(*inInitConfig ,
-						 *inGoalConfig , kwsPath)) {
+      // Set init and goal nodes.
+      roadmapBuilder_->resetStartNodes ();
+      roadmapBuilder_->resetGoalNodes ();
+      CkwsNodeShPtr initNode (roadmapBuilder_->roadmapNode (*initConf_));
+      roadmapBuilder_->addStartNode (initNode);
+      for (goalConfigIterator_t it = goalConfigurations_.begin ();
+	   it != goalConfigurations_.end (); it++) {
+	CkwsConfigShPtr goalConfig = *it;
+	CkwsNodeShPtr goalNode (roadmapBuilder_->roadmapNode (*goalConfig));
+	roadmapBuilder_->addGoalNode (goalNode);
+      }
+      CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
+      std::list< CkwsEdgeShPtr > unusedEdges;
+      if(KD_OK == roadmapBuilder()->solveCurrentProblem(kwsPath, unusedEdges)) {
 	hppDout(info,"--- Problem solved.----");
       } else {
 	hppDout(error,"---- Problem NOT solved.----");
@@ -422,7 +442,6 @@ namespace hpp {
       }
 
       CkwsConfigShPtr initConf = initConfig();
-      CkwsConfigShPtr goalConf = goalConfig();
       /*
 	Test that initial configuration is valid
       */
@@ -432,7 +451,7 @@ namespace hpp {
 	return KD_ERROR;
       }
 
-      if (planPath(initConf, goalConf, solutionPath) != KD_OK) {
+      if (planPath(initConf, solutionPath) != KD_OK) {
 	hppDout(error,"Failed to plan a path between init and goal config.");
 	return KD_ERROR;
       }
@@ -450,7 +469,7 @@ namespace hpp {
       // optimizer for the path
       CkwsPathShPtr optimizedPath;
       if (shouldOptimize) {
-	
+
 	if (pathOptimizer()->plan(solutionPath, CkwsPathPlanner::STABLE_ENDS,
 				  optimizedPath)
 	    == KD_OK) {

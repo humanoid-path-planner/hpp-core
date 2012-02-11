@@ -152,23 +152,24 @@ namespace hpp {
       /// \brief Set initial configuration of i-th robot.
       /// \param rank Id of robot in vector.
       /// \param config the configuration
-      /// \return KD_OK or KD_ERROR
-      ktStatus initConfIthProblem(unsigned int rank,
-				  const CkwsConfigShPtr config);
+      void initConfIthProblem(unsigned int rank,
+			      const CkwsConfigShPtr& config);
 
-      /// \brief Get goal configuration of i-th robot.
+      /// \brief Get vector of goal configurations of i-th robot.
       /// \param rank : Id of problem in vector.
-      /// \return the goal configuration of robot.
-      /// \return KD_OK or KD_ERROR
-      CkwsConfigShPtr goalConfIthProblem(unsigned int rank) const;
+      /// \return vector of goal configurations.
+      const std::vector<CkwsConfigShPtr>&
+      goalConfIthProblem(unsigned int rank) const;
 
-      /// \brief Set goal configuration of i-th robot.
+      /// \brief Add a goal configuration of i-th robot.
       /// \param rank Id of robot in vector.
       /// \param config the configuration
       /// \return KD_OK or KD_ERROR
-      ktStatus goalConfIthProblem(unsigned int rank,
-				  const CkwsConfigShPtr config);
+      void addGoalConfIthProblem(unsigned int rank,
+				 const CkwsConfigShPtr& config);
 
+      /// Reset the set of goal configurations
+      void resetGoalConfIthProblem (unsigned int rank);
 
       /// \brief Set roadmap builder of i-th problem.
       /// \param rank Rank of problem in Planner::problemVector_.

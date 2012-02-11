@@ -286,52 +286,33 @@ namespace hpp {
 
     // ======================================================================
 
-    ktStatus Planner::initConfIthProblem(unsigned int rank,
-					 const CkwsConfigShPtr config)
+    void Planner::initConfIthProblem(unsigned int rank,
+				     const CkwsConfigShPtr& config)
     {
-      ktStatus status = KD_ERROR;
-
-      if (rank < getNbHppProblems()) {
-	status = problemVector_[rank].initConfig(config);
-      }
-      else {
-	hppDout(error, "Wrong problem id");
-      }
-
-      return status;
+      problemVector_[rank].initConfig(config);
     }
 
     // ======================================================================
 
-    CkwsConfigShPtr Planner::goalConfIthProblem(unsigned int rank) const
+    const std::vector<CkwsConfigShPtr>&
+    Planner::goalConfIthProblem(unsigned int rank) const
     {
-      CkwsConfigShPtr config;
-
-      if (rank < getNbHppProblems()) {
-	config = problemVector_[rank].goalConfig();
-      }
-      else {
-	hppDout(error, "Wrong problem id");
-      }
-
-      return config;
+      return problemVector_ [rank].goalConfigurations ();
     }
 
     // ======================================================================
 
-    ktStatus Planner::goalConfIthProblem(unsigned int rank,
-					 const CkwsConfigShPtr config)
+    void Planner::addGoalConfIthProblem(unsigned int rank,
+					const CkwsConfigShPtr& config)
     {
-      ktStatus status = KD_ERROR;
+      problemVector_ [rank].addGoalConfig (config);
+    }
 
-      if (rank < getNbHppProblems()) {
-	status = problemVector_[rank].goalConfig(config);
-      }
-      else {
-	hppDout(error, "Wrong problem id");
-      }
+    // ======================================================================
 
-      return status;
+    void Planner::resetGoalConfIthProblem (unsigned int rank)
+    {
+      problemVector_ [rank].resetGoalConfig ();
     }
 
     // ======================================================================
@@ -582,8 +563,6 @@ namespace hpp {
 	hppDout(error,"Roadmap builder should be set to define penetration.");
 	return KD_ERROR;
       }
-      double penetration = hppProblem.penetration();
-
       if (pathId >= hppProblem.getNbPaths()) {
 	hppDout(error, "Problem Id="
 		<< pathId << " is bigger than number of paths="

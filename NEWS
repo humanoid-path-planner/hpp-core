@@ -1,3 +1,7 @@
+	1. Enable users to define several goal configurations.
+	2. Some methods that used to return ktStatus now assert and return void.
+	See porting notes in the documentation.
+
 2012/02/03 Release 2.3
 
 	1. Fix parser to handle devices that are not of type hpp::model::Device.
