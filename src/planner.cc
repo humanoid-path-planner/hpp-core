@@ -784,10 +784,21 @@ namespace hpp {
 	if(!modelTree->geometryNode()) std::cout<<"No geometries"<<std::endl;
 	else{
 	  hppDout(info, "geometries");
+
+	  // Once a geometry component is added by kpp-interface, it
+	  // is detached from its parent, so looping over the child
+	  // components does not work correctly.
+	  // Store all child components in a dedicated vector before
+	  // adding them as obstacles in a second loop.
+	  std::vector<CkppComponentShPtr> childComponents;
 	  for(unsigned int i = 0;
 	      i< modelTree->geometryNode()->countChildComponents(); i++){
-	    CkppComponentShPtr child =
-	      modelTree->geometryNode()->childComponent(i);
+	    childComponents.push_back (modelTree->geometryNode()
+				       ->childComponent(i));
+	  }
+
+	  for(unsigned int i = 0; i< childComponents.size (); i++){
+	    CkppComponentShPtr child = childComponents[i];
 	    CkcdObjectShPtr kcdObject =
 	      KIT_DYNAMIC_PTR_CAST(CkcdObject, child);
 	    hppDout(info, child->name());
