@@ -121,6 +121,7 @@ namespace hpp {
     void Problem::resetGoalConfig ()
     {
       goalConfigurations_.clear ();
+      roadmapBuilder_->resetGoalNodes ();
     }
 
     // ======================================================================
