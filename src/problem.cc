@@ -470,7 +470,7 @@ namespace hpp {
       CkwsPathShPtr optimizedPath;
       if (shouldOptimize) {
 
-	if (pathOptimizer()->plan(solutionPath, CkwsPathPlanner::STABLE_ENDS,
+	if (pathOptimizer()->plan(solutionPath, CkwsPathPlanner::STABLE_NONE,
 				  optimizedPath)
 	    == KD_OK) {
 
