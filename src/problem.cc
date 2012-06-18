@@ -81,7 +81,6 @@ namespace hpp {
       robot_(inProblem.robot_),
       initConf_(inProblem.initConf_),
       goalConfigurations_(inProblem.goalConfigurations_),
-      roadmap_(inProblem.roadmap_),
       roadmapBuilder_(inProblem.roadmapBuilder_),
       pathOptimizer_(inProblem.pathOptimizer_),
       configExtractor_(inProblem.configExtractor_),
@@ -560,15 +559,19 @@ namespace hpp {
     CkwsRoadmapShPtr Problem::roadmap() const
     {
 
-      return roadmap_ ;
+      return roadmapBuilder_->roadmap ();
     }
 
     // ======================================================================
 
-    void Problem::roadmap ( CkwsRoadmapShPtr inRoadmap )
+    void Problem::clearRoadmap ()
     {
-
-      roadmap_ = inRoadmap ;
+      if (roadmapBuilder_) {
+	if (roadmapBuilder_->roadmap ()) {
+	  roadmapBuilder_->roadmap ()->clear ();
+	}
+	resetGoalConfig ();
+      }
     }
 
     // ======================================================================

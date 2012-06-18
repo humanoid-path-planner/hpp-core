@@ -132,9 +132,8 @@ namespace hpp {
       void roadmapBuilder ( CkwsRoadmapBuilderShPtr inroadmapBuilder );
       /// \brief Get roadmap building strategy.
       CkwsRoadmapBuilderShPtr roadmapBuilder() const;
-      /// \brief set roadmap.
-      /// \param inRoadmap shared pointer to a roadmap.
-      void roadmap ( CkwsRoadmapShPtr inRoadmap ) ;
+      /// Clear the roadmap.
+      void clearRoadmap ();
       /// \brief Get roadmap.
       /// \return shared pointer to the roadmap.
       CkwsRoadmapShPtr roadmap() const;
@@ -227,8 +226,6 @@ namespace hpp {
       CkwsConfigShPtr initConf_;
       /// \brief Shared pointer to goal configuration.
       std::vector <CkwsConfigShPtr> goalConfigurations_;
-      /// \brief Shared pointer to a roadmap associate to the robot
-      CkwsRoadmapShPtr roadmap_;
       /// \brief Shared pointer to a roadmapBuilder
       CkwsRoadmapBuilderShPtr roadmapBuilder_;
       /// \brief Shared pointer to a optimizer for the path

@@ -186,6 +186,9 @@ namespace hpp {
 			       CkwsRoadmapBuilderShPtr roadmapBuilder,
 			       bool display=false);
 
+      /// Clear roadmaps of each problem
+      virtual void clearRoadmaps ();
+
       /// \brief Get roadmap builder of i-th problem.
       /// \param rank Rank of problem in Planner::problemVector_.
       /// \return shared pointer to roadmap builder.

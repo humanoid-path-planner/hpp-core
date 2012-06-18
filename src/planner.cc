@@ -368,6 +368,14 @@ namespace hpp {
 
     // ======================================================================
 
+    void Planner::clearRoadmaps ()
+    {
+      for (unsigned int i=0; i < problemVector_.size (); ++i) {
+	problemVector_ [i].clearRoadmap ();
+      }
+    }
+    // ======================================================================
+
     ktStatus
     Planner::pathOptimizerIthProblem(unsigned int rank,
 				     CkwsPathPlannerShPtr pathOptimizer)
