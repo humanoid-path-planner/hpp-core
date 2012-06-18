@@ -1,3 +1,11 @@
+2012/06/18 Release 2.5
+
+        1. Add a method to clear all the roadmaps,
+        2. fix bug in parser,
+	3. do not set stable ends when planning with path optimizer,
+	4. fix bug in method Problem::resetGoalConfig,
+	5. update documentation.
+
 2012/02/11 Release 2.4
 
 	1. Enable users to define several goal configurations.
