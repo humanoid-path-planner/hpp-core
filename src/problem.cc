@@ -120,7 +120,7 @@ namespace hpp {
     void Problem::resetGoalConfig ()
     {
       goalConfigurations_.clear ();
-      roadmapBuilder_->resetGoalNodes ();
+      if (roadmapBuilder_) roadmapBuilder_->resetGoalNodes ();
     }
 
     // ======================================================================
@@ -388,7 +388,10 @@ namespace hpp {
       } /* if (directPath) */
 
       // solve the problem with the roadmapBuilder
-
+      if (!roadmapBuilder_) {
+	hppDout (error, "No roadmap builder.");
+	return KD_ERROR;
+      }
       // Set init and goal nodes.
       roadmapBuilder_->resetStartNodes ();
       roadmapBuilder_->resetGoalNodes ();
@@ -558,8 +561,8 @@ namespace hpp {
 
     CkwsRoadmapShPtr Problem::roadmap() const
     {
-
-      return roadmapBuilder_->roadmap ();
+      if (roadmapBuilder_) return roadmapBuilder_->roadmap ();
+      return CkwsRoadmapShPtr ();
     }
 
     // ======================================================================
