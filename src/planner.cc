@@ -46,6 +46,7 @@
 #include "KineoWorks2/kwsJoint.h"
 
 #include "kprParserXML/kprParserManager.h"
+#include <kprParserXML/KineoParserXML.h>
 #include "KineoModel/kppModelTree.h"
 #include "KineoModel/kppDeviceNode.h"
 #include "KineoModel/kppGeometryNode.h"
@@ -865,6 +866,50 @@ namespace hpp {
 
       hppDout(info, "Everything is fine ");
       return KD_OK ;
+    }
+
+    ktStatus Planner::loadPathFromFile (const std::string& fileName)
+    {
+      CkprParserManagerShPtr parserManager
+	= CkprParserManager::defaultManager();
+      CkppDocumentShPtr document
+	= CkppDocument::create (parserManager->moduleManager ());
+      CkppComponentFactoryRegistryShPtr registry
+	= document->componentFactoryRegistry ();
+      CkprParserXMLSceneShPtr parserXMLScene
+	= parserManager->createXMLSceneParser ();
+
+      // Load path from file and try to link it to device component.
+      CkppPathComponentShPtr pathComponent;
+      for (unsigned int rank = 0; rank < getNbHppProblems(); ++rank)
+	{
+	  if (KD_OK != parserXMLScene->loadPathFromFile (fileName,
+							 robotIthProblem(rank),
+							 registry,
+							 pathComponent))
+	    {
+	      hppDout(notice, "Could not load path for problem " << rank);
+	      return KD_ERROR;
+	    }
+	  else
+	    {
+	      if (!pathComponent)
+		{
+		  hppDout(error, "Null pointer to path component.");
+		  return KD_ERROR;
+		}
+
+	      if (KD_ERROR
+		  == addPath (rank,
+			      CkwsPath::createCopy (pathComponent->kwsPath ())))
+		{
+		  hppDout (error, "Could not add path in problem " << rank);
+		  return KD_ERROR;
+		}
+	    }
+	}
+      
+      return KD_OK;
     }
   } // namespace core
 } // namespace namespace hpp

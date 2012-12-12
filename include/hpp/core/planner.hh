@@ -269,6 +269,9 @@ namespace hpp {
       /// \brief Parsing a file
       ktStatus parseFile(const std::string& inFileName);
 
+      /// \brief Load a path from file.
+      ktStatus loadPathFromFile (const std::string& fileName);
+
       /// @}
 
       /// \name Initialization
