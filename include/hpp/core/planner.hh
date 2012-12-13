@@ -272,6 +272,17 @@ namespace hpp {
       /// \brief Load a path from file.
       ktStatus loadPathFromFile (const std::string& fileName);
 
+      /// \brief Write path to file.
+      ///
+      /// \param rank rank of problem
+      /// \param pathId id of path in problem
+      /// \param pathName name to be given to the path component
+      /// \param fileName file path where the component will be saved.
+      ktStatus writePathToFile (unsigned int rank,
+				unsigned int pathId,
+				const std::string& pathName,
+				const std::string& fileName);
+
       /// @}
 
       /// \name Initialization

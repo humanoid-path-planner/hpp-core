@@ -911,5 +911,44 @@ namespace hpp {
       
       return KD_OK;
     }
+
+    ktStatus Planner::writePathToFile (unsigned int rank,
+				       unsigned int pathId,
+				       const std::string& pathName,
+				       const std::string& fileName)
+    {
+      // Attach device to a fictitious model tree to avoid saving the
+      // whole device in the path. This way only its reference is
+      // saved.
+      CkppModelTreeShPtr modelTree = CkppModelTree::create ();
+      modelTree->deviceNode ()->addChildComponent (robotIthProblem (rank));
+
+      CkwsPathShPtr path = getPath (rank, pathId);
+      if (!path)
+	{
+	  hppDout (error, "Could not get path at rank "
+		   << rank << " and id " << pathId << ".");
+	  return KD_ERROR;
+	}
+
+      CkppPathComponentShPtr pathComponent
+	= CkppPathComponent::create (path, pathName);
+      if (!pathComponent)
+	{
+	  hppDout (error, "Could not create path component from path.");
+	  return KD_ERROR;
+	}
+
+      // Write path to file.
+      if (KD_OK != CkprParserManager::defaultManager ()
+	  ->writeComponentToFile (fileName, pathComponent))
+	{
+	  hppDout (error, "Could not write path to file.");
+	  return KD_ERROR;
+	}
+
+      return KD_OK;
+    }
+
   } // namespace core
 } // namespace namespace hpp
