@@ -24,7 +24,7 @@ INCLUDE
 **************************************/
 #include <deque>
 
-#include <hpp/util/deprecated.hh>
+#include <hpp/core/deprecated.hh>
 
 #include "hpp/core/problem.hh"
 #include "hpp/core/fwd.hh"
@@ -388,5 +388,5 @@ namespace hpp {
   } // namespace core
 } // namespace namespace hpp
 
-typedef hpp::core::Planner ChppPlanner HPP_DEPRECATED;
+typedef hpp::core::Planner ChppPlanner HPP_CORE_DEPRECATED;
 #endif
