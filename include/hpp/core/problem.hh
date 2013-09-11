@@ -251,7 +251,8 @@ namespace hpp {
       /// \brief A vector of paths corresponding to this problem.
       std::vector<CkwsPathShPtr> pathVector_;
       /// \brief A map of each body to the a vector of its outer bodies.
-      std::map<CkwsKCDBodyShPtr,std::vector<CkcdObjectShPtr> > mapOuter_;
+      std::map<CkwsKCDBodyAdvancedShPtr,
+	       std::vector<CkcdObjectShPtr> > mapOuter_;
       /// \brief Penetration
       double penetration_;
       /// \brief Whether the path optimizer should be called anyway

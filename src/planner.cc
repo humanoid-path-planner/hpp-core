@@ -36,7 +36,6 @@
 #include "hpp/core/planner.hh"
 #include "hpp/core/problem.hh"
 #include "hpp/model/parser.hh"
-#include "hpp/model/body.hh"
 #include <hpp/model/humanoid-robot.hh>
 
 #include "KineoUtility/kitNotificator.h"
@@ -44,6 +43,7 @@
 #include "KineoWorks2/kwsRoadmapBuilder.h"
 #include "KineoWorks2/kwsPathOptimizer.h"
 #include "KineoWorks2/kwsJoint.h"
+#include <kwsKcd2/kwsKCDBodyAdvanced.h>
 
 #include "kprParserXML/kprParserManager.h"
 #include <kprParserXML/KineoParserXML.h>
@@ -642,10 +642,10 @@ namespace hpp {
 
     // ======================================================================
 
-    CkwsKCDBodyConstShPtr
+    CkwsKCDBodyAdvancedConstShPtr
     Planner::findBodyByJointName(const std::string& inJointName) const
     {
-      CkwsKCDBodyConstShPtr kcdBody;
+      CkwsKCDBodyAdvancedConstShPtr kcdBody;
       unsigned int nbProblems = getNbHppProblems();
 
       // Loop over hppProblem.
@@ -663,7 +663,7 @@ namespace hpp {
 	      KIT_DYNAMIC_PTR_CAST(CkppJointComponent, *jointIter)) {
 	    if (kppJointInRobot->name() == inJointName) {
 	      kcdBody =
-		KIT_DYNAMIC_PTR_CAST(const CkwsKCDBody,
+		KIT_DYNAMIC_PTR_CAST(const CkwsKCDBodyAdvanced,
 				     kppJointInRobot->kwsJoint()->attachedBody());
 	      return kcdBody;
 	    }

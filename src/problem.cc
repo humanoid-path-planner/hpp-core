@@ -19,8 +19,9 @@
 #include <iostream>
 
 #include <hpp/util/debug.hh>
+#include <hpp/model/device.hh>
+#include <hpp/model/body-distance.hh>
 #include <hpp/core/problem.hh>
-#include "hpp/model/body.hh"
 
 #include "KineoWorks2/kwsConfigExtractor.h"
 #include "KineoWorks2/kwsValidatorDPCollision.h"
@@ -31,6 +32,7 @@
 #include "KineoWorks2/kwsReportCfgDof.h"
 #include "KineoWorks2/kwsSteeringMethod.h"
 #include "KineoWorks2/kwsPathPlanner.h"
+#include <kwsKcd2/kwsKCDBodyAdvanced.h>
 #include "KineoModel/kppSteeringMethodComponent.h"
 
 namespace hpp {
@@ -133,12 +135,13 @@ namespace hpp {
       // Loop over bodies of robot.
       for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin(); bodyIter < bodyVector.end(); bodyIter++ )
 	{
-	  // Try to cast body into CkwsKCDBody
-	  CkwsKCDBodyShPtr kcdBody;
-	  if ( kcdBody = boost::dynamic_pointer_cast<CkwsKCDBody> ( *bodyIter ) )
+	  // Try to cast body into CkwsKCDBodyAdvanced
+	  CkwsKCDBodyAdvancedShPtr kcdBody;
+	  if ( kcdBody = boost::dynamic_pointer_cast<CkwsKCDBodyAdvanced>
+	       ( *bodyIter ) )
 	    {
 	      // Copy list of outer objects
-	      mapOuter_[kcdBody]= kcdBody->outerObjects();
+	      mapOuter_[kcdBody]= kcdBody->obstacleObjects();
 	    }
 	}
     }
@@ -172,32 +175,39 @@ namespace hpp {
       // Add object in local list
       obstacleVector_.push_back(inObject);
 
-      // Get robot vector of bodies.
-      CkwsDevice::TBodyVector bodyVector;
-      robot_->getBodyVector ( bodyVector );
+      // Retrieve hpp device.
+      model::DeviceShPtr hppRobot = KIT_DYNAMIC_PTR_CAST(model::Device, robot_);
+      if (!hppRobot)
+	{
+	  hppDout (notice, "Robot is not HPP Device.");
 
-      // Loop over bodies of robot.
-      for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin();
-	    bodyIter < bodyVector.end();
-	    bodyIter++ ) {
+	  // Get robot vector of bodies.
+	  CkwsDevice::TBodyVector bodyVector;
+	  robot_->getBodyVector ( bodyVector );
 
-	if (model::BodyShPtr body =
-	    KIT_DYNAMIC_PTR_CAST(model::Body, *bodyIter)) {
-	  hppDout(info, "hpp::model::Body type.");
-	  body->addOuterObject(inObject, distanceComputation);
+	  // Loop over bodies of robot.
+	  for ( CkwsDevice::TBodyIterator bodyIter = bodyVector.begin();
+		bodyIter < bodyVector.end();
+		bodyIter++ )
+	    if (CkwsKCDBodyAdvancedShPtr kcdBody =
+		KIT_DYNAMIC_PTR_CAST(CkwsKCDBodyAdvanced, *bodyIter))
+	      {
+		hppDout(info,"CkwsKCDBodyAdvanced type.");
+		// Append object at the end of KineoWorks set of outer
+		// objects for collision checking.
+		std::vector<CkcdObjectShPtr> outerList = kcdBody->obstacleObjects();
+		outerList.push_back(inObject);
+		kcdBody->obstacleObjects(outerList);
+	      }
 	}
-	else if (CkwsKCDBodyShPtr kcdBody =
-		 KIT_DYNAMIC_PTR_CAST(CkwsKCDBody, *bodyIter)) {
-	  hppDout(info,"CkwsKCDBody type.");
-	  /*
-	    Append object at the end of KineoWorks set of outer objects
-	    for collision checking
-	  */
-	  std::vector<CkcdObjectShPtr> outerList = kcdBody->outerObjects();
-	  outerList.push_back(inObject);
-	  kcdBody->outerObjects(outerList);
-	}
-      }
+      else
+	// Loop over body distances of robot.
+	BOOST_FOREACH(model::BodyDistanceShPtr bodyDistance,
+		      hppRobot->bodyDistances ())
+	  {
+	    bodyDistance->addOuterObject (inObject, distanceComputation);
+	  }
+
       return KD_OK;
     }
 

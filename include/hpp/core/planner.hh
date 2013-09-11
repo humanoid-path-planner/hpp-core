@@ -341,7 +341,7 @@ namespace hpp {
       /// \return const shared pointer to the body
 
       /// Look among all joints of the robot of each problem for a given name.
-      CkwsKCDBodyConstShPtr
+      CkwsKCDBodyAdvancedConstShPtr
       findBodyByJointName(const std::string& inJointName) const;
 
 
