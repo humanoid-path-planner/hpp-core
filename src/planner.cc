@@ -56,7 +56,7 @@
 #include <KineoModel/kppComponentFactoryRegistry.h>
 #include <KineoController/kppDocument.h>
 
-#include "kwsPlus/roadmap/kwsPlusStopRdmBuilderDelegate.h"
+#include <hpp/kwsplus/roadmap/stop-rdm-builder-delegate.hh>
 
 namespace hpp {
   namespace core {
