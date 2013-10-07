@@ -32,12 +32,12 @@ INCLUDE
 #include <hpp/model/parser.hh>
 
 class CkwsPlusStopRdmBuilderDelegate;
-KIT_PREDEF_CLASS (CkppKCDBody)
-KIT_PREDEF_CLASS (CkwsConfigExtractor)
-KIT_PREDEF_CLASS (CkppSteeringMethodComponent)
-KIT_PREDEF_CLASS (CkwsPathPlanner)
-KIT_PREDEF_CLASS (CkwsRoadmapBuilder)
-KIT_PREDEF_CLASS (CkitNotificator)
+HPP_KIT_PREDEF_CLASS (CkppKCDBody);
+HPP_KIT_PREDEF_CLASS (CkwsConfigExtractor);
+HPP_KIT_PREDEF_CLASS (CkppSteeringMethodComponent);
+HPP_KIT_PREDEF_CLASS (CkwsPathPlanner);
+HPP_KIT_PREDEF_CLASS (CkwsRoadmapBuilder);
+HPP_KIT_PREDEF_CLASS (CkitNotificator);
 
 namespace hpp {
   namespace core {

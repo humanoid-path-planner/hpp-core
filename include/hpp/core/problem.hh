@@ -29,9 +29,11 @@
 
 #include "KineoUtility/kitNotificator.h"
 
+#include <hpp/util/kitelab.hh>
+
 #include <hpp/core/deprecated.hh>
 
-KIT_PREDEF_CLASS(CkwsConfigExtractor)
+HPP_KIT_PREDEF_CLASS(CkwsConfigExtractor);
 
 namespace hpp {
   namespace core {
