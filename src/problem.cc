@@ -115,7 +115,7 @@ namespace hpp {
     const std::vector<CkwsConfigShPtr>& Problem::goalConfigurations () const
     {
       return goalConfigurations_;
-    };
+    }
 
     // ======================================================================
 
