@@ -48,6 +48,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem.hh
 )
 
+ADD_REQUIRED_DEPENDENCY("hpp-util >= 0.8")
 ADD_REQUIRED_DEPENDENCY("hpp-kwsplus >= 2.3")
 ADD_REQUIRED_DEPENDENCY("hpp-model >= 2.1")
 
