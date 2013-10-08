@@ -1,3 +1,10 @@
+2013/10/08 Release 2.7.0
+
+	1. Add hpp-util dependency.
+	2. Use hpp-util KiteLab replacement macros to prevent
+	-pedantic warnings.
+	3. Fix warnings.
+
 2012/06/18 Release 2.5
 
         1. Add a method to clear all the roadmaps,
