@@ -341,6 +341,7 @@ namespace hpp {
       //Add an interruption delegate to the roadmap builder
       Problem& hppProblem =  problemVector_[rank];
       hppProblem.roadmapBuilder(roadmapBuilder);
+      roadmapBuilder->addDelegate (stopRdmBuilderDelegate_);
 
       //If the new roadmap is displayed in the interface, send a notification to
       //trigger appropriate action.
