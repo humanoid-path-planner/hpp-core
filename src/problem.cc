@@ -672,6 +672,7 @@ namespace hpp {
     Problem::validateConfig(CkppDeviceComponentShPtr inDevice,
 			    const CkwsConfigConstShPtr& inConfig) const
     {
+      inDevice->setCurrentConfig (*inConfig);
       inDevice->configValidators()->validate(*inConfig);
 
       if (inConfig->isValid()) {
