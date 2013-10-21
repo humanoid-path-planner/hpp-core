@@ -22,6 +22,7 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/body-distance.hh>
 #include <hpp/core/problem.hh>
+#include <hpp/kwsio/configuration.hh>
 
 #include "KineoWorks2/kwsConfigExtractor.h"
 #include "KineoWorks2/kwsValidatorDPCollision.h"
@@ -393,9 +394,25 @@ namespace hpp {
 	    // Add the path to vector of paths of the problem.
 	    addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, inOutPath->clone()));
 	    return KD_OK;
+	  } // if (directPath->isValid())
+	  else {
+	    hppDout (info, "Failed to validate direct path between: "
+		     << *inInitConfig);
+	    hppDout (info, "and: " << *goalConfig);
+	    std::string validatorName;
+	    for (std::size_t i=0; i<directPath->countReports (); ++i) {
+	      directPath->report (i, validatorName);
+	      hppDout (info, "Validator " << validatorName <<
+		       " unvalidated the direct path");
+	    }
 	  }
+	} // if (directPath) {
+	else {
+	  hppDout (info, "Failed to create direct path between: "
+		   << *inInitConfig);
+	  hppDout (info, "and: " << *goalConfig);
 	}
-      } /* if (directPath) */
+      } // for (goalConfigIterator_t it = goalConfigurations_.begin ();...
 
       // solve the problem with the roadmapBuilder
       if (!roadmapBuilder_) {
