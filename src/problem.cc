@@ -349,6 +349,7 @@ namespace hpp {
 	    // Add direct path to roadmap if not already included
 
 	    CkwsRoadmapShPtr roadmap = roadmapBuilder()->roadmap();
+	    roadmap->beginCriticalSectionReadWrite();
 	    hppDout(info, "Number of edges in roadmap before inserting nodes = "
 		    << roadmap->countEdges());
 
@@ -390,6 +391,7 @@ namespace hpp {
 		      "Number edges in roadmap after attempt at adding edge = "
 		      << roadmap->countEdges());
 	    }
+	    roadmap->endCriticalSectionReadWrite();
 	    inOutPath->appendDirectPath(directPath);
 	    // Add the path to vector of paths of the problem.
 	    addPath(KIT_DYNAMIC_PTR_CAST(CkwsPath, inOutPath->clone()));
