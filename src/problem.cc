@@ -415,7 +415,11 @@ namespace hpp {
       }
       CkwsPathShPtr kwsPath = CkwsPath::create(getRobot());
       std::list< CkwsEdgeShPtr > unusedEdges;
-      if(KD_OK == roadmapBuilder()->solveCurrentProblem(kwsPath, unusedEdges)) {
+      CkitParameterMapShPtr params (CkitParameterMap::create ());
+      params->addDouble (CkwsValidatorDPCollision::PARAM_PENETRATION,
+			 penetration_);
+      if(KD_OK == roadmapBuilder()->solveCurrentProblem
+	 (kwsPath, params, unusedEdges)) {
 	hppDout(info,"--- Problem solved.----");
       } else {
 	hppDout(error,"---- Problem NOT solved.----");
