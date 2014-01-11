@@ -20,9 +20,26 @@
 SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
-  collision-pair.cc
-  planner.cc
+  astar.hh
+  basic-configuration-shooter.hh
+  config-projector.cc
+  constraint.cc
+  constraint-set.cc
+  diffusing-planner.cc
+  discretized-collision-checking.cc
+  extracted-path.hh
+  nearest-neighbor.hh
+  node.cc
+  path.cc
+  path-planner.cc
+  path-vector.cc
+  plan-and-optimize.cc
   problem.cc
+  problem-solver.cc
+  random-shortcut.cc
+  roadmap.cc
+  straight-path.cc
+  weighed-distance.cc
 )
 
 ADD_LIBRARY(${LIBRARY_NAME}
@@ -32,6 +49,6 @@ ADD_LIBRARY(${LIBRARY_NAME}
 
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-util)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-model)
-PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-kwsplus)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} roboptim-trajectory)
 
 INSTALL(TARGETS ${LIBRARY_NAME} DESTINATION lib)

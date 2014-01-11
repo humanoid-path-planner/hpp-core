@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) 2005, 2006, 2007, 2008, 2009, 2010, 2011 CNRS
 // Authors: Florent Lamiraux
@@ -17,260 +18,173 @@
 // <http://www.gnu.org/licenses/>.
 
 #ifndef HPP_CORE_PROBLEM_HH
-#define HPP_CORE_PROBLEM_HH
+# define HPP_CORE_PROBLEM_HH
 
-#include "KineoWorks2/kwsPathOptimizer.h"
-#include "KineoWorks2/kwsRoadmapBuilder.h"
-#include "KineoWorks2/kwsConfig.h"
+# include <hpp/model/device.hh>
+# include <hpp/util/pointer.hh>
 
-#include "KineoModel/kppDeviceComponent.h"
-#include "kcd2/kcdInterface.h"
-#include "kwsKcd2/kwsKCDBody.h"
-
-#include "KineoUtility/kitNotificator.h"
-
-#include <hpp/util/kitelab.hh>
-
-#include <hpp/core/deprecated.hh>
-
-HPP_KIT_PREDEF_CLASS(CkwsConfigExtractor);
+# include <hpp/core/steering-method.hh>
 
 namespace hpp {
   namespace core {
-    /// \brief Defines a path planning problem for one robot.
+    /// Defines a path planning problem for one robot.
     /// A path planning problem is defined by
-    /// \li a robot: a KineoWorks device,
-    /// \li a set of obstacles: a list of Kcd objects,
-    /// \li a steering method: stored in the KwsDevice,
+    /// \li a robot: instance of class Device,
+    /// \li a set of obstacles: a list of CollisionObject,
     /// \li initial and goal configurations,
-    /// \li a roadmap : to store a roadmap
-    /// \li a roadmapBuilder : roadmap strategy
-    /// \li a pathOptimizer : to Optimise the path
-    class Problem
+    /// \li a steering method to handle the robot dynamics,
+    /// \li a path planner
+    class HPP_CORE_DLLAPI Problem
     {
     public:
-      typedef std::vector <CkwsConfigShPtr>::iterator goalConfigIterator_t;
-      typedef std::vector <CkwsConfigShPtr>::const_iterator
-      goalConfigConstIterator_t;
-      /// \brief Create a path planning problem.
+      /// Create a path planning problem.
       /// \param robot robot associated to the path planning problem.
-      /// \param penetration dynamic penetration for validating direct paths.
-      Problem (CkppDeviceComponentShPtr robot, double penetration);
+      Problem (DevicePtr_t robot);
 
-      ///
-      /// \brief Create a path planning problem.
-      /// \param robot robot associated to the path planning problem.
-      /// \param obstacleList list of obstacle of this problem.
-      /// \param penetration dynamic penetration for validating direct paths.
-      Problem (CkppDeviceComponentShPtr robot,
-	       const std::vector<CkcdObjectShPtr>& obstacleList,
-	       double penetration);
-
-
-      /// \brief Copy constructor
-      Problem(const Problem& inProblem);
+      virtual ~Problem ();
 
       /// \name Problem definition
-      /// @{
+      /// \{
 
-      /// \brief return shared pointer to robot.
-      const CkppDeviceComponentShPtr& getRobot() const {
+      /// return shared pointer to robot.
+      const DevicePtr_t& robot () const {
 	return robot_;
-      };
+      }
+
+      /// set robot
+      /// Set steering method, distance function and path validation to
+      /// default values
+      void robot (const DevicePtr_t& device);
 
       /// Get shared pointer to initial configuration.
-      const CkwsConfigShPtr& initConfig() const {
+      const ConfigurationPtr_t& initConfig () const
+      {
 	return initConf_;
-      };
+      }
       /// Set initial configuration.
-      void initConfig ( const CkwsConfigShPtr& inConfig );
-      /// Get shared pointer to goal configuration.
-      const std::vector <CkwsConfigShPtr>& goalConfigurations () const;
+      void initConfig (const ConfigurationPtr_t& inConfig);
+      /// Get number of goal configuration.
+      const Configurations_t& goalConfigs () const;
       /// Add goal configuration.
-      void addGoalConfig ( const CkwsConfigShPtr& inConfig );
+      void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
-      void resetGoalConfig ();
-      /// Check that problem is well formulated
-      ktStatus checkProblem() const;
+      void resetGoalConfigs ();
 
-      /// @}
+      /// \}
+
+      /// \name Steering method and distance function
+      /// \{
+
+      /// Set steering method
+      /// \param sm steering method.
+      /// If problem contains constraints they are passed to the steering
+      /// method.
+      void steeringMethod (const SteeringMethodPtr_t& sm) {
+	steeringMethod_ = sm;
+	if (constraints_) steeringMethod_->constraints (constraints_);
+      }
+
+      /// Get steering method
+      SteeringMethodPtr_t steeringMethod () const {
+	return steeringMethod_;
+      }
+
+      /// Set distance between configurations
+      void distance (const DistancePtr_t& distance)
+      {
+	distance_ = distance;
+      }
+      /// Get distance between configuration
+      const DistancePtr_t& distance () const
+      {
+	return distance_;
+      }
+      /// \}
+
+      /// \name Path validation
+      /// \{
+      /// Set path validation method
+      void pathValidation (const PathValidationPtr_t& pathValidation)
+      {
+	pathValidation_ = pathValidation;
+      }
+
+      /// Get path validation method
+      PathValidationPtr_t pathValidation () const
+      {
+	return pathValidation_;
+      }
+      /// \}
+
+      /// \name Constraints applicable to the robot
+      /// \{
+
+      /// Set constraint set
+      /// \param constraints a set of constraints
+      /// If problem contains a steering method, constraints are passed to
+      /// the steering method.
+      void constraints (const ConstraintSetPtr_t& constraints)
+      {
+	constraints_ = constraints;
+	if (steeringMethod_) steeringMethod_->constraints (constraints);
+      }
+
+      ///Get constraint set
+      const ConstraintSetPtr_t& constraints () const
+      {
+	return constraints_;
+      }
+      /// \}
+
+      /// Check that problem is well formulated
+      void checkProblem () const;
 
       /// \name Obstacles
-      /// @{
+      /// \{
 
-      /// \brief Store a copy of the list of obstacles.
-      /// \param inCollisionList list of obstacles to be taken into account
-      /// for this problem.
-
-      /// \note It is not recommended to call this method several times for
-      ///	 the same problem.
-      ktStatus obstacleList
-      (const std::vector<CkcdObjectShPtr>& inCollisionList );
-
-      /// \brief return a shared pointer to the obstacle list
-      const std::vector<CkcdObjectShPtr>& obstacleList();
-
-      /// \brief Add obstacle to the list.
-      /// \param inObject a new object.
-      /// \param distanceComputation whether distance computation should be
-      /// performed for this object.
-
-      /// \note Compute collision entities.
-      ktStatus addObstacle (const CkcdObjectShPtr& inObject,
-			    bool distanceComputation=true);
+      /// Add obstacle to the list.
+      /// \param object a new object.
+      /// \param collision whether collision checking should be performed
+      ///        for this object.
+      /// \param distance whether distance computation should be performed
+      ///        for this object.
+      void addObstacle (const CollisionObjectShPtr_t& object, bool collision,
+			bool distance);
+      /// List of objects considered for collision detection
+      const ObjectVector_t& collisionObstacles () const;
+      /// List of objects considered for computation
+      const ObjectVector_t& distanceObstacles () const;
 
 
-      /// @}
+      /// \}
 
-      /// \name Problem resolution
-      ///	 @{
-
-      /// \brief set device steering method
-      void steeringMethod
-      (const CkppSteeringMethodComponentShPtr &inSteeringMethod);
-      /// \brief Get device steering method
-      CkppSteeringMethodComponentShPtr steeringMethod() const;
-      /// \brief Set roadmap building strategy.
-      void roadmapBuilder ( CkwsRoadmapBuilderShPtr inroadmapBuilder );
-      /// \brief Get roadmap building strategy.
-      CkwsRoadmapBuilderShPtr roadmapBuilder() const;
-      /// Clear the roadmap.
-      void clearRoadmap ();
-      /// \brief Get roadmap.
-      /// \return shared pointer to the roadmap.
-      CkwsRoadmapShPtr roadmap() const;
-      /// \brief Set pathOptimizer.
-      /// \param pathOptimizer path optimizer.
-      void pathOptimizer ( CkwsPathPlannerShPtr pathOptimizer );
-      /// \brief Get path optimizer
-      /// \return shared pointer to the path optimiser
-      CkwsPathPlannerShPtr pathOptimizer() ;
-
-      /// \brief Determine whether the path optimizer should always be called
-
-      /// In the default behaviour, Problem::solve() does not call the path
-      /// optimizer if the path resulting from path planning includes one single
-      /// direct path. This behaviour can be changed by calling this function
-      /// with true as an argument.
-      void alwaysOptimize(bool inAlwaysOptimize) {
-	alwaysOptimize_ = inAlwaysOptimize;
-      };
-
-      /// \brief Set configuration extractor
-      /// \param inConfigExtractor
-      void configExtractor(const CkwsConfigExtractorShPtr& inConfigExtractor);
-
-      /// \brief Get configuration extractor
-      const CkwsConfigExtractorShPtr& configExtractor();
-
-      /// \brief Set dynamic penetration of given problem
-      /// \param penetration dynamic penetration for validating direct paths.
-      void penetration(double penetration);
-
-      /// \brief Get dynamic penetration of given problem
-      /// \return dynamic penetration allowed for validating a direct path.
-      double penetration() const;
-
-      /// \brief Solve the problem
-
-      /// This function successively performs the following steps
-      /// \li check that the problem is well defined,
-      /// \li solve the path planning problem
-      /// \li optimize the resulting path if success.
-
-      /// The path planning step performs the following operations:
-      /// \li call the steering method and validate the resulting path,
-      /// \li if failure, call the roadmap builder.
-
-      /// Unless otherwise specified (see Problem::alwaysOptimize()), a path
-      /// containing only one direct path is not optimized.
-
-      /// \return KD_OK if success, KD_ERROR if failure
-      ktStatus solve();
-
-      /// \brief Add a path to the vector.
-      /// \xrefitem <send-notif> "Notification" "Send Notification"
-      /// Send ID_HPP_ADD_PATH.
-      void addPath ( CkwsPathShPtr kwsPath );
-      /// \brief Get I-th path in vector
-      CkwsPathShPtr getIthPath ( unsigned int pathId ) const;
-      /// \brief et number of paths in vector
-      unsigned int getNbPaths() const;
-
-      /// \brief et initialize the map of innerBody (mapOuter_)
-      void initMapOuter();
-      /// @}
     private :
-      /// \brief Validate configuration and track validation reports.
-      ktStatus validateConfig(CkppDeviceComponentShPtr inDevice,
-			      const CkwsConfigConstShPtr& inConfig) const;
+      /// Validate configuration and track validation reports.
+      bool validateConfig (const DevicePtr_t& device,
+			   const Configuration_t& inConfig) const;
 
-      /// \brief Validate initial configuration
+      /// Validate initial configuration
+      void validateInitConfig () const;
 
-      /// If initial configuration is not valid, and if a config extractor
-      /// is set, try to build an extraction path.
-      ktStatus validateInitConfig(CkwsConfigShPtr& inOutInitConfig,
-				  CkwsPathShPtr& inOutPath) const;
-
-      /// \brief Plan a path between initial and goal configurations
-
-      /// First, tries a direct path and then calls the roadmap builder.
-      ktStatus planPath(const CkwsConfigConstShPtr inInitConfig,
-			const CkwsPathShPtr& inOutPath);
-
-      /// \brief Set penetration of collision direct path validator of the robot
-      void setPenetration();
-      /// \brief pointer to a KineoWorks notificator.
-      CkitNotificatorShPtr notificator_;
-      /// \brief the robot is a KineoWorks Device.
-      CkppDeviceComponentShPtr robot_;
-      /// \brief Shared pointer to initial configuration.
-      CkwsConfigShPtr initConf_;
-      /// \brief Shared pointer to goal configuration.
-      std::vector <CkwsConfigShPtr> goalConfigurations_;
-      /// \brief Shared pointer to a roadmapBuilder
-      CkwsRoadmapBuilderShPtr roadmapBuilder_;
-      /// \brief Shared pointer to a optimizer for the path
-      CkwsPathPlannerShPtr pathOptimizer_;
-
-      /// \brief Configuration extractor
-
-      /// A configuration extractor attempts at extracting a
-      /// collision-free configuration in the neighborhood
-      /// of the initial configuration of a path planning
-      /// problem when the initial configuration is in
-      /// collision.
-      CkwsConfigExtractorShPtr configExtractor_;
-
-      /// \brief Get the list of obstacle of this problem.
-
-      /// The set of obstacles is likely to be a copy or reference to
-      /// the list of obstacles of Planner.
-      /// However, to allow more general motion planning strategies, we
-      /// leave to possiblity to define it differently. Obstacles are a
-      /// list of KCD objects.
-      std::vector< CkcdObjectShPtr > obstacleVector_;
-      /// \brief A vector of paths corresponding to this problem.
-      std::vector<CkwsPathShPtr> pathVector_;
-      /// \brief A map of each body to the a vector of its outer bodies.
-      std::map<CkwsKCDBodyAdvancedShPtr,
-	       std::vector<CkcdObjectShPtr> > mapOuter_;
-      /// \brief Penetration
-      double penetration_;
-      /// \brief Whether the path optimizer should be called anyway
-      bool alwaysOptimize_;
-
-    public:
-      // for notification:
-      static const CkitNotification::TType  ID_HPP_ADD_PATH;
-
-      // key to retrieve
-      static const std::string   PATH_KEY;
-      static const std::string   PATH_ID_KEY;
-      static const std::string   DEVICE_KEY;
-
+      /// The robot
+      DevicePtr_t robot_;
+      /// Distance between configurations of the robot
+      DistancePtr_t distance_;
+      /// Shared pointer to initial configuration.
+      ConfigurationPtr_t initConf_;
+      /// Shared pointer to goal configuration.
+      Configurations_t goalConfigurations_;
+      /// Steering method associated to the problem
+      SteeringMethodPtr_t steeringMethod_;
+      /// Path validation
+      PathValidationPtr_t pathValidation_;
+      /// List of obstacles
+      ObjectVector_t collisionObstacles_;
+      /// List of obstacles
+      ObjectVector_t distanceObstacles_;
+      /// Set of constraints applicable to the robot
+      ConstraintSetPtr_t constraints_;
     }; // class Problem
   } // namespace core
 } // namespace hpp
-typedef hpp::core::Problem ChppProblem HPP_CORE_DEPRECATED;
 #endif // HPP_CORE_PROBLEM_HH

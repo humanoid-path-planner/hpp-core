@@ -1,0 +1,56 @@
+//
+// Copyright (c) 2014 CNRS
+// Authors: Florent Lamiraux
+//
+// This file is part of hpp-core
+// hpp-core is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// hpp-core is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Lesser Public License for more details.  You should have
+// received a copy of the GNU Lesser General Public License along with
+// hpp-core  If not, see
+// <http://www.gnu.org/licenses/>.
+
+#ifndef HPP_CORE_WEIGHED_DISTANCE_HH
+# define HPP_CORE_WEIGHED_DISTANCE_HH
+
+# include <hpp/core/distance.hh>
+
+namespace hpp {
+  namespace core {
+    /// Weighed distance between configurations
+    ///
+    /// Euclidean distance between configurations seen as vectors.
+    /// Each degree of freedom is weighed by a positive value.
+    class HPP_CORE_DLLAPI WeighedDistance : public Distance {
+    public:
+      static WeighedDistancePtr_t create (const DevicePtr_t& robot);
+      static WeighedDistancePtr_t
+	create (const DevicePtr_t& robot,
+		const std::vector <value_type>& weights);
+      static WeighedDistancePtr_t createCopy
+	(const WeighedDistancePtr_t& distance);
+      virtual DistancePtr_t clone () const;
+
+    protected:
+      WeighedDistance (const DevicePtr_t& robot);
+      WeighedDistance (const DevicePtr_t& robot,
+		       const std::vector <value_type>& weights);
+      WeighedDistance (const WeighedDistance& distance);
+      void init (WeighedDistanceShPtr self);
+      /// Derived class should implement this function
+      virtual value_type impl_distance (const Configuration_t& q1,
+				    const Configuration_t& q2);
+    private:
+      DevicePtr_t robot_;
+      std::vector <value_type> weights_;
+      WeighedDistanceWkPtr weak_;
+    }; // class WeighedDistance
+  } //   namespace core
+} // namespace hpp
+#endif // HPP_CORE_WEIGHED_DISTANCE_HH
