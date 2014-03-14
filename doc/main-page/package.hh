@@ -1,8 +1,8 @@
 /// \mainpage
 /// \section hppCore_sec_intro Introduction
 ///
-/// This package implements path planning algorithms for kinematic chains. Kinematic
-/// chains are represented by class hpp::model::Device.
+/// This package implements path planning algorithms for kinematic chains.
+/// Kinematic chains are represented by class hpp::model::Device.
 ///
 /// The main classes are:
 /// \li hpp::core::Problem: defines a canonical path planning problem,

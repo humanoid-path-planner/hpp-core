@@ -29,11 +29,10 @@ namespace hpp {
   namespace core {
     /// Defines a path planning problem for one robot.
     /// A path planning problem is defined by
-    /// \li a robot: instance of class Device,
-    /// \li a set of obstacles: a list of CollisionObject,
+    /// \li a robot: instance of class hpp::model::Device,
+    /// \li a set of obstacles: a list of hpp::model::CollisionObject,
     /// \li initial and goal configurations,
-    /// \li a steering method to handle the robot dynamics,
-    /// \li a path planner
+    /// \li a SteeringMethod to handle the robot dynamics,
     class HPP_CORE_DLLAPI Problem
     {
     public:
