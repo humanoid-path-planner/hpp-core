@@ -43,7 +43,12 @@ namespace hpp {
 	return index_;
       }
       /// Get the value of the configuration locked component.
-      value_type value () const
+      const value_type& value () const
+      {
+	return value_;
+      }
+      /// Get the value of the configuration locked component.
+      value_type& value ()
       {
 	return value_;
       }
