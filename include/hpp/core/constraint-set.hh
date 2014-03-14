@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_CONSTRAINT_SET_HH
 # define HPP_CORE_CONSTRAINT_SET_HH
 
+# include <deque>
 # include <hpp/core/constraint.hh>
 
 namespace hpp {
@@ -58,7 +59,7 @@ namespace hpp {
 	return configProjector_;
       }
     protected:
-      typedef std::vector <ConstraintPtr_t> Constraints_t;
+      typedef std::deque <ConstraintPtr_t> Constraints_t;
       ConstraintSet (const DevicePtr_t& robot, const std::string& name);
       /// Store weak pointer to itself.
       void init (const ConstraintSetPtr_t& self)
@@ -82,6 +83,8 @@ namespace hpp {
 	  (*itConstraint)->addLockedDof (lockedDof);
 	}
       }
+
+      void removeFirstElement ();
 
       virtual std::ostream& print (std::ostream& os) const
       {

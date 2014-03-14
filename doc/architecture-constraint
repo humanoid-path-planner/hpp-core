@@ -18,6 +18,7 @@
         throw                                      for c in constraints_:
       if set.lockedDof_:                             c.addLockedDof (ld)
         throw
+      set.removeFirstElement ()
       set.configProjector_ = self                addConstraint (c):
       Constraint::addToSet (set)                   c.addToSet (self)
 

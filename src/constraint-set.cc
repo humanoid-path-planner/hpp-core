@@ -59,5 +59,9 @@ namespace hpp {
       constraints_.push_back (ConfigProjectorTrivial::create (robot));
     }
 
+    void ConstraintSet::removeFirstElement ()
+    {
+      constraints_.pop_front ();
+    }
   } // namespace core
 } // namespace core

@@ -290,6 +290,7 @@ namespace hpp {
 	throw std::runtime_error (oss.str ());
       }
       constraintSet->configProjector_ = weak_.lock ();
+      constraintSet->removeFirstElement ();
       Constraint::addToConstraintSet (constraintSet);
     }
 
