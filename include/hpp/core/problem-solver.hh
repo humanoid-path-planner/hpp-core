@@ -90,6 +90,9 @@ namespace hpp {
 	return constraints_;
       }
 
+      /// Reset constraint set
+      void resetConstraints ();
+
       /// Create new problem.
       void resetProblem ();
 

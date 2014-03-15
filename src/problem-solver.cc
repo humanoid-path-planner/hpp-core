@@ -16,9 +16,10 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/debug.hh>
 #include <hpp/core/problem-solver.hh>
-# include <hpp/core/diffusing-planner.hh>
-# include <hpp/core/roadmap.hh>
+#include <hpp/core/diffusing-planner.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
@@ -88,7 +89,16 @@ namespace hpp {
 
     void ProblemSolver::addConstraint (const ConstraintPtr_t& constraint)
     {
-      constraints_->addConstraint (constraint);
+      if (robot_)
+	constraints_->addConstraint (constraint);
+      else
+	hppDout (info, "Cannot add constraint while robot is not set");
+    }
+
+    void ProblemSolver::resetConstraints ()
+    {
+      if (robot_)
+	constraints_ = ConstraintSet::create (robot_, "Default constraint set");
     }
 
     void ProblemSolver::resetProblem ()
