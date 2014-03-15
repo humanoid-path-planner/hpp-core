@@ -85,6 +85,7 @@ namespace hpp {
       /// Add a constraint
       void addConstraint (const ConstraintPtr_t& constraint);
 
+      /// Get constraint set
       const ConstraintSetPtr_t& constraints () const
       {
 	return constraints_;
