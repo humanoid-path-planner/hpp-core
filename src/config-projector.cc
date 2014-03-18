@@ -96,9 +96,13 @@ namespace hpp {
 	if (size > 0) {
 	  interval.first = latestIndex + 1;
 	  interval.second = size;
+	  hppDout (info, "Adding interval [" << interval.first << ","
+		   << interval.second << "]");
 	  intervals_.push_back (interval);
 	}
+	latestIndex = index;
       }
+      hppDout (info, "");
       // Remove temporary element.
       lockedDofs_.pop_back ();
     }
@@ -115,10 +119,12 @@ namespace hpp {
       nbNonLockedDofs_ = robot_->numberDof () - lockedDofs_.size ();
       value_.resize (size);
       reducedJacobian_.resize (size, nbNonLockedDofs_);
+      reducedJacobian_.setConstant (sqrt (-1));
       dqSmall_.resize (nbNonLockedDofs_);
-      dq_.fill (0.);
+      dq_.setZero ();
       toMinusFromSmall_.resize (nbNonLockedDofs_);
       projMinusFromSmall_.resize (nbNonLockedDofs_);
+      projMinusFrom_.setZero ();
       reducedProjector_.resize (nbNonLockedDofs_, nbNonLockedDofs_);
     }
 
@@ -248,6 +254,9 @@ namespace hpp {
       reducedProjector_ -= V1 * V1.transpose ();
       projMinusFromSmall_ = reducedProjector_ * toMinusFromSmall_;
       smallToNormal (projMinusFromSmall_, projMinusFrom_);
+      hppDout (info, "projMinusFromSmall_ = "
+	       << projMinusFromSmall_.transpose ());
+      hppDout (info, "projMinusFrom_ = " << projMinusFrom_.transpose ());
       model::integrate (robot_, from, projMinusFrom_, result);
     }
 

@@ -92,7 +92,7 @@ namespace hpp {
       if (robot_)
 	constraints_->addConstraint (constraint);
       else
-	hppDout (info, "Cannot add constraint while robot is not set");
+	hppDout (error, "Cannot add constraint while robot is not set");
     }
 
     void ProblemSolver::resetConstraints ()

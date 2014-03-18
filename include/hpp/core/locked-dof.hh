@@ -59,6 +59,7 @@ namespace hpp {
       }
       void init (const LockedDofPtr_t& self)
       {
+	Constraint::init (self);
 	weak_ = self;
       }
       bool impl_compute (Configuration_t& configuration)
