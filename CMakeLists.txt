@@ -25,7 +25,7 @@ INCLUDE(cmake/cpack.cmake)
 
 SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
-  "Implement basic classes used as interfaces with KineoPathPlanner"
+  "Implement basic classes for canonical path planning for kinematic chains."
   )
 SET(PROJECT_URL "")
 

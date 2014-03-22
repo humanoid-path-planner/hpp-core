@@ -1,19 +1,19 @@
-hppCore implements basic classes used as interfaces with KineoPathPlanner.
+This package implements path planning algorithms for kinematic chains.
+Kinematic chains are represented by class hpp::model::Device.
+
 The main classes are:
 
-    * hpp::core::Device: implement a humanoid robot with a dynamical model.
-    * hpp::core::Problem: define a canonical path planning problem.
-    * hpp::core::Planner: contains a vector of above path planning problems to
-      implement iterative planning algorithms that use several instaciations of
-      a robot.
+    * hpp::core::Problem: defines a canonical path planning problem,
+    * hpp::core::PathPlanner: implements an algorithm to solve a problem,
+    * hpp::core::Roadmap: stores a network of collision-free paths
+    * hpp::core::SteeringMethod: builds paths between configurations taking into
+      account kinematic constraints.
+    * hpp::core::Path: paths for a robot.
 
-This package and depending packages implementing algorithms can be used
-with or without GUI, depending on whether we are developing and debugging
-new algorithms or we want to run the algorithms on-board a robot.
+Embedding hpp-core into an application
 
-Upon some events (a problem is added in hpp::core::Planner object, a path has
-been planned, ...), notifications are sent.
-
-    * When working with the GUI, these notification are caught by the
-      interface and objects are added in the view,
-    * when working without interface, the notification have no effet.
+Class hpp::core::ProblemSolver is a container aiming at embedding
+hpp-core into an application. It stores elements of the problem
+that can be provided in random order and builds a valid problem
+upon call of method solve. After completion of method solve, it
+stores solution paths.
