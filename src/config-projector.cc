@@ -65,14 +65,6 @@ namespace hpp {
       vector_t value (constraint->outputSize ());
       matrix_t jacobian (constraint->outputSize (),
 			 robot_->numberDof ());
-      hppDout (info, "constraint->getName () = " << constraint->name ());
-      hppDout (info, "constraint->inputSize () = " <<
-	       constraint->inputSize ());
-      hppDout (info, "constraint->outputSize () = " <<
-	       constraint->outputSize ());
-      hppDout (info, "value.rows () = " << value.rows ());
-      hppDout (info, "jacobian.rows () = " << jacobian.rows ());
-      hppDout (info, "jacobian.cols () = " << jacobian.cols ());
       constraints_.push_back (FunctionValueAndJacobian_t (constraint, value,
 							  jacobian));
       computeIntervals ();
@@ -96,13 +88,10 @@ namespace hpp {
 	if (size > 0) {
 	  interval.first = latestIndex + 1;
 	  interval.second = size;
-	  hppDout (info, "Adding interval [" << interval.first << ","
-		   << interval.second << "]");
 	  intervals_.push_back (interval);
 	}
 	latestIndex = index;
       }
-      hppDout (info, "");
       // Remove temporary element.
       lockedDofs_.pop_back ();
     }
@@ -140,9 +129,6 @@ namespace hpp {
 	matrix_t& jacobian = itConstraint->jacobian;
 	f (value, configuration);
 	f.jacobian (jacobian, configuration);
-	hppDout (info, "Function " << f.name ());
-	hppDout (info, "value: " << std::endl << value);
-	hppDout (info, "Jacobian: " << std::endl << jacobian);
 	nbRows = f.outputSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
@@ -157,8 +143,6 @@ namespace hpp {
 	}
 	row += nbRows;
       }
-      hppDout (info, "Constraint value: " << value_);
-      hppDout (info, "Reduced Jacobian: " << reducedJacobian_);
     }
 
     /// Convert vector of non locked degrees of freedom to vector of
@@ -215,9 +199,7 @@ namespace hpp {
 	Eigen::JacobiSVD <matrix_t> svd (reducedJacobian_,
 					 Eigen::ComputeThinU |
 					 Eigen::ComputeThinV);
-	hppDout (info, "singular values: " << svd.singularValues ());
 	dqSmall_ = svd.solve(value_);
-	hppDout (info, "dqSmall_ = " << dqSmall_);
 	smallToNormal (dqSmall_, dq_);
 	model::integrate (robot_, configuration, -alpha * dq_, configuration);
 	// Increase alpha towards alphaMax
@@ -230,6 +212,7 @@ namespace hpp {
 	++iter;
 	computeValueAndJacobian (configuration);
       };
+      hppDout (info, "number of iterations: " << iter);
       if (squareNorm > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");
 	return false;
@@ -254,9 +237,6 @@ namespace hpp {
       reducedProjector_ -= V1 * V1.transpose ();
       projMinusFromSmall_ = reducedProjector_ * toMinusFromSmall_;
       smallToNormal (projMinusFromSmall_, projMinusFrom_);
-      hppDout (info, "projMinusFromSmall_ = "
-	       << projMinusFromSmall_.transpose ());
-      hppDout (info, "projMinusFrom_ = " << projMinusFrom_.transpose ());
       model::integrate (robot_, from, projMinusFrom_, result);
     }
 
