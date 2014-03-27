@@ -92,7 +92,7 @@ namespace hpp {
 
     // ======================================================================
 
-    void Problem::addObstacle (const CollisionObjectShPtr_t& object,
+    void Problem::addObstacle (const CollisionObjectPtr_t& object,
 			       bool collision, bool distance)
     {
       // Add object in local list

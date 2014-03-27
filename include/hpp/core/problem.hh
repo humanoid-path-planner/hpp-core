@@ -147,7 +147,7 @@ namespace hpp {
       ///        for this object.
       /// \param distance whether distance computation should be performed
       ///        for this object.
-      void addObstacle (const CollisionObjectShPtr_t& object, bool collision,
+      void addObstacle (const CollisionObjectPtr_t& object, bool collision,
 			bool distance);
       /// List of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;

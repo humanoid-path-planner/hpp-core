@@ -65,58 +65,62 @@ namespace hpp {
     // roboptim
     typedef roboptim::GenericFunctionTraits
     <roboptim::EigenMatrixDense>::value_type value_type;
-    typedef BasicConfigurationShooterShPtr BasicConfigurationShooterPtr_t;
-    typedef model::CollisionObjectShPtr CollisionObjectShPtr_t;
+    typedef boost::shared_ptr < BasicConfigurationShooter >
+    BasicConfigurationShooterPtr_t;
+    typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
     typedef boost::shared_ptr<model::Configuration_t> ConfigurationPtr_t;
     typedef std::vector <ConfigurationPtr_t> Configurations_t;
     typedef Configurations_t::iterator ConfigIterator_t;
     typedef Configurations_t::const_iterator ConfigConstIterator_t;
-    typedef ConfigurationShooterShPtr ConfigurationShooterPtr_t;
-    typedef ConfigProjectorShPtr ConfigProjectorPtr_t;
-    typedef ConnectedComponentShPtr ConnectedComponentPtr_t;
-    typedef std::list < ConnectedComponentPtr_t > ConnectedComponents_t;
-    typedef ConstraintShPtr ConstraintPtr_t;
-    typedef ConstraintSetShPtr ConstraintSetPtr_t;
+    typedef boost::shared_ptr <ConfigurationShooter> ConfigurationShooterPtr_t;
+    typedef boost::shared_ptr <ConfigProjector> ConfigProjectorPtr_t;
+    typedef boost::shared_ptr <ConnectedComponent> ConnectedComponentPtr_t;
+    typedef std::list <ConnectedComponentPtr_t> ConnectedComponents_t;
+    typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
+    typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef model::Device Device_t;
-    typedef model::DeviceShPtr DevicePtr_t;
+    typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr DeviceWkPtr_t;
-    typedef std::deque < DevicePtr_t > Devices_t;
-    typedef DifferentiableFunctionShPtr DifferentiableFunctionPtr_t;
-    typedef DiffusingPlannerShPtr DiffusingPlannerPtr_t;
-    typedef DiscretizedCollisionCheckingShPtr DiscretizedCollisionCheckingPtr_t;
-    typedef DistanceShPtr DistancePtr_t;
+    typedef std::deque <DevicePtr_t> Devices_t;
+    typedef boost::shared_ptr <DifferentiableFunction>
+    DifferentiableFunctionPtr_t;
+    typedef boost::shared_ptr <DiffusingPlanner> DiffusingPlannerPtr_t;
+    typedef boost::shared_ptr <DiscretizedCollisionChecking>
+    DiscretizedCollisionCheckingPtr_t;
+    typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef Edge* EdgePtr_t;
-    typedef std::list < Edge* > Edges_t;
-    typedef ExtractedPathShPtr ExtractedPathPtr_t;
+    typedef std::list <Edge*> Edges_t;
+    typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
     typedef model::JointJacobian_t JointJacobian_t;
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
     typedef model::JointVector_t JointVector_t;
-    typedef LockedDofShPtr LockedDofPtr_t;
+    typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;
     typedef model::matrix_t matrix_t;
-    typedef std::list < Node* > Nodes_t;
-    typedef std::list < Node* > Nodes_t;
+    typedef std::list <Node*> Nodes_t;
+    typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;
-    typedef PathShPtr PathPtr_t;
-    typedef PathOptimizerShPtr PathOptimizerPtr_t;
-    typedef PathPlannerShPtr PathPlannerPtr_t;
-    typedef PathValidationShPtr PathValidationPtr_t;
-    typedef PathVectorShPtr PathVectorPtr_t;
-    typedef PlanAndOptimizeShPtr PlanAndOptimizePtr_t;
+    typedef boost::shared_ptr <Path> PathPtr_t;
+    typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
+    typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
+    typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
+    typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
+    typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
     typedef Problem* ProblemPtr_t;
     typedef ProblemSolver* ProblemSolverPtr_t;
-    typedef RandomShortcutShPtr RandomShortcutPtr_t;
-    typedef RoadmapShPtr RoadmapPtr_t;
+    typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
+    typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef roboptim::Function::size_type size_type;
-    typedef StraightPathShPtr StraightPathPtr_t;
-    typedef SteeringMethodShPtr SteeringMethodPtr_t;
-    typedef SteeringMethodStraightShPtr SteeringMethodStraightPtr_t;
+    typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
+    typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
+    typedef boost::shared_ptr <SteeringMethodStraight>
+    SteeringMethodStraightPtr_t;
     typedef roboptim::StableTimePoint StableTimePoint_t;
     typedef std::vector <PathPtr_t> Paths_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef model::vector_t vector_t;
-    typedef WeighedDistanceShPtr WeighedDistancePtr_t;
+    typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
   } // namespace core
 } // namespace hpp
 

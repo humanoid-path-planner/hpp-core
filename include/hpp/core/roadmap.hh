@@ -25,7 +25,7 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (NearestNeighbor);
-    typedef NearestNeighborShPtr NearestNeighborPtr_t;
+    typedef boost::shared_ptr <NearestNeighbor> NearestNeighborPtr_t;
 
     /// Roadmap built by random path planning methods
     /// Nodes are configurations, paths are collision-free paths.

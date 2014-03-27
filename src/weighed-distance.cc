@@ -36,7 +36,7 @@ namespace hpp {
     WeighedDistancePtr_t WeighedDistance::create (const DevicePtr_t& robot)
     {
       WeighedDistance* ptr = new WeighedDistance (robot);
-      WeighedDistanceShPtr shPtr (ptr);
+      WeighedDistancePtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
     }
@@ -46,7 +46,7 @@ namespace hpp {
 			     const std::vector <value_type>& weights)
     {
       WeighedDistance* ptr = new WeighedDistance (robot, weights);
-      WeighedDistanceShPtr shPtr (ptr);
+      WeighedDistancePtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
     }
@@ -55,7 +55,7 @@ namespace hpp {
 	(const WeighedDistancePtr_t& distance)
     {
       WeighedDistance* ptr = new WeighedDistance (*distance);
-      WeighedDistanceShPtr shPtr (ptr);
+      WeighedDistancePtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
     }
@@ -118,7 +118,7 @@ namespace hpp {
     {
     }
 
-    void WeighedDistance::init (WeighedDistanceShPtr self)
+    void WeighedDistance::init (WeighedDistanceWkPtr self)
     {
       weak_ = self;
     }

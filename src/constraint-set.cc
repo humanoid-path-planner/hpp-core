@@ -22,7 +22,8 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (ConfigProjectorTrivial);
-    typedef ConfigProjectorTrivialShPtr ConfigProjectorTrivialPtr_t;
+    typedef boost::shared_ptr <ConfigProjectorTrivial>
+    ConfigProjectorTrivialPtr_t;
     class ConfigProjectorTrivial : public ConfigProjector
     {
     public:

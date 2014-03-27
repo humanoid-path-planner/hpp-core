@@ -42,7 +42,7 @@ namespace hpp {
       WeighedDistance (const DevicePtr_t& robot,
 		       const std::vector <value_type>& weights);
       WeighedDistance (const WeighedDistance& distance);
-      void init (WeighedDistanceShPtr self);
+      void init (WeighedDistanceWkPtr self);
       /// Derived class should implement this function
       virtual value_type impl_distance (const Configuration_t& q1,
 				    const Configuration_t& q2);

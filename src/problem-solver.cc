@@ -139,7 +139,7 @@ namespace hpp {
       paths_.push_back (path);
     }
 
-    void ProblemSolver::addObstacle (const CollisionObjectShPtr_t& object,
+    void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
       problem ()->addObstacle (object, collision, distance);

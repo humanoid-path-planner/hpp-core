@@ -121,7 +121,7 @@ namespace hpp {
       ///        for this object.
       /// \param distance whether distance computation should be performed
       ///        for this object.
-      void addObstacle (const CollisionObjectShPtr_t& inObject, bool collision,
+      void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
     private:
       typedef boost::function < PathPlannerPtr_t (const Problem&,
