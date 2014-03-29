@@ -37,14 +37,14 @@ namespace hpp {
 	: ConfigProjector (robot, "trivial ConfigProjector", 0, 0)
       {
       }
-      bool impl_compute (Configuration_t& configuration)
+      bool impl_compute (ConfigurationOut_t configuration)
       {
 	computeLockedDofs (configuration);
 	return true;
       }
     }; // class ConfigProjectorTrivial
 
-    bool ConstraintSet::impl_compute (Configuration_t& configuration)
+    bool ConstraintSet::impl_compute (ConfigurationOut_t configuration)
     {
       for (Constraints_t::iterator itConstraint = constraints_.begin ();
 	   itConstraint != constraints_.end (); itConstraint ++) {

@@ -67,7 +67,7 @@ namespace hpp {
 	Constraint::init (self);
 	weak_ = self;
       }
-      virtual bool impl_compute (Configuration_t& configuration);
+      virtual bool impl_compute (ConfigurationOut_t configuration);
     private:
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
       {

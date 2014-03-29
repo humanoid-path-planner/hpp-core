@@ -28,7 +28,7 @@
 namespace hpp {
   namespace core {
 
-    std::string displayConfig (const Configuration_t& q)
+    std::string displayConfig (ConfigurationIn_t q)
     {
       std::ostringstream oss;
       for (size_type i=0; i < q.size (); ++i) {

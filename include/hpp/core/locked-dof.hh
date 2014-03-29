@@ -62,7 +62,7 @@ namespace hpp {
 	Constraint::init (self);
 	weak_ = self;
       }
-      bool impl_compute (Configuration_t& configuration)
+      bool impl_compute (ConfigurationOut_t configuration)
       {
 	configuration [index_] = value_;
 	return true;

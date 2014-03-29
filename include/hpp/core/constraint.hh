@@ -37,7 +37,7 @@ namespace hpp {
       /// Function that applies the constraint
       /// \param configuration initial configuration and result
       /// \return true if constraint applied successfully, false if failure.
-      bool apply (Configuration_t& configuration);
+      bool apply (ConfigurationOut_t configuration);
       /// Get name of constraint
       const std::string& name () const
       {
@@ -45,7 +45,7 @@ namespace hpp {
       }
     protected:
       /// User defined implementation of the constraint.
-      virtual bool impl_compute (Configuration_t& configuration) = 0;
+      virtual bool impl_compute (ConfigurationOut_t configuration) = 0;
       /// Constructor
       Constraint (const std::string& name) : name_ (name)
 	{

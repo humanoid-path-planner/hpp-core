@@ -23,7 +23,7 @@
 
 namespace hpp {
   namespace core {
-    extern std::string displayConfig (const Configuration_t& q);
+    extern std::string displayConfig (ConfigurationIn_t q);
     Node::Node (const ConfigurationPtr_t& configuration,
 		ConnectedComponentPtr_t connectedComponent) :
       configuration_ (configuration),

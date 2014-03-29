@@ -28,7 +28,7 @@
 namespace hpp {
   namespace core {
 
-    extern std::string displayConfig (const Configuration_t& q);
+    extern std::string displayConfig (ConfigurationIn_t q);
 
     // ======================================================================
 
@@ -154,7 +154,7 @@ namespace hpp {
     }
 
     bool Problem::validateConfig (const DevicePtr_t& device,
-				  const Configuration_t& config) const
+				  ConfigurationIn_t config) const
     {
       device->currentConfiguration (config);
       device->computeForwardKinematics ();

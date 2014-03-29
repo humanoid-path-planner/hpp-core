@@ -160,7 +160,7 @@ namespace hpp {
     private :
       /// Validate configuration and track validation reports.
       bool validateConfig (const DevicePtr_t& device,
-			   const Configuration_t& inConfig) const;
+			   ConfigurationIn_t inConfig) const;
 
       /// Validate initial configuration
       void validateInitConfig () const;

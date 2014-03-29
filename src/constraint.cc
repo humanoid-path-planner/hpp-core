@@ -20,7 +20,7 @@
 
 namespace hpp {
   namespace core {
-    bool Constraint::apply (Configuration_t& configuration)
+    bool Constraint::apply (ConfigurationOut_t configuration)
     {
       return impl_compute (configuration);
     }

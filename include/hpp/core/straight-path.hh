@@ -52,8 +52,8 @@ namespace hpp {
       /// \param init, end Start and end configurations of the path
       /// \param length Distance between the configurations.
       static StraightPathPtr_t create (const DevicePtr_t& device,
-				       const Configuration_t& init,
-				       const Configuration_t& end,
+				       ConfigurationIn_t init,
+				       ConfigurationIn_t end,
 				       value_type length,
 				       const ConstraintSetPtr_t& constraints =
 				       ConstraintSetPtr_t ())
@@ -72,8 +72,8 @@ namespace hpp {
 
     protected:
       /// Constructor
-      StraightPath (const DevicePtr_t& robot, const Configuration_t& init,
-		    const Configuration_t& end, value_type length,
+      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
+		    ConfigurationIn_t end, value_type length,
 		    const ConstraintSetPtr_t& constraints);
 
       /// Copy constructor

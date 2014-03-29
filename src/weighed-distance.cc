@@ -123,8 +123,8 @@ namespace hpp {
       weak_ = self;
     }
 
-    value_type WeighedDistance::impl_distance (const Configuration_t& q1,
-					    const Configuration_t& q2)
+    value_type WeighedDistance::impl_distance (ConfigurationIn_t q1,
+					       ConfigurationIn_t q2)
     {
       // Loop over robot joint and interpolate
       value_type res = 0;
