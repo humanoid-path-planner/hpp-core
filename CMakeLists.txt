@@ -71,8 +71,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/weighed-distance.hh
 )
 
-ADD_REQUIRED_DEPENDENCY("hpp-util >= 0.8")
-ADD_REQUIRED_DEPENDENCY("hpp-model >= 2.1")
+ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
+ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
 ADD_REQUIRED_DEPENDENCY("roboptim-trajectory >= 1.0")
 
 # Add dependency toward hpp-model library in pkg-config file.
