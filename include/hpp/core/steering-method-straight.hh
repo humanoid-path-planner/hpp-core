@@ -36,8 +36,8 @@ namespace hpp {
       {
       }
       /// create a path between two configurations
-      virtual PathPtr_t impl_compute (const Configuration_t& q1,
-				      const Configuration_t& q2) const
+      virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
+				      ConfigurationIn_t q2) const
       {
 	value_type length = (*distance_) (q1, q2);
 	return StraightPath::create (device_.lock (), q1, q2, length,

@@ -118,7 +118,7 @@ namespace hpp {
     }
 
     void ConfigProjector::computeValueAndJacobian
-    (const Configuration_t& configuration)
+    (ConfigurationIn_t configuration)
     {
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator itConstraint =
@@ -147,8 +147,8 @@ namespace hpp {
 
     /// Convert vector of non locked degrees of freedom to vector of
     /// all degrees of freedom
-    void ConfigProjector::smallToNormal (const vector_t& small,
-					 vector_t& normal)
+    void ConfigProjector::smallToNormal (vectorIn_t small,
+					 vectorOut_t normal)
     {
       assert (small.size () + lockedDofs_.size () == robot_->numberDof ());
       assert (normal.size () - robot_->numberDof () == 0);
@@ -162,8 +162,8 @@ namespace hpp {
       }
     }
 
-    void ConfigProjector::normalToSmall (const vector_t& normal,
-					 vector_t& small)
+    void ConfigProjector::normalToSmall (vectorIn_t normal,
+					 vectorOut_t small)
     {
       assert (small.size () + lockedDofs_.size () == robot_->numberDof ());
       assert (abs (normal.size ()) - robot_->numberDof () == 0);
@@ -177,7 +177,7 @@ namespace hpp {
       }
     }
 
-    bool ConfigProjector::impl_compute (Configuration_t& configuration)
+    bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
@@ -201,7 +201,8 @@ namespace hpp {
 					 Eigen::ComputeThinV);
 	dqSmall_ = svd.solve(value_);
 	smallToNormal (dqSmall_, dq_);
-	model::integrate (robot_, configuration, -alpha * dq_, configuration);
+	vector_t v (-alpha * dq_);
+	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
 	alpha = alphaMax - .8*(alphaMax - alpha);
 	squareNorm = value_.squaredNorm ();
@@ -221,9 +222,9 @@ namespace hpp {
       return true;
     }
 
-    void ConfigProjector::projectOnKernel (const Configuration_t& from,
-					   const Configuration_t& to,
-					   Configuration_t& result)
+    void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
+					   ConfigurationIn_t to,
+					   ConfigurationOut_t result)
     {
       computeValueAndJacobian (from);
       model::difference (robot_, to, from, toMinusFrom_);
@@ -240,7 +241,7 @@ namespace hpp {
       model::integrate (robot_, from, projMinusFrom_, result);
     }
 
-    void ConfigProjector::computeLockedDofs (Configuration_t& configuration)
+    void ConfigProjector::computeLockedDofs (ConfigurationOut_t configuration)
     {
       for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
 	   itLock != lockedDofs_.end (); itLock ++) {

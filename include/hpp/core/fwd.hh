@@ -69,6 +69,8 @@ namespace hpp {
     BasicConfigurationShooterPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
+    typedef model::ConfigurationIn_t ConfigurationIn_t; 
+    typedef model::ConfigurationOut_t ConfigurationOut_t; 
     typedef boost::shared_ptr<model::Configuration_t> ConfigurationPtr_t;
     typedef std::vector <ConfigurationPtr_t> Configurations_t;
     typedef Configurations_t::iterator ConfigIterator_t;
@@ -120,6 +122,8 @@ namespace hpp {
     typedef std::vector <PathPtr_t> Paths_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef model::vector_t vector_t;
+    typedef model::vectorIn_t vectorIn_t;
+    typedef model::vectorOut_t vectorOut_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
   } // namespace core
 } // namespace hpp

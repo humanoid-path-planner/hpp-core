@@ -26,8 +26,8 @@
 namespace hpp {
   namespace core {
     StraightPath::StraightPath (const DevicePtr_t& device,
-				const Configuration_t& init,
-				const Configuration_t& end,
+				ConfigurationIn_t init,
+				ConfigurationIn_t end,
 				value_type length,
 				const ConstraintSetPtr_t& constraints) :
       parent_t (interval_t (0, length), device->configSize (), constraints),

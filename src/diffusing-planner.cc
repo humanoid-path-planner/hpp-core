@@ -31,7 +31,7 @@
 
 namespace hpp {
   namespace core {
-    extern std::string displayConfig (const Configuration_t& q);
+    extern std::string displayConfig (ConfigurationIn_t q);
 
     DiffusingPlannerPtr_t DiffusingPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)

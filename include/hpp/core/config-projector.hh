@@ -62,8 +62,8 @@ namespace hpp {
       /// \textbf{q}_{res} = \textbf{q}_{from} + \left(I_n -
       /// J^{+}J(\textbf{q}_{from})\right) (\textbf{q}_{to} - \textbf{q}_{from})
       /// \f]
-      void projectOnKernel (const Configuration_t& from,
-			    const Configuration_t& to, Configuration_t& result);
+      void projectOnKernel (ConfigurationIn_t from,
+			    ConfigurationIn_t to, ConfigurationOut_t result);
 
     protected:
       /// Constructor
@@ -81,15 +81,15 @@ namespace hpp {
 	weak_ = self;
       }
       /// Numerically solve constraint
-      virtual bool impl_compute (Configuration_t& configuration);
+      virtual bool impl_compute (ConfigurationOut_t configuration);
       /// Set locked degrees of freedom to their locked values
-      void computeLockedDofs (Configuration_t& configuration);
+      void computeLockedDofs (ConfigurationOut_t configuration);
 
     private:
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
-      void smallToNormal (const vector_t& small, vector_t& normal);
-      void normalToSmall (const vector_t& normal, vector_t& small);
+      void smallToNormal (vectorIn_t small, vectorOut_t normal);
+      void normalToSmall (vectorIn_t normal, vectorOut_t small);
       struct FunctionValueAndJacobian_t {
 	FunctionValueAndJacobian_t (DifferentiableFunctionPtr_t f,
 				    vector_t v, matrix_t j): function (f),
@@ -102,7 +102,7 @@ namespace hpp {
       }; // struct FunctionValueAndJacobian_t
       typedef std::vector < FunctionValueAndJacobian_t > NumericalConstraints_t;
       void resize ();
-      void computeValueAndJacobian (const Configuration_t& configuration);
+      void computeValueAndJacobian (ConfigurationIn_t configuration);
       virtual void addLockedDof (const LockedDofPtr_t& lockedDof);
       void computeIntervals ();
       typedef std::list <LockedDofPtr_t> LockedDofs_t;

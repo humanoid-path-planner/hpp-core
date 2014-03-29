@@ -33,8 +33,8 @@ namespace hpp {
       /// Evaluate the function at a given parameter.
       ///
       /// \note parameters should be of the correct size.
-      void operator () (vector_t& result,
-			const Configuration_t& argument) const
+      void operator () (vectorOut_t result,
+			ConfigurationIn_t argument) const
       {
 	assert (result.size () == outputSize ());
 	assert (argument.size () == inputSize ());
@@ -44,7 +44,7 @@ namespace hpp {
       ///
       /// \retval jacobian jacobian will be stored in this argument
       /// \param argument point at which the jacobian will be computed
-      void jacobian (matrix_t& jacobian, const Configuration_t& argument) const
+      void jacobian (matrix_t& jacobian, ConfigurationIn_t argument) const
       {
 	assert (argument.size () == inputSize ());
 	assert (jacobian.rows () == outputSize ());
@@ -113,11 +113,11 @@ namespace hpp {
       }
 
       /// User implementation of function evaluation
-      virtual void impl_compute (vector_t& result,
-				 const Configuration_t& argument) const = 0;
+      virtual void impl_compute (vectorOut_t result,
+				 ConfigurationIn_t argument) const = 0;
 
       virtual void impl_jacobian (matrix_t& jacobian,
-				  const Configuration_t& arg) const = 0;
+				  ConfigurationIn_t arg) const = 0;
 
     private:
       /// Dimension of input vector.

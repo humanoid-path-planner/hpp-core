@@ -39,8 +39,8 @@ namespace hpp {
     {
     public:
       /// create a path between two configurations
-      PathPtr_t operator() (const Configuration_t& q1,
-			    const Configuration_t& q2) const
+      PathPtr_t operator() (ConfigurationIn_t q1,
+			    ConfigurationIn_t q2) const
       {
 	return impl_compute (q1, q2);
       }
@@ -62,8 +62,8 @@ namespace hpp {
 
     protected:
       /// create a path between two configurations
-      virtual PathPtr_t impl_compute (const Configuration_t& q1,
-				      const Configuration_t& q2) const = 0;
+      virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
+				      ConfigurationIn_t q2) const = 0;
     private:
       /// Set of constraints to apply on the paths produced
       ConstraintSetPtr_t constraints_;

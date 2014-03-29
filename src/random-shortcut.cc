@@ -33,14 +33,16 @@ namespace hpp {
     // Compute the length of a vector of paths assuming that each element
     // is optimal for the given distance.
     static value_type pathLength (const PathVectorPtr_t& path,
-			      const DistancePtr_t& distance)
+				  const DistancePtr_t& distance)
     {
       value_type result = 0;
       for (std::size_t i=0; i<path->numberPaths (); ++i) {
 	const PathPtr_t& element (path->pathAtRank (i));
 	const value_type& tmin (element->timeRange ().first);
 	const value_type& tmax (element->timeRange ().second);
-	result += (*distance) ((*element) (tmin), (*element) (tmax));
+	Configuration_t q1 ((*element) (tmax));
+	Configuration_t q2 ((*element) (tmax));
+	result += (*distance) (q1, q2);
       }
       return result;
     }
