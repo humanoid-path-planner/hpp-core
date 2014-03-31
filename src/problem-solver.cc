@@ -118,6 +118,10 @@ namespace hpp {
       }
       // Set constraints
       problem_->constraints (constraints_);
+      // Set obstacles
+      problem_->collisionObstacles(collisionObstacles_);
+      problem_->distanceObstacles(distanceObstacles_);
+      
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
@@ -142,7 +146,13 @@ namespace hpp {
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
-      problem ()->addObstacle (object, collision, distance);
+      
+      if (collision)
+	collisionObstacles_.push_back (object);
+      if (distance)
+	distanceObstacles_.push_back (object);
+      if (problem ())
+        problem ()->addObstacle (object, collision, distance);
     }
 
 

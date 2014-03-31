@@ -159,6 +159,9 @@ namespace hpp {
       PathOptimizerFactory_t pathOptimizerFactory_;
       /// Store constraints until call to solve.
       ConstraintSetPtr_t constraints_;
+      /// Store obstacles until call to solve.
+      ObjectVector_t collisionObstacles_;
+      ObjectVector_t distanceObstacles_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp
