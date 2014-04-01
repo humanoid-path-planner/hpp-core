@@ -40,7 +40,7 @@ namespace hpp {
 	const PathPtr_t& element (path->pathAtRank (i));
 	const value_type& tmin (element->timeRange ().first);
 	const value_type& tmax (element->timeRange ().second);
-	Configuration_t q1 ((*element) (tmax));
+	Configuration_t q1 ((*element) (tmin));
 	Configuration_t q2 ((*element) (tmax));
 	result += (*distance) (q1, q2);
       }
