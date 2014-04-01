@@ -44,7 +44,7 @@ namespace hpp {
       ///
       /// \retval jacobian jacobian will be stored in this argument
       /// \param argument point at which the jacobian will be computed
-      void jacobian (matrix_t& jacobian, ConfigurationIn_t argument) const
+      void jacobian (matrixOut_t jacobian, ConfigurationIn_t argument) const
       {
 	assert (argument.size () == inputSize ());
 	assert (jacobian.rows () == outputSize ());
@@ -116,7 +116,7 @@ namespace hpp {
       virtual void impl_compute (vectorOut_t result,
 				 ConfigurationIn_t argument) const = 0;
 
-      virtual void impl_jacobian (matrix_t& jacobian,
+      virtual void impl_jacobian (matrixOut_t jacobian,
 				  ConfigurationIn_t arg) const = 0;
 
     private:

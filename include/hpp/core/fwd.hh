@@ -99,6 +99,8 @@ namespace hpp {
     typedef model::JointVector_t JointVector_t;
     typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;
     typedef model::matrix_t matrix_t;
+    typedef Eigen::Ref <const matrix_t> matrixIn_t;
+    typedef Eigen::Ref <matrix_t> matrixOut_t;
     typedef std::list <Node*> Nodes_t;
     typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
