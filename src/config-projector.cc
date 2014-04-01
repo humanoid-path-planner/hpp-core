@@ -150,8 +150,9 @@ namespace hpp {
     void ConfigProjector::smallToNormal (vectorIn_t small,
 					 vectorOut_t normal)
     {
-      assert (small.size () + lockedDofs_.size () == robot_->numberDof ());
-      assert (normal.size () - robot_->numberDof () == 0);
+      assert (small.size () + (size_type) lockedDofs_.size () ==
+	      robot_->numberDof ());
+      assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
       for (Intervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); itInterval ++) {
@@ -165,8 +166,9 @@ namespace hpp {
     void ConfigProjector::normalToSmall (vectorIn_t normal,
 					 vectorOut_t small)
     {
-      assert (small.size () + lockedDofs_.size () == robot_->numberDof ());
-      assert (abs (normal.size ()) - robot_->numberDof () == 0);
+      assert (small.size () + (size_type) lockedDofs_.size () ==
+	      robot_->numberDof ());
+      assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
       for (Intervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); itInterval ++) {
