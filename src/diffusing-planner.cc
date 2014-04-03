@@ -61,6 +61,15 @@ namespace hpp {
     {
     }
 
+    bool belongs (const ConfigurationPtr_t& q, const Nodes_t& nodes)
+    {
+      for (Nodes_t::const_iterator itNode = nodes.begin ();
+	   itNode != nodes.end (); ++itNode) {
+	if (*((*itNode)->configuration ()) == *q) return true;
+      }
+      return false;
+    }
+
     PathPtr_t DiffusingPlanner::extend (const NodePtr_t& near,
 					const ConfigurationPtr_t& target)
     {
@@ -93,7 +102,6 @@ namespace hpp {
       //
       // First extend each connected component toward q_rand
       //
-      bool q_randInRoadmap = false;
       for (ConnectedComponents_t::const_iterator itcc =
 	     roadmap ()->connectedComponents ().begin ();
 	   itcc != roadmap ()->connectedComponents ().end (); itcc++) {
@@ -108,7 +116,7 @@ namespace hpp {
 	  if (t_final != path->timeRange ().first) {
 	    ConfigurationPtr_t q_new (new Configuration_t
 				      ((*validPath) (t_final)));
-	    if (!q_randInRoadmap || !pathValid) {
+	    if (!pathValid || !belongs (q_new, newNodes)) {
 	      newNodes.push_back (roadmap ()->addNodeAndEdge
 				  (near, q_new, validPath));
 	    } else {
@@ -117,31 +125,6 @@ namespace hpp {
 	      Path::interval_t timeRange = validPath->timeRange ();
 	      roadmap ()->addEdge (newNode, near, validPath->extract
 				   (Path::interval_t (timeRange.second ,
-						      timeRange.first)));
-	    }
-	    if ((pathValid) && ((*path) (t_final) == *q_rand))
-	      q_randInRoadmap = true;
-	  }
-	}
-      }
-      //
-      // Second try to connect new nodes together
-      //
-      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      if (!q_randInRoadmap) {
-	for (Nodes_t::const_iterator itn1 = newNodes.begin ();
-	     itn1 != newNodes.end (); ++itn1) {
-	  for (Nodes_t::const_iterator itn2 = boost::next (itn1);
-	       itn2 != newNodes.end (); ++itn2) {
-	    ConfigurationPtr_t q1 ((*itn1)->configuration ());
-	    ConfigurationPtr_t q2 ((*itn2)->configuration ());
-	    assert (*q1 != *q2);
-	    path = (*sm) (*q1, *q2);
-	    if (pathValidation->validate (path, false, validPath)) {
-	      roadmap ()->addEdge (*itn1, *itn2, path);
-	      Path::interval_t timeRange = path->timeRange ();
-	      roadmap ()->addEdge (*itn2, *itn1, path->extract
-				   (Path::interval_t (timeRange.second,
 						      timeRange.first)));
 	    }
 	  }
