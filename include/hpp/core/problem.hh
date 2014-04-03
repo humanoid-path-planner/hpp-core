@@ -149,10 +149,22 @@ namespace hpp {
       ///        for this object.
       void addObstacle (const CollisionObjectPtr_t& object, bool collision,
 			bool distance);
-      /// List of objects considered for collision detection
+      /// Vector of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;
-      /// List of objects considered for computation
+      /// Vector of objects considered for distance computation
       const ObjectVector_t& distanceObstacles () const;
+      /// Set the vector of objects considered for collision detection
+      void collisionObstacles (const ObjectVector_t& collisionObstacles)
+      {
+	collisionObstacles_ = collisionObstacles;
+      }      
+      /// Set the vector of objects considered for distance computation
+      void distanceObstacles (const ObjectVector_t& distanceObstacles)
+      {
+	distanceObstacles_ = distanceObstacles;
+      }
+
+       
 
 
       /// \}
