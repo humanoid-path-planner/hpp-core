@@ -36,22 +36,22 @@ namespace hpp {
       void clear ();
       /// Add a node with given configuration
       /// \param config configuration
-      /// \param connectedComponent Connected component the node belongs to.
-      ///        nil pointer means the whole roadmap.
       ///
-      /// If configuration is alread in the connected component, return the node
-      /// containing the configuration. Otherwise, create a new node with given
-      /// connected component (or new connected component if nil pointer).
-      NodePtr_t addNode (const ConfigurationPtr_t& config,
-			 ConnectedComponentPtr_t connectedComponent =
-			 ConnectedComponentPtr_t());
+      /// If configuration is alread in the roadmap, return the node
+      /// containing the configuration. Otherwise, create a new node and a new
+      /// connected component with this node.
+      NodePtr_t addNode (const ConfigurationPtr_t& config);
+
+      /// Get nearest node to a configuration in the roadmap.
+      /// \param configuration configuration
+      /// \retval distance to the nearest node.
+      NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+			     value_type& minDistance);
 
       /// Get nearest node to a configuration in a connected component.
       /// \param configuration configuration
       /// \param connectedComponent the connected component
       /// \retval distance to the nearest node.
-      /// If pointer to connectedComponent is nil, looks into all connected
-      /// components.
       NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
 			     const ConnectedComponentPtr_t& connectedComponent,
 			     value_type& minDistance);
@@ -127,6 +127,17 @@ namespace hpp {
     private:
       typedef std::map <ConnectedComponentPtr_t, NearestNeighborPtr_t>
 	NearetNeighborMap_t;
+      /// Add a node with given configuration
+      /// \param config configuration
+      /// \param connectedComponent Connected component the node will belong
+      ///        to.
+      ///
+      /// If configuration is alread in the connected component, return the node
+      /// containing the configuration. Otherwise, create a new node with given
+      /// connected component.
+      NodePtr_t addNode (const ConfigurationPtr_t& config,
+			 ConnectedComponentPtr_t connectedComponent);
+
       const DistancePtr_t& distance_;
       ConnectedComponents_t connectedComponents_;
       Nodes_t nodes_;

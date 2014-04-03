@@ -33,13 +33,14 @@ namespace hpp {
       typedef std::list <EdgePtr_t> Edges_t;
       /// Constructor
       /// \param configuration configuration stored in the new node
-      /// \param connectedComponent connected component the node belongs to.
-      /// if no connected component is provided, a new one is created.
-      /// \note For consistency, if a new connected component is created, the
+      /// \note A new connected component is created. For consistency, the
       ///       new node is not registered in the connected component.
+      Node (const ConfigurationPtr_t& configuration);
+      /// Constructor
+      /// \param configuration configuration stored in the new node
+      /// \param connectedComponent connected component the node belongs to.
       Node (const ConfigurationPtr_t& configuration,
-	    ConnectedComponentPtr_t connectedComponent =
-	    ConnectedComponentPtr_t());
+	    ConnectedComponentPtr_t connectedComponent);
       void addOutEdge (EdgePtr_t edge);
       void addInEdge (EdgePtr_t edge);
       /// Store the connected component the node belongs to

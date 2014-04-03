@@ -74,9 +74,32 @@ namespace hpp {
       nearestNeighbor_.clear ();
     }
 
+    NodePtr_t Roadmap::addNode (const ConfigurationPtr_t& configuration)
+    {
+      value_type distance;
+      if (nodes_.size () != 0) {
+	NodePtr_t nearest = nearestNode (configuration, distance);
+	if (*(nearest->configuration ()) == *configuration) {
+	  return nearest;
+	}
+	if (distance < 1e-4) {
+	  throw std::runtime_error ("distance to nearest node too small");
+	}
+      }
+      NodePtr_t node = new Node (configuration);
+      hppDout (info, "Added node: " << displayConfig (*configuration));
+      nodes_.push_back (node);
+      // Node constructor creates a new connected component. This new
+      // connected component needs to be added in the roadmap and the
+      // new node needs to be registered in the connected component.
+      addConnectedComponent (node);
+      return node;
+    }
+
     NodePtr_t Roadmap::addNode (const ConfigurationPtr_t& configuration,
 				ConnectedComponentPtr_t connectedComponent)
     {
+      assert (connectedComponent);
       value_type distance;
       if (nodes_.size () != 0) {
 	NodePtr_t nearest = nearestNode (configuration, connectedComponent,
@@ -91,18 +114,10 @@ namespace hpp {
       NodePtr_t node = new Node (configuration, connectedComponent);
       hppDout (info, "Added node: " << displayConfig (*configuration));
       nodes_.push_back (node);
-      if (!connectedComponent) {
-	// If connectedComponent is nil pointer, node constructor creates a new
-	// connected component. This new connected component needs to be added
-	// in the roadmap and the new node needs to be registered in the
-	// connected component.
-	addConnectedComponent (node);
-      } else {
-	// Otherwise the new node needs to be registered in the connected
-	// component. Note
-	connectedComponent->addNode (node);
-	nearestNeighbor_ [connectedComponent]->add (node);
-      }
+      // The new node needs to be registered in the connected
+      // component.
+      connectedComponent->addNode (node);
+      nearestNeighbor_ [connectedComponent]->add (node);
       return node;
     }
 
@@ -120,28 +135,32 @@ namespace hpp {
 
     NodePtr_t
     Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
+			  value_type& minDistance)
+    {
+      NodePtr_t closest;
+      minDistance = std::numeric_limits<value_type>::infinity ();
+      for (ConnectedComponents_t::const_iterator itcc =
+	     connectedComponents_.begin ();
+	   itcc != connectedComponents_.end (); itcc++) {
+	value_type distance;
+	NodePtr_t node =
+	  nearestNeighbor_ [*itcc]->nearest (configuration, distance);
+	if (distance < minDistance) {
+	  minDistance = distance;
+	  closest = node;
+	}
+      }
+      return closest;
+    }
+
+    NodePtr_t
+    Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
 			  const ConnectedComponentPtr_t& connectedComponent,
 			  value_type& minDistance)
     {
-      if (connectedComponent) {
-	return nearestNeighbor_ [connectedComponent]->nearest (configuration,
-							       minDistance);
-      } else {
-	NodePtr_t closest;
-	minDistance = std::numeric_limits<value_type>::infinity ();
-	for (ConnectedComponents_t::const_iterator itcc =
-	       connectedComponents_.begin ();
-	     itcc != connectedComponents_.end (); itcc++) {
-	  value_type distance;
-	  NodePtr_t node =
-	    nearestNeighbor_ [*itcc]->nearest (configuration, distance);
-	  if (distance < minDistance) {
-	    minDistance = distance;
-	    closest = node;
-	  }
-	}
-	return closest;
-      }
+      assert (connectedComponent);
+      return nearestNeighbor_ [connectedComponent]->nearest (configuration,
+							     minDistance);
     }
 
     void Roadmap::addGoalNode (const ConfigurationPtr_t& config)

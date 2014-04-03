@@ -24,15 +24,18 @@
 namespace hpp {
   namespace core {
     extern std::string displayConfig (ConfigurationIn_t q);
+    Node::Node (const ConfigurationPtr_t& configuration) :
+      configuration_ (configuration),
+      connectedComponent_ (ConnectedComponent::create ())
+    {
+    }
+
     Node::Node (const ConfigurationPtr_t& configuration,
 		ConnectedComponentPtr_t connectedComponent) :
       configuration_ (configuration),
       connectedComponent_ (connectedComponent)
     {
-      if (!connectedComponent_) {
-	connectedComponent_ = ConnectedComponentPtr_t
-	  (ConnectedComponent::create ());
-      }
+      assert (connectedComponent_);
     }
 
     void Node::addOutEdge (EdgePtr_t edge)
