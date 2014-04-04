@@ -166,11 +166,24 @@ namespace hpp {
 	  constraints_->apply (result);
       }
 
+      /// \name Constraints
+      /// \{
+
+      /// Get constraints the path is subject to
+      const ConstraintSetPtr_t& constraints () const
+      {
+	return constraints_;
+      }
+      /// Set constraints the path is subject to
+      void constraints (const ConstraintSetPtr_t& constraints)
+      {
+	constraints_ = constraints;
+      }
+      /// \}
     protected:
       /// Protected constructor
-      Path (const interval_t& interval, size_type outputSize,
-	    const ConstraintSetPtr_t& constraints = ConstraintSetPtr_t ()) :
-	parent_t (interval, outputSize, vector_t ()), constraints_ (constraints)
+      Path (const interval_t& interval, size_type outputSize) :
+	parent_t (interval, outputSize, vector_t ()), constraints_ ()
 	{
 	}
 

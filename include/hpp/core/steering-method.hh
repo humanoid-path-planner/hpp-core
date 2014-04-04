@@ -42,7 +42,9 @@ namespace hpp {
       PathPtr_t operator() (ConfigurationIn_t q1,
 			    ConfigurationIn_t q2) const
       {
-	return impl_compute (q1, q2);
+	PathPtr_t path (impl_compute (q1, q2));
+	path->constraints (constraints_);
+	return path;
       }
       /// \name Constraints applicable to the robot
       /// \{

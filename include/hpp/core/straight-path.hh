@@ -54,12 +54,9 @@ namespace hpp {
       static StraightPathPtr_t create (const DevicePtr_t& device,
 				       ConfigurationIn_t init,
 				       ConfigurationIn_t end,
-				       value_type length,
-				       const ConstraintSetPtr_t& constraints =
-				       ConstraintSetPtr_t ())
+				       value_type length)
       {
-	StraightPath* ptr = new StraightPath (device, init, end, length,
-					      constraints);
+	StraightPath* ptr = new StraightPath (device, init, end, length);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -73,8 +70,7 @@ namespace hpp {
     protected:
       /// Constructor
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, value_type length,
-		    const ConstraintSetPtr_t& constraints);
+		    ConfigurationIn_t end, value_type length);
 
       /// Copy constructor
       StraightPath (const StraightPath& path);

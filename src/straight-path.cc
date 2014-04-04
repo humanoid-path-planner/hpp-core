@@ -28,9 +28,8 @@ namespace hpp {
     StraightPath::StraightPath (const DevicePtr_t& device,
 				ConfigurationIn_t init,
 				ConfigurationIn_t end,
-				value_type length,
-				const ConstraintSetPtr_t& constraints) :
-      parent_t (interval_t (0, length), device->configSize (), constraints),
+				value_type length) :
+      parent_t (interval_t (0, length), device->configSize ()),
       device_ (device), initial_ (init), end_ (end)
     {
       assert (length >= 0);
