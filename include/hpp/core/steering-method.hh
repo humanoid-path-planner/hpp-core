@@ -19,8 +19,7 @@
 #ifndef HPP_CORE_STEERING_METHOD_HH
 # define HPP_CORE_STEERING_METHOD_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
+# include <hpp/core/path.hh>
 
 /// Steering method
 ///

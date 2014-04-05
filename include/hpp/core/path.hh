@@ -187,6 +187,14 @@ namespace hpp {
 	{
 	}
 
+      /// Protected constructor
+      Path (const interval_t& interval, size_type outputSize,
+	    const ConstraintSetPtr_t& constraints) :
+	parent_t (interval, outputSize, vector_t ()), constraints_ (constraints)
+	{
+	}
+
+      /// Protected constructor
       Path (const Path& path) : parent_t (path),
 	constraints_ (path.constraints_)
 	  {

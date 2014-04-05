@@ -92,7 +92,8 @@ namespace hpp {
       /// \note If subInterval.first is bigger than subInterval.second, then,
       /// the path is reversed.
       ExtractedPath (const PathPtr_t& original, const interval_t& subInterval) :
-	Path (std::pair <value_type, value_type> (0,0), original->outputSize ()),
+	Path (std::pair <value_type, value_type> (0,0), original->outputSize (),
+	      original->constraints ()),
 	original_ (original)
       {
 	reversed_ = subInterval.first <= subInterval.second ? false : true;
