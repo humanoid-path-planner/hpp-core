@@ -80,11 +80,13 @@ namespace hpp {
 	if (configProjector) {
 	  configProjector->projectOnKernel (*(near->configuration ()), *target,
 					    qProj_);
-	  if (constraints->apply (qProj_)) {
-	    return (*sm) (*(near->configuration ()), qProj_);
-	  } else {
-	    return PathPtr_t ();
-	  }
+	} else {
+	  qProj_ = *target;
+	}
+	if (constraints->apply (qProj_)) {
+	  return (*sm) (*(near->configuration ()), qProj_);
+	} else {
+	  return PathPtr_t ();
 	}
       }
       return (*sm) (*(near->configuration ()), *target);
