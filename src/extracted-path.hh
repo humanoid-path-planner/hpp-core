@@ -84,6 +84,16 @@ namespace hpp {
 	return path;
       }
 
+      virtual std::ostream& print (std::ostream &os) const throw ()
+      {
+	os << "Extracted Path:" << std::endl;
+	os << "interval: [ " << timeRange ().first << ", "
+	   << timeRange ().second << " ]" << std::endl;
+	os << "original path:" << std::endl;
+	os << *original_ << std::endl;
+	return os;
+      }
+
     protected:
       /// Constructor
       ///
@@ -106,7 +116,7 @@ namespace hpp {
 	assert (timeRange_.first >= original->timeRange ().first);
 	assert (timeRange_.second <= original->timeRange ().second);
       }
-      
+
       ExtractedPath (const ExtractedPath& path) : Path (path),
 						  original_ (path.original_),
 						  reversed_ (path.reversed_),

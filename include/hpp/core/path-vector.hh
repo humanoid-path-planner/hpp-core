@@ -91,6 +91,18 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       virtual PathPtr_t extract (const interval_t& subInterval) const;
 
+      /// Print path in a stream
+      virtual std::ostream& print (std::ostream &os) const throw ()
+      {
+	os << "PathVector:" << std::endl;
+	os << "interval: [ " << timeRange ().first << ", "
+	   << timeRange ().second << " ]" << std::endl;
+	for (Paths_t::const_iterator itPath = paths_.begin ();
+	     itPath != paths_.end (); ++itPath) {
+	  os << (**itPath) << std::endl;
+	}
+	return os;
+      }
     protected:
       /// Constructor
       PathVector (std::size_t outputSize) : parent_t (std::make_pair (0, 0),

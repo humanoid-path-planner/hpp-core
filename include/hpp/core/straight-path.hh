@@ -67,6 +67,15 @@ namespace hpp {
 	return createCopy (*this);
       }
 
+      virtual std::ostream& print (std::ostream &os) const throw ()
+      {
+	os << "StraightPath:" << std::endl;
+	os << "interval: [ " << timeRange ().first << ", "
+	   << timeRange ().second << " ]" << std::endl;
+	os << "initial configuration: " << initial_.transpose () << std::endl;
+	os << "fine configuration:    " << end_.transpose () << std::endl;
+	return os;
+      }
     protected:
       /// Constructor
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
