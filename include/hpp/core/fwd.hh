@@ -65,6 +65,9 @@ namespace hpp {
     // roboptim
     typedef roboptim::GenericFunctionTraits
     <roboptim::EigenMatrixDense>::value_type value_type;
+    typedef roboptim::Function::interval_t interval_t;
+    typedef roboptim::Function::size_type size_type;
+
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
@@ -115,7 +118,6 @@ namespace hpp {
     typedef ProblemSolver* ProblemSolverPtr_t;
     typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
-    typedef roboptim::Function::size_type size_type;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
     typedef boost::shared_ptr <SteeringMethodStraight>

@@ -124,9 +124,9 @@ namespace hpp {
 	    } else {
 	      NodePtr_t newNode = roadmap ()->addNode (q_new);
 	      roadmap ()->addEdge (near, newNode, validPath);
-	      Path::interval_t timeRange = validPath->timeRange ();
+	      interval_t timeRange = validPath->timeRange ();
 	      roadmap ()->addEdge (newNode, near, validPath->extract
-				   (Path::interval_t (timeRange.second ,
+				   (interval_t (timeRange.second ,
 						      timeRange.first)));
 	    }
 	  }

@@ -56,13 +56,14 @@ namespace hpp {
 	return shPtr;
       }
 
-      virtual void impl_compute (result_t& result, value_type param) const throw ()
+      virtual void impl_compute (ConfigurationOut_t result,
+				 value_type param) const
       {
 	if (reversed_) {
 	  param = timeRange ().first + timeRange ().second - param ;
-	  original_->impl_compute (result, param);
+	  (*original_) (result, param);
 	} else {
-	  original_->impl_compute (result, param);
+	  (*original_) (result, param);
 	}
       }
 
@@ -84,7 +85,9 @@ namespace hpp {
 	return path;
       }
 
-      virtual std::ostream& print (std::ostream &os) const throw ()
+    protected:
+      /// Print path in a stream
+      virtual std::ostream& print (std::ostream &os) const
       {
 	os << "Extracted Path:" << std::endl;
 	os << "interval: [ " << timeRange ().first << ", "
@@ -94,7 +97,6 @@ namespace hpp {
 	return os;
       }
 
-    protected:
       /// Constructor
       ///
       /// \param original Path to extract,

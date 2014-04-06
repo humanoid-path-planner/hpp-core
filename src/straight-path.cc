@@ -40,8 +40,8 @@ namespace hpp {
     {
     }
 
-    void StraightPath::impl_compute (result_t& result, value_type param) const
-      throw ()
+    void StraightPath::impl_compute (ConfigurationOut_t result,
+				     value_type param) const
     {
       if (param == timeRange ().first || timeRange ().second == 0) {
 	result = initial_;

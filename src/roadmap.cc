@@ -125,11 +125,11 @@ namespace hpp {
 				       const ConfigurationPtr_t& to,
 				       const PathPtr_t path)
     {
-      Path::interval_t timeRange = path->timeRange ();
+      interval_t timeRange = path->timeRange ();
       NodePtr_t nodeTo = addNode (to, from->connectedComponent ());
       addEdge (from, nodeTo, path);
       addEdge (nodeTo, from, path->extract
-	       (Path::interval_t (timeRange.second, timeRange.first)));
+	       (interval_t (timeRange.second, timeRange.first)));
       return nodeTo;
     }
 

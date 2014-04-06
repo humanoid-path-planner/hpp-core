@@ -32,20 +32,15 @@ namespace hpp {
     /// This class derives from roboptim::Trajectory as such Path could be
     /// used for numerical optimization. For that some unimplemented methods
     /// should be implemented.
-    class HPP_CORE_DLLAPI Path : public roboptim::Trajectory <3>
+    class HPP_CORE_DLLAPI Path
     {
     public:
-      typedef roboptim::Trajectory <3> parent_t;
       /// \name Construction, destruction, copy
       /// \{
 
       /// Destructor
       virtual ~Path () throw () {}
 
-      virtual Path* clone () const throw (){
-	throw std::runtime_error
-	  ("Do not use this function, use copy instead.");
-      }
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const = 0;
 
@@ -72,84 +67,7 @@ namespace hpp {
       virtual PathPtr_t extract (const interval_t& subInterval) const;
       /// \}
 
-      /// \name Unimplemented methods from roboptim-trajectory
-      /// \{
-
-      /// Get the variation of a configuration with respect to parameter
-      /// vector.
-      /// \param t value \f$t\f$ in the definition interval.
-      /// \return Jacobian:
-      /// \f[\frac{\partial\Gamma_{\textbf{p}}(t)}{\partial\textbf{p}}\f]
-      virtual jacobian_t variationConfigWrtParam (value_type) const throw ()
-      {
-	throw std::runtime_error ("Not implemented");
-      }
-
-      /// Get the variation of a derivative with respect to parameter vector.
-      ///
-      /// \param t value \f$t\f$ in the definition interval.
-      /// \param order order \f$r\f$ of the derivative.
-      /// \return jacobian
-      /// \f[
-      /// \frac{\partial}{\partial\textbf{p}}
-      /// \left(\frac{d^r\Gamma_{\textbf{p}}}{dt^r}(t)\right)
-      /// \f]
-      virtual jacobian_t variationDerivWrtParam (value_type, size_type)
-      const throw ()
-      {
-	throw std::runtime_error ("Not implemented");
-      }
-
-      /// \brief Get singular point at given rank.
-      virtual value_type singularPointAtRank (size_type) const
-      {
-	throw std::runtime_error ("No singular point");
-      }
-
-      /// \brief Get left limit value of derivative at given singular point
-      ///
-      /// \param rank rank of the singular points.
-      /// \param order order of derivation.
-      /// \return Limit of the derivative at singular point
-      /// for increasing parameter values.
-      virtual vector_t derivBeforeSingularPoint (size_type,
-						 size_type) const
-      {
-	throw std::runtime_error ("No singular point");
-      }
-
-      /// \brief Get right limit value of derivative at given singular point
-      /// \param rank rank of the singular points.
-      /// \param order order of derivation.
-      /// \retval derivative Limit of the derivative at singular point for
-      /// decreasing parameter values.
-      virtual vector_t derivAfterSingularPoint (size_type, size_type)
-	const
-      {
-	throw std::runtime_error ("No singular point");
-      }
-
-      virtual jacobian_t
-      variationConfigWrtParam (StableTimePoint_t)
-	const throw ()
-      {
-	throw std::runtime_error ("Not implemented");
-      }
-
-      virtual jacobian_t
-      variationDerivWrtParam (StableTimePoint_t, size_type)
-	const throw ()
-      {
-	throw std::runtime_error ("Not implemented");
-      }
-
-      virtual Path* resize (interval_t) const throw ()
-      {
-	throw std::runtime_error ("Not implemented");
-      }
-      /// \}
-
-      result_t operator () (const value_type& t) const throw ()
+      Configuration_t operator () (const value_type& t) const throw ()
       {
 	Configuration_t result (outputSize ());
 	impl_compute (result, t);
@@ -158,7 +76,7 @@ namespace hpp {
 	return result;
       }
 
-      void operator () (result_t& result, const value_type& t)
+      void operator () (ConfigurationOut_t result, const value_type& t)
 	const throw ()
       {
 	impl_compute (result, t);
@@ -180,22 +98,44 @@ namespace hpp {
 	constraints_ = constraints;
       }
       /// \}
+
+      /// Get size of configuration space
+      size_type outputSize () const
+      {
+	return outputSize_;
+      }
+
+      /// Get interval of definition
+      const interval_t& timeRange () const
+      {
+	return timeRange_;
+      }
+      /// Get length of definition interval
+      value_type length () const
+      {
+	return timeRange_.second - timeRange_.first;
+      }
     protected:
+      /// Print path in a stream
+      virtual std::ostream& print (std::ostream &os) const = 0;
+
       /// Protected constructor
       Path (const interval_t& interval, size_type outputSize) :
-	parent_t (interval, outputSize, vector_t ()), constraints_ ()
+	timeRange_ (interval), outputSize_ (outputSize), constraints_ ()
 	{
 	}
 
       /// Protected constructor
       Path (const interval_t& interval, size_type outputSize,
 	    const ConstraintSetPtr_t& constraints) :
-	parent_t (interval, outputSize, vector_t ()), constraints_ (constraints)
+	timeRange_ (interval), outputSize_ (outputSize),
+	constraints_ (constraints)
 	{
 	}
 
       /// Protected constructor
-      Path (const Path& path) : parent_t (path),
+      Path (const Path& path) :
+	timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
 	constraints_ (path.constraints_)
 	  {
 	  }
@@ -207,34 +147,27 @@ namespace hpp {
       {
 	weak_ = self;
       }
-      /// \brief Derivative evaluation.
+      /// \brief Function evaluation.
       ///
-      /// Compute the derivative, has to be implemented in concrete classes.
-      /// \warning Do not call this function directly, call #derivative instead.
-      /// \param derivative derivative will be store in this argument
-      /// \param t point where the gradient will be computed
-      /// \param order derivative order (if 0 evaluates the function)
-      virtual void impl_derivative (gradient_t& derivative,
-				    value_type t,
-				    size_type order = 1) const throw ();
+      virtual void impl_compute (ConfigurationOut_t configuration,
+				 value_type t) const = 0;
 
-      /// \brief Derivative evaluation.
-      ///
-      /// Compute the derivative, has to be implemented in concrete classes.
-      /// \warning Do not call this function directly, call #derivative instead.
-      /// \param derivative derivative will be store in this argument
-      /// \param t point where the gradient will be computed
-      /// \param order derivative order (if 0 evaluates the function)
-      virtual void
-      impl_derivative (gradient_t& g, StableTimePoint_t, size_type order)
-	const throw ();
-
+      /// Interval of definition
+      interval_t timeRange_;
     private:
+      /// Size of the configuration space
+      size_type outputSize_;
       /// Constraints that apply to the robot
       ConstraintSetPtr_t constraints_;
       /// Weak pointer to itself
       PathWkPtr weak_;
+      friend std::ostream& operator<< (std::ostream& os, const Path& path);
     }; // class Path
+    inline std::ostream& operator<< (std::ostream& os, const Path& path)
+    {
+      return path.print (os);
+    }
+
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_PATH_HH

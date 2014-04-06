@@ -60,7 +60,8 @@ namespace hpp {
 	timeRange_.second += path.pathAtRank (i)->length ();
       }
     }
-    void PathVector::impl_compute (result_t& result, value_type t) const throw ()
+    void PathVector::impl_compute (ConfigurationOut_t result,
+				   value_type t) const
     {
       // Find direct path in vector corresponding to parameter.
       size_t rank;

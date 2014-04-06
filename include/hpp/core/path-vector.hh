@@ -91,8 +91,9 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       virtual PathPtr_t extract (const interval_t& subInterval) const;
 
+    protected:
       /// Print path in a stream
-      virtual std::ostream& print (std::ostream &os) const throw ()
+      virtual std::ostream& print (std::ostream &os) const
       {
 	os << "PathVector:" << std::endl;
 	os << "interval: [ " << timeRange ().first << ", "
@@ -103,7 +104,6 @@ namespace hpp {
 	}
 	return os;
       }
-    protected:
       /// Constructor
       PathVector (std::size_t outputSize) : parent_t (std::make_pair (0, 0),
 						      outputSize),
@@ -126,7 +126,7 @@ namespace hpp {
 	parent_t::init (self);
 	weak_ = self;
       }
-      virtual void impl_compute (result_t& result, value_type t) const throw ();
+      virtual void impl_compute (ConfigurationOut_t result, value_type t) const;
 
     private:
       Paths_t paths_;

@@ -38,12 +38,6 @@ namespace hpp {
     {
     public:
       typedef Path parent_t;
-      typedef parent_t::argument_t argument_t;
-      typedef parent_t::jacobian_t jacobian_t;
-      typedef parent_t::size_type size_type;
-      typedef parent_t::vector_t vector_t;
-      typedef parent_t::value_type value_type;
-
       /// Destructor
       virtual ~StraightPath () throw () {}
 
@@ -76,7 +70,9 @@ namespace hpp {
       /// result is reversed.
       virtual PathPtr_t extract (const interval_t& subInterval) const;
 
-      virtual std::ostream& print (std::ostream &os) const throw ()
+    protected:
+      /// Print path in a stream
+      virtual std::ostream& print (std::ostream &os) const
       {
 	os << "StraightPath:" << std::endl;
 	os << "interval: [ " << timeRange ().first << ", "
@@ -85,7 +81,6 @@ namespace hpp {
 	os << "final configuration:   " << end_.transpose () << std::endl;
 	return os;
       }
-    protected:
       /// Constructor
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		    ConfigurationIn_t end, value_type length);
@@ -98,7 +93,8 @@ namespace hpp {
 	parent_t::init (self);
 	weak_ = self;
       }
-      virtual void impl_compute (result_t& result, value_type param) const throw ();
+      virtual void impl_compute (ConfigurationOut_t result,
+				 value_type param) const;
 
     private:
       DevicePtr_t device_;
