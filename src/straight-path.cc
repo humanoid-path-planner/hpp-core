@@ -63,6 +63,17 @@ namespace hpp {
 	  (initial_, end_, u, rank, result);
       }
     }
+    PathPtr_t StraightPath::extract (const interval_t& subInterval) const
+    {
+      // Length is assumed to be proportional to interval range
+      value_type l = fabs (subInterval.second - subInterval.first);
+
+      Configuration_t q1 ((*this) (subInterval.first));
+      Configuration_t q2 ((*this) (subInterval.second));
+      PathPtr_t result = StraightPath::create (device_, q1, q2, l);
+      result->constraints (this->constraints ());
+      return result;
+    }
 
   } //   namespace core
 } // namespace hpp
