@@ -73,7 +73,7 @@ namespace hpp {
 	os << "interval: [ " << timeRange ().first << ", "
 	   << timeRange ().second << " ]" << std::endl;
 	os << "initial configuration: " << initial_.transpose () << std::endl;
-	os << "fine configuration:    " << end_.transpose () << std::endl;
+	os << "final configuration:   " << end_.transpose () << std::endl;
 	return os;
       }
     protected:

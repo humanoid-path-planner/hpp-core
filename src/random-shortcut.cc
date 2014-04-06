@@ -71,7 +71,8 @@ namespace hpp {
 
       // Maximal number of iterations without improvements
       const std::size_t n = 10;
-      std::deque <value_type> length (n-1, numeric_limits <value_type>::infinity ());
+      std::deque <value_type> length (n-1,
+				      numeric_limits <value_type>::infinity ());
       length.push_back (pathLength (tmpPath, problem ().distance ()));
       PathVectorPtr_t result;
 
