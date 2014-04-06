@@ -61,10 +61,13 @@ namespace hpp {
 	ptr->init (shPtr);
 	return shPtr;
       }
-      /// Return a shared pointer to a copy of this
+      /// Return a shared pointer to this
+      ///
+      /// As StaightPath are immutable, and refered to by shared pointers,
+      /// they do not need to be copied.
       virtual PathPtr_t copy () const
       {
-	return createCopy (*this);
+	return weak_.lock ();
       }
 
       virtual std::ostream& print (std::ostream &os) const throw ()
@@ -92,18 +95,9 @@ namespace hpp {
       virtual void impl_compute (result_t& result, value_type param) const throw ();
 
     private:
-      /// Create instance and return shared pointer
-      static StraightPathPtr_t createCopy (const StraightPath& original)
-      {
-	StraightPath* ptr = new StraightPath (original);
-	StraightPathPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
-      }
-
       DevicePtr_t device_;
-      Configuration_t initial_;
-      Configuration_t end_;
+      const Configuration_t initial_;
+      const Configuration_t end_;
       StraightPathWkPtr weak_;
     }; // class StraightPath
   } //   namespace core
