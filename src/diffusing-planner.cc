@@ -132,6 +132,27 @@ namespace hpp {
 	  }
 	}
       }
+      //
+      // Second, try to connect new nodes together
+      //
+      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      for (Nodes_t::const_iterator itn1 = newNodes.begin ();
+	   itn1 != newNodes.end (); ++itn1) {
+	for (Nodes_t::const_iterator itn2 = boost::next (itn1);
+	     itn2 != newNodes.end (); ++itn2) {
+	  ConfigurationPtr_t q1 ((*itn1)->configuration ());
+	  ConfigurationPtr_t q2 ((*itn2)->configuration ());
+	  assert (*q1 != *q2);
+	  path = (*sm) (*q1, *q2);
+	  if (pathValidation->validate (path, false, validPath)) {
+	    roadmap ()->addEdge (*itn1, *itn2, path);
+	    interval_t timeRange = path->timeRange ();
+	    roadmap ()->addEdge (*itn2, *itn1, path->extract
+				 (interval_t (timeRange.second,
+					      timeRange.first)));
+	  }
+	}
+      }
     }
 
     PathVectorPtr_t DiffusingPlanner::finishSolve (const PathVectorPtr_t& path)
