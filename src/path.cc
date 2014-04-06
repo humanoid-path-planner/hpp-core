@@ -40,6 +40,8 @@ namespace hpp {
 
     PathPtr_t Path::extract (const interval_t& subInterval) const
     {
+      if (subInterval == timeRange_)
+	return this->copy ();
       return ExtractedPath::create (weak_.lock (), subInterval);
     }
 
