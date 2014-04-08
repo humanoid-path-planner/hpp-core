@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
+#include <hpp/model/collision-object.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/roadmap.hh>
@@ -154,8 +155,14 @@ namespace hpp {
 	distanceObstacles_.push_back (object);
       if (problem ())
         problem ()->addObstacle (object, collision, distance);
+      obstacleMap_ [object->name ()] = object;
     }
 
+    const CollisionObjectPtr_t& ProblemSolver::obstacle
+    (const std::string& name)
+    {
+      return obstacleMap_ [name];
+    }
 
   } //   namespace core
 } // namespace hpp

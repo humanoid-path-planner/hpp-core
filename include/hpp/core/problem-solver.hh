@@ -127,6 +127,8 @@ namespace hpp {
       ///        for this object.
       void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
+
+      const CollisionObjectPtr_t& obstacle (const std::string& name);
       /// \}
 
     private:
@@ -168,6 +170,8 @@ namespace hpp {
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
+      /// Map of obstacles by names
+      std::map <std::string, CollisionObjectPtr_t> obstacleMap_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp
