@@ -97,6 +97,9 @@ namespace hpp {
       /// Create new problem.
       void resetProblem ();
 
+      /// \name Solve problem and get paths
+      /// \{
+
       /// Set and solve the problem
       void solve ();
 
@@ -111,6 +114,7 @@ namespace hpp {
       {
 	return paths_;
       }
+      /// \}
 
       /// \name Obstacles
       /// \{
@@ -123,6 +127,8 @@ namespace hpp {
       ///        for this object.
       void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
+      /// \}
+
     private:
       typedef boost::function < PathPlannerPtr_t (const Problem&,
 						  const RoadmapPtr_t&) >
