@@ -38,7 +38,7 @@ namespace hpp {
       virtual ~ProblemSolver ();
 
       /// Set robot
-      void robot (const DevicePtr_t& robot);
+      virtual void robot (const DevicePtr_t& robot);
 
       /// Get robot
       const DevicePtr_t& robot () const;
