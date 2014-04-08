@@ -33,7 +33,8 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
-      pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ ()
+      pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ (),
+      collisionObstacles_ (), distanceObstacles_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
