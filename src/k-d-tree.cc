@@ -167,18 +167,23 @@ void KDTree::findDeviceBounds() {
 value_type KDTree::distanceOnSplitedDim (const ConfigurationPtr_t& configuration) {
 	value_type DistanceToLowerBound = fabs ( lowerBounds_[splitDim_] - (*configuration)[splitDim_] );
 	value_type DistanceToUpperBound = fabs ( upperBounds_[splitDim_] - (*configuration)[splitDim_] );
-	value_type minDistance = std::min( DistanceToLowerBound, DistanceToUpperBound );
+	value_type minDistance = std::min( DistanceToLowerBound, DistanceToUpperBound );	
+	
 
-	//if ( loopedDims_[splitDim_] == 1. ) {
+	if ( loopedDims_[splitDim_] == 1. ) {
 		// ADD DISTANCE FOR LOOPED DIMENTIONS
-	//	DistanceToLowerBound = fabs ( lowerBounds_[splitDim_] - (*configuration)[splitDims_] );
-	//}
+		DistanceToLowerBound = fabs ( lowerBounds_[splitDim_] + M_PI ) + fabs ( (*configuration)[splitDim_] - M_PI );
+		DistanceToUpperBound = fabs ( upperBounds_[splitDim_] - M_PI ) + fabs ( (*configuration)[splitDim_] + M_PI );
+		minDistance = std::min( minDistance, DistanceToLowerBound);
+		minDistance = std::min( minDistance, DistanceToUpperBound);	
+	}
+
 	return minDistance;
 }
 
 NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration, const ConnectedComponentPtr_t& connectedComponent, 
 				value_type& minDistance) {
-	// We assume that the root KDTree contains the configuration
+	// We assume that the root KDTree contains the configuration (the root should contain the whole space)
 	value_type boxDistance = 0.;	
 	NodePtr_t nearest = NULL;	
 	minDistance = std::numeric_limits <value_type>::infinity ();
@@ -188,7 +193,7 @@ NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration, const Connect
 
 void KDTree::search (value_type boxDistance, value_type& minDistance,const ConfigurationPtr_t& configuration,
 		const ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest) {
-	if ( boxDistance < minDistance ) {
+	if ( boxDistance < minDistance*minDistance ) { // minDistance^2 because boxDistance is a squared distance
 		if ( infChild_ == NULL || supChild_ == NULL ) {
 			value_type distance;
 			for (Nodes_t::iterator itNode = nodes_.begin ();
@@ -208,7 +213,7 @@ void KDTree::search (value_type boxDistance, value_type& minDistance,const Confi
 			value_type distanceToInfChild;
 			value_type distanceToSupChild;
 			if ( boxDistance == 0. ) {
-				if ( (*configuration) (supChild_->splitDim_,1) > lowerBounds_[supChild_->splitDim_])  {
+				if ( (*configuration) [supChild_->splitDim_] > lowerBounds_[supChild_->splitDim_])  {
 					distanceToSupChild = 0.;
 					distanceToInfChild = infChild_->distanceOnSplitedDim(configuration);
 				}
@@ -224,12 +229,12 @@ void KDTree::search (value_type boxDistance, value_type& minDistance,const Confi
 			// search in the children
 			if ( distanceToInfChild < distanceToSupChild ) {
 				infChild_->search(boxDistance, minDistance, configuration, connectedComponent, nearest);
-				supChild_->search(boxDistance - distanceToInfChild + distanceToSupChild, minDistance, configuration,
+				supChild_->search(boxDistance - distanceToInfChild*distanceToInfChild + 							distanceToSupChild*distanceToSupChild, minDistance, configuration,
 				connectedComponent, nearest );
 			}
 			else {
 				supChild_->search(boxDistance,minDistance, configuration, connectedComponent, nearest);
-				infChild_->search(boxDistance - distanceToSupChild + distanceToInfChild, minDistance, configuration,
+				infChild_->search(boxDistance - distanceToSupChild*distanceToSupChild + 							distanceToInfChild*distanceToInfChild, minDistance, configuration,
 				connectedComponent, nearest);
 			}
 		}
