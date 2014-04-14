@@ -31,8 +31,6 @@ namespace hpp {
     class KDTree
     {
       public:
-      protected:
-      private:
 	DevicePtr_t robot_;
 	int dim_;        
 
@@ -51,13 +49,16 @@ namespace hpp {
 
 	//constructor
 	KDTree(const KDTree* mother);
-	KDTree(const DevicePtr_t robot, const DistancePtr_t& distance_, int bucketSize);
+	KDTree(const DevicePtr_t& robot, const DistancePtr_t& distance_, int bucketSize);
 
 	//destructor
 	~KDTree();
 
 	// add a configuration in the KDTree
 	void addNode(const NodePtr_t& node);
+
+	// Clear all the nodes in the KDTree
+	void clear();
 
 	// Split the node into two subnodes
 	void split();
@@ -73,9 +74,10 @@ namespace hpp {
 	value_type distanceOnSplitedDim(const ConfigurationPtr_t& configuration);
 
 	// search nearest node
-	NodePtr_t search(const ConfigurationPtr_t& configuration, ConnectedComponentPtr_t& connectedComponent);
+	NodePtr_t search(const ConfigurationPtr_t& configuration,const ConnectedComponentPtr_t& connectedComponent, 
+				value_type& minDistance);
 	void search(value_type boxDistance, value_type& minDistance,const ConfigurationPtr_t& configuration,
-		ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest);
+			const ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest);
     };
   }
 }

@@ -45,7 +45,7 @@ KDTree::KDTree (const KDTree* mother) : robot_(mother->robot_), dim_(mother->dim
 	infChild_ = NULL;
 }
 
-KDTree::KDTree (const DevicePtr_t robot, const DistancePtr_t& distance, int bucketSize) : robot_(robot), dim_(), nodes_(), 
+KDTree::KDTree (const DevicePtr_t& robot, const DistancePtr_t& distance, int bucketSize) : robot_(robot), dim_(), nodes_(),
 			bucketSize_(bucketSize), splitDim_(), upperBounds_(), lowerBounds_(), loopedDims_(), supChild_(), 
 			infChild_(), distance_(distance) {
 	this->findDeviceBounds();
@@ -110,6 +110,13 @@ void KDTree::addNode (const NodePtr_t& node) {
 }
 
 
+void KDTree::clear() {
+	nodes_.clear();
+	if ( infChild_ != NULL ) { infChild_->clear(); }
+	if ( supChild_ != NULL ) { supChild_->clear(); }	  
+}
+
+
 void KDTree::split() {
 	if ( infChild_ != NULL || supChild_ != NULL ) {
 		// Error, you're triing to split a non leaf part of the KDTree
@@ -169,18 +176,18 @@ value_type KDTree::distanceOnSplitedDim (const ConfigurationPtr_t& configuration
 	return minDistance;
 }
 
-NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration, ConnectedComponentPtr_t& connectedComponent) {
+NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration, const ConnectedComponentPtr_t& connectedComponent, 
+				value_type& minDistance) {
 	// We assume that the root KDTree contains the configuration
 	value_type boxDistance = 0.;	
 	NodePtr_t nearest = NULL;	
-	value_type minDistance;	
 	minDistance = std::numeric_limits <value_type>::infinity ();
 	this->search (boxDistance, minDistance, configuration, connectedComponent, nearest);
 	return nearest;
 }
 
 void KDTree::search (value_type boxDistance, value_type& minDistance,const ConfigurationPtr_t& configuration,
-		ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest) {
+		const ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest) {
 	if ( boxDistance < minDistance ) {
 		if ( infChild_ == NULL || supChild_ == NULL ) {
 			value_type distance;

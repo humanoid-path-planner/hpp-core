@@ -21,6 +21,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
+# include <hpp/core/k-d-tree.hh>
 
 namespace hpp {
   namespace core {
@@ -32,7 +33,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI Roadmap {
     public:
       /// Return shared pointer to new instance.
-      static RoadmapPtr_t create (const DistancePtr_t& distance);
+      static RoadmapPtr_t create (const DistancePtr_t& distance, const DevicePtr_t& robot);
       void clear ();
       /// Add a node with given configuration
       /// \param config configuration
@@ -117,7 +118,7 @@ namespace hpp {
     protected:
       /// Constructor
       /// \param distance distance function for nearest neighbor computations
-      Roadmap (const DistancePtr_t& distance);
+      Roadmap (const DistancePtr_t& distance, const DevicePtr_t& robot);
 
       /// Add a new connected component in the roadmap.
       /// \param node node pointing to the connected component.
@@ -133,7 +134,8 @@ namespace hpp {
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
-      NearetNeighborMap_t nearestNeighbor_;
+      //NearetNeighborMap_t nearestNeighbor_;
+      KDTree kdTree_;
     }; // class Roadmap
   } //   namespace core
 } // namespace hpp

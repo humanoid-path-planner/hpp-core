@@ -69,6 +69,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method-straight.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/weighed-distance.hh
+  include/hpp/core/k-d-tree.hh
 )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
