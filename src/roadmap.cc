@@ -48,7 +48,7 @@ namespace hpp {
       distance_ (distance), connectedComponents_ (), nodes_ (), edges_ (),
       initNode_ (), goalNodes_ (),
       //nearestNeighbor_ ()
-      kdTree_(robot, distance, 20)
+      kdTree_(robot, distance, 4)
     {
     }
 
@@ -139,7 +139,7 @@ namespace hpp {
 	  value_type distance;
 	  NodePtr_t node =
 	    //nearestNeighbor_ [*itcc]->nearest (configuration, distance);
-	    kdTree_.search(configuration, connectedComponent, minDistance);
+	    kdTree_.search(configuration, *itcc, distance);
 	  if (distance < minDistance) {
 	    minDistance = distance;
 	    closest = node;

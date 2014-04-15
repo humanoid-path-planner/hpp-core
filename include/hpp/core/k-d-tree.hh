@@ -24,13 +24,34 @@
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/model/device.hh>
+# include <hpp/core/fwd.hh>
 
 namespace hpp {
   namespace core {
 	// Built an k-dimentional tree for the nearest neighbour research
     class KDTree
     {
+     // typedef KDTree* KDTreePtr_t;
       public:
+
+	//constructor
+	KDTree(const KDTreePtr_t mother);
+	KDTree(const DevicePtr_t& robot, const DistancePtr_t& distance_, int bucketSize);
+
+	//destructor
+	~KDTree();
+
+	// add a configuration in the KDTree
+	void addNode(const NodePtr_t& node);
+
+	// Clear all the nodes in the KDTree
+	void clear();
+
+	// search nearest node
+	NodePtr_t search(const ConfigurationPtr_t& configuration,const ConnectedComponentPtr_t& connectedComponent, 
+				value_type& minDistance);
+
+      private:
 	DevicePtr_t robot_;
 	int dim_;        
 
@@ -44,28 +65,15 @@ namespace hpp {
 	vector_t lowerBounds_;
 	vector_t loopedDims_;
 	
-	KDTree* supChild_;
-	KDTree* infChild_;
-
-	//constructor
-	KDTree(const KDTree* mother);
-	KDTree(const DevicePtr_t& robot, const DistancePtr_t& distance_, int bucketSize);
-
-	//destructor
-	~KDTree();
-
-	// add a configuration in the KDTree
-	void addNode(const NodePtr_t& node);
-
-	// Clear all the nodes in the KDTree
-	void clear();
+	KDTreePtr_t supChild_;
+	KDTreePtr_t infChild_;
 
 	// Split the node into two subnodes
 	void split();
 
 	// find the leaf of the KDtree for the configuration/node. starts the research at KDTree then go down the tree. 
-	KDTree* findLeaf(const ConfigurationPtr_t& configuration);
-	KDTree* findLeaf(const NodePtr_t& node);
+	KDTreePtr_t findLeaf(const ConfigurationPtr_t& configuration);
+	KDTreePtr_t findLeaf(const NodePtr_t& node);
 
 	// find bounds on each dimention
 	void findDeviceBounds();
@@ -73,11 +81,11 @@ namespace hpp {
 	// distance to the nearest bound on the splited dimention
 	value_type distanceOnSplitedDim(const ConfigurationPtr_t& configuration);
 
-	// search nearest node
-	NodePtr_t search(const ConfigurationPtr_t& configuration,const ConnectedComponentPtr_t& connectedComponent, 
-				value_type& minDistance);
+	
 	void search(value_type boxDistance, value_type& minDistance,const ConfigurationPtr_t& configuration,
 			const ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest);
+
+
     };
   }
 }
