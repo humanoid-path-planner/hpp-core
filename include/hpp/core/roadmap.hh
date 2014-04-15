@@ -134,7 +134,7 @@ namespace hpp {
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
-      //NearetNeighborMap_t nearestNeighbor_;
+      NearetNeighborMap_t nearestNeighbor_;
       KDTree kdTree_;
     }; // class Roadmap
   } //   namespace core

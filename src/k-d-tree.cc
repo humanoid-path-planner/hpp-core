@@ -164,13 +164,22 @@ void KDTree::findDeviceBounds() {
 
 
 value_type KDTree::distanceOnSplitedDim (const ConfigurationPtr_t& configuration) {
+
 	value_type DistanceToLowerBound = fabs ( lowerBounds_[splitDim_] - (*configuration)[splitDim_] );
 	value_type DistanceToUpperBound = fabs ( upperBounds_[splitDim_] - (*configuration)[splitDim_] );
+	
+	// If you want to use the "distance" function	
+	//Configuration_t confbox = *configuration;
+	//confbox[splitDim_] = lowerBounds_[splitDim_];
+	//value_type DistanceToLowerBound = (*distance_) (*configuration, confbox);
+	//confbox[splitDim_] = upperBounds_[splitDim_];
+	//value_type DistanceToUpperBound = (*distance_) (*configuration, confbox);
+
 	value_type minDistance = std::min( DistanceToLowerBound, DistanceToUpperBound );	
 	
 
 	if ( loopedDims_[splitDim_] == 1. ) {
-		// Distance for looped dimentions
+		// Distance for looped dimentions (looped dimentions are assumed to be rotations)
 		DistanceToLowerBound = fabs ( lowerBounds_[splitDim_] + M_PI ) + fabs ( (*configuration)[splitDim_] - M_PI );
 		DistanceToUpperBound = fabs ( upperBounds_[splitDim_] - M_PI ) + fabs ( (*configuration)[splitDim_] + M_PI );
 		minDistance = std::min( minDistance, DistanceToLowerBound);
