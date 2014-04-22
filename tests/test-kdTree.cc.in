@@ -52,65 +52,65 @@ using namespace std;
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
 BOOST_AUTO_TEST_CASE (kdTree) {
-// Build Device
-DevicePtr_t robot = Device::create("robot");
-JointPtr_t xJoint = new JointTranslation(Transform3f());
-xJoint->isBounded(0,1);
-xJoint->lowerBound(0,-3.);
-xJoint->upperBound(0,3.);
-JointPtr_t yJoint = new JointTranslation(Transform3f());
-yJoint->isBounded(0,1);
-yJoint->lowerBound(0,-3.);
-yJoint->upperBound(0,3.);
-JointPtr_t so3Joint = new JointSO3(Transform3f());
-robot->rootJoint(so3Joint);
-robot->registerJoint(xJoint);
-robot->registerJoint(yJoint);
+  // Build Device
+  DevicePtr_t robot = Device::create("robot");
+  JointPtr_t xJoint = new JointTranslation(Transform3f());
+  xJoint->isBounded(0,1);
+  xJoint->lowerBound(0,-3.);
+  xJoint->upperBound(0,3.);
+  JointPtr_t yJoint = new JointTranslation(Transform3f());
+  yJoint->isBounded(0,1);
+  yJoint->lowerBound(0,-3.);
+  yJoint->upperBound(0,3.);
+  JointPtr_t so3Joint = new JointSO3(Transform3f());
+  robot->rootJoint(so3Joint);
+  robot->registerJoint(xJoint);
+  robot->registerJoint(yJoint);
 
-// Build Distance, nearestNeighbor, KDTree
-WeighedDistancePtr_t weighedDistance = WeighedDistance::create(robot);
-for ( int i =0 ; i<3 ; i++ ) weighedDistance->setWeight(i,1);
-DistancePtr_t distance = weighedDistance;
-BasicConfigurationShooter confShoot(robot);
-KDTree kdTree(robot,distance,30);
- typedef std::map <ConnectedComponentPtr_t, NearestNeighborPtr_t>
-	NearetNeighborMap_t;
-NearetNeighborMap_t nearestNeighbor;
+  // Build Distance, nearestNeighbor, KDTree
+  WeighedDistancePtr_t weighedDistance = WeighedDistance::create(robot);
+  for ( int i =0 ; i<3 ; i++ ) weighedDistance->setWeight(i,1);
+  DistancePtr_t distance = weighedDistance;
+  BasicConfigurationShooter confShoot(robot);
+  KDTree kdTree(robot,distance,30);
+  typedef std::map <ConnectedComponentPtr_t, NearestNeighborPtr_t>
+    NearetNeighborMap_t;
+  NearetNeighborMap_t nearestNeighbor;
 
-// Add 4 connectedComponents with 2000 nodes each 
-ConfigurationPtr_t configuration; 
-NodePtr_t node;
-ConnectedComponentPtr_t connectedComponent[4];
-for ( int i=0 ; i<4 ; i++ ) {
-  connectedComponent[i] = ConnectedComponent::create();
-  nearestNeighbor[connectedComponent[i]] = 
+  // Add 4 connectedComponents with 2000 nodes each
+  ConfigurationPtr_t configuration;
+  NodePtr_t node;
+  ConnectedComponentPtr_t connectedComponent[4];
+  for ( int i=0 ; i<4 ; i++ ) {
+    connectedComponent[i] = ConnectedComponent::create();
+    nearestNeighbor[connectedComponent[i]] =
       NearestNeighborPtr_t (new NearestNeighbor (distance));
+    for ( int j=0 ; j<200 ; j++ ) {
+      configuration = confShoot.shoot();
+      node = NodePtr_t(new Node(configuration, connectedComponent[i]));
+      nearestNeighbor[ (connectedComponent[i]) ]->add(node);
+      kdTree.addNode(node);
+    }
+  }
+
+  // search nearest node
+  value_type minDistance1;
+  value_type minDistance2;
+  NodePtr_t node1;
+  NodePtr_t node2;
   for ( int j=0 ; j<200 ; j++ ) {
     configuration = confShoot.shoot();
-    node = NodePtr_t(new Node(configuration, connectedComponent[i]));
-    nearestNeighbor[ (connectedComponent[i]) ]->add(node);
-    kdTree.addNode(node);
+    for ( int i=0 ; i<4 ; i++ ) {
+      minDistance1 = std::numeric_limits<value_type>::infinity ();
+      minDistance2 = std::numeric_limits<value_type>::infinity ();
+      node1 = nearestNeighbor[connectedComponent[i]]
+	->nearest(configuration,minDistance1);
+      node2 = kdTree.search(configuration, connectedComponent[i], minDistance2);
+      BOOST_CHECK( node1 == node2 );
+      BOOST_CHECK( minDistance1 == minDistance2 );
+    }
   }
 }
-
-// search nearest node
-value_type minDistance1;
-value_type minDistance2;
-NodePtr_t node1;
-NodePtr_t node2;
-for ( int j=0 ; j<200 ; j++ ) {
-  configuration = confShoot.shoot();
-  for ( int i=0 ; i<4 ; i++ ) {
-    minDistance1 = std::numeric_limits<value_type>::infinity ();
-    minDistance2 = std::numeric_limits<value_type>::infinity ();
-    node1 = nearestNeighbor[connectedComponent[i]]
-              ->nearest(configuration,minDistance1);
-    node2 = kdTree.search(configuration, connectedComponent[i], minDistance2);
-    BOOST_CHECK( node1 == node2 ); 
-    BOOST_CHECK( minDistance1 == minDistance2 );
-  }
-}
-}	
 BOOST_AUTO_TEST_SUITE_END()
 
 
