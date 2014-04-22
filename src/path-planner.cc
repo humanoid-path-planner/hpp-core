@@ -65,7 +65,7 @@ namespace hpp {
       interrupt_ = false;
       bool solved = false;
       startSolve ();
-      if (interrupt_) return PathVectorPtr_t ();
+      if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
 	oneStep ();
 	solved = pathExists ();
