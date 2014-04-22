@@ -163,6 +163,18 @@ namespace hpp {
     {
       return obstacleMap_ [name];
     }
+    
+
+    const ObjectVector_t& ProblemSolver::collisionObstacles () const
+    {
+      return collisionObstacles_;
+    }
+
+
+    const ObjectVector_t& ProblemSolver::distanceObstacles () const
+    {
+      return distanceObstacles_;
+    }
 
   } //   namespace core
 } // namespace hpp

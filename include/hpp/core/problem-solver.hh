@@ -130,6 +130,11 @@ namespace hpp {
 
       const CollisionObjectPtr_t& obstacle (const std::string& name);
       /// \}
+      
+      /// Local vector of objects considered for collision detection
+      const ObjectVector_t& collisionObstacles () const;
+      /// Local vector of objects considered for distance computation
+      const ObjectVector_t& distanceObstacles () const;
 
     private:
       typedef boost::function < PathPlannerPtr_t (const Problem&,
