@@ -65,6 +65,20 @@ namespace hpp {
       return createCopy (weak_.lock ());
     }
 
+    value_type WeighedDistance::getWeight( int rank ) const
+    {
+      return weights_[rank];
+    }
+
+    void WeighedDistance::setWeight(unsigned int rank, value_type weight )
+    {
+      if ( rank < weights_.size() ) 
+      {
+	weights_[rank] = weight;
+      }
+      else { throw std::runtime_error("Distance::setWeight : rank is out of range"); }
+    } 
+
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
       robot_ (robot), weights_ ()
     {

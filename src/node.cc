@@ -23,7 +23,7 @@
 
 namespace hpp {
   namespace core {
-    extern std::string displayConfig (ConfigurationIn_t q);
+    //extern std::string displayConfig (ConfigurationIn_t q);
     Node::Node (const ConfigurationPtr_t& configuration,
 		ConnectedComponentPtr_t connectedComponent) :
       configuration_ (configuration),
@@ -45,9 +45,9 @@ namespace hpp {
 	  std::string msg
 	    ("Attempt to insert an edge between two nodes already connected");
 	  hppDout (error, msg.c_str ());
-	  hppDout (error, "from: " << displayConfig (*configuration_));
-	  hppDout (error, "  to: " << displayConfig
-		   (*(edge->to ()->configuration ())));
+	 // hppDout (error, "from: " << displayConfig (*configuration_));
+	 // hppDout (error, "  to: " << displayConfig
+	//	   (*(edge->to ()->configuration ())));
 	  throw std::runtime_error (msg.c_str ());
 	}
       }
@@ -64,9 +64,9 @@ namespace hpp {
 	  std::string msg
 	    ("Attempt to insert an edge between two nodes already connected");
 	  hppDout (error, msg.c_str ());
-	  hppDout (error, "from: " << displayConfig
-		   (*(edge->from ()->configuration ())));
-	  hppDout (error, "  to: " << displayConfig (*configuration_));
+	 // hppDout (error, "from: " << displayConfig
+	//	   (*(edge->from ()->configuration ())));
+	 // hppDout (error, "  to: " << displayConfig (*configuration_));
 	  throw std::runtime_error (msg.c_str ());
 	  throw std::runtime_error
 	    ("Attempt to insert an edge between two nodes already connected");

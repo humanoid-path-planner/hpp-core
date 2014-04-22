@@ -50,20 +50,30 @@ namespace hpp {
 	// search nearest node
 	NodePtr_t search(const ConfigurationPtr_t& configuration,const ConnectedComponentPtr_t& connectedComponent, 
 				value_type& minDistance);
+	
+	// merge two connected components in the whole tree
+	void merge(ConnectedComponentPtr_t cc1, ConnectedComponentPtr_t cc2);
 
       private:
 	DevicePtr_t robot_;
 	int dim_;        
 
 	DistancePtr_t distance_;
-	Nodes_t nodes_;
+	typedef std::map <ConnectedComponentPtr_t, Nodes_t> NodesMap_t;
+	NodesMap_t nodesMap_;
 	unsigned int bucketSize_;
+	unsigned int bucket_;
 	
 	// number of the splited dimention
 	int splitDim_; 
 	vector_t upperBounds_;
 	vector_t lowerBounds_;
-	vector_t loopedDims_;
+	
+	// type of each dimention
+	//	0 => bounded dimention
+	//	1 => looped dimention
+	//	2 => quaternion
+	vector_t typeDims_;
 	
 	KDTreePtr_t supChild_;
 	KDTreePtr_t infChild_;
@@ -72,16 +82,16 @@ namespace hpp {
 	void split();
 
 	// find the leaf of the KDtree for the configuration/node. starts the research at KDTree then go down the tree. 
-	KDTreePtr_t findLeaf(const ConfigurationPtr_t& configuration);
+	// also add connectedComopnent of node along the path from tree root to tree leaf
 	KDTreePtr_t findLeaf(const NodePtr_t& node);
 
 	// find bounds on each dimention
 	void findDeviceBounds();
 
 	// distance to the nearest bound on the splited dimention
-	value_type distanceOnSplitedDim(const ConfigurationPtr_t& configuration);
+	value_type distanceToBox(const ConfigurationPtr_t& configuration);
 
-	
+	// search nearest node
 	void search(value_type boxDistance, value_type& minDistance,const ConfigurationPtr_t& configuration,
 			const ConnectedComponentPtr_t& connectedComponent, NodePtr_t& nearest);
 
