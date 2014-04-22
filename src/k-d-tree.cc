@@ -250,17 +250,16 @@ namespace hpp {
 	  //}
 	}
 	catch (std::bad_cast& bc) {
-	  throw std::runtime_error ("KDTree::DistanceToBox : Distance for 
-                       quaternions is only implemented for weighedDistance");
-	  hppDout (error, "KDTree::DistanceToBox : Distance for quaternions is
-                       only implemented for weighedDistance");
+	  throw std::runtime_error ("KDTree::DistanceToBox : Distance for quaternions is only implemented for weighedDistance");
+	  hppDout (error, "KDTree::DistanceToBox : Distance for quaternions is only implemented for weighedDistance");
 	}
       }
       return minDistance;
     }
 
     NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration,
-			      const ConnectedComponentPtr_t& connectedComponent,                              value_type& minDistance) {
+			      const ConnectedComponentPtr_t& connectedComponent,
+                              value_type& minDistance) {
       // Test if the configuration is in the root box
       for ( int i=0 ; i<dim_ ; i++ ) {
 	if ( (*configuration)[i] < lowerBounds_[i] || (*configuration)[i]
