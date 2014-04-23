@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
+#include <hpp/model/collision-object.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/roadmap.hh>
@@ -33,7 +34,8 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
-      pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ ()
+      pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ (),
+      collisionObstacles_ (), distanceObstacles_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
@@ -153,8 +155,26 @@ namespace hpp {
 	distanceObstacles_.push_back (object);
       if (problem ())
         problem ()->addObstacle (object, collision, distance);
+      obstacleMap_ [object->name ()] = object;
     }
 
+    const CollisionObjectPtr_t& ProblemSolver::obstacle
+    (const std::string& name)
+    {
+      return obstacleMap_ [name];
+    }
+    
+
+    const ObjectVector_t& ProblemSolver::collisionObstacles () const
+    {
+      return collisionObstacles_;
+    }
+
+
+    const ObjectVector_t& ProblemSolver::distanceObstacles () const
+    {
+      return distanceObstacles_;
+    }
 
   } //   namespace core
 } // namespace hpp

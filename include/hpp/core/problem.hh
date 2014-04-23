@@ -156,12 +156,23 @@ namespace hpp {
       /// Set the vector of objects considered for collision detection
       void collisionObstacles (const ObjectVector_t& collisionObstacles)
       {
-	collisionObstacles_ = collisionObstacles;
+	// reset outerCollisionObjects from the Device :
+      robot_->resetOuterObject (true, false);
+	// pass the local vector of collisions object to the problem
+	for (ObjectVector_t::const_iterator itCollisionObject = collisionObstacles.begin(); 
+	     itCollisionObject != collisionObstacles.end(); itCollisionObject++)
+	  Problem::addObstacle (*itCollisionObject,true,false);
       }      
+
       /// Set the vector of objects considered for distance computation
       void distanceObstacles (const ObjectVector_t& distanceObstacles)
       {
-	distanceObstacles_ = distanceObstacles;
+	// reset outerDistanceObjects from the Device :
+	  robot_->resetOuterObject (false, true);
+	// pass the local vector of distance computation objects to the problem
+	for (ObjectVector_t::const_iterator itDistanceObject = distanceObstacles.begin(); 
+	     itDistanceObject != distanceObstacles.end(); itDistanceObject++)
+	  Problem::addObstacle (*itDistanceObject,false,true);
       }
 
        

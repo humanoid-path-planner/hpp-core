@@ -38,7 +38,7 @@ namespace hpp {
       virtual ~ProblemSolver ();
 
       /// Set robot
-      void robot (const DevicePtr_t& robot);
+      virtual void robot (const DevicePtr_t& robot);
 
       /// Get robot
       const DevicePtr_t& robot () const;
@@ -97,6 +97,9 @@ namespace hpp {
       /// Create new problem.
       void resetProblem ();
 
+      /// \name Solve problem and get paths
+      /// \{
+
       /// Set and solve the problem
       void solve ();
 
@@ -111,6 +114,7 @@ namespace hpp {
       {
 	return paths_;
       }
+      /// \}
 
       /// \name Obstacles
       /// \{
@@ -123,6 +127,15 @@ namespace hpp {
       ///        for this object.
       void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
+
+      const CollisionObjectPtr_t& obstacle (const std::string& name);
+      /// \}
+      
+      /// Local vector of objects considered for collision detection
+      const ObjectVector_t& collisionObstacles () const;
+      /// Local vector of objects considered for distance computation
+      const ObjectVector_t& distanceObstacles () const;
+
     private:
       typedef boost::function < PathPlannerPtr_t (const Problem&,
 						  const RoadmapPtr_t&) >
@@ -162,6 +175,8 @@ namespace hpp {
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
+      /// Map of obstacles by names
+      std::map <std::string, CollisionObjectPtr_t> obstacleMap_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp
