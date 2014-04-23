@@ -92,6 +92,41 @@ namespace hpp {
 
     // ======================================================================
 
+    void Problem::collisionObstacles (const ObjectVector_t& collisionObstacles)
+    {
+      // reset outerCollisionObjects from the Device :
+      for (ObjectVector_t::iterator itObj = collisionObstacles_.begin ();
+	   itObj != collisionObstacles_.end (); ++itObj) {
+	robot_->removeOuterObject (*itObj, true, false);
+      }
+      collisionObstacles_.clear ();
+      // pass the local vector of collisions object to the problem
+      for (ObjectVector_t::const_iterator itObj = collisionObstacles.begin();
+	   itObj != collisionObstacles.end(); ++itObj) {
+	addObstacle (*itObj, false, true);
+      }
+    }
+
+    // ======================================================================
+
+    /// Set the vector of objects considered for distance computation
+    void Problem::distanceObstacles (const ObjectVector_t& distanceObstacles)
+    {
+      // reset outerDistanceObjects from the Device :
+      for (ObjectVector_t::iterator itObj = distanceObstacles_.begin ();
+	   itObj != distanceObstacles_.end (); ++itObj) {
+	robot_->removeOuterObject (*itObj, false, true);
+      }
+      distanceObstacles_.clear ();
+      // pass the local vector of distances object to the problem
+      for (ObjectVector_t::const_iterator itObj = distanceObstacles.begin();
+	   itObj != distanceObstacles.end(); ++itObj) {
+	addObstacle (*itObj, false, true);
+      }
+    }
+
+    // ======================================================================
+
     void Problem::addObstacle (const CollisionObjectPtr_t& object,
 			       bool collision, bool distance)
     {
