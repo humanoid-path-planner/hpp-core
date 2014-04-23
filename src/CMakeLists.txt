@@ -40,6 +40,7 @@ SET(${LIBRARY_NAME}_SOURCES
   roadmap.cc
   straight-path.cc
   weighed-distance.cc
+  k-d-tree.cc
 )
 
 ADD_LIBRARY(${LIBRARY_NAME}

@@ -69,6 +69,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method-straight.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/weighed-distance.hh
+  include/hpp/core/k-d-tree.hh
 )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
@@ -79,6 +80,7 @@ ADD_REQUIRED_DEPENDENCY("roboptim-trajectory >= 1.0")
 PKG_CONFIG_APPEND_LIBS("hpp-core")
 
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(tests)
 
 SETUP_PROJECT_FINALIZE()
 SETUP_PROJECT_CPACK()

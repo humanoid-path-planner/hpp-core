@@ -106,7 +106,7 @@ namespace hpp {
       if (problem_)
 	delete problem_;
       problem_ = new Problem (robot_);
-      roadmap_ = Roadmap::create (problem_->distance ());
+      roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
       problem_->constraints ();
     }
 

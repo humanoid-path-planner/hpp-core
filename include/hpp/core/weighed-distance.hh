@@ -36,6 +36,8 @@ namespace hpp {
       static WeighedDistancePtr_t createCopy
 	(const WeighedDistancePtr_t& distance);
       virtual DistancePtr_t clone () const;
+      value_type getWeight( int rank ) const;
+      void setWeight(unsigned int rank, value_type weight);
 
     protected:
       WeighedDistance (const DevicePtr_t& robot);

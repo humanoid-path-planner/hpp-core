@@ -61,6 +61,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
     HPP_PREDEF_CLASS (WeighedDistance);
+    class KDTree;
 
     // roboptim
     typedef roboptim::GenericFunctionTraits
@@ -129,6 +130,7 @@ namespace hpp {
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
+    typedef KDTree* KDTreePtr_t;
   } // namespace core
 } // namespace hpp
 
