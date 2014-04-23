@@ -25,7 +25,7 @@ namespace hpp {
   namespace core {
 
     PathPlanner::PathPlanner (const Problem& problem) :
-      problem_ (problem), roadmap_ (Roadmap::create (problem.distance ())),
+      problem_ (problem), roadmap_ (Roadmap::create (problem.distance (), problem.robot())),
       interrupt_ (false)
     {
     }
