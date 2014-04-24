@@ -103,7 +103,7 @@ namespace hpp {
       // pass the local vector of collisions object to the problem
       for (ObjectVector_t::const_iterator itObj = collisionObstacles.begin();
 	   itObj != collisionObstacles.end(); ++itObj) {
-	addObstacle (*itObj, false, true);
+	addObstacle (*itObj, true, false);
       }
     }
 
