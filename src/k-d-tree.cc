@@ -267,7 +267,12 @@ namespace hpp {
       for ( int i=0 ; i<dim_ ; i++ ) {
 	if ( (*configuration)[i] < lowerBounds_[i] || (*configuration)[i]
 	     > upperBounds_[i] ) {
-	  throw std::runtime_error ("The Configuration isn't in the root box");
+	  std::ostringstream oss ("The Configuration isn't in the root box: \n"
+				  "  i = ");
+	  oss << i << ", lower = " << lowerBounds_[i] << ", config = "
+	      << (*configuration)[i] << ", upper = " << upperBounds_[i]
+	      << ".";
+	  throw std::runtime_error (oss.str ());
 	}
       }
       value_type boxDistance = 0.;
