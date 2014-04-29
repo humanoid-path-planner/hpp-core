@@ -27,6 +27,12 @@ namespace hpp {
       pathPlanner_->oneStep ();
     }
 
+
+   void PlanAndOptimize::tryDirectPath ()
+    {
+      pathPlanner_->tryDirectPath ();
+    }
+
     PathVectorPtr_t PlanAndOptimize::finishSolve (const PathVectorPtr_t& path)
     {
       PathVectorPtr_t result = path;

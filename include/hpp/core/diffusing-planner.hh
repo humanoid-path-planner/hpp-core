@@ -36,7 +36,6 @@ namespace hpp {
       virtual void oneStep ();
       /// Do nothing.
       virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
-
       /// Set configuration shooter.
       void configurationShooter (const ConfigurationShooterPtr_t& shooter);
     protected:

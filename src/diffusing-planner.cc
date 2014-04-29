@@ -92,6 +92,7 @@ namespace hpp {
       return (*sm) (*(near->configuration ()), *target);
     }
 
+    
     void DiffusingPlanner::oneStep ()
     {
       DevicePtr_t robot (problem ().robot ());

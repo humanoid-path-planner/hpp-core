@@ -19,13 +19,19 @@
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
+#include <hpp/core/node.hh>
+#include <hpp/core/edge.hh>
+#include <hpp/core/path.hh>
+#include <hpp/core/path-validation.hh>
+#include <hpp/core/steering-method.hh>
 #include "astar.hh"
 
 namespace hpp {
   namespace core {
 
     PathPlanner::PathPlanner (const Problem& problem) :
-      problem_ (problem), roadmap_ (Roadmap::create (problem.distance (), problem.robot())),
+      problem_ (problem), roadmap_ (Roadmap::create (problem.distance (), 
+						     problem.robot())),
       interrupt_ (false)
     {
     }
@@ -65,6 +71,8 @@ namespace hpp {
       interrupt_ = false;
       bool solved = false;
       startSolve ();
+      tryDirectPath();
+      solved = pathExists ();
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
 	oneStep ();
@@ -96,6 +104,31 @@ namespace hpp {
     {
       Astar astar (roadmap_, problem_.distance ());
       return astar.solution ();
+    }
+
+    void PathPlanner::tryDirectPath ()
+    {
+      // call steering method here to build a direct conexion 
+      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      PathPtr_t validPath, path;
+      NodePtr_t initNode = roadmap ()->initNode();
+      for (Nodes_t::const_iterator itn = roadmap ()->goalNodes ().begin();
+	   itn != roadmap ()->goalNodes ().end (); ++itn) {
+	ConfigurationPtr_t q1 ((initNode)->configuration ());
+	ConfigurationPtr_t q2 ((*itn)->configuration ());
+	assert (*q1 != *q2);
+	path = (*sm) (*q1, *q2);
+	bool pathValid = pathValidation->validate (path, false, validPath);
+	if (pathValid && validPath->timeRange ().second != 
+	    path->timeRange ().first) {
+	  roadmap ()->addEdge (initNode, *itn, path);
+	  interval_t timeRange = path->timeRange ();
+	  roadmap ()->addEdge (*itn, initNode, path->extract
+			       (interval_t (timeRange.second,
+					    timeRange.first)));
+	}
+      }
     }
     
   } //   namespace core
