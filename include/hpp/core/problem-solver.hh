@@ -98,6 +98,25 @@ namespace hpp {
       /// Reset constraint set
       void resetConstraints ();
 
+      /// Add a a numerical constraint in local map.
+      /// \param name name of the numerical constraint as stored in local map,
+      /// \param constraint numerical constraint
+      ///
+      /// Numerical constraints are to be inserted in the ConfigProjector of
+      /// the constraint set.
+      void addNumericalConstraint (const std::string& name,
+				   const DifferentiableFunctionPtr_t&
+				   constraint)
+      {
+	NumericalConstraintMap_ [name] = constraint;
+      }
+
+      /// Get constraint with given name
+      DifferentiableFunctionPtr_t numericalConstraint (const std::string& name)
+      {
+	return NumericalConstraintMap_ [name];
+      }
+
       /// Set maximal number of iterations in config projector
       void maxIterations (size_type iterations)
       {
@@ -214,6 +233,8 @@ namespace hpp {
       value_type errorThreshold_;
       // Maximal number of iterations for numerical constraint resolution
       size_type maxIterations_;
+      /// Map of constraints
+      DifferentiableFunctionMap_t NumericalConstraintMap_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp

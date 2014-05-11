@@ -131,6 +131,8 @@ namespace hpp {
     typedef model::vectorOut_t vectorOut_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef KDTree* KDTreePtr_t;
+    typedef std::map <std::string, DifferentiableFunctionPtr_t>
+    DifferentiableFunctionMap_t;
   } // namespace core
 } // namespace hpp
 

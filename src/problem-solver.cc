@@ -36,7 +36,7 @@ namespace hpp {
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ (),
       collisionObstacles_ (), distanceObstacles_ (), errorThreshold_ (1e-4),
-      maxIterations_ (20)
+      maxIterations_ (20), NumericalConstraintMap_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
