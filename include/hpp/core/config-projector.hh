@@ -65,6 +65,27 @@ namespace hpp {
       void projectOnKernel (ConfigurationIn_t from,
 			    ConfigurationIn_t to, ConfigurationOut_t result);
 
+      /// Set maximal number of iterations
+      void maxIterations (size_type iterations)
+      {
+	maxIterations_ = iterations;
+      }
+      /// Get maximal number of iterations in config projector
+      size_type maxIterations () const
+      {
+	return maxIterations_;
+      }
+
+      /// Set error threshold
+      void errorThreshold (const value_type& threshold)
+      {
+	squareErrorThreshold_ = threshold * threshold;
+      }
+      /// Get errorimal number of threshold in config projector
+      value_type errorThreshold () const
+      {
+	return sqrt (squareErrorThreshold_);
+      }
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.

@@ -24,6 +24,7 @@
 # include <hpp/core/problem.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
+# include <hpp/core/config-projector.hh>
 
 namespace hpp {
   namespace core {
@@ -81,7 +82,10 @@ namespace hpp {
       {
 	return roadmap_;
       }
-
+      
+      /// \name Constraints
+      /// \{
+      
       /// Add a constraint
       void addConstraint (const ConstraintPtr_t& constraint);
 
@@ -93,6 +97,35 @@ namespace hpp {
 
       /// Reset constraint set
       void resetConstraints ();
+
+      /// Set maximal number of iterations in config projector
+      void maxIterations (size_type iterations)
+      {
+	maxIterations_ = iterations;
+	if (constraints_ && constraints_->configProjector ()) {
+	  constraints_->configProjector ()->maxIterations (iterations);
+	}
+      }
+      /// Get maximal number of iterations in config projector
+      size_type maxIterations () const
+      {
+	return maxIterations_;
+      }
+
+      /// Set error threshold in config projector
+      void errorThreshold (const value_type& threshold)
+      {
+	errorThreshold_ = threshold;
+	if (constraints_ && constraints_->configProjector ()) {
+	  constraints_->configProjector ()->errorThreshold (threshold);
+	}
+      }
+      /// Get errorimal number of threshold in config projector
+      value_type errorThreshold () const
+      {
+	return errorThreshold_;
+      }
+      /// \}
 
       /// Create new problem.
       void resetProblem ();
@@ -177,6 +210,10 @@ namespace hpp {
       ObjectVector_t distanceObstacles_;
       /// Map of obstacles by names
       std::map <std::string, CollisionObjectPtr_t> obstacleMap_;
+      // Tolerance for numerical constraint resolution
+      value_type errorThreshold_;
+      // Maximal number of iterations for numerical constraint resolution
+      size_type maxIterations_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp
