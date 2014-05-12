@@ -135,7 +135,7 @@ namespace hpp {
     private:
       PathPtr_t original_;
       bool reversed_;
-      ExtractedPathWkPtr weak_;
+      ExtractedPathWkPtr_t weak_;
     };
   } //   namespace core
 } // namespace hpp

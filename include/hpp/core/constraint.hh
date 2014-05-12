@@ -63,7 +63,7 @@ namespace hpp {
       {
       }
 
-      ConstraintWkPtr weak_;
+      ConstraintWkPtr_t weak_;
       std::string name_;
       friend class ConstraintSet;
       friend class LockedDof;

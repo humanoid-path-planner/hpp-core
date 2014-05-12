@@ -130,7 +130,7 @@ namespace hpp {
 
     private:
       Paths_t paths_;
-      PathVectorWkPtr weak_;
+      PathVectorWkPtr_t weak_;
     }; // class PathVector
   } //   namespace core
 } // namespace hpp

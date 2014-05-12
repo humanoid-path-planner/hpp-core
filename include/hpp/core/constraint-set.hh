@@ -99,7 +99,7 @@ namespace hpp {
       Constraints_t constraints_;
       ConfigProjectorPtr_t configProjector_;
       bool hasLockedDofs_;
-      ConstraintSetWkPtr weak_;
+      ConstraintSetWkPtr_t weak_;
 
       friend class LockedDof;
       friend class Constraint;

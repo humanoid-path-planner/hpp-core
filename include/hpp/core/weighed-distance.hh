@@ -44,14 +44,14 @@ namespace hpp {
       WeighedDistance (const DevicePtr_t& robot,
 		       const std::vector <value_type>& weights);
       WeighedDistance (const WeighedDistance& distance);
-      void init (WeighedDistanceWkPtr self);
+      void init (WeighedDistanceWkPtr_t self);
       /// Derived class should implement this function
       virtual value_type impl_distance (ConfigurationIn_t q1,
 				    ConfigurationIn_t q2);
     private:
       DevicePtr_t robot_;
       std::vector <value_type> weights_;
-      WeighedDistanceWkPtr weak_;
+      WeighedDistanceWkPtr_t weak_;
     }; // class WeighedDistance
   } //   namespace core
 } // namespace hpp
