@@ -87,7 +87,7 @@ namespace hpp {
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef model::Device Device_t;
     typedef model::DevicePtr_t DevicePtr_t;
-    typedef model::DeviceWkPtr DeviceWkPtr_t;
+    typedef model::DeviceWkPtr_t DeviceWkPtr_t;
     typedef std::deque <DevicePtr_t> Devices_t;
     typedef boost::shared_ptr <DifferentiableFunction>
     DifferentiableFunctionPtr_t;

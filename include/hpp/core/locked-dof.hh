@@ -84,7 +84,7 @@ namespace hpp {
       std::size_t index_;
       value_type value_;
       /// Weak pointer to itself
-      LockedDofWkPtr weak_;
+      LockedDofWkPtr_t weak_;
     }; // class LockedDof
   } // namespace core
 } // namespace hpp

@@ -100,7 +100,7 @@ namespace hpp {
       DevicePtr_t device_;
       const Configuration_t initial_;
       const Configuration_t end_;
-      StraightPathWkPtr weak_;
+      StraightPathWkPtr_t weak_;
     }; // class StraightPath
   } //   namespace core
 } // namespace hpp

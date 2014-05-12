@@ -125,7 +125,7 @@ namespace hpp {
       mutable vector_t dq_;
       mutable vector_t dqSmall_;
       size_type nbNonLockedDofs_;
-      ConfigProjectorWkPtr weak_;
+      ConfigProjectorWkPtr_t weak_;
     }; // class ConfigProjector
   } // namespace core
 } // namespace hpp

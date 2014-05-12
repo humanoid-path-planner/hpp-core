@@ -132,7 +132,7 @@ namespace hpp {
     {
     }
 
-    void WeighedDistance::init (WeighedDistanceWkPtr self)
+    void WeighedDistance::init (WeighedDistanceWkPtr_t self)
     {
       weak_ = self;
     }

@@ -72,7 +72,7 @@ namespace hpp {
       }
     private:
        Nodes_t nodes_;
-       ConnectedComponentWkPtr weak_;
+       ConnectedComponentWkPtr_t weak_;
     }; // class ConnectedComponent
   } //   namespace core
 } // namespace hpp

@@ -160,7 +160,7 @@ namespace hpp {
       /// Constraints that apply to the robot
       ConstraintSetPtr_t constraints_;
       /// Weak pointer to itself
-      PathWkPtr weak_;
+      PathWkPtr_t weak_;
       friend std::ostream& operator<< (std::ostream& os, const Path& path);
     }; // class Path
     inline std::ostream& operator<< (std::ostream& os, const Path& path)
