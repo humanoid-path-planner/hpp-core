@@ -227,6 +227,7 @@ namespace hpp {
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
+      bool obstacleLoaded_;
       /// Map of obstacles by names
       std::map <std::string, CollisionObjectPtr_t> obstacleMap_;
       // Tolerance for numerical constraint resolution
