@@ -183,7 +183,7 @@ namespace hpp {
       int i=0;
       for (JointVector_t::const_iterator itJoint = jv.begin ();
 	   itJoint != jv.end (); itJoint++) {
-	for ( unsigned int rank=0 ; rank<(*itJoint)->configSize () ; rank++ ) {
+	for (size_type rank=0 ; rank<(*itJoint)->configSize (); rank++) {
 	  upperBounds_.conservativeResize(upperBounds_.innerSize() + 1 );
 	  lowerBounds_.conservativeResize(lowerBounds_.innerSize() + 1 );
 	  typeDims_.conservativeResize(typeDims_.innerSize() + 1 );
