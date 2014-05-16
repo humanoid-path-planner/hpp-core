@@ -30,13 +30,13 @@
 namespace hpp {
   namespace core {
     ProblemSolver::ProblemSolver () :
-      robot_ (), robotChanged_ (false), problem_ (), obstacleLoaded_(false),
+      robot_ (), robotChanged_ (false), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ (),
-      collisionObstacles_ (), distanceObstacles_ (), errorThreshold_ (1e-4),
-      maxIterations_ (20), NumericalConstraintMap_ ()
+      collisionObstacles_ (), distanceObstacles_ (), obstacleLoaded_(false),
+      errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
