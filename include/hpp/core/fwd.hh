@@ -99,6 +99,8 @@ namespace hpp {
     typedef std::list <Edge*> Edges_t;
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
     typedef model::JointJacobian_t JointJacobian_t;
+    typedef model::Joint Joint;
+    typedef model::JointPtr_t JointPtr_t;
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
     typedef model::JointVector_t JointVector_t;
     typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;

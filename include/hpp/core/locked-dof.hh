@@ -20,27 +20,82 @@
 # define HPP_CORE_LOCKED_DOF_HH
 
 # include <roboptim/core/differentiable-function.hh>
+# include <hpp/model/joint.hh>
 # include <hpp/core/constraint-set.hh>
 
 namespace hpp {
   namespace core {
     /// Constraint that locks a degree of freedom to a constant value.
+    ///
+    /// For translation and rotation joints the locked degree of freedom
+    /// constraint is built as follows:
+    /// \code
+    /// LockedDofPtr_t lockedDof = LockedDof::create ("lock-dof", joint, value);
+    /// \endcode
+    /// where \c joint is a pointer to a robot joint and \c value is a \c double
+    /// value. However, for JointSO3, it is possible to constrain the rotation
+    /// along one coordinate axis by constraining both quaternion coodinates and
+    /// angular velocity as follows:
+    /// \code
+    /// LockedDofPtr_t l1 = LockedDof::create ("lock-dof1", joint, 0, 1, 0);
+    /// LockedDofPtr_t l1 = LockedDof::create ("lock-dof2", joint, 0, 2, 1);
+    /// \endcode
+    /// This constrains the quaternion value and the velocity vector of the
+    /// joint to be of the forms:
+    /// \f{eqnarray*}
+    ///    quat &=& x + 0\ i + 0\ j + w\ k \\
+    ///    \omega &=& \omega_z \mathbf{u}_z
+    /// \f}
     class HPP_CORE_DLLAPI LockedDof : public Constraint
     {
     public:
       /// Return shared pointer to new object
-      static LockedDofPtr_t create (const std::string& name, size_type index,
-				    value_type value)
+      /// \param name name of the constraint,
+      /// \param joint joint that is moved by the degree of freedom,
+      /// \param value of the degree of freedom,
+      /// \param rankInConfig index of the degree of freedom in the joint
+      ///        configuration vector (usually 0),
+      /// \param rankInVelocity index of the degree of freedom in the joint
+      ///        velocity vector (usually 0),
+      static LockedDofPtr_t create (const std::string& name,
+				    const JointPtr_t& joint,
+				    value_type value,
+				    size_type rankInConfig = 0,
+				    size_type rankInVelocity = 0)
       {
-	LockedDof* ptr = new LockedDof (name, index, value);
+	LockedDof* ptr = new LockedDof (name, joint, value, rankInConfig,
+					rankInVelocity);
 	LockedDofPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
-      /// Get index of the locked degree of freedom in the configuration vector.
-      std::size_t index () const
+      /// Return shared pointer to new object
+      /// \param name name of the constraint,
+      /// \param value of the degree of freedom,
+      /// \param rankInConfig index of the degree of freedom in the joint
+      ///        configuration vector,
+      /// \param rankInVelocity index of the degree of freedom in the joint
+      ///        velocity vector,
+      static LockedDofPtr_t create (const std::string& name,
+				    value_type value,
+				    size_type rankInConfig,
+				    size_type rankInVelocity)
       {
-	return index_;
+	LockedDof* ptr = new LockedDof (name, value, rankInConfig,
+					rankInVelocity);
+	LockedDofPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+      /// Get index of locked degree of freedom in robot configuration vector
+      std::size_t rankInConfiguration () const
+      {
+	return rankInConfiguration_;
+      }
+      /// Get index of locked degree of freedom in robot velocity vector.
+      std::size_t rankInVelocity () const
+      {
+	return rankInVelocity_;
       }
       /// Get the value of the configuration locked component.
       const value_type& value () const
@@ -53,8 +108,34 @@ namespace hpp {
 	return value_;
       }
     protected:
-      LockedDof (const std::string& name, size_type index, value_type value) :
-	Constraint (name), index_ (index), value_ (value)
+      /// Constructor
+      /// \param name name of the constraint,
+      /// \param joint joint that is moved by the degree of freedom,
+      /// \param value of the degree of freedom,
+      /// \param rankInConfig index of the degree of freedom in the joint
+      ///        configuration vector (usually 0),
+      /// \param rankInVelocity index of the degree of freedom in the joint
+      ///        velocity vector (usually 0),
+      LockedDof (const std::string& name, const JointPtr_t& joint,
+		 value_type value, size_type rankInConfig = 0,
+		 size_type rankInVelocity = 0) :
+	Constraint (name), value_ (value),
+	rankInConfiguration_ (joint->rankInConfiguration () + rankInConfig),
+	rankInVelocity_ (joint->rankInVelocity () + rankInVelocity)
+      {
+      }
+      /// Constructor
+      /// \param name name of the constraint,
+      /// \param value of the degree of freedom,
+      /// \param rankInConfig index of the degree of freedom in the robot
+      ///        configuration vector,
+      /// \param rankInVelocity index of the degree of freedom in the robot
+      ///        velocity vector,
+      LockedDof (const std::string& name, value_type value,
+		 size_type rankInConfig, size_type rankInVelocity) :
+	Constraint (name), value_ (value),
+	rankInConfiguration_ (rankInConfig),
+	rankInVelocity_ (rankInVelocity)
       {
       }
       void init (const LockedDofPtr_t& self)
@@ -64,14 +145,17 @@ namespace hpp {
       }
       bool impl_compute (ConfigurationOut_t configuration)
       {
-	configuration [index_] = value_;
+	configuration [rankInConfiguration_] = value_;
 	return true;
       }
     private:
       virtual std::ostream& print (std::ostream& os) const
       {
-	os << "Locked degree of freedom " << name () << ": index = "
-	   << index_ << ", value = " << value_ << std::endl;
+	os << "Locked degree of freedom " << name ()
+	   << ", value = " << value_
+	   << ": rank in configuration = " << rankInConfiguration_
+	   << ": rank in velocity = " << rankInVelocity_
+	   << std::endl;
 	return os;
       }
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
@@ -81,8 +165,9 @@ namespace hpp {
 	Constraint::addToConstraintSet (constraintSet);
       }
 
-      std::size_t index_;
       value_type value_;
+      size_type rankInConfiguration_;
+      size_type rankInVelocity_;
       /// Weak pointer to itself
       LockedDofWkPtr_t weak_;
     }; // class LockedDof

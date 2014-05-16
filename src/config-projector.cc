@@ -30,7 +30,7 @@ namespace hpp {
     //using boost::fusion::result_of::at;
     bool operator< (const LockedDofPtr_t& l1, const LockedDofPtr_t& l2)
     {
-      return l1->index () < l2->index ();
+      return l1->rankInVelocity () < l2->rankInVelocity ();
     }
 
     ConfigProjectorPtr_t ConfigProjector::create (const DevicePtr_t& robot,
@@ -79,11 +79,12 @@ namespace hpp {
       size_type size;
       lockedDofs_.sort ();
       // temporarily add an element at the end of the list.
-      lockedDofs_.push_back (LockedDof::create ("temporary",
-						robot_->numberDof (), 0));
+      lockedDofs_.push_back (LockedDof::create ("temporary", 0.,
+						robot_->configSize (),
+						robot_->numberDof ()));
       for (LockedDofs_t::const_iterator itLocked = lockedDofs_.begin ();
 	   itLocked != lockedDofs_.end (); itLocked++) {
-	int index = (*itLocked)->index ();
+	int index = (*itLocked)->rankInVelocity ();
 	size = (index - latestIndex) - 1;
 	if (size > 0) {
 	  interval.first = latestIndex + 1;
@@ -247,7 +248,7 @@ namespace hpp {
     {
       for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
 	   itLock != lockedDofs_.end (); itLock ++) {
-	configuration [(*itLock)->index ()] = (*itLock)->value ();
+	configuration [(*itLock)->rankInConfiguration ()] = (*itLock)->value ();
       }
     }
 
@@ -256,7 +257,7 @@ namespace hpp {
       // If the same dof is already locked, replace by new value
       for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
 	   itLock != lockedDofs_.end (); itLock ++) {
-	if (lockedDof->index () == (*itLock)->index ()) {
+	if (lockedDof->rankInVelocity () == (*itLock)->rankInVelocity ()) {
 	  *itLock = lockedDof;
 	  return;
 	}
