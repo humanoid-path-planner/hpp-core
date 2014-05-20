@@ -21,7 +21,6 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
   astar.hh
-  basic-configuration-shooter.hh
   config-projector.cc
   constraint.cc
   constraint-set.cc

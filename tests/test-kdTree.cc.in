@@ -32,7 +32,7 @@
 #include "../src/nearest-neighbor.hh"
 #include <hpp/core/k-d-tree.hh>
 #include <hpp/core/weighed-distance.hh>
-#include "../src/basic-configuration-shooter.hh"
+#include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
 #include "../src/node.cc"
