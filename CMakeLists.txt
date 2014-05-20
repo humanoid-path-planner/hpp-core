@@ -42,6 +42,7 @@ ENDIF()
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
+  include/hpp/core/basic-configuration-shooter.hh
   include/hpp/core/configuration-shooter.hh
   include/hpp/core/config-projector.hh
   include/hpp/core/connected-component.hh
