@@ -86,6 +86,12 @@ namespace hpp {
       {
 	return sqrt (squareErrorThreshold_);
       }
+
+      value_type residualError() const
+      {
+        return squareNorm_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -129,6 +135,7 @@ namespace hpp {
       typedef std::list <LockedDofPtr_t> LockedDofs_t;
       typedef std::vector < std::pair <size_type, size_type> >Intervals_t;
       DevicePtr_t robot_;
+      value_type squareNorm_;
       NumericalConstraints_t constraints_;
       LockedDofs_t lockedDofs_;
       /// Intervals of non locked degrees of freedom
