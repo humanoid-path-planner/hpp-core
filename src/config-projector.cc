@@ -55,7 +55,8 @@ namespace hpp {
       projMinusFrom_ (robot->numberDof ()),
       dq_ (robot->numberDof ()),
       dqSmall_ (robot->numberDof ()),
-      nbNonLockedDofs_ (robot_->numberDof ())
+      nbNonLockedDofs_ (robot_->numberDof ()),
+      squareNorm_(0), weak_ ()
     {
     }
 
@@ -189,11 +190,10 @@ namespace hpp {
       size_type errorDecreased = 3, iter = 0;
       value_type previousSquareNorm =
 	std::numeric_limits<value_type>::infinity();
-      value_type squareNorm;
       // Fill value and Jacobian
       computeValueAndJacobian (configuration);
-      squareNorm = value_.squaredNorm ();
-      while (squareNorm > squareErrorThreshold_ && errorDecreased &&
+      squareNorm_ = value_.squaredNorm ();
+      while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
 	// Linearization of the system of equations
 	// 0 - v_{i} = J (q_i) (q_{i+1} - q_{i})
@@ -208,16 +208,16 @@ namespace hpp {
 	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
 	alpha = alphaMax - .8*(alphaMax - alpha);
-	squareNorm = value_.squaredNorm ();
-	hppDout (info, "squareNorm = " << squareNorm);
+	squareNorm_ = value_.squaredNorm ();
+	hppDout (info, "squareNorm = " << squareNorm_);
 	--errorDecreased;
-	if (squareNorm < previousSquareNorm) errorDecreased = 3;
-	previousSquareNorm = squareNorm;
+	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
+	previousSquareNorm = squareNorm_;
 	++iter;
 	computeValueAndJacobian (configuration);
       };
       hppDout (info, "number of iterations: " << iter);
-      if (squareNorm > squareErrorThreshold_) {
+      if (squareNorm_ > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");
 	return false;
       }

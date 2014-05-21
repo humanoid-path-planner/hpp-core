@@ -86,6 +86,12 @@ namespace hpp {
       {
 	return sqrt (squareErrorThreshold_);
       }
+
+      value_type residualError() const
+      {
+        return squareNorm_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -146,6 +152,7 @@ namespace hpp {
       mutable vector_t dq_;
       mutable vector_t dqSmall_;
       size_type nbNonLockedDofs_;
+      value_type squareNorm_;
       ConfigProjectorWkPtr_t weak_;
     }; // class ConfigProjector
   } // namespace core
