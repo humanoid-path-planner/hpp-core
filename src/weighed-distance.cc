@@ -20,6 +20,7 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 #include <hpp/model/joint-configuration.hh>
+#include <hpp/model/children-iterator.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <Eigen/SVD>
 
@@ -98,20 +99,18 @@ namespace hpp {
 	  std::size_t rank = (*it1)->rankInVelocity ();
 	  std::size_t ncol = (*it1)->numberDof ();
 	  matrix_t jointJacobian;
-	  for (JointVector_t::const_iterator it2 = jointVector.begin ();
-	       it2 != jointVector.end (); it2++) {
-	    if ((*it2)->numberDof () != 0) {
-	      // Get only three first lines of Jacobian
-	      jointJacobian = (*it2)->jacobian ().block (0, rank, 3, ncol);
-	      hppDout (info, "Jacobian between " << (*it1)->name ()
-		       << " and " << (*it2)->name ()
-		       << ", rank = " << rank << ", ncol = " << ncol);
-	      hppDout (info, jointJacobian);
-	      Eigen::JacobiSVD <matrix_t> svd (jointJacobian);
-	      hppDout (info, "singular values " << svd.singularValues ());
-	      if (length < svd.singularValues () [0]) {
-		length = svd.singularValues () [0];
-	      }
+	  for (hpp::model::ChildrenIterator it2 (*it1); !it2.end (); ++it2){
+	    //if ((*it2)->numberDof () != 0) { // allow anchors
+	    // Get only three first lines of Jacobian
+	    jointJacobian = (*it2)->jacobian ().block (0, rank, 3, ncol);
+	    hppDout (info, "Jacobian between " << (*it1)->name ()
+		     << " and " << (*it2)->name ()
+		     << ", rank = " << rank << ", ncol = " << ncol);
+	    hppDout (info, jointJacobian);
+	    Eigen::JacobiSVD <matrix_t> svd (jointJacobian);
+	    hppDout (info, "singular values " << svd.singularValues ());
+	    if (length < svd.singularValues () [0]) {
+	      length = svd.singularValues () [0];
 	    }
 	  }
 	  weights_.push_back (length);
