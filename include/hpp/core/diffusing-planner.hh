@@ -34,8 +34,6 @@ namespace hpp {
       static DiffusingPlannerPtr_t create (const Problem& problem);
       /// One step of extension.
       virtual void oneStep ();
-      /// Do nothing.
-      virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
       /// Set configuration shooter.
       void configurationShooter (const ConfigurationShooterPtr_t& shooter);
     protected:

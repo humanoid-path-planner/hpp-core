@@ -20,6 +20,7 @@
 # define HPP_CORE_PROBLEM_SOLVER_HH
 
 # include <hpp/model/fwd.hh>
+# include <boost/function.hpp>
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/problem.hh>
 # include <hpp/core/fwd.hh>

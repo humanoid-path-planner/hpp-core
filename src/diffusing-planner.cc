@@ -156,11 +156,6 @@ namespace hpp {
       }
     }
 
-    PathVectorPtr_t DiffusingPlanner::finishSolve (const PathVectorPtr_t& path)
-    {
-      return path;
-    }
-
     void DiffusingPlanner::configurationShooter
     (const ConfigurationShooterPtr_t& shooter)
     {

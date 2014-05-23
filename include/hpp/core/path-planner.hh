@@ -54,7 +54,7 @@ namespace hpp {
       /// User implementation of one step of resolution
       virtual void oneStep () = 0;
       /// Post processing of the resulting path
-      virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path) = 0;
+      virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
       /// Interrupt path planning
       void interrupt ();
       /// Check that a path exists between the initial node and one goal node.

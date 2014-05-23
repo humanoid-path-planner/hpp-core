@@ -16,6 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+# include <hpp/util/debug.hh>
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
@@ -71,8 +72,11 @@ namespace hpp {
       interrupt_ = false;
       bool solved = false;
       startSolve ();
-      tryDirectPath();
+      tryDirectPath ();
       solved = pathExists ();
+      if (solved ) {
+	hppDout (info, "tryDirectPath succeeded");
+      }
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
 	oneStep ();
@@ -80,6 +84,7 @@ namespace hpp {
 	if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
+      hppDout (info, "planned path: " << *planned);
       return finishSolve (planned);
     }
 
@@ -106,9 +111,14 @@ namespace hpp {
       return astar.solution ();
     }
 
+    PathVectorPtr_t PathPlanner::finishSolve (const PathVectorPtr_t& path)
+    {
+      return path;
+    }
+
     void PathPlanner::tryDirectPath ()
     {
-      // call steering method here to build a direct conexion 
+      // call steering method here to build a direct conexion
       const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       PathValidationPtr_t pathValidation (problem ().pathValidation ());
       PathPtr_t validPath, path;
