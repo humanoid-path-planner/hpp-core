@@ -31,19 +31,19 @@ namespace hpp {
   namespace core {
 
     PathPlanner::PathPlanner (const Problem& problem) :
-      problem_ (problem), roadmap_ (Roadmap::create (problem.distance (), 
+      problem_ (problem), roadmap_ (Roadmap::create (problem.distance (),
 						     problem.robot())),
       interrupt_ (false)
     {
     }
-    
+
     PathPlanner::PathPlanner (const Problem& problem,
 			      const RoadmapPtr_t& roadmap) :
       problem_ (problem), roadmap_ (roadmap),
       interrupt_ (false)
     {
     }
-    
+
     const RoadmapPtr_t& PathPlanner::roadmap () const
     {
       return roadmap_;
@@ -130,7 +130,7 @@ namespace hpp {
 	assert (*q1 != *q2);
 	path = (*sm) (*q1, *q2);
 	bool pathValid = pathValidation->validate (path, false, validPath);
-	if (pathValid && validPath->timeRange ().second != 
+	if (pathValid && validPath->timeRange ().second !=
 	    path->timeRange ().first) {
 	  roadmap ()->addEdge (initNode, *itn, path);
 	  interval_t timeRange = path->timeRange ();
@@ -140,6 +140,6 @@ namespace hpp {
 	}
       }
     }
-    
+
   } //   namespace core
 } // namespace hpp
