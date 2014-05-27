@@ -25,7 +25,8 @@
 
 namespace hpp {
   namespace core {
-    class BasicConfigurationShooter : public ConfigurationShooter
+    class HPP_CORE_DLLAPI BasicConfigurationShooter :
+      public ConfigurationShooter
     {
     public:
       BasicConfigurationShooter (const DevicePtr_t& robot) : robot_ (robot)

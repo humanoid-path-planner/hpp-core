@@ -19,6 +19,9 @@
 #ifndef HPP_CORE_CONFIGURATION_SHOOTER_HH
 # define HPP_CORE_CONFIGURATION_SHOOTER_HH
 
+# include <hpp/core/config.hh>
+# include <hpp/core/fwd.hh>
+
 namespace hpp {
   namespace core {
     /// Abstraction of configuration shooter
