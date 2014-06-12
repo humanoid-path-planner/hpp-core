@@ -27,10 +27,9 @@ namespace hpp {
       pathPlanner_->oneStep ();
     }
 
-
-   void PlanAndOptimize::tryDirectPath ()
+    void PlanAndOptimize::startSolve ()
     {
-      pathPlanner_->tryDirectPath ();
+      pathPlanner_->startSolve ();
     }
 
     PathVectorPtr_t PlanAndOptimize::finishSolve (const PathVectorPtr_t& path)

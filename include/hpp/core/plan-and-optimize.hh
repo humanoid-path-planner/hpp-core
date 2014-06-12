@@ -34,8 +34,8 @@ namespace hpp {
     public:
       /// Return shared pointer to new object.
       static PlanAndOptimizePtr_t create (const PathPlannerPtr_t& pathPlanner);
-      /// Try direct connexion between init and goal of path planning
-      virtual void tryDirectPath (); 
+      /// Call internal path planner implementation
+      virtual void startSolve ();
       /// One iteration of path planning or path optimization
       virtual void oneStep ();
       /// Optimize planned path
