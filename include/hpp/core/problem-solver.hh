@@ -36,6 +36,11 @@ namespace hpp {
     /// like CORBA or ROS.
     class HPP_CORE_DLLAPI ProblemSolver {
     public:
+      typedef boost::function < PathPlannerPtr_t (const Problem&,
+						  const RoadmapPtr_t&) >
+	PathPlannerBuilder_t;
+      typedef boost::function < PathOptimizerPtr_t (const Problem&) >
+	PathOptimizerBuilder_t;
       /// Constructor
       ProblemSolver ();
 
@@ -68,6 +73,15 @@ namespace hpp {
       void resetGoalConfigs ();
       /// Set path planner type
       void pathPlannerType (const std::string& type);
+      /// Add a path planner type
+      /// \param type name of the new path planner type
+      /// \param static method that creates a path planner with a problem
+      /// and a roadmap as input
+      void addPathPlannerType (const std::string& type,
+			       const PathPlannerBuilder_t& builder)
+      {
+	pathPlannerFactory_ [type] = builder;
+      }
       /// Get path planner
       const PathPlannerPtr_t& pathPlanner () const
       {
@@ -80,6 +94,15 @@ namespace hpp {
       const PathOptimizerPtr_t& pathOptimizer () const
       {
 	return pathOptimizer_;
+      }
+      /// Add a path optimizer type
+      /// \param type name of the new path optimizer type
+      /// \param static method that creates a path optimizer with a problem
+      /// as input
+      void addPathOptimizerType (const std::string& type,
+				 const PathOptimizerBuilder_t& builder)
+      {
+	pathOptimizerFactory_ [type] = builder;
       }
 
       const RoadmapPtr_t& roadmap () const
@@ -193,11 +216,6 @@ namespace hpp {
       const ObjectVector_t& distanceObstacles () const;
 
     private:
-      typedef boost::function < PathPlannerPtr_t (const Problem&,
-						  const RoadmapPtr_t&) >
-	PathPlannerBuilder_t;
-      typedef boost::function < PathOptimizerPtr_t (const Problem&) >
-	PathOptimizerBuilder_t;
       typedef std::map < std::string, PathPlannerBuilder_t >
 	PathPlannerFactory_t;
       ///Map (string , constructor of path optimizer)
