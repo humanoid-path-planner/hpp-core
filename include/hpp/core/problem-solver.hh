@@ -30,7 +30,10 @@
 namespace hpp {
   namespace core {
     /// Set and solve a path planning problem
-
+    ///
+    /// This class is a container that does the interface between
+    /// hpp-core library and component to be running in a middleware
+    /// like CORBA or ROS.
     class HPP_CORE_DLLAPI ProblemSolver {
     public:
       /// Constructor

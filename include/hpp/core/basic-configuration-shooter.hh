@@ -29,6 +29,9 @@ namespace hpp {
       public ConfigurationShooter
     {
     public:
+      /// Uniformly sample configuration space
+      ///
+      /// Note that translation joints have to be bounded.
       BasicConfigurationShooter (const DevicePtr_t& robot) : robot_ (robot)
       {
       }
