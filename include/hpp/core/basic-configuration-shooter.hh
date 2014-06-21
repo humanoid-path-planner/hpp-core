@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 # define HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 
+# include <hpp/model/device.hh>
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/core/configuration-shooter.hh>
