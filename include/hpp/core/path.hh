@@ -65,6 +65,11 @@ namespace hpp {
       /// If upper bound of subInterval is smaller than lower bound,
       /// result is reversed.
       virtual PathPtr_t extract (const interval_t& subInterval) const;
+
+      /// Reversion of a path
+      /// \return a new path that is this one reversed.
+      virtual PathPtr_t reverse () const;
+
       /// \}
 
       Configuration_t operator () (const value_type& t) const throw ()

@@ -27,5 +27,13 @@ namespace hpp {
       return ExtractedPath::create (weak_.lock (), subInterval);
     }
 
+    PathPtr_t Path::reverse () const
+    {
+      interval_t interval;
+      interval.first = this->timeRange_.second;
+      interval.second = this->timeRange_.first;
+      return this->extract (interval);
+    }
+
   } //   namespace core
 } // namespace hpp
