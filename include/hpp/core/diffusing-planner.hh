@@ -41,6 +41,8 @@ namespace hpp {
       DiffusingPlanner (const Problem& problem, const RoadmapPtr_t& roadmap);
       /// Constructor with roadmap
       DiffusingPlanner (const Problem& problem);
+      /// Store weak pointer to itself
+      void init (const DiffusingPlannerWkPtr_t& weak);
       /// Extend a node in the direction of a configuration
       /// \param near node in the roadmap,
       /// \param target target configuration
@@ -49,6 +51,7 @@ namespace hpp {
     private:
       ConfigurationShooterPtr_t configurationShooter_;
       mutable Configuration_t qProj_;
+      DiffusingPlannerWkPtr_t weakPtr_;
     };
   } // namespace core
 } // namespace hpp

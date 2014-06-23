@@ -70,12 +70,16 @@ namespace hpp {
       ///
       /// Store a given roadmap.
       PathPlanner (const Problem& problem, const RoadmapPtr_t& roadmap);
+      /// Store weak pointer to itself
+      void init (const PathPlannerWkPtr_t& weak);
     private:
       /// Reference to the problem
       const Problem& problem_;
       /// Pointer to the roadmap.
       const RoadmapPtr_t roadmap_;
       bool interrupt_;
+      /// Store weak pointer to itself
+      PathPlannerWkPtr_t weakPtr_;
     }; // class PathPlanner
   } //   namespace core
 } // namespace hpp

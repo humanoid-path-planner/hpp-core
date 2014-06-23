@@ -44,6 +44,11 @@ namespace hpp {
     {
     }
 
+    void PathPlanner::init (const PathPlannerWkPtr_t& weak)
+    {
+      weakPtr_ = weak;
+    }
+
     const RoadmapPtr_t& PathPlanner::roadmap () const
     {
       return roadmap_;

@@ -61,6 +61,12 @@ namespace hpp {
     {
     }
 
+    void DiffusingPlanner::init (const DiffusingPlannerWkPtr_t& weak)
+    {
+      PathPlanner::init (weak);
+      weakPtr_ = weak;
+    }
+
     bool belongs (const ConfigurationPtr_t& q, const Nodes_t& nodes)
     {
       for (Nodes_t::const_iterator itNode = nodes.begin ();
