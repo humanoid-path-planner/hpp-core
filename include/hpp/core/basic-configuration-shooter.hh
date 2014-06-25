@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 # define HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 
+# include <sstream>
 # include <hpp/model/device.hh>
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
@@ -44,6 +45,22 @@ namespace hpp {
 	     itJoint != jv.end (); itJoint++) {
 	  std::size_t rank = (*itJoint)->rankInConfiguration ();
 	  (*itJoint)->configuration ()->uniformlySample (rank, *config);
+	}
+	// Shoot extra configuration variables
+	size_type extraDim = robot_->extraConfigSpace ().dimension ();
+	size_type offset = robot_->configSize () - extraDim;
+	for (size_type i=0; i<extraDim; ++i) {
+	  value_type lower = robot_->extraConfigSpace ().lower (i);
+	  value_type upper = robot_->extraConfigSpace ().upper (i);
+	  value_type range = upper - lower;
+	  if ((range < 0) ||
+	      (range == std::numeric_limits<double>::infinity())) {
+	    std::ostringstream oss
+	      ("Cannot uniformy sample extra config variable ");
+	    oss << i << ". min = " << ", max = " << upper << std::endl;
+	    throw std::runtime_error (oss.str ());
+	  }
+	  (*config) [offset + i] = (upper - lower) * rand ()/RAND_MAX;
 	}
 	return config;
       }
