@@ -123,7 +123,13 @@ namespace hpp {
       }
 
       /// Reset constraint set
-      void resetConstraints ();
+      virtual void resetConstraints ();
+
+      /// Add differentialFunction to the config projector
+      /// Build the config projector if not constructed
+      virtual void addConstraintToConfigProjector (
+                          const std::string& constraintName,
+                          const DifferentiableFunctionPtr_t& constraint);
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
@@ -215,6 +221,10 @@ namespace hpp {
       /// Local vector of objects considered for distance computation
       const ObjectVector_t& distanceObstacles () const;
 
+    protected:
+      /// Store constraints until call to solve.
+      ConstraintSetPtr_t constraints_;
+
     private:
       typedef std::map < std::string, PathPlannerBuilder_t >
 	PathPlannerFactory_t;
@@ -244,8 +254,6 @@ namespace hpp {
       PathPlannerFactory_t pathPlannerFactory_;
       /// Path optimizer factory
       PathOptimizerFactory_t pathOptimizerFactory_;
-      /// Store constraints until call to solve.
-      ConstraintSetPtr_t constraints_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
@@ -258,6 +266,7 @@ namespace hpp {
       size_type maxIterations_;
       /// Map of constraints
       DifferentiableFunctionMap_t NumericalConstraintMap_;
+
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp
