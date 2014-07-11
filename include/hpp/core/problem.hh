@@ -33,6 +33,10 @@ namespace hpp {
     /// \li a set of obstacles: a list of hpp::model::CollisionObject,
     /// \li initial and goal configurations,
     /// \li a SteeringMethod to handle the robot dynamics,
+    /// Additional objects are stored in this object:
+    /// \li a method to validate paths,
+    /// \li a set of methods to validate configurations. Default methods are
+    /// collision checking and joint bound checking.
     class HPP_CORE_DLLAPI Problem
     {
     public:
@@ -100,6 +104,22 @@ namespace hpp {
       }
       /// \}
 
+      /// \name Configuration validation
+      /// \{
+
+      /// Set configuration validation methods
+      /// Before starting tos solve a path planning problem, the initial and
+      /// goal configurations are checked for validity.
+      void configValidation (const ConfigValidationsPtr_t& configValidations)
+      {
+	configValidations_ = configValidations;
+      }
+      /// Get configuration validation methods
+      const ConfigValidationsPtr_t& configValidations () const
+      {
+	return configValidations_;
+      }
+
       /// \name Path validation
       /// \{
       /// Set path validation method
@@ -160,13 +180,6 @@ namespace hpp {
       /// \}
 
     private :
-      /// Validate configuration and track validation reports.
-      bool validateConfig (const DevicePtr_t& device,
-			   ConfigurationIn_t inConfig) const;
-
-      /// Validate initial configuration
-      void validateInitConfig () const;
-
       /// The robot
       DevicePtr_t robot_;
       /// Distance between configurations of the robot
@@ -177,6 +190,8 @@ namespace hpp {
       Configurations_t goalConfigurations_;
       /// Steering method associated to the problem
       SteeringMethodPtr_t steeringMethod_;
+      /// Configuration validation
+      ConfigValidationsPtr_t configValidations_;
       /// Path validation
       PathValidationPtr_t pathValidation_;
       /// List of obstacles

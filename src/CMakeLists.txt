@@ -21,12 +21,15 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
   astar.hh
+  collision-validation.cc
   config-projector.cc
+  config-validations.cc
   constraint.cc
   constraint-set.cc
   diffusing-planner.cc
   discretized-collision-checking.cc
   extracted-path.hh
+  joint-bound-validation.cc
   nearest-neighbor.hh
   node.cc
   path.cc

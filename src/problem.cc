@@ -20,6 +20,9 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/model/device.hh>
+#include <hpp/core/collision-validation.hh>
+#include <hpp/core/joint-bound-validation.hh>
+#include <hpp/core/config-validations.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
@@ -37,9 +40,12 @@ namespace hpp {
       distance_ (WeighedDistance::create (robot)),
       initConf_ (), goalConfigurations_ (),
       steeringMethod_ (new core::SteeringMethodStraight (robot)),
+      configValidations_ (ConfigValidations::create ()),
       pathValidation_ (DiscretizedCollisionChecking ::create (robot, 5e-2)),
       collisionObstacles_ (), distanceObstacles_ (), constraints_ ()
     {
+      configValidations_->add (CollisionValidation::create (robot));
+      configValidations_->add (JointBoundValidation::create (robot));
     }
 
     // ======================================================================
@@ -154,47 +160,23 @@ namespace hpp {
 	hppDout (error, msg);
 	throw std::runtime_error (msg);
       }
+
+      configValidations_->validate (*initConf_, true);
+
       if (goalConfigurations_.size () == 0) {
 	std::string msg ("No goal config in problem.");
 	hppDout (error, msg);
 	throw std::runtime_error (msg);
       }
 
-      // Test that goal configurations are valid
-      if (goalConfigurations_.empty ()) {
-	std::string msg ("No Goal configuration");
-	throw std::runtime_error (msg.c_str ());
-      }
       for (ConfigConstIterator_t it = goalConfigurations_.begin ();
 	   it != goalConfigurations_.end (); it++) {
 	const ConfigurationPtr_t& goalConf (*it);
-	if (validateConfig (robot (), *goalConf) != true) {
-	  std::string msg ("One goal configuration not valid.");
-	  hppDout (error, msg);
-	  hppDout (error, displayConfig (*goalConf));
-	  throw std::runtime_error (msg.c_str ());
-	}
+	configValidations_->validate (*goalConf, true);
       }
     }
 
     // ======================================================================
-
-    void Problem::validateInitConfig () const
-    {
-      if (!validateConfig (robot (), *initConf_)) {
-	std::string msg ("Initial configuration is valid.");
-	hppDout (info, msg);
-	throw std::runtime_error (msg);
-      }
-    }
-
-    bool Problem::validateConfig (const DevicePtr_t& device,
-				  ConfigurationIn_t config) const
-    {
-      device->currentConfiguration (config);
-      device->computeForwardKinematics ();
-      return !(device->collisionTest ());
-    }
 
   } // namespace core
 } // namespace hpp

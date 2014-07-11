@@ -34,8 +34,11 @@ namespace roboptim {
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BasicConfigurationShooter);
+    HPP_PREDEF_CLASS (CollisionValidation);
     HPP_PREDEF_CLASS (ConfigurationShooter);
     HPP_PREDEF_CLASS (ConfigProjector);
+    HPP_PREDEF_CLASS (ConfigValidation);
+    HPP_PREDEF_CLASS (ConfigValidations);
     HPP_PREDEF_CLASS (ConnectedComponent);
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
@@ -45,6 +48,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
+    HPP_PREDEF_CLASS (JointBoundValidation);
     HPP_PREDEF_CLASS (LockedDof);
     class Node;
     HPP_PREDEF_CLASS (Path);
@@ -71,6 +75,7 @@ namespace hpp {
 
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
+    typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
     typedef model::ConfigurationIn_t ConfigurationIn_t; 
@@ -81,6 +86,8 @@ namespace hpp {
     typedef Configurations_t::const_iterator ConfigConstIterator_t;
     typedef boost::shared_ptr <ConfigurationShooter> ConfigurationShooterPtr_t;
     typedef boost::shared_ptr <ConfigProjector> ConfigProjectorPtr_t;
+    typedef boost::shared_ptr <ConfigValidation> ConfigValidationPtr_t;
+    typedef boost::shared_ptr <ConfigValidations> ConfigValidationsPtr_t;
     typedef boost::shared_ptr <ConnectedComponent> ConnectedComponentPtr_t;
     typedef std::list <ConnectedComponentPtr_t> ConnectedComponents_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
@@ -101,6 +108,7 @@ namespace hpp {
     typedef model::JointJacobian_t JointJacobian_t;
     typedef model::Joint Joint;
     typedef model::JointPtr_t JointPtr_t;
+    typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
     typedef model::JointVector_t JointVector_t;
     typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;
