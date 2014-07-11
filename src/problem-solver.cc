@@ -30,11 +30,11 @@
 namespace hpp {
   namespace core {
     ProblemSolver::ProblemSolver () :
-      robot_ (), robotChanged_ (false), problem_ (),
+      constraints_ (), robot_ (), robotChanged_ (false), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
-      pathPlannerFactory_ (), pathOptimizerFactory_ (), constraints_ (),
+      pathPlannerFactory_ (), pathOptimizerFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (), obstacleLoaded_(false),
       errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ ()
     {
@@ -168,7 +168,7 @@ namespace hpp {
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
-      
+
       if (collision){
 	collisionObstacles_.push_back (object);
 	obstacleLoaded_=true;
@@ -185,7 +185,7 @@ namespace hpp {
     {
       return obstacleMap_ [name];
     }
-    
+
 
     const ObjectVector_t& ProblemSolver::collisionObstacles () const
     {
