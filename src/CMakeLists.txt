@@ -27,6 +27,7 @@ SET(${LIBRARY_NAME}_SOURCES
   connected-component.cc
   constraint.cc
   constraint-set.cc
+  continuous-collision-checking.cc
   diffusing-planner.cc
   discretized-collision-checking.cc
   extracted-path.hh
@@ -46,6 +47,7 @@ SET(${LIBRARY_NAME}_SOURCES
   k-d-tree.cc
   )
 
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
 ADD_LIBRARY(${LIBRARY_NAME}
   SHARED
   ${${LIBRARY_NAME}_SOURCES}

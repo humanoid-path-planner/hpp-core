@@ -1,0 +1,189 @@
+%
+% Copyright (c) 2014 CNRS
+% Authors: Florent Lamiraux
+%
+% This file is part of hpp-core
+% hpp-core is free software: you can redistribute it
+% and/or modify it under the terms of the GNU Lesser General Public
+% License as published by the Free Software Foundation, either version
+% 3 of the License, or (at your option) any later version.
+%
+% hpp-core is distributed in the hope that it will be
+% useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+% of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Lesser Public License for more details.  You should have
+% received a copy of the GNU Lesser General Public License along with
+% hpp-core  If not, see
+% <http://www.gnu.org/licenses/>.
+
+\documentclass {article}
+
+\usepackage {graphics}
+\usepackage {color}
+\usepackage {amssymb}
+\newcommand\body{{\cal B}}
+\newcommand\CS{{\cal C}}
+\newcommand\path{P}
+\newcommand\conf{\textbf{q}}
+\newcommand\linvel{\textbf{v}}
+\newcommand\angvel{\omega}
+\newcommand\reals{\mathbb{R}}
+\newcommand\crossprod[1]{\left[#1\right]_{\times}}
+\title {Continuous Collision Checking}
+\author {Florent Lamiraux}
+
+\begin {document}
+\maketitle
+\section {Definitions and Notation}
+
+Given a robot as a tree of joints moving in a workspace, and given a path for
+this robot between two configurations, we wish to establish whether the path
+is collision free with the environment or for self-collision.
+
+For each pair body~a - body~b, we will validate intervals by
+\begin {enumerate}
+\item computing the distance between bodies at a given parameter, and
+\item bound from above the velocity of all points of body~a in the frame of
+  body~b.
+\end {enumerate}
+
+Let us denote by
+\begin{itemize}
+\item $J_a$ and $J_b$ the two joints holding
+\item bodies $\body_a$ and $\body_b$ of the pair to check for collision,
+\item $J_0 = J_a, J_1, \cdots, J_{m-1} = J_b$, the list of joints linking $J_a$ to $J_b$,
+\item $\CS$ the configuration space of the robot,
+\item $\path: [0, T] \rightarrow \CS$, the path to check for collision,
+\item $\conf_{i} = \path (0)$ and $\conf_{g} = \path (T)$ the end configurations
+of the path to check.
+\end{itemize}
+
+\section {Constant velocity}
+
+\begin{figure}[ht]
+\centerline {
+  \input {kinematic-chain.pdf_t}
+}
+\end{figure}
+
+In this section, we assume that along the path $\path$, each joint $J_i$ rotates or translates at constant linear and/or angular velocity in the reference frame of its neighbor. We thus denote for $i=1,\cdots,m-1$,
+\begin {itemize}
+\item $\linvel_{i-1/i}$,  the constant linear velocity, and
+\item $\angvel_{i-1/i}$, $i=1,\cdots,m-1$ the constant angular velocity of joint
+$J_{i-1}$ in the reference frame of joint $J_{i}$.
+\end {itemize}
+
+\section {Upper bound on relative velocity}
+
+Let $P_0$ be a point fixed in reference frame $J_0$ of coordinates $p_0$ in the
+local frame of $J_0$. The coordinate of $P_0$ in the frame of $J_{m-1}$ is given
+by
+\begin {equation}\label{eq:relative-position}
+P_{0/m-1} = M_{m-2/m-1} M_{m-3/m-2}\cdots M_{1/2}M_{0/1}\left(\begin{array}{c}m_0\\1\end{array}\right)
+\end {equation}
+where \begin{itemize}
+\item $M_{i/i+1} = \left(\begin{array}{cc}R_{i/i+1} & T_{i/i+1}\\ 0\ 0\ 0 & 1\end{array}\right)$ is the homogeneous matrix representing the position of Joint $J_i$ in the reference frame of $J_{i+1}$,
+\item $M_{i/i+1}\in SO(3)$ is a rotation matrix, and
+\item $T_{i/i+1}\in\reals^3$ is a translation vector.
+\end{itemize}
+Differentiating~(\ref{eq:relative-position}), we get
+{\tiny
+\begin {eqnarray}\label{eq:ineq-vel1}
+\left(\begin{array}{c}\dot{P}_{0/m-1}\\0\end{array}\right) &=&\left(\begin{array}{cc}\crossprod{\omega_{m-2/m-1}} R_{m-2/m-1} & \linvel_{m-2/m-1} \\ 0 \ 0 \ 0 & 0\end{array}\right) \cdots M_{1/2} M_{0/1} \left(\begin{array}{c}m_0\\1\end{array}\right) \\
+\label{eq:ineq-vel2}
+&& + M_{m-2/m-1}\left(\begin{array}{cc}\crossprod{\omega_{m-3/m-2}} R_{m-3/m-2} & \linvel_{m-3/m-2} \\ 0 \ 0 \ 0 & 0\end{array}\right) \cdots M_{0/1}\left(\begin{array}{c}m_0\\1\end{array}\right) \\
+\label{eq:ineq-vel3}
+&& + \cdots \\
+\label{eq:ineq-vel4}
+&& + M_{m-2/m-1} \cdots M_{1/2}\left(\begin{array}{cc}\crossprod{\omega_{0/1}} R_{0/1} & \linvel_{0/1} \\ 0 \ 0 \ 0 & 0\end{array}\right)\left(\begin{array}{c}m_0\\1\end{array}\right)
+\end {eqnarray}
+}
+where
+\begin{itemize}
+\item $\crossprod{\omega_{i/i+1}}$ is the antisymmetric matrix
+  corresponding to the cross product by vector
+  $\omega_{i/i+1}\in\reals^3$, representing the angular velocity of
+  $J_i$ with respect to $J_{i+1}$,
+\item $\linvel_{i/i+1} = \dot{T}_{i/i+1}$ is the linear velocity of the origin of
+$J_i$ in the reference frame of $J_{i+1}$.
+\end{itemize}
+
+\subsection {A few properties of rigid-body transformations}
+
+Let $M_1=\left(\begin{array}{cc}R_1 & T_1\\0\ 0\ 0 & 1\end{array}\right)$,
+$M_2=\left(\begin{array}{cc}R_2 & T_2\\0\ 0\ 0 & 1\end{array}\right)$, and
+$M_2=\left(\begin{array}{cc}R_2 & T_2\\0\ 0\ 0 & 1\end{array}\right)$ be three homogeneous matrices such that
+$$
+M_3 = \left(\begin{array}{cc}R_1\ R_2 & R_1\ T_2 + T_1\\0\ 0\ 0 & 1\end{array}\right)
+$$
+We notice that
+\begin{equation}\label{eq:ineq1}
+\|T_3\| \leq \|T_1\| + \|T_2\|
+\end{equation}
+Let $m\in\reals^3$, and $p\in\reals^3$ such that
+$$
+\left(\begin{array}{c}p\\1\end{array}\right) = M_1\ \left(\begin{array}{c}m\\1\end{array}\right)
+$$
+Then
+\begin{equation}\label{eq:ineq2}
+\|p\| \leq \|T_1\| + \|m\|
+\end{equation}
+
+\subsection {Upper-bound computation}
+
+From properties~(\ref{eq:ineq1}-\ref{eq:ineq2}) and expression~(\ref{eq:ineq-vel1}-\ref{eq:ineq-vel4}), we get
+\begin {eqnarray*}
+\|\dot{P}_{0/m-1}\| &\leq&
+\|{\color{red}\linvel_{0/1}}\| + \|{\color{red}\omega_{0/1}}\|\ \|m_0\|\\
+&& + \|{\color{red}\linvel_{1/2}}\| + \|{\color{red}\omega_{1/2}}\| \left(\|m_0\| + \|T_{0/1}\|\right) \\
+&& + \|{\color{red}\linvel_{2/3}}\| + \|{\color{red}\omega_{2/3}}\| \left(\|m_0\| + \|T_{0/1}\| + \|T_{1/2}\|\right) \\
+&& + \cdots \\
+&& + \|{\color{red}\linvel_{m-2/m-1}}\| + \|{\color{red}\omega_{m-2/m-1}}\|\ \left(\|m_0\| + \|T_{1/2}\| + \cdots + \|T_{m-2/m-1}\|\right)
+\end {eqnarray*}
+
+Notice that red variables correspond to joint variable derivatives and depend on the path, while black expressions are constant for a given kinematic chain.
+
+If we define the radius of body $\body_a$ as the maximum distance of all points of the body to the center of the joint:
+$$
+r_0 = \sup \left\{\|m_0\|, m_0\in\body_a\right\},
+$$
+we get
+\begin {eqnarray*}
+\|\dot{P}_{0/m-1}\| &\leq&
+\|{\color{red}\linvel_{0/1}}\| + \|{\color{red}\omega_{0/1}}\|\ r_0\\
+&& + \|{\color{red}\linvel_{1/2}}\| + \|{\color{red}\omega_{1/2}}\| \left(r_0 + \|T_{0/1}\|\right) \\
+&& + \|{\color{red}\linvel_{2/3}}\| + \|{\color{red}\omega_{2/3}}\| \left(r_0 + \|T_{0/1}\| + \|T_{1/2}\|\right) \\
+&& + \cdots \\
+&& + \|{\color{red}\linvel_{m-2/m-1}}\| + \|{\color{red}\omega_{m-2/m-1}}\|\ \left(r_0 + \|T_{1/2}\| + \cdots + \|T_{m-2/m-1}\|\right)
+\end {eqnarray*}
+
+\section {If $J_a$ is not ancestor nor descendant of $J_{b}$}
+
+If the robot is a tree of joints, $J_a$ and $J_b$ may lie on different branches
+and therefore not be ancestor nor descendant of one another. In this case, in the sequence, $J_0$,..., $J_{m-1}$, any joint can be the child or the parent of its
+predecessor in the list. Let $J_i$ and $J_{i+1}$ be two consecutive joints in $J_0$,..., $J_{m-1}$. Notice that
+$$
+\|T_{i/i+1}\| = \|T_{i+1/i}\|
+$$
+Without loss of generality, we can then assume that $J_{i+1}$ is the child of $J_i$. We define
+\begin{eqnarray*}
+M &=& J_{i+1}\texttt{->positionInParentFrame ()} \\
+T &=& M [0:3, 3]
+\end{eqnarray*}
+$T$ is the coordinate of the origin of $J_{i+1}$ expressed in frame $J_{i}$.
+\begin{itemize}
+\item if $J_{i+1}$ is a rotation or SO(3) joint,
+$$\|T_{i/i+1}\| = \|T\|,$$
+\item if $J_{i+1}$ is a translation joint bounded in interval $[v_{min}, v_{max}]$,
+$\|T_{i/i+1}\|$ is the maximum of two values computed as follows: let
+\begin{eqnarray*}
+\mathbf{u} &=& M [0:3, 0]
+\end{eqnarray*}
+$\mathbf{u}$ is the direction of translation of $J_{i+1}$ expressed in frame
+$J_{i}$. Then
+$$
+\|T_{i/i+1}\| \leq \max (\|T+v_{min}\mathbf{u}\|, \|T+v_{max}\mathbf{u}\|
+$$
+\end{itemize}
+
+\end{document}

@@ -119,7 +119,7 @@ namespace hpp {
       //
       for (ConnectedComponents_t::const_iterator itcc =
 	     roadmap ()->connectedComponents ().begin ();
-	   itcc != roadmap ()->connectedComponents ().end (); itcc++) {
+	   itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
 	// Find nearest node in roadmap
 	value_type distance;
 	NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);

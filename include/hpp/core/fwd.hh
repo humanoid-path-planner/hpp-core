@@ -43,6 +43,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (ConnectedComponent);
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
+    HPP_PREDEF_CLASS (ContinuousCollisionChecking);
     HPP_PREDEF_CLASS (DifferentiableFunction);
     HPP_PREDEF_CLASS (DiffusingPlanner);
     HPP_PREDEF_CLASS (Distance);
@@ -76,6 +77,8 @@ namespace hpp {
 
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
+    typedef hpp::model::Body Body;
+    typedef hpp::model::BodyPtr_t BodyPtr_t;
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
@@ -93,6 +96,8 @@ namespace hpp {
     typedef std::set <ConnectedComponentPtr_t> ConnectedComponents_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
+    typedef boost::shared_ptr <ContinuousCollisionChecking>
+    ContinuousCollisionCheckingPtr_t;
     typedef model::Device Device_t;
     typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr_t DeviceWkPtr_t;
@@ -108,6 +113,7 @@ namespace hpp {
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
     typedef model::JointJacobian_t JointJacobian_t;
     typedef model::Joint Joint;
+    typedef model::JointConstPtr_t JointConstPtr_t;
     typedef model::JointPtr_t JointPtr_t;
     typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
@@ -143,6 +149,11 @@ namespace hpp {
     typedef KDTree* KDTreePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
+
+    namespace continuousCollisionChecking {
+      HPP_PREDEF_CLASS (BodyPairCollision);
+      typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
+    } // namespace continuousCollisionChecking
   } // namespace core
 } // namespace hpp
 

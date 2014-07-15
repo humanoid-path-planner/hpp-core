@@ -16,21 +16,24 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_PATH_VALIDATION_HH
-# define HPP_CORE_PATH_VALIDATION_HH
+#ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
+# define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
+# include <hpp/core/path-validation.hh>
 
 namespace hpp {
   namespace core {
-    /// Abstraction of path validation
-    ///
-    /// Instances of this class compute the latest valid configuration along
-    /// a path.
-    class HPP_CORE_DLLAPI PathValidation
+
+    using continuousCollisionChecking::BodyPairCollisionPtr_t;
+    /// Continuous validation of a path for collision
+    class HPP_CORE_DLLAPI ContinuousCollisionChecking : public PathValidation
     {
     public:
+      /// Create instance and return shared pointer
+      /// \param robot the robot for which collision checking is performed,
+      /// \param tolerance maximal penetration allowed.
+      static ContinuousCollisionCheckingPtr_t
+	create (const DevicePtr_t& robot, const value_type& tolerance);
       /// Compute the biggest valid interval starting from the path beginning
       ///
       /// \param path the path to check for validity,
@@ -39,22 +42,27 @@ namespace hpp {
       ///         path is valid.
       /// \return whether the whole path is valid.
       virtual bool validate (const PathPtr_t& path, bool reverse,
-			     PathPtr_t& validPart) = 0;
+			     PathPtr_t& validPart);
 
       /// Add an obstacle
       /// \param object obstacle added
-      /// \notice collision path validation need to know about obstacles. This
-      /// virtual method does nothing for path validation methods that do not
+      /// Add the object to each collision pair a body of which is the
+      /// environment.
       /// care about obstacles.
-      virtual void addObstacle (const CollisionObjectPtr_t&)
-      {
-      }
+      virtual void addObstacle (const CollisionObjectPtr_t& object);
+
+      virtual ~ContinuousCollisionChecking ();
     protected:
-      PathValidation ()
-      {
-      }
-    }; // class PathValidation
+      /// Constructor
+      /// \param robot the robot for which collision checking is performed,
+      /// \param tolerance maximal penetration allowed.
+      ContinuousCollisionChecking (const DevicePtr_t& robot,
+				   const value_type& tolerance);
+    private:
+      DevicePtr_t robot_;
+      value_type tolerance_;
+      std::list <BodyPairCollisionPtr_t> bodyPairCollisions_;
+    }; // class ContinuousCollisionChecking
   } // namespace core
 } // namespace hpp
-
-#endif // HPP_CORE_PATH_VALIDATION_HH
+#endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH

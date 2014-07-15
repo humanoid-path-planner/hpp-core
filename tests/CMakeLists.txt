@@ -16,6 +16,8 @@
 # along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
+
 
 # Make Boost.Test generates the main function in test cases.
 #ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
@@ -53,3 +55,5 @@ CONFIG_FILES (
 
 ADD_TESTCASE (test-kdTree TRUE)
 ADD_TESTCASE (roadmap-1 FALSE)
+ADD_TESTCASE (test-intervals FALSE)
+ADD_TESTCASE (test-body-pair-collision FALSE)

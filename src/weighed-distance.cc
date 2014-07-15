@@ -103,12 +103,7 @@ namespace hpp {
 	    //if ((*it2)->numberDof () != 0) { // allow anchors
 	    // Get only three first lines of Jacobian
 	    jointJacobian = (*it2)->jacobian ().block (0, rank, 3, ncol);
-	    hppDout (info, "Jacobian between " << (*it1)->name ()
-		     << " and " << (*it2)->name ()
-		     << ", rank = " << rank << ", ncol = " << ncol);
-	    hppDout (info, jointJacobian);
 	    Eigen::JacobiSVD <matrix_t> svd (jointJacobian);
-	    hppDout (info, "singular values " << svd.singularValues ());
 	    if (length < svd.singularValues () [0]) {
 	      length = svd.singularValues () [0];
 	    }
@@ -116,7 +111,6 @@ namespace hpp {
 	  weights_.push_back (length);
 	}
       }
-      hppDout (info, "weight_ " << weights_);
     }
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot,

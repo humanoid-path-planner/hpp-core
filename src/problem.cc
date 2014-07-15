@@ -26,7 +26,7 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/continuous-collision-checking.hh>
 
 namespace hpp {
   namespace core {
@@ -39,7 +39,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       steeringMethod_ (new core::SteeringMethodStraight (robot)),
       configValidations_ (ConfigValidations::create ()),
-      pathValidation_ (DiscretizedCollisionChecking ::create (robot, 5e-2)),
+      pathValidation_ (ContinuousCollisionChecking ::create (robot, 0)),
       collisionObstacles_ (), distanceObstacles_ (), constraints_ ()
     {
       configValidations_->add (CollisionValidation::create (robot));
@@ -135,8 +135,13 @@ namespace hpp {
 			       bool collision, bool distance)
     {
       // Add object in local list
-      if (collision)
+      if (collision) {
 	collisionObstacles_.push_back (object);
+	// Add obstacle to path validation method
+	if (pathValidation_) {
+	  pathValidation_->addObstacle (object);
+	}
+      }
       if (distance)
 	distanceObstacles_.push_back (object);
       // Add obstacle to robot
