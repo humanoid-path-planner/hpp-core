@@ -97,6 +97,23 @@ namespace hpp {
 	return o << name << " (differentiable function)";
       }
 
+      /// Check whether this function is parametric.
+      /// \return True if parametric.
+      bool isParametric () const
+      {
+        return isParametric_;
+      }
+
+      /// Make the function parametric or non-parametric.
+      /// \param value True if you want a parametric projector.
+      /// \note When change from true to false, leaf parameters of any
+      /// ConfigProjector containing the function should be recomputed using
+      /// ConfigProjector::setLeafParameter.
+      void isParametric (const bool& value)
+      {
+        isParametric_ = value;
+      }
+
     protected:
       /// \brief Concrete class constructor should call this constructor.
       ///
@@ -108,7 +125,7 @@ namespace hpp {
 			      size_type outputSize,
 			      std::string name = std::string ()) :
 	inputSize_ (inputSize), inputDerivativeSize_ (inputDerivativeSize),
-	outputSize_ (outputSize), name_ (name)
+	outputSize_ (outputSize), isParametric_ (false), name_ (name)
       {
       }
 
@@ -126,6 +143,8 @@ namespace hpp {
       size_type inputDerivativeSize_;
       /// Dimension of output vector
       size_type outputSize_;
+      /// Whether this function is parametric
+      bool isParametric_;
       std::string name_;
     }; // class DifferentiableFunction
     inline std::ostream&
