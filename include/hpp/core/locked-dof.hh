@@ -42,10 +42,11 @@ namespace hpp {
     /// \endcode
     /// This constrains the quaternion value and the velocity vector of the
     /// joint to be of the forms:
-    /// \f{eqnarray*}
-    ///    quat &=& x + 0\ i + 0\ j + w\ k \\
-    ///    \omega &=& \omega_z \mathbf{u}_z
-    /// \f}
+    /** \f{eqnarray*}
+    ***    quat &=& x + 0\ i + 0\ j + w\ k \\
+    ***    \omega &=& \omega_z \mathbf{u}_z
+    *** \f}
+    **/
     class HPP_CORE_DLLAPI LockedDof : public Constraint
     {
     public:
