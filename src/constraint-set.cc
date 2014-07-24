@@ -64,5 +64,24 @@ namespace hpp {
     {
       constraints_.pop_front ();
     }
+
+    vector_t ConstraintSet::setLeafParameterFromConfig (
+        ConfigurationIn_t config)
+    {
+      size_type size = 0, row = 0;
+      std::list< vector_t > vectors;
+      for (Constraints_t::iterator itConstraint = constraints_.begin ();
+	   itConstraint != constraints_.end (); itConstraint ++) {
+        vectors.push_back((*itConstraint)->setLeafParameterFromConfig(config));
+        size += vectors.back().size();
+      }
+      vector_t ret (size);
+      for (std::list< vector_t >::const_iterator it = vectors.begin();
+          it != vectors.end(); it++) {
+        ret.segment(row, it->size()) = *it;
+        row += it->size ();
+      }
+      return ret;
+    }
   } // namespace core
 } // namespace core

@@ -109,6 +109,17 @@ namespace hpp {
       {
 	return value_;
       }
+
+      /// Set the leaf parameter of a foliation.
+      /// \param config the configuration used to compute the leaf parameter.
+      /// \return the leaf parameter.
+      vector_t setLeafParameterFromConfig (ConfigurationIn_t config)
+      {
+        vector_t ret(1);
+        value_ = config[rankInConfiguration_];
+        ret[0] = value_;
+        return ret;
+      }
     protected:
       /// Constructor
       /// \param name name of the constraint,

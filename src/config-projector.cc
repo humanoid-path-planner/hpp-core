@@ -130,6 +130,7 @@ namespace hpp {
       }
       nbNonLockedDofs_ = robot_->numberDof () - lockedDofs_.size ();
       value_.resize (size);
+      offset_ = vector_t::Zero (size);
       reducedJacobian_.resize (size, nbNonLockedDofs_);
       reducedJacobian_.setConstant (sqrt (-1));
       dqSmall_.resize (nbNonLockedDofs_);
@@ -223,7 +224,7 @@ namespace hpp {
 	Eigen::JacobiSVD <matrix_t> svd (reducedJacobian_,
 					 Eigen::ComputeThinU |
 					 Eigen::ComputeThinV);
-	dqSmall_ = svd.solve(value_);
+	dqSmall_ = svd.solve(value_ - offset_);
 	smallToNormal (dqSmall_, dq_);
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
@@ -338,5 +339,44 @@ namespace hpp {
       return os;
     }
 
+    vector_t ConfigProjector::setLeafParameterFromConfig (ConfigurationIn_t config)
+    {
+      size_type row = 0, nbRows = 0;
+      for (NumericalConstraints_t::iterator itConstraint =
+	     constraints_.begin ();
+	   itConstraint != constraints_.end (); itConstraint ++) {
+        vector_t value = vector_t::Zero (itConstraint->value.size ());
+        DifferentiableFunction& f = *(itConstraint->function);
+        if (f.isParametric ()) {
+          f (value, config);
+        }
+	nbRows = f.outputSize ();
+	offset_.segment (row, nbRows) = value;
+	row += nbRows;
+      }
+      return getLeafParameter();
+    }
+
+    void ConfigProjector::setLeafParameter (const vector_t& param)
+    {
+      if (param.size() != value_.size())
+        throw std::range_error ("Wrong leaf parameter size");
+# ifdef HPP_DEBUG
+      size_type row = 0, nbRows = 0;
+      for (NumericalConstraints_t::iterator itConstraint =
+	     constraints_.begin ();
+	   itConstraint != constraints_.end (); itConstraint ++) {
+        DifferentiableFunction& f = *(itConstraint->function);
+        if (!f.isParametric ()) {
+          nbRows = f.outputSize ();
+          if (param.segment (row, nbRows) != vector_t::Zero (nbRows)) {
+            throw std::logic_error ("The leaf parameter is not consistant with"
+                " parametric function " + f.name());
+          }
+        }
+      }
+# endif
+      offset_ = param;
+    }
   } // namespace core
 } // namespace hpp

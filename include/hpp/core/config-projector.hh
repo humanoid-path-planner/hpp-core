@@ -92,6 +92,42 @@ namespace hpp {
         return squareNorm_;
       }
 
+      /// \name Parametric configuration projector
+      /// Parametric configuration projector are of the form:
+      /// \f{eqnarray*}
+      ///    f ( q ) = f_0
+      /// \f}
+      ///
+      /// They provide a convinient way of generating configuration in the
+      /// same leaf of a foliation. \f$ f_0 \f$ is the leaf parameter.
+      ///
+      /// ConfigProjector automatically detects which DifferentiableFunction
+      /// are parametric. Use DifferentiableFunction::isParametric(const bool&) to
+      /// make a function parametric.
+      /// @{
+
+      /// Set the leaf parameter of a foliation.
+      /// \param config the configuration used to compute the leaf parameter.
+      /// \return the leaf parameter.
+      vector_t setLeafParameterFromConfig (ConfigurationIn_t config);
+
+      /// Set the leaf parameter of a foliation.
+      /// \param param the leaf parameter.
+      /// \note See setLeafParameter(ConfigurationIn_t) for more information
+      /// about the leaf parameter.
+      void setLeafParameter (const vector_t& param);
+
+      /// Get the leaf parameter of a foliation.
+      /// \return the leaf parameter.
+      /// \note See setLeafParameter(ConfigurationIn_t) for more information
+      /// about the leaf parameter.
+      vector_t getLeafParameter () const
+      {
+        return offset_;
+      }
+
+      /// @}
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -144,6 +180,7 @@ namespace hpp {
       Intervals_t  intervals_;
       value_type squareErrorThreshold_;
       size_type maxIterations_;
+      vector_t offset_;
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;
