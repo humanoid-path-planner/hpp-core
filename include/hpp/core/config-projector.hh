@@ -98,30 +98,27 @@ namespace hpp {
       ///    f ( q ) = f_0
       /// \f}
       ///
-      /// They provide a convinient way of generating configuration in the
-      /// same leaf of a foliation. \f$ f_0 \f$ is the leaf parameter.
+      /// They provide a convenient way of generating configuration in a
+      /// level set of \f$ f \f$. \f$ f_0 \f$ is called the offset or
+      /// level set parameter.
       ///
       /// ConfigProjector automatically detects which DifferentiableFunction
       /// are parametric. Use DifferentiableFunction::isParametric(const bool&) to
       /// make a function parametric.
       /// @{
 
-      /// Set the leaf parameter of a foliation.
-      /// \param config the configuration used to compute the leaf parameter.
-      /// \return the leaf parameter.
-      vector_t setLeafParameterFromConfig (ConfigurationIn_t config);
+      /// Set the offset such that the level set contains the configuration.
+      /// \param config the configuration used to compute the offset.
+      /// \return the level set parameter.
+      vector_t offsetFromConfig (ConfigurationIn_t config);
 
-      /// Set the leaf parameter of a foliation.
-      /// \param param the leaf parameter.
-      /// \note See setLeafParameter(ConfigurationIn_t) for more information
-      /// about the leaf parameter.
-      void setLeafParameter (const vector_t& param);
+      /// Set the level set parameter.
+      /// \param param the level set parameter.
+      void offset (const vector_t& param);
 
-      /// Get the leaf parameter of a foliation.
-      /// \return the leaf parameter.
-      /// \note See setLeafParameter(ConfigurationIn_t) for more information
-      /// about the leaf parameter.
-      vector_t getLeafParameter () const
+      /// Get the level set parameter.
+      /// \return the parameter.
+      vector_t offset () const
       {
         return offset_;
       }

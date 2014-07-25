@@ -106,9 +106,9 @@ namespace hpp {
 
       /// Make the function parametric or non-parametric.
       /// \param value True if you want a parametric projector.
-      /// \note When change from true to false, leaf parameters of any
+      /// \note When change from true to false, the level set parameters of any
       /// ConfigProjector containing the function should be recomputed using
-      /// ConfigProjector::setLeafParameter.
+      /// ConfigProjector::offset.
       void isParametric (const bool& value)
       {
         isParametric_ = value;

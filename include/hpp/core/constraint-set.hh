@@ -59,10 +59,10 @@ namespace hpp {
 	return configProjector_;
       }
 
-      /// Set the leaf parameter of a foliation.
-      /// \param config the configuration used to compute the leaf parameter.
-      /// \return the leaf parameter.
-      vector_t setLeafParameterFromConfig (ConfigurationIn_t config);
+      /// Set the level set parameter.
+      /// \param config the configuration used to compute the parameter.
+      /// \return the parameter.
+      vector_t offsetFromConfig (ConfigurationIn_t config);
 
     protected:
       typedef std::deque <ConstraintPtr_t> Constraints_t;

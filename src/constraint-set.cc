@@ -65,14 +65,14 @@ namespace hpp {
       constraints_.pop_front ();
     }
 
-    vector_t ConstraintSet::setLeafParameterFromConfig (
+    vector_t ConstraintSet::offsetFromConfig (
         ConfigurationIn_t config)
     {
       size_type size = 0, row = 0;
       std::list< vector_t > vectors;
       for (Constraints_t::iterator itConstraint = constraints_.begin ();
 	   itConstraint != constraints_.end (); itConstraint ++) {
-        vectors.push_back((*itConstraint)->setLeafParameterFromConfig(config));
+        vectors.push_back((*itConstraint)->offsetFromConfig(config));
         size += vectors.back().size();
       }
       vector_t ret (size);

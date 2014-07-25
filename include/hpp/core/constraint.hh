@@ -44,10 +44,10 @@ namespace hpp {
 	return name_;
       }
 
-      /// Set the leaf parameter of a foliation.
-      /// \param config the configuration used to compute the leaf parameter.
-      /// \return the leaf parameter.
-      virtual vector_t setLeafParameterFromConfig (ConfigurationIn_t config) = 0;
+      /// Set the level set parameter.
+      /// \param config the configuration used to compute the parameter.
+      /// \return the parameter.
+      virtual vector_t offsetFromConfig (ConfigurationIn_t config) = 0;
 
     protected:
       /// User defined implementation of the constraint.

@@ -339,38 +339,38 @@ namespace hpp {
       return os;
     }
 
-    vector_t ConfigProjector::setLeafParameterFromConfig (ConfigurationIn_t config)
+    vector_t ConfigProjector::offsetFromConfig (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator itConstraint =
-	     constraints_.begin ();
-	   itConstraint != constraints_.end (); itConstraint ++) {
+          constraints_.begin ();
+          itConstraint != constraints_.end (); itConstraint ++) {
         vector_t value = vector_t::Zero (itConstraint->value.size ());
         DifferentiableFunction& f = *(itConstraint->function);
         if (f.isParametric ()) {
           f (value, config);
         }
-	nbRows = f.outputSize ();
-	offset_.segment (row, nbRows) = value;
-	row += nbRows;
+        nbRows = f.outputSize ();
+        offset_.segment (row, nbRows) = value;
+        row += nbRows;
       }
-      return getLeafParameter();
+      return offset();
     }
 
-    void ConfigProjector::setLeafParameter (const vector_t& param)
+    void ConfigProjector::offset (const vector_t& param)
     {
       if (param.size() != value_.size())
-        throw std::range_error ("Wrong leaf parameter size");
+        throw std::range_error ("Wrong level set parameter size");
 # ifdef HPP_DEBUG
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator itConstraint =
-	     constraints_.begin ();
-	   itConstraint != constraints_.end (); itConstraint ++) {
+          constraints_.begin ();
+          itConstraint != constraints_.end (); itConstraint ++) {
         DifferentiableFunction& f = *(itConstraint->function);
         if (!f.isParametric ()) {
           nbRows = f.outputSize ();
           if (param.segment (row, nbRows) != vector_t::Zero (nbRows)) {
-            throw std::logic_error ("The leaf parameter is not consistant with"
+            throw std::logic_error ("The level set parameter is not consistant with"
                 " parametric function " + f.name());
           }
         }
