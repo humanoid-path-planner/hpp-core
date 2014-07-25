@@ -116,10 +116,27 @@ namespace hpp {
       vector_t offsetFromConfig (ConfigurationIn_t config)
       {
         vector_t ret(1);
-        value_ = config[rankInConfiguration_];
+        if (isParametric_) {
+          value_ = config[rankInConfiguration_];
+        }
         ret[0] = value_;
         return ret;
       }
+
+      /// Check whether this constraint is parametric.
+      /// \return True if parametric.
+      bool isParametric () const
+      {
+        return isParametric_;
+      }
+
+      /// Make the constraint parametric or non-parametric.
+      /// \param value True if you want it parametric.
+      void isParametric (const bool& value)
+      {
+        isParametric_ = value;
+      }
+
     protected:
       /// Constructor
       /// \param name name of the constraint,
@@ -181,6 +198,8 @@ namespace hpp {
       value_type value_;
       size_type rankInConfiguration_;
       size_type rankInVelocity_;
+      /// Whether this constraint is parametric
+      bool isParametric_;
       /// Weak pointer to itself
       LockedDofWkPtr_t weak_;
     }; // class LockedDof
