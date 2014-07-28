@@ -179,7 +179,6 @@ namespace hpp {
 	delete problem_;
       problem_ = new Problem (robot_);
       roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
-      problem_->constraints ();
       // Set constraints
       problem_->constraints (constraints_);
       // Set path validation method
@@ -193,6 +192,44 @@ namespace hpp {
       distanceBetweenObjects_ = DistanceBetweenObjectsPtr_t
 	(new DistanceBetweenObjects (robot_));
       distanceBetweenObjects_->obstacles(distanceObstacles_);
+    }
+
+    bool ProblemSolver::prepareSolveStepByStep ()
+    {
+      if(obstacleLoaded_) // If collision obstacle added, reset Roadmap
+	roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
+
+      PathPlannerBuilder_t createPlanner =
+	pathPlannerFactory_ [pathPlannerType_];
+      pathPlanner_ = createPlanner (*problem_, roadmap_);
+      PathOptimizerBuilder_t createOptimizer =
+	pathOptimizerFactory_ [pathOptimizerType_];
+      pathOptimizer_ = createOptimizer (*problem_);
+      // Reset init and goal configurations
+      problem_->initConfig (initConf_);
+      problem_->resetGoalConfigs ();
+      obstacleLoaded_=false;
+      for (Configurations_t::const_iterator itConfig =
+	     goalConfigurations_.begin ();
+	   itConfig != goalConfigurations_.end (); itConfig++) {
+	problem_->addGoalConfig (*itConfig);
+      }
+
+      pathPlanner_->startSolve ();
+      pathPlanner_->tryDirectPath ();
+      return roadmap_->pathExists ();
+    }
+
+    bool ProblemSolver::executeOneStep ()
+    {
+      pathPlanner_->oneStep ();
+      return roadmap_->pathExists ();
+    }
+
+    void ProblemSolver::finishSolveStepByStep ()
+    {
+      PathVectorPtr_t planned =  pathPlanner_->computePath ();
+      paths_.push_back (pathPlanner_->finishSolve (planned));
     }
 
     void ProblemSolver::solve ()
