@@ -228,6 +228,8 @@ namespace hpp {
 
     void ProblemSolver::finishSolveStepByStep ()
     {
+      if (!roadmap_->pathExists ())
+        throw std::logic_error ("No path exists.");
       PathVectorPtr_t planned =  pathPlanner_->computePath ();
       paths_.push_back (pathPlanner_->finishSolve (planned));
     }
