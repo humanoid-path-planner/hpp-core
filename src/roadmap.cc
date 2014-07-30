@@ -25,6 +25,7 @@
 #include <hpp/core/roadmap.hh>
 #include "nearest-neighbor.hh"
 #include <hpp/core/k-d-tree.hh>
+#include "graph-connected-component.hh"
 
 namespace hpp {
   namespace core {
@@ -54,6 +55,11 @@ namespace hpp {
     Roadmap::~Roadmap ()
     {
       clear ();
+    }
+
+    const ConnectedComponents_t& Roadmap::connectedComponents () const
+    {
+      return ccGraph_->connectedComponents ();
     }
 
     void Roadmap::clear ()

@@ -23,7 +23,6 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/k-d-tree.hh>
-# include <hpp/core/graph-connected-component.hh>
 
 namespace hpp {
   namespace core {
@@ -104,10 +103,10 @@ namespace hpp {
       {
 	return goalNodes_;
       }
-      const ConnectedComponents_t& connectedComponents () const
-      {
-	return ccGraph_->connectedComponents ();
-      }
+      // Get list of connected component of the roadmap
+      const ConnectedComponents_t& connectedComponents () const;
+
+      // Get graph of connected components.
       const CCGraphPtr_t& ccGraph () const
       {
 	return ccGraph_;
