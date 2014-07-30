@@ -1,4 +1,4 @@
-//
+/
 // Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
 //
@@ -38,7 +38,8 @@ namespace hpp {
       return oss.str ();
     }
 
-    RoadmapPtr_t Roadmap::create (const DistancePtr_t& distance, const DevicePtr_t& robot)
+    RoadmapPtr_t Roadmap::create (const DistancePtr_t& distance,
+				  const DevicePtr_t& robot)
     {
       Roadmap* ptr = new Roadmap (distance, robot);
       return RoadmapPtr_t (ptr);
@@ -120,8 +121,8 @@ namespace hpp {
       // The new node needs to be registered in the connected
       // component.
       connectedComponent->addNode (node);
-	//nearestNeighbor_ [connectedComponent]->add (node);
-	kdTree_.addNode(node);
+      //nearestNeighbor_ [connectedComponent]->add (node);
+      kdTree_.addNode(node);
       return node;
     }
 
@@ -141,21 +142,21 @@ namespace hpp {
     Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
 			  value_type& minDistance)
     {
-	NodePtr_t closest;
-	minDistance = std::numeric_limits<value_type>::infinity ();
-	for (ConnectedComponents_t::const_iterator itcc =
-	       connectedComponents_.begin ();
-	     itcc != connectedComponents_.end (); itcc++) {
-	  value_type distance;
-	  NodePtr_t node;
-	  //node = nearestNeighbor_ [*itcc]->nearest (configuration, distance);
-	  node = kdTree_.search(configuration, *itcc, distance);
-	  if (distance < minDistance) {
-	    minDistance = distance;
-	    closest = node;
-	  }
-
+      NodePtr_t closest;
+      minDistance = std::numeric_limits<value_type>::infinity ();
+      for (ConnectedComponents_t::const_iterator itcc =
+	     connectedComponents_.begin ();
+	   itcc != connectedComponents_.end (); itcc++) {
+	value_type distance;
+	NodePtr_t node;
+	//node = nearestNeighbor_ [*itcc]->nearest (configuration, distance);
+	node = kdTree_.search(configuration, *itcc, distance);
+	if (distance < minDistance) {
+	  minDistance = distance;
+	  closest = node;
 	}
+
+      }
       return closest;
     }
 
@@ -166,7 +167,7 @@ namespace hpp {
     {
       assert (connectedComponent);
       //return nearestNeighbor_ [connectedComponent]->nearest (configuration,
-	//						     minDistance);
+      //						     minDistance);
       return kdTree_.search(configuration, connectedComponent, minDistance);
     }
 
@@ -217,7 +218,7 @@ namespace hpp {
     {
       connectedComponents_.push_back (node->connectedComponent ());
       //nearestNeighbor_ [node->connectedComponent ()] =
-	//NearestNeighborPtr_t (new NearestNeighbor (distance_));
+      //NearestNeighborPtr_t (new NearestNeighbor (distance_));
       node->connectedComponent ()->addNode (node);
       //nearestNeighbor_ [node->connectedComponent ()]->add (node);
       kdTree_.addNode(node);

@@ -78,8 +78,8 @@ namespace hpp {
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
-    typedef model::ConfigurationIn_t ConfigurationIn_t; 
-    typedef model::ConfigurationOut_t ConfigurationOut_t; 
+    typedef model::ConfigurationIn_t ConfigurationIn_t;
+    typedef model::ConfigurationOut_t ConfigurationOut_t;
     typedef boost::shared_ptr<model::Configuration_t> ConfigurationPtr_t;
     typedef std::vector <ConfigurationPtr_t> Configurations_t;
     typedef Configurations_t::iterator ConfigIterator_t;

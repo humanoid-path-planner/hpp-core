@@ -49,7 +49,7 @@ namespace hpp {
 	  hppDout (error, msg.c_str ());
 	  hppDout (error, "from: " << (*configuration_).transpose());
 	  hppDout (error, "  to: " << (*(edge->to ()
-                   ->configuration ())).transpose());
+					 ->configuration ())).transpose());
 	  throw std::runtime_error (msg.c_str ());
 	}
       }
@@ -67,7 +67,7 @@ namespace hpp {
 	    ("Attempt to insert an edge between two nodes already connected");
 	  hppDout (error, msg.c_str ());
 	  hppDout (error, "from: " << (*(edge->from ()
-                    ->configuration ())).transpose());
+					 ->configuration ())).transpose());
 	  hppDout (error, "  to: " << (*configuration_).transpose());
 	  throw std::runtime_error (msg.c_str ());
 	  throw std::runtime_error

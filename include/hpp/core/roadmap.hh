@@ -145,7 +145,7 @@ namespace hpp {
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
-      // use KDTree instead of NearestNeighbor 
+      // use KDTree instead of NearestNeighbor
       //NearetNeighborMap_t nearestNeighbor_;
       KDTree kdTree_;
 

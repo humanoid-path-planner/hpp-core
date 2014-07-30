@@ -65,14 +65,14 @@ namespace hpp {
     protected:
       /// Constructor
       ConnectedComponent () : nodes_ (), weak_ ()
-      {
-      }
+	{
+	}
       void init (const ConnectedComponentPtr_t& shPtr){
 	weak_ = shPtr;
       }
     private:
-       Nodes_t nodes_;
-       ConnectedComponentWkPtr_t weak_;
+      Nodes_t nodes_;
+      ConnectedComponentWkPtr_t weak_;
     }; // class ConnectedComponent
   } //   namespace core
 } // namespace hpp
