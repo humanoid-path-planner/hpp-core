@@ -84,8 +84,8 @@ namespace hpp {
       }
 
       virtual ~Roadmap ();
-      /// Find a path between initial and goal configurations
-      PathPtr_t findPath () const;
+      /// Check that a path exists between the initial node and one goal node.
+      bool pathExists () const;
       const Nodes_t& nodes () const
       {
 	return nodes_;

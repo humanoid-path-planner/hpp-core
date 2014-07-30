@@ -43,7 +43,6 @@ namespace hpp {
       /// Call methods
       /// \li startSolve,
       /// \li oneStep until a solution is found,
-      /// \li findPath,
       /// \li finishSolve.
       /// Users can implement themselves the loop to avoid being trapped
       /// in an infinite loop when no solution is found.
@@ -57,8 +56,6 @@ namespace hpp {
       virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
       /// Interrupt path planning
       void interrupt ();
-      /// Check that a path exists between the initial node and one goal node.
-      bool pathExists () const;
       /// Find a path in the roadmap and transform it in trajectory
       PathVectorPtr_t computePath () const;
     protected:

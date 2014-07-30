@@ -78,14 +78,14 @@ namespace hpp {
       bool solved = false;
       startSolve ();
       tryDirectPath ();
-      solved = pathExists ();
+      solved = roadmap_->pathExists ();
       if (solved ) {
 	hppDout (info, "tryDirectPath succeeded");
       }
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
 	oneStep ();
-	solved = pathExists ();
+	solved = roadmap_->pathExists ();
 	if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
@@ -96,18 +96,6 @@ namespace hpp {
     void PathPlanner::interrupt ()
     {
       interrupt_ = true;
-    }
-
-    bool PathPlanner::pathExists () const
-    {
-      for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
-	   itGoal != roadmap_->goalNodes ().end (); itGoal++) {
-	if ((*itGoal)->connectedComponent () ==
-	    roadmap_->initNode ()->connectedComponent ()) {
-	  return true;
-	}
-      }
-      return false;
     }
 
     PathVectorPtr_t PathPlanner::computePath () const

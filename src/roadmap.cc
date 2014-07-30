@@ -224,5 +224,20 @@ namespace hpp {
       kdTree_.addNode(node);
     }
 
+
+    bool Roadmap::pathExists () const
+    {
+      const ConnectedComponents_t reachableFromInit =
+	initNode ()->connectedComponent ()->reachableTo_;
+      for (Nodes_t::const_iterator itGoal = goalNodes ().begin ();
+	   itGoal != goalNodes ().end (); itGoal++) {
+	if (std::find (reachableFromInit.begin (), reachableFromInit.end (),
+		       (*itGoal)->connectedComponent ()) !=
+	    reachableFromInit.end ()) {
+	  return true;
+	}
+      }
+      return false;
+    }
   } //   namespace core
 } // namespace hpp
