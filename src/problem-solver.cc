@@ -30,7 +30,7 @@
 namespace hpp {
   namespace core {
     ProblemSolver::ProblemSolver () :
-      constraints_ (), robot_ (), robotChanged_ (false), problem_ (),
+      constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
@@ -62,7 +62,7 @@ namespace hpp {
     {
       robot_ = robot;
       constraints_ = ConstraintSet::create (robot_, "Default constraint set");
-      robotChanged_ = true;
+      resetProblem ();
     }
 
     const DevicePtr_t& ProblemSolver::robot () const
@@ -127,19 +127,15 @@ namespace hpp {
       problem_ = new Problem (robot_);
       roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
       problem_->constraints ();
-    }
-
-    void ProblemSolver::solve ()
-    {
-      if (robotChanged_) {
-	/// If robot has changed since last call, reset problem and roadmap
-	resetProblem ();
-      }
       // Set constraints
       problem_->constraints (constraints_);
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
       problem_->distanceObstacles(distanceObstacles_);
+    }
+
+    void ProblemSolver::solve ()
+    {
       if(obstacleLoaded_) // If collision obstacle added, reset Roadmap
 	roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
 
@@ -149,7 +145,6 @@ namespace hpp {
       PathOptimizerBuilder_t createOptimizer =
 	pathOptimizerFactory_ [pathOptimizerType_];
       pathOptimizer_ = createOptimizer (*problem_);
-      robotChanged_ = false;
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
