@@ -1,4 +1,4 @@
-/
+//
 // Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
 //

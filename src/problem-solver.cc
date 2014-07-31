@@ -29,6 +29,15 @@
 
 namespace hpp {
   namespace core {
+    // Struct that constructs an empty shared pointer to PathOptimizer.
+    struct NoneOptimizer
+    {
+      static PathOptimizerPtr_t create (const Problem& problem)
+      {
+	return PathOptimizerPtr_t ();
+      }
+    }; // struct NoneOptimizer
+
     ProblemSolver::ProblemSolver () :
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
@@ -39,6 +48,7 @@ namespace hpp {
       errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
+      pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
 	DiffusingPlanner::createWithRoadmap;
     }
@@ -156,8 +166,10 @@ namespace hpp {
       }
       PathVectorPtr_t path = pathPlanner_->solve ();
       paths_.push_back (path);
-      path = pathOptimizer_->optimize (path);
-      paths_.push_back (path);
+      if (pathOptimizer_) {
+	path = pathOptimizer_->optimize (path);
+	paths_.push_back (path);
+      }
     }
 
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
