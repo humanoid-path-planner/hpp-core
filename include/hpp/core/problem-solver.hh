@@ -201,7 +201,7 @@ namespace hpp {
       /// \}
 
       /// Create new problem.
-      void resetProblem ();
+      virtual void resetProblem ();
 
       /// \name Solve problem and get paths
       /// \{
@@ -209,20 +209,20 @@ namespace hpp {
       /// Prepare the solver for a step by step planning.
       /// and try to make direct connections (call PathPlanner::tryDirectPath)
       /// \return the return value of PathPlanner::pathExists
-      bool prepareSolveStepByStep ();
+      virtual bool prepareSolveStepByStep ();
 
       /// Execute one step of the planner.
       /// \return the return value of PathPlanner::pathExists of the selected planner.
       /// \note This won't check if a solution has been found before doing one step.
       /// The decision to stop planning is let to the user.
-      bool executeOneStep ();
+      virtual bool executeOneStep ();
 
       /// Finish the solving procedure
       /// The path optimizer is not called
-      void finishSolveStepByStep ();
+      virtual void finishSolveStepByStep ();
 
       /// Set and solve the problem
-      void solve ();
+      virtual void solve ();
 
       /// Add a path
       void addPath (const PathVectorPtr_t& path)
