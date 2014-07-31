@@ -40,7 +40,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (ConfigValidation);
     HPP_PREDEF_CLASS (ConfigValidations);
     HPP_PREDEF_CLASS (ConnectedComponent);
-    HPP_PREDEF_CLASS (CCGraph);
+    HPP_PREDEF_CLASS (ConnectedComponentGraph);
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
     HPP_PREDEF_CLASS (DifferentiableFunction);
@@ -91,8 +91,10 @@ namespace hpp {
     typedef boost::shared_ptr <ConfigValidations> ConfigValidationsPtr_t;
     typedef boost::shared_ptr <ConnectedComponent> ConnectedComponentPtr_t;
     typedef std::list <ConnectedComponentPtr_t> ConnectedComponents_t;
-    typedef boost::shared_ptr <CCGraph> CCGraphPtr_t;
-    typedef std::list <CCGraphPtr_t> CCGraphs_t;
+    typedef boost::shared_ptr <ConnectedComponentGraph>
+    ConnectedComponentGraphPtr_t;
+    typedef std::list <ConnectedComponentGraphPtr_t>
+    ConnectedComponentGraphs_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef model::Device Device_t;

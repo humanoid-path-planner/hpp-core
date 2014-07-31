@@ -20,13 +20,13 @@
 #include <algorithm>
 #include <hpp/util/debug.hh>
 #include <hpp/core/connected-component.hh>
-#include <hpp/core/graph-connected-component.hh>
+#include "connected-component-graph.hh"
 
 namespace hpp {
   namespace core {
 
-    void CCGraph::updateCCReachability (const ConnectedComponentPtr_t& cc1,
-					const ConnectedComponentPtr_t& cc2)
+    void ConnectedComponentGraph::updateCCReachability
+    (const ConnectedComponentPtr_t& cc1, const ConnectedComponentPtr_t& cc2)
     {
       //Update the respective reachability lists of the connected components
       //CC Iterator for connectivity update
@@ -43,9 +43,9 @@ namespace hpp {
       cc2->reachableFrom_.sort ();cc2->reachableFrom_.unique ();
     }
 
-    /// Finds Strongly Connected Components (SCCs) in the CCGraph
-    /// using "Kosaraju's Two-Pass algorithm".
-    void CCGraph::findSCC ()
+    /// Finds Strongly Connected Components (SCCs) in the
+    /// ConnectedComponentGraph using "Kosaraju's Two-Pass algorithm".
+    void ConnectedComponentGraph::findSCC ()
     {
       ConnectedComponents_t::iterator itcc;
       ConnectedComponents_t::iterator itSCCHeads;
@@ -156,13 +156,13 @@ namespace hpp {
 
     unsigned int ConnectedComponent::globalFinishTime_ = 0;
 
-    void CCGraph::setSCCHead
+    void ConnectedComponentGraph::setSCCHead
     (const ConnectedComponentPtr_t& headCC)
     {
       sccHeadsList_.push_back (headCC);
     }
 
-    void CCGraph::DFS
+    void ConnectedComponentGraph::DFS
     (const ConnectedComponentPtr_t& cc, bool reverse)
     {
       ConnectedComponents_t::iterator itcc_dfs;
@@ -172,16 +172,16 @@ namespace hpp {
 	//The reverse CC Graph traversal is accomplished
 	//by using the reachableFrom list of the connected
 	//components
-	for (itcc_dfs = cc->reachableFrom_.begin (); itcc_dfs != cc->reachableFrom_.end ();
-	     itcc_dfs++) {
+	for (itcc_dfs = cc->reachableFrom_.begin ();
+	     itcc_dfs != cc->reachableFrom_.end (); itcc_dfs++) {
 	  if (!((*itcc_dfs)->isExplored ())) {
 	    DFS (*itcc_dfs, reverse);
 	  }
 	}
       }
       else {
-	for (itcc_dfs = cc->reachableTo_.begin (); itcc_dfs != cc->reachableTo_.end ();
-	     itcc_dfs++) {
+	for (itcc_dfs = cc->reachableTo_.begin ();
+	     itcc_dfs != cc->reachableTo_.end (); itcc_dfs++) {
 	  if (!((*itcc_dfs)->isExplored ())) {
 	    DFS (*itcc_dfs, reverse);
 	  }

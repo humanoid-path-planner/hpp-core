@@ -17,8 +17,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_GRAPH_CONNECTED_COMPONENT_HH
-# define HPP_CORE_GRAPH_CONNECTED_COMPONENT_HH
+#ifndef HPP_CORE_CONNECTED_COMPONENT_GRAPH_HH
+# define HPP_CORE_CONNECTED_COMPONENT_GRAPH_HH
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
@@ -33,12 +33,12 @@ namespace hpp {
     /// a given connected component
     /// List of connected components that reach a given connected
     /// component
-    class HPP_CORE_DLLAPI CCGraph {
+    class HPP_CORE_DLLAPI ConnectedComponentGraph {
     public:
-      static CCGraphPtr_t create ()
+      static ConnectedComponentGraphPtr_t create ()
       {
-	CCGraph* ptr = new CCGraph ();
-	CCGraphPtr_t shPtr (ptr);
+	ConnectedComponentGraph* ptr = new ConnectedComponentGraph ();
+	ConnectedComponentGraphPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
@@ -52,9 +52,9 @@ namespace hpp {
       /// If both connected components are reachable to each other,
       /// they are merged. Else, their respective reachability lists
       /// are updated
-      void updateCCReachability (const ConnectedComponentPtr_t&
-				 connectedComponent1, const ConnectedComponentPtr_t&
-				 connectedComponent2);
+      void updateCCReachability
+	(const ConnectedComponentPtr_t& connectedComponent1,
+	 const ConnectedComponentPtr_t& connectedComponent2);
 
 
       /// Find Strongly Connected Components (SCC) in roadmap
@@ -83,11 +83,11 @@ namespace hpp {
 
     protected:
       /// Constructor
-      CCGraph () : connectedComponents_ (), sccHeadsList_ (),
+      ConnectedComponentGraph () : connectedComponents_ (), sccHeadsList_ (),
 	weak_ ()
 	  {
 	  }
-      void init (const CCGraphPtr_t& shPtr){
+      void init (const ConnectedComponentGraphPtr_t& shPtr){
 	weak_ = shPtr;
       }
     private:
@@ -97,8 +97,8 @@ namespace hpp {
       /// Elements needed for SCC detection algorithm
       // Leader connected component
       ConnectedComponents_t sccHeadsList_;
-      CCGraphWkPtr_t weak_;
-    }; // class CCGraph
+      ConnectedComponentGraphWkPtr_t weak_;
+    }; // class ConnectedComponentGraph
   } //   namespace core
 } // namespace hpp
-#endif // HPP_CORE_GRAPH_CONNECTED_COMPONENT_HH
+#endif // HPP_CORE_CONNECTED_COMPONENT_GRAPH_HH

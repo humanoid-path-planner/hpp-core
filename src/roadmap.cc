@@ -25,7 +25,7 @@
 #include <hpp/core/roadmap.hh>
 #include "nearest-neighbor.hh"
 #include <hpp/core/k-d-tree.hh>
-#include "graph-connected-component.hh"
+#include "connected-component-graph.hh"
 
 namespace hpp {
   namespace core {
@@ -48,7 +48,8 @@ namespace hpp {
 
     Roadmap::Roadmap (const DistancePtr_t& distance, const DevicePtr_t& robot) :
       distance_ (distance), nodes_ (), edges_ (), initNode_ (),goalNodes_ (),
-      ccGraph_ (CCGraph::create ()), kdTree_(robot, distance, 30)
+      ccGraph_ (ConnectedComponentGraph::create ()),
+      kdTree_(robot, distance, 30)
     {
     }
 
@@ -98,8 +99,9 @@ namespace hpp {
       hppDout (info, "Added node: " << displayConfig (*configuration));
       nodes_.push_back (node);
       // Node constructor creates a new connected component. This new
-      // connected component needs to be added in the graph of connected and the
-      // components and new node needs to be registered in the connected component.
+      // connected component needs to be added in the graph of
+      // connected and the components and new node needs to be
+      // registered in the connected component.
       addConnectedComponent (node);
       return node;
     }
@@ -199,7 +201,8 @@ namespace hpp {
 
       //Check and update reachability of the connected components
       ccGraph_->updateCCReachability (cc1, cc2);
-      //Find Strongly Connected Components (SCC) in CCGraph and merge them
+      //Find Strongly Connected Components (SCC) in
+      //ConnectedComponentGraph and merge them
       ccGraph_->findSCC ();
 
       return edge;

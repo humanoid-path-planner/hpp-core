@@ -107,7 +107,7 @@ namespace hpp {
       const ConnectedComponents_t& connectedComponents () const;
 
       // Get graph of connected components.
-      const CCGraphPtr_t& ccGraph () const
+      const ConnectedComponentGraphPtr_t& ccGraph () const
       {
 	return ccGraph_;
       }
@@ -149,7 +149,7 @@ namespace hpp {
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
-      CCGraphPtr_t ccGraph_;
+      ConnectedComponentGraphPtr_t ccGraph_;
 
       // use KDTree instead of NearestNeighbor
       //NearetNeighborMap_t nearestNeighbor_;

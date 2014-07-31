@@ -43,8 +43,8 @@ SET(${LIBRARY_NAME}_SOURCES
   straight-path.cc
   weighed-distance.cc
   k-d-tree.cc
-  graph-connected-component.hh
-  graph-connected-component.cc
+  connected-component-graph.hh
+  connected-component-graph.cc
   )
 
 ADD_LIBRARY(${LIBRARY_NAME}

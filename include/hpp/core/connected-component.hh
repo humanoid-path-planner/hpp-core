@@ -22,7 +22,6 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/node.hh>
-# include <hpp/core/graph-connected-component.hh>
 
 namespace hpp {
   namespace core {
@@ -131,7 +130,7 @@ namespace hpp {
     private:
       Nodes_t nodes_;
       ConnectedComponentWkPtr_t weak_;
-      // rank of the connected component in the CCGraph
+      // rank of the connected component in the ConnectedComponentGraph
       unsigned int finishTimeCC_;
       // status variable to indicate whether or not CC has been
       // visited
