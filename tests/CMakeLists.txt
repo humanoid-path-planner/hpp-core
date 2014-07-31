@@ -42,7 +42,7 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}
-    ${Boost_LIBRARIES}
+    ${Boost_LIBRARIES} hpp-core
     )
 
 ENDMACRO(ADD_TESTCASE)
@@ -52,3 +52,4 @@ CONFIG_FILES (
   )
 
 ADD_TESTCASE (test-kdTree TRUE)
+ADD_TESTCASE (roadmap-1 FALSE)

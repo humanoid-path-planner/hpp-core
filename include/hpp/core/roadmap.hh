@@ -19,9 +19,11 @@
 #ifndef HPP_CORE_ROADMAP_HH
 # define HPP_CORE_ROADMAP_HH
 
+# include <iostream>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/k-d-tree.hh>
+# include <hpp/core/graph-connected-component.hh>
 
 namespace hpp {
   namespace core {
@@ -94,10 +96,6 @@ namespace hpp {
       {
 	return edges_;
       }
-      const ConnectedComponents_t& connectedComponents () const
-      {
-	return connectedComponents_;
-      }
       NodePtr_t initNode () const
       {
 	return initNode_;
@@ -105,6 +103,14 @@ namespace hpp {
       const Nodes_t& goalNodes () const
       {
 	return goalNodes_;
+      }
+      const ConnectedComponents_t& connectedComponents () const
+      {
+	return ccGraph_->connectedComponents ();
+      }
+      const CCGraphPtr_t& ccGraph () const
+      {
+	return ccGraph_;
       }
       /// \name Distance used for nearest neighbor search
       /// \{
@@ -140,11 +146,12 @@ namespace hpp {
 			 ConnectedComponentPtr_t connectedComponent);
 
       const DistancePtr_t& distance_;
-      ConnectedComponents_t connectedComponents_;
       Nodes_t nodes_;
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
+      CCGraphPtr_t ccGraph_;
+
       // use KDTree instead of NearestNeighbor
       //NearetNeighborMap_t nearestNeighbor_;
       KDTree kdTree_;
@@ -152,4 +159,5 @@ namespace hpp {
     }; // class Roadmap
   } //   namespace core
 } // namespace hpp
+std::ostream& operator<< (std::ostream& os, const hpp::core::Roadmap& r);
 #endif // HPP_CORE_ROADMAP_HH

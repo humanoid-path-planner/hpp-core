@@ -46,10 +46,8 @@ namespace hpp {
     }
 
     Roadmap::Roadmap (const DistancePtr_t& distance, const DevicePtr_t& robot) :
-      distance_ (distance), connectedComponents_ (), nodes_ (), edges_ (),
-      initNode_ (), goalNodes_ (),
-      //nearestNeighbor_ (),
-      kdTree_(robot, distance, 30)
+      distance_ (distance), nodes_ (), edges_ (), initNode_ (),goalNodes_ (),
+      ccGraph_ (CCGraph::create ()), kdTree_(robot, distance, 30)
     {
     }
 
@@ -60,7 +58,7 @@ namespace hpp {
 
     void Roadmap::clear ()
     {
-      connectedComponents_.clear ();
+      ccGraph_->clear ();
 
       for (Nodes_t::iterator it = nodes_.begin (); it != nodes_.end (); it++) {
 	delete *it;
@@ -94,8 +92,8 @@ namespace hpp {
       hppDout (info, "Added node: " << displayConfig (*configuration));
       nodes_.push_back (node);
       // Node constructor creates a new connected component. This new
-      // connected component needs to be added in the roadmap and the
-      // new node needs to be registered in the connected component.
+      // connected component needs to be added in the graph of connected and the
+      // components and new node needs to be registered in the connected component.
       addConnectedComponent (node);
       return node;
     }
@@ -130,11 +128,9 @@ namespace hpp {
 				       const ConfigurationPtr_t& to,
 				       const PathPtr_t path)
     {
-      interval_t timeRange = path->timeRange ();
       NodePtr_t nodeTo = addNode (to, from->connectedComponent ());
       addEdge (from, nodeTo, path);
-      addEdge (nodeTo, from, path->extract
-	       (interval_t (timeRange.second, timeRange.first)));
+      addEdge (nodeTo, from, path->reverse ());
       return nodeTo;
     }
 
@@ -145,8 +141,8 @@ namespace hpp {
       NodePtr_t closest;
       minDistance = std::numeric_limits<value_type>::infinity ();
       for (ConnectedComponents_t::const_iterator itcc =
-	     connectedComponents_.begin ();
-	   itcc != connectedComponents_.end (); itcc++) {
+	     ccGraph_->connectedComponents ().begin ();
+	   itcc != ccGraph_->connectedComponents ().end (); itcc++) {
 	value_type distance;
 	NodePtr_t node;
 	//node = nearestNeighbor_ [*itcc]->nearest (configuration, distance);
@@ -166,8 +162,6 @@ namespace hpp {
 			  value_type& minDistance)
     {
       assert (connectedComponent);
-      //return nearestNeighbor_ [connectedComponent]->nearest (configuration,
-      //						     minDistance);
       return kdTree_.search(configuration, connectedComponent, minDistance);
     }
 
@@ -193,34 +187,24 @@ namespace hpp {
 	       displayConfig (*(n1->configuration ())));
       hppDout (info, "               and: " <<
 	       displayConfig (*(n2->configuration ())));
-      // If node connected components are different, merge them
+
       ConnectedComponentPtr_t cc1 = n1->connectedComponent ();
       ConnectedComponentPtr_t cc2 = n2->connectedComponent ();
-      if (cc1 != cc2) {
-	cc1->merge (cc2);
-	//nearestNeighbor_ [cc1]->merge (nearestNeighbor_ [cc2]);
-	kdTree_.merge(cc1, cc2);
-	// Remove cc2 from list of connected components
-	ConnectedComponents_t::iterator itcc =
-	  std::find (connectedComponents_.begin (), connectedComponents_.end (),
-		     cc2);
-	assert (itcc != connectedComponents_.end ());
-	connectedComponents_.erase (itcc);
-	// remove cc2 from map of nearest neighbors
-	//NearetNeighborMap_t::iterator itnear = nearestNeighbor_.find (cc2);
-	//assert (itnear != nearestNeighbor_.end ());
-	//nearestNeighbor_.erase (itnear);
-      }
+
+      //Check and update reachability of the connected components
+      ccGraph_->updateCCReachability (cc1, cc2);
+      //Find Strongly Connected Components (SCC) in CCGraph and merge them
+      ccGraph_->findSCC ();
+
       return edge;
     }
 
     void Roadmap::addConnectedComponent (const NodePtr_t& node)
     {
-      connectedComponents_.push_back (node->connectedComponent ());
-      //nearestNeighbor_ [node->connectedComponent ()] =
-      //NearestNeighborPtr_t (new NearestNeighbor (distance_));
+      //Add the node to the connected component
       node->connectedComponent ()->addNode (node);
-      //nearestNeighbor_ [node->connectedComponent ()]->add (node);
+      //Add connected component to the Graph of Connected Components
+      ccGraph_->addConnectedComponent (node->connectedComponent ());
       kdTree_.addNode(node);
     }
 
@@ -241,3 +225,98 @@ namespace hpp {
     }
   } //   namespace core
 } // namespace hpp
+
+std::ostream& operator<< (std::ostream& os, const hpp::core::Roadmap& r)
+{
+  using hpp::core::Nodes_t;
+  using hpp::core::NodePtr_t;
+  using hpp::core::Edges_t;
+  using hpp::core::EdgePtr_t;
+  using hpp::core::ConnectedComponents_t;
+  using hpp::core::ConnectedComponentPtr_t;
+  using hpp::core::size_type;
+
+  // Enumerate nodes and connected components
+  std::map <NodePtr_t, size_type> nodeId;
+  std::map <ConnectedComponentPtr_t, size_type> ccId;
+  std::map <ConnectedComponentPtr_t, size_type> sccId;
+
+  size_type count = 0;
+  for (Nodes_t::const_iterator it = r.nodes ().begin ();
+       it != r.nodes ().end (); ++it) {
+    nodeId [*it] = count; ++count;
+  }
+
+  count = 0;
+  for (ConnectedComponents_t::const_iterator it =
+	 r.connectedComponents ().begin ();
+       it != r.connectedComponents ().end (); ++it) {
+    ccId [*it] = count; ++count;
+  }
+
+
+  // Display list of nodes
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  os << "Roadmap" << std::endl;
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  os << "Nodes" << std::endl;
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  for (Nodes_t::const_iterator it = r.nodes ().begin ();
+       it != r.nodes ().end (); ++it) {
+    const NodePtr_t node = *it;
+    os << "Node " << nodeId [node] << ": " << *node << std::endl;
+  }
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  os << "Edges" << std::endl;
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  for (Edges_t::const_iterator it = r.edges ().begin ();
+       it != r.edges ().end (); ++it) {
+    const EdgePtr_t edge = *it;
+    os << "Edge: " << nodeId [edge->from ()] << " -> "
+       << nodeId [edge->to ()] << std::endl;
+  }
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  os << "Connected components" << std::endl;
+  os << "----------------------------------------------------------------------"
+     << std::endl;
+  for (ConnectedComponents_t::const_iterator it =
+	 r.ccGraph ()->connectedComponents ().begin ();
+       it != r.ccGraph ()->connectedComponents ().end (); ++it) {
+    const ConnectedComponentPtr_t cc = *it;
+    os << "Connected component " << ccId [cc] << std::endl;
+    os << "Nodes : ";
+    for (Nodes_t::const_iterator itNode = cc->nodes ().begin ();
+	 itNode != cc->nodes ().end (); ++itNode) {
+      os << nodeId [*itNode] << ", ";
+    }
+    os << std::endl;
+    os << "Reachable to :";
+    for (ConnectedComponents_t::const_iterator itTo =
+	   cc->reachableTo_.begin (); itTo != cc->reachableTo_.end ();
+	 ++itTo) {
+      os << ccId [*itTo] << ", ";
+    }
+    os << std::endl;
+    os << "Reachable from :";
+    for (ConnectedComponents_t::const_iterator itFrom =
+	   cc->reachableFrom_.begin (); itFrom != cc->reachableFrom_.end ();
+	 ++itFrom) {
+      os << ccId [*itFrom] << ", ";
+    }
+    os << std::endl << "Leader:" << ccId [(*it)->getLeader ()] <<
+      std::endl << std::endl;
+  }
+  os << std::endl;
+  os << "----------------" << std::endl;
+
+  return os;
+}
+

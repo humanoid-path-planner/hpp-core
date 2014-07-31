@@ -103,3 +103,9 @@ namespace hpp {
     }
   } //   namespace core
 } // namespace hpp
+
+std::ostream& operator<< (std::ostream& os, const hpp::core::Node& n)
+{
+  os << n.configuration ()->transpose () << std::endl;
+  return os;
+}
