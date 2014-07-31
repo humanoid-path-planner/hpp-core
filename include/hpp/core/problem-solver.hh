@@ -273,6 +273,20 @@ namespace hpp {
       /// Store constraints until call to solve.
       ConstraintSetPtr_t constraints_;
 
+      /// Set pointer to problem
+      void problem (ProblemPtr_t problem)
+      {
+        if (problem_)
+          delete problem_;
+	problem_ = problem;
+      }
+
+      /// Set the roadmap
+      void roadmap (const RoadmapPtr_t& roadmap)
+      {
+	roadmap_ = roadmap;
+      }
+
     private:
       /// Map (string , constructor of path planner)
       typedef std::map < std::string, PathPlannerBuilder_t >
