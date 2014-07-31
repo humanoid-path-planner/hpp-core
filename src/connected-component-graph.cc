@@ -30,15 +30,11 @@ namespace hpp {
     {
       //Update the respective reachability lists of the connected components
       //CC Iterator for connectivity update
-      ConnectedComponents_t::iterator itcc;
-
-      itcc = cc1->reachableTo_.end ();
-      itcc = cc1->reachableTo_.insert (itcc, cc2);
+      cc1->reachableTo_.push_back (cc2);
       //Remove multiple copies
       cc1->reachableTo_.sort ();cc1->reachableTo_.unique ();
 
-      itcc = cc2->reachableFrom_.end ();
-      itcc = cc2->reachableFrom_.insert (itcc, cc1);
+      cc2->reachableFrom_.push_back (cc1);
       //Remove multiple copies
       cc2->reachableFrom_.sort ();cc2->reachableFrom_.unique ();
     }
