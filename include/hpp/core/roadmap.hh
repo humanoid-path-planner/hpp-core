@@ -58,15 +58,18 @@ namespace hpp {
 			     const ConnectedComponentPtr_t& connectedComponent,
 			     value_type& minDistance);
 
-      /// Add a node and an edge
+      /// Add a node and two edges
       /// \param from node from which the edge starts,
       /// \param to configuration to which the edge stops
       /// \param path path between both configurations
       /// \return node containing configuration <c>to</c>.
       /// Add the symmetric edge with reverse path.
-      NodePtr_t addNodeAndEdge (const NodePtr_t from,
-				const ConfigurationPtr_t& to,
-				const PathPtr_t path);
+      /// \note this function simplifies the management of connected components
+      ///       since it adds the new node in the connected component of
+      ///       <c>from</c>.
+      NodePtr_t addNodeAndEdges (const NodePtr_t from,
+				 const ConfigurationPtr_t& to,
+				 const PathPtr_t path);
 
       /// Add a goal configuration
       /// \param config configuration
@@ -143,6 +146,14 @@ namespace hpp {
       /// connected component.
       NodePtr_t addNode (const ConfigurationPtr_t& config,
 			 ConnectedComponentPtr_t connectedComponent);
+
+      /// Add two edges between two nodes
+      /// \param from first node
+      /// \param to second node
+      /// \param path path going from <c>from</c> to <c>to</c>.
+      /// the reverse edge is added with the reverse path.
+      void addEdges (const NodePtr_t from, const NodePtr_t& to,
+		     const PathPtr_t& path);
 
       const DistancePtr_t& distance_;
       Nodes_t nodes_;

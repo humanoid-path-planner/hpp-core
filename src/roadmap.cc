@@ -132,13 +132,25 @@ namespace hpp {
       return node;
     }
 
-    NodePtr_t Roadmap::addNodeAndEdge (const NodePtr_t from,
-				       const ConfigurationPtr_t& to,
-				       const PathPtr_t path)
+    void Roadmap::addEdges (const NodePtr_t from, const NodePtr_t& to,
+			    const PathPtr_t& path)
+    {
+      EdgePtr_t edge = new Edge (from, to, path);
+      from->addOutEdge (edge);
+      to->addInEdge (edge);
+      edges_.push_back (edge);
+      edge = new Edge (to, from, path->reverse ());
+      from->addInEdge (edge);
+      to->addOutEdge (edge);
+      edges_.push_back (edge);
+    }
+
+    NodePtr_t Roadmap::addNodeAndEdges (const NodePtr_t from,
+					const ConfigurationPtr_t& to,
+					const PathPtr_t path)
     {
       NodePtr_t nodeTo = addNode (to, from->connectedComponent ());
-      addEdge (from, nodeTo, path);
-      addEdge (nodeTo, from, path->reverse ());
+      addEdges (from, nodeTo, path);
       return nodeTo;
     }
 
