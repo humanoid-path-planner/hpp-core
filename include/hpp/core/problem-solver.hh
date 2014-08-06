@@ -203,6 +203,11 @@ namespace hpp {
       /// Create new problem.
       virtual void resetProblem ();
 
+      /// Reset the roadmap.
+      /// \note When joints bounds are changed, the roadmap must be reset
+      ///       because the kd tree must be resized.
+      virtual void resetRoadmap ();
+
       /// \name Solve problem and get paths
       /// \{
 

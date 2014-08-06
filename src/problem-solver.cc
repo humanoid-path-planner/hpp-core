@@ -183,7 +183,7 @@ namespace hpp {
     void ProblemSolver::initializeProblem (ProblemPtr_t problem)
     {
       problem_ = problem;
-      roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
+      resetRoadmap ();
       // Set constraints
       problem_->constraints (constraints_);
       // Set path validation method
@@ -197,6 +197,13 @@ namespace hpp {
       distanceBetweenObjects_ = DistanceBetweenObjectsPtr_t
 	(new DistanceBetweenObjects (robot_));
       distanceBetweenObjects_->obstacles(distanceObstacles_);
+    }
+
+    void ProblemSolver::resetRoadmap ()
+    {
+      if (!problem_)
+        throw std::runtime_error ("The problem is not defined.");
+      roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
     }
 
     bool ProblemSolver::prepareSolveStepByStep ()
