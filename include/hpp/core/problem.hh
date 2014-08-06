@@ -153,7 +153,7 @@ namespace hpp {
       /// \}
 
       /// Check that problem is well formulated
-      void checkProblem () const;
+      virtual void checkProblem () const;
 
       /// \name Obstacles
       /// \{
