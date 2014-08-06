@@ -20,6 +20,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
+#include <hpp/model/joint.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/differentiable-function.hh>
@@ -50,6 +51,7 @@ namespace hpp {
 				      value_type errorThreshold,
 				      size_type maxIterations) :
       Constraint (name), robot_ (robot), constraints_ (),
+      lockedDofs_ (), allSO3ranks_ (), lockedSO3ranks_ (),
       squareErrorThreshold_ (errorThreshold * errorThreshold),
       maxIterations_ (maxIterations), toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
@@ -58,6 +60,16 @@ namespace hpp {
       nbNonLockedDofs_ (robot_->numberDof ()),
       squareNorm_(0), weak_ ()
     {
+      // Initialize the list of SO3 ranks in the device.
+      JointVector_t joints = robot->getJointVector ();
+      std::pair < size_type, size_type > rank;
+      for (JointVector_t::iterator j = joints.begin();
+          j!= joints.end(); j++)
+        if (dynamic_cast<model::JointSO3*>(*j) != 0) {
+          rank.first = (*j)->rankInConfiguration ();
+          rank.second = (*j)->rankInVelocity ();
+          allSO3ranks_.push_back (rank);
+        }
     }
 
     void ConfigProjector::addConstraint
@@ -75,6 +87,8 @@ namespace hpp {
     void ConfigProjector::computeIntervals ()
     {
       intervals_.clear ();
+      lockedSO3ranks_.clear();
+      std::vector <bool> locked(robot_->numberDof(), false);
       std::pair < size_type, size_type > interval;
       int latestIndex=-1;
       size_type size;
@@ -86,6 +100,7 @@ namespace hpp {
       for (LockedDofs_t::const_iterator itLocked = lockedDofs_.begin ();
 	   itLocked != lockedDofs_.end (); itLocked++) {
 	int index = (*itLocked)->rankInVelocity ();
+        locked[index] = true;
 	size = (index - latestIndex) - 1;
 	if (size > 0) {
 	  interval.first = latestIndex + 1;
@@ -93,6 +108,12 @@ namespace hpp {
 	  intervals_.push_back (interval);
 	}
 	latestIndex = index;
+      }
+      for (Intervals_t::iterator rank = allSO3ranks_.begin();
+          rank != allSO3ranks_.end(); rank++) {
+        int index = rank->second;
+        if (locked[index] && locked[index+1] && locked[index+2])
+          lockedSO3ranks_.push_back(*rank);
       }
       // Remove temporary element.
       lockedDofs_.pop_back ();
@@ -246,9 +267,28 @@ namespace hpp {
 
     void ConfigProjector::computeLockedDofs (ConfigurationOut_t configuration)
     {
+      // Normalize quaternion if its 3 DOFS are locked.
+      size_type rankSO3 = configuration.size(),
+                iSO3 = 0;
+      if (iSO3 < lockedSO3ranks_.size())
+        rankSO3 = lockedSO3ranks_[iSO3].first;
+      /// LockedDofs are always sorted by their rankInConfiguration.
       for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
 	   itLock != lockedDofs_.end (); itLock ++) {
 	configuration [(*itLock)->rankInConfiguration ()] = (*itLock)->value ();
+        if (rankSO3 + 3 == (*itLock)->rankInConfiguration ()) {
+          // Normalize
+          value_type w = sqrt(1 - configuration.segment (rankSO3 + 1, 3).squaredNorm ());
+          if (configuration[rankSO3] >= 0)
+            configuration[rankSO3] = w;
+          else
+            configuration[rankSO3] = -w;
+          assert(0.99 < configuration.segment (rankSO3, 4).squaredNorm ());
+          assert(configuration.segment (rankSO3, 4).squaredNorm () < 1.01);
+          iSO3++;
+          if (iSO3 < lockedSO3ranks_.size())
+            rankSO3 = lockedSO3ranks_[iSO3].first;
+        }
       }
     }
 

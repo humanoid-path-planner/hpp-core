@@ -134,9 +134,12 @@ namespace hpp {
       void computeIntervals ();
       typedef std::list <LockedDofPtr_t> LockedDofs_t;
       typedef std::vector < std::pair <size_type, size_type> >Intervals_t;
+      typedef std::vector <size_type> Ranks_t;
       DevicePtr_t robot_;
       NumericalConstraints_t constraints_;
       LockedDofs_t lockedDofs_;
+      Intervals_t allSO3ranks_;
+      Intervals_t lockedSO3ranks_;
       /// Intervals of non locked degrees of freedom
       Intervals_t  intervals_;
       value_type squareErrorThreshold_;
