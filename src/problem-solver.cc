@@ -177,7 +177,12 @@ namespace hpp {
     {
       if (problem_)
 	delete problem_;
-      problem_ = new Problem (robot_);
+      initializeProblem (new Problem (robot_));
+    }
+
+    void ProblemSolver::initializeProblem (ProblemPtr_t problem)
+    {
+      problem_ = problem;
       roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
       // Set constraints
       problem_->constraints (constraints_);
