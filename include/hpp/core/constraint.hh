@@ -49,6 +49,9 @@ namespace hpp {
       /// \return the parameter.
       virtual vector_t offsetFromConfig (ConfigurationIn_t config) = 0;
 
+      /// Check whether a configuration statisfies the constraint.
+      virtual bool isSatisfied (ConfigurationIn_t config) = 0;
+
     protected:
       /// User defined implementation of the constraint.
       virtual bool impl_compute (ConfigurationOut_t configuration) = 0;

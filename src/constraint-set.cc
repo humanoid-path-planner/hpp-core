@@ -83,5 +83,14 @@ namespace hpp {
       }
       return ret;
     }
+
+    bool ConstraintSet::isSatisfied (ConfigurationIn_t configuration)
+    {
+      for (Constraints_t::iterator itConstraint = constraints_.begin ();
+	   itConstraint != constraints_.end (); itConstraint ++) {
+	if (!(*itConstraint)->isSatisfied (configuration)) return false;
+      }
+      return true;
+    }
   } // namespace core
 } // namespace core

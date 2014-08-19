@@ -64,6 +64,9 @@ namespace hpp {
       /// \return the parameter.
       vector_t offsetFromConfig (ConfigurationIn_t config);
 
+      /// Check whether a configuration statisfies the constraint.
+      bool isSatisfied (ConfigurationIn_t config);
+
     protected:
       typedef std::deque <ConstraintPtr_t> Constraints_t;
       ConstraintSet (const DevicePtr_t& robot, const std::string& name);

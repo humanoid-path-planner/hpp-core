@@ -137,6 +137,12 @@ namespace hpp {
         isParametric_ = value;
       }
 
+      /// Check whether a configuration statisfies the constraint.
+      bool isSatisfied (ConfigurationIn_t config)
+      {
+	return config [rankInConfiguration_] == value_;
+      }
+
     protected:
       /// Constructor
       /// \param name name of the constraint,

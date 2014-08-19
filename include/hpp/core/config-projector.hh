@@ -125,6 +125,9 @@ namespace hpp {
 
       /// @}
 
+      /// Check whether a configuration statisfies the constraint.
+      bool isSatisfied (ConfigurationIn_t config);
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.

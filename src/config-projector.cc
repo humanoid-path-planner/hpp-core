@@ -339,6 +339,22 @@ namespace hpp {
       return os;
     }
 
+    bool ConfigProjector::isSatisfied (ConfigurationIn_t config)
+    {
+      size_type row = 0, nbRows = 0;
+      for (NumericalConstraints_t::iterator itConstraint =
+	     constraints_.begin ();
+	   itConstraint != constraints_.end (); itConstraint ++) {
+	DifferentiableFunction& f = *(itConstraint->function);
+	vector_t& value = itConstraint->value;
+	f (value, config);
+	nbRows = f.outputSize ();
+	value_.segment (row, nbRows) = value;
+	row += nbRows;
+      }
+      return (value_ - offset_).squaredNorm () < squareErrorThreshold_;
+    }
+
     vector_t ConfigProjector::offsetFromConfig (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
