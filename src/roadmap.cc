@@ -175,6 +175,7 @@ namespace hpp {
 			  value_type& minDistance)
     {
       assert (connectedComponent);
+      assert (connectedComponent->nodes ().size () != 0);
       return kdTree_.search(configuration, connectedComponent, minDistance);
     }
     
