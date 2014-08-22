@@ -39,8 +39,10 @@ namespace hpp {
       virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
 				      ConfigurationIn_t q2) const
       {
-	value_type length = (*distance_) (q1, q2);
-	return StraightPath::create (device_.lock (), q1, q2, length);
+        value_type length = (*distance_) (q1, q2);
+        PathPtr_t path = StraightPath::create (device_.lock (), q1, q2, length);
+        path->constraints (constraints ());
+        return path;
       }
     private:
       DeviceWkPtr_t device_;

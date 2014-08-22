@@ -32,20 +32,23 @@ namespace hpp {
     /// Steering method
     ///
     /// A steering method creates paths between pairs of
-    /// configurations for a robot.  They are usually used to take
+    /// configurations for a robot. They are usually used to take
     /// into account nonholonomic constraints of some robots
     class HPP_CORE_DLLAPI SteeringMethod
     {
     public:
       /// create a path between two configurations
+      /// \return a Path from q1 to q2 if found. An empty
+      /// Path if Path could not be built.
       PathPtr_t operator() (ConfigurationIn_t q1,
 			    ConfigurationIn_t q2) const
       {
-	PathPtr_t path (impl_compute (q1, q2));
-	path->constraints (constraints_);
-	return path;
+	return impl_compute (q1, q2);
       }
-      /// \name Constraints applicable to the robot
+
+      /// \name Constraints applicable to the robot.
+      /// These constraints are not automatically taken into
+      /// account. Child class can use it if they need.
       /// \{
 
       /// Set constraint set
@@ -54,7 +57,7 @@ namespace hpp {
 	constraints_ = constraints;
       }
 
-      ///Get constraint set
+      /// Get constraint set
       const ConstraintSetPtr_t& constraints () const
       {
 	return constraints_;
