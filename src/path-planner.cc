@@ -121,15 +121,17 @@ namespace hpp {
 	ConfigurationPtr_t q2 ((*itn)->configuration ());
 	assert (*q1 != *q2);
 	path = (*sm) (*q1, *q2);
-	bool pathValid = pathValidation->validate (path, false, validPath);
-	if (pathValid && validPath->timeRange ().second !=
-	    path->timeRange ().first) {
-	  roadmap ()->addEdge (initNode, *itn, path);
-	  interval_t timeRange = path->timeRange ();
-	  roadmap ()->addEdge (*itn, initNode, path->extract
-			       (interval_t (timeRange.second,
-					    timeRange.first)));
-	}
+        if (path) {
+          bool pathValid = pathValidation->validate (path, false, validPath);
+          if (pathValid && validPath->timeRange ().second !=
+              path->timeRange ().first) {
+            roadmap ()->addEdge (initNode, *itn, path);
+            interval_t timeRange = path->timeRange ();
+            roadmap ()->addEdge (*itn, initNode, path->extract
+                (interval_t (timeRange.second,
+                             timeRange.first)));
+          }
+        }
       }
     }
 
