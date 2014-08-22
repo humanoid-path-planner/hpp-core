@@ -62,6 +62,11 @@ namespace hpp {
 	(*itJoint)->configuration ()->interpolate
 	  (initial_, end_, u, rank, result);
       }
+
+      if (constraints ()) {
+        constraints ()->offsetFromConfig (initial_);
+        constraints ()->apply (result);
+      }
     }
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const
     {

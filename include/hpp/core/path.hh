@@ -76,8 +76,6 @@ namespace hpp {
       {
 	Configuration_t result (outputSize ());
 	impl_compute (result, t);
-	if (constraints_)
-	  constraints_->apply (result);
 	return result;
       }
 
@@ -85,8 +83,6 @@ namespace hpp {
 	const throw ()
       {
 	impl_compute (result, t);
-	if (constraints_)
-	  constraints_->apply (result);
       }
 
       /// \name Constraints
