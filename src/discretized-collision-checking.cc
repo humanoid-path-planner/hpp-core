@@ -42,6 +42,7 @@ namespace hpp {
     bool DiscretizedCollisionChecking::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
+      assert (path);
       bool valid = true;
       if (reverse) {
 	value_type tmin = path->timeRange ().first;
