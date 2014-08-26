@@ -209,7 +209,7 @@ namespace hpp {
     bool ProblemSolver::prepareSolveStepByStep ()
     {
       if(obstacleLoaded_) // If collision obstacle added, reset Roadmap
-	roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
+        resetRoadmap ();
 
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
@@ -249,7 +249,7 @@ namespace hpp {
     void ProblemSolver::solve ()
     {
       if(obstacleLoaded_) // If collision obstacle added, reset Roadmap
-	roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
+        resetRoadmap ();
 
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
