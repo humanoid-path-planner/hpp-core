@@ -31,7 +31,10 @@ namespace hpp {
     public:
       /// Return shared pointer to new instance.
       static RoadmapPtr_t create (const DistancePtr_t& distance, const DevicePtr_t& robot);
-      void clear ();
+
+      /// Clear the roadmap by deleting nodes and edges.
+      virtual void clear ();
+
       /// Add a node with given configuration
       /// \param config configuration
       ///
@@ -130,6 +133,13 @@ namespace hpp {
       /// Whether nodes of cc can be reached by nodes of this
       /// \param cc a connected component.
       bool canReach (const ConnectedComponentPtr_t& cc);
+
+      /// Give child class the opportunity to get the event
+      /// "A node has been added to the roadmap"
+      virtual void push_node (const NodePtr_t& n)
+      {
+        nodes_.push_back (n);
+      }
 
     private:
       /// Add a node with given configuration

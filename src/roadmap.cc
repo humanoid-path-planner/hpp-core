@@ -83,7 +83,8 @@ namespace hpp {
 	}
       }
       NodePtr_t node = new Node (configuration);
-      nodes_.push_back (node);
+      hppDout (info, "Added node: " << displayConfig (*configuration));
+      push_node (node);
       // Node constructor creates a new connected component. This new
       // connected component needs to be added in the roadmap and the
       // new node needs to be registered in the connected component.
@@ -104,7 +105,8 @@ namespace hpp {
 	}
       }
       NodePtr_t node = new Node (configuration, connectedComponent);
-      nodes_.push_back (node);
+      hppDout (info, "Added node: " << displayConfig (*configuration));
+      push_node (node);
       // The new node needs to be registered in the connected
       // component.
       connectedComponent->addNode (node);
