@@ -23,6 +23,10 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 
+# ifdef HPP_DEBUG
+#  include <hpp/statistics/success-bin.hh>
+# endif // HPP_DEBUG
+
 namespace hpp {
   namespace core {
     /// Implicit non-linear constraint
@@ -194,6 +198,10 @@ namespace hpp {
       size_type nbNonLockedDofs_;
       value_type squareNorm_;
       ConfigProjectorWkPtr_t weak_;
+
+# ifdef HPP_DEBUG
+      ::hpp::statistics::SuccessStatistics statistics_;
+# endif // HPP_DEBUG
     }; // class ConfigProjector
   } // namespace core
 } // namespace hpp

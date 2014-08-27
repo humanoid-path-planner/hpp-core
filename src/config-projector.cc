@@ -28,6 +28,16 @@
 
 namespace hpp {
   namespace core {
+
+# ifdef HPP_DEBUG
+    std::ostream& operator<< (std::ostream& os, const hpp::statistics::SuccessStatistics& ss)
+    {
+      return ss.print (os);
+    }
+    HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
+    HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
+# endif // HPP_DEBUG
+
     //using boost::fusion::result_of::at;
     bool operator< (const LockedDofPtr_t& l1, const LockedDofPtr_t& l2)
     {
@@ -238,6 +248,21 @@ namespace hpp {
 	previousSquareNorm = squareNorm_;
 	++iter;
       };
+# ifdef HPP_DEBUG
+      if (squareNorm_ > squareErrorThreshold_) {
+        if (!errorDecreased)
+          statistics_.addFailure (REASON_ERROR_INCREASED);
+        else
+          statistics_.addFailure (REASON_MAX_ITER);
+        if (statistics_.nbFailure () > statistics_.nbSuccess ()) {
+          hppDout (warning, "Config projector " << name()
+              << " seems to fail often.");
+          hppDout (warning, statistics_);
+        }
+      } else {
+        statistics_.addSuccess();
+      }
+# endif // HPP_DEBUG
       hppDout (info, "number of iterations: " << iter);
       if (squareNorm_ > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");
@@ -269,7 +294,7 @@ namespace hpp {
     void ConfigProjector::computeLockedDofs (ConfigurationOut_t configuration)
     {
       // Normalize quaternion if its 3 DOFS are locked.
-      size_type rankSO3 = configuration.size(),
+      size_t rankSO3 = configuration.size(),
                 iSO3 = 0;
       if (iSO3 < lockedSO3ranks_.size())
         rankSO3 = lockedSO3ranks_[iSO3].first;
@@ -334,7 +359,7 @@ namespace hpp {
       for (NumericalConstraints_t::const_iterator it = constraints_.begin ();
 	   it != constraints_.end (); it++) {
 	const DifferentiableFunction& f (*(it->function));
-	os << f << std::endl;
+	os << "    " << f << std::endl;
       }
       return os;
     }
@@ -383,13 +408,14 @@ namespace hpp {
           constraints_.begin ();
           itConstraint != constraints_.end (); itConstraint ++) {
         DifferentiableFunction& f = *(itConstraint->function);
+        nbRows = f.outputSize ();
         if (!f.isParametric ()) {
-          nbRows = f.outputSize ();
           if (param.segment (row, nbRows) != vector_t::Zero (nbRows)) {
             throw std::logic_error ("The level set parameter is not consistant with"
                 " parametric function " + f.name());
           }
         }
+        row += nbRows;
       }
 # endif
       offset_ = param;

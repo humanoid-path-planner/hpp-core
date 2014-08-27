@@ -83,6 +83,9 @@ SET(${PROJECT_NAME}_HEADERS
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
 ADD_REQUIRED_DEPENDENCY("roboptim-trajectory >= 1.0")
+IF (HPP_DEBUG)
+  ADD_REQUIRED_DEPENDENCY("hpp-statistics")
+ENDIF()
 
 # Add dependency toward hpp-model library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")
