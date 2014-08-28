@@ -98,6 +98,7 @@ namespace hpp {
     {
       intervals_.clear ();
       lockedSO3ranks_.clear();
+      lockedSO3values_.clear();
       std::vector <bool> locked(robot_->numberDof(), false);
       std::pair < size_type, size_type > interval;
       int latestIndex=-1;
@@ -122,8 +123,13 @@ namespace hpp {
       for (Intervals_t::iterator rank = allSO3ranks_.begin();
           rank != allSO3ranks_.end(); rank++) {
         int index = rank->second;
-        if (locked[index] && locked[index+1] && locked[index+2])
+        if (locked[index] && locked[index+1] && locked[index+2]) {
           lockedSO3ranks_.push_back(*rank);
+          // TODO: This value corresponds to the first element of the
+          // quaternion of the locked SO3 joint. The user should be able
+          // to initialize it somehow. It can be initialize using offsetFromConfig
+          lockedSO3values_.push_back(0);
+        }
       }
       // Remove temporary element.
       lockedDofs_.pop_back ();
@@ -305,7 +311,7 @@ namespace hpp {
         if (rankSO3 + 3 == (*itLock)->rankInConfiguration ()) {
           // Normalize
           value_type w = sqrt(1 - configuration.segment (rankSO3 + 1, 3).squaredNorm ());
-          if (configuration[rankSO3] >= 0)
+          if (lockedSO3values_[iSO3] >= 0)
             configuration[rankSO3] = w;
           else
             configuration[rankSO3] = -w;
@@ -395,6 +401,8 @@ namespace hpp {
         offset_.segment (row, nbRows) = value;
         row += nbRows;
       }
+      for (size_t iSO3 = 0; iSO3 < lockedSO3ranks_.size (); iSO3++)
+        lockedSO3values_[iSO3] = config[lockedSO3ranks_[iSO3].first];
       return offset();
     }
 
