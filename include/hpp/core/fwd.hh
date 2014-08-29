@@ -23,6 +23,7 @@
 # include <vector>
 # include <deque>
 # include <list>
+# include <set>
 # include <hpp/util/pointer.hh>
 # include <roboptim/core/function.hh>
 # include <hpp/model/fwd.hh>
@@ -40,7 +41,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (ConfigValidation);
     HPP_PREDEF_CLASS (ConfigValidations);
     HPP_PREDEF_CLASS (ConnectedComponent);
-    HPP_PREDEF_CLASS (ConnectedComponentGraph);
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
     HPP_PREDEF_CLASS (DifferentiableFunction);
@@ -90,11 +90,7 @@ namespace hpp {
     typedef boost::shared_ptr <ConfigValidation> ConfigValidationPtr_t;
     typedef boost::shared_ptr <ConfigValidations> ConfigValidationsPtr_t;
     typedef boost::shared_ptr <ConnectedComponent> ConnectedComponentPtr_t;
-    typedef std::list <ConnectedComponentPtr_t> ConnectedComponents_t;
-    typedef boost::shared_ptr <ConnectedComponentGraph>
-    ConnectedComponentGraphPtr_t;
-    typedef std::list <ConnectedComponentGraphPtr_t>
-    ConnectedComponentGraphs_t;
+    typedef std::set <ConnectedComponentPtr_t> ConnectedComponents_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef model::Device Device_t;
@@ -120,7 +116,6 @@ namespace hpp {
     typedef model::matrix_t matrix_t;
     typedef Eigen::Ref <const matrix_t> matrixIn_t;
     typedef Eigen::Ref <matrix_t> matrixOut_t;
-    typedef std::list <Node*> Nodes_t;
     typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;

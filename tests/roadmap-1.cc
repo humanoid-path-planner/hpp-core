@@ -50,6 +50,15 @@ using hpp::core::WeighedDistance;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
+void addEdge (const hpp::core::RoadmapPtr_t& r,
+	      const hpp::core::SteeringMethod& sm,
+	      const std::vector <NodePtr_t>& nodes,
+	      std::size_t i, std::size_t j)
+{
+  r->addEdge (nodes [i], nodes [j], sm (*(nodes [i]->configuration ()),
+					*(nodes [j]->configuration ())));
+}
+
 BOOST_AUTO_TEST_CASE (Roadmap1) {
   // Build robot
   DevicePtr_t robot = Device::create("robot");
@@ -72,42 +81,205 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   RoadmapPtr_t r = Roadmap::create (WeighedDistance::create
 				    (robot, boost::assign::list_of (1)(1)),
 				    robot);
-  ConfigurationPtr_t q_init (new Configuration_t (robot->configSize ()));
-  (*q_init) [0] = 0; (*q_init) [1] = 0;
+
+  std::vector <NodePtr_t> nodes;
+
+  // nodes [0]
+  ConfigurationPtr_t q (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0; (*q) [1] = 0;
   // Set init node
-  r->initNode (q_init);
-  NodePtr_t n_init = r->initNode ();
+  r->initNode (q);
+  nodes.push_back (r->initNode ());
 
-  ConfigurationPtr_t q_goal (new Configuration_t (robot->configSize ()));
-  (*q_goal) [0] = 1; (*q_goal) [1] = 0;
-  NodePtr_t n_goal = r->addNode (q_goal);
-  r->addGoalNode (q_goal);
+  // nodes [1]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 1; (*q) [1] = 0;
+  nodes.push_back (r->addNode (q));
 
-  ConfigurationPtr_t q_randnode (new Configuration_t (robot->configSize ()));
-  (*q_randnode)[0] = 0.5; (*q_randnode) [1] = 0.9;
-  NodePtr_t n_randnode = r->addNode (q_randnode);
+  // nodes [2]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0.5; (*q) [1] = 0.9;
+  nodes.push_back (r->addNode (q));
 
-  ConfigurationPtr_t q_randnode1 (new Configuration_t (robot->configSize ()));
-  (*q_randnode1)[0] = -0.1; (*q_randnode1) [1] = -0.9;
-  NodePtr_t n_randnode1 = r->addNode (q_randnode1);
+  // nodes [3]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = -0.1; (*q) [1] = -0.9;
+  nodes.push_back (r->addNode (q));
 
-  ConfigurationPtr_t q_randnode2 (new Configuration_t (robot->configSize ()));
-  (*q_randnode2)[0] = 1.5; (*q_randnode2) [1] = 2.9;
-  NodePtr_t n_randnode2 = r->addNode (q_randnode2);
+  // nodes [4]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 1.5; (*q) [1] = 2.9;
+  nodes.push_back (r->addNode (q));
 
-
-
-  r->addEdge (n_init, n_goal, sm (*q_init, *q_goal));
-  r->addEdge (n_goal, n_init, sm (*q_goal, *q_init));
-  r->addEdge (n_goal, n_randnode1, sm (*q_goal, *q_randnode1));
-  r->addEdge (n_init, n_randnode, sm (*q_init, *q_randnode));
-  r->addEdge (n_randnode, n_randnode1, sm (*q_randnode, *q_randnode1));
-  r->addEdge (n_randnode1, n_randnode2, sm (*q_randnode1, *q_randnode2));
-  r->addEdge (n_randnode2, n_randnode, sm (*q_randnode2, *q_randnode));
-  r->addEdge (n_randnode, n_goal, sm (*q_randnode, *q_goal));
+  // nodes [5]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 2.5; (*q) [1] = 2.9;
+  nodes.push_back (r->addNode (q));
+  r->addGoalNode (nodes [5]->configuration ());
 
   std::cout << *r << std::endl;
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 6);
+  for (std::size_t i=0; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  // 0 -> 1
+  addEdge (r, sm, nodes, 0, 1);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 6);
+  for (std::size_t i=0; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 1 -> 0
+  addEdge (r, sm, nodes, 1, 0);
+
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 5);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  for (std::size_t i=1; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  std::cout << *r << std::endl; 
+  // 1 -> 2
+  addEdge (r, sm, nodes, 1, 2);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 5);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  for (std::size_t i=1; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 2 -> 0
+  addEdge (r, sm, nodes, 2, 0);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [2]->connectedComponent ());
+  for (std::size_t i=2; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 2 -> 3
+  addEdge (r, sm, nodes, 2, 3);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [2]->connectedComponent ());
+  for (std::size_t i=2; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 2 -> 4
+  addEdge (r, sm, nodes, 2, 4);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [2]->connectedComponent ());
+  for (std::size_t i=2; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (!r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 3 -> 5
+  addEdge (r, sm, nodes, 3, 5);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [2]->connectedComponent ());
+  for (std::size_t i=2; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
   BOOST_CHECK (r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 4 -> 5
+  addEdge (r, sm, nodes, 4, 5);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [2]->connectedComponent ());
+  for (std::size_t i=2; i < nodes.size (); ++i) {
+    for (std::size_t j=i+1; j < nodes.size (); ++j) {
+      BOOST_CHECK_MESSAGE (nodes [i]->connectedComponent () !=
+			   nodes [j]->connectedComponent (),
+			   "nodes " << i << " and " << j << "are in the same"
+			   << " connected component");
+    }
+  }
+  BOOST_CHECK (r->pathExists ());
+  std::cout << *r << std::endl;
+
+  // 5 -> 0
+  addEdge (r, sm, nodes, 5, 0);
+  BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 1);
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [1]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [2]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [3]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [4]->connectedComponent ());
+  BOOST_CHECK (nodes [0]->connectedComponent () == 
+	       nodes [5]->connectedComponent ());
+  BOOST_CHECK (r->pathExists ());
+  std::cout << *r << std::endl;
+
 }
 BOOST_AUTO_TEST_SUITE_END()
 

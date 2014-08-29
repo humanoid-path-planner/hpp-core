@@ -24,6 +24,7 @@ SET(${LIBRARY_NAME}_SOURCES
   collision-validation.cc
   config-projector.cc
   config-validations.cc
+  connected-component.cc
   constraint.cc
   constraint-set.cc
   diffusing-planner.cc
@@ -43,8 +44,6 @@ SET(${LIBRARY_NAME}_SOURCES
   straight-path.cc
   weighed-distance.cc
   k-d-tree.cc
-  connected-component-graph.hh
-  connected-component-graph.cc
   )
 
 ADD_LIBRARY(${LIBRARY_NAME}

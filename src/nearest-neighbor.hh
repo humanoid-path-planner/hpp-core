@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    HPP_PREDEF_CLASS (NearestNeighbor);
+    typedef boost::shared_ptr <NearestNeighbor> NearestNeighborPtr_t;
+
     /// Optimization of the nearest neighbor search
     class NearestNeighbor
     {
