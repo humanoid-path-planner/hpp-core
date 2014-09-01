@@ -29,14 +29,12 @@
 namespace hpp {
   namespace core {
 
-# ifdef HPP_DEBUG
     std::ostream& operator<< (std::ostream& os, const hpp::statistics::SuccessStatistics& ss)
     {
       return ss.print (os);
     }
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
-# endif // HPP_DEBUG
 
     //using boost::fusion::result_of::at;
     bool operator< (const LockedDofPtr_t& l1, const LockedDofPtr_t& l2)
@@ -254,7 +252,6 @@ namespace hpp {
 	previousSquareNorm = squareNorm_;
 	++iter;
       };
-# ifdef HPP_DEBUG
       if (squareNorm_ > squareErrorThreshold_) {
         if (!errorDecreased)
           statistics_.addFailure (REASON_ERROR_INCREASED);
@@ -268,7 +265,6 @@ namespace hpp {
       } else {
         statistics_.addSuccess();
       }
-# endif // HPP_DEBUG
       hppDout (info, "number of iterations: " << iter);
       if (squareNorm_ > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");

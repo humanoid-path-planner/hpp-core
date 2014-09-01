@@ -23,9 +23,7 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 
-# ifdef HPP_DEBUG
-#  include <hpp/statistics/success-bin.hh>
-# endif // HPP_DEBUG
+# include <hpp/statistics/success-bin.hh>
 
 namespace hpp {
   namespace core {
@@ -129,6 +127,12 @@ namespace hpp {
       /// Check whether a configuration statisfies the constraint.
       bool isSatisfied (ConfigurationIn_t config);
 
+      /// Get the statistics
+      ::hpp::statistics::SuccessStatistics& statistics()
+      {
+        return statistics_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -196,9 +200,7 @@ namespace hpp {
       value_type squareNorm_;
       ConfigProjectorWkPtr_t weak_;
 
-# ifdef HPP_DEBUG
       ::hpp::statistics::SuccessStatistics statistics_;
-# endif // HPP_DEBUG
     }; // class ConfigProjector
   } // namespace core
 } // namespace hpp
