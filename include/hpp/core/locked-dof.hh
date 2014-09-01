@@ -115,12 +115,13 @@ namespace hpp {
       /// \return the parameter.
       vector_t offsetFromConfig (ConfigurationIn_t config)
       {
-        vector_t ret(1);
         if (isParametric_) {
+          vector_t ret(1);
           value_ = config[rankInConfiguration_];
+          ret[0] = value_;
+          return ret;
         }
-        ret[0] = value_;
-        return ret;
+        return vector_t (0);
       }
 
       /// Check whether this constraint is parametric.

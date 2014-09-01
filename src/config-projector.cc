@@ -406,27 +406,40 @@ namespace hpp {
       return offset();
     }
 
-    void ConfigProjector::offset (const vector_t& param)
+    void ConfigProjector::offset (const vector_t& small)
     {
-      if (param.size() != value_.size())
-        throw std::range_error ("Wrong level set parameter size");
-# ifdef HPP_DEBUG
-      size_type row = 0, nbRows = 0;
+      size_type row = 0, nbRows = 0, s = 0;
       for (NumericalConstraints_t::iterator itConstraint =
           constraints_.begin ();
           itConstraint != constraints_.end (); itConstraint ++) {
         DifferentiableFunction& f = *(itConstraint->function);
         nbRows = f.outputSize ();
-        if (!f.isParametric ()) {
-          if (param.segment (row, nbRows) != vector_t::Zero (nbRows)) {
-            throw std::logic_error ("The level set parameter is not consistant with"
-                " parametric function " + f.name());
-          }
+        if (f.isParametric ()) {
+          offset_.segment (row, nbRows) = small.segment (s, nbRows);
+          s += nbRows;
         }
         row += nbRows;
       }
-# endif
-      offset_ = param;
+      assert (row == offset_.size ());
+    }
+
+    vector_t ConfigProjector::offset () const
+    {
+      vector_t small;
+      size_type row = 0, nbRows = 0, s = 0;
+      for (NumericalConstraints_t::const_iterator itConstraint =
+          constraints_.begin ();
+          itConstraint != constraints_.end (); itConstraint ++) {
+        DifferentiableFunction& f = *(itConstraint->function);
+        nbRows = f.outputSize ();
+        if (f.isParametric ()) {
+          small.conservativeResize (s + nbRows);
+          small.segment (s, nbRows) = offset_.segment (row, nbRows);
+          s += nbRows;
+        }
+        row += nbRows;
+      }
+      return small;
     }
   } // namespace core
 } // namespace hpp

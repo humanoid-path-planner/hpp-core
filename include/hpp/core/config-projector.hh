@@ -122,10 +122,7 @@ namespace hpp {
 
       /// Get the level set parameter.
       /// \return the parameter.
-      vector_t offset () const
-      {
-        return offset_;
-      }
+      vector_t offset () const;
 
       /// @}
 
