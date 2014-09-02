@@ -88,9 +88,6 @@ namespace hpp {
 	if (*(nearest->configuration ()) == *configuration) {
 	  return nearest;
 	}
-	if (distance < 1e-4) {
-	  throw std::runtime_error ("distance to nearest node too small");
-	}
       }
       NodePtr_t node = new Node (configuration);
       hppDout (info, "Added node: " << displayConfig (*configuration));
@@ -112,9 +109,6 @@ namespace hpp {
 					 distance);
 	if (*(nearest->configuration ()) == *configuration) {
 	  return nearest;
-	}
-	if (distance < 1e-4) {
-	  throw std::runtime_error ("distance to nearest node too small");
 	}
       }
       NodePtr_t node = new Node (configuration, connectedComponent);
