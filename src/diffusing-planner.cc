@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/diffusing-planner.hh>
@@ -31,7 +32,7 @@
 
 namespace hpp {
   namespace core {
-    extern std::string displayConfig (ConfigurationIn_t q);
+    using model::displayConfig;
 
     DiffusingPlannerPtr_t DiffusingPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)

@@ -17,12 +17,16 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/connected-component.hh>
 
 namespace hpp {
   namespace core {
+
+    using model::displayConfig;
+
     Node::Node (const ConfigurationPtr_t& configuration) :
       configuration_ (configuration),
       connectedComponent_ (ConnectedComponent::create ())

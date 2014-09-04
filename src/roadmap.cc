@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <hpp/util/debug.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/node.hh>
@@ -27,15 +28,7 @@
 
 namespace hpp {
   namespace core {
-
-    std::string displayConfig (ConfigurationIn_t q)
-    {
-      std::ostringstream oss;
-      for (size_type i=0; i < q.size (); ++i) {
-	oss << q [i] << ",";
-      }
-      return oss.str ();
-    }
+    using model::displayConfig;
 
     RoadmapPtr_t Roadmap::create (const DistancePtr_t& distance,
 				  const DevicePtr_t& robot)
