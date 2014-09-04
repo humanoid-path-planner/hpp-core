@@ -51,13 +51,15 @@ namespace hpp {
       /// Access to inEdges
       const Edges_t& inEdges () const;
       ConfigurationPtr_t configuration () const;
+      /// Print node in a stream
+      std::ostream& print (std::ostream& os) const;
     private:
       ConfigurationPtr_t configuration_;
       Edges_t outEdges_;
       Edges_t inEdges_;
       ConnectedComponentPtr_t connectedComponent_;
     }; // class Node
+    std::ostream& operator<< (std::ostream& os, const Node& n);
   } //   namespace core
 } // namespace hpp
-std::ostream& operator<< (std::ostream& os, const hpp::core::Node& n);
 #endif // HPP_CORE_NODE_HH

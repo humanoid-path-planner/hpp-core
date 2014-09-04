@@ -243,99 +243,96 @@ namespace hpp {
       }
       return false;
     }
+
+    std::ostream& Roadmap::print (std::ostream& os) const
+    {
+      // Enumerate nodes and connected components
+      std::map <NodePtr_t, size_type> nodeId;
+      std::map <ConnectedComponentPtr_t, size_type> ccId;
+      std::map <ConnectedComponentPtr_t, size_type> sccId;
+
+      size_type count = 0;
+      for (Nodes_t::const_iterator it = nodes ().begin ();
+	   it != nodes ().end (); ++it) {
+	nodeId [*it] = count; ++count;
+      }
+
+      count = 0;
+      for (ConnectedComponents_t::const_iterator it =
+	     connectedComponents ().begin ();
+	   it != connectedComponents ().end (); ++it) {
+	ccId [*it] = count; ++count;
+      }
+
+
+      // Display list of nodes
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      os << "Roadmap" << std::endl;
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      os << "Nodes" << std::endl;
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      for (Nodes_t::const_iterator it = nodes ().begin ();
+	   it != nodes ().end (); ++it) {
+	const NodePtr_t node = *it;
+	os << "Node " << nodeId [node] << ": " << *node << std::endl;
+      }
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      os << "Edges" << std::endl;
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      for (Edges_t::const_iterator it = edges ().begin ();
+	   it != edges ().end (); ++it) {
+	const EdgePtr_t edge = *it;
+	os << "Edge: " << nodeId [edge->from ()] << " -> "
+	   << nodeId [edge->to ()] << std::endl;
+      }
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      os << "Connected components" << std::endl;
+      os << "-----------------------------------------------------------------"
+	 << std::endl;
+      for (ConnectedComponents_t::const_iterator it =
+	     connectedComponents ().begin ();
+	   it != connectedComponents ().end (); ++it) {
+	const ConnectedComponentPtr_t cc = *it;
+	os << "Connected component " << ccId [cc] << std::endl;
+	os << "Nodes : ";
+	for (Nodes_t::const_iterator itNode = cc->nodes ().begin ();
+	     itNode != cc->nodes ().end (); ++itNode) {
+	  os << nodeId [*itNode] << ", ";
+	}
+	os << std::endl;
+	os << "Reachable to :";
+	for (ConnectedComponents_t::const_iterator itTo =
+	       cc->reachableTo ().begin (); itTo != cc->reachableTo ().end ();
+	     ++itTo) {
+	  os << ccId [*itTo] << ", ";
+	}
+	os << std::endl;
+	os << "Reachable from :";
+	for (ConnectedComponents_t::const_iterator itFrom =
+	       cc->reachableFrom ().begin ();
+	     itFrom != cc->reachableFrom ().end (); ++itFrom) {
+	  os << ccId [*itFrom] << ", ";
+	}
+	os << std::endl;
+      }
+      os << std::endl;
+      os << "----------------" << std::endl;
+
+      return os;
+    }
+
+    std::ostream& operator<< (std::ostream& os, const hpp::core::Roadmap& r)
+    {
+      return r.print (os);
+    }
   } //   namespace core
 } // namespace hpp
-
-std::ostream& operator<< (std::ostream& os, const hpp::core::Roadmap& r)
-{
-  using hpp::core::Nodes_t;
-  using hpp::core::NodePtr_t;
-  using hpp::core::Edges_t;
-  using hpp::core::EdgePtr_t;
-  using hpp::core::ConnectedComponents_t;
-  using hpp::core::ConnectedComponentPtr_t;
-  using hpp::core::size_type;
-
-  // Enumerate nodes and connected components
-  std::map <NodePtr_t, size_type> nodeId;
-  std::map <ConnectedComponentPtr_t, size_type> ccId;
-  std::map <ConnectedComponentPtr_t, size_type> sccId;
-
-  size_type count = 0;
-  for (Nodes_t::const_iterator it = r.nodes ().begin ();
-       it != r.nodes ().end (); ++it) {
-    nodeId [*it] = count; ++count;
-  }
-
-  count = 0;
-  for (ConnectedComponents_t::const_iterator it =
-	 r.connectedComponents ().begin ();
-       it != r.connectedComponents ().end (); ++it) {
-    ccId [*it] = count; ++count;
-  }
-
-
-  // Display list of nodes
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  os << "Roadmap" << std::endl;
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  os << "Nodes" << std::endl;
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  for (Nodes_t::const_iterator it = r.nodes ().begin ();
-       it != r.nodes ().end (); ++it) {
-    const NodePtr_t node = *it;
-    os << "Node " << nodeId [node] << ": " << *node << std::endl;
-  }
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  os << "Edges" << std::endl;
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  for (Edges_t::const_iterator it = r.edges ().begin ();
-       it != r.edges ().end (); ++it) {
-    const EdgePtr_t edge = *it;
-    os << "Edge: " << nodeId [edge->from ()] << " -> "
-       << nodeId [edge->to ()] << std::endl;
-  }
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  os << "Connected components" << std::endl;
-  os << "----------------------------------------------------------------------"
-     << std::endl;
-  for (ConnectedComponents_t::const_iterator it =
-	 r.connectedComponents ().begin ();
-       it != r.connectedComponents ().end (); ++it) {
-    const ConnectedComponentPtr_t cc = *it;
-    os << "Connected component " << ccId [cc] << std::endl;
-    os << "Nodes : ";
-    for (Nodes_t::const_iterator itNode = cc->nodes ().begin ();
-	 itNode != cc->nodes ().end (); ++itNode) {
-      os << nodeId [*itNode] << ", ";
-    }
-    os << std::endl;
-    os << "Reachable to :";
-    for (ConnectedComponents_t::const_iterator itTo =
-	   cc->reachableTo ().begin (); itTo != cc->reachableTo ().end ();
-	 ++itTo) {
-      os << ccId [*itTo] << ", ";
-    }
-    os << std::endl;
-    os << "Reachable from :";
-    for (ConnectedComponents_t::const_iterator itFrom =
-	   cc->reachableFrom ().begin (); itFrom != cc->reachableFrom ().end ();
-	 ++itFrom) {
-      os << ccId [*itFrom] << ", ";
-    }
-    os << std::endl;
-  }
-  os << std::endl;
-  os << "----------------" << std::endl;
-
-  return os;
-}
 

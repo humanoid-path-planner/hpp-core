@@ -115,6 +115,9 @@ namespace hpp {
       EdgePtr_t addEdge (const NodePtr_t& n1, const NodePtr_t& n2,
 			 const PathPtr_t& path);
 
+      /// Print roadmap in a stream
+      std::ostream& print (std::ostream& os) const;
+
     protected:
       /// Constructor
       /// \param distance distance function for nearest neighbor computations
@@ -170,7 +173,7 @@ namespace hpp {
       KDTree kdTree_;
 
     }; // class Roadmap
+    std::ostream& operator<< (std::ostream& os, const Roadmap& r);
   } //   namespace core
 } // namespace hpp
-std::ostream& operator<< (std::ostream& os, const hpp::core::Roadmap& r);
 #endif // HPP_CORE_ROADMAP_HH
