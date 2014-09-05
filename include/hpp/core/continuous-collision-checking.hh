@@ -25,6 +25,7 @@ namespace hpp {
   namespace core {
 
     using continuousCollisionChecking::BodyPairCollisionPtr_t;
+    typedef std::list <BodyPairCollisionPtr_t> BodyPairCollisions_t;
     /// Continuous validation of a path for collision
     class HPP_CORE_DLLAPI ContinuousCollisionChecking : public PathValidation
     {
@@ -61,7 +62,7 @@ namespace hpp {
     private:
       DevicePtr_t robot_;
       value_type tolerance_;
-      std::list <BodyPairCollisionPtr_t> bodyPairCollisions_;
+      BodyPairCollisions_t bodyPairCollisions_;
     }; // class ContinuousCollisionChecking
   } // namespace core
 } // namespace hpp
