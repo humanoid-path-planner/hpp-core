@@ -16,6 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <limits>
 #include <hpp/util/debug.hh>
 #include <hpp/core/continuous-collision-checking.hh>
 #include <hpp/core/straight-path.hh>
@@ -41,6 +42,43 @@ namespace hpp {
       assert (!bodyPair2->validSubset ().list ().empty ());
       return bodyPair1->validSubset ().list ().rbegin ()->first >
 	bodyPair2->validSubset ().list ().rbegin ()->first;
+    }
+    
+    // Compute last parameter that is collision free without tolerance
+    value_type computeLastValidParameter
+    (const BodyPairCollisions_t& bodyPairCollisions, bool reverse)
+    {
+      // For each pair, remove the interval range corresponding to penetration
+      // to the upper bound of the first interval and find the minimum of
+      // the resulting upper bounds.
+      if (reverse) {
+	value_type tmax = - std::numeric_limits <value_type>::infinity ();
+	for (BodyPairCollisions_t::const_iterator itPair =
+	       bodyPairCollisions.begin (); itPair != bodyPairCollisions.end ();
+	     ++itPair) {
+	  std::list <interval_t>::const_reverse_iterator itInterval =
+	    (*itPair)->validSubset ().list ().rbegin ();
+	  assert (itInterval != (*itPair)->validSubset ().list ().rend ());
+	  value_type t = itInterval->first +
+	    (*itPair)->tolerance () / (*itPair)->maximalVelocity ();
+	  if (t > tmax) tmax = t;
+	}
+	return tmax;
+      } else {
+	value_type tmin = std::numeric_limits <value_type>::infinity ();
+	for (BodyPairCollisions_t::const_iterator itPair =
+	       bodyPairCollisions.begin (); itPair != bodyPairCollisions.end ();
+	     ++itPair) {
+	  std::list <interval_t>::const_iterator itInterval =
+	    (*itPair)->validSubset ().list ().begin ();
+	  assert (itInterval != (*itPair)->validSubset ().list ().end ());
+	  value_type t = itInterval->second -
+	    (*itPair)->tolerance () / (*itPair)->maximalVelocity ();
+	  assert (t > 0);
+	  if (t < tmin) tmin = t;
+	}
+	return tmin;
+      }
     }
 
     // Partially sort a list where only the first element is not sorted
@@ -114,6 +152,7 @@ namespace hpp {
 	  if (first->validateInterval (middle)) {
 	    partialSort (bodyPairCollisions_, compareReverseBodyPairCol);
 	  } else {
+	    upper = computeLastValidParameter (bodyPairCollisions_, true);
 	    validPart = path->extract (interval_t (upper, t1));
 	    return false;
 	  }
@@ -130,8 +169,6 @@ namespace hpp {
 	    validPart = path->extract (interval_t (t0, t0));
 	    return false;
 	  }
-	  const continuousCollisionChecking::Intervals& intervals =
-	    (*itPair)->validSubset ();
 	  assert ((*itPair)->validSubset ().contains (t0));
 	}
 	// Sort collision pairs
@@ -156,6 +193,7 @@ namespace hpp {
 	  if (first->validateInterval (middle)) {
 	    partialSort (bodyPairCollisions_, compareBodyPairCol);
 	  } else {
+	    lower = computeLastValidParameter (bodyPairCollisions_, false);
 	    validPart = path->extract (interval_t (t0, lower));
 	    return false;
 	  }

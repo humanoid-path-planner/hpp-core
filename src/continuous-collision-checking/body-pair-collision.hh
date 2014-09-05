@@ -228,6 +228,16 @@ namespace hpp {
 	  return true;
 	}
 
+	value_type tolerance () const
+	{
+	  return tolerance_;
+	}
+
+	value_type maximalVelocity () const
+	{
+	  return maximalVelocity_;
+	}
+
       protected:
 	/// Constructor of inter-body collision checking
 	///
