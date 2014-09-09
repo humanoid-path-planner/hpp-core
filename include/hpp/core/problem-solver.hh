@@ -214,6 +214,12 @@ namespace hpp {
 			bool distance);
 
       const CollisionObjectPtr_t& obstacle (const std::string& name);
+
+      /// Return list of pair of distance computations
+      const DistanceBetweenObjectsPtr_t& distanceBetweenObjects () const
+      {
+	return distanceBetweenObjects_;
+      }
       /// \}
       
       /// Local vector of objects considered for collision detection
@@ -265,7 +271,8 @@ namespace hpp {
       size_type maxIterations_;
       /// Map of constraints
       DifferentiableFunctionMap_t NumericalConstraintMap_;
-
+      /// Computation of distances to obstacles
+      DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp

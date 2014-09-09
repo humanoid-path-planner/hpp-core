@@ -38,6 +38,15 @@ namespace hpp {
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
 			     bool report) = 0;
+
+      /// Add an obstacle
+      /// \param object obstacle added
+      /// \notice collision configuration validation needs to know about
+      /// obstacles. This virtual method does nothing for configuration
+      /// validation methods that do not care about obstacles.
+      virtual void addObstacle (const CollisionObjectPtr_t&)
+      {
+      }
     protected:
       ConfigValidation ()
       {

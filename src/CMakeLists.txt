@@ -30,6 +30,7 @@ SET(${LIBRARY_NAME}_SOURCES
   continuous-collision-checking.cc
   diffusing-planner.cc
   discretized-collision-checking.cc
+  distance-between-objects.cc
   extracted-path.hh
   joint-bound-validation.cc
   nearest-neighbor.hh

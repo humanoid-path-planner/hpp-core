@@ -20,6 +20,7 @@
 #include <hpp/model/collision-object.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
+#include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/random-shortcut.hh>
@@ -32,7 +33,7 @@ namespace hpp {
     // Struct that constructs an empty shared pointer to PathOptimizer.
     struct NoneOptimizer
     {
-      static PathOptimizerPtr_t create (const Problem& problem)
+      static PathOptimizerPtr_t create (const Problem&)
       {
 	return PathOptimizerPtr_t ();
       }
@@ -45,7 +46,8 @@ namespace hpp {
       pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (), obstacleLoaded_(false),
-      errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ ()
+      errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ (),
+      distanceBetweenObjects_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
@@ -141,7 +143,10 @@ namespace hpp {
       problem_->constraints (constraints_);
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
-      problem_->distanceObstacles(distanceObstacles_);
+      // Distance to obstacles
+      distanceBetweenObjects_ = DistanceBetweenObjectsPtr_t
+	(new DistanceBetweenObjects (robot_));
+      distanceBetweenObjects_->obstacles(distanceObstacles_);
     }
 
     void ProblemSolver::solve ()
@@ -183,7 +188,10 @@ namespace hpp {
       if (distance)
 	distanceObstacles_.push_back (object);
       if (problem ())
-        problem ()->addObstacle (object, collision, distance);
+        problem ()->addObstacle (object);
+      if (distanceBetweenObjects_) {
+	distanceBetweenObjects_->addObstacle (object);
+      }
       obstacleMap_ [object->name ()] = object;
     }
 

@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/model/device.hh>
+#include <hpp/core/collision-validation.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 
@@ -32,6 +33,12 @@ namespace hpp {
       return DiscretizedCollisionCheckingPtr_t (ptr);
     }
 
+    void DiscretizedCollisionChecking::addObstacle
+    (const CollisionObjectPtr_t& object)
+    {
+      collisionValidation_->addObstacle (object);
+    }
+
     bool DiscretizedCollisionChecking::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
@@ -44,9 +51,7 @@ namespace hpp {
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
-	  robot_->currentConfiguration (q);
-	  robot_->computeForwardKinematics ();
-	  if (robot_->collisionTest ()) {
+	  if (!collisionValidation_->validate (q)) {
 	    valid = false;
 	  } else {
 	    lastValidTime = t;
@@ -72,9 +77,7 @@ namespace hpp {
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
-	  robot_->currentConfiguration (q);
-	  robot_->computeForwardKinematics ();
-	  if (robot_->collisionTest ()) {
+	  if (!collisionValidation_->validate (q)) {
 	    valid = false;
 	  } else {
 	    lastValidTime = t;
@@ -97,7 +100,9 @@ namespace hpp {
 
     DiscretizedCollisionChecking::DiscretizedCollisionChecking
     (const DevicePtr_t& robot, const value_type& stepSize) :
-      PathValidation (), robot_ (robot), stepSize_ (stepSize)
+      PathValidation (), robot_ (robot),
+      collisionValidation_ (CollisionValidation::create (robot)),
+      stepSize_ (stepSize)
     {
     }
 

@@ -33,11 +33,15 @@ namespace hpp {
       create (const DevicePtr_t& robot, const value_type& stepSize);
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart);
+      /// Add an obstacle
+      /// \param object obstacle added
+      virtual void addObstacle (const CollisionObjectPtr_t&);
     protected:
       DiscretizedCollisionChecking (const DevicePtr_t& robot,
 				    const value_type& stepSize);
     private:
       DevicePtr_t robot_;
+      CollisionValidationPtr_t collisionValidation_;
       value_type stepSize_;
     }; // class DiscretizedCollisionChecking
   } // namespace core

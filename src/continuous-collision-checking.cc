@@ -239,26 +239,6 @@ namespace hpp {
 				       (itPair->first, itPair->second,
 					tolerance_));
       }
-      // For each joint, extract from the body the list of obstacles that
-      // not attached to a joint
-      ObjectVector_t objects;
-      for (JointVector_t::const_iterator itJoint =
-	     robot->getJointVector ().begin ();
-	   itJoint != robot->getJointVector ().end (); ++itJoint) {
-	BodyPtr_t body = (*itJoint)->linkedBody ();
-	if (body) {
-	  objects.clear ();
-	  for (ObjectVector_t::const_iterator itObj =
-		 body->outerObjects (model::COLLISION).begin ();
-	       itObj != body->outerObjects (model::COLLISION).end (); ++itObj) {
-	    if (!(*itObj)->joint () || (*itObj)->joint ()->robot () != robot) {
-	      objects.push_back (*itObj);
-	    }
-	  }
-	  bodyPairCollisions_.push_back (BodyPairCollision::create
-					 (*itJoint, objects, tolerance_));
-	}
-      }
     }
   } // namespace core
 } // namespace hpp

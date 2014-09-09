@@ -47,6 +47,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (DifferentiableFunction);
     HPP_PREDEF_CLASS (DiffusingPlanner);
     HPP_PREDEF_CLASS (Distance);
+    HPP_PREDEF_CLASS (DistanceBetweenObjects);
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
@@ -108,6 +109,10 @@ namespace hpp {
     typedef boost::shared_ptr <DiscretizedCollisionChecking>
     DiscretizedCollisionCheckingPtr_t;
     typedef boost::shared_ptr <Distance> DistancePtr_t;
+    typedef boost::shared_ptr <DistanceBetweenObjects>
+    DistanceBetweenObjectsPtr_t;
+    typedef model::DistanceResult DistanceResult;
+    typedef model::DistanceResults_t DistanceResults_t;
     typedef Edge* EdgePtr_t;
     typedef std::list <Edge*> Edges_t;
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
@@ -150,6 +155,11 @@ namespace hpp {
     typedef KDTree* KDTreePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
+    // Collision pairs
+    typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>
+    CollisionPair_t;
+    typedef std::list <CollisionPair_t> CollisionPairs_t;
+
 
     namespace continuousCollisionChecking {
       HPP_PREDEF_CLASS (BodyPairCollision);

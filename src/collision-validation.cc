@@ -16,8 +16,11 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/model/device.hh>
+#include <fcl/collision.h>
+#include <hpp/model/body.hh>
+#include <hpp/model/collision-object.hh>
 #include <hpp/model/configuration.hh>
+#include <hpp/model/device.hh>
 #include <hpp/core/collision-validation.hh>
 
 namespace hpp {
@@ -37,16 +40,44 @@ namespace hpp {
     {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
-      if (robot_->collisionTest ()) {
-	if (report) {
-	  std::ostringstream oss ("Configuration in collision: ");
-	  oss << displayConfig (config);
-	  throw std::runtime_error (oss.str ());
-	} else {
-	  return false;
+      bool collision = robot_->collisionTest ();
+      if (collision) return false;
+      fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true,
+					      fcl::GST_INDEP);
+      fcl::CollisionResult collisionResult;
+      for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
+	   itCol != collisionPairs_.end (); ++itCol) {
+	if (fcl::collide (itCol->first->fcl ().get (),
+			  itCol->second->fcl ().get (),
+			  collisionRequest, collisionResult) != 0) {
+	  collision = true;
+	  break;
 	}
       }
-      return true;
+      if (collision && report) {
+	std::ostringstream oss ("Configuration in collision: ");
+	oss << displayConfig (config);
+	throw std::runtime_error (oss.str ());
+      }
+      return !collision;
+    }
+
+    void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
+    {
+      using model::COLLISION;
+      const JointVector_t& jv = robot_->getJointVector ();
+      for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
+	   ++it) {
+	JointPtr_t joint = *it;
+	BodyPtr_t body = joint->linkedBody ();
+	if (body) {
+	  const ObjectVector_t& bodyObjects = body->innerObjects (COLLISION);
+	  for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
+	       itInner != bodyObjects.end (); ++itInner) {
+	    collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+	  }
+	}
+      }
     }
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :

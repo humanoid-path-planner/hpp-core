@@ -56,6 +56,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/diffusing-planner.hh
   include/hpp/core/discretized-collision-checking.hh
   include/hpp/core/distance.hh
+  include/hpp/core/distance-between-objects.hh
   include/hpp/core/edge.hh
   include/hpp/core/fwd.hh
   include/hpp/core/joint-bound-validation.hh

@@ -163,20 +163,11 @@ namespace hpp {
 
       /// Add obstacle to the list.
       /// \param object a new object.
-      /// \param collision whether collision checking should be performed
-      ///        for this object.
-      /// \param distance whether distance computation should be performed
-      ///        for this object.
-      void addObstacle (const CollisionObjectPtr_t& object, bool collision,
-			bool distance);
+      void addObstacle (const CollisionObjectPtr_t& object);
       /// Vector of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;
-      /// Vector of objects considered for distance computation
-      const ObjectVector_t& distanceObstacles () const;
       /// Set the vector of objects considered for collision detection
       void collisionObstacles (const ObjectVector_t& collisionObstacles);
-      /// Set the vector of objects considered for distance computation
-      void distanceObstacles (const ObjectVector_t& distanceObstacles);
       /// \}
 
     private :
@@ -196,8 +187,6 @@ namespace hpp {
       PathValidationPtr_t pathValidation_;
       /// List of obstacles
       ObjectVector_t collisionObstacles_;
-      /// List of obstacles
-      ObjectVector_t distanceObstacles_;
       /// Set of constraints applicable to the robot
       ConstraintSetPtr_t constraints_;
     }; // class Problem

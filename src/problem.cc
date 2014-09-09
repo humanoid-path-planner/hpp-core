@@ -40,7 +40,7 @@ namespace hpp {
       steeringMethod_ (new core::SteeringMethodStraight (robot)),
       configValidations_ (ConfigValidations::create ()),
       pathValidation_ (ContinuousCollisionChecking ::create (robot, 0.025)),
-      collisionObstacles_ (), distanceObstacles_ (), constraints_ ()
+      collisionObstacles_ (), constraints_ ()
     {
       configValidations_->add (CollisionValidation::create (robot));
       configValidations_->add (JointBoundValidation::create (robot));
@@ -89,63 +89,29 @@ namespace hpp {
 
     // ======================================================================
 
-    const ObjectVector_t& Problem::distanceObstacles () const
-    {
-      return distanceObstacles_;
-    }
-
-    // ======================================================================
-
     void Problem::collisionObstacles (const ObjectVector_t& collisionObstacles)
     {
-      // reset outerCollisionObjects from the Device :
-      for (ObjectVector_t::iterator itObj = collisionObstacles_.begin ();
-	   itObj != collisionObstacles_.end (); ++itObj) {
-	robot_->removeOuterObject (*itObj, true, false);
-      }
       collisionObstacles_.clear ();
       // pass the local vector of collisions object to the problem
       for (ObjectVector_t::const_iterator itObj = collisionObstacles.begin();
 	   itObj != collisionObstacles.end(); ++itObj) {
-	addObstacle (*itObj, true, false);
+	addObstacle (*itObj);
       }
     }
 
     // ======================================================================
 
-    /// Set the vector of objects considered for distance computation
-    void Problem::distanceObstacles (const ObjectVector_t& distanceObstacles)
-    {
-      // reset outerDistanceObjects from the Device :
-      for (ObjectVector_t::iterator itObj = distanceObstacles_.begin ();
-	   itObj != distanceObstacles_.end (); ++itObj) {
-	robot_->removeOuterObject (*itObj, false, true);
-      }
-      distanceObstacles_.clear ();
-      // pass the local vector of distances object to the problem
-      for (ObjectVector_t::const_iterator itObj = distanceObstacles.begin();
-	   itObj != distanceObstacles.end(); ++itObj) {
-	addObstacle (*itObj, false, true);
-      }
-    }
-
-    // ======================================================================
-
-    void Problem::addObstacle (const CollisionObjectPtr_t& object,
-			       bool collision, bool distance)
+    void Problem::addObstacle (const CollisionObjectPtr_t& object)
     {
       // Add object in local list
-      if (collision) {
-	collisionObstacles_.push_back (object);
-	// Add obstacle to path validation method
-	if (pathValidation_) {
-	  pathValidation_->addObstacle (object);
-	}
+      collisionObstacles_.push_back (object);
+      // Add obstacle to path validation method
+      if (pathValidation_) {
+	pathValidation_->addObstacle (object);
       }
-      if (distance)
-	distanceObstacles_.push_back (object);
-      // Add obstacle to robot
-      robot_->addOuterObject (object, collision, distance);
+      if (configValidations_) {
+	configValidations_->addObstacle (object);
+      }
     }
 
     // ======================================================================

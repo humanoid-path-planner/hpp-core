@@ -36,10 +36,16 @@ namespace hpp {
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
 			     bool report = false);
+
+      /// Add an obstacle
+      /// \param object obstacle added
+      /// Store obstacle and build a collision pair with each body of the robot.
+      virtual void addObstacle (const CollisionObjectPtr_t& object);
     protected:
       CollisionValidation (const DevicePtr_t& robot);
     private:
       DevicePtr_t robot_;
+      CollisionPairs_t collisionPairs_;
     }; // class ConfigValidation
   } // namespace core
 } // namespace hpp
