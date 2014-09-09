@@ -72,10 +72,12 @@ namespace hpp {
 	  std::list <interval_t>::const_iterator itInterval =
 	    (*itPair)->validSubset ().list ().begin ();
 	  assert (itInterval != (*itPair)->validSubset ().list ().end ());
-	  value_type t = itInterval->second -
-	    (*itPair)->tolerance () / (*itPair)->maximalVelocity ();
-	  assert (t > 0);
-	  if (t < tmin) tmin = t;
+	  if ((*itPair)->maximalVelocity () > 0) {
+	    value_type t = itInterval->second -
+	      (*itPair)->tolerance () / (*itPair)->maximalVelocity ();
+	    assert (t > (*itPair)->path ()->timeRange ().first);
+	    if (t < tmin) tmin = t;
+	  }
 	}
 	return tmin;
       }

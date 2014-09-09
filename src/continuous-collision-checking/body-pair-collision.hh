@@ -165,6 +165,12 @@ namespace hpp {
 	  intervals_.clear ();
 	}
 
+	/// Get path
+	PathConstPtr_t path () const
+	{
+	  return path_;
+	}
+
 	/// Return the valid subset of the path for this collision pair.
 	const Intervals& validSubset () const
 	{

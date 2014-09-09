@@ -126,6 +126,7 @@ namespace hpp {
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;
     typedef boost::shared_ptr <Path> PathPtr_t;
+    typedef boost::shared_ptr <const Path> PathConstPtr_t;
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
