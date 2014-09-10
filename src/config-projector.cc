@@ -228,7 +228,7 @@ namespace hpp {
 	std::numeric_limits<value_type>::infinity();
       // Fill value and Jacobian
       computeValueAndJacobian (configuration);
-      squareNorm_ = value_.squaredNorm ();
+      squareNorm_ = (value_ - offset_).squaredNorm ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
 	// Linearization of the system of equations
@@ -245,7 +245,7 @@ namespace hpp {
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration);
 	alpha = alphaMax - .8*(alphaMax - alpha);
-	squareNorm_ = value_.squaredNorm ();
+	squareNorm_ = (value_ - offset_).squaredNorm ();
 	hppDout (info, "squareNorm = " << squareNorm_);
 	--errorDecreased;
 	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
