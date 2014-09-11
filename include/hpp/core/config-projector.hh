@@ -22,6 +22,7 @@
 # include <roboptim/core/differentiable-function.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
+# include <hpp/core/inequality.hh>
 
 # include <hpp/statistics/success-bin.hh>
 
@@ -47,7 +48,11 @@ namespace hpp {
 					  size_type maxIterations);
 
       /// Add constraint
-      void addConstraint (const DifferentiableFunctionPtr_t& constraint);
+      /// \param constraint The function.
+      /// \param comp For equality constraint, keep the default value.
+      ///             For inequality constraint, it does a comparison to
+      ///             whether the constraint is active.
+      void addConstraint (const DifferentiableFunctionPtr_t& constraint, InequalityPtr_t comp = Equality::create());
 
       /// Get robot
       const DevicePtr_t& robot () const
@@ -160,13 +165,16 @@ namespace hpp {
       void normalToSmall (vectorIn_t normal, vectorOut_t small);
       struct FunctionValueAndJacobian_t {
 	FunctionValueAndJacobian_t (DifferentiableFunctionPtr_t f,
-				    vector_t v, matrix_t j): function (f),
-							     value (v),
-							     jacobian (j) {}
+				    vector_t v, matrix_t j, InequalityPtr_t c):
+                                              function (f),
+                                              value (v),
+                                              jacobian (j),
+                                              comp (c) {}
 
 	DifferentiableFunctionPtr_t function;
 	vector_t value;
 	matrix_t jacobian;
+        InequalityPtr_t comp;
       }; // struct FunctionValueAndJacobian_t
       typedef std::vector < FunctionValueAndJacobian_t > NumericalConstraints_t;
       void resize ();

@@ -70,6 +70,13 @@ namespace hpp {
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;
 
+    class Inequality;
+    typedef boost::shared_ptr <Inequality> InequalityPtr_t;
+    class InequalityRef;
+    typedef boost::shared_ptr <InequalityRef> InequalityRefPtr_t;
+    class Equality;
+    typedef boost::shared_ptr <Equality> EqualityPtr_t;
+
     // roboptim
     typedef roboptim::GenericFunctionTraits
     <roboptim::EigenMatrixDense>::value_type value_type;

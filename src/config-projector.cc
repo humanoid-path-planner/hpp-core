@@ -81,13 +81,13 @@ namespace hpp {
     }
 
     void ConfigProjector::addConstraint
-    (const DifferentiableFunctionPtr_t& constraint)
+    (const DifferentiableFunctionPtr_t& constraint, InequalityPtr_t comp)
     {
       vector_t value (constraint->outputSize ());
       matrix_t jacobian (constraint->outputSize (),
 			 robot_->numberDof ());
       constraints_.push_back (FunctionValueAndJacobian_t (constraint, value,
-							  jacobian));
+							  jacobian, comp));
       computeIntervals ();
       resize ();
     }
@@ -167,6 +167,7 @@ namespace hpp {
 	matrix_t& jacobian = itConstraint->jacobian;
 	f (value, configuration);
 	f.jacobian (jacobian, configuration);
+        (*(itConstraint->comp))(value, jacobian);
 	nbRows = f.outputSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
