@@ -59,26 +59,22 @@ namespace hpp {
 
     /// Implementation of Inequality that compare the value to
     /// a reference with the possibility of inverting axis.
-    class HPP_CORE_DLLAPI InequalityRef : public Inequality
+    class HPP_CORE_DLLAPI InequalityVector : public Inequality
     {
       public:
-        InequalityRef (size_type dim) :
-          ref_ (vector_t::Zero (dim)), invert_ (vector_t::Ones (dim))
+        InequalityVector (size_type dim) :
+          invert_ (vector_t::Ones (dim))
         {}
 
-        InequalityRef (const vector_t& ref) :
-          ref_ (ref), invert_ (vector_t::Ones (ref.size ()))
-        {}
-
-        InequalityRef (const vector_t& ref, const vector_t& invert) :
-          ref_ (ref), invert_ (invert)
+        InequalityVector (const vector_t& invert) :
+          invert_ (invert)
         {}
 
         virtual bool operator () (vector_t& value, matrix_t& jacobian) const
         {
           bool isActive = true;
-          for (size_type i = 0; i < ref_.size (); i++)
-            if (invert_[i] * (value[i] - ref_[i]) > 0) {
+          for (size_type i = 0; i < invert_.size (); i++)
+            if (invert_[i] * value[i]> 0) {
               value[i] = 0;
               jacobian.row (i).setZero ();
               isActive = false;
@@ -87,9 +83,6 @@ namespace hpp {
         }
 
       private:
-        /// The reference to which comparison is done
-        vector_t ref_;
-
         /// A vector of +/- 1 depending on whether the direction
         /// is inverted along the corresponding axis.
         vector_t invert_;

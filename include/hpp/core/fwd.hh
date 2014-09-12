@@ -72,8 +72,8 @@ namespace hpp {
 
     class Inequality;
     typedef boost::shared_ptr <Inequality> InequalityPtr_t;
-    class InequalityRef;
-    typedef boost::shared_ptr <InequalityRef> InequalityRefPtr_t;
+    class InequalityVector;
+    typedef boost::shared_ptr <InequalityVector> InequalityVectorPtr_t;
     class Equality;
     typedef boost::shared_ptr <Equality> EqualityPtr_t;
 

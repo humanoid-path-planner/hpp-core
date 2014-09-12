@@ -169,12 +169,12 @@ namespace hpp {
       /// Add an InequalityRef corresponding to the numerical constraint with the
       /// same name.
       /// \param name name of the inequality. Should correspond to a inequality constraint.
-      void addInequalityRef (const std::string& name, const vector_t& ref, const vector_t& invert)
+      void addInequalityVector (const std::string& name, const vector_t& invert)
       {
         DifferentiableFunctionPtr_t df = NumericalConstraintMap_ [name];
         if (!df)
           throw std::logic_error ("Numerical constraint not defined.");
-        InequalityRefPtr_t ir = InequalityRefPtr_t(new InequalityRef (ref, invert));
+        InequalityVectorPtr_t ir = InequalityVectorPtr_t(new InequalityVector (invert));
         inequalityMap_ [name] = ir;
       }
 
