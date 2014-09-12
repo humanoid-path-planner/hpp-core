@@ -150,7 +150,8 @@ namespace hpp {
       /// Build the config projector if not constructed
       virtual void addConstraintToConfigProjector (
                           const std::string& constraintName,
-                          const DifferentiableFunctionPtr_t& constraint);
+                          const DifferentiableFunctionPtr_t& constraint,
+                          const InequalityPtr_t comp = Equality::create ());
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
@@ -163,6 +164,26 @@ namespace hpp {
 				   constraint)
       {
 	NumericalConstraintMap_ [name] = constraint;
+      }
+
+      /// Add an InequalityRef corresponding to the numerical constraint with the
+      /// same name.
+      /// \param name name of the inequality. Should correspond to a inequality constraint.
+      void addInequalityRef (const std::string& name, const vector_t& ref, const vector_t& invert)
+      {
+        DifferentiableFunctionPtr_t df = NumericalConstraintMap_ [name];
+        if (!df)
+          throw std::logic_error ("Numerical constraint not defined.");
+        InequalityRefPtr_t ir = InequalityRefPtr_t(new InequalityRef (ref, invert));
+        inequalityMap_ [name] = ir;
+      }
+
+      InequalityPtr_t inequality (const std::string& name) const
+      {
+        InequalityMap_t::const_iterator it = inequalityMap_.find (name);
+        if (it == inequalityMap_.end ())
+          return Equality::create ();
+        return it->second;
       }
 
       /// Get constraint with given name
@@ -349,6 +370,8 @@ namespace hpp {
       size_type maxIterations_;
       /// Map of constraints
       DifferentiableFunctionMap_t NumericalConstraintMap_;
+      /// Map of inequality
+      InequalityMap_t inequalityMap_;
       /// Computation of distances to obstacles
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
     }; // class ProblemSolver

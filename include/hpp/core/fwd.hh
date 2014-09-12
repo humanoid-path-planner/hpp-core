@@ -161,6 +161,9 @@ namespace hpp {
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
+    typedef std::map <std::string, InequalityPtr_t>
+    InequalityMap_t;
+
     // Collision pairs
     typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>
     CollisionPair_t;

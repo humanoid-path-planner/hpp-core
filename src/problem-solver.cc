@@ -159,7 +159,8 @@ namespace hpp {
 
     void ProblemSolver::addConstraintToConfigProjector(
                           const std::string& constraintName,
-                          const DifferentiableFunctionPtr_t& constraint)
+                          const DifferentiableFunctionPtr_t& constraint,
+                          const InequalityPtr_t comp)
     {
       if (!robot_) {
 	hppDout (error, "Cannot add constraint while robot is not set");
@@ -170,7 +171,7 @@ namespace hpp {
 	  (robot_, constraintName, errorThreshold_, maxIterations_);
 	constraints_->addConstraint (configProjector);
       }
-      configProjector->addConstraint (constraint);
+      configProjector->addConstraint (constraint, comp);
     }
 
     void ProblemSolver::resetProblem ()
