@@ -181,15 +181,17 @@ namespace hpp {
 	  // Get configuration of robot corresponding to parameter
 	  Configuration_t q = (*path_) (t);
 	  // Compute position of joint a in frame of common ancestor
-	  model::Transform3f Ma;
+	  model::Transform3f Ma, tmp;
 	  for (int i = indexCommonAncestor_ - 1; i >= 0; --i) {
-	    joints_ [(std::size_t)i]->computePosition (q, Ma, Ma);
+	    joints_ [(std::size_t)i]->computePosition (q, Ma, tmp);
+	    Ma = tmp;
 	  }
 	  // Compute position of joint b in frame of common ancestor
 	  model::Transform3f Mb;
 	  for (std::size_t i = indexCommonAncestor_ + 1; i < joints_.size ();
 	       ++i) {
-	    joints_ [i]->computePosition (q, Mb, Mb);
+	    joints_ [i]->computePosition (q, Mb, tmp);
+	    Mb = tmp;
 	  }
 	  value_type distanceLowerBound =
 	    numeric_limits <value_type>::infinity ();
