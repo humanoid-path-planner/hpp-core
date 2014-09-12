@@ -27,7 +27,7 @@ namespace hpp {
     /// used to compare two vector.
     /// They are used in ConfigProjector to implement inequality
     /// constraint.
-    class Inequality 
+    class HPP_CORE_DLLAPI Inequality
     {
       public:
         /// Return the result of the comparison.
@@ -38,7 +38,7 @@ namespace hpp {
     };
 
     /// Implement the comparison for equality constraint.
-    class Equality : public Inequality
+    class HPP_CORE_DLLAPI Equality : public Inequality
     {
       public:
         /// \return Always true.
@@ -54,13 +54,12 @@ namespace hpp {
           return unique_;
         }
 
-      private:
         static EqualityPtr_t unique_;
     };
 
     /// Implementation of Inequality that compare the value to
     /// a reference with the possibility of inverting axis.
-    class InequalityRef : public Inequality
+    class HPP_CORE_DLLAPI InequalityRef : public Inequality
     {
       public:
         InequalityRef (size_type dim) :
