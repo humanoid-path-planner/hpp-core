@@ -46,6 +46,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/collision-validation.hh
   include/hpp/core/configuration-shooter.hh
   include/hpp/core/config-projector.hh
+  include/hpp/core/inequality.hh
   include/hpp/core/config-validation.hh
   include/hpp/core/config-validations.hh
   include/hpp/core/connected-component.hh

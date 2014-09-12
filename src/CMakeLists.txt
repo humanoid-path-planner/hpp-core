@@ -23,6 +23,7 @@ SET(${LIBRARY_NAME}_SOURCES
   astar.hh
   collision-validation.cc
   config-projector.cc
+  inequality.cc
   config-validations.cc
   connected-component.cc
   constraint.cc
