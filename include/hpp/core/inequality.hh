@@ -63,29 +63,41 @@ namespace hpp {
     {
       public:
         InequalityVector (size_type dim) :
-          invert_ (vector_t::Ones (dim))
+          invert_ (vector_t::Ones (dim)), threshold_ (1e-4)
         {}
 
         InequalityVector (const vector_t& invert) :
-          invert_ (invert)
+          invert_ (invert), threshold_ (1e-4)
         {}
 
         virtual bool operator () (vector_t& value, matrix_t& jacobian) const
         {
-          bool isActive = true;
-          for (size_type i = 0; i < invert_.size (); i++)
-            if (invert_[i] * value[i]> 0) {
+          bool isPassive = true;
+          for (size_type i = 0; i < invert_.size (); i++) {
+            if (invert_[i] * value[i] <= 0) {
+              value[i] = 2*value[i] - invert_[i] * threshold_;
+              isPassive = false;
+            } else if (invert_[i] * (value[i] - threshold_) < 0) {
+              value[i] -= invert_[i] * threshold_;
+            } else {
               value[i] = 0;
               jacobian.row (i).setZero ();
-              isActive = false;
             }
-          return isActive;
+          }
+          return !isPassive;
+        }
+
+        void threshold (const value_type& t)
+        {
+          threshold_ = t;
         }
 
       private:
         /// A vector of +/- 1 depending on whether the direction
         /// is inverted along the corresponding axis.
         vector_t invert_;
+
+        value_type threshold_;
     };
   } // namespace core
 } // namespace hpp
