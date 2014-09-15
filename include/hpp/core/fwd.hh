@@ -160,6 +160,8 @@ namespace hpp {
     namespace continuousCollisionChecking {
       HPP_PREDEF_CLASS (Dichotomy);
       typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
+      HPP_PREDEF_CLASS (Progressive);
+      typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
     } // namespace continuousCollisionChecking
 
   } // namespace core

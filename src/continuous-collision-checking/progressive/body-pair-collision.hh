@@ -16,8 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_CONT_COLLISION_CHECKING_DICHOTOMY_BODY_PAIR_COLLISION_HH
-# define HPP_CORE_CONT_COLLISION_CHECKING_DICHOTOMY_BODY_PAIR_COLLISION_HH
+#ifndef HPP_CORE_CONT_COLLISION_CHECKING_PROGRESSIVE_BODY_PAIR_COLLISION_HH
+# define HPP_CORE_CONT_COLLISION_CHECKING_PROGRESSIVE_BODY_PAIR_COLLISION_HH
 
 # include <limits>
 # include <iterator>
@@ -35,7 +35,7 @@
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
-      namespace dichotomy {
+      namespace progressive {
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
 	using model::JointPtr_t;
@@ -53,32 +53,6 @@ namespace hpp {
 	using model::JointAnchorConstPtr_t;
 	using model::Transform3f;
 
-	struct Object
-	{
-	  Object (const CollisionObjectPtr_t& collisionObject) :
-	    fcl_ (collisionObject->fcl ()),
-	    positionInJointFrame_ (collisionObject->positionInJointFrame ()),
-	    name_ (collisionObject->name ())
-	  {
-	  }
-	  fcl::CollisionObjectPtr_t fcl_;
-	  Transform3f positionInJointFrame_;
-	  std::string name_;
-	}; // struct Object
-
-	typedef std::vector <Object> Objects_t;
-
-	Objects_t store (const ObjectVector_t& collisionObjects)
-	{
-	  // Pre-allocate memory
-	  Objects_t result;
-	  result.reserve (collisionObjects.size ());
-	  for (ObjectVector_t::const_iterator itObj = collisionObjects.begin ();
-	       itObj != collisionObjects.end (); ++itObj) {
-	    result.push_back (Object (*itObj));
-	  }
-	  return result;
-	}
 	/// Multiplicative coefficients of linear and angular velocities
 	struct CoefficientVelocity
 	{
@@ -160,13 +134,19 @@ namespace hpp {
 
 	  /// Set path to validate
 	  /// \param path path to validate,
+	  /// \param reverse whether path is validated from end to beginning.
 	  /// Compute maximal velocity of point of body a in frame of body b
 	  /// along the path.
-	  void path (const StraightPathPtr_t& path)
+	  void path (const StraightPathPtr_t& path, bool reverse)
 	  {
 	    path_ = path;
 	    computeMaximalVelocity ();
 	    intervals_.clear ();
+	    reverse_ = reverse;
+	    if (reverse)
+	      lastValidParam_ = path->timeRange ().second;
+	    else
+	      lastValidParam_ = path->timeRange ().first;
 	  }
 
 	  /// Get path
@@ -189,32 +169,17 @@ namespace hpp {
 	  {
 	    using std::numeric_limits;
 	    // Get configuration of robot corresponding to parameter
-	    Configuration_t q = (*path_) (t);
-	    // Compute position of joint a in frame of common ancestor
-	    model::Transform3f Ma, tmp;
-	    for (int i = indexCommonAncestor_ - 1; i >= 0; --i) {
-	      joints_ [(std::size_t)i]->computePosition (q, Ma, tmp);
-	      Ma = tmp;
-	    }
-	    // Compute position of joint b in frame of common ancestor
-	    model::Transform3f Mb;
-	    for (std::size_t i = indexCommonAncestor_ + 1; i < joints_.size ();
-		 ++i) {
-	      joints_ [i]->computePosition (q, Mb, tmp);
-	      Mb = tmp;
-	    }
+	    assert ((*path_) (t) == robot_->getCurrentConfig ());
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
-	    for (Objects_t::const_iterator ita = objects_a_.begin ();
+	    for (ObjectVector_t::const_iterator ita = objects_a_.begin ();
 		 ita != objects_a_.end (); ++ita) {
 	      // Compute position of object a
 	      fcl::CollisionObject* object_a = ita->fcl_.get ();
-	      object_a->setTransform (Ma * ita->positionInJointFrame_);
-	      for (Objects_t::const_iterator itb = objects_b_.begin ();
+	      for (ObjectVector_t::const_iterator itb = objects_b_.begin ();
 		   itb != objects_b_.end (); ++itb) {
 		// Compute position of object b
 		fcl::CollisionObject* object_b = itb->fcl_.get ();
-		object_b->setTransform (Mb * itb->positionInJointFrame_);
 		// Perform collision test
 		fcl::CollisionRequest request (1, false, true, 1, false, true,
 					       fcl::GST_INDEP);
@@ -237,6 +202,17 @@ namespace hpp {
 	    assert (!isnan (halfLength));
 	    intervals_.unionInterval
 	      (interval_t(t - halfLength, t + halfLength));
+	    if (reverse_) {
+	      value_type lastValid = t + distanceLowerBound/maximalVelocity_;
+	      if (lastValid > lastValidParam_) {
+		lastValidParam_ = lastValid;
+	      }
+	    } else {
+	      value_type lastValid = t - distanceLowerBound/maximalVelocity_;
+	      if (lastValid < lastValidParam_) {
+		lastValidParam_ = lastValid;
+	      }
+	    }
 	    return true;
 	  }
 
@@ -248,6 +224,10 @@ namespace hpp {
 	  value_type maximalVelocity () const
 	  {
 	    return maximalVelocity_;
+	  }
+
+	  value_type lastValidParameter () const {
+	    return lastValidParam_;
 	  }
 
 	protected:
@@ -262,7 +242,7 @@ namespace hpp {
 	    joint_a_ (joint_a), joint_b_ (joint_b), objects_a_ (),
 	    objects_b_ (), joints_ (),
 	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
-	    tolerance_ (tolerance)
+	    tolerance_ (tolerance), lastValidParam_ (0), reverse_ (false)
 	  {
 	    assert (joint_a);
 	    assert (joint_b);
@@ -270,8 +250,8 @@ namespace hpp {
 	    BodyPtr_t body_b = joint_b_->linkedBody ();
 	    assert (body_a);
 	    assert (body_b);
-	    objects_a_ = store (body_a->innerObjects (model::COLLISION));
-	    objects_b_ = store (body_b->innerObjects (model::COLLISION));
+	    objects_a_ = body_a->innerObjects (model::COLLISION);
+	    objects_b_ = body_b->innerObjects (model::COLLISION);
 
 	    if (joint_b_->robot () != joint_a_->robot ()) {
 	      throw std::runtime_error
@@ -298,22 +278,20 @@ namespace hpp {
 	  BodyPairCollision (const JointConstPtr_t& joint_a,
 			     const ObjectVector_t& objects_b,
 			     value_type tolerance) :
-	    joint_a_ (joint_a), joint_b_ (), objects_a_ (), objects_b_ (),
-	    joints_ (),
+	    joint_a_ (joint_a), joint_b_ (), objects_a_ (),
+	    objects_b_ (objects_b), joints_ (),
 	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
-	    tolerance_ (tolerance)
+	    tolerance_ (tolerance), lastValidParam_ (0), reverse_ (false)
 	  {
 	    assert (joint_a);
 	    BodyPtr_t body_a = joint_a_->linkedBody ();
 	    assert (body_a);
-	    objects_a_ = store (body_a->innerObjects (model::COLLISION));
+	    objects_a_ = body_a->innerObjects (model::COLLISION);
 	    for (ObjectVector_t::const_iterator it = objects_b.begin ();
 		 it != objects_b.end (); ++it) {
 	      assert (!(*it)->joint () ||
 		      (*it)->joint ()->robot () != joint_a_->robot ());
 	    }
-	    objects_b_ = store (objects_b);
-
 	    if (tolerance < 0) {
 	      throw std::runtime_error ("tolerance should be non-negative.");
 	    }
@@ -439,8 +417,8 @@ namespace hpp {
 
 	  JointConstPtr_t joint_a_;
 	  JointConstPtr_t joint_b_;
-	  Objects_t objects_a_;
-	  Objects_t objects_b_;
+	  ObjectVector_t objects_a_;
+	  ObjectVector_t objects_b_;
 	  std::vector <JointConstPtr_t> joints_;
 	  std::size_t indexCommonAncestor_;
 	  std::vector <CoefficientVelocity> coefficients_;
@@ -448,9 +426,11 @@ namespace hpp {
 	  value_type maximalVelocity_;
 	  Intervals intervals_;
 	  value_type tolerance_;
+	  value_type lastValidParam_;
+	  bool reverse_;
 	}; // class BodyPairCollision
-      } // namespace dichotomy
+      } // namespace progressive
     } // namespace continuousCollisionChecking
   } // namespace core
 } // namespace hpp
-#endif // HPP_CORE_CONT_COLLISION_CHECKING_DICHOTOMY_BODY_PAIR_COLLISION_HH
+#endif // HPP_CORE_CONT_COLLISION_CHECKING_PROGRESSIVE_BODY_PAIR_COLLISION_HH

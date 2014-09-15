@@ -39,7 +39,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       steeringMethod_ (new core::SteeringMethodStraight (robot)),
       configValidations_ (ConfigValidations::create ()),
-      pathValidation_ (continuousCollisionChecking::Dichotomy::create
+      pathValidation_ (continuousCollisionChecking::Progressive::create
 		       (robot, 0.)),
       collisionObstacles_ (), constraints_ ()
     {
