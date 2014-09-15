@@ -43,7 +43,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (ConnectedComponent);
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
-    HPP_PREDEF_CLASS (ContinuousCollisionChecking);
     HPP_PREDEF_CLASS (DifferentiableFunction);
     HPP_PREDEF_CLASS (DiffusingPlanner);
     HPP_PREDEF_CLASS (Distance);
@@ -97,8 +96,6 @@ namespace hpp {
     typedef std::set <ConnectedComponentPtr_t> ConnectedComponents_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
-    typedef boost::shared_ptr <ContinuousCollisionChecking>
-    ContinuousCollisionCheckingPtr_t;
     typedef model::Device Device_t;
     typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr_t DeviceWkPtr_t;
@@ -160,11 +157,11 @@ namespace hpp {
     CollisionPair_t;
     typedef std::list <CollisionPair_t> CollisionPairs_t;
 
-
     namespace continuousCollisionChecking {
-      HPP_PREDEF_CLASS (BodyPairCollision);
-      typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
+      HPP_PREDEF_CLASS (Dichotomy);
+      typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
     } // namespace continuousCollisionChecking
+
   } // namespace core
 } // namespace hpp
 

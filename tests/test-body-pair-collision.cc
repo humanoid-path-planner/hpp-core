@@ -26,7 +26,7 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
-#include "../src/continuous-collision-checking/body-pair-collision.hh"
+#include "../src/continuous-collision-checking/dichotomy/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
 
 using std::numeric_limits;
@@ -38,8 +38,8 @@ using hpp::model::DevicePtr_t;
 using hpp::model::JointPtr_t;
 using hpp::model::JointConstPtr_t;
 using hpp::model::ObjectVector_t;
-using hpp::core::continuousCollisionChecking::BodyPairCollision;
-using hpp::core::continuousCollisionChecking::BodyPairCollisionPtr_t;
+using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollision;
+using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollisionPtr_t;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 

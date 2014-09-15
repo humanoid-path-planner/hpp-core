@@ -27,7 +27,8 @@ SET(${LIBRARY_NAME}_SOURCES
   connected-component.cc
   constraint.cc
   constraint-set.cc
-  continuous-collision-checking.cc
+  continuous-collision-checking/dichotomy.cc
+  continuous-collision-checking/dichotomy/body-pair-collision.hh
   diffusing-planner.cc
   discretized-collision-checking.cc
   distance-between-objects.cc
