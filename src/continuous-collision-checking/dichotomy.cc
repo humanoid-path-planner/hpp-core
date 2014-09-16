@@ -29,6 +29,7 @@ namespace hpp {
 
       using dichotomy::BodyPairCollision;
       using dichotomy::BodyPairCollisionPtr_t;
+      using dichotomy::BodyPairCollisions_t;
 
       bool compareBodyPairCol (const BodyPairCollisionPtr_t& bodyPair1,
 			       const BodyPairCollisionPtr_t& bodyPair2)
@@ -47,7 +48,7 @@ namespace hpp {
 	return bodyPair1->validSubset ().list ().rbegin ()->first >
 	  bodyPair2->validSubset ().list ().rbegin ()->first;
       }
-    
+
       // Compute last parameter that is collision free without tolerance
       value_type computeLastValidParameter
       (const BodyPairCollisions_t& bodyPairCollisions, bool reverse)
@@ -89,11 +90,11 @@ namespace hpp {
 
       // Partially sort a list where only the first element is not sorted
       template <typename Compare>
-      void partialSort (std::list <BodyPairCollisionPtr_t>& list, Compare comp)
+      void partialSort (BodyPairCollisions_t& list, Compare comp)
       {
-	std::list <BodyPairCollisionPtr_t>::iterator it1 = list.begin ();
+	BodyPairCollisions_t::iterator it1 = list.begin ();
 	if (it1 == list.end ()) return;
-	std::list <BodyPairCollisionPtr_t>::iterator it2 = it1; ++it2;
+	BodyPairCollisions_t::iterator it2 = it1; ++it2;
 	while (it2 != list.end ()) {
 	  if (comp (*it2, *it1))
 	    std::iter_swap (it1, it2);
@@ -101,7 +102,7 @@ namespace hpp {
 	    return;
 	  it1 = it2;
 	  ++it2;
-	}      
+	}
       }
       DichotomyPtr_t
       Dichotomy::create (const DevicePtr_t& robot, const value_type& tolerance)
@@ -123,7 +124,7 @@ namespace hpp {
 	value_type t0 = path->timeRange ().first;
 	value_type t1 = path->timeRange ().second;
 	if (reverse) {
-	  for (std::list <BodyPairCollisionPtr_t>::iterator itPair =
+	  for (BodyPairCollisions_t::iterator itPair =
 		 bodyPairCollisions_.begin ();
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath);
@@ -164,7 +165,7 @@ namespace hpp {
 	    first = *(bodyPairCollisions_.begin ());
 	  }
 	} else {
-	  for (std::list <BodyPairCollisionPtr_t>::iterator itPair =
+	  for (BodyPairCollisions_t::iterator itPair =
 		 bodyPairCollisions_.begin ();
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath);
@@ -213,7 +214,7 @@ namespace hpp {
       void Dichotomy::addObstacle
       (const CollisionObjectPtr_t& object)
       {
-	for (std::list <BodyPairCollisionPtr_t>::iterator itPair =
+	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
 	  if (!(*itPair)->joint_b ()) {
