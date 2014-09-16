@@ -376,6 +376,7 @@ namespace hpp {
 	DifferentiableFunction& f = *(itConstraint->function);
 	vector_t& value = itConstraint->value;
 	f (value, config);
+        (*(itConstraint->comp))(value, itConstraint->jacobian);
 	nbRows = f.outputSize ();
 	value_.segment (row, nbRows) = value;
 	row += nbRows;
