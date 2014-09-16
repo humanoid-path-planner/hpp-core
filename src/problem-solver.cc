@@ -195,6 +195,17 @@ namespace hpp {
       obstacleMap_ [object->name ()] = object;
     }
 
+    void ProblemSolver::removeObstacleFromJoint
+    (const std::string& obstacleName, const std::string& jointName)
+    {
+      if (!robot_) {
+	throw std::runtime_error ("No robot defined.");
+      }
+      JointPtr_t joint = robot_->getJointByName (jointName);
+      const CollisionObjectPtr_t& object = obstacle (obstacleName);
+      problem ()->removeObstacleFromJoint (joint, object);
+    }
+
     const CollisionObjectPtr_t& ProblemSolver::obstacle
     (const std::string& name)
     {

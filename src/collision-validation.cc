@@ -80,6 +80,21 @@ namespace hpp {
       }
     }
 
+    void CollisionValidation::removeObstacleFromJoint
+    (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+    {
+      using model::COLLISION;
+      BodyPtr_t body = joint->linkedBody ();
+      if (body) {
+	const ObjectVector_t& bodyObjects = body->innerObjects (COLLISION);
+	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
+	     itInner != bodyObjects.end (); ++itInner) {
+	  CollisionPair_t colPair (*itInner, obstacle);
+	  collisionPairs_.remove (colPair);
+	}
+      }
+    }
+
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
       robot_ (robot)
     {

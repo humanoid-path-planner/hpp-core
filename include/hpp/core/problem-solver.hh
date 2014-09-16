@@ -109,10 +109,10 @@ namespace hpp {
       {
 	return roadmap_;
       }
-      
+
       /// \name Constraints
       /// \{
-      
+
       /// Add a constraint
       void addConstraint (const ConstraintPtr_t& constraint);
 
@@ -213,6 +213,12 @@ namespace hpp {
       void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
 
+      /// Remove collision pair between a joint and an obstacle
+      /// \param jointName name of the joint,
+      /// \param obstacleName name of the obstacle
+      void removeObstacleFromJoint (const std::string& jointName,
+				    const std::string& obstacleName);
+
       const CollisionObjectPtr_t& obstacle (const std::string& name);
 
       /// Return list of pair of distance computations
@@ -221,7 +227,7 @@ namespace hpp {
 	return distanceBetweenObjects_;
       }
       /// \}
-      
+
       /// Local vector of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;
       /// Local vector of objects considered for distance computation

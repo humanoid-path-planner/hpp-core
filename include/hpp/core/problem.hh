@@ -164,6 +164,12 @@ namespace hpp {
       /// Add obstacle to the list.
       /// \param object a new object.
       void addObstacle (const CollisionObjectPtr_t& object);
+      /// Remove a collision pair between a joint and an obstacle
+      /// \param the joint that holds the inner objects,
+      /// \param the obstacle to remove.
+      void removeObstacleFromJoint (const JointPtr_t& joint,
+				    const CollisionObjectPtr_t& obstacle);
+
       /// Vector of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;
       /// Set the vector of objects considered for collision detection

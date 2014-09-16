@@ -223,6 +223,22 @@ namespace hpp {
 	}
       }
 
+      void Dichotomy::removeObstacleFromJoint
+      (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+      {
+	for (BodyPairCollisions_t::iterator itPair =
+	       bodyPairCollisions_.begin ();
+	     itPair != bodyPairCollisions_.end (); ++itPair) {
+	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
+	    (*itPair)->removeObjectTo_b (obstacle);
+	    if ((*itPair)->objects_b ().empty ()) {
+	      bodyPairCollisions_.erase (itPair);
+	    }
+	    return;
+	  }
+	}
+      }
+
       Dichotomy::~Dichotomy ()
       {
       }

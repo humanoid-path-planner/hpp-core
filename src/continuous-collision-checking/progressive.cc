@@ -184,11 +184,31 @@ namespace hpp {
       void Progressive::addObstacle
       (const CollisionObjectPtr_t& object)
       {
-	for (std::list <BodyPairCollisionPtr_t>::iterator itPair =
+	const JointVector_t& jv = robot_->getJointVector ();
+	for (JointVector_t::const_iterator itJoint = jv.begin ();
+	     itJoint != jv.end (); ++itJoint) {
+	  BodyPtr_t body = (*itJoint)->linkedBody ();
+	  if (body) {
+	    ObjectVector_t objects;
+	    objects.push_back (object);
+	    bodyPairCollisions_.push_back
+	      (BodyPairCollision::create (*itJoint, objects, tolerance_));
+	  }
+	}
+      }
+
+      void Progressive::removeObstacleFromJoint
+      (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+      {
+	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  if (!(*itPair)->joint_b ()) {
-	    (*itPair)->addObjectTo_b (object);
+	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
+	    (*itPair)->removeObjectTo_b (obstacle);
+	    if ((*itPair)->objects_b ().empty ()) {
+	      bodyPairCollisions_.erase (itPair);
+	    }
+	    return;
 	  }
 	}
       }

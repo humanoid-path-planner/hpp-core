@@ -48,14 +48,23 @@ namespace hpp {
 	/// \return whether the whole path is valid.
 	virtual bool validate (const PathPtr_t& path, bool reverse,
 			       PathPtr_t& validPart);
-	
+
 	/// Add an obstacle
 	/// \param object obstacle added
 	/// Add the object to each collision pair a body of which is the
 	/// environment.
 	/// care about obstacles.
 	virtual void addObstacle (const CollisionObjectPtr_t& object);
-	
+
+	/// Remove a collision pair between a joint and an obstacle
+	/// \param the joint that holds the inner objects,
+	/// \param the obstacle to remove.
+	/// \notice collision configuration validation needs to know about
+	/// obstacles. This virtual method does nothing for configuration
+	/// validation methods that do not care about obstacles.
+	virtual void removeObstacleFromJoint
+	  (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+
 	virtual ~Dichotomy ();
       protected:
 	/// Constructor

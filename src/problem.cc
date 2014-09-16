@@ -117,6 +117,19 @@ namespace hpp {
 
     // ======================================================================
 
+    void Problem::removeObstacleFromJoint (const JointPtr_t& joint,
+					   const CollisionObjectPtr_t& obstacle)
+    {
+      if (pathValidation_) {
+	pathValidation_->removeObstacleFromJoint (joint, obstacle);
+      }
+      if (configValidations_) {
+	configValidations_->removeObstacleFromJoint (joint, obstacle);
+      }
+    }
+
+    // ======================================================================
+
     void Problem::checkProblem () const
     {
       if (!robot ()) {
