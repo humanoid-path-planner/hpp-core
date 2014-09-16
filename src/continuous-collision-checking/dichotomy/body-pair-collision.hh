@@ -66,13 +66,12 @@ namespace hpp {
 	  std::string name_;
 	}; // struct Object
 
-	typedef std::vector <Object> Objects_t;
+	typedef std::list <Object> Objects_t;
 
 	Objects_t store (const ObjectVector_t& collisionObjects)
 	{
 	  // Pre-allocate memory
 	  Objects_t result;
-	  result.reserve (collisionObjects.size ());
 	  for (ObjectVector_t::const_iterator itObj = collisionObjects.begin ();
 	       itObj != collisionObjects.end (); ++itObj) {
 	    result.push_back (Object (*itObj));
@@ -156,6 +155,22 @@ namespace hpp {
 		 " to add it to a collision pair.");
 	    }
 	    objects_b_.push_back (object);
+	  }
+
+	  const Objects_t& objects_b  () const
+	  {
+	    return objects_b_;
+	  }
+
+	  void removeObjectTo_b (const CollisionObjectPtr_t& object)
+	  {
+	    for (Objects_t::iterator itObj = objects_b_.begin ();
+		 itObj != objects_b_.end (); ++itObj) {
+	      if (object->fcl () == itObj->fcl_) {
+		objects_b_.erase (itObj);
+		return;
+	      }
+	    }
 	  }
 
 	  /// Set path to validate
