@@ -26,7 +26,7 @@ namespace hpp {
       ConfigValidations* ptr = new ConfigValidations;
       return ConfigValidationsPtr_t (ptr);
     }
-    
+
     bool ConfigValidations::validate (const Configuration_t& config,
 				      bool report)
     {
@@ -44,7 +44,15 @@ namespace hpp {
       validations_.push_back (configValidation);
     }
 
-    ConfigValidations::ConfigValidations ()
+    void ConfigValidations::addObstacle (const CollisionObjectPtr_t& object)
+    {
+      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
+	     validations_.begin (); itVal != validations_.end (); ++itVal) {
+	(*itVal)->addObstacle (object);
+      }
+    }
+
+    ConfigValidations::ConfigValidations () : validations_ ()
     {
     }
 

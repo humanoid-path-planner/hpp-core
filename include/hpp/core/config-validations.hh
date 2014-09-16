@@ -38,6 +38,11 @@ namespace hpp {
 			     bool report = false);
       /// Add a configuration validation object
       void add (const ConfigValidationPtr_t& configValidation);
+
+      /// Add an obstacle
+      /// \param object obstacle added
+      /// Store obstacle and build a collision pair with each body of the robot.
+      virtual void addObstacle (const CollisionObjectPtr_t& object);
     protected:
       ConfigValidations ();
     private:
