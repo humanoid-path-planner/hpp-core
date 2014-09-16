@@ -132,6 +132,22 @@ namespace hpp {
 	    objects_b_.push_back (object);
 	  }
 
+	  const ObjectVector_t& objects_b  () const
+	  {
+	    return objects_b_;
+	  }
+
+	  void removeObjectTo_b (const CollisionObjectPtr_t& object)
+	  {
+	    for (ObjectVector_t::iterator itObj = objects_b_.begin ();
+		 itObj != objects_b_.end (); ++itObj) {
+	      if (object == *itObj) {
+		objects_b_.erase (itObj);
+		return;
+	      }
+	    }
+	  }
+
 	  /// Set path to validate
 	  /// \param path path to validate,
 	  /// \param reverse whether path is validated from end to beginning.
@@ -143,10 +159,6 @@ namespace hpp {
 	    computeMaximalVelocity ();
 	    intervals_.clear ();
 	    reverse_ = reverse;
-	    if (reverse)
-	      lastValidParam_ = path->timeRange ().second;
-	    else
-	      lastValidParam_ = path->timeRange ().first;
 	  }
 
 	  /// Get path
@@ -168,25 +180,27 @@ namespace hpp {
 	  bool validateInterval (const value_type& t)
 	  {
 	    using std::numeric_limits;
-	    // Get configuration of robot corresponding to parameter
-	    assert ((*path_) (t) == robot_->getCurrentConfig ());
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
 	    for (ObjectVector_t::const_iterator ita = objects_a_.begin ();
 		 ita != objects_a_.end (); ++ita) {
 	      // Compute position of object a
-	      fcl::CollisionObject* object_a = ita->fcl_.get ();
+	      fcl::CollisionObject* object_a = (*ita)->fcl ().get ();
 	      for (ObjectVector_t::const_iterator itb = objects_b_.begin ();
 		   itb != objects_b_.end (); ++itb) {
 		// Compute position of object b
-		fcl::CollisionObject* object_b = itb->fcl_.get ();
+		fcl::CollisionObject* object_b = (*itb)->fcl ().get ();
 		// Perform collision test
 		fcl::CollisionRequest request (1, false, true, 1, false, true,
 					       fcl::GST_INDEP);
 		fcl::CollisionResult result;
 		fcl::collide (object_a, object_b, request, result);
 		// Get result
-		if (result.isCollision ()) return false;
+		if (result.isCollision ()) {
+		  hppDout (info, "collision at " << t << " for pair ("
+			   << joint_a_->name () << "," << (*itb)->name () << ")");
+		  return false;
+		}
 		if (result.distance_lower_bound < distanceLowerBound) {
 		  distanceLowerBound = result.distance_lower_bound;
 		}
@@ -202,17 +216,12 @@ namespace hpp {
 	    assert (!isnan (halfLength));
 	    intervals_.unionInterval
 	      (interval_t(t - halfLength, t + halfLength));
-	    if (reverse_) {
-	      value_type lastValid = t + distanceLowerBound/maximalVelocity_;
-	      if (lastValid > lastValidParam_) {
-		lastValidParam_ = lastValid;
-	      }
-	    } else {
-	      value_type lastValid = t - distanceLowerBound/maximalVelocity_;
-	      if (lastValid < lastValidParam_) {
-		lastValidParam_ = lastValid;
-	      }
-	    }
+	    std::string joint2;
+	    if (joint_b_) joint2 = joint_b_->name ();
+	    else joint2 = (*objects_b_.begin ())->name ();
+	    hppDout (info, "Validating [" << t - halfLength
+		     << "," << t + halfLength << "] for pair (" <<
+		     joint_a_->name () << "," << joint2 << ")");
 	    return true;
 	  }
 
@@ -226,8 +235,23 @@ namespace hpp {
 	    return maximalVelocity_;
 	  }
 
-	  value_type lastValidParameter () const {
-	    return lastValidParam_;
+	  value_type lastValidParameter () const
+	  {
+	    if (reverse_) {
+	      if (maximalVelocity_ == 0) {
+		return path_->timeRange ().first;
+	      } else {
+		return intervals_.list ().rbegin ()->first +
+		  tolerance_/maximalVelocity_;
+	      }
+	    } else {
+	      if (maximalVelocity_ == 0) {
+		return path_->timeRange ().second;
+	      } else {
+		return intervals_.list ().begin ()->second -
+		  tolerance_/maximalVelocity_;
+	      }
+	    }
 	  }
 
 	protected:
@@ -242,7 +266,7 @@ namespace hpp {
 	    joint_a_ (joint_a), joint_b_ (joint_b), objects_a_ (),
 	    objects_b_ (), joints_ (),
 	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
-	    tolerance_ (tolerance), lastValidParam_ (0), reverse_ (false)
+	    tolerance_ (tolerance), reverse_ (false)
 	  {
 	    assert (joint_a);
 	    assert (joint_b);
@@ -281,7 +305,7 @@ namespace hpp {
 	    joint_a_ (joint_a), joint_b_ (), objects_a_ (),
 	    objects_b_ (objects_b), joints_ (),
 	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
-	    tolerance_ (tolerance), lastValidParam_ (0), reverse_ (false)
+	    tolerance_ (tolerance), reverse_ (false)
 	  {
 	    assert (joint_a);
 	    BodyPtr_t body_a = joint_a_->linkedBody ();
@@ -426,7 +450,6 @@ namespace hpp {
 	  value_type maximalVelocity_;
 	  Intervals intervals_;
 	  value_type tolerance_;
-	  value_type lastValidParam_;
 	  bool reverse_;
 	}; // class BodyPairCollision
       } // namespace progressive
