@@ -27,6 +27,7 @@
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
+#include <hpp/core/continuous-collision-checking/progressive.hh>
 
 namespace hpp {
   namespace core {
@@ -40,7 +41,7 @@ namespace hpp {
       steeringMethod_ (new core::SteeringMethodStraight (robot)),
       configValidations_ (ConfigValidations::create ()),
       pathValidation_ (continuousCollisionChecking::Progressive::create
-		       (robot, 0.)),
+		       (robot, 0.025)),
       collisionObstacles_ (), constraints_ ()
     {
       configValidations_->add (CollisionValidation::create (robot));
