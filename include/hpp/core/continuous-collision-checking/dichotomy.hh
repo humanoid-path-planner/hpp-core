@@ -27,10 +27,9 @@ namespace hpp {
       namespace dichotomy {
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
+	typedef std::list <BodyPairCollisionPtr_t> BodyPairCollisions_t;
       }
-
-      typedef std::list <dichotomy::BodyPairCollisionPtr_t>
-      BodyPairCollisions_t;
+      using dichotomy::BodyPairCollisions_t;
       /// Continuous validation of a path for collision
       class HPP_CORE_DLLAPI Dichotomy : public PathValidation
       {
@@ -67,7 +66,7 @@ namespace hpp {
       private:
 	DevicePtr_t robot_;
 	value_type tolerance_;
-	BodyPairCollisions_t bodyPairCollisions_;
+	dichotomy::BodyPairCollisions_t bodyPairCollisions_;
       }; // class Dichotomy
     } // namespace continuousCollisionChecking
   } // namespace core

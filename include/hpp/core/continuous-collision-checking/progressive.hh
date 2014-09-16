@@ -27,10 +27,9 @@ namespace hpp {
       namespace progressive {
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
+	typedef std::list <BodyPairCollisionPtr_t> BodyPairCollisions_t;
       }
 
-      typedef std::list <progressive::BodyPairCollisionPtr_t>
-      BodyPairCollisions_t;
       /// Continuous validation of a path for collision
       class HPP_CORE_DLLAPI Progressive : public PathValidation
       {
@@ -67,7 +66,7 @@ namespace hpp {
       private:
 	DevicePtr_t robot_;
 	value_type tolerance_;
-	BodyPairCollisions_t bodyPairCollisions_;
+	progressive::BodyPairCollisions_t bodyPairCollisions_;
       }; // class Progressive
     } // namespace continuousCollisionChecking
   } // namespace core
