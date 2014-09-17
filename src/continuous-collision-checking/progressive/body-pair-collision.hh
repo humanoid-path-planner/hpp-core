@@ -211,7 +211,7 @@ namespace hpp {
 		numeric_limits <value_type>::infinity ()) {
 	      halfLength = numeric_limits <value_type>::infinity ();
 	    } else {
-	      halfLength = (tolerance_ + distanceLowerBound)/maximalVelocity_;
+	      halfLength = distanceLowerBound/maximalVelocity_;
 	    }
 	    assert (!isnan (halfLength));
 	    intervals_.unionInterval
@@ -241,17 +241,25 @@ namespace hpp {
 	      if (maximalVelocity_ == 0) {
 		return path_->timeRange ().first;
 	      } else {
-		return intervals_.list ().rbegin ()->first +
-		  tolerance_/maximalVelocity_;
+		return intervals_.list ().rbegin ()->first;
 	      }
 	    } else {
 	      if (maximalVelocity_ == 0) {
 		return path_->timeRange ().second;
 	      } else {
-		return intervals_.list ().begin ()->second -
-		  tolerance_/maximalVelocity_;
+		return intervals_.list ().begin ()->second;
 	      }
 	    }
+	  }
+
+	  std::string name () const
+	  {
+	    std::ostringstream oss;
+	    oss << "(" << joint_a_->name () << ",";
+	    if (joint_b_) oss << joint_b_->name ();
+	    else oss << (*objects_b_.begin ())->name ();
+	    oss << ")";
+	    return oss.str ();
 	  }
 
 	protected:

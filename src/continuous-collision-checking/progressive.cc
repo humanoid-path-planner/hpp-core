@@ -66,33 +66,25 @@ namespace hpp {
 	  }
 	  return tmax;
 	} else {
+	  std::string pairName;
+	  value_type maximalVelocity;
 	  value_type tmin = std::numeric_limits <value_type>::infinity ();
 	  for (BodyPairCollisions_t::const_iterator itPair =
 		 bodyPairCollisions.begin ();
 	       itPair != bodyPairCollisions.end (); ++itPair) {
 	    value_type t = (*itPair)->lastValidParameter ();
-	    if (t < tmin) tmin = t;
+	    if (t < tmin) {
+	      tmin = t;
+	      pairName = (*itPair)->name ();
+	      maximalVelocity = (*itPair)->maximalVelocity ();
+	    }
 	  }
+	  hppDout (info, "Last valid parameter for pair " << pairName
+		   << ", maximal velocity=" << maximalVelocity);
 	  return tmin;
 	}
       }
 
-      // Partially sort a list where only the first element is not sorted
-      template <typename Compare>
-      void partialSort (BodyPairCollisions_t& list, Compare comp)
-      {
-	BodyPairCollisions_t::iterator it1 = list.begin ();
-	if (it1 == list.end ()) return;
-	BodyPairCollisions_t::iterator it2 = it1; ++it2;
-	while (it2 != list.end ()) {
-	  if (comp (*it2, *it1))
-	    std::iter_swap (it1, it2);
-	  else
-	    return;
-	  it1 = it2;
-	  ++it2;
-	}
-      }
       ProgressivePtr_t Progressive::create (const DevicePtr_t& robot,
 					    const value_type& tolerance)
       {
@@ -120,12 +112,13 @@ namespace hpp {
 	  q = (*path) (t1);
 	  robot_->currentConfiguration (q);
 	  robot_->computeForwardKinematics ();
-	  for (BodyPairCollisions_t::iterator itPair =
-		 bodyPairCollisions_.begin ();
+	  BodyPairCollisions_t::iterator itPair;
+	  for (itPair = bodyPairCollisions_.begin ();
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath, reverse);
-	    // If collision at end point, return false
-	    if (!(*itPair)->validateInterval (t1)) {
+	    // If collision at start point, return false
+	    bool valid = (*itPair)->validateInterval (t1);
+	    if (!valid) {
 	      validPart = path->extract (interval_t (t1, t1));
 	      hppDout (error, "invalid initial configuration");
 	      return false;
@@ -134,29 +127,54 @@ namespace hpp {
 	  }
 	  // Sort collision pairs
 	  bodyPairCollisions_.sort (compareReverseBodyPairCol);
-
 	  BodyPairCollisionPtr_t first = *(bodyPairCollisions_.begin ());
-	  while (!first->validSubset ().contains (t0, true)) {
+	  bool finished = first->validSubset ().contains (t0);
+	  value_type firstCollision = t0;
+	  while (!finished) {
 	    // find middle of first non valid interval
 	    const std::list <interval_t>& intervals =
 	      first->validSubset ().list ();
-	    std::list <interval_t>::const_reverse_iterator lastInterval =
+	    std::list <interval_t>::const_reverse_iterator firstInterval =
 	      intervals.rbegin ();
-	    upper = lastInterval->first;
-	    q = (*path) (upper);
+	    std::list <interval_t>::const_reverse_iterator secondInterval =
+	      firstInterval;
+	    ++secondInterval;
+	    upper = firstInterval->first;
+	    if (secondInterval != intervals.rend ()) {
+	      lower = secondInterval->first;
+	    } else {
+	      lower = t0;
+	    }
+	    lower = std::max (lower, firstCollision);
+	    assert (lower < upper);
+	    value_type middle = .5 * (lower + upper);
+	    assert (firstCollision < middle);
+	    q = (*path) (middle);
 	    robot_->currentConfiguration (q);
 	    robot_->computeForwardKinematics ();
-	    if (first->validateInterval (upper)) {
-	      partialSort (bodyPairCollisions_, compareReverseBodyPairCol);
-	    } else {
-	      hppDout (info, "Collision at " << upper);
-	      upper = computeLastValidParameter (bodyPairCollisions_, true);
-	      validPart = path->extract (interval_t (upper, t1));
-	      hppDout (info, "return valid path defined on [" << upper
-		       << "," << t1 << "] out of [" << t0 << "," << t1 << "]");
-	      return false;
+	    for (itPair = bodyPairCollisions_.begin ();
+		 itPair != bodyPairCollisions_.end (); ++itPair) {
+	      if (!(*itPair)->validSubset ().contains (middle) &&
+		  !(*itPair)->validateInterval (middle)) {
+		// collision
+		collision = true;
+		assert ((*itPair)->maximalVelocity ());
+		toleranceRange = tolerance_ / (*itPair)->maximalVelocity ();
+		firstCollision = middle + toleranceRange;
+		hppDout (info, "middle=" << middle << ", firstCollision="
+			 << firstCollision << ", toleranceRange="
+			 << toleranceRange);
+	      }
 	    }
+	    bodyPairCollisions_.sort (compareReverseBodyPairCol);
 	    first = *(bodyPairCollisions_.begin ());
+	    value_type t2 = first->validSubset ().list ().rbegin ()->first;
+	    finished = (t2 <= t0 || t2 < firstCollision);
+	  }
+	  if (collision) {
+	    upper = computeLastValidParameter (bodyPairCollisions_, reverse);
+	    validPart = path->extract (interval_t (upper, t1));
+	    return false;
 	  }
 	} else { // reverse
 	  q = (*path) (t0);
@@ -211,16 +229,18 @@ namespace hpp {
 		assert ((*itPair)->maximalVelocity ());
 		toleranceRange = tolerance_ / (*itPair)->maximalVelocity ();
 		firstCollision = middle - toleranceRange;
+		hppDout (info, "middle=" << middle << ", firstCollision="
+			 << firstCollision << ", toleranceRange="
+			 << toleranceRange);
 	      }
 	    }
 	    bodyPairCollisions_.sort (compareBodyPairCol);
 	    first = *(bodyPairCollisions_.begin ());
 	    value_type t2 = first->validSubset ().list ().begin ()->second;
-	    finished = (first->validSubset ().contains (t1) ||
-			firstCollision < t2);
+	    finished = (t2 >= t1 || firstCollision < t2);
 	  }
 	  if (collision) {
-	    lower = computeLastValidParameter (bodyPairCollisions_, false);
+	    lower = computeLastValidParameter (bodyPairCollisions_, reverse);
 	    hppDout (info, "lower=" << lower << ", firstCollision=" <<
 		     firstCollision);
 	    validPart = path->extract (interval_t (t0, lower));
