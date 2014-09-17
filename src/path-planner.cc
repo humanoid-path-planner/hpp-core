@@ -89,7 +89,6 @@ namespace hpp {
 	if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
-      hppDout (info, "planned path: " << *planned);
       return finishSolve (planned);
     }
 

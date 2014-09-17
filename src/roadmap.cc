@@ -83,7 +83,6 @@ namespace hpp {
 	}
       }
       NodePtr_t node = new Node (configuration);
-      hppDout (info, "Added node: " << displayConfig (*configuration));
       nodes_.push_back (node);
       // Node constructor creates a new connected component. This new
       // connected component needs to be added in the roadmap and the
@@ -105,7 +104,6 @@ namespace hpp {
 	}
       }
       NodePtr_t node = new Node (configuration, connectedComponent);
-      hppDout (info, "Added node: " << displayConfig (*configuration));
       nodes_.push_back (node);
       // The new node needs to be registered in the connected
       // component.
@@ -184,10 +182,6 @@ namespace hpp {
       n1->addOutEdge (edge);
       n2->addInEdge (edge);
       edges_.push_back (edge);
-      hppDout (info, "Added edge between: " <<
-	       displayConfig (*(n1->configuration ())));
-      hppDout (info, "               and: " <<
-	       displayConfig (*(n2->configuration ())));
 
       ConnectedComponentPtr_t cc1 = n1->connectedComponent ();
       ConnectedComponentPtr_t cc2 = n2->connectedComponent ();

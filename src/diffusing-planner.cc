@@ -113,7 +113,6 @@ namespace hpp {
       PathPtr_t validPath, path;
       // Pick a random node
       ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
-      hppDout (info, "q_rand = " << displayConfig (*q_rand));
       //
       // First extend each connected component toward q_rand
       //
@@ -134,7 +133,6 @@ namespace hpp {
 	    if (!pathValid || !belongs (q_new, newNodes)) {
 	      newNodes.push_back (roadmap ()->addNodeAndEdges
 				  (near, q_new, validPath));
-	      hppDout (info, *roadmap ());
 	    } else {
 	      // Store edges to add for later insertion.
 	      // Adding edges while looping on connected components is indeed
@@ -156,7 +154,6 @@ namespace hpp {
 	roadmap ()->addEdge (newNode, near, validPath->extract
 			     (interval_t (timeRange.second ,
 					  timeRange.first)));
-	hppDout (info, *roadmap ());
       }
 
       //
