@@ -300,6 +300,7 @@ static void cross (const fcl::Vec3f& v, matrix_t& m)
       m (1,2) = -v [0]; m (2,1) = v [0];
     }
 
+//FixMe ? distanceResults() no more a Device method
 double computeMinDistanceFromObstacles (const CubicBSpline_t& spline, const PathVectorPtr_t& originalPath, hpp::model::DevicePtr_t device,const double& t){
 	
 	CollisionObjectPtr_t innerObject;

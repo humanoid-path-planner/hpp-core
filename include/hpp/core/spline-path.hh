@@ -115,7 +115,7 @@ namespace hpp {
 		  return spline_;
 	  }
 
-	// TODO
+	
 	virtual std::ostream& print (std::ostream &os) const
 		{
 		os << "SplinePath:" << std::endl;
