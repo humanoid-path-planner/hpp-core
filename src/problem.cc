@@ -31,6 +31,8 @@
 namespace hpp {
   namespace core {
 
+    extern std::string displayConfig (ConfigurationIn_t q);
+
     // ======================================================================
 
     Problem::Problem (DevicePtr_t robot) :

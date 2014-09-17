@@ -239,6 +239,7 @@ namespace hpp {
 	PathOptimizerFactory_t;
       /// Robot
       DevicePtr_t robot_;
+      bool robotChanged_;
       /// Problem
       ProblemPtr_t problem_;
       /// Shared pointer to initial configuration.

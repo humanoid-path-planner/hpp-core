@@ -44,7 +44,7 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}
-    ${Boost_LIBRARIES} hpp-core
+    ${Boost_LIBRARIES}
     )
 
 ENDMACRO(ADD_TESTCASE)

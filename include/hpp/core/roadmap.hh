@@ -19,13 +19,15 @@
 #ifndef HPP_CORE_ROADMAP_HH
 # define HPP_CORE_ROADMAP_HH
 
-# include <iostream>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/k-d-tree.hh>
 
 namespace hpp {
   namespace core {
+    HPP_PREDEF_CLASS (NearestNeighbor);
+    typedef boost::shared_ptr <NearestNeighbor> NearestNeighborPtr_t;
+
     /// Roadmap built by random path planning methods
     /// Nodes are configurations, paths are collision-free paths.
     class HPP_CORE_DLLAPI Roadmap {
@@ -55,18 +57,15 @@ namespace hpp {
 			     const ConnectedComponentPtr_t& connectedComponent,
 			     value_type& minDistance);
 
-      /// Add a node and two edges
+      /// Add a node and an edge
       /// \param from node from which the edge starts,
       /// \param to configuration to which the edge stops
       /// \param path path between both configurations
       /// \return node containing configuration <c>to</c>.
       /// Add the symmetric edge with reverse path.
-      /// \note this function simplifies the management of connected components
-      ///       since it adds the new node in the connected component of
-      ///       <c>from</c>.
-      NodePtr_t addNodeAndEdges (const NodePtr_t from,
-				 const ConfigurationPtr_t& to,
-				 const PathPtr_t path);
+      NodePtr_t addNodeAndEdge (const NodePtr_t from,
+				const ConfigurationPtr_t& to,
+				const PathPtr_t path);
 
       /// Add a goal configuration
       /// \param config configuration
@@ -85,8 +84,8 @@ namespace hpp {
       }
 
       virtual ~Roadmap ();
-      /// Check that a path exists between the initial node and one goal node.
-      bool pathExists () const;
+      /// Find a path between initial and goal configurations
+      PathPtr_t findPath () const;
       const Nodes_t& nodes () const
       {
 	return nodes_;
@@ -94,6 +93,10 @@ namespace hpp {
       const Edges_t& edges () const
       {
 	return edges_;
+      }
+      const ConnectedComponents_t& connectedComponents () const
+      {
+	return connectedComponents_;
       }
       NodePtr_t initNode () const
       {
@@ -103,9 +106,6 @@ namespace hpp {
       {
 	return goalNodes_;
       }
-      // Get list of connected component of the roadmap
-      const ConnectedComponents_t& connectedComponents () const;
-
       /// \name Distance used for nearest neighbor search
       /// \{
       /// Get distance function
@@ -114,9 +114,6 @@ namespace hpp {
       /// Add an edge between two nodes.
       EdgePtr_t addEdge (const NodePtr_t& n1, const NodePtr_t& n2,
 			 const PathPtr_t& path);
-
-      /// Print roadmap in a stream
-      std::ostream& print (std::ostream& os) const;
 
     protected:
       /// Constructor
@@ -127,12 +124,10 @@ namespace hpp {
       /// \param node node pointing to the connected component.
       /// \note The node is added in the connected component.
       void addConnectedComponent (const NodePtr_t& node);
-      
-      /// Whether nodes of cc can be reached by nodes of this
-      /// \param cc a connected component.
-      bool canReach (const ConnectedComponentPtr_t& cc);
 
     private:
+      typedef std::map <ConnectedComponentPtr_t, NearestNeighborPtr_t>
+	NearetNeighborMap_t;
       /// Add a node with given configuration
       /// \param config configuration
       /// \param connectedComponent Connected component the node will belong
@@ -144,36 +139,17 @@ namespace hpp {
       NodePtr_t addNode (const ConfigurationPtr_t& config,
 			 ConnectedComponentPtr_t connectedComponent);
 
-      /// Add two edges between two nodes
-      /// \param from first node
-      /// \param to second node
-      /// \param path path going from <c>from</c> to <c>to</c>.
-      /// the reverse edge is added with the reverse path.
-      void addEdges (const NodePtr_t from, const NodePtr_t& to,
-		     const PathPtr_t& path);
-
-      /// Update the graph of connected components after new connection
-      /// \param cc1, cc2 the two connected components that have just been
-      /// connected.
-      void connect (const ConnectedComponentPtr_t& cc1,
-		    const ConnectedComponentPtr_t& cc2);
-
-      /// Merge two connected components
-      /// \param cc1 the connected component to merge into
-      /// \param the connected components to merge into cc1.
-      void merge (const ConnectedComponentPtr_t& cc1,
-		  ConnectedComponents_t& ccs);
-
       const DistancePtr_t& distance_;
       ConnectedComponents_t connectedComponents_;
       Nodes_t nodes_;
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
+      // use KDTree instead of NearestNeighbor 
+      //NearetNeighborMap_t nearestNeighbor_;
       KDTree kdTree_;
 
     }; // class Roadmap
-    std::ostream& operator<< (std::ostream& os, const Roadmap& r);
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_ROADMAP_HH

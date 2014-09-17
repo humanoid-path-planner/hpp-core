@@ -74,19 +74,18 @@ namespace hpp {
 
       Configuration_t operator () (const value_type& t) const throw ()
       {
-	Configuration_t result (outputSize ());
-	impl_compute (result, t);
-	if (constraints_)
-	  constraints_->apply (result);
-	return result;
+        Configuration_t result (outputSize ());
+        impl_compute (result, t);
+        if (constraints_)
+          constraints_->apply (result);
+        return result;
       }
 
-      void operator () (ConfigurationOut_t result, const value_type& t)
-	const throw ()
+      void operator () (ConfigurationOut_t result, const value_type& t)	const throw ()
       {
-	impl_compute (result, t);
-	if (constraints_)
-	  constraints_->apply (result);
+        impl_compute (result, t);
+        if (constraints_)
+        	  constraints_->apply (result);
       }
 
       /// \name Constraints
@@ -95,40 +94,42 @@ namespace hpp {
       /// Get constraints the path is subject to
       const ConstraintSetPtr_t& constraints () const
       {
-	return constraints_;
+        return constraints_;
       }
       /// Set constraints the path is subject to
       void constraints (const ConstraintSetPtr_t& constraints)
       {
-	constraints_ = constraints;
+        constraints_ = constraints;
       }
       /// \}
 
       /// Get size of configuration space
       size_type outputSize () const
       {
-	return outputSize_;
+        return outputSize_;
       }
 
       /// Get interval of definition
       const interval_t& timeRange () const
       {
-	return timeRange_;
+        return timeRange_;
       }
       /// Get length of definition interval
       value_type length () const
       {
-	return timeRange_.second - timeRange_.first;
+        return timeRange_.second - timeRange_.first;
       }
+
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const = 0;
 
       /// Protected constructor
       Path (const interval_t& interval, size_type outputSize) :
-	timeRange_ (interval), outputSize_ (outputSize), constraints_ ()
-	{
-	}
+      	timeRange_ (interval), outputSize_ (outputSize), constraints_ ()
+        {
+        }
 
       /// Protected constructor
       Path (const interval_t& interval, size_type outputSize,

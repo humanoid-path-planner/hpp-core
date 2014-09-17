@@ -17,16 +17,12 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/configuration.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/connected-component.hh>
 
 namespace hpp {
   namespace core {
-
-    using model::displayConfig;
-
     Node::Node (const ConfigurationPtr_t& configuration) :
       configuration_ (configuration),
       connectedComponent_ (ConnectedComponent::create ())
@@ -53,7 +49,7 @@ namespace hpp {
 	  hppDout (error, msg.c_str ());
 	  hppDout (error, "from: " << (*configuration_).transpose());
 	  hppDout (error, "  to: " << (*(edge->to ()
-					 ->configuration ())).transpose());
+                   ->configuration ())).transpose());
 	  throw std::runtime_error (msg.c_str ());
 	}
       }
@@ -71,7 +67,7 @@ namespace hpp {
 	    ("Attempt to insert an edge between two nodes already connected");
 	  hppDout (error, msg.c_str ());
 	  hppDout (error, "from: " << (*(edge->from ()
-					 ->configuration ())).transpose());
+                    ->configuration ())).transpose());
 	  hppDout (error, "  to: " << (*configuration_).transpose());
 	  throw std::runtime_error (msg.c_str ());
 	  throw std::runtime_error
@@ -104,16 +100,6 @@ namespace hpp {
     ConfigurationPtr_t Node::configuration () const
     {
       return configuration_;
-    }
-
-    std::ostream& Node::print (std::ostream& os) const
-    {
-      os << displayConfig (*configuration ()) << std::endl;
-      return os;
-    }
-    std::ostream& operator<< (std::ostream& os, const Node& n)
-    {
-      return n.print (os);
     }
   } //   namespace core
 } // namespace hpp

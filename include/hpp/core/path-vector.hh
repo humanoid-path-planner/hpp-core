@@ -68,6 +68,12 @@ namespace hpp {
       {
 	return paths_.size ();
       }
+      
+      /// Get the paths
+      Paths_t paths() const
+      {
+		  return paths_;
+	  }
 
       /// Get a path in the vector
       const PathPtr_t& pathAtRank (std::size_t rank) const {
@@ -90,6 +96,8 @@ namespace hpp {
       /// Extraction of a sub-path
       /// \param subInterval interval of definition of the extract path
       virtual PathPtr_t extract (const interval_t& subInterval) const;
+      
+      
 
     protected:
       /// Print path in a stream

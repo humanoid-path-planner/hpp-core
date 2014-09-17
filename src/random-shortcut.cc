@@ -61,6 +61,11 @@ namespace hpp {
 
     PathVectorPtr_t RandomShortcut::optimize (const PathVectorPtr_t& path) const
     {
+		try{
+			//const StraightPathPtr_t& myPath = boost::dynamic_pointer_cast<StraightPath> (path->pathAtRank(0));
+		} catch (const std::bad_cast& e){
+				std::runtime_error("Expecting a PathVector of straightPath");
+		}
       using std::numeric_limits;
       using std::make_pair;
       bool finished = false;

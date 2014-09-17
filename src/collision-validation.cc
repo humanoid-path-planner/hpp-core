@@ -16,6 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <sstream>
 #include <fcl/collision.h>
 #include <hpp/model/body.hh>
 #include <hpp/model/collision-object.hh>
@@ -25,8 +26,7 @@
 
 namespace hpp {
   namespace core {
-    using model::displayConfig;
-
+    extern std::string displayConfig (ConfigurationIn_t q);
     typedef model::JointConfiguration* JointConfigurationPtr_t;
     CollisionValidationPtr_t CollisionValidation::create
     (const DevicePtr_t& robot)

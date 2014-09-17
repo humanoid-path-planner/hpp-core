@@ -16,9 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <boost/tuple/tuple.hpp>
 #include <hpp/util/debug.hh>
-#include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/diffusing-planner.hh>
@@ -33,7 +31,7 @@
 
 namespace hpp {
   namespace core {
-    using model::displayConfig;
+    extern std::string displayConfig (ConfigurationIn_t q);
 
     DiffusingPlannerPtr_t DiffusingPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)
@@ -103,10 +101,6 @@ namespace hpp {
 
     void DiffusingPlanner::oneStep ()
     {
-      typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
-	DelayedEdge_t;
-      typedef std::vector <DelayedEdge_t> DelayedEdges_t;
-      DelayedEdges_t delayedEdges;
       DevicePtr_t robot (problem ().robot ());
       PathValidationPtr_t pathValidation (problem ().pathValidation ());
       Nodes_t newNodes;
@@ -132,33 +126,19 @@ namespace hpp {
 	    ConfigurationPtr_t q_new (new Configuration_t
 				      ((*validPath) (t_final)));
 	    if (!pathValid || !belongs (q_new, newNodes)) {
-	      newNodes.push_back (roadmap ()->addNodeAndEdges
+	      newNodes.push_back (roadmap ()->addNodeAndEdge
 				  (near, q_new, validPath));
-	      hppDout (info, *roadmap ());
 	    } else {
-	      // Store edges to add for later insertion.
-	      // Adding edges while looping on connected components is indeed
-	      // not recommended.
-	      delayedEdges.push_back (DelayedEdge_t (near, q_new, validPath));
+	      NodePtr_t newNode = roadmap ()->addNode (q_new);
+	      roadmap ()->addEdge (near, newNode, validPath);
+	      interval_t timeRange = validPath->timeRange ();
+	      roadmap ()->addEdge (newNode, near, validPath->extract
+				   (interval_t (timeRange.second ,
+						      timeRange.first)));
 	    }
 	  }
 	}
       }
-      // Insert delayed edges
-      for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
-	   itEdge != delayedEdges.end (); ++itEdge) {
-	const NodePtr_t& near = itEdge-> get <0> ();
-	const ConfigurationPtr_t& q_new = itEdge-> get <1> ();
-	const PathPtr_t& validPath = itEdge-> get <2> ();
-	NodePtr_t newNode = roadmap ()->addNode (q_new);
-	roadmap ()->addEdge (near, newNode, validPath);
-	interval_t timeRange = validPath->timeRange ();
-	roadmap ()->addEdge (newNode, near, validPath->extract
-			     (interval_t (timeRange.second ,
-					  timeRange.first)));
-	hppDout (info, *roadmap ());
-      }
-
       //
       // Second, try to connect new nodes together
       //

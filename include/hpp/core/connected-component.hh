@@ -30,10 +30,7 @@ namespace hpp {
     /// Set of nodes reachable from one another.
     class HPP_CORE_DLLAPI ConnectedComponent {
     public:
-      // List of nodes within the connected component
       typedef std::list <NodePtr_t> Nodes_t;
-      // variable for ranking connected components
-      static unsigned int globalFinishTime_;
       static ConnectedComponentPtr_t create ()
       {
 	ConnectedComponent* ptr = new ConnectedComponent ();
@@ -45,8 +42,15 @@ namespace hpp {
       ///
       /// \param other connected component to merge into this one.
       /// \note other will be empty after calling this method.
-      void merge (const ConnectedComponentPtr_t& other);
+      void merge (const ConnectedComponentPtr_t& other)
+      {
+	for (Nodes_t::iterator itNode = other->nodes_.begin ();
+	     itNode != other->nodes_.end (); itNode++) {
+	  (*itNode)->connectedComponent (weak_.lock ());
+	}
 
+	nodes_.splice (nodes_.end (), other->nodes_);
+      }
       /// Add node in connected component
       /// \param node node to add.
       void addNode (const NodePtr_t& node)
@@ -58,53 +62,17 @@ namespace hpp {
       {
 	return nodes_;
       }
-
-      /// \name Reachability
-      /// \{
-
-      /// Whether this connected component can reach cc
-      /// \param cc a connected component
-      bool canReach (const ConnectedComponentPtr_t& cc);
-
-      
-      /// Whether this connected component can reach cc
-      /// \param cc a connected component
-      /// \retval cc2Tocc1 list of connected components between cc2 and cc1
-      ///         that should be merged.
-      bool canReach (const ConnectedComponentPtr_t& cc,
-		     ConnectedComponents_t& cc2Tocc1);
-
-      // Get connected components reachable from this
-      const ConnectedComponents_t& reachableTo () const
-      {
-	return reachableTo_;
-      }
-
-      // Get connected components that can reach this
-      const ConnectedComponents_t& reachableFrom () const
-      {
-	return reachableFrom_;
-      }
-      /// \}
     protected:
       /// Constructor
-      ConnectedComponent () : nodes_ (), explored_ (false), weak_ ()
-	  {
-	  }
+      ConnectedComponent () : nodes_ (), weak_ ()
+      {
+      }
       void init (const ConnectedComponentPtr_t& shPtr){
 	weak_ = shPtr;
       }
     private:
-      Nodes_t nodes_;
-      // List of CCs from which this connected component can be reached
-      ConnectedComponents_t reachableFrom_;
-      // List of CCs that can be reached from this connected component
-      ConnectedComponents_t reachableTo_;
-      // status variable to indicate whether or not CC has been visited
-      mutable bool explored_;
-      ConnectedComponentWkPtr_t weak_;
-      friend class Roadmap;
-      friend void clean (ConnectedComponents_t& set);
+       Nodes_t nodes_;
+       ConnectedComponentWkPtr_t weak_;
     }; // class ConnectedComponent
   } //   namespace core
 } // namespace hpp

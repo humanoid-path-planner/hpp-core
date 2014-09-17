@@ -63,9 +63,10 @@ namespace hpp {
     }
 
     void PathVector::appendPath (const PathPtr_t& path)
-    {
-      paths_.push_back (path);
-      timeRange_.second += path->length ();
+    {		
+			paths_.push_back (path);
+			timeRange_.second += path->length ();
+
     }
 
     void PathVector::concatenate (const PathVector& path)
@@ -77,13 +78,14 @@ namespace hpp {
     void PathVector::impl_compute (ConfigurationOut_t result,
 				   value_type t) const
     {
-      // Find direct path in vector corresponding to parameter.
-      size_t rank;
-      value_type localParam;
-      rank = rankAtParam (t, localParam);
+			// Find direct path in vector corresponding to parameter.
+			size_t rank;
+			value_type localParam;
+			rank = rankAtParam (t, localParam);
 
-      PathPtr_t subpath = paths_ [rank];
-      (*subpath) (result, localParam);
+			PathPtr_t subpath = paths_ [rank];
+			(*subpath) (result, localParam);
+      
     }
 
     PathPtr_t PathVector::extract (const interval_t& subInterval) const

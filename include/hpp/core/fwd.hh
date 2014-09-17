@@ -23,9 +23,11 @@
 # include <vector>
 # include <deque>
 # include <list>
-# include <set>
+# include <boost/mpl/vector.hpp>
 # include <hpp/util/pointer.hh>
+# include <roboptim/core/fwd.hh>
 # include <roboptim/core/function.hh>
+# include <roboptim/trajectory/cubic-b-spline.hh>
 # include <hpp/model/fwd.hh>
 
 namespace roboptim {
@@ -64,6 +66,9 @@ namespace hpp {
     class ProblemSolver;
     HPP_PREDEF_CLASS (RandomShortcut);
     HPP_PREDEF_CLASS (Roadmap);
+    HPP_PREDEF_CLASS (SPathOptimizer);
+    HPP_PREDEF_CLASS (SplineCost);
+	HPP_PREDEF_CLASS (SplinePath);
     HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
@@ -83,8 +88,8 @@ namespace hpp {
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
-    typedef model::ConfigurationIn_t ConfigurationIn_t;
-    typedef model::ConfigurationOut_t ConfigurationOut_t;
+    typedef model::ConfigurationIn_t ConfigurationIn_t; 
+    typedef model::ConfigurationOut_t ConfigurationOut_t; 
     typedef boost::shared_ptr<model::Configuration_t> ConfigurationPtr_t;
     typedef std::vector <ConfigurationPtr_t> Configurations_t;
     typedef Configurations_t::iterator ConfigIterator_t;
@@ -94,7 +99,7 @@ namespace hpp {
     typedef boost::shared_ptr <ConfigValidation> ConfigValidationPtr_t;
     typedef boost::shared_ptr <ConfigValidations> ConfigValidationsPtr_t;
     typedef boost::shared_ptr <ConnectedComponent> ConnectedComponentPtr_t;
-    typedef std::set <ConnectedComponentPtr_t> ConnectedComponents_t;
+    typedef std::list <ConnectedComponentPtr_t> ConnectedComponents_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef boost::shared_ptr <ContinuousCollisionChecking>
@@ -128,6 +133,7 @@ namespace hpp {
     typedef Eigen::Ref <const matrix_t> matrixIn_t;
     typedef Eigen::Ref <matrix_t> matrixOut_t;
     typedef std::list <Node*> Nodes_t;
+    typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;
     typedef boost::shared_ptr <Path> PathPtr_t;
@@ -136,10 +142,13 @@ namespace hpp {
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
     typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
+    typedef boost::shared_ptr <SplinePath> SplinePathPtr_t;
+    typedef boost::shared_ptr <roboptim::CubicBSpline> SplinePtr_t;
     typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
     typedef Problem* ProblemPtr_t;
     typedef ProblemSolver* ProblemSolverPtr_t;
     typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
+    typedef boost::shared_ptr <SPathOptimizer> SPathOptimizerPtr_t;
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
@@ -165,6 +174,8 @@ namespace hpp {
       HPP_PREDEF_CLASS (BodyPairCollision);
       typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
     } // namespace continuousCollisionChecking
+    
+    typedef roboptim::CubicBSpline CubicBSpline_t;
   } // namespace core
 } // namespace hpp
 

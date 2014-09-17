@@ -61,8 +61,10 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/fwd.hh
   include/hpp/core/joint-bound-validation.hh
   include/hpp/core/locked-dof.hh
+  include/hpp/core/logger.hh
   include/hpp/core/node.hh
   include/hpp/core/path.hh
+  include/hpp/core/path-logger.hh
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-validation.hh
@@ -72,12 +74,15 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem-solver.hh
   include/hpp/core/random-shortcut.hh
   include/hpp/core/roadmap.hh
+  include/hpp/core/s-path-optimizer.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method-straight.hh
   include/hpp/core/straight-path.hh
+  include/hpp/core/spline-cost.hh
+  include/hpp/core/spline-path.hh
   include/hpp/core/weighed-distance.hh
   include/hpp/core/k-d-tree.hh
-  )
+)
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")

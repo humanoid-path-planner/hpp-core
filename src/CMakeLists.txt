@@ -24,7 +24,6 @@ SET(${LIBRARY_NAME}_SOURCES
   collision-validation.cc
   config-projector.cc
   config-validations.cc
-  connected-component.cc
   constraint.cc
   constraint-set.cc
   continuous-collision-checking.cc
@@ -36,6 +35,7 @@ SET(${LIBRARY_NAME}_SOURCES
   nearest-neighbor.hh
   node.cc
   path.cc
+  path-logger.cc
   path-planner.cc
   path-vector.cc
   plan-and-optimize.cc
@@ -44,9 +44,12 @@ SET(${LIBRARY_NAME}_SOURCES
   random-shortcut.cc
   roadmap.cc
   straight-path.cc
+  s-path-optimizer.cc
+  spline-cost.cc
+  spline-path.cc
   weighed-distance.cc
   k-d-tree.cc
-  )
+)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
 ADD_LIBRARY(${LIBRARY_NAME}
