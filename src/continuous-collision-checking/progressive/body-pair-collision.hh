@@ -157,8 +157,8 @@ namespace hpp {
 	  {
 	    path_ = path;
 	    computeMaximalVelocity ();
-	    intervals_.clear ();
 	    reverse_ = reverse;
+	    valid_ = false;
 	  }
 
 	  /// Get path
@@ -167,18 +167,20 @@ namespace hpp {
 	    return path_;
 	  }
 
-	  /// Return the valid subset of the path for this collision pair.
-	  const Intervals& validSubset () const
-	  {
-	    return intervals_;
-	  }
-
 	  /// Validate interval centered on a path parameter
 	  /// \param t parameter value in the path interval of definition
 	  /// \return true if the body pair is collision free for this parameter
 	  ///         value, false if the body pair is in collision.
-	  bool validateInterval (const value_type& t)
+	  bool validateConfiguration (const value_type& t, value_type& tmin)
 	  {
+	    if (valid_) {
+	      if (reverse_) {
+		tmin = path_->timeRange ().first;
+	      } else {
+		tmin = path_->timeRange ().second;
+	      }
+	      return true;
+	    }
 	    using std::numeric_limits;
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
@@ -206,22 +208,31 @@ namespace hpp {
 		}
 	      }
 	    }
-	    value_type halfLength;
+	    value_type halfLengthDist, halfLengthTol;
 	    if (distanceLowerBound ==
 		numeric_limits <value_type>::infinity ()) {
-	      halfLength = numeric_limits <value_type>::infinity ();
+	      halfLengthDist = numeric_limits <value_type>::infinity ();
+	      halfLengthTol = 0;
 	    } else {
-	      halfLength = distanceLowerBound/maximalVelocity_;
+	      halfLengthDist = distanceLowerBound/maximalVelocity_;
+	      halfLengthTol = 2*tolerance_/maximalVelocity_;
 	    }
-	    assert (!isnan (halfLength));
-	    intervals_.unionInterval
-	      (interval_t(t - halfLength, t + halfLength));
+	    assert (!isnan (halfLengthDist));
+	    assert (!isnan (halfLengthTol));
+	    if (reverse_) {
+	      tmin = t - (halfLengthDist + halfLengthTol);
+	      if (t - halfLengthDist <= path_->timeRange ().first) {
+		valid_ = true;
+	      }
+	    } else {
+	      tmin = t + halfLengthDist + halfLengthTol;
+	      if (t + halfLengthDist >= path_->timeRange ().second) {
+		valid_ = true;
+	      }
+	    }
 	    std::string joint2;
 	    if (joint_b_) joint2 = joint_b_->name ();
 	    else joint2 = (*objects_b_.begin ())->name ();
-	    hppDout (info, "Validating [" << t - halfLength
-		     << "," << t + halfLength << "] for pair (" <<
-		     joint_a_->name () << "," << joint2 << ")");
 	    return true;
 	  }
 
@@ -233,23 +244,6 @@ namespace hpp {
 	  value_type maximalVelocity () const
 	  {
 	    return maximalVelocity_;
-	  }
-
-	  value_type lastValidParameter () const
-	  {
-	    if (reverse_) {
-	      if (maximalVelocity_ == 0) {
-		return path_->timeRange ().first;
-	      } else {
-		return intervals_.list ().rbegin ()->first;
-	      }
-	    } else {
-	      if (maximalVelocity_ == 0) {
-		return path_->timeRange ().second;
-	      } else {
-		return intervals_.list ().begin ()->second;
-	      }
-	    }
 	  }
 
 	  std::string name () const
@@ -456,8 +450,8 @@ namespace hpp {
 	  std::vector <CoefficientVelocity> coefficients_;
 	  StraightPathPtr_t path_;
 	  value_type maximalVelocity_;
-	  Intervals intervals_;
 	  value_type tolerance_;
+	  bool valid_;
 	  bool reverse_;
 	}; // class BodyPairCollision
       } // namespace progressive

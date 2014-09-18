@@ -73,6 +73,8 @@ namespace hpp {
 	Progressive (const DevicePtr_t& robot,
 		   const value_type& tolerance);
       private:
+	bool validateConfiguration (const Configuration_t& config,
+				    bool reverse, value_type& tmin);
 	DevicePtr_t robot_;
 	value_type tolerance_;
 	progressive::BodyPairCollisions_t bodyPairCollisions_;
