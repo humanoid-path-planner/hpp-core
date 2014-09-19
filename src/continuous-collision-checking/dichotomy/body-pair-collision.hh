@@ -66,12 +66,13 @@ namespace hpp {
 	  std::string name_;
 	}; // struct Object
 
-	typedef std::list <Object> Objects_t;
+	typedef std::vector <Object> Objects_t;
 
 	Objects_t store (const ObjectVector_t& collisionObjects)
 	{
 	  // Pre-allocate memory
 	  Objects_t result;
+	  result.reserve (collisionObjects.size ());
 	  for (ObjectVector_t::const_iterator itObj = collisionObjects.begin ();
 	       itObj != collisionObjects.end (); ++itObj) {
 	    result.push_back (Object (*itObj));
@@ -162,15 +163,16 @@ namespace hpp {
 	    return objects_b_;
 	  }
 
-	  void removeObjectTo_b (const CollisionObjectPtr_t& object)
+	  bool removeObjectTo_b (const CollisionObjectPtr_t& object)
 	  {
 	    for (Objects_t::iterator itObj = objects_b_.begin ();
 		 itObj != objects_b_.end (); ++itObj) {
 	      if (object->fcl () == itObj->fcl_) {
 		objects_b_.erase (itObj);
-		return;
+		return true;
 	      }
 	    }
+	    return false;
 	  }
 
 	  /// Set path to validate
@@ -249,6 +251,12 @@ namespace hpp {
 	    } else {
 	      halfLength = (tolerance_ + distanceLowerBound)/maximalVelocity_;
 	    }
+	    std::string joint2;
+	    if (joint_b_) joint2 = joint_b_->name ();
+	    else joint2 = objects_b_.begin ()->name_;
+	    hppDout (info, "validating [" << t - halfLength << ","
+		     << t + halfLength << "] for pair ("
+		     << joint_a_->name () << "," << joint2 << ")");
 	    assert (!isnan (halfLength));
 	    intervals_.unionInterval
 	      (interval_t(t - halfLength, t + halfLength));

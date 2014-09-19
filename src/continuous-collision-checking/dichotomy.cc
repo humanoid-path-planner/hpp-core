@@ -16,7 +16,6 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <limits>
 #include <hpp/util/debug.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/straight-path.hh>
@@ -47,45 +46,6 @@ namespace hpp {
 	assert (!bodyPair2->validSubset ().list ().empty ());
 	return bodyPair1->validSubset ().list ().rbegin ()->first >
 	  bodyPair2->validSubset ().list ().rbegin ()->first;
-      }
-
-      // Compute last parameter that is collision free without tolerance
-      value_type computeLastValidParameter
-      (const BodyPairCollisions_t& bodyPairCollisions, bool reverse)
-      {
-	// For each pair, remove the interval range corresponding to penetration
-	// to the upper bound of the first interval and find the minimum of
-	// the resulting upper bounds.
-	if (reverse) {
-	  value_type tmax = - std::numeric_limits <value_type>::infinity ();
-	  for (BodyPairCollisions_t::const_iterator itPair =
-		 bodyPairCollisions.begin ();
-	       itPair != bodyPairCollisions.end (); ++itPair) {
-	    std::list <interval_t>::const_reverse_iterator itInterval =
-	      (*itPair)->validSubset ().list ().rbegin ();
-	    assert (itInterval != (*itPair)->validSubset ().list ().rend ());
-	    value_type t = itInterval->first +
-	      (*itPair)->tolerance () / (*itPair)->maximalVelocity ();
-	    if (t > tmax) tmax = t;
-	  }
-	  return tmax;
-	} else {
-	  value_type tmin = std::numeric_limits <value_type>::infinity ();
-	  for (BodyPairCollisions_t::const_iterator itPair =
-		 bodyPairCollisions.begin ();
-	       itPair != bodyPairCollisions.end (); ++itPair) {
-	    std::list <interval_t>::const_iterator itInterval =
-	      (*itPair)->validSubset ().list ().begin ();
-	    assert (itInterval != (*itPair)->validSubset ().list ().end ());
-	    if ((*itPair)->maximalVelocity () > 0) {
-	      value_type t = itInterval->second -
-		(*itPair)->tolerance () / (*itPair)->maximalVelocity ();
-	      assert (t > (*itPair)->path ()->timeRange ().first);
-	      if (t < tmin) tmin = t;
-	    }
-	  }
-	  return tmin;
-	}
       }
 
       // Partially sort a list where only the first element is not sorted
@@ -158,7 +118,6 @@ namespace hpp {
 	    if (first->validateInterval (middle)) {
 	      partialSort (bodyPairCollisions_, compareReverseBodyPairCol);
 	    } else {
-	      upper = computeLastValidParameter (bodyPairCollisions_, true);
 	      validPart = path->extract (interval_t (upper, t1));
 	      return false;
 	    }
@@ -173,6 +132,7 @@ namespace hpp {
 	    bool valid = (*itPair)->validateInterval (t0);
 	    if (!valid) {
 	      validPart = path->extract (interval_t (t0, t0));
+	      hppDout (error, "Initial position in collision.");
 	      return false;
 	    }
 	    assert ((*itPair)->validSubset ().contains (t0));
@@ -200,25 +160,31 @@ namespace hpp {
 	    if (first->validateInterval (middle)) {
 	      partialSort (bodyPairCollisions_, compareBodyPairCol);
 	    } else {
-	      lower = computeLastValidParameter (bodyPairCollisions_, false);
 	      validPart = path->extract (interval_t (t0, lower));
+	      hppDout (info, "Return path valid on [" << t0 << "," << lower
+		       << "]");
 	      return false;
 	    }
 	    first = *(bodyPairCollisions_.begin ());
 	  }
 	}
 	validPart = path;
+	hppDout (info, "Path valid defined on [" << t0 << "," << t1 << "]");
 	return true;
       }
 
       void Dichotomy::addObstacle
       (const CollisionObjectPtr_t& object)
       {
-	for (BodyPairCollisions_t::iterator itPair =
-	       bodyPairCollisions_.begin ();
-	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  if (!(*itPair)->joint_b ()) {
-	    (*itPair)->addObjectTo_b (object);
+	const JointVector_t& jv = robot_->getJointVector ();
+	for (JointVector_t::const_iterator itJoint = jv.begin ();
+	     itJoint != jv.end (); ++itJoint) {
+	  BodyPtr_t body = (*itJoint)->linkedBody ();
+	  if (body) {
+	    ObjectVector_t objects;
+	    objects.push_back (object);
+	    bodyPairCollisions_.push_back
+	      (BodyPairCollision::create (*itJoint, objects, tolerance_));
 	  }
 	}
       }
@@ -230,11 +196,12 @@ namespace hpp {
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
 	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
-	    (*itPair)->removeObjectTo_b (obstacle);
-	    if ((*itPair)->objects_b ().empty ()) {
-	      bodyPairCollisions_.erase (itPair);
+	    if ((*itPair)->removeObjectTo_b (obstacle)) {
+	      if ((*itPair)->objects_b ().empty ()) {
+		bodyPairCollisions_.erase (itPair);
+	      }
+	      return;
 	    }
-	    return;
 	  }
 	}
       }
@@ -248,6 +215,12 @@ namespace hpp {
 	robot_ (robot), tolerance_ (tolerance),
 	bodyPairCollisions_ ()
       {
+	// Tolerance should be equal to 0, otherwise end of valid
+	// sub-path might be in collision.
+	if (tolerance != 0) {
+	  throw std::runtime_error ("Dichotomy path validation method does not"
+				    "support penetration.");
+	}
 	typedef model::Device::CollisionPairs_t CollisionPairs_t;
 	// Build body pairs for collision checking
 	// First auto-collision
