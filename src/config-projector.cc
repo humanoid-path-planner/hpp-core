@@ -207,6 +207,7 @@ namespace hpp {
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
+	computeValueAndJacobian (configuration);
 	alpha = alphaMax - .8*(alphaMax - alpha);
 	squareNorm_ = value_.squaredNorm ();
 	hppDout (info, "squareNorm = " << squareNorm_);
@@ -214,7 +215,6 @@ namespace hpp {
 	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
 	previousSquareNorm = squareNorm_;
 	++iter;
-	computeValueAndJacobian (configuration);
       };
       hppDout (info, "number of iterations: " << iter);
       if (squareNorm_ > squareErrorThreshold_) {
