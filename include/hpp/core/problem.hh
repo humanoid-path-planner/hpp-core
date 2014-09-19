@@ -123,10 +123,7 @@ namespace hpp {
       /// \name Path validation
       /// \{
       /// Set path validation method
-      void pathValidation (const PathValidationPtr_t& pathValidation)
-      {
-	pathValidation_ = pathValidation;
-      }
+      void pathValidation (const PathValidationPtr_t& pathValidation);
 
       /// Get path validation method
       PathValidationPtr_t pathValidation () const

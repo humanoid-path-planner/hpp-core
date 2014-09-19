@@ -131,6 +131,18 @@ namespace hpp {
 
     // ======================================================================
 
+    void Problem::pathValidation (const PathValidationPtr_t& pathValidation)
+    {
+      pathValidation_ = pathValidation;
+      // Insert obstacles in path validation object
+      for (ObjectVector_t::const_iterator it =  collisionObstacles_.begin ();
+	   it != collisionObstacles_.end (); ++it) {
+	pathValidation_->addObstacle (*it);
+      }
+    }
+
+    // ======================================================================
+
     void Problem::checkProblem () const
     {
       if (!robot ()) {
