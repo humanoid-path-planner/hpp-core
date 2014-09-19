@@ -70,22 +70,7 @@ namespace hpp {
           invert_ (invert), threshold_ (1e-3)
         {}
 
-        virtual bool operator () (vector_t& value, matrix_t& jacobian) const
-        {
-          bool isPassive = true;
-          for (size_type i = 0; i < invert_.size (); i++) {
-            if (invert_[i] * value[i] <= 0) {
-              value[i] = 2*value[i] - invert_[i] * threshold_;
-              isPassive = false;
-            } else if (invert_[i] * (value[i] - threshold_) < 0) {
-              value[i] -= invert_[i] * threshold_;
-            } else {
-              value[i] = 0;
-              jacobian.row (i).setZero ();
-            }
-          }
-          return !isPassive;
-        }
+        virtual bool operator () (vector_t& value, matrix_t& jacobian) const;
 
         void threshold (const value_type& t)
         {
