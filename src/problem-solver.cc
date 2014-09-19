@@ -74,17 +74,29 @@ namespace hpp {
 
     void ProblemSolver::pathPlannerType (const std::string& type)
     {
+      if (pathPlannerFactory_.find (type) == pathPlannerFactory_.end ()) {
+	throw std::runtime_error (std::string ("No path planner with name ") +
+				  type);
+      }
       pathPlannerType_ = type;
     }
 
     void ProblemSolver::pathOptimizerType (const std::string& type)
     {
+      if (pathOptimizerFactory_.find (type) == pathOptimizerFactory_.end ()) {
+	throw std::runtime_error (std::string ("No path optimizer with name ") +
+				  type);
+      }
       pathOptimizerType_ = type;
     }
 
     void ProblemSolver::pathValidationType (const std::string& type,
 					    const value_type& tolerance)
     {
+      if (pathValidationFactory_.find (type) == pathValidationFactory_.end ()) {
+	throw std::runtime_error (std::string ("No path validation method with "
+					       "name ") + type);
+      }
       pathValidationType_ = type;
       pathValidationTolerance_ = tolerance;
       // If a robot is present, set path validation method
