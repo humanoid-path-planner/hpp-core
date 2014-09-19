@@ -158,7 +158,8 @@ namespace hpp {
 		 size_type rankInVelocity = 0) :
 	Constraint (name), value_ (value),
 	rankInConfiguration_ (joint->rankInConfiguration () + rankInConfig),
-	rankInVelocity_ (joint->rankInVelocity () + rankInVelocity)
+        rankInVelocity_ (joint->rankInVelocity () + rankInVelocity),
+        isParametric_ (false)
       {
       }
       /// Constructor
@@ -172,7 +173,8 @@ namespace hpp {
 		 size_type rankInConfig, size_type rankInVelocity) :
 	Constraint (name), value_ (value),
 	rankInConfiguration_ (rankInConfig),
-	rankInVelocity_ (rankInVelocity)
+        rankInVelocity_ (rankInVelocity),
+        isParametric_ (false)
       {
       }
       void init (const LockedDofPtr_t& self)
