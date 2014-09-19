@@ -63,11 +63,11 @@ namespace hpp {
     {
       public:
         InequalityVector (size_type dim) :
-          invert_ (vector_t::Ones (dim)), threshold_ (1e-4)
+          invert_ (vector_t::Ones (dim)), threshold_ (1e-3)
         {}
 
         InequalityVector (const vector_t& invert) :
-          invert_ (invert), threshold_ (1e-4)
+          invert_ (invert), threshold_ (1e-3)
         {}
 
         virtual bool operator () (vector_t& value, matrix_t& jacobian) const
