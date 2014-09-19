@@ -23,6 +23,8 @@
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/continuous-collision-checking/dichotomy.hh>
+#include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
@@ -43,8 +45,11 @@ namespace hpp {
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
-      pathOptimizerType_ ("RandomShortcut"), roadmap_ (), paths_ (),
+      pathOptimizerType_ ("RandomShortcut"),
+      pathValidationType_ ("Discretized"), pathValidationTolerance_ (0),
+      roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (),
+      pathValidationFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (), obstacleLoaded_(false),
       errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ (),
       distanceBetweenObjects_ ()
@@ -53,6 +58,13 @@ namespace hpp {
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
 	DiffusingPlanner::createWithRoadmap;
+      // Store path validation methods in map.
+      pathValidationFactory_ ["Discretized"] =
+	DiscretizedCollisionChecking::create;
+      pathValidationFactory_ ["Progressive"] =
+	continuousCollisionChecking::Progressive::create;
+      pathValidationFactory_ ["Dichotomy"] =
+	continuousCollisionChecking::Dichotomy::create;
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -68,6 +80,20 @@ namespace hpp {
     void ProblemSolver::pathOptimizerType (const std::string& type)
     {
       pathOptimizerType_ = type;
+    }
+
+    void ProblemSolver::pathValidationType (const std::string& type,
+					    const value_type& tolerance)
+    {
+      pathValidationType_ = type;
+      pathValidationTolerance_ = tolerance;
+      // If a robot is present, set path validation method
+      if (robot_ && problem_) {
+	PathValidationPtr_t pathValidation =
+	  pathValidationFactory_ [pathValidationType_]
+	  (robot_, pathValidationTolerance_);
+	problem_->pathValidation (pathValidation);
+      }
     }
 
     void ProblemSolver::robot (const DevicePtr_t& robot)
@@ -141,6 +167,11 @@ namespace hpp {
       problem_->constraints ();
       // Set constraints
       problem_->constraints (constraints_);
+      // Set path validation method
+      PathValidationPtr_t pathValidation =
+	pathValidationFactory_ [pathValidationType_] (robot_,
+						      pathValidationTolerance_);
+      problem_->pathValidation (pathValidation);
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
       // Distance to obstacles

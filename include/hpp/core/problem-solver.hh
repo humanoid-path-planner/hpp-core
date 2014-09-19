@@ -41,6 +41,9 @@ namespace hpp {
 	PathPlannerBuilder_t;
       typedef boost::function < PathOptimizerPtr_t (const Problem&) >
 	PathOptimizerBuilder_t;
+      typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
+						     const value_type&) >
+	PathValidationBuilder_t;
       /// Constructor
       ProblemSolver ();
 
@@ -103,6 +106,24 @@ namespace hpp {
 				 const PathOptimizerBuilder_t& builder)
       {
 	pathOptimizerFactory_ [type] = builder;
+      }
+
+      /// Set path validation method
+      /// \param type name of new path validation method
+      /// \param tolerance acceptable penetration for path validation
+      /// Path validation methods are used to validate edges in path planning
+      /// path optimization methods.
+      void pathValidationType (const std::string& type,
+			       const value_type& tolerance);
+
+      /// Add a path validation type
+      /// \param type name of the new path validation method,
+      /// \param static method that creates a path validation with a robot
+      /// and tolerance as input.
+      void addPathValidationType (const std::string& type,
+				 const PathValidationBuilder_t& builder)
+      {
+	pathValidationFactory_ [type] = builder;
       }
 
       const RoadmapPtr_t& roadmap () const
@@ -238,11 +259,15 @@ namespace hpp {
       ConstraintSetPtr_t constraints_;
 
     private:
+      /// Map (string , constructor of path planner)
       typedef std::map < std::string, PathPlannerBuilder_t >
 	PathPlannerFactory_t;
-      ///Map (string , constructor of path optimizer)
+      /// Map (string , constructor of path optimizer)
       typedef std::map < std::string, PathOptimizerBuilder_t >
 	PathOptimizerFactory_t;
+      /// Map (string , constructor of path validation method)
+      typedef std::map <std::string, PathValidationBuilder_t >
+	PathValidationFactory_t;
       /// Robot
       DevicePtr_t robot_;
       /// Problem
@@ -257,6 +282,10 @@ namespace hpp {
       /// Path optimizer
       std::string pathOptimizerType_;
       PathOptimizerPtr_t pathOptimizer_;
+      /// Path validation method
+      std::string pathValidationType_;
+      /// Tolerance of path validation
+      value_type pathValidationTolerance_;
       /// Store roadmap
       RoadmapPtr_t roadmap_;
       /// Paths
@@ -265,6 +294,8 @@ namespace hpp {
       PathPlannerFactory_t pathPlannerFactory_;
       /// Path optimizer factory
       PathOptimizerFactory_t pathOptimizerFactory_;
+      /// Path validation factory
+      PathValidationFactory_t pathValidationFactory_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
