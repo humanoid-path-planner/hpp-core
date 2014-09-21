@@ -182,10 +182,21 @@ namespace hpp {
 	  BodyPtr_t body = (*itJoint)->linkedBody ();
 	  bool foundPair = false;
 	  if (body) {
-	    ObjectVector_t objects;
-	    objects.push_back (object);
-	    bodyPairCollisions_.push_back
-	      (BodyPairCollision::create (*itJoint, objects, tolerance_));
+	    for (BodyPairCollisions_t::iterator itPair =
+		   bodyPairCollisions_.begin ();
+		 itPair != bodyPairCollisions_.end (); ++itPair) {
+	      if (((*itPair)->joint_a () == *itJoint) &&
+		  (!(*itPair)->joint_b ())) {
+		(*itPair)->addObjectTo_b (object);
+		foundPair = true;
+	      }
+	    }
+	    if (!foundPair) {
+	      ObjectVector_t objects;
+	      objects.push_back (object);
+	      bodyPairCollisions_.push_back
+		(BodyPairCollision::create (*itJoint, objects, tolerance_));
+	    }
 	  }
 	}
       }
