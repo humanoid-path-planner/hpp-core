@@ -29,7 +29,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI Distance {
     public:
       virtual value_type operator () (ConfigurationIn_t q1,
-				  ConfigurationIn_t q2)
+				  ConfigurationIn_t q2) const
       {
 	return impl_distance (q1, q2);
       }
@@ -43,7 +43,7 @@ namespace hpp {
 	}
       /// Derived class should implement this function
       virtual value_type impl_distance (ConfigurationIn_t q1,
-				    ConfigurationIn_t q2) = 0;
+				    ConfigurationIn_t q2) const = 0;
     }; // class Distance
   } //   namespace core
 } // namespace hpp

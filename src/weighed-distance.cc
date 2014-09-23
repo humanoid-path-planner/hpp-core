@@ -131,7 +131,7 @@ namespace hpp {
     }
 
     value_type WeighedDistance::impl_distance (ConfigurationIn_t q1,
-					       ConfigurationIn_t q2)
+					       ConfigurationIn_t q2) const
     {
       // Loop over robot joint and interpolate
       value_type res = 0;
