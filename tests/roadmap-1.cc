@@ -62,11 +62,11 @@ void addEdge (const hpp::core::RoadmapPtr_t& r,
 BOOST_AUTO_TEST_CASE (Roadmap1) {
   // Build robot
   DevicePtr_t robot = Device::create("robot");
-  JointPtr_t xJoint = new JointTranslation(fcl::Transform3f());
+  JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
   xJoint->isBounded(0,1);
   xJoint->lowerBound(0,-3.);
   xJoint->upperBound(0,3.);
-  JointPtr_t yJoint = new JointTranslation
+  JointPtr_t yJoint = new JointTranslation <1>
     (fcl::Transform3f(fcl::Quaternion3f (sqrt (2)/2, 0, 0, sqrt(2)/2)));
   yJoint->isBounded(0,1);
   yJoint->lowerBound(0,-3.);

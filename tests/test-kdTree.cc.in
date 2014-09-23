@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_SUITE( test_hpp_core )
 BOOST_AUTO_TEST_CASE (kdTree) {
   // Build Device
   DevicePtr_t robot = Device::create("robot");
-  JointPtr_t xJoint = new JointTranslation(Transform3f());
+  JointPtr_t xJoint = new JointTranslation <1> (Transform3f());
   xJoint->isBounded(0,1);
   xJoint->lowerBound(0,-3.);
   xJoint->upperBound(0,3.);
-  JointPtr_t yJoint = new JointTranslation(Transform3f());
+  JointPtr_t yJoint = new JointTranslation <1> (Transform3f());
   yJoint->isBounded(0,1);
   yJoint->lowerBound(0,-3.);
   yJoint->upperBound(0,3.);
