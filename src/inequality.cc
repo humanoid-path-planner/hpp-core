@@ -20,6 +20,22 @@ namespace hpp {
   namespace core {
     EqualityPtr_t Equality::unique_ = Equality::create ();
 
+    bool InequalityVector::operator () (vector_t& value) const
+    {
+      bool isPassive = true;
+      for (size_type i = 0; i < invert_.size (); i++) {
+        if (invert_[i] * value[i] <= 0) {
+          value[i] = value[i] - invert_[i] * threshold_;
+          isPassive = false;
+        } else if (invert_[i] * value[i] < threshold_) {
+          value[i] -= invert_[i] * threshold_;
+        } else {
+          value[i] = 0;
+        }
+      }
+      return !isPassive;
+    }
+
     bool InequalityVector::operator () (vector_t& value, matrix_t& jacobian) const
     {
       bool isPassive = true;

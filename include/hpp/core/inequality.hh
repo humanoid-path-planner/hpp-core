@@ -35,6 +35,11 @@ namespace hpp {
         /// \param[in,out] jacobian the jacobian to be saturated depending on the value.
         /// \return true is the constraint is - at least partially - active
         virtual bool operator () (vector_t& value, matrix_t& jacobian) const = 0;
+
+        /// Return the result of the comparison.
+        /// \param[in,out] value the value that will be compared and saturated.
+        /// \return true is the constraint is - at least partially - active
+        virtual bool operator () (vector_t& value) const = 0;
     };
 
     /// Implement the comparison for equality constraint.
@@ -43,6 +48,12 @@ namespace hpp {
       public:
         /// \return Always true.
         inline bool operator () (vector_t&, matrix_t&) const
+        {
+          return true;
+        }
+
+        /// \return Always true.
+        inline bool operator () (vector_t&) const
         {
           return true;
         }
@@ -71,6 +82,8 @@ namespace hpp {
         {}
 
         virtual bool operator () (vector_t& value, matrix_t& jacobian) const;
+
+        virtual bool operator () (vector_t& value) const;
 
         void threshold (const value_type& t)
         {
