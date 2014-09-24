@@ -46,7 +46,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"),
-      pathValidationType_ ("Discretized"), pathValidationTolerance_ (0),
+      pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (),
       pathValidationFactory_ (),
