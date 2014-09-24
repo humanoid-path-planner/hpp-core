@@ -391,30 +391,9 @@ namespace hpp {
 	      }
 	      coefficients_ [i].joint_ = child;
 	      // Go through all known types of joints
-	      const Transform3f& pos = child->positionInParentFrame ();
-	      fcl::Vec3f T = pos.getTranslation ();
-	      if (JointTranslationConstPtr_t joint =
-		  dynamic_cast <JointTranslationConstPtr_t> (child)) {
-		fcl::Vec3f u = pos.getRotation ().getColumn (0);
-		if (joint->isBounded (0)) {
-		  distance = std::max ((T + joint->lowerBound (0)*u).length (),
-				       (T + joint->upperBound (0)*u).length ());
-		  coefficients_ [i].value_ = 1.;
-		}	else {
-		  distance = std::numeric_limits <value_type>::infinity ();
-		}
-	      } else if (dynamic_cast <JointRotationConstPtr_t> (child)) {
-		distance = T.length ();
-		coefficients_ [i].value_ = cumulativeLength;
-	      } else if (dynamic_cast <JointSO3ConstPtr_t> (child)) {
-		distance = T.length ();
-		coefficients_ [i].value_ = cumulativeLength;
-	      } else if (dynamic_cast <JointAnchorConstPtr_t> (child)) {
-		distance = T.length ();
-		coefficients_ [i].value_ = 0;
-	      } else {
-		throw std::runtime_error ("Unknown type of joint.");
-	      }
+	      distance = child->maximalDistanceToParent ();
+	      coefficients_ [i].value_ = child->upperBoundLinearVelocity () +
+		cumulativeLength * child->upperBoundAngularVelocity ();
 	      cumulativeLength += distance;
 	      it = itNext; ++itNext; ++i;
 	    }
