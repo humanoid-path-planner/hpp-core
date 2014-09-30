@@ -25,27 +25,29 @@
 
 namespace hpp {
   namespace core {
-    /// Constraint that locks a degree of freedom to a constant value.
-    ///
-    /// For translation and rotation joints the locked degree of freedom
-    /// constraint is built as follows:
-    /// \code
-    /// LockedDofPtr_t lockedDof = LockedDof::create ("lock-dof", joint, value);
-    /// \endcode
-    /// where \c joint is a pointer to a robot joint and \c value is a \c double
-    /// value. However, for JointSO3, it is possible to constrain the rotation
-    /// along one coordinate axis by constraining both quaternion coodinates and
-    /// angular velocity as follows:
-    /// \code
-    /// LockedDofPtr_t l1 = LockedDof::create ("lock-dof1", joint, 0, 1, 0);
-    /// LockedDofPtr_t l1 = LockedDof::create ("lock-dof2", joint, 0, 2, 1);
-    /// \endcode
-    /// This constrains the quaternion value and the velocity vector of the
-    /// joint to be of the forms:
-    /// \f{eqnarray*}
-    ///    quat &=& x + 0\ i + 0\ j + w\ k \\
-    ///    \omega &=& \omega_z \mathbf{u}_z
-    /// \f}
+     /**
+     Constraint that locks a degree of freedom to a constant value.
+
+     For translation and rotation joints the locked degree of freedom
+     constraint is built as follows:
+     \code
+     LockedDofPtr_t lockedDof = LockedDof::create ("lock-dof", joint, value);
+     \endcode
+     where \c joint is a pointer to a robot joint and \c value is a \c double
+     value. However, for JointSO3, it is possible to constrain the rotation
+     along one coordinate axis by constraining both quaternion coodinates and
+     angular velocity as follows:
+     \code
+     LockedDofPtr_t l1 = LockedDof::create ("lock-dof1", joint, 0, 1, 0);
+     LockedDofPtr_t l1 = LockedDof::create ("lock-dof2", joint, 0, 2, 1);
+     \endcode
+     This constrains the quaternion value and the velocity vector of the
+     joint to be of the forms:
+     \f{eqnarray*}
+        quat &=& x + 0\ i + 0\ j + w\ k \\
+        \omega &=& \omega_z \mathbf{u}_z
+     \f}
+     */
     class HPP_CORE_DLLAPI LockedDof : public Constraint
     {
     public:

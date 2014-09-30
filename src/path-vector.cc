@@ -21,21 +21,6 @@
 namespace hpp {
   namespace core {
 
-    static void checkPath (const PathVectorPtr_t& path)
-    {
-      value_type length = 0;
-      for (std::size_t i=0; i<path->numberPaths (); ++i) {
-	length += path->pathAtRank (i)->length ();
-      }
-      if (fabs (length - path->length ()) > 1e-6) {
-	std::ostringstream oss ("PathVector: length ");
-	oss << path->length () << " is different from sum of element lengths "
-	    << length;
-	throw std::runtime_error (oss.str ());
-      }
-    }
-
-
     std::size_t PathVector::rankAtParam (const value_type& param,
 					 value_type& localParam) const
     {
