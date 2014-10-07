@@ -35,7 +35,7 @@ namespace hpp {
     public:
 
       //constructor
-      KDTree(const KDTreePtr_t mother);
+      KDTree(const KDTreePtr_t mother, size_type splitDim);
       KDTree(const DevicePtr_t& robot, const DistancePtr_t& distance_,
 	     int bucketSize);
 
@@ -60,7 +60,8 @@ namespace hpp {
       DevicePtr_t robot_;
       int dim_;
 
-      DistancePtr_t distance_;
+      WeighedDistancePtr_t distance_;
+      vector_t weights_;
       typedef std::map <ConnectedComponentPtr_t, Nodes_t> NodesMap_t;
       NodesMap_t nodesMap_;
       unsigned int bucketSize_;
