@@ -88,8 +88,7 @@ namespace hpp {
     }
 
     KDTree::~KDTree() {
-      if (infChild_ != NULL ) { delete infChild_; }
-      if (supChild_ != NULL ) { delete supChild_; }
+      clear ();
     }
 
     // find the leaf node in the tree for the configuration of the node
@@ -137,8 +136,14 @@ namespace hpp {
 
     void KDTree::clear() {
       nodesMap_.clear();
-      if ( infChild_ != NULL ) { infChild_ = NULL; }
-      if ( supChild_ != NULL ) { supChild_ = NULL; }
+      if (infChild_ != NULL ) {
+	delete infChild_;
+	infChild_ = NULL;
+      }
+      if (supChild_ != NULL ) {
+	delete supChild_;
+	supChild_ = NULL;
+      }
     }
 
 
