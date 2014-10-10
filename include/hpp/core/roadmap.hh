@@ -22,7 +22,6 @@
 # include <iostream>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/k-d-tree.hh>
 
 namespace hpp {
   namespace core {
@@ -170,7 +169,7 @@ namespace hpp {
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
-      KDTreePtr_t kdTree_;
+      NearestNeighborPtr_t nearestNeighbor_;
 
     }; // class Roadmap
     std::ostream& operator<< (std::ostream& os, const Roadmap& r);

@@ -37,6 +37,9 @@ SET(${LIBRARY_NAME}_SOURCES
   extracted-path.hh
   joint-bound-validation.cc
   nearest-neighbor.hh
+  nearest-neighbor/basic.hh
+  nearest-neighbor/k-d-tree.cc
+  nearest-neighbor/k-d-tree.hh
   node.cc
   path.cc
   path-planner.cc
@@ -48,8 +51,6 @@ SET(${LIBRARY_NAME}_SOURCES
   roadmap.cc
   straight-path.cc
   weighed-distance.cc
-  k-d-tree.cc
-  k-d-tree.hh
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

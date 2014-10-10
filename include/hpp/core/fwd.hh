@@ -150,7 +150,6 @@ namespace hpp {
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
-    typedef KDTree* KDTreePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
     // Collision pairs
@@ -165,6 +164,14 @@ namespace hpp {
       typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
     } // namespace continuousCollisionChecking
 
+    class NearestNeighbor;
+    typedef NearestNeighbor* NearestNeighborPtr_t;
+    namespace nearestNeighbor {
+      class Basic;
+      class KDTree;
+      typedef KDTree* KDTreePtr_t;
+      typedef Basic* BasicPtr_t;
+    } // namespace nearestNeighbor
   } // namespace core
 } // namespace hpp
 

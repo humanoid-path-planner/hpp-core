@@ -23,7 +23,6 @@
 #include <hpp/model/joint.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/k-d-tree.hh>
 #include <hpp/core/weighed-distance.hh>
 #include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>

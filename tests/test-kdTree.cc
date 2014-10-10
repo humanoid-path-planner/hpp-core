@@ -26,19 +26,17 @@
 #include <hpp/util/debug.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/core/fwd.hh>
-//#include <hpp/model/fwd.hh>
 #include <hpp/core/roadmap.hh>
-#include "../src/nearest-neighbor.hh"
-#include <hpp/core/k-d-tree.hh>
 #include <hpp/core/weighed-distance.hh>
 #include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
-#include "../src/node.cc"
-#include "../src/k-d-tree.cc"
-#include "../src/weighed-distance.cc"
+#include <hpp/core/steering-method-straight.hh>
 #include <hpp/model/joint-configuration.hh>
+#include "../src/nearest-neighbor/basic.hh"
+#include "../src/nearest-neighbor/k-d-tree.hh"
 
 
 #define BOOST_TEST_MODULE kdTree
@@ -72,28 +70,26 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   so3Joint->addChildJoint (so2Joint);
 
   // Build Distance, nearestNeighbor, KDTree
-  WeighedDistancePtr_t weighedDistance = WeighedDistance::create(robot);
-  for ( int i =0 ; i<3 ; i++ ) weighedDistance->setWeight(i,1);
-  DistancePtr_t distance = weighedDistance;
+  WeighedDistancePtr_t distance = WeighedDistance::create(robot);
   BasicConfigurationShooter confShoot(robot);
-  KDTree kdTree(robot,distance,30);
-  typedef std::map <ConnectedComponentPtr_t, NearestNeighborPtr_t>
-    NearetNeighborMap_t;
-  NearetNeighborMap_t nearestNeighbor;
+  nearestNeighbor::KDTree kdTree(robot,distance,30);
+  nearestNeighbor::Basic basic (distance);
+  SteeringMethodPtr_t sm (new SteeringMethodStraight (robot));
 
   // Add 4 connectedComponents with 2000 nodes each
   ConfigurationPtr_t configuration;
   NodePtr_t node;
-  ConnectedComponentPtr_t connectedComponent[4];
+  NodePtr_t rootNode [4];
+  RoadmapPtr_t roadmap = Roadmap::create (distance, robot);
   for ( int i=0 ; i<4 ; i++ ) {
-    connectedComponent[i] = ConnectedComponent::create();
-    nearestNeighbor[connectedComponent[i]] =
-      NearestNeighborPtr_t (new NearestNeighbor (distance));
-    for ( int j=0 ; j<2000 ; j++ ) {
+    configuration = confShoot.shoot();
+    rootNode [i] = roadmap->addNode (configuration);
+    for (int j=1 ; j<200 ; j++) {
       configuration = confShoot.shoot();
-      node = NodePtr_t(new Node(configuration, connectedComponent[i]));
-      nearestNeighbor[ (connectedComponent[i]) ]->add(node);
-      kdTree.addNode(node);
+      PathPtr_t path = (*sm) (*(rootNode [i]->configuration ()),
+			      *configuration);
+      node = roadmap->addNodeAndEdges (rootNode [i], configuration, path);
+      basic.addNode (node);
     }
   }
 
@@ -107,11 +103,15 @@ BOOST_AUTO_TEST_CASE (kdTree) {
     for ( int i=0 ; i<4 ; i++ ) {
       minDistance1 = std::numeric_limits<value_type>::infinity ();
       minDistance2 = std::numeric_limits<value_type>::infinity ();
-      node1 = nearestNeighbor[connectedComponent[i]]
-	->nearest(configuration,minDistance1);
-      node2 = kdTree.search(configuration, connectedComponent[i], minDistance2);
+      node1 = basic.search (configuration, rootNode [i]->connectedComponent (),
+			    minDistance1);
+      node2 = roadmap->nearestNode (configuration,
+				    rootNode [i]->connectedComponent (),
+				    minDistance2);
       BOOST_CHECK( node1 == node2 );
       BOOST_CHECK( minDistance1 == minDistance2 );
+      std::cout << displayConfig (*(node1->configuration ())) << std::endl;
+      std::cout << minDistance1 << std::endl;
     }
   }
 }

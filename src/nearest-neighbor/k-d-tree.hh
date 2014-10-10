@@ -16,22 +16,22 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_K_D_TREE_HH
-# define HPP_CORE_K_D_TREE_HH
+#ifndef HPP_CORE_NEAREST_NEIGHBOR_K_D_TREE_HH
+# define HPP_CORE_NEAREST_NEIGHBOR_K_D_TREE_HH
 
 # include <hpp/core/distance.hh>
 # include <hpp/core/node.hh>
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/model/device.hh>
-# include <hpp/core/fwd.hh>
+# include "../src/nearest-neighbor.hh"
 
 namespace hpp {
   namespace core {
+    namespace nearestNeighbor {
     // Built an k-dimentional tree for the nearest neighbour research
-    class KDTree
+    class KDTree : public NearestNeighbor
     {
-      // typedef KDTree* KDTreePtr_t;
     public:
 
       //constructor
@@ -43,19 +43,24 @@ namespace hpp {
       ~KDTree();
 
       // add a configuration in the KDTree
-      void addNode(const NodePtr_t& node);
+      virtual void addNode(const NodePtr_t& node);
 
       // Clear all the nodes in the KDTree
-      void clear();
+      virtual void clear();
 
       // search nearest node
-      NodePtr_t search(const ConfigurationPtr_t& configuration,
-		       const ConnectedComponentPtr_t& connectedComponent,
-		       value_type& minDistance);
+      virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
+			        const ConnectedComponentPtr_t&
+				connectedComponent,
+				value_type& minDistance);
 
       // merge two connected components in the whole tree
       void merge(ConnectedComponentPtr_t cc1, ConnectedComponentPtr_t cc2);
-
+      // Get distance function
+      virtual DistancePtr_t distance () const
+      {
+	return distance_;
+      }
     private:
       DevicePtr_t robot_;
       int dim_;
@@ -103,7 +108,8 @@ namespace hpp {
 		  NodePtr_t& nearest);
 
 
-    };
-  }
-}
-#endif // HPP_CORE_K_D_TREE_HH
+    }; // class KDTree
+    } // namespace nearestNeighbor
+  } // namespace core
+} // namespace hpp
+#endif // HPP_CORE_NEAREST_NEIGHBOR_K_D_TREE_HH

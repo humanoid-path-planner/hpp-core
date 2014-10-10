@@ -16,22 +16,22 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-# include <hpp/util/debug.hh>
-# include <hpp/core/distance.hh>
-# include <hpp/core/node.hh>
-# include <hpp/model/joint.hh>
-# include <hpp/model/joint-configuration.hh>
-# include <hpp/model/device.hh>
-# include <hpp/core/weighed-distance.hh>
-#include "k-d-tree.hh"
 #include <iostream>
 #include <fstream>
+#include <hpp/util/debug.hh>
+#include <hpp/core/distance.hh>
+#include <hpp/core/node.hh>
+#include <hpp/model/joint.hh>
+#include <hpp/model/joint-configuration.hh>
+#include <hpp/model/device.hh>
+#include <hpp/core/weighed-distance.hh>
+#include "../src/nearest-neighbor/k-d-tree.hh"
 
 using namespace std;
 
 namespace hpp {
   namespace core {
-
+    namespace nearestNeighbor {
     // Constructor with the mother tree node (same bounds)
     KDTree::KDTree (const KDTreePtr_t mother, size_type splitDim) :
       robot_(mother->robot_),
@@ -255,6 +255,7 @@ namespace hpp {
       minDistance = std::numeric_limits <value_type>::infinity ();
       this->search (boxDistance, minDistance, configuration,
 		    connectedComponent, nearest);
+      assert (nearest);
       return nearest;
     }
 
@@ -330,5 +331,6 @@ namespace hpp {
 	supChild_->merge(cc1, cc2);
       }
     }
-  }
-}
+    } // namespace nearestNeighbor
+  } // namespace core
+} // namespace hpp

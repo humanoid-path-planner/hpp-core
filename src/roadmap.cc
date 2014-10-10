@@ -24,7 +24,7 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/k-d-tree.hh>
+#include <../src/nearest-neighbor/basic.hh>
 
 namespace hpp {
   namespace core {
@@ -37,10 +37,10 @@ namespace hpp {
       return RoadmapPtr_t (ptr);
     }
 
-    Roadmap::Roadmap (const DistancePtr_t& distance, const DevicePtr_t& robot) :
+    Roadmap::Roadmap (const DistancePtr_t& distance, const DevicePtr_t&) :
       distance_ (distance), connectedComponents_ (), nodes_ (), edges_ (),
       initNode_ (), goalNodes_ (),
-      kdTree_ (new KDTree (robot, distance, 30))
+      nearestNeighbor_ (new nearestNeighbor::Basic (distance))
     {
     }
 
@@ -70,7 +70,7 @@ namespace hpp {
 
       goalNodes_.clear ();
       initNode_ = 0x0;
-      kdTree_->clear();
+      nearestNeighbor_->clear();
     }
 
     NodePtr_t Roadmap::addNode (const ConfigurationPtr_t& configuration)
@@ -108,7 +108,7 @@ namespace hpp {
       // The new node needs to be registered in the connected
       // component.
       connectedComponent->addNode (node);
-      kdTree_->addNode(node);
+      nearestNeighbor_->addNode(node);
       return node;
     }
 
@@ -145,7 +145,7 @@ namespace hpp {
 	   itcc != connectedComponents_.end (); itcc++) {
 	value_type distance;
 	NodePtr_t node;
-	node = kdTree_->search(configuration, *itcc, distance);
+	node = nearestNeighbor_->search(configuration, *itcc, distance);
 	if (distance < minDistance) {
 	  minDistance = distance;
 	  closest = node;
@@ -162,7 +162,7 @@ namespace hpp {
       assert (connectedComponent);
       assert (connectedComponent->nodes ().size () != 0);
       NodePtr_t closest =
-	kdTree_->search(configuration, connectedComponent, minDistance);
+	nearestNeighbor_->search(configuration, connectedComponent, minDistance);
       return closest;
     }
     
@@ -196,7 +196,7 @@ namespace hpp {
     {
       connectedComponents_.insert (node->connectedComponent ());
       node->connectedComponent ()->addNode (node);
-      kdTree_->addNode(node);
+      nearestNeighbor_->addNode(node);
     }
 
     void Roadmap::connect (const ConnectedComponentPtr_t& cc1,
