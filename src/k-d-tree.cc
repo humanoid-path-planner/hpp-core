@@ -17,13 +17,13 @@
 // <http://www.gnu.org/licenses/>.
 
 # include <hpp/util/debug.hh>
-# include <hpp/core/k-d-tree.hh>
 # include <hpp/core/distance.hh>
 # include <hpp/core/node.hh>
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/model/device.hh>
 # include <hpp/core/weighed-distance.hh>
+#include "k-d-tree.hh"
 #include <iostream>
 #include <fstream>
 

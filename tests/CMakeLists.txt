@@ -49,11 +49,7 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
 ENDMACRO(ADD_TESTCASE)
 
-CONFIG_FILES (
-  test-kdTree.cc
-  )
-
-ADD_TESTCASE (test-kdTree TRUE)
+ADD_TESTCASE (test-kdTree FALSE)
 ADD_TESTCASE (roadmap-1 FALSE)
 ADD_TESTCASE (test-intervals FALSE)
 ADD_TESTCASE (test-body-pair-collision FALSE)

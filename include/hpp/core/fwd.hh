@@ -120,6 +120,7 @@ namespace hpp {
     typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
     typedef model::JointVector_t JointVector_t;
+    typedef KDTree* KDTreePtr_t;
     typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;
     typedef model::matrix_t matrix_t;
     typedef Eigen::Ref <const matrix_t> matrixIn_t;

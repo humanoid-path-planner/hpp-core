@@ -170,7 +170,7 @@ namespace hpp {
       Edges_t edges_;
       NodePtr_t initNode_;
       Nodes_t goalNodes_;
-      KDTree kdTree_;
+      KDTreePtr_t kdTree_;
 
     }; // class Roadmap
     std::ostream& operator<< (std::ostream& os, const Roadmap& r);

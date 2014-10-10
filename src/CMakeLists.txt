@@ -49,6 +49,7 @@ SET(${LIBRARY_NAME}_SOURCES
   straight-path.cc
   weighed-distance.cc
   k-d-tree.cc
+  k-d-tree.hh
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
