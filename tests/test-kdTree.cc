@@ -54,18 +54,22 @@ BOOST_AUTO_TEST_SUITE( test_hpp_core )
 BOOST_AUTO_TEST_CASE (kdTree) {
   // Build Device
   DevicePtr_t robot = Device::create("robot");
-  JointPtr_t xJoint = new JointTranslation <1> (Transform3f());
-  xJoint->isBounded(0,1);
-  xJoint->lowerBound(0,-3.);
-  xJoint->upperBound(0,3.);
-  JointPtr_t yJoint = new JointTranslation <1> (Transform3f());
-  yJoint->isBounded(0,1);
-  yJoint->lowerBound(0,-3.);
-  yJoint->upperBound(0,3.);
+  JointPtr_t transJoint = new JointTranslation <3> (Transform3f());
+  transJoint->isBounded (0, true);
+  transJoint->lowerBound(0,-3.);
+  transJoint->upperBound(0, 3.);
+  transJoint->isBounded (1, true);
+  transJoint->lowerBound(1,-3.);
+  transJoint->upperBound(1, 3.);
+  transJoint->isBounded (2, true);
+  transJoint->lowerBound(2,-3.);
+  transJoint->upperBound(2, 3.);
   JointPtr_t so3Joint = new JointSO3(Transform3f());
-  robot->rootJoint(so3Joint);
-  robot->registerJoint(xJoint);
-  robot->registerJoint(yJoint);
+  JointPtr_t so2Joint = new jointRotation::UnBounded
+    (Transform3f (fcl::Vec3f (0, 0, 1)));
+  robot->rootJoint(transJoint);
+  transJoint->addChildJoint (so3Joint);
+  so3Joint->addChildJoint (so2Joint);
 
   // Build Distance, nearestNeighbor, KDTree
   WeighedDistancePtr_t weighedDistance = WeighedDistance::create(robot);
@@ -85,7 +89,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
     connectedComponent[i] = ConnectedComponent::create();
     nearestNeighbor[connectedComponent[i]] =
       NearestNeighborPtr_t (new NearestNeighbor (distance));
-    for ( int j=0 ; j<200 ; j++ ) {
+    for ( int j=0 ; j<2000 ; j++ ) {
       configuration = confShoot.shoot();
       node = NodePtr_t(new Node(configuration, connectedComponent[i]));
       nearestNeighbor[ (connectedComponent[i]) ]->add(node);
