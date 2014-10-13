@@ -14,43 +14,160 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#include "eigen3/Eigen/Core"
 #include "hpp/core/inequality.hh"
 
 namespace hpp {
   namespace core {
     EqualityPtr_t Equality::unique_ = Equality::create ();
 
-    bool InequalityVector::operator () (vector_t& value) const
+    // -------------------------------------------------------------------
+
+    template <>
+    Inequality < EquationType::Superior >::Inequality (const value_type& thr):
+      threshold_ (thr)
+    {}
+
+    template <>
+    EquationTypePtr_t Inequality < EquationType::Superior >::create (const value_type& thr)
     {
-      bool isPassive = true;
-      for (size_type i = 0; i < invert_.size (); i++) {
-        if (invert_[i] * value[i] <= 0) {
-          value[i] = value[i] - invert_[i] * threshold_;
-          isPassive = false;
-        } else if (invert_[i] * value[i] < threshold_) {
-          value[i] -= invert_[i] * threshold_;
-        } else {
-          value[i] = 0;
-        }
-      }
-      return !isPassive;
+      return SuperiorPtr_t (new Inequality < EquationType::Superior > (thr));
     }
 
-    bool InequalityVector::operator () (vector_t& value, matrix_t& jacobian) const
+    template <>
+    void Inequality< EquationType::Superior >::threshold (const value_type& t)
     {
-      bool isPassive = true;
-      for (size_type i = 0; i < invert_.size (); i++) {
-        if (invert_[i] * value[i] <= 0) {
-          value[i] = value[i] - invert_[i] * threshold_;
-          isPassive = false;
-        } else if (invert_[i] * value[i] < threshold_) {
-          value[i] -= invert_[i] * threshold_;
-        } else {
-          value[i] = 0;
-          jacobian.row (i).setZero ();
+      assert (t >= 0);
+      threshold_ = t;
+    }
+
+    template <>
+    bool Inequality< EquationType::Superior >::operator () (vectorOut_t value) const
+    {
+      if (value[0] <= 0) {
+        value[0] = value[0] - threshold_;
+        return true;
+      } else if (value[0] < threshold_) {
+        value[0] -= threshold_;
+      } else {
+        value[0] = 0;
+      }
+      return false;
+    }
+
+    template <>
+    bool Inequality< EquationType::Superior >::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    {
+      if (value[0] <= 0) {
+        value[0] = value[0] - threshold_;
+        return true;
+      } else if (value[0] < threshold_) {
+        value[0] -= threshold_;
+      } else {
+        value[0] = 0;
+        jacobian.row (0).setZero ();
+      }
+      return false;
+    }
+
+    // -------------------------------------------------------------------
+
+    template <>
+    Inequality < EquationType::Inferior >::Inequality (const value_type& thr):
+      threshold_ (-thr)
+    {}
+
+    template <>
+    EquationTypePtr_t Inequality < EquationType::Inferior >::create (const value_type& thr)
+    {
+      return InferiorPtr_t (new Inequality < EquationType::Inferior > (thr));
+    }
+
+    template <>
+    void Inequality< EquationType::Inferior >::threshold (const value_type& t)
+    {
+      assert (t >= 0);
+      threshold_ = -t;
+    }
+
+    template <>
+    bool Inequality< EquationType::Inferior >::operator () (vectorOut_t value) const
+    {
+      if (value[0] >= 0) {
+        value[0] = value[0] - threshold_;
+        return true;
+      } else if (value[0] > threshold_) {
+        value[0] -= threshold_;
+      } else {
+        value[0] = 0;
+      }
+      return false;
+    }
+
+    template <>
+    bool Inequality< EquationType::Inferior >::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    {
+      if (value[0] >= 0) {
+        value[0] = value[0] - threshold_;
+        return true;
+      } else if (value[0] > threshold_) {
+        value[0] -= threshold_;
+      } else {
+        value[0] = 0;
+        jacobian.row (0).setZero ();
+      }
+      return false;
+    }
+
+    // -------------------------------------------------------------------
+
+    bool EquationTypes::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    {
+      bool val = true;
+      for (size_t i = 0; i < inequalities_.size (); i++)
+        val = (*inequalities_[i])(value.segment (i, 1), jacobian.block (i, 0, 1, jacobian.cols())) && val;
+      return val;
+    }
+
+    bool EquationTypes::operator () (vectorOut_t value) const
+    {
+      bool val = true;
+      for (size_t i = 0; i < inequalities_.size (); i++)
+        val = (*inequalities_[i])(value.segment (i, 1)) && val;
+      return val;
+    }
+
+    EquationTypes::EquationTypes (const std::vector <EquationType::Type> types)
+    {
+      for (size_t i = 0; i < types.size (); i++) {
+        switch (types[i]) {
+          case EquationType::Equality:
+            inequalities_.push_back (Equality::create ());
+            break;
+          case EquationType::Superior:
+            inequalities_.push_back (Inequality <EquationType::Superior>::create ());
+            break;
+          case EquationType::Inferior:
+            inequalities_.push_back (Inequality <EquationType::Inferior>::create ());
+            break;
+          default:
+            throw std::logic_error ("EquationType::Type not known.");
         }
       }
-      return !isPassive;
     }
+
+    EquationTypesPtr_t EquationTypes::create (size_t dim)
+    {
+      return create (std::vector <EquationType::Type> (dim, EquationType::Superior));
+    }
+
+    EquationTypesPtr_t EquationTypes::create (const std::vector <EquationType::Type> types)
+    {
+      EquationTypesPtr_t shPtr (new EquationTypes (types));
+      return shPtr;
+    }
+
+    template class Inequality < EquationType::Superior >;
+    template class Inequality < EquationType::Inferior >;
   } // namespace core
 } // namespace hpp

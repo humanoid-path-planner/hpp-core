@@ -27,33 +27,40 @@ namespace hpp {
     /// used to compare two vector.
     /// They are used in ConfigProjector to implement inequality
     /// constraint.
-    class HPP_CORE_DLLAPI Inequality
+    class HPP_CORE_DLLAPI EquationType
     {
       public:
+        enum Type {
+          Equality,
+          Superior,
+          Inferior
+        };
+        typedef std::vector <Type> VectorOfTypes;
+
         /// Return the result of the comparison.
         /// \param[in,out] value the value that will be compared and saturated.
         /// \param[in,out] jacobian the jacobian to be saturated depending on the value.
         /// \return true is the constraint is - at least partially - active
-        virtual bool operator () (vector_t& value, matrix_t& jacobian) const = 0;
+        virtual bool operator () (vectorOut_t value, matrixOut_t jacobian) const = 0;
 
         /// Return the result of the comparison.
         /// \param[in,out] value the value that will be compared and saturated.
         /// \return true is the constraint is - at least partially - active
-        virtual bool operator () (vector_t& value) const = 0;
+        virtual bool operator () (vectorOut_t value) const = 0;
     };
 
     /// Implement the comparison for equality constraint.
-    class HPP_CORE_DLLAPI Equality : public Inequality
+    class HPP_CORE_DLLAPI Equality : public EquationType
     {
       public:
         /// \return Always true.
-        inline bool operator () (vector_t&, matrix_t&) const
+        inline bool operator () (vectorOut_t, matrixOut_t) const
         {
           return true;
         }
 
         /// \return Always true.
-        inline bool operator () (vector_t&) const
+        inline bool operator () (vectorOut_t) const
         {
           return true;
         }
@@ -70,31 +77,50 @@ namespace hpp {
 
     /// Implementation of Inequality that compare the value to
     /// a reference with the possibility of inverting axis.
-    class HPP_CORE_DLLAPI InequalityVector : public Inequality
+    class HPP_CORE_DLLAPI EquationTypes : public EquationType
     {
       public:
-        InequalityVector (size_type dim) :
-          invert_ (vector_t::Ones (dim)), threshold_ (1e-3)
-        {}
+        virtual bool operator () (vectorOut_t value, matrixOut_t jacobian) const;
 
-        InequalityVector (const vector_t& invert) :
-          invert_ (invert), threshold_ (1e-3)
-        {}
+        virtual bool operator () (vectorOut_t value) const;
 
-        virtual bool operator () (vector_t& value, matrix_t& jacobian) const;
+        static EquationTypesPtr_t create (size_t dim);
 
-        virtual bool operator () (vector_t& value) const;
+        static EquationTypesPtr_t create (const std::vector <EquationType::Type> types);
 
-        void threshold (const value_type& t)
-        {
-          threshold_ = t;
-        }
+      protected:
+        EquationTypes (const std::vector <EquationType::Type> types);
 
       private:
-        /// A vector of +/- 1 depending on whether the direction
-        /// is inverted along the corresponding axis.
-        vector_t invert_;
+        typedef std::vector <EquationTypePtr_t> Container_t;
+        typedef Container_t::iterator iterator;
+        typedef Container_t::const_iterator const_iterator;
 
+        Container_t inequalities_;
+    };
+
+    template < EquationType::Type T > class Inequality;
+    typedef Inequality < EquationType::Superior > Superior;
+    typedef Inequality < EquationType::Inferior > Inferior;
+    typedef boost::shared_ptr < Superior > SuperiorPtr_t;
+    typedef boost::shared_ptr < Inferior > InferiorPtr_t;
+
+    template < EquationType::Type T >
+    class HPP_CORE_DLLAPI Inequality : public EquationType
+    {
+      public:
+        virtual bool operator () (vectorOut_t value, matrixOut_t jacobian) const;
+
+        virtual bool operator () (vectorOut_t value) const;
+
+        void threshold (const value_type& t);
+
+        static EquationTypePtr_t create (const value_type& threshold = 1e-3);
+
+      protected:
+        Inequality (const value_type& threshold);
+
+      private:
         value_type threshold_;
     };
   } // namespace core
