@@ -70,12 +70,12 @@ namespace hpp {
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;
 
-    class Inequality;
-    typedef boost::shared_ptr <Inequality> InequalityPtr_t;
-    class InequalityVector;
-    typedef boost::shared_ptr <InequalityVector> InequalityVectorPtr_t;
+    class EquationType;
+    typedef boost::shared_ptr <EquationType> EquationTypePtr_t;
     class Equality;
     typedef boost::shared_ptr <Equality> EqualityPtr_t;
+    class EquationTypes;
+    typedef boost::shared_ptr <EquationTypes> EquationTypesPtr_t;
 
     // roboptim
     typedef roboptim::GenericFunctionTraits
@@ -161,8 +161,8 @@ namespace hpp {
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
-    typedef std::map <std::string, InequalityPtr_t>
-    InequalityMap_t;
+    typedef std::map <std::string, EquationTypePtr_t>
+    EquationTypeMap_t;
 
     // Collision pairs
     typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>

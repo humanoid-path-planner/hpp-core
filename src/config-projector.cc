@@ -81,7 +81,7 @@ namespace hpp {
     }
 
     void ConfigProjector::addConstraint
-    (const DifferentiableFunctionPtr_t& constraint, InequalityPtr_t comp)
+    (const DifferentiableFunctionPtr_t& constraint, EquationTypePtr_t comp)
     {
       vector_t value (constraint->outputSize ());
       matrix_t jacobian (constraint->outputSize (),

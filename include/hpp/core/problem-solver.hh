@@ -151,7 +151,7 @@ namespace hpp {
       virtual void addConstraintToConfigProjector (
                           const std::string& constraintName,
                           const DifferentiableFunctionPtr_t& constraint,
-                          const InequalityPtr_t comp = Equality::create ());
+                          const EquationTypePtr_t comp = Equality::create ());
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
@@ -169,19 +169,19 @@ namespace hpp {
       /// Add an InequalityRef corresponding to the numerical constraint with the
       /// same name.
       /// \param name name of the inequality. Should correspond to a inequality constraint.
-      void addInequalityVector (const std::string& name, const vector_t& invert)
+      void addInequalityVector (const std::string& name, const EquationType::VectorOfTypes types)
       {
         DifferentiableFunctionPtr_t df = NumericalConstraintMap_ [name];
         if (!df)
           throw std::logic_error ("Numerical constraint not defined.");
-        InequalityVectorPtr_t ir = InequalityVectorPtr_t(new InequalityVector (invert));
-        inequalityMap_ [name] = ir;
+        EquationTypesPtr_t eqtypes = EquationTypes::create (types);
+        equationTypeMap_ [name] = eqtypes;
       }
 
-      InequalityPtr_t inequality (const std::string& name) const
+      EquationTypePtr_t inequality (const std::string& name) const
       {
-        InequalityMap_t::const_iterator it = inequalityMap_.find (name);
-        if (it == inequalityMap_.end ())
+        EquationTypeMap_t::const_iterator it = equationTypeMap_.find (name);
+        if (it == equationTypeMap_.end ())
           return Equality::create ();
         return it->second;
       }
@@ -371,7 +371,7 @@ namespace hpp {
       /// Map of constraints
       DifferentiableFunctionMap_t NumericalConstraintMap_;
       /// Map of inequality
-      InequalityMap_t inequalityMap_;
+      EquationTypeMap_t equationTypeMap_;
       /// Computation of distances to obstacles
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
     }; // class ProblemSolver

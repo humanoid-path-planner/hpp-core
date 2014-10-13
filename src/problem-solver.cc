@@ -160,7 +160,7 @@ namespace hpp {
     void ProblemSolver::addConstraintToConfigProjector(
                           const std::string& constraintName,
                           const DifferentiableFunctionPtr_t& constraint,
-                          const InequalityPtr_t comp)
+                          const EquationTypePtr_t comp)
     {
       if (!robot_) {
 	hppDout (error, "Cannot add constraint while robot is not set");
