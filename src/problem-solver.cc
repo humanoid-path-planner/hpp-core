@@ -51,7 +51,7 @@ namespace hpp {
       roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (),
       pathValidationFactory_ (),
-      collisionObstacles_ (), distanceObstacles_ (), obstacleLoaded_(false),
+      collisionObstacles_ (), distanceObstacles_ (),
       errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -209,9 +209,6 @@ namespace hpp {
 
     bool ProblemSolver::prepareSolveStepByStep ()
     {
-      if(obstacleLoaded_) // If collision obstacle added, reset Roadmap
-        resetRoadmap ();
-
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
@@ -221,7 +218,6 @@ namespace hpp {
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
-      obstacleLoaded_=false;
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
 	   itConfig != goalConfigurations_.end (); itConfig++) {
@@ -249,9 +245,6 @@ namespace hpp {
 
     void ProblemSolver::solve ()
     {
-      if(obstacleLoaded_) // If collision obstacle added, reset Roadmap
-        resetRoadmap ();
-
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
@@ -261,7 +254,6 @@ namespace hpp {
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
-      obstacleLoaded_=false;
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
 	   itConfig != goalConfigurations_.end (); itConfig++) {
@@ -281,8 +273,8 @@ namespace hpp {
 
       if (collision){
 	collisionObstacles_.push_back (object);
-	obstacleLoaded_=true;
-	}
+        resetRoadmap ();
+      }
       if (distance)
 	distanceObstacles_.push_back (object);
       if (problem ())
