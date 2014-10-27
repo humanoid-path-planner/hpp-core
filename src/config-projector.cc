@@ -424,6 +424,10 @@ namespace hpp {
     vector_t ConfigProjector::offset () const
     {
       vector_t small;
+      if (constraints_.empty ()) {
+        small.resize (0);
+        return small;
+      }
       size_type row = 0, nbRows = 0, s = 0;
       for (NumericalConstraints_t::const_iterator itConstraint =
           constraints_.begin ();
