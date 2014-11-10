@@ -178,6 +178,14 @@ namespace hpp {
         equationTypeMap_ [name] = eqtypes;
       }
 
+      /// Add an InequalityRef corresponding to the numerical constraint with the
+      /// same name.
+      /// \param name name of the inequality. Should correspond to a inequality constraint.
+      void addInequalityVector (const std::string& name, const EquationTypePtr_t eq)
+      {
+        equationTypeMap_ [name] = eq;
+      }
+
       EquationTypePtr_t inequality (const std::string& name) const
       {
         EquationTypeMap_t::const_iterator it = equationTypeMap_.find (name);
