@@ -101,10 +101,10 @@ namespace hpp {
     };
 
     template < EquationType::Type T > class Inequality;
-    typedef Inequality < EquationType::Superior > Superior;
-    typedef Inequality < EquationType::Inferior > Inferior;
-    typedef boost::shared_ptr < Superior > SuperiorPtr_t;
-    typedef boost::shared_ptr < Inferior > InferiorPtr_t;
+    typedef Inequality < EquationType::Superior > SuperiorIneq;
+    typedef Inequality < EquationType::Inferior > InferiorIneq;
+    typedef boost::shared_ptr < SuperiorIneq > SuperiorPtr_t;
+    typedef boost::shared_ptr < InferiorIneq > InferiorPtr_t;
 
     template < EquationType::Type T >
     class HPP_CORE_DLLAPI Inequality : public EquationType
