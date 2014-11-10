@@ -96,7 +96,7 @@ namespace hpp {
       if (value[0] >= 0) {
         value[0] = value[0] - threshold_;
         return true;
-      } else if (value[0] > threshold_) {
+      } else if (value[0] > threshold_) { // threshold_ < 0
         value[0] -= threshold_;
       } else {
         value[0] = 0;
@@ -112,6 +112,61 @@ namespace hpp {
         return true;
       } else if (value[0] > threshold_) {
         value[0] -= threshold_;
+      } else {
+        value[0] = 0;
+        jacobian.row (0).setZero ();
+      }
+      return false;
+    }
+
+    // -------------------------------------------------------------------
+
+    DoubleInequality::DoubleInequality (const value_type w, const value_type& t):
+      threshold_ (t), left_ (-w/2), right_ (w/2)
+    {
+      assert (w > 0);
+    }
+
+    EquationTypePtr_t DoubleInequality::create (const value_type w, const value_type& thr)
+    {
+      return DoubleInequalityPtr_t (new DoubleInequality (w, thr));
+    }
+
+    void DoubleInequality::threshold (const value_type& t)
+    {
+      threshold_ = t;
+    }
+
+    bool DoubleInequality::operator () (vectorOut_t value) const
+    {
+      if (value[0] <= left_) {
+        value[0] = value[0] - threshold_;
+        return true;
+      } else if (value[0] >= right_) {
+        value[0] = value[0] + threshold_;
+        return true;
+      } else if (value[0] < left_ - threshold_) {
+        value[0] = value[0] - threshold_;
+      } else if (value[0] > right_ - threshold_) {
+        value[0] = value[0] + threshold_;
+      } else {
+        value[0] = 0;
+      }
+      return false;
+    }
+
+    bool DoubleInequality::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    {
+      if (value[0] <= left_) {
+        value[0] = value[0] - threshold_;
+        return true;
+      } else if (value[0] >= right_) {
+        value[0] = value[0] + threshold_;
+        return true;
+      } else if (value[0] < left_ - threshold_) {
+        value[0] = value[0] - threshold_;
+      } else if (value[0] > right_ - threshold_) {
+        value[0] = value[0] + threshold_;
       } else {
         value[0] = 0;
         jacobian.row (0).setZero ();

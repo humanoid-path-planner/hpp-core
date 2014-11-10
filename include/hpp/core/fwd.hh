@@ -76,6 +76,8 @@ namespace hpp {
     typedef boost::shared_ptr <Equality> EqualityPtr_t;
     class EquationTypes;
     typedef boost::shared_ptr <EquationTypes> EquationTypesPtr_t;
+    class DoubleInequality;
+    typedef boost::shared_ptr <DoubleInequality> DoubleInequalityPtr_t;
 
     // roboptim
     typedef roboptim::GenericFunctionTraits

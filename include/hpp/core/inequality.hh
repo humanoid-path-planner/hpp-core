@@ -33,7 +33,8 @@ namespace hpp {
         enum Type {
           Equality,
           Superior,
-          Inferior
+          Inferior,
+          DoubleInequality
         };
         typedef std::vector <Type> VectorOfTypes;
 
@@ -122,6 +123,25 @@ namespace hpp {
 
       private:
         value_type threshold_;
+    };
+
+    class HPP_CORE_DLLAPI DoubleInequality : public EquationType
+    {
+      public:
+        virtual bool operator () (vectorOut_t value, matrixOut_t jacobian) const;
+
+        virtual bool operator () (vectorOut_t value) const;
+
+        void threshold (const value_type& t);
+
+        static EquationTypePtr_t create (const value_type width, const value_type& threshold = 1e-3);
+
+      protected:
+        DoubleInequality (const value_type width, const value_type& threshold);
+
+      private:
+        value_type threshold_;
+        value_type left_, right_;
     };
   } // namespace core
 } // namespace hpp
