@@ -42,6 +42,10 @@ namespace hpp {
 	computeLockedDofs (configuration);
 	return true;
       }
+      bool isSatisfied (ConfigurationIn_t)
+      {
+        return true;
+      }
     }; // class ConfigProjectorTrivial
 
     bool ConstraintSet::impl_compute (ConfigurationOut_t configuration)

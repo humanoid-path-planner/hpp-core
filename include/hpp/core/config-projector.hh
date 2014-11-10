@@ -130,7 +130,7 @@ namespace hpp {
       /// @}
 
       /// Check whether a configuration statisfies the constraint.
-      bool isSatisfied (ConfigurationIn_t config);
+      virtual bool isSatisfied (ConfigurationIn_t config);
 
       /// Get the statistics
       ::hpp::statistics::SuccessStatistics& statistics()
