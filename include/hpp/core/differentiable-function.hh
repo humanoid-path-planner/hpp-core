@@ -157,7 +157,7 @@ namespace hpp {
 			      std::string name = std::string ()) :
 	inputSize_ (inputSize), inputDerivativeSize_ (inputDerivativeSize),
 	outputSize_ (outputSize), isParametric_ (false),
-       passiveDofs_ (), name_ (name)
+       passiveDofs_ (0), name_ (name)
       {
       }
 
