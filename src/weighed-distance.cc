@@ -93,7 +93,7 @@ namespace hpp {
       matrix_t jacobian; jacobian.resize (3, robot->numberDof ());
       const JointVector_t jointVector (robot->getJointVector ());
       for (JointVector_t::const_iterator it1 = jointVector.begin ();
-	   it1 != jointVector.end (); it1++) {
+	   it1 != jointVector.end (); ++it1) {
 	if ((*it1)->numberDof () != 0) {
 	  value_type length = 0;
 	  std::size_t rank = (*it1)->rankInVelocity ();
@@ -138,7 +138,7 @@ namespace hpp {
       std::size_t i=0;
       const JointVector_t jointVector (robot_->getJointVector ());
       for (JointVector_t::const_iterator itJoint = jointVector.begin ();
-	   itJoint != jointVector.end (); itJoint++) {
+	   itJoint != jointVector.end (); ++itJoint) {
 	if ((*itJoint)->numberDof () != 0) {
 	  value_type length = weights_ [i];
 	  value_type distance =

@@ -122,9 +122,9 @@ namespace hpp {
       else {
 	Leaf->split();
 	for ( NodesMap_t::iterator map = Leaf->nodesMap_.begin();
-	      map != Leaf->nodesMap_.end() ; map++ ) {
+	      map != Leaf->nodesMap_.end(); ++map) {
 	  for (Nodes_t::iterator it = map->second.begin ();
-	       it != map->second.end (); it++ ) {
+	       it != map->second.end (); ++it) {
 	    Leaf->addNode(*it);
 	  }
 	  map->second.clear();
@@ -202,7 +202,7 @@ namespace hpp {
       upperBounds_.resize (robot_->configSize ());
       lowerBounds_.resize (robot_->configSize ());
       for (JointVector_t::const_iterator itJoint = jv.begin ();
-	   itJoint != jv.end (); itJoint++) {
+	   itJoint != jv.end (); ++itJoint) {
 	for (size_type rank=0 ; rank<(*itJoint)->configSize (); rank++) {
 	  upperBounds_[i] = (*itJoint)->upperBound (rank);
 	  lowerBounds_[i] = (*itJoint)->lowerBound (rank);
@@ -270,7 +270,7 @@ namespace hpp {
 	  value_type distance = std::numeric_limits <value_type>::infinity ();
 	  for (Nodes_t::iterator itNode =
 		 nodesMap_[connectedComponent].begin ();
-	       itNode != nodesMap_[connectedComponent].end (); itNode ++) {
+	       itNode != nodesMap_[connectedComponent].end (); ++itNode) {
 	    distance = (*distance_) (*configuration,
 				     *((*itNode)->configuration ()));
 	    if (distance < minDistance) {

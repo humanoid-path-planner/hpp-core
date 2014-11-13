@@ -63,7 +63,7 @@ namespace hpp {
 	}
 	PathVectorPtr_t pathVector;
 	for (Edges_t::const_iterator itEdge = edges.begin ();
-	     itEdge != edges.end (); itEdge++) {
+	     itEdge != edges.end (); ++itEdge) {
 	  const PathPtr_t& path ((*itEdge)->path ());
 	  if (!pathVector)
 	    pathVector = PathVector::create (path->outputSize ());
@@ -86,7 +86,7 @@ namespace hpp {
       bool isGoal (const NodePtr_t node)
       {
 	for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
-	     itGoal != roadmap_->goalNodes ().end (); itGoal++) {
+	     itGoal != roadmap_->goalNodes ().end (); ++itGoal) {
 	  if (*itGoal == node) {
 	    return true;
 	  }
@@ -113,7 +113,7 @@ namespace hpp {
 	  open_.erase (itv);
 	  closed_.push_back (current);
 	  for (Edges_t::const_iterator itEdge = current->outEdges ().begin ();
-	       itEdge != current->outEdges ().end (); itEdge++) {
+	       itEdge != current->outEdges ().end (); ++itEdge) {
 	    value_type transitionCost = edgeCost (*itEdge);
 	    NodePtr_t child ((*itEdge)->to ());
 	    if (std::find (closed_.begin (), closed_.end (), child) ==
@@ -141,7 +141,7 @@ namespace hpp {
 	const ConfigurationPtr_t config = node->configuration ();
 	value_type res = std::numeric_limits <value_type>::infinity ();
 	for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
-	     itGoal != roadmap_->goalNodes ().end (); itGoal++) {
+	     itGoal != roadmap_->goalNodes ().end (); ++itGoal) {
 	  ConfigurationPtr_t goal = (*itGoal)->configuration ();
 	  value_type dist = (*distance_) (*config, *goal);
 	  if (dist < res) {

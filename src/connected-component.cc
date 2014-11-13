@@ -35,7 +35,7 @@ namespace hpp {
     {
       // Tell other's nodes that they now belong to this connected component
       for (Nodes_t::iterator itNode = other->nodes_.begin ();
-	   itNode != other->nodes_.end (); itNode++) {
+	   itNode != other->nodes_.end (); ++itNode) {
 	(*itNode)->connectedComponent (weak_.lock ());
       }
       // Add other's nodes to this list.

@@ -72,7 +72,7 @@ namespace hpp {
       JointVector_t joints = robot->getJointVector ();
       std::pair < size_type, size_type > rank;
       for (JointVector_t::iterator j = joints.begin();
-          j!= joints.end(); j++)
+          j!= joints.end(); ++j)
         if (dynamic_cast<model::JointSO3*>(*j) != 0) {
           rank.first = (*j)->rankInConfiguration ();
           rank.second = (*j)->rankInVelocity ();
@@ -107,7 +107,7 @@ namespace hpp {
 						robot_->configSize (),
 						robot_->numberDof ()));
       for (LockedDofs_t::const_iterator itLocked = lockedDofs_.begin ();
-	   itLocked != lockedDofs_.end (); itLocked++) {
+	   itLocked != lockedDofs_.end (); ++itLocked) {
 	int index = (*itLocked)->rankInVelocity ();
         locked[index] = true;
 	size = (index - latestIndex) - 1;
@@ -119,7 +119,7 @@ namespace hpp {
 	latestIndex = index;
       }
       for (Intervals_t::iterator rank = allSO3ranks_.begin();
-          rank != allSO3ranks_.end(); rank++) {
+          rank != allSO3ranks_.end(); ++rank) {
         int index = rank->second;
         if (locked[index] && locked[index+1] && locked[index+2]) {
           lockedSO3ranks_.push_back(*rank);
@@ -138,7 +138,7 @@ namespace hpp {
       std::size_t size = 0;
       for (NumericalConstraints_t::const_iterator itConstraint =
 	     constraints_.begin ();
-	   itConstraint != constraints_.end (); itConstraint ++) {
+	   itConstraint != constraints_.end (); ++itConstraint) {
 	FunctionValueAndJacobian_t fvj = (*itConstraint);
 	size += fvj.function->outputSize ();
       }
@@ -161,7 +161,7 @@ namespace hpp {
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator itConstraint =
 	     constraints_.begin ();
-	   itConstraint != constraints_.end (); itConstraint ++) {
+	   itConstraint != constraints_.end (); ++itConstraint) {
 	DifferentiableFunction& f = *(itConstraint->function);
 	vector_t& value = itConstraint->value;
 	matrix_t& jacobian = itConstraint->jacobian;
@@ -173,7 +173,7 @@ namespace hpp {
 	size_type col = 0;
 	value_.segment (row, nbRows) = value;
 	for (Intervals_t::const_iterator itInterval = intervals_.begin ();
-	     itInterval != intervals_.end (); itInterval ++) {
+	     itInterval != intervals_.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
 	  size_type nbCols = itInterval->second;
 	  reducedJacobian_.block (row, col, nbRows, nbCols) =
@@ -194,7 +194,7 @@ namespace hpp {
       assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
       for (Intervals_t::const_iterator itInterval = intervals_.begin ();
-	   itInterval != intervals_.end (); itInterval ++) {
+	   itInterval != intervals_.end (); ++itInterval) {
 	size_type col0 = itInterval->first;
 	size_type nbCols = itInterval->second;
 	normal.segment (col0, nbCols) = small.segment (col, nbCols);
@@ -210,7 +210,7 @@ namespace hpp {
       assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
       for (Intervals_t::const_iterator itInterval = intervals_.begin ();
-	   itInterval != intervals_.end (); itInterval ++) {
+	   itInterval != intervals_.end (); ++itInterval) {
 	size_type col0 = itInterval->first;
 	size_type nbCols = itInterval->second;
 	small.segment (col, nbCols) = normal.segment (col0, nbCols);
@@ -303,7 +303,7 @@ namespace hpp {
         rankSO3 = lockedSO3ranks_[iSO3].first;
       /// LockedDofs are always sorted by their rankInConfiguration.
       for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
-	   itLock != lockedDofs_.end (); itLock ++) {
+	   itLock != lockedDofs_.end (); ++itLock) {
 	configuration [(*itLock)->rankInConfiguration ()] = (*itLock)->value ();
         if (rankSO3 + 3 == (*itLock)->rankInConfiguration ()) {
           // Normalize
@@ -325,7 +325,7 @@ namespace hpp {
     {
       // If the same dof is already locked, replace by new value
       for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
-	   itLock != lockedDofs_.end (); itLock ++) {
+	   itLock != lockedDofs_.end (); ++itLock) {
 	if (lockedDof->rankInVelocity () == (*itLock)->rankInVelocity ()) {
 	  *itLock = lockedDof;
 	  return;
@@ -360,7 +360,7 @@ namespace hpp {
     {
       os << "Config projector: " << name () << ", contains" << std::endl;
       for (NumericalConstraints_t::const_iterator it = constraints_.begin ();
-	   it != constraints_.end (); it++) {
+	   it != constraints_.end (); ++it) {
 	const DifferentiableFunction& f (*(it->function));
 	os << "    " << f << std::endl;
       }
@@ -372,7 +372,7 @@ namespace hpp {
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator itConstraint =
 	     constraints_.begin ();
-	   itConstraint != constraints_.end (); itConstraint ++) {
+	   itConstraint != constraints_.end (); ++itConstraint) {
 	DifferentiableFunction& f = *(itConstraint->function);
 	vector_t& value = itConstraint->value;
 	f (value, config);
@@ -389,7 +389,7 @@ namespace hpp {
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator itConstraint =
           constraints_.begin ();
-          itConstraint != constraints_.end (); itConstraint ++) {
+          itConstraint != constraints_.end (); ++itConstraint) {
         vector_t value = vector_t::Zero (itConstraint->value.size ());
         DifferentiableFunction& f = *(itConstraint->function);
         if (f.isParametric ()) {
@@ -409,7 +409,7 @@ namespace hpp {
       size_type row = 0, nbRows = 0, s = 0;
       for (NumericalConstraints_t::iterator itConstraint =
           constraints_.begin ();
-          itConstraint != constraints_.end (); itConstraint ++) {
+          itConstraint != constraints_.end (); ++itConstraint) {
         DifferentiableFunction& f = *(itConstraint->function);
         nbRows = f.outputSize ();
         if (f.isParametric ()) {
@@ -431,7 +431,7 @@ namespace hpp {
       size_type row = 0, nbRows = 0, s = 0;
       for (NumericalConstraints_t::const_iterator itConstraint =
           constraints_.begin ();
-          itConstraint != constraints_.end (); itConstraint ++) {
+          itConstraint != constraints_.end (); ++itConstraint) {
         DifferentiableFunction& f = *(itConstraint->function);
         nbRows = f.outputSize ();
         if (f.isParametric ()) {

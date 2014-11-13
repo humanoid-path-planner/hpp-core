@@ -220,7 +220,7 @@ namespace hpp {
       problem_->resetGoalConfigs ();
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
-	   itConfig != goalConfigurations_.end (); itConfig++) {
+	   itConfig != goalConfigurations_.end (); ++itConfig) {
 	problem_->addGoalConfig (*itConfig);
       }
 
@@ -256,7 +256,7 @@ namespace hpp {
       problem_->resetGoalConfigs ();
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
-	   itConfig != goalConfigurations_.end (); itConfig++) {
+	   itConfig != goalConfigurations_.end (); ++itConfig) {
 	problem_->addGoalConfig (*itConfig);
       }
       PathVectorPtr_t path = pathPlanner_->solve ();

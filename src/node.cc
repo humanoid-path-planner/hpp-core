@@ -46,7 +46,7 @@ namespace hpp {
       assert (edge->from () == this);
       // Check that same edge does not exist
       for (Edges_t::iterator it=outEdges_.begin (); it != outEdges_.end ();
-	   it++) {
+	   ++it) {
 	if ((*it)->to () == edge->to ()) {
 	  std::string msg
 	    ("Attempt to insert an edge between two nodes already connected");
@@ -65,7 +65,7 @@ namespace hpp {
       assert (edge->to () == this);
       // Check that same edge does not exist
       for (Edges_t::iterator it=inEdges_.begin (); it != inEdges_.end ();
-	   it++) {
+	   ++it) {
 	if ((*it)->from () == edge->from ()) {
 	  std::string msg
 	    ("Attempt to insert an edge between two nodes already connected");
@@ -74,8 +74,6 @@ namespace hpp {
 					 ->configuration ())).transpose());
 	  hppDout (error, "  to: " << (*configuration_).transpose());
 	  throw std::runtime_error (msg.c_str ());
-	  throw std::runtime_error
-	    ("Attempt to insert an edge between two nodes already connected");
 	}
       }
       inEdges_.push_back (edge);

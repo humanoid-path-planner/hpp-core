@@ -67,7 +67,7 @@ namespace hpp {
       roadmap_->initNode (problem_.initConfig ());
       const Configurations_t goals (problem_.goalConfigs ());
       for (Configurations_t::const_iterator itGoal = goals.begin ();
-	   itGoal != goals.end (); itGoal++) {
+	   itGoal != goals.end (); ++itGoal) {
 	roadmap_->addGoalNode (*itGoal);
       }
     }

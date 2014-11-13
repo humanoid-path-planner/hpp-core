@@ -36,7 +36,7 @@ namespace hpp {
     {
       PathVectorPtr_t result = path;
       for (Optimizers_t::iterator itOpt = optimizers_.begin ();
-	   itOpt != optimizers_.end (); itOpt++) {
+	   itOpt != optimizers_.end (); ++itOpt) {
 	result = (*itOpt)->optimize (result);
       }
       return result;

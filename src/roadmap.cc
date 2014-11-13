@@ -58,12 +58,12 @@ namespace hpp {
     {
       connectedComponents_.clear ();
 
-      for (Nodes_t::iterator it = nodes_.begin (); it != nodes_.end (); it++) {
+      for (Nodes_t::iterator it = nodes_.begin (); it != nodes_.end (); ++it) {
 	delete *it;
       }
       nodes_.clear ();
 
-      for (Edges_t::iterator it = edges_.begin (); it != edges_.end (); it++) {
+      for (Edges_t::iterator it = edges_.begin (); it != edges_.end (); ++it) {
 	delete *it;
       }
       edges_.clear ();
@@ -144,7 +144,7 @@ namespace hpp {
       minDistance = std::numeric_limits<value_type>::infinity ();
       for (ConnectedComponents_t::const_iterator itcc =
 	     connectedComponents_.begin ();
-	   itcc != connectedComponents_.end (); itcc++) {
+	   itcc != connectedComponents_.end (); ++itcc) {
 	value_type distance;
 	NodePtr_t node;
 	node = nearestNeighbor_->search(configuration, *itcc, distance);
@@ -234,7 +234,7 @@ namespace hpp {
     {
       const ConnectedComponentPtr_t ccInit = initNode ()->connectedComponent ();
       for (Nodes_t::const_iterator itGoal = goalNodes_.begin ();
-	   itGoal != goalNodes_.end (); itGoal++) {
+	   itGoal != goalNodes_.end (); ++itGoal) {
 	if (ccInit->canReach ((*itGoal)->connectedComponent ())) {
 	  return true;
 	}

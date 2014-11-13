@@ -57,7 +57,7 @@ namespace hpp {
       // Loop over device joint and interpolate
       const JointVector_t& jv (device_->getJointVector ());
       for (model::JointVector_t::const_iterator itJoint = jv.begin ();
-	   itJoint != jv.end (); itJoint++) {
+	   itJoint != jv.end (); ++itJoint) {
 	std::size_t rank = (*itJoint)->rankInConfiguration ();
 	(*itJoint)->configuration ()->interpolate
 	  (initial_, end_, u, rank, result);
