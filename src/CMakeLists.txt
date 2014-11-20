@@ -50,6 +50,7 @@ SET(${LIBRARY_NAME}_SOURCES
   random-shortcut.cc
   roadmap.cc
   straight-path.cc
+  visibility-prm-planner.cc
   weighed-distance.cc
   )
 

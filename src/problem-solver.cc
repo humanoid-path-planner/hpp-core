@@ -28,6 +28,7 @@
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 
 namespace hpp {
@@ -58,6 +59,8 @@ namespace hpp {
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
 	DiffusingPlanner::createWithRoadmap;
+      pathPlannerFactory_ ["VisibilityPrmPlanner"] =
+	VisibilityPrmPlanner::createWithRoadmap;
       // Store path validation methods in map.
       pathValidationFactory_ ["Discretized"] =
 	DiscretizedCollisionChecking::create;

@@ -66,6 +66,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
+    HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;
 
@@ -149,6 +150,7 @@ namespace hpp {
     typedef model::vector_t vector_t;
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
+    typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
