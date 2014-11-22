@@ -19,16 +19,17 @@
 #ifndef HPP_CORE_DIFFERENTIABLE_FUNCTION_HH
 # define HPP_CORE_DIFFERENTIABLE_FUNCTION_HH
 
+# include <algorithm>
 # include <boost/algorithm/string/replace.hpp>
 # include <boost/assign/list_of.hpp>
 # include <roboptim/core/indent.hh>
 # include <hpp/core/fwd.hh>
-# include <algorithm>
+# include <hpp/core/config.hh>
 
 namespace hpp {
   namespace core {
-    /// Differentiable function of the robot configuration
-    class DifferentiableFunction
+    /// Differentiable function
+    class HPP_CORE_DLLAPI DifferentiableFunction
     {
     public:
       typedef std::pair <size_type, size_type> Interval_t;
@@ -39,7 +40,7 @@ namespace hpp {
       ///
       /// \note parameters should be of the correct size.
       void operator () (vectorOut_t result,
-			ConfigurationIn_t argument) const
+			vectorIn_t argument) const
       {
 	assert (result.size () == outputSize ());
 	assert (argument.size () == inputSize ());
@@ -49,7 +50,7 @@ namespace hpp {
       ///
       /// \retval jacobian jacobian will be stored in this argument
       /// \param argument point at which the jacobian will be computed
-      void jacobian (matrixOut_t jacobian, ConfigurationIn_t argument) const
+      void jacobian (matrixOut_t jacobian, vectorIn_t argument) const
       {
 	assert (argument.size () == inputSize ());
 	assert (jacobian.rows () == outputSize ());
@@ -163,10 +164,10 @@ namespace hpp {
 
       /// User implementation of function evaluation
       virtual void impl_compute (vectorOut_t result,
-				 ConfigurationIn_t argument) const = 0;
+				 vectorIn_t argument) const = 0;
 
       virtual void impl_jacobian (matrixOut_t jacobian,
-				  ConfigurationIn_t arg) const = 0;
+				  vectorIn_t arg) const = 0;
 
     private:
       /// Dimension of input vector.
