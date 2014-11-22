@@ -34,9 +34,10 @@ namespace hpp {
       /// \{
 
       /// Create instance and return shared pointer
-      static PathVectorPtr_t create (std::size_t outputSize)
+      static PathVectorPtr_t create (size_type outputSize,
+				     size_type outputDerivativeSize)
       {
-	PathVector* ptr = new PathVector (outputSize);
+	PathVector* ptr = new PathVector (outputSize, outputDerivativeSize);
 	PathVectorPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -105,8 +106,8 @@ namespace hpp {
 	return os;
       }
       /// Constructor
-      PathVector (std::size_t outputSize) : parent_t (std::make_pair (0, 0),
-						      outputSize),
+      PathVector (std::size_t outputSize, std::size_t outputDerivativeSize) :
+	parent_t (std::make_pair (0, 0), outputSize, outputDerivativeSize),
 	paths_ ()
 	  {
 	  }

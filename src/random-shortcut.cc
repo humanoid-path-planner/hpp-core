@@ -98,7 +98,8 @@ namespace hpp {
 	    (straight [i], false, validPart);
 	}
 	// Replace valid parts
-	result = PathVector::create (path->outputSize ());
+	result = PathVector::create (path->outputSize (),
+				     path->outputDerivativeSize ());
 	if (valid [0])
 	  result->appendPath (straight [0]);
 	else

@@ -105,7 +105,7 @@ namespace hpp {
       /// the path is reversed.
       ExtractedPath (const PathPtr_t& original, const interval_t& subInterval) :
 	Path (std::pair <value_type, value_type> (0,0), original->outputSize (),
-	      original->constraints ()),
+	      original->outputDerivativeSize (), original->constraints ()),
 	original_ (original)
       {
 	reversed_ = subInterval.first <= subInterval.second ? false : true;

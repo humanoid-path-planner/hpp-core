@@ -106,6 +106,12 @@ namespace hpp {
 	return outputSize_;
       }
 
+      /// Get size of velocity
+      size_type outputDerivativeSize () const
+      {
+	return outputDerivativeSize_;
+      }
+
       /// Get interval of definition
       const interval_t& timeRange () const
       {
@@ -120,21 +126,35 @@ namespace hpp {
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const = 0;
 
-      /// Protected constructor
-      Path (const interval_t& interval, size_type outputSize) :
-	timeRange_ (interval), outputSize_ (outputSize), constraints_ ()
+      /// Constructor
+      /// \param interval interval of definition of the path,
+      /// \param outputSize size of the output configuration,
+      /// \param outputDerivativeSize number of degrees of freedom of  the
+      ///        underlying robot
+      Path (const interval_t& interval, size_type outputSize,
+	    size_type outputDerivativeSize) :
+	timeRange_ (interval), outputSize_ (outputSize),
+	outputDerivativeSize_ (outputDerivativeSize), constraints_ ()
 	{
 	}
 
-      /// Protected constructor
+      /// Constructor
+      /// \param interval interval of definition of the path,
+      /// \param outputSize size of the output configuration,
+      /// \param outputDerivativeSize number of degrees of freedom of  the
+      ///        underlying robot
+      /// \param constraints constraints the set is subject to,
+      ///        constraints are solved at each evaluation of the output
+      ///        configuration.
       Path (const interval_t& interval, size_type outputSize,
+	    size_type outputDerivativeSize,
 	    const ConstraintSetPtr_t& constraints) :
 	timeRange_ (interval), outputSize_ (outputSize),
-	constraints_ (constraints)
+	outputDerivativeSize_ (outputDerivativeSize), constraints_ (constraints)
 	{
 	}
 
-      /// Protected constructor
+      /// Copy constructor
       Path (const Path& path) :
 	timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
 	constraints_ (path.constraints_)
@@ -158,6 +178,8 @@ namespace hpp {
     private:
       /// Size of the configuration space
       size_type outputSize_;
+      /// Number of degrees of freedom of the robot
+      size_type outputDerivativeSize_;
       /// Constraints that apply to the robot
       ConstraintSetPtr_t constraints_;
       /// Weak pointer to itself

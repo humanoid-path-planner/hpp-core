@@ -29,7 +29,8 @@ namespace hpp {
 				ConfigurationIn_t init,
 				ConfigurationIn_t end,
 				value_type length) :
-      parent_t (interval_t (0, length), device->configSize ()),
+      parent_t (interval_t (0, length), device->configSize (),
+		device->numberDof ()),
       device_ (device), initial_ (init), end_ (end)
     {
       assert (length >= 0);

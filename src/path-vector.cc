@@ -74,7 +74,7 @@ namespace hpp {
     PathPtr_t PathVector::extract (const interval_t& subInterval) const
     {
       using std::make_pair;
-      PathVectorPtr_t path = create (outputSize ());
+      PathVectorPtr_t path = create (outputSize (), outputDerivativeSize ());
       bool reversed = subInterval.first > subInterval.second ? true : false;
       if (reversed) {
 	value_type tmin = subInterval.second;

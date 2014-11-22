@@ -66,7 +66,8 @@ namespace hpp {
 	     itEdge != edges.end (); ++itEdge) {
 	  const PathPtr_t& path ((*itEdge)->path ());
 	  if (!pathVector)
-	    pathVector = PathVector::create (path->outputSize ());
+	    pathVector = PathVector::create (path->outputSize (),
+					     path->outputDerivativeSize ());
 	  pathVector->appendPath (path);
 	}
 	return pathVector;
