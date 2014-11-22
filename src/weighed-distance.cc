@@ -16,7 +16,9 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <limits>
 #include <hpp/util/debug.hh>
+#include <hpp/model/body.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 #include <hpp/model/joint-configuration.hh>
@@ -90,6 +92,7 @@ namespace hpp {
       robot->controlComputation (newflag);
       robot->computeForwardKinematics ();
       robot->controlComputation (flag);
+      value_type minLength = std::numeric_limits <value_type>::infinity ();
       matrix_t jacobian; jacobian.resize (3, robot->numberDof ());
       const JointVector_t jointVector (robot->getJointVector ());
       for (JointVector_t::const_iterator it1 = jointVector.begin ();
@@ -107,8 +110,22 @@ namespace hpp {
 	    if (length < svd.singularValues () [0]) {
 	      length = svd.singularValues () [0];
 	    }
+	    if (BodyPtr_t body = (*it2)->linkedBody ()) {
+	      value_type radius = body->radius ();
+	      jointJacobian = (*it2)->jacobian ().block (3, rank, 3, ncol);
+	      Eigen::JacobiSVD <matrix_t> svd (jointJacobian);
+	      if (length < radius*svd.singularValues () [0]) {
+		length = radius*svd.singularValues () [0];
+	      }
+	    }
 	  }
+	  if (minLength > length && length > 0) minLength = length;
 	  weights_.push_back (length);
+	}
+	for (std::size_t i=0; i < weights_.size (); ++i) {
+	  if (weights_ [i] == 0) {
+	    weights_ [i] = minLength;
+	  }
 	}
       }
     }
