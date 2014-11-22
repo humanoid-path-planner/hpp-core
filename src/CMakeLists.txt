@@ -43,6 +43,8 @@ SET(${LIBRARY_NAME}_SOURCES
   nearest-neighbor/k-d-tree.hh
   node.cc
   path.cc
+  path-optimization/path-length.cc
+  path-optimization/gradient-based.cc
   path-planner.cc
   path-vector.cc
   plan-and-optimize.cc

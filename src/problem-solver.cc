@@ -25,6 +25,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
@@ -56,6 +57,8 @@ namespace hpp {
       distanceBetweenObjects_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
+      pathOptimizerFactory_ ["GradientBased"] =
+	pathOptimization::GradientBased::create;
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
 	DiffusingPlanner::createWithRoadmap;

@@ -67,6 +67,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/locked-dof.hh
   include/hpp/core/node.hh
   include/hpp/core/path.hh
+  include/hpp/core/path-optimization/path-length.hh
+  include/hpp/core/path-optimization/gradient-based.hh
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-validation.hh

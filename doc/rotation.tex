@@ -1,0 +1,170 @@
+\documentclass {article}
+
+\usepackage{color}
+\title {Rotation matrix as an exponential}
+
+\newcommand\reals{\mathbf{R}}
+\newcommand\rot{\mathbf{r}}
+\newcommand\x{\mathbf{x}}
+\newcommand\y{\mathbf{y}}
+\newcommand\rcross[1]{[\rot_{#1}]_{\times}}
+\newcommand\xcross{[\mathbf{x}]_{\times}}
+\newcommand\ycross{[\mathbf{y}]_{\times}}
+\newcommand\omegacross{[\omega]_{\times}}
+\newcommand\rdotcross{\left[\dot{\rot}\right]_{\times}}
+\newcommand\normr{\|\rot\|}
+\newcommand\e{\mathbf{e}}
+\newcommand\alphap{\alpha^{\prime}}
+\newcommand\cross[1]{[#1]_{\times}}
+\begin {document}
+\maketitle
+
+\section {Introduction and notation}
+
+Let $\rot\in\reals^3$ be a vector. We denote by
+\begin{itemize}
+\item $$
+\rcross{} = \left(\begin{array}{ccc}
+0 & -\rot_3 & \rot_2 \\
+\rot_3 & 0 & -\rot_1 \\
+-\rot_2 & \rot_1 & 0
+\end{array}\right)
+$$
+the antisymmetric matrix corresponding to the cross product by $\rot$,
+\item $R = \exp (\rcross{})$ the rotation matrix corresponding to the rotation about
+$\rot$.
+\end{itemize}
+According to Rodrigues formula, we have
+\begin{equation}\label{eq:rodrigues}
+R = \exp (\rcross{}) = I + \frac{\sin \normr}{\normr}\rcross{} +
+\frac{1 - \cos \normr}{\normr^2}\rcross{}^2
+\end{equation}
+We define
+\begin{eqnarray}
+\label{eq:alpha1}
+\alpha_1 (x) &=& \frac{\sin x}{x}\\
+\label{eq:alpha2}
+\alpha_2 (x) &=& \frac{1 - \cos x}{x^2}\\
+\label{eq:alpha3}
+\alphap_1 (x) &=& \frac{x \cos x - \sin x}{x^2}\\
+\label{eq:alpha4}
+\alphap_2 (x) &=& \frac{x \sin x -2(1-\cos x)}{x^3}
+\end{eqnarray}
+With this notation, we can write
+\begin{equation}\label{eq:rodrigues2}
+R = I + \alpha_1 (\normr) \rcross{} + \alpha_2 (\normr) \rcross{}^2
+\end{equation}
+\subsection {Powers of $\rcross{}$}
+
+Let us compute the powers of $\rcross{}$:
+\begin{eqnarray}
+\label{eq:rcross2}
+\rcross{}^3 &=& \rcross{}\rot\rot^T - \normr^2 \rcross{} = - \normr^2 \rcross{}\\
+\label{eq:rcross3}
+\rcross{}^4 &=& - \normr^2 \rcross{}^2
+\end{eqnarray}
+
+\section {Derivative}
+We wish to find a relation between the derivative of $R$ as an antisymmetric
+matrix and the derivative of vector $\rot$:
+\begin{eqnarray}
+\omegacross &=& \dot{R}R^T \\
+\label{eq:jacobian}
+\dot{\rot} &=& J(\rot)\omega \\
+J^{-1} &=& I_3  + \frac{1 - \cos \normr}{\normr^2}\rcross{} + \frac{\normr -\sin\normr}{\normr^3}\rcross{}^2\\
+J &=& I_3 -\frac{1}{2}\rcross{} +  \left(\frac{2(1-\cos\normr) - \normr\sin\normr}{2\normr^2(1-\cos\normr)}\right)\rcross{}^2\\
+\end{eqnarray}
+
+\section {Convex combination of rotations}
+
+Given two rotation matrices $R_0$ and $R_1$, we define the convex
+combination between $R_0$ and $R_1$ as the mapping $R$ from interval
+$[0,1]$ into $SO(3)$ defined by
+\begin{equation}\label{eq:R_alpha}
+\forall \alpha\in[0,1], \ \ R (\alpha) = R_0 \exp\left(\alpha \rcross{} \right)
+\end{equation}
+where $\rot_{01}\in\reals^3$ is defined by
+$$
+\rcross{} = \log\left(R_0^T R_1\right)
+$$
+
+\subsection {Derivative of a convex combination}
+
+If $R_0$ and $R_1$ depend on time, we wish to determine the angular
+velocity of the convex combination as a linear combination of the angular
+velocities of $R_0$ and of $R_1$. For that, we assume that $\alpha$ is constant
+and we denote
+\begin{eqnarray}
+\dot{R}_0 &=& \cross{\omega_0} R_0 \\
+\dot{R}_1 &=& \cross{\omega_1} R_1 \\
+\frac{\partial R}{\partial t} (\alpha) &=& \cross{\omega_\alpha} R (\alpha) \\
+\label{eq:dot_R0R1}
+\frac{d}{dt} (R_0^T R_1) &=& \cross{\omega_{01}}R_0^T R_1 \\
+\label{eq:dot_R0Ralpha}
+\frac{d}{dt} (R_0^T R(\alpha)) &=& \cross{\omega_{0\alpha}}R_0^T R(\alpha)
+\end{eqnarray}
+According to definitions~(\ref{eq:jacobian}) and (\ref{eq:R_alpha}),
+we can write
+\begin{eqnarray*}
+\dot{\rot} &=& J(\rot)\omega_{01}\\
+\alpha\dot{\rot} &=& J(\alpha\rot)\omega_{0\alpha}\\
+\end{eqnarray*}
+and therefore
+\begin{equation}\label{eq:omega_0_alpha}
+\omega_{0\alpha} = \alpha J^{-1}(\alpha\rot) J(\rot)\omega_{01}
+\end{equation}
+Expanding~(\ref{eq:dot_R0R1}), we get
+\begin{eqnarray*}
+\dot{R}_0^T R_1 + R_0^T \dot{R}_1 &=& \cross{\omega_{01}}R_0^T R_1 \\
+-R_0^T\cross{\omega_0} R_1 + R_0^T \cross{\omega_1}{R}_1 &=& \cross{\omega_{01}}R_0^T R_1 \\
+\cross{\omega_1 - \omega_0} &=& \cross{R_0\omega_{01}}\\
+\omega_{01} &=& R_0^T(\omega_1 - \omega_0)\\
+\end{eqnarray*}
+Similarly expanding~(\ref{eq:dot_R0Ralpha}), we get
+\begin{eqnarray*}
+\omega_{0\alpha} &=& R_0^T(\omega_{\alpha} - \omega_0)\\
+\omega_{\alpha} &=& \omega_0 + R_0 (\omega_{0\alpha})
+\end{eqnarray*}
+Finally, using~(\ref{eq:omega_0_alpha}), we get
+$$
+\omega_{\alpha} = \omega_0 + \alpha R_0 J^{-1}(\alpha\rot) J(\rot)R_0^T(\omega_1 - \omega_0)
+$$
+With
+\begin{eqnarray*}
+\gamma_1 &=& \frac{1 - \cos \alpha\normr}{\alpha\normr^2} \\
+\gamma_2 &=& \frac{\alpha\normr -\sin\alpha\normr}{\alpha\normr^3} \\
+\gamma_3 &=& -\frac{1}{2} \\
+\gamma_4 &=& \frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}\\
+J^{-1}(\alpha\rot) J(\rot) &=& \left(I_3  + \gamma_1\rcross{} + \gamma_2\rcross{}^2\right)\left(I_3 + \gamma_3 \rcross{} +  \gamma_4 \rcross{}^2\right)\\
+&=& I_3 + \left(\gamma_3 + \gamma_1 - \normr^2(\gamma_1\gamma_4+\gamma_2\gamma_3)\right)\rcross{} + \left(\gamma_4 + \gamma_2 + \gamma_1\gamma_3 - \normr^2\gamma_2\gamma_4)\right\rcross{}^2\\
+%% &=& I_3 + \left(\frac{1 - \cos \alpha\normr}{\alpha\normr^2}-\frac{1}{2}\right)\rcross{} \\
+%% &&+\left(\frac{\alpha\normr -\sin\alpha\normr}{\alpha\normr^3}+\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}-\frac{1 - \cos \alpha\normr}{2\alpha\normr^2}\right)\rcross{}^2\\
+%% && + \left(\frac{1 - \cos \alpha\normr}{\alpha\normr^2}\left(\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}\right) -
+%% \frac{\alpha\normr -\sin\alpha\normr}{2\alpha\normr^3}\right)\rcross{}^3\\
+%% && + \frac{\alpha\normr -\sin\alpha\normr}{\alpha\normr^3}\left(\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}\right)\rcross{}^4
+\end{eqnarray*}
+%% Using(~\ref{eq:rcross2}) and (~\ref{eq:rcross3}), we get
+%% \begin{eqnarray*}
+%% J^{-1}(\alpha\rot) J(\rot) &=& I_3+ \left(\frac{1 - \cos \alpha\normr}{\alpha\normr^2}-\frac{1}{2}\right.\\
+%% && \left. - \frac{1 - \cos \alpha\normr}{\alpha\normr^2}\left(1 - \frac{\sin\normr}{2\normr(1-\cos\normr)} +
+%% \frac{\alpha\normr -\sin\alpha\normr}{2\alpha\normr}\right)\right)\rcross{}\\
+%% &&+\left(\frac{\alpha\normr -\sin\alpha\normr}{\alpha\normr^3}+\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}-\frac{1 - \cos \alpha\normr}{2\alpha\normr^2}\right.\\
+%% &&\hspace{.5cm}\left.-\frac{\alpha\normr -\sin\alpha\normr}{\alpha\normr^3}\left(1 - \frac{\normr\sin\normr}{2(1-\cos\normr)}\right)\right)\rcross{}^2\\
+%% &=& I_3 \\
+%% && + \left(-\frac{1}{2} + \frac{1 - \cos \alpha\normr}{\alpha\normr^2} \frac{\sin\normr}{2\normr(1-\cos\normr)} - \frac{1 - \cos \alpha\normr}{\alpha\normr^2}\frac{\alpha\normr -\sin\alpha\normr}{2\alpha\normr}\right)\rcross{}\\
+%% &&+\left(\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}-\frac{1 - \cos \alpha\normr}{2\alpha\normr^2}+\frac{\alpha\normr -\sin\alpha\normr}{\alpha\normr^3}\frac{\normr\sin\normr}{2(1-\cos\normr)}\right)\rcross{}^2\\
+%% &=& I_3 \\
+%% && + \left(-\frac{\alpha^2\normr^3(1-\cos\normr)}{2\alpha^2\normr^3(1-\cos\normr)} + \frac{\alpha(1 - \cos \alpha\normr)\sin\normr}{2\alpha^2\normr^3(1-\cos\normr)}\right.\\
+%% && \hspace{.5cm}\left. - \frac{(1-\cos\normr)(1 - \cos \alpha\normr)(\alpha\normr -\sin\alpha\normr)}{2\alpha^2\normr^3(1-\cos\normr)}\right)\rcross{}\\
+%% &&+\left(\frac{2\alpha(1-\cos\normr)}{2\alpha\normr^2(1-\cos\normr)} - \frac{\alpha\normr\sin\normr}{2\alpha\normr^2(1-\cos\normr)}-\frac{(1 - \cos \alpha\normr)(1-\cos\normr)}{2\alpha\normr^2(1-\cos\normr)}\right.\\
+%% && \hspace{.5cm}\left.+\frac{\sin\normr(\alpha\normr -\sin\alpha\normr)}{2\alpha\normr^2(1-\cos\normr)}\right)\rcross{}^2\\
+%% &=& I_3 \\
+%% && + \left(\frac{-\alpha^2\normr^3+\alpha^2\normr^3\cos\normr+\alpha\sin\normr-
+%% \alpha\cos \alpha\normr\sin\normr}{2\alpha^2\normr^3(1-\cos\normr)}\right.\\
+%% && \hspace{.5cm}\left. - \frac{\alpha\normr-\sin\alpha\normr-\alpha\normr\cos \alpha\normr+\cos \alpha\normr\sin\alpha\normr-\alpha\normr\cos\normr}{2\alpha^2\normr^3(1-\cos\normr)}\right.\\
+%% &&\hspace{.5cm}\left.-\frac{+\cos\normr\sin\alpha\normr+\alpha\normr\cos\normr \cos \alpha\normr-\cos\normr\cos \alpha\normr\sin\alpha\normr}{2\alpha^2\normr^3(1-\cos\normr)}\right)\rcross{}\\
+%% &&+\left(\frac{2\alpha(1-\cos\normr)}{2\alpha\normr^2(1-\cos\normr)} - \frac{\alpha\normr\sin\normr}{2\alpha\normr^2(1-\cos\normr)}-\frac{(1 - \cos \alpha\normr)(1-\cos\normr)}{2\alpha\normr^2(1-\cos\normr)}\right.\\
+%% && \hspace{.5cm}\left.+\frac{\sin\normr(\alpha\normr -\sin\alpha\normr)}{2\alpha\normr^2(1-\cos\normr)}\right)\rcross{}^2\\
+%% \end{eqnarray*}
+
+\end {document}

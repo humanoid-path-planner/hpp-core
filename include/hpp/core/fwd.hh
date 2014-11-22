@@ -191,6 +191,15 @@ namespace hpp {
       typedef KDTree* KDTreePtr_t;
       typedef Basic* BasicPtr_t;
     } // namespace nearestNeighbor
+
+    namespace pathOptimization {
+      HPP_PREDEF_CLASS (Cost);
+      typedef boost::shared_ptr <Cost> CostPtr_t;
+      HPP_PREDEF_CLASS (GradientBased);
+      typedef boost::shared_ptr <GradientBased> GradientBasedPtr_t;
+      HPP_PREDEF_CLASS (PathLength);
+      typedef boost::shared_ptr <PathLength> PathLengthPtr_t;
+    } // namespace pathOptimization
   } // namespace core
 } // namespace hpp
 
