@@ -70,6 +70,26 @@ namespace hpp {
       /// result is reversed.
       virtual PathPtr_t extract (const interval_t& subInterval) const;
 
+      /// Modify initial configuration
+      /// \param initial new initial configuration
+      /// \pre input configuration should be of the same size as current initial
+      /// configuration
+      void initialConfig (ConfigurationIn_t initial)
+      {
+	assert (initial.size () == initial_.size ());
+	initial_ = initial;
+      }
+
+      /// Modify end configuration
+      /// \param end new end configuration
+      /// \pre input configuration should be of the same size as current end
+      /// configuration
+      void endConfig (ConfigurationIn_t end)
+      {
+	assert (end.size () == end_.size ());
+	end_ = end;
+      }
+      
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const
@@ -98,8 +118,8 @@ namespace hpp {
 
     private:
       DevicePtr_t device_;
-      const Configuration_t initial_;
-      const Configuration_t end_;
+      Configuration_t initial_;
+      Configuration_t end_;
       StraightPathWkPtr_t weak_;
     }; // class StraightPath
   } //   namespace core
