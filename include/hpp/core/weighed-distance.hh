@@ -43,6 +43,11 @@ namespace hpp {
       /// \param rank rank of the joint in robot joint vector
       void setWeight(unsigned int rank, value_type weight);
 
+      /// Get robot
+      const DevicePtr_t& robot () const
+      {
+	return robot_;
+      }
     protected:
       WeighedDistance (const DevicePtr_t& robot);
       WeighedDistance (const DevicePtr_t& robot,
