@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   BasicConfigurationShooter confShoot(robot);
   nearestNeighbor::KDTree kdTree(robot,distance,30);
   nearestNeighbor::Basic basic (distance);
-  SteeringMethodPtr_t sm (new SteeringMethodStraight (robot));
+  SteeringMethodPtr_t sm = SteeringMethodStraight::create (robot);
 
   // Add 4 connectedComponents with 2000 nodes each
   ConfigurationPtr_t configuration;

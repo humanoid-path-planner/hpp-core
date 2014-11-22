@@ -30,10 +30,21 @@ namespace hpp {
     class HPP_CORE_DLLAPI SteeringMethodStraight : public SteeringMethod
     {
     public:
-      SteeringMethodStraight (const DevicePtr_t& device) :
-	SteeringMethod (), device_ (device),
-	distance_ (WeighedDistance::create (device))
+      /// Create instance and return shared pointer
+      static SteeringMethodStraightPtr_t create (const DevicePtr_t& device)
       {
+	SteeringMethodStraight* ptr = new SteeringMethodStraight (device);
+	SteeringMethodStraightPtr_t shPtr (ptr);
+	return shPtr;
+      }
+      /// Create instance and return shared pointer
+      static SteeringMethodStraightPtr_t create
+	(const DevicePtr_t& device, const WeighedDistancePtr_t& distance)
+      {
+	SteeringMethodStraight* ptr = new SteeringMethodStraight (device,
+								  distance);
+	SteeringMethodStraightPtr_t shPtr (ptr);
+	return shPtr;
       }
       /// create a path between two configurations
       virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
@@ -43,6 +54,21 @@ namespace hpp {
         PathPtr_t path = StraightPath::create (device_.lock (), q1, q2, length);
         path->constraints (constraints ());
         return path;
+      }
+    protected:
+      /// Constructor with robot
+      /// Weighed distance is created from robot
+      SteeringMethodStraight (const DevicePtr_t& device) :
+	SteeringMethod (), device_ (device),
+	distance_ (WeighedDistance::create (device))
+      {
+      }
+      /// Constructor with weighed distance
+      SteeringMethodStraight (const DevicePtr_t& device,
+			      const WeighedDistancePtr_t& distance) :
+	SteeringMethod (), device_ (device),
+	distance_ (distance)
+      {
       }
     private:
       DeviceWkPtr_t device_;

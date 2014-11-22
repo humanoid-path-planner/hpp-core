@@ -42,6 +42,7 @@ using hpp::model::Device;
 using hpp::model::DevicePtr_t;
 using hpp::model::JointTranslation;
 using hpp::core::SteeringMethodStraight;
+using hpp::core::SteeringMethodStraightPtr_t;
 using hpp::core::RoadmapPtr_t;
 using hpp::core::Roadmap;
 using hpp::core::NodePtr_t;
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   xJoint->addChildJoint (yJoint);
 
   // Create steering method
-  SteeringMethodStraight sm (robot);
+  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (robot);
   // create roadmap
   RoadmapPtr_t r = Roadmap::create (WeighedDistance::create
 				    (robot, boost::assign::list_of (1)(1)),
@@ -128,7 +129,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   }
   BOOST_CHECK (!r->pathExists ());
   // 0 -> 1
-  addEdge (r, sm, nodes, 0, 1);
+  addEdge (r, *sm, nodes, 0, 1);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 6);
   for (std::size_t i=0; i < nodes.size (); ++i) {
     for (std::size_t j=i+1; j < nodes.size (); ++j) {
@@ -142,7 +143,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 1 -> 0
-  addEdge (r, sm, nodes, 1, 0);
+  addEdge (r, *sm, nodes, 1, 0);
 
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 5);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
@@ -158,7 +159,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   BOOST_CHECK (!r->pathExists ());
   std::cout << *r << std::endl; 
   // 1 -> 2
-  addEdge (r, sm, nodes, 1, 2);
+  addEdge (r, *sm, nodes, 1, 2);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 5);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
@@ -174,7 +175,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 2 -> 0
-  addEdge (r, sm, nodes, 2, 0);
+  addEdge (r, *sm, nodes, 2, 0);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
@@ -192,7 +193,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 2 -> 3
-  addEdge (r, sm, nodes, 2, 3);
+  addEdge (r, *sm, nodes, 2, 3);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
@@ -210,7 +211,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 2 -> 4
-  addEdge (r, sm, nodes, 2, 4);
+  addEdge (r, *sm, nodes, 2, 4);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
@@ -228,7 +229,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 3 -> 5
-  addEdge (r, sm, nodes, 3, 5);
+  addEdge (r, *sm, nodes, 3, 5);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
@@ -246,7 +247,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 4 -> 5
-  addEdge (r, sm, nodes, 4, 5);
+  addEdge (r, *sm, nodes, 4, 5);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 4);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
@@ -264,7 +265,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   std::cout << *r << std::endl;
 
   // 5 -> 0
-  addEdge (r, sm, nodes, 5, 0);
+  addEdge (r, *sm, nodes, 5, 0);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 1);
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [1]->connectedComponent ());
