@@ -43,7 +43,9 @@ ENDIF()
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/basic-configuration-shooter.hh
+  include/hpp/core/collision-path-validation-report.hh
   include/hpp/core/collision-validation.hh
+  include/hpp/core/collision-validation-report.hh
   include/hpp/core/configuration-shooter.hh
   include/hpp/core/config-projector.hh
   include/hpp/core/inequality.hh
@@ -77,6 +79,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method-straight.hh
   include/hpp/core/straight-path.hh
+  include/hpp/core/validation-report.hh
   include/hpp/core/visibility-prm-planner.hh
   include/hpp/core/weighed-distance.hh
   )

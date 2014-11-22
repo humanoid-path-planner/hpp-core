@@ -22,6 +22,7 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/core/collision-validation.hh>
+#include <hpp/core/collision-validation-report.hh>
 
 namespace hpp {
   namespace core {
@@ -36,8 +37,18 @@ namespace hpp {
     }
 
     bool CollisionValidation::validate (const Configuration_t& config,
-					bool report)
+					bool throwIfInValid)
     {
+      return validate (config, unusedReport, throwIfInValid);
+    }
+
+    bool CollisionValidation::validate (const Configuration_t& config,
+					ValidationReport& validationReport,
+					bool throwIfInValid)
+    {
+      HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport, validationReport);
+      CollisionValidationReport& report =
+	static_cast <CollisionValidationReport&> (validationReport);
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
       bool collision = robot_->collisionTest ();
@@ -50,11 +61,13 @@ namespace hpp {
 	if (fcl::collide (itCol->first->fcl ().get (),
 			  itCol->second->fcl ().get (),
 			  collisionRequest, collisionResult) != 0) {
+	  report.object1 = itCol->first;
+	  report.object2 = itCol->second;
 	  collision = true;
 	  break;
 	}
       }
-      if (collision && report) {
+      if (collision && throwIfInValid) {
 	std::ostringstream oss ("Configuration in collision: ");
 	oss << displayConfig (config);
 	throw std::runtime_error (oss.str ());

@@ -19,8 +19,7 @@
 #ifndef HPP_CORE_CONFIG_VALIDATION_HH
 # define HPP_CORE_CONFIG_VALIDATION_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
+# include <hpp/core/validation-report.hh>
 
 namespace hpp {
   namespace core {
@@ -34,10 +33,22 @@ namespace hpp {
       /// Compute whether the configuration is valid
       ///
       /// \param config the config to check for validity,
-      /// \param report if true throw an exception if config is invalid.
+      /// \param throwIfInValid if true throw an exception if config is invalid.
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
-			     bool report) = 0;
+			     bool throwIfInValid) = 0;
+
+      /// Compute whether the configuration is valid
+      ///
+      /// \param config the config to check for validity,
+      /// \retval validationReport report on validation. This object may be
+      ///         specialized by derived implementation to report specific
+      ///         information.
+      /// \param throwIfInValid if true throw an exception if config is invalid.
+      /// \return whether the whole config is valid.
+      virtual bool validate (const Configuration_t& config,
+			     ValidationReport& validationReport,
+			     bool throwIfInValid) = 0;
 
       /// Add an obstacle
       /// \param object obstacle added

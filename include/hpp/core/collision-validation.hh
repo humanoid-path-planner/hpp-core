@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_COLLISION_VALIDATION_HH
 # define HPP_CORE_COLLISION_VALIDATION_HH
 
+# include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/config-validation.hh>
 
 namespace hpp {
@@ -29,13 +30,25 @@ namespace hpp {
     {
     public:
       static CollisionValidationPtr_t create (const DevicePtr_t& robot);
+
       /// Compute whether the configuration is valid
       ///
       /// \param config the config to check for validity,
-      /// \param report if true throw an exception if config is invalid.
+      /// \param throwIfInValid if true throw an exception if config is invalid.
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
-			     bool report = false);
+			     bool throwIfInValid = false);
+
+      /// Compute whether the configuration is valid
+      ///
+      /// \param config the config to check for validity,
+      /// \retval validationReport report on validation. This parameter will
+      ///         dynamically cast into CollisionValidationReport type,
+      /// \param throwIfInValid if true throw an exception if config is invalid,
+      /// \return whether the whole config is valid.
+      virtual bool validate (const Configuration_t& config,
+			     ValidationReport& validationReport,
+			     bool throwIfInValid = false);
 
       /// Add an obstacle
       /// \param object obstacle added
@@ -55,6 +68,11 @@ namespace hpp {
     private:
       DevicePtr_t robot_;
       CollisionPairs_t collisionPairs_;
+      /// This member is used by the validate method that does not take a
+      /// validation report as input to call the validate method that expects
+      /// a validation report as input. This is not fully satisfactory, but
+      /// I did not find a better solution.
+      CollisionValidationReport unusedReport;
     }; // class ConfigValidation
   } // namespace core
 } // namespace hpp

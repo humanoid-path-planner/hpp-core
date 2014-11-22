@@ -31,7 +31,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI PathValidation
     {
     public:
-      /// Compute the biggest valid interval starting from the path beginning
+      /// Compute the largest valid interval starting from the path beginning
       ///
       /// \param path the path to check for validity,
       /// \param reverse if true check from the end,
@@ -40,6 +40,19 @@ namespace hpp {
       /// \return whether the whole path is valid.
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart) = 0;
+
+      /// Compute the largest valid interval starting from the path beginning
+      ///
+      /// \param path the path to check for validity,
+      /// \param reverse if true check from the end,
+      /// \retval the extracted valid part of the path, pointer to path if
+      ///         path is valid.
+      /// \retval report information about the validation process. The type
+      ///         can be derived for specific implementation
+      /// \return whether the whole path is valid.
+      virtual bool validate (const PathPtr_t& path, bool reverse,
+			     PathPtr_t& validPart,
+			     ValidationReport& report) = 0;
 
       /// Add an obstacle
       /// \param object obstacle added

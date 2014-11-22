@@ -28,6 +28,7 @@
 # include <hpp/model/collision-object.hh>
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
+# include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include "continuous-collision-checking/intervals.hh"
 
@@ -58,12 +59,13 @@ namespace hpp {
 	  Object (const CollisionObjectPtr_t& collisionObject) :
 	    fcl_ (collisionObject->fcl ()),
 	    positionInJointFrame_ (collisionObject->positionInJointFrame ()),
-	    name_ (collisionObject->name ())
+	    name_ (collisionObject->name ()), original_ (collisionObject)
 	  {
 	  }
 	  fcl::CollisionObjectPtr_t fcl_;
 	  Transform3f positionInJointFrame_;
 	  std::string name_;
+	  CollisionObjectPtr_t original_;
 	}; // struct Object
 
 	typedef std::vector <Object> Objects_t;
@@ -202,7 +204,8 @@ namespace hpp {
 	  /// \param t parameter value in the path interval of definition
 	  /// \return true if the body pair is collision free for this parameter
 	  ///         value, false if the body pair is in collision.
-	  bool validateInterval (const value_type& t)
+	  bool validateInterval
+	  (const value_type& t, CollisionValidationReport& report)
 	  {
 	    using std::numeric_limits;
 	    // Get configuration of robot corresponding to parameter
@@ -238,7 +241,11 @@ namespace hpp {
 		fcl::CollisionResult result;
 		fcl::collide (object_a, object_b, request, result);
 		// Get result
-		if (result.isCollision ()) return false;
+		if (result.isCollision ()) {
+		  report.object1 = ita->original_;
+		  report.object2 = itb->original_;
+		  return false;
+		}
 		if (result.distance_lower_bound < distanceLowerBound) {
 		  distanceLowerBound = result.distance_lower_bound;
 		}

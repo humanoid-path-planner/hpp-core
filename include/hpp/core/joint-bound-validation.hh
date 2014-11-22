@@ -56,13 +56,23 @@ namespace hpp {
       /// Compute whether the configuration is valid
       ///
       /// \param config the config to check for validity,
-      /// \param report if true throw an exception if config is invalid.
+      /// \param throwIfInValid if true throw an exception if config is invalid.
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
-			     bool report = false);
+			     bool throwIfInValid = false);
+
     protected:
       JointBoundValidation (const DevicePtr_t& robot);
     private:
+      /// Compute whether the configuration is valid
+      ///
+      /// \param config the config to check for validity,
+      /// \retval validationReport unused by this class,
+      /// \param throwIfInValid if true throw an exception if config is invalid.
+      /// \return whether the whole config is valid.
+      virtual bool validate (const Configuration_t& config,
+			     ValidationReport& validationReport,
+			     bool throwIfInValid = false);
       DevicePtr_t robot_;
     }; // class ConfigValidation
   } // namespace core

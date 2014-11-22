@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 # define HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 
+# include <hpp/core/collision-path-validation-report.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {
@@ -31,8 +32,37 @@ namespace hpp {
     public:
       static DiscretizedCollisionCheckingPtr_t
       create (const DevicePtr_t& robot, const value_type& stepSize);
+      /// Compute the largest valid interval starting from the path beginning
+      ///
+      /// \param path the path to check for validity,
+      /// \param reverse if true check from the end,
+      /// \retval the extracted valid part of the path, pointer to path if
+      ///         path is valid.
+      /// \retval report information about the validation process. The type
+      ///         can be derived for specific implementation
+      /// \return whether the whole path is valid.
+      /// \precond validationReport should be a of type
+      ///          CollisionPathValidationReport.
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart);
+
+      /// Compute the largest valid interval starting from the path beginning
+      ///
+      /// \param path the path to check for validity,
+      /// \param reverse if true check from the end,
+      /// \retval the extracted valid part of the path, pointer to path if
+      ///         path is valid.
+      /// \retval report information about the validation process. The type
+      ///         can be derived for specific implementation
+      /// \return whether the whole path is valid.
+      /// \retval validationReport information about the validation process:
+      ///         which objects have been detected in collision and at which
+      ///         parameter along the path.
+      /// \precond validationReport should be a of type
+      ///          CollisionPathValidationReport.
+      virtual bool validate (const PathPtr_t& path, bool reverse,
+			     PathPtr_t& validPart,
+			     ValidationReport& validationReport);
       /// Add an obstacle
       /// \param object obstacle added
       virtual void addObstacle (const CollisionObjectPtr_t&);
@@ -43,6 +73,11 @@ namespace hpp {
       DevicePtr_t robot_;
       CollisionValidationPtr_t collisionValidation_;
       value_type stepSize_;
+      /// This member is used by the validate method that does not take a
+      /// validation report as input to call the validate method that expects
+      /// a validation report as input. This is not fully satisfactory, but
+      /// I did not find a better solution.
+      CollisionPathValidationReport unusedReport_;
     }; // class DiscretizedCollisionChecking
   } // namespace core
 } // namespace hpp

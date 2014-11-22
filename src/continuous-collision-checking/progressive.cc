@@ -18,6 +18,7 @@
 
 #include <limits>
 #include <hpp/util/debug.hh>
+#include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/straight-path.hh>
 
@@ -40,9 +41,9 @@ namespace hpp {
 	return shPtr;
       }
 
-      bool Progressive::validateConfiguration (const Configuration_t& config,
-					       bool reverse,
-					       value_type& tmin)
+      bool Progressive::validateConfiguration
+      (const Configuration_t& config, bool reverse, value_type& tmin,
+       CollisionPathValidationReport& report)
       {
 	value_type t = tmin;
 	tmin = std::numeric_limits <value_type>::infinity ();
@@ -52,7 +53,8 @@ namespace hpp {
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  if (!(*itPair)->validateConfiguration (t, tmpMin)) {
+	  if (!(*itPair)->validateConfiguration (t, tmpMin, report.collision)) {
+	    report.collisionParameter = t;
 	    return false;
 	  } else {
 	    if (reverse) {
@@ -69,6 +71,18 @@ namespace hpp {
       bool Progressive::validate
       (const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
       {
+	return validate (path, reverse, validPart, unusedReport_);
+      }
+
+      bool Progressive::validate
+      (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+       ValidationReport& validationReport)
+      {
+	// Static cast but test dynamic cast in debug mode
+	HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport,
+				   validationReport);
+	CollisionPathValidationReport& report =
+	  static_cast <CollisionPathValidationReport&> (validationReport);
 	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
 	  (StraightPath, path);
 	// for each BodyPairCollision
@@ -89,7 +103,7 @@ namespace hpp {
 	  while (finished < 2 && valid) {
 	    Configuration_t q = (*path) (t);
 	    value_type tprev = t;
-	    if (!validateConfiguration (q, reverse, t)) {
+	    if (!validateConfiguration (q, reverse, t, report)) {
 	      valid = false;
 	    } else {
 	      lastValidTime = tprev;
@@ -115,7 +129,7 @@ namespace hpp {
 	  while (finished < 2 && valid) {
 	    Configuration_t q = (*path) (t);
 	    value_type tprev = t;
-	    if (!validateConfiguration (q, reverse, t)) {
+	    if (!validateConfiguration (q, reverse, t, report)) {
 	      valid = false;
 	    } else {
 	      lastValidTime = tprev;

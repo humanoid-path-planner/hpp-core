@@ -18,6 +18,7 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
+#include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
 
 #include "continuous-collision-checking/dichotomy/body-pair-collision.hh"
@@ -76,6 +77,18 @@ namespace hpp {
       bool Dichotomy::validate
       (const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
       {
+	return validate (path, reverse, validPart, unusedReport_);
+      }
+
+      bool Dichotomy::validate
+      (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+       ValidationReport& validationReport)
+      {
+	// Static cast but test dynamic cast in debug mode
+	HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport,
+				   validationReport);
+	CollisionPathValidationReport& report =
+	  static_cast <CollisionPathValidationReport&> (validationReport);
 	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
 	  (StraightPath, path);
 	// for each BodyPairCollision
@@ -89,7 +102,8 @@ namespace hpp {
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath);
 	    // If collision at end point, return false
-	    if (!(*itPair)->validateInterval (t1)) {
+	    if (!(*itPair)->validateInterval (t1, report.collision)) {
+	      report.collisionParameter = t1;
 	      validPart = path->extract (interval_t (t1, t1));
 	      return false;
 	    }
@@ -115,9 +129,10 @@ namespace hpp {
 	      lower = t0;
 	    }
 	    value_type middle = .5 * (lower + upper);
-	    if (first->validateInterval (middle)) {
+	    if (first->validateInterval (middle, report.collision)) {
 	      partialSort (bodyPairCollisions_, compareReverseBodyPairCol);
 	    } else {
+	      report.collisionParameter = middle;
 	      validPart = path->extract (interval_t (upper, t1));
 	      return false;
 	    }
@@ -129,8 +144,9 @@ namespace hpp {
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath);
 	    // If collision at start point, return false
-	    bool valid = (*itPair)->validateInterval (t0);
+	    bool valid = (*itPair)->validateInterval (t0, report.collision);
 	    if (!valid) {
+	      report.collisionParameter = t0;
 	      validPart = path->extract (interval_t (t0, t0));
 	      hppDout (error, "Initial position in collision.");
 	      return false;
@@ -157,9 +173,10 @@ namespace hpp {
 	      upper = t1;
 	    }
 	    value_type middle = .5 * (lower + upper);
-	    if (first->validateInterval (middle)) {
+	    if (first->validateInterval (middle, report.collision)) {
 	      partialSort (bodyPairCollisions_, compareBodyPairCol);
 	    } else {
+	      report.collisionParameter = middle;
 	      validPart = path->extract (interval_t (t0, lower));
 	      hppDout (info, "Return path valid on [" << t0 << "," << lower
 		       << "]");

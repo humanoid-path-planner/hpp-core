@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/model/device.hh>
+#include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/discretized-collision-checking.hh>
@@ -42,6 +43,17 @@ namespace hpp {
     bool DiscretizedCollisionChecking::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
+      return validate (path, reverse, validPart, unusedReport_);
+    }
+
+    bool DiscretizedCollisionChecking::validate
+    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+     ValidationReport& validationReport)
+    {
+      HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport,
+				 validationReport);
+      CollisionPathValidationReport& report =
+	static_cast <CollisionPathValidationReport&> (validationReport);
       assert (path);
       bool valid = true;
       if (reverse) {
@@ -52,7 +64,8 @@ namespace hpp {
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
-	  if (!collisionValidation_->validate (q)) {
+	  if (!collisionValidation_->validate (q, report.collision)) {
+	    report.collisionParameter = t;	    
 	    valid = false;
 	  } else {
 	    lastValidTime = t;
@@ -78,7 +91,8 @@ namespace hpp {
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
-	  if (!collisionValidation_->validate (q)) {
+	  if (!collisionValidation_->validate (q, report.collision)) {
+	    report.collisionParameter = t;	    
 	    valid = false;
 	  } else {
 	    lastValidTime = t;

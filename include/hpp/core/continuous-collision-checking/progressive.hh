@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PROGRESSIVE_HH
 # define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PROGRESSIVE_HH
 
+# include <hpp/core/collision-path-validation-report.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {
@@ -39,15 +40,34 @@ namespace hpp {
 	/// \param tolerance maximal penetration allowed.
 	static ProgressivePtr_t
 	  create (const DevicePtr_t& robot, const value_type& tolerance);
-	/// Compute the biggest valid interval starting from the path beginning
+	/// Compute a valid interval starting from the path beginning
+	///
+	/// \param path the path to check for validity,
+	/// \param reverse if true check from the end,
+	/// \retval the extracted valid part of the path, pointer to path if
+	///         path is valid.
+	/// \retval report information about the validation process. The type
+	///         can be derived for specific implementation
+	/// \return whether the whole path is valid.
+	/// \precond validationReport should be a of type
+	///          CollisionPathValidationReport.
+	virtual bool validate (const PathPtr_t& path, bool reverse,
+			       PathPtr_t& validPart);
+ 	/// Compute a valid interval starting from the path beginning
 	///
 	/// \param path the path to check for validity,
 	/// \param reverse if true check from the end,
 	/// \retval the extracted valid part of the path, pointer to path if
 	///         path is valid.
 	/// \return whether the whole path is valid.
+	/// \retval validationReport information about the validation process:
+	///         which objects have been detected in collision and at which
+	///         parameter along the path.
+	/// \precond validationReport should be a of type
+	///          CollisionPathValidationReport.
 	virtual bool validate (const PathPtr_t& path, bool reverse,
-			       PathPtr_t& validPart);
+			       PathPtr_t& validPart,
+			       ValidationReport& validationReport);
 
 	/// Add an obstacle
 	/// \param object obstacle added
@@ -74,10 +94,17 @@ namespace hpp {
 		   const value_type& tolerance);
       private:
 	bool validateConfiguration (const Configuration_t& config,
-				    bool reverse, value_type& tmin);
+				    bool reverse, value_type& tmin,
+				    CollisionPathValidationReport& report);
 	DevicePtr_t robot_;
 	value_type tolerance_;
 	progressive::BodyPairCollisions_t bodyPairCollisions_;
+      value_type stepSize_;
+      /// This member is used by the validate method that does not take a
+      /// validation report as input to call the validate method that expects
+      /// a validation report as input. This is not fully satisfactory, but
+      /// I did not find a better solution.
+      CollisionPathValidationReport unusedReport_;
       }; // class Progressive
     } // namespace continuousCollisionChecking
   } // namespace core

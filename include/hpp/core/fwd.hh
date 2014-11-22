@@ -35,7 +35,10 @@ namespace roboptim {
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BasicConfigurationShooter);
+    class CollisionPathValidation;
+    struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
+    struct CollisionValidationReport;
     HPP_PREDEF_CLASS (ConfigurationShooter);
     HPP_PREDEF_CLASS (ConfigProjector);
     HPP_PREDEF_CLASS (ConfigValidation);
@@ -58,6 +61,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (PathPlanner);
     HPP_PREDEF_CLASS (PathVector);
     HPP_PREDEF_CLASS (PathValidation);
+    class PathValidation;
     HPP_PREDEF_CLASS (PlanAndOptimize);
     HPP_PREDEF_CLASS (Problem);
     class ProblemSolver;
@@ -66,6 +70,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
+    class ValidationReport;
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;

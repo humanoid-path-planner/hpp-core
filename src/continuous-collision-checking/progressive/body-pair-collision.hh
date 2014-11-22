@@ -171,7 +171,8 @@ namespace hpp {
 	  /// \param t parameter value in the path interval of definition
 	  /// \return true if the body pair is collision free for this parameter
 	  ///         value, false if the body pair is in collision.
-	  bool validateConfiguration (const value_type& t, value_type& tmin)
+	  bool validateConfiguration (const value_type& t, value_type& tmin,
+				      CollisionValidationReport& report)
 	  {
 	    if (valid_) {
 	      if (reverse_) {
@@ -200,7 +201,10 @@ namespace hpp {
 		// Get result
 		if (result.isCollision ()) {
 		  hppDout (info, "collision at " << t << " for pair ("
-			   << joint_a_->name () << "," << (*itb)->name () << ")");
+			   << joint_a_->name () << "," << (*itb)->name ()
+			   << ")");
+		  report.object1 = *ita;
+		  report.object2 = *itb;
 		  return false;
 		}
 		if (result.distance_lower_bound < distanceLowerBound) {

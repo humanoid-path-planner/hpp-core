@@ -33,7 +33,14 @@ namespace hpp {
     }
 
     bool JointBoundValidation::validate (const Configuration_t& config,
-					 bool report)
+					 bool throwIfInValid)
+    {
+      return validate (config, *((ValidationReport*)(0x0)), throwIfInValid);
+    }
+
+    bool JointBoundValidation::validate (const Configuration_t& config,
+					 ValidationReport&,
+					 bool throwIfInValid)
     {
       const JointVector_t jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator itJoint = jv.begin ();
@@ -46,7 +53,7 @@ namespace hpp {
 	    value_type upper = jc->upperBound (i);
 	    value_type value = config [index + i];
 	    if (value < lower || upper < value) {
-	      if (report) {
+	      if (throwIfInValid) {
 		std::ostringstream oss ("Joint: ");
 		oss << (*itJoint)->name () << ", rank: " << i
 		    << ", value out of range: " << value << " not in ["
