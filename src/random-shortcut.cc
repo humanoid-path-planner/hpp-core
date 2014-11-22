@@ -59,7 +59,7 @@ namespace hpp {
     {
     }
 
-    PathVectorPtr_t RandomShortcut::optimize (const PathVectorPtr_t& path) const
+    PathVectorPtr_t RandomShortcut::optimize (const PathVectorPtr_t& path)
     {
       using std::numeric_limits;
       using std::make_pair;

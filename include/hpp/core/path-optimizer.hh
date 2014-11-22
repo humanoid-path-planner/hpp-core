@@ -35,7 +35,7 @@ namespace hpp {
 	return problem_;
       }
       /// Optimize path
-      virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path) const = 0;
+      virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path) = 0;
     protected:
       PathOptimizer (const Problem& problem) : problem_ (problem)
 	{

@@ -38,7 +38,7 @@ namespace hpp {
       static RandomShortcutPtr_t create (const Problem& problem);
 
       /// Optimize path
-      virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path) const;
+      virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
     protected:
       RandomShortcut (const Problem& problem);
     }; // class RandomShortcut
