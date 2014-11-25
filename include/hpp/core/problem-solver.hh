@@ -240,6 +240,12 @@ namespace hpp {
       /// \name Solve problem and get paths
       /// \{
 
+      /// Create Path optimizer if needed
+      ///
+      /// If a path optimizer is already set, do nothing.
+      /// Type of optimizer is determined by method selectPathOptimizer.
+      void createPathOptimizer ();
+
       /// Prepare the solver for a step by step planning.
       /// and try to make direct connections (call PathPlanner::tryDirectPath)
       /// \return the return value of PathPlanner::pathExists

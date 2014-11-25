@@ -210,14 +210,21 @@ namespace hpp {
       roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
     }
 
+    void ProblemSolver::createPathOptimizer ()
+    {
+      if (!pathOptimizer_) {
+	PathOptimizerBuilder_t createOptimizer =
+	  pathOptimizerFactory_ [pathOptimizerType_];
+	pathOptimizer_ = createOptimizer (*problem_);
+      }
+    }
+
     bool ProblemSolver::prepareSolveStepByStep ()
     {
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
-      PathOptimizerBuilder_t createOptimizer =
-	pathOptimizerFactory_ [pathOptimizerType_];
-      pathOptimizer_ = createOptimizer (*problem_);
+      createPathOptimizer ();
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
