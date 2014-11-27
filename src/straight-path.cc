@@ -41,16 +41,16 @@ namespace hpp {
     {
     }
 
-    void StraightPath::impl_compute (ConfigurationOut_t result,
+    bool StraightPath::impl_compute (ConfigurationOut_t result,
 				     value_type param) const
     {
       if (param == timeRange ().first || timeRange ().second == 0) {
 	result = initial_;
-	return;
+	return true;
       }
       if (param == timeRange ().second) {
 	result = end_;
-	return;
+	return true;
       }
       value_type u = param/timeRange ().second;
       if (timeRange ().second == 0)
@@ -69,8 +69,9 @@ namespace hpp {
 	if (cs->configProjector ()) {
 	  cs->configProjector ()->rightHandSideFromConfig (initial_);
 	}
-        cs->apply (result);
+        return cs->apply (result);
       }
+      return true;
     }
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const
     {

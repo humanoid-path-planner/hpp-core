@@ -113,7 +113,7 @@ namespace hpp {
 	parent_t::init (self);
 	weak_ = self;
       }
-      virtual void impl_compute (ConfigurationOut_t result,
+      virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;
 
     private:

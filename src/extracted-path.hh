@@ -56,14 +56,14 @@ namespace hpp {
 	return shPtr;
       }
 
-      virtual void impl_compute (ConfigurationOut_t result,
+      virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const
       {
 	if (reversed_) {
 	  param = timeRange ().first + timeRange ().second - param ;
-	  (*original_) (result, param);
+	  return (*original_) (result, param);
 	} else {
-	  (*original_) (result, param);
+	  return (*original_) (result, param);
 	}
       }
 

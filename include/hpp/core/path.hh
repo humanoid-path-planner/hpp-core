@@ -75,10 +75,17 @@ namespace hpp {
 	return result;
       }
 
-      void operator () (ConfigurationOut_t result, const value_type& t)
+      Configuration_t operator () (const value_type& t, bool& success) const throw ()
+      {
+	Configuration_t result (outputSize ());
+	success = impl_compute (result, t);
+	return result;
+      }
+
+      bool operator () (ConfigurationOut_t result, const value_type& t)
 	const throw ()
       {
-	impl_compute (result, t);
+	return impl_compute (result, t);
       }
 
       /// \name Constraints
@@ -166,7 +173,8 @@ namespace hpp {
       }
       /// \brief Function evaluation.
       ///
-      virtual void impl_compute (ConfigurationOut_t configuration,
+      /// \return true if everything went good.
+      virtual bool impl_compute (ConfigurationOut_t configuration,
 				 value_type t) const = 0;
 
       /// Interval of definition

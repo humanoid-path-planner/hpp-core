@@ -59,7 +59,7 @@ namespace hpp {
 	appendPath (path.pathAtRank (i)->copy ());
       }
     }
-    void PathVector::impl_compute (ConfigurationOut_t result,
+    bool PathVector::impl_compute (ConfigurationOut_t result,
 				   value_type t) const
     {
       // Find direct path in vector corresponding to parameter.
@@ -68,7 +68,7 @@ namespace hpp {
       rank = rankAtParam (t, localParam);
 
       PathPtr_t subpath = paths_ [rank];
-      (*subpath) (result, localParam);
+      return (*subpath) (result, localParam);
     }
 
     PathPtr_t PathVector::extract (const interval_t& subInterval) const
