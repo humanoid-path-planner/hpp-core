@@ -90,6 +90,9 @@ namespace hpp {
 	end_ = end;
       }
       
+      /// Return the internal robot.
+      DevicePtr_t device () const;
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const

@@ -85,6 +85,10 @@ namespace hpp {
       return result;
     }
 
+    DevicePtr_t StraightPath::device () const
+    {
+      return device_;
+    }
   } //   namespace core
 } // namespace hpp
 
