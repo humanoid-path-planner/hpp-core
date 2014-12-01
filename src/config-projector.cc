@@ -349,7 +349,8 @@ namespace hpp {
 	value_.segment (row, nbRows) = value;
 	row += nbRows;
       }
-      return (value_ - rightHandSide_).squaredNorm () < squareErrorThreshold_;
+      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      return squareNorm_ < squareErrorThreshold_;
     }
 
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
