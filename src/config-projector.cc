@@ -296,17 +296,16 @@ namespace hpp {
       return true;
     }
 
-    void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
-					   ConfigurationIn_t to,
-					   ConfigurationOut_t result)
+    void ConfigProjector::projectVectorOnKernel (ConfigurationIn_t from,
+						 vectorIn_t velocity,
+						 vectorOut_t result)
     {
       if (functions_.empty ()) {
-        result = to;
+        result = velocity;
         return;
       }
       computeValueAndJacobian (from);
-      model::difference (robot_, to, from, toMinusFrom_);
-      normalToSmall (toMinusFrom_, toMinusFromSmall_);
+      normalToSmall (velocity, toMinusFromSmall_);
       typedef Eigen::JacobiSVD < matrix_t > Jacobi_t;
       Jacobi_t svd (reducedJacobian_, Eigen::ComputeFullV);
       size_type p = svd.nonzeroSingularValues ();
@@ -315,7 +314,19 @@ namespace hpp {
       reducedProjector_.setIdentity ();
       reducedProjector_ -= V1 * V1.transpose ();
       projMinusFromSmall_ = reducedProjector_ * toMinusFromSmall_;
-      smallToNormal (projMinusFromSmall_, projMinusFrom_);
+      smallToNormal (projMinusFromSmall_, result);
+    }
+
+    void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
+					   ConfigurationIn_t to,
+					   ConfigurationOut_t result)
+    {
+      if (functions_.empty ()) {
+        result = to;
+        return;
+      }
+      model::difference (robot_, to, from, toMinusFrom_);
+      projectVectorOnKernel (from, toMinusFrom_, projMinusFrom_);
       model::integrate (robot_, from, projMinusFrom_, result);
     }
 

@@ -121,6 +121,18 @@ namespace hpp {
 	return robot_;
       }
 
+      /// Project velocity on constraint tangent space in "from"
+      ///
+      /// \param from configuration,
+      /// \param velocity velocity to project
+      ///
+      /// \f[
+      /// \textbf{q}_{res} = \left(I_n -
+      /// J^{+}J(\textbf{q}_{from})\right) (\textbf{v})
+      /// \f]
+      void projectVectorOnKernel (ConfigurationIn_t from,
+			    vectorIn_t velocity, vectorOut_t result);
+
       /// Project configuration "to" on constraint tangent space in "from"
       ///
       /// \param from configuration,
