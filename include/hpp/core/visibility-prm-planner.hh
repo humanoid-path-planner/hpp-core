@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_VISIBILITY_PRM_PLANNER_HH
 # define HPP_CORE_VISIBILITY_PRM_PLANNER_HH
 
+# include <boost/tuple/tuple.hpp>
 # include <hpp/core/path-planner.hh>
 
 namespace hpp {

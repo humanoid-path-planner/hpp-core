@@ -19,7 +19,6 @@
 #ifndef HPP_CORE_LOCKED_DOF_HH
 # define HPP_CORE_LOCKED_DOF_HH
 
-# include <roboptim/core/differentiable-function.hh>
 # include <hpp/model/joint.hh>
 # include <hpp/core/constraint-set.hh>
 

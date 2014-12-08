@@ -40,7 +40,6 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-util)
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model)
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} roboptim-trajectory)
 
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}

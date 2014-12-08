@@ -53,7 +53,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/constraint-set.hh
   include/hpp/core/continuous-collision-checking/dichotomy.hh
   include/hpp/core/continuous-collision-checking/progressive.hh
-  include/hpp/core/differentiable-function.hh
   include/hpp/core/diffusing-planner.hh
   include/hpp/core/discretized-collision-checking.hh
   include/hpp/core/distance.hh
@@ -81,8 +80,8 @@ SET(${PROJECT_NAME}_HEADERS
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
-ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
-ADD_REQUIRED_DEPENDENCY("roboptim-trajectory >= 1.0")
+ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3")
+ADD_DOC_DEPENDENCY("hpp-model >= 3")
 
 # Add dependency toward hpp-model library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")

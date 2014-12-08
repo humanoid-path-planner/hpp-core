@@ -19,7 +19,6 @@
 #ifndef HPP_CORE_CONFIG_PROJECTOR_HH
 # define HPP_CORE_CONFIG_PROJECTOR_HH
 
-# include <roboptim/core/differentiable-function.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 
