@@ -20,7 +20,6 @@
 # define HPP_CORE_PATH_HH
 
 # include <boost/concept_check.hpp>
-# include <roboptim/trajectory/trajectory.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint-set.hh>
@@ -29,9 +28,6 @@ namespace hpp {
   namespace core {
     /// Abstraction of paths: mapping from time to configuration space
     ///
-    /// This class derives from roboptim::Trajectory as such Path could be
-    /// used for numerical optimization. For that some unimplemented methods
-    /// should be implemented.
     class HPP_CORE_DLLAPI Path
     {
     public:

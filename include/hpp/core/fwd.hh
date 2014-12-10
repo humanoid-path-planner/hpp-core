@@ -25,12 +25,7 @@
 # include <list>
 # include <set>
 # include <hpp/util/pointer.hh>
-# include <roboptim/core/function.hh>
-# include <hpp/model/fwd.hh>
-
-namespace roboptim {
-  class StableTimePoint;
-} // namespace roboptim
+# include <hpp/constraints/fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -46,7 +41,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (ConnectedComponent);
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
-    HPP_PREDEF_CLASS (DifferentiableFunction);
     HPP_PREDEF_CLASS (DiffusingPlanner);
     HPP_PREDEF_CLASS (Distance);
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
@@ -84,12 +78,6 @@ namespace hpp {
     class DoubleInequality;
     typedef boost::shared_ptr <DoubleInequality> DoubleInequalityPtr_t;
 
-    // roboptim
-    typedef roboptim::GenericFunctionTraits
-    <roboptim::EigenMatrixDense>::value_type value_type;
-    typedef roboptim::Function::interval_t interval_t;
-    typedef roboptim::Function::size_type size_type;
-
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
     typedef hpp::model::Body Body;
@@ -99,7 +87,7 @@ namespace hpp {
     typedef model::Configuration_t Configuration_t;
     typedef model::ConfigurationIn_t ConfigurationIn_t;
     typedef model::ConfigurationOut_t ConfigurationOut_t;
-    typedef boost::shared_ptr<model::Configuration_t> ConfigurationPtr_t;
+    typedef model::ConfigurationPtr_t ConfigurationPtr_t;
     typedef std::vector <ConfigurationPtr_t> Configurations_t;
     typedef Configurations_t::iterator ConfigIterator_t;
     typedef Configurations_t::const_iterator ConfigConstIterator_t;
@@ -115,7 +103,8 @@ namespace hpp {
     typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr_t DeviceWkPtr_t;
     typedef std::deque <DevicePtr_t> Devices_t;
-    typedef boost::shared_ptr <DifferentiableFunction>
+    typedef constraints::DifferentiableFunction DifferentiableFunction;
+    typedef constraints::DifferentiableFunctionPtr_t
     DifferentiableFunctionPtr_t;
     typedef boost::shared_ptr <DiffusingPlanner> DiffusingPlannerPtr_t;
     typedef boost::shared_ptr <DiscretizedCollisionChecking>
@@ -138,8 +127,11 @@ namespace hpp {
     typedef KDTree* KDTreePtr_t;
     typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;
     typedef model::matrix_t matrix_t;
-    typedef Eigen::Ref <const matrix_t> matrixIn_t;
-    typedef Eigen::Ref <matrix_t> matrixOut_t;
+    typedef constraints::matrixIn_t matrixIn_t;
+    typedef constraints::matrixOut_t matrixOut_t;
+    typedef model::size_type size_type;
+    typedef model::value_type value_type;
+    typedef std::pair<value_type, value_type> interval_t;
     typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;
@@ -158,7 +150,6 @@ namespace hpp {
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
     typedef boost::shared_ptr <SteeringMethodStraight>
     SteeringMethodStraightPtr_t;
-    typedef roboptim::StableTimePoint StableTimePoint_t;
     typedef std::vector <PathPtr_t> Paths_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef model::vector_t vector_t;

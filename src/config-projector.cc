@@ -17,13 +17,14 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <limits>
+#include <Eigen/SVD>
 #include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/differentiable-function.hh>
+#include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/locked-dof.hh>
 
 namespace hpp {

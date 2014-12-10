@@ -16,7 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <fcl/collision.h>
+#include <hpp/fcl/collision.h>
 #include <hpp/model/body.hh>
 #include <hpp/model/collision-object.hh>
 #include <hpp/model/configuration.hh>

@@ -19,7 +19,9 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_COST_HH
 # define HPP_CORE_PATH_OPTIMIZATION_COST_HH
 
-# include <hpp/core/differentiable-function.hh>
+# include <hpp/constraints/differentiable-function.hh>
+# include <hpp/core/fwd.hh>
+# include <hpp/core/config.hh>
 
 namespace hpp {
   namespace core {
@@ -28,7 +30,7 @@ namespace hpp {
       ///
       /// Provides an initial guess for the Hessian to initialize quasi-Newton
       /// methods.
-      class Cost : public DifferentiableFunction
+      class HPP_CORE_DLLAPI Cost : public DifferentiableFunction
       {
       public:
 	/// Return an approximation of the inverse of the Hessian at minimum

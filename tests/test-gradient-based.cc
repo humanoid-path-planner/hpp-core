@@ -21,9 +21,9 @@
 #include <cmath>
 #include <boost/test/included/unit_test.hpp>
 
-#include <fcl/collision_object.h>
-#include <fcl/math/transform.h>
-#include <fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/collision_object.h>
+#include <hpp/fcl/math/transform.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
 
 #include <hpp/model/joint.hh>
 #include <hpp/model/collision-object.hh>

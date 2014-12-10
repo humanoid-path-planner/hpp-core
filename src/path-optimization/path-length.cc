@@ -16,6 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <Eigen/LU>
 #include <hpp/model/configuration.hh>
 #include <hpp/core/path-optimization/path-length.hh>
 #include <hpp/core/path-vector.hh>

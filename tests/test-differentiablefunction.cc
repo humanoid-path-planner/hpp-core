@@ -17,8 +17,8 @@
 #define BOOST_TEST_MODULE DifferentiableFunction
 #include <boost/test/included/unit_test.hpp>
 
-#include "hpp/core/fwd.hh"
-#include "hpp/core/differentiable-function.hh"
+#include <hpp/constraints/differentiable-function.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -46,10 +46,10 @@ namespace hpp {
   }
 }
 
-typedef ::hpp::core::DifferentiableFunction::Intervals_t Intervals_t;
-typedef ::hpp::core::DifferentiableFunction::Interval_t  Interval_t;
-using ::hpp::core::DiffFuncTest;
-using ::hpp::core::size_type;
+typedef hpp::core::DifferentiableFunction::Intervals_t Intervals_t;
+typedef hpp::core::DifferentiableFunction::Interval_t  Interval_t;
+using hpp::core::DiffFuncTest;
+using hpp::core::size_type;
 
 template < class T >
 inline std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 

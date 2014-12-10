@@ -14,6 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#include <stdexcept>
 #include "eigen3/Eigen/Core"
 #include "hpp/core/inequality.hh"
 

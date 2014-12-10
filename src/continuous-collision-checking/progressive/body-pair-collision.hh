@@ -22,8 +22,8 @@
 # include <limits>
 # include <iterator>
 
-# include <fcl/collision_data.h>
-# include <fcl/collision.h>
+# include <hpp/fcl/collision_data.h>
+# include <hpp/fcl/collision.h>
 # include <hpp/model/body.hh>
 # include <hpp/model/collision-object.hh>
 # include <hpp/model/joint.hh>
