@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup constraints
+    /// \{
+
     /// Constraint applicable to a robot configuration
     ///
     /// Constraint::apply takes as input a configuration and changes it into
@@ -84,6 +87,7 @@ namespace hpp {
     {
       return constraint.print (os);
     }
+    /// \}
   } // namespace core
 } // namespace core
 #endif // HPP_CORE_CONSTRAINT_HH

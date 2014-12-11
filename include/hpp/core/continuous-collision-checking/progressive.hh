@@ -30,6 +30,8 @@ namespace hpp {
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
 	typedef std::list <BodyPairCollisionPtr_t> BodyPairCollisions_t;
       }
+      /// \addtogroup validation
+      /// \{
 
       /// Continuous validation of a path for collision
       class HPP_CORE_DLLAPI Progressive : public PathValidation
@@ -107,6 +109,7 @@ namespace hpp {
       CollisionPathValidationReport unusedReport_;
       }; // class Progressive
     } // namespace continuousCollisionChecking
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PROGRESSIVE_HH

@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Abstraction of validation report for paths and configurations
     ///
     /// This class is aimed at being derived to store information relative to
@@ -37,6 +40,7 @@ namespace hpp {
       {
       }
     }; // class ValidationReport
+    /// \}
   } // namespace core
 } // namespace hpp
 

@@ -23,6 +23,8 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_optimization
+    /// \{
     namespace pathOptimization {
       class HPP_CORE_DLLAPI GradientBased : public PathOptimizer
       {
@@ -55,6 +57,7 @@ namespace hpp {
 	value_type alpha_;
       }; // GradientBased
     } // namespace pathOptimization
+    /// }
   }  // namespace core
 } // namespace hpp
 #endif // HPP_CORE_PATH_OPTIMIZATION_GRADIENT_BASED_HH

@@ -27,6 +27,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup constraints
+    /// \{
+
     /// Implicit non-linear constraint
     ///
     /// Defined by a list of vector-valued functions and solved numerically
@@ -209,6 +212,7 @@ namespace hpp {
 
       ::hpp::statistics::SuccessStatistics statistics_;
     }; // class ConfigProjector
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_CONFIG_PROJECTOR_HH

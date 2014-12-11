@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Exception thrown when a configuration is not within the bounds
     class HPP_CORE_DLLAPI JointBoundException : public std::runtime_error
     {
@@ -75,6 +78,7 @@ namespace hpp {
 			     bool throwIfInValid = false);
       DevicePtr_t robot_;
     }; // class ConfigValidation
+    /// \}
   } // namespace core
 } // namespace hpp
 

@@ -22,6 +22,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup constraints
+    /// \{
+
     /// Abstract class defining the comparison for a function value
     /// and doing a saturation, necessary for inequality constraint.
     /// used to compare two vector.
@@ -48,7 +51,7 @@ namespace hpp {
         /// \param[in,out] value the value that will be compared and saturated.
         /// \return true is the constraint is - at least partially - active
         virtual bool operator () (vectorOut_t value) const = 0;
-    };
+    }; // class EquationType
 
     /// Implement the comparison for equality constraint.
     class HPP_CORE_DLLAPI Equality : public EquationType
@@ -74,7 +77,7 @@ namespace hpp {
         }
 
         static EqualityPtr_t unique_;
-    };
+    }; // class Equality
 
     /// Implementation of Inequality that compare the value to
     /// a reference with the possibility of inverting axis.
@@ -98,7 +101,7 @@ namespace hpp {
         typedef Container_t::const_iterator const_iterator;
 
         Container_t inequalities_;
-    };
+    }; // class EquationType
 
     template < EquationType::Type T > class Inequality;
     typedef Inequality < EquationType::Superior > SuperiorIneq;
@@ -123,7 +126,7 @@ namespace hpp {
 
       private:
         value_type threshold_;
-    };
+    }; // class Inequality
 
     class HPP_CORE_DLLAPI DoubleInequality : public EquationType
     {
@@ -142,7 +145,8 @@ namespace hpp {
       private:
         value_type threshold_;
         value_type left_, right_;
-    };
+    };// class DoubleInequality
+    /// \}
   } // namespace core
 } // namespace hpp
 

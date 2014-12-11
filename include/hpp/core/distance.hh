@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup steering_method
+    /// \{
+
     /// Abstract class for distance between configurations
     class HPP_CORE_DLLAPI Distance {
     public:
@@ -45,6 +48,7 @@ namespace hpp {
       virtual value_type impl_distance (ConfigurationIn_t q1,
 				    ConfigurationIn_t q2) const = 0;
     }; // class Distance
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_DISTANCE_HH

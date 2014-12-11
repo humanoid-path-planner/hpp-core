@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Abstraction of path validation report
     ///
     /// This class is aimed at being derived to store information relative to
@@ -35,6 +38,7 @@ namespace hpp {
       value_type collisionParameter;
       CollisionValidationReport collision;
     }; // class PathValidationReport
+    /// \}
   } // namespace core
 } // namespace hpp
 

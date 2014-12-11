@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_planning
+    /// \{
+
     /// Generic implementation of visibility-PRM algorithm,
     /// based on guard nodes (which cannot see each other) and 
     /// connection nodes between guards.
@@ -66,6 +69,7 @@ namespace hpp {
       ConfigurationPtr_t applyConstraints (const ConfigurationPtr_t qFrom, 
 					   const ConfigurationPtr_t qTo);
     };
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_VISIBILITY_PRM_PLANNER_HH

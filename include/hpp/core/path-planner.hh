@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_planning
+    /// \{
+
     /// Path planner
     ///
     /// Algorithm that computes a path between an initial configuration and a
@@ -78,6 +81,7 @@ namespace hpp {
       /// Store weak pointer to itself
       PathPlannerWkPtr_t weakPtr_;
     }; // class PathPlanner
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_PATH_PLANNER_HH

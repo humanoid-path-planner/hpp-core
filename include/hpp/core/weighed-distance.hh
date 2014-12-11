@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup steering_method
+    /// \{
+
     /// Weighed distance between configurations
     ///
     /// Euclidean distance between configurations seen as vectors.
@@ -62,6 +65,7 @@ namespace hpp {
       std::vector <value_type> weights_;
       WeighedDistanceWkPtr_t weak_;
     }; // class WeighedDistance
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_WEIGHED_DISTANCE_HH

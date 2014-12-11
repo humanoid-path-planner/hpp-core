@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup constraints
+    /// \{
+
     /// Set of constraints applicable to a robot configuration
     ///
     /// \warning If the set is to contain a ConfigProjector and several
@@ -114,6 +117,7 @@ namespace hpp {
       friend class Constraint;
       friend class ConfigProjector;
     }; // class ConstraintSet
+    /// \}
   } // namespace core
 } // namespace hpp
 

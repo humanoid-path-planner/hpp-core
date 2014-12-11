@@ -31,6 +31,10 @@ namespace hpp {
 	typedef std::list <BodyPairCollisionPtr_t> BodyPairCollisions_t;
       }
       using dichotomy::BodyPairCollisions_t;
+
+      /// \addtogroup validation
+      /// \{
+
       /// Continuous validation of a path for collision
       class HPP_CORE_DLLAPI Dichotomy : public PathValidation
       {
@@ -100,6 +104,7 @@ namespace hpp {
       CollisionPathValidationReport unusedReport_;
       }; // class Dichotomy
     } // namespace continuousCollisionChecking
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_DICHOTOMY_HH

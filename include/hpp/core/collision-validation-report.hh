@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Validate a configuration with respect to collision
     ///
     struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport
@@ -32,6 +35,7 @@ namespace hpp {
       /// Second object in collision
       CollisionObjectPtr_t object2;
     }; // class CollisionValidationReport
+    /// \}
   } // namespace core
 } // namespace hpp
 

@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Abstraction of configuration validation
     ///
     /// Instances of this class validate configurations with respect to some
@@ -74,6 +77,7 @@ namespace hpp {
       {
       }
     }; // class ConfigValidation
+    /// \}
   } // namespace core
 } // namespace hpp
 

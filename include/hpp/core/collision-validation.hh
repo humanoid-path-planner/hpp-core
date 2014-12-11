@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Validate a configuration with respect to collision
     ///
     class HPP_CORE_DLLAPI CollisionValidation : public ConfigValidation
@@ -74,6 +77,7 @@ namespace hpp {
       /// I did not find a better solution.
       CollisionValidationReport unusedReport;
     }; // class ConfigValidation
+    /// \}
   } // namespace core
 } // namespace hpp
 
