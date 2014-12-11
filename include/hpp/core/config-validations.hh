@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Validate a configuration with respect to collision
     ///
     class HPP_CORE_DLLAPI ConfigValidations : public ConfigValidation
@@ -57,6 +60,7 @@ namespace hpp {
     private:
       std::vector <ConfigValidationPtr_t> validations_;
     }; // class ConfigValidation
+    /// \}
   } // namespace core
 } // namespace hpp
 

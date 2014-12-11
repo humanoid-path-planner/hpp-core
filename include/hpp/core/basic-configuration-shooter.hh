@@ -27,6 +27,10 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup configuration_sampling
+    /// \{
+
+    /// Uniformly sample with bounds of degrees of freedom.
     class HPP_CORE_DLLAPI BasicConfigurationShooter :
       public ConfigurationShooter
     {
@@ -67,6 +71,7 @@ namespace hpp {
     private:
       const DevicePtr_t& robot_;
     }; // class BasicConfigurationShooter
+    /// \}
   } //   namespace core
 } // namespace hpp
 

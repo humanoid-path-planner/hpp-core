@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup steering_method
+    /// \{
+
     /// Steering method that creates StraightPath instances
     ///
     class HPP_CORE_DLLAPI SteeringMethodStraight : public SteeringMethod
@@ -46,6 +49,7 @@ namespace hpp {
       DeviceWkPtr_t device_;
       WeighedDistancePtr_t distance_;
     }; // SteeringMethodStraight
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_STEERING_METHOD_STRAIGHT_HH

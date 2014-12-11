@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup roadmap
+    /// \{
+
     /// Roadmap built by random path planning methods
     /// Nodes are configurations, paths are collision-free paths.
     class HPP_CORE_DLLAPI Roadmap {
@@ -173,6 +176,7 @@ namespace hpp {
 
     }; // class Roadmap
     std::ostream& operator<< (std::ostream& os, const Roadmap& r);
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_ROADMAP_HH

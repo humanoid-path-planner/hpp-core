@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Validate a configuration with respect to collision
     ///
     class HPP_CORE_DLLAPI CollisionValidation : public ConfigValidation
@@ -56,6 +59,7 @@ namespace hpp {
       DevicePtr_t robot_;
       CollisionPairs_t collisionPairs_;
     }; // class ConfigValidation
+    /// \}
   } // namespace core
 } // namespace hpp
 

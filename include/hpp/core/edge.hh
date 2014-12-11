@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup roadmap
+    /// \{
+
     /// Edge of a roadmap
     ///
     /// Links two nodes and stores a path linking the configurations stored in
@@ -52,6 +55,7 @@ namespace hpp {
       NodePtr_t n2_;
       PathPtr_t path_;
     }; // class Edge
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_EDGE_HH

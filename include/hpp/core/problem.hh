@@ -27,6 +27,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_planning
+    /// \{
+
     /// Defines a path planning problem for one robot.
     /// A path planning problem is defined by
     /// \li a robot: instance of class hpp::model::Device,
@@ -193,6 +196,7 @@ namespace hpp {
       /// Set of constraints applicable to the robot
       ConstraintSetPtr_t constraints_;
     }; // class Problem
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_PROBLEM_HH

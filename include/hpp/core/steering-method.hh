@@ -21,14 +21,11 @@
 
 # include <hpp/core/path.hh>
 
-/// Steering method
-///
-/// A steering method creates paths between pairs of configurations for a robot.
-/// They are usually used to take into account nonholonomic constraints of some
-/// robots
-
 namespace hpp {
   namespace core {
+    /// \addtogroup steering_method
+    /// \{
+
     /// Steering method
     ///
     /// A steering method creates paths between pairs of
@@ -69,6 +66,7 @@ namespace hpp {
       /// Set of constraints to apply on the paths produced
       ConstraintSetPtr_t constraints_;
     }; // class SteeringMethod
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_STEERING_METHOD_HH

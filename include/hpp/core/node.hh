@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup roadmap
+    /// \{
+
     /// Node of a roadmap
     ///
     /// Stores a configuration.
@@ -60,6 +63,7 @@ namespace hpp {
       ConnectedComponentPtr_t connectedComponent_;
     }; // class Node
     std::ostream& operator<< (std::ostream& os, const Node& n);
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_NODE_HH

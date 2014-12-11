@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_optimization
+    /// \{
+
     /// Random shortcut
     ///
     /// Path optimizer that iteratively samples random configurations along a
@@ -42,6 +45,7 @@ namespace hpp {
     protected:
       RandomShortcut (const Problem& problem);
     }; // class RandomShortcut
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_RANDOM_SHORTCUT_HH

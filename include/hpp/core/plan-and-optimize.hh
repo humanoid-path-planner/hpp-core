@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_planning
+    /// \{
+
     /// Path planner and optimizer
     ///
     /// Plans a path and iteratively applies a series of optimizer on
@@ -48,6 +51,7 @@ namespace hpp {
       const PathPlannerPtr_t pathPlanner_;
       Optimizers_t optimizers_;
     }; // class PlanAndOptimize
+    /// \}
   } // namespace core
 } // namespace hpp
 

@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_planning
+    /// \{
+
     /// Generic implementation of RRT algorithm
     class HPP_CORE_DLLAPI DiffusingPlanner : public PathPlanner
     {
@@ -53,6 +56,7 @@ namespace hpp {
       mutable Configuration_t qProj_;
       DiffusingPlannerWkPtr_t weakPtr_;
     };
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_DIFFUSING_PLANNER_HH

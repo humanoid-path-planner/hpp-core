@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup constraints
+    /// \{
+
      /**
      Constraint that locks a degree of freedom to a constant value.
 
@@ -172,6 +175,7 @@ namespace hpp {
       /// Weak pointer to itself
       LockedDofWkPtr_t weak_;
     }; // class LockedDof
+    /// \}
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_LOCKED_DOF_HH

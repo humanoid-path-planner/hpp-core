@@ -23,6 +23,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Validation of path by collision checking at discretized parameter values
     ///
     /// Should be replaced soon by a better algorithm
@@ -44,6 +47,7 @@ namespace hpp {
       CollisionValidationPtr_t collisionValidation_;
       value_type stepSize_;
     }; // class DiscretizedCollisionChecking
+    /// \}
   } // namespace core
 } // namespace hpp
 

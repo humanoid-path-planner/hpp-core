@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path_optimization
+    /// \{
+
     /// Abstraction of path optimizer
     ///
     class HPP_CORE_DLLAPI PathOptimizer
@@ -43,6 +46,7 @@ namespace hpp {
     private:
       const Problem& problem_;
     }; // class PathOptimizer;
+    /// }
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_PATH_OPTIMIZER_HH

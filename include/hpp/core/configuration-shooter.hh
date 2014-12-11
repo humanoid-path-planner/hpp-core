@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup configuration_sampling
+    /// \{
+
     /// Abstraction of configuration shooter
     ///
     /// Configuration shooters are used by random sampling algorithms to
@@ -38,5 +41,6 @@ namespace hpp {
       virtual ConfigurationPtr_t shoot () const = 0;
     }; // class
   } //   namespace core
+  /// \}
 } // namespace hpp
 #endif // HPP_CORE_CONFIGURATION_SHOOTER_HH
