@@ -25,7 +25,7 @@
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/differentiable-function.hh>
-#include <hpp/core/locked-dof.hh>
+#include <hpp/core/locked-joint.hh>
 
 namespace hpp {
   namespace core {
@@ -38,7 +38,7 @@ namespace hpp {
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
 
     //using boost::fusion::result_of::at;
-    bool operator< (const LockedDofPtr_t& l1, const LockedDofPtr_t& l2)
+    bool operator< (const LockedJointPtr_t& l1, const LockedJointPtr_t& l2)
     {
       return l1->rankInVelocity () < l2->rankInVelocity ();
     }
@@ -59,8 +59,8 @@ namespace hpp {
 				      const std::string& name,
 				      value_type errorThreshold,
 				      size_type maxIterations) :
-      Constraint (name), robot_ (robot), constraints_ (),
-      lockedDofs_ (), allSO3ranks_ (), lockedSO3ranks_ (),
+      Constraint (name), robot_ (robot), functions_ (),
+      lockedJoints_ (),
       squareErrorThreshold_ (errorThreshold * errorThreshold),
       maxIterations_ (maxIterations), toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
@@ -69,26 +69,16 @@ namespace hpp {
       nbNonLockedDofs_ (robot_->numberDof ()),
       squareNorm_(0), weak_ ()
     {
-      // Initialize the list of SO3 ranks in the device.
-      JointVector_t joints = robot->getJointVector ();
-      std::pair < size_type, size_type > rank;
-      for (JointVector_t::iterator j = joints.begin();
-          j!= joints.end(); ++j)
-        if (dynamic_cast<model::JointSO3*>(*j) != 0) {
-          rank.first = (*j)->rankInConfiguration ();
-          rank.second = (*j)->rankInVelocity ();
-          allSO3ranks_.push_back (rank);
-        }
     }
 
-    void ConfigProjector::addConstraint
-    (const DifferentiableFunctionPtr_t& constraint, EquationTypePtr_t comp)
+    void ConfigProjector::addFunction
+    (const DifferentiableFunctionPtr_t& function, ComparisonTypePtr_t comp)
     {
-      vector_t value (constraint->outputSize ());
-      matrix_t jacobian (constraint->outputSize (),
-			 robot_->numberDof ());
-      constraints_.push_back (FunctionValueAndJacobian_t (constraint, value,
-							  jacobian, comp));
+      vector_t value (function->outputSize ());
+      matrix_t jacobian (function->outputSize (), robot_->numberDof ());
+      functions_.push_back (FunctionValueAndJacobian_t (function, value,
+							jacobian, comp));
+      // TODO: no need to recompute intervals.
       computeIntervals ();
       resize ();
     }
@@ -96,56 +86,42 @@ namespace hpp {
     void ConfigProjector::computeIntervals ()
     {
       intervals_.clear ();
-      lockedSO3ranks_.clear();
-      lockedSO3values_.clear();
-      std::vector <bool> locked(robot_->numberDof(), false);
+      nbLockedDofs_ = 0;
       std::pair < size_type, size_type > interval;
-      int latestIndex=-1;
+      int latestIndex = 0;
       size_type size;
-      lockedDofs_.sort ();
+      lockedJoints_.sort ();
       // temporarily add an element at the end of the list.
-      lockedDofs_.push_back (LockedDof::create ("temporary", 0.,
-						robot_->configSize (),
-						robot_->numberDof ()));
-      for (LockedDofs_t::const_iterator itLocked = lockedDofs_.begin ();
-	   itLocked != lockedDofs_.end (); ++itLocked) {
+      lockedJoints_.push_back (LockedJoint::create ("temporary", robot_));
+      for (LockedJoints_t::const_iterator itLocked = lockedJoints_.begin ();
+	   itLocked != lockedJoints_.end (); ++itLocked) {
 	int index = (*itLocked)->rankInVelocity ();
-        locked[index] = true;
-	size = (index - latestIndex) - 1;
+	nbLockedDofs_ += (*itLocked)->numberDof ();
+	hppDout (info, "number locked dof " << (*itLocked)->numberDof ());
+	size = (index - latestIndex);
 	if (size > 0) {
-	  interval.first = latestIndex + 1;
+	  interval.first = latestIndex;
 	  interval.second = size;
 	  intervals_.push_back (interval);
 	}
-	latestIndex = index;
-      }
-      for (Intervals_t::iterator rank = allSO3ranks_.begin();
-          rank != allSO3ranks_.end(); ++rank) {
-        int index = rank->second;
-        if (locked[index] && locked[index+1] && locked[index+2]) {
-          lockedSO3ranks_.push_back(*rank);
-          // TODO: This value corresponds to the first element of the
-          // quaternion of the locked SO3 joint. The user should be able
-          // to initialize it somehow. It can be initialize using offsetFromConfig
-          lockedSO3values_.push_back(0);
-        }
+	latestIndex = index + (*itLocked)->numberDof ();
       }
       // Remove temporary element.
-      lockedDofs_.pop_back ();
+      lockedJoints_.pop_back ();
     }
 
     void ConfigProjector::resize ()
     {
       std::size_t size = 0;
-      for (NumericalConstraints_t::const_iterator itConstraint =
-	     constraints_.begin ();
-	   itConstraint != constraints_.end (); ++itConstraint) {
+      for (NumericalFunctions_t::const_iterator itConstraint =
+	     functions_.begin ();
+	   itConstraint != functions_.end (); ++itConstraint) {
 	FunctionValueAndJacobian_t fvj = (*itConstraint);
 	size += fvj.function->outputSize ();
       }
-      nbNonLockedDofs_ = robot_->numberDof () - lockedDofs_.size ();
+      nbNonLockedDofs_ = robot_->numberDof () - nbLockedDofs_;
       value_.resize (size);
-      offset_ = vector_t::Zero (size);
+      rightHandSide_ = vector_t::Zero (size);
       reducedJacobian_.resize (size, nbNonLockedDofs_);
       reducedJacobian_.setConstant (sqrt (-1));
       dqSmall_.resize (nbNonLockedDofs_);
@@ -160,9 +136,9 @@ namespace hpp {
     (ConfigurationIn_t configuration)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalConstraints_t::iterator itConstraint =
-	     constraints_.begin ();
-	   itConstraint != constraints_.end (); ++itConstraint) {
+      for (NumericalFunctions_t::iterator itConstraint =
+	     functions_.begin ();
+	   itConstraint != functions_.end (); ++itConstraint) {
 	DifferentiableFunction& f = *(itConstraint->function);
 	vector_t& value = itConstraint->value;
 	matrix_t& jacobian = itConstraint->jacobian;
@@ -190,8 +166,7 @@ namespace hpp {
     void ConfigProjector::smallToNormal (vectorIn_t small,
 					 vectorOut_t normal)
     {
-      assert (small.size () + (size_type) lockedDofs_.size () ==
-	      robot_->numberDof ());
+      assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
       for (Intervals_t::const_iterator itInterval = intervals_.begin ();
@@ -206,8 +181,7 @@ namespace hpp {
     void ConfigProjector::normalToSmall (vectorIn_t normal,
 					 vectorOut_t small)
     {
-      assert (small.size () + (size_type) lockedDofs_.size () ==
-	      robot_->numberDof ());
+      assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
       for (Intervals_t::const_iterator itInterval = intervals_.begin ();
@@ -230,7 +204,7 @@ namespace hpp {
 	std::numeric_limits<value_type>::infinity();
       // Fill value and Jacobian
       computeValueAndJacobian (configuration);
-      squareNorm_ = (value_ - offset_).squaredNorm ();
+      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
 	// Linearization of the system of equations
@@ -240,14 +214,14 @@ namespace hpp {
 	Eigen::JacobiSVD <matrix_t> svd (reducedJacobian_,
 					 Eigen::ComputeThinU |
 					 Eigen::ComputeThinV);
-	dqSmall_ = svd.solve(value_ - offset_);
+	dqSmall_ = svd.solve(value_ - rightHandSide_);
 	smallToNormal (dqSmall_, dq_);
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration);
 	alpha = alphaMax - .8*(alphaMax - alpha);
-	squareNorm_ = (value_ - offset_).squaredNorm ();
+	squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
 	hppDout (info, "squareNorm = " << squareNorm_);
 	--errorDecreased;
 	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
@@ -297,43 +271,36 @@ namespace hpp {
 
     void ConfigProjector::computeLockedDofs (ConfigurationOut_t configuration)
     {
-      // Normalize quaternion if its 3 DOFS are locked.
-      size_t rankSO3 = configuration.size(),
-                iSO3 = 0;
-      if (iSO3 < lockedSO3ranks_.size())
-        rankSO3 = lockedSO3ranks_[iSO3].first;
       /// LockedDofs are always sorted by their rankInConfiguration.
-      for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
-	   itLock != lockedDofs_.end (); ++itLock) {
-	configuration [(*itLock)->rankInConfiguration ()] = (*itLock)->value ();
-        if (rankSO3 + 3 == (*itLock)->rankInConfiguration ()) {
-          // Normalize
-          value_type w = sqrt(1 - configuration.segment (rankSO3 + 1, 3).squaredNorm ());
-          if (lockedSO3values_[iSO3] >= 0)
-            configuration[rankSO3] = w;
-          else
-            configuration[rankSO3] = -w;
-          assert(0.99 < configuration.segment (rankSO3, 4).squaredNorm ());
-          assert(configuration.segment (rankSO3, 4).squaredNorm () < 1.01);
-          iSO3++;
-          if (iSO3 < lockedSO3ranks_.size())
-            rankSO3 = lockedSO3ranks_[iSO3].first;
-        }
+      for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
+	   itLock != lockedJoints_.end (); ++itLock) {
+	configuration.segment ((*itLock)->rankInConfiguration (),
+			       (*itLock)->value ().size ()) =
+	  (*itLock)->value ();
       }
     }
 
-    void ConfigProjector::addLockedDof (const LockedDofPtr_t& lockedDof)
+    void ConfigProjector::addLockedJoint (const LockedJointPtr_t& lockedJoint)
     {
       // If the same dof is already locked, replace by new value
-      for (LockedDofs_t::iterator itLock = lockedDofs_.begin ();
-	   itLock != lockedDofs_.end (); ++itLock) {
-	if (lockedDof->rankInVelocity () == (*itLock)->rankInVelocity ()) {
-	  *itLock = lockedDof;
+      for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
+	   itLock != lockedJoints_.end (); ++itLock) {
+	if (lockedJoint->rankInVelocity () == (*itLock)->rankInVelocity ()) {
+	  *itLock = lockedJoint;
 	  return;
 	}
       }
-      lockedDofs_.push_back (lockedDof);
+      lockedJoints_.push_back (lockedJoint);
+      hppDout (info, "add locked joint " << lockedJoint->name ()
+	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
+	       << ", size: " << lockedJoint->numberDof ());
       computeIntervals ();
+      hppDout (info, "Intervals: ");
+      for (Intervals_t::const_iterator it = intervals_.begin ();
+	   it != intervals_.end (); ++it) {
+	hppDout (info, "[" << it->first << "," << it->first + it->second - 1
+		 << "]");
+      }
       resize ();
     }
 
@@ -341,10 +308,10 @@ namespace hpp {
     (const ConstraintSetPtr_t& constraintSet)
     {
       if (constraintSet->configProjector_) {
-	std::ostringstream oss
-	  ("Constraint set cannot store more than one config-projector");
-	oss << std::endl << *constraintSet;
-	throw std::runtime_error (oss.str ());
+       std::ostringstream oss
+         ("Constraint set cannot store more than one config-projector");
+       oss << std::endl << *constraintSet;
+       throw std::runtime_error (oss.str ());
       }
       if (constraintSet->hasLockedDofs ()) {
 	std::ostringstream oss
@@ -360,8 +327,8 @@ namespace hpp {
     std::ostream& ConfigProjector::print (std::ostream& os) const
     {
       os << "Config projector: " << name () << ", contains" << std::endl;
-      for (NumericalConstraints_t::const_iterator it = constraints_.begin ();
-	   it != constraints_.end (); ++it) {
+      for (NumericalFunctions_t::const_iterator it = functions_.begin ();
+	   it != functions_.end (); ++it) {
 	const DifferentiableFunction& f (*(it->function));
 	os << "    " << f << std::endl;
       }
@@ -371,9 +338,9 @@ namespace hpp {
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalConstraints_t::iterator itConstraint =
-	     constraints_.begin ();
-	   itConstraint != constraints_.end (); ++itConstraint) {
+      for (NumericalFunctions_t::iterator itConstraint =
+	     functions_.begin ();
+	   itConstraint != functions_.end (); ++itConstraint) {
 	DifferentiableFunction& f = *(itConstraint->function);
 	vector_t& value = itConstraint->value;
 	f (value, config);
@@ -382,62 +349,66 @@ namespace hpp {
 	value_.segment (row, nbRows) = value;
 	row += nbRows;
       }
-      return (value_ - offset_).squaredNorm () < squareErrorThreshold_;
+      return (value_ - rightHandSide_).squaredNorm () < squareErrorThreshold_;
     }
 
-    vector_t ConfigProjector::offsetFromConfig (ConfigurationIn_t config)
+    vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalConstraints_t::iterator itConstraint =
-          constraints_.begin ();
-          itConstraint != constraints_.end (); ++itConstraint) {
+      for (NumericalFunctions_t::iterator itConstraint =
+          functions_.begin ();
+          itConstraint != functions_.end (); ++itConstraint) {
         vector_t value = vector_t::Zero (itConstraint->value.size ());
         DifferentiableFunction& f = *(itConstraint->function);
-        if (f.isParametric ()) {
-          f (value, config);
-        }
         nbRows = f.outputSize ();
-        offset_.segment (row, nbRows) = value;
+        if (!itConstraint->constRhs) {
+          f (value, config);
+	  rightHandSide_.segment (row, nbRows) = value;
+        }
         row += nbRows;
       }
-      for (size_t iSO3 = 0; iSO3 < lockedSO3ranks_.size (); iSO3++)
-        lockedSO3values_[iSO3] = config[lockedSO3ranks_[iSO3].first];
-      return offset();
+      // Update other degrees of freedom.
+      for (LockedJoints_t::iterator it = lockedJoints_.begin ();
+	   it != lockedJoints_.end (); ++it ){
+	(*it)->value (config.segment ((*it)->rankInConfiguration (),
+				      (*it)->value ().size ()));
+      }
+      return rightHandSide();
     }
 
-    void ConfigProjector::offset (const vector_t& small)
+    void ConfigProjector::rightHandSide (const vector_t& small)
     {
       size_type row = 0, nbRows = 0, s = 0;
-      for (NumericalConstraints_t::iterator itConstraint =
-          constraints_.begin ();
-          itConstraint != constraints_.end (); ++itConstraint) {
+      for (NumericalFunctions_t::iterator itConstraint =
+          functions_.begin ();
+          itConstraint != functions_.end (); ++itConstraint) {
         DifferentiableFunction& f = *(itConstraint->function);
         nbRows = f.outputSize ();
-        if (f.isParametric ()) {
-          offset_.segment (row, nbRows) = small.segment (s, nbRows);
+        if (!itConstraint->constRhs) {
+          rightHandSide_.segment (row, nbRows) = small.segment (s, nbRows);
           s += nbRows;
         }
         row += nbRows;
       }
-      assert (row == offset_.size ());
+      assert (row == rightHandSide_.size ());
     }
 
-    vector_t ConfigProjector::offset () const
+    vector_t ConfigProjector::rightHandSide () const
     {
       vector_t small;
-      if (constraints_.empty ()) {
+      if (functions_.empty ()) {
         small.resize (0);
         return small;
       }
       size_type row = 0, nbRows = 0, s = 0;
-      for (NumericalConstraints_t::const_iterator itConstraint =
-          constraints_.begin ();
-          itConstraint != constraints_.end (); ++itConstraint) {
+      for (NumericalFunctions_t::const_iterator itConstraint =
+          functions_.begin ();
+          itConstraint != functions_.end (); ++itConstraint) {
         DifferentiableFunction& f = *(itConstraint->function);
         nbRows = f.outputSize ();
-        if (f.isParametric ()) {
+        if (!itConstraint->constRhs) {
           small.conservativeResize (s + nbRows);
-          small.segment (s, nbRows) = offset_.segment (row, nbRows);
+          small.segment (s, nbRows) = rightHandSide_.segment (row, nbRows);
           s += nbRows;
         }
         row += nbRows;

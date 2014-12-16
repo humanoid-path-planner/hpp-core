@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_PROBLEM_SOLVER_HH
 # define HPP_CORE_PROBLEM_SOLVER_HH
 
+# include <stdexcept>
+
 # include <hpp/model/fwd.hh>
 # include <boost/function.hpp>
 # include <hpp/core/deprecated.hh>
@@ -146,12 +148,40 @@ namespace hpp {
       /// Reset constraint set
       virtual void resetConstraints ();
 
+      /// Add differential function to the config projector
+      /// \param constraintName Name given to config projector if created by
+      ///        this method.
+      /// \param functionName name of the function as stored in internal map.
+      /// Build the config projector if not yet constructed.
+      virtual void addFunctionToConfigProjector
+	(const std::string& constraintName, const std::string& functionName);
+
       /// Add differentialFunction to the config projector
       /// Build the config projector if not constructed
-      virtual void addConstraintToConfigProjector (
-                          const std::string& constraintName,
-                          const DifferentiableFunctionPtr_t& constraint,
-                          const EquationTypePtr_t comp = Equality::create ());
+      /// \deprecated use addFunctionToConfigProjector instead.
+      virtual void addConstraintToConfigProjector
+	(const std::string& constraintName,
+	 const DifferentiableFunctionPtr_t& constraint,
+	 const ComparisonTypePtr_t comp = Equality::create ())
+	HPP_CORE_DEPRECATED
+      {
+	std::string functionName;
+	bool found = false;
+	// Check whether constraint is in the map
+	for (DifferentiableFunctionMap_t::const_iterator it =
+	       NumericalConstraintMap_.begin ();
+	     it != NumericalConstraintMap_.end (); ++it) {
+	  if (it->second == constraint) {
+	    functionName = it->first;
+	    found = true;
+	  }
+	}
+	if (!found) {
+	  throw std::runtime_error ("constraint is not in the map");
+	}
+	comparisonTypeMap_ [functionName] = comp;
+	addFunctionToConfigProjector (constraintName, functionName);
+      }
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
@@ -164,32 +194,34 @@ namespace hpp {
 				   constraint)
       {
 	NumericalConstraintMap_ [name] = constraint;
+        comparisonTypeMap_ [name] = ComparisonType::createDefault();
       }
 
-      /// Add an InequalityRef corresponding to the numerical constraint with the
-      /// same name.
-      /// \param name name of the inequality. Should correspond to a inequality constraint.
-      void addInequalityVector (const std::string& name, const EquationType::VectorOfTypes types)
+      /// Set the comparison types of a constraint.
+      /// \param name name of the differentiable function.
+      void comparisonType (const std::string& name,
+			   const ComparisonType::VectorOfTypes types)
       {
         DifferentiableFunctionPtr_t df = NumericalConstraintMap_ [name];
         if (!df)
-          throw std::logic_error ("Numerical constraint not defined.");
-        EquationTypesPtr_t eqtypes = EquationTypes::create (types);
-        equationTypeMap_ [name] = eqtypes;
+          throw std::logic_error (std::string ("Numerical constraint ") +
+				  name + std::string (" not defined."));
+        ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
+        comparisonTypeMap_ [name] = eqtypes;
       }
 
-      /// Add an InequalityRef corresponding to the numerical constraint with the
-      /// same name.
-      /// \param name name of the inequality. Should correspond to a inequality constraint.
-      void addInequalityVector (const std::string& name, const EquationTypePtr_t eq)
+      /// Set the comparison type of a constraint
+      /// \param name name of the differentiable function.
+      void comparisonType (const std::string& name,
+			   const ComparisonTypePtr_t eq)
       {
-        equationTypeMap_ [name] = eq;
+        comparisonTypeMap_ [name] = eq;
       }
 
-      EquationTypePtr_t inequality (const std::string& name) const
+      ComparisonTypePtr_t comparisonType (const std::string& name) const
       {
-        EquationTypeMap_t::const_iterator it = equationTypeMap_.find (name);
-        if (it == equationTypeMap_.end ())
+        ComparisonTypeMap_t::const_iterator it = comparisonTypeMap_.find (name);
+        if (it == comparisonTypeMap_.end ())
           return Equality::create ();
         return it->second;
       }
@@ -384,7 +416,7 @@ namespace hpp {
       /// Map of constraints
       DifferentiableFunctionMap_t NumericalConstraintMap_;
       /// Map of inequality
-      EquationTypeMap_t equationTypeMap_;
+      ComparisonTypeMap_t comparisonTypeMap_;
       /// Computation of distances to obstacles
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
     }; // class ProblemSolver

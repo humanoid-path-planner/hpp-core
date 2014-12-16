@@ -16,34 +16,40 @@
 
 #include <stdexcept>
 #include "eigen3/Eigen/Core"
-#include "hpp/core/inequality.hh"
+#include <hpp/core/comparison-type.hh>
 
 namespace hpp {
   namespace core {
     EqualityPtr_t Equality::unique_ = Equality::create ();
+    EqualToZeroPtr_t EqualToZero::unique_ = EqualToZero::create ();
+
+    ComparisonTypePtr_t ComparisonType::createDefault ()
+    {
+      return Equality::unique_;
+    }
 
     // -------------------------------------------------------------------
 
     template <>
-    Inequality < EquationType::Superior >::Inequality (const value_type& thr):
+    Inequality < ComparisonType::Superior >::Inequality (const value_type& thr):
       threshold_ (thr)
     {}
 
     template <>
-    EquationTypePtr_t Inequality < EquationType::Superior >::create (const value_type& thr)
+    ComparisonTypePtr_t Inequality < ComparisonType::Superior >::create (const value_type& thr)
     {
-      return SuperiorPtr_t (new Inequality < EquationType::Superior > (thr));
+      return SuperiorPtr_t (new Inequality < ComparisonType::Superior > (thr));
     }
 
     template <>
-    void Inequality< EquationType::Superior >::threshold (const value_type& t)
+    void Inequality< ComparisonType::Superior >::threshold (const value_type& t)
     {
       assert (t >= 0);
       threshold_ = t;
     }
 
     template <>
-    bool Inequality< EquationType::Superior >::operator () (vectorOut_t value) const
+    bool Inequality< ComparisonType::Superior >::operator () (vectorOut_t value) const
     {
       if (value[0] <= 0) {
         value[0] = value[0] - threshold_;
@@ -57,7 +63,7 @@ namespace hpp {
     }
 
     template <>
-    bool Inequality< EquationType::Superior >::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    bool Inequality< ComparisonType::Superior >::operator () (vectorOut_t value, matrixOut_t jacobian) const
     {
       if (value[0] <= 0) {
         value[0] = value[0] - threshold_;
@@ -74,25 +80,25 @@ namespace hpp {
     // -------------------------------------------------------------------
 
     template <>
-    Inequality < EquationType::Inferior >::Inequality (const value_type& thr):
+    Inequality < ComparisonType::Inferior >::Inequality (const value_type& thr):
       threshold_ (-thr)
     {}
 
     template <>
-    EquationTypePtr_t Inequality < EquationType::Inferior >::create (const value_type& thr)
+    ComparisonTypePtr_t Inequality < ComparisonType::Inferior >::create (const value_type& thr)
     {
-      return InferiorPtr_t (new Inequality < EquationType::Inferior > (thr));
+      return InferiorPtr_t (new Inequality < ComparisonType::Inferior > (thr));
     }
 
     template <>
-    void Inequality< EquationType::Inferior >::threshold (const value_type& t)
+    void Inequality< ComparisonType::Inferior >::threshold (const value_type& t)
     {
       assert (t >= 0);
       threshold_ = -t;
     }
 
     template <>
-    bool Inequality< EquationType::Inferior >::operator () (vectorOut_t value) const
+    bool Inequality< ComparisonType::Inferior >::operator () (vectorOut_t value) const
     {
       if (value[0] >= 0) {
         value[0] = value[0] - threshold_;
@@ -106,7 +112,7 @@ namespace hpp {
     }
 
     template <>
-    bool Inequality< EquationType::Inferior >::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    bool Inequality< ComparisonType::Inferior >::operator () (vectorOut_t value, matrixOut_t jacobian) const
     {
       if (value[0] >= 0) {
         value[0] = value[0] - threshold_;
@@ -128,7 +134,7 @@ namespace hpp {
       assert (w > 0);
     }
 
-    EquationTypePtr_t DoubleInequality::create (const value_type w, const value_type& thr)
+    ComparisonTypePtr_t DoubleInequality::create (const value_type w, const value_type& thr)
     {
       return DoubleInequalityPtr_t (new DoubleInequality (w, thr));
     }
@@ -177,7 +183,7 @@ namespace hpp {
 
     // -------------------------------------------------------------------
 
-    bool EquationTypes::operator () (vectorOut_t value, matrixOut_t jacobian) const
+    bool ComparisonTypes::operator () (vectorOut_t value, matrixOut_t jacobian) const
     {
       bool val = true;
       for (size_t i = 0; i < inequalities_.size (); i++)
@@ -185,7 +191,7 @@ namespace hpp {
       return val;
     }
 
-    bool EquationTypes::operator () (vectorOut_t value) const
+    bool ComparisonTypes::operator () (vectorOut_t value) const
     {
       bool val = true;
       for (size_t i = 0; i < inequalities_.size (); i++)
@@ -193,37 +199,37 @@ namespace hpp {
       return val;
     }
 
-    EquationTypes::EquationTypes (const std::vector <EquationType::Type> types)
+    ComparisonTypes::ComparisonTypes (const std::vector <ComparisonType::Type> types)
     {
       for (size_t i = 0; i < types.size (); i++) {
         switch (types[i]) {
-          case EquationType::Equality:
+          case ComparisonType::Equality:
             inequalities_.push_back (Equality::create ());
             break;
-          case EquationType::Superior:
-            inequalities_.push_back (Inequality <EquationType::Superior>::create ());
+          case ComparisonType::Superior:
+            inequalities_.push_back (Inequality <ComparisonType::Superior>::create ());
             break;
-          case EquationType::Inferior:
-            inequalities_.push_back (Inequality <EquationType::Inferior>::create ());
+          case ComparisonType::Inferior:
+            inequalities_.push_back (Inequality <ComparisonType::Inferior>::create ());
             break;
           default:
-            throw std::logic_error ("EquationType::Type not known.");
+            throw std::logic_error ("ComparisonType::Type not known.");
         }
       }
     }
 
-    EquationTypesPtr_t EquationTypes::create (size_t dim)
+    ComparisonTypesPtr_t ComparisonTypes::create (size_t dim)
     {
-      return create (std::vector <EquationType::Type> (dim, EquationType::Superior));
+      return create (std::vector <ComparisonType::Type> (dim, ComparisonType::Superior));
     }
 
-    EquationTypesPtr_t EquationTypes::create (const std::vector <EquationType::Type> types)
+    ComparisonTypesPtr_t ComparisonTypes::create (const std::vector <ComparisonType::Type> types)
     {
-      EquationTypesPtr_t shPtr (new EquationTypes (types));
+      ComparisonTypesPtr_t shPtr (new ComparisonTypes (types));
       return shPtr;
     }
 
-    template class Inequality < EquationType::Superior >;
-    template class Inequality < EquationType::Inferior >;
+    template class Inequality < ComparisonType::Superior >;
+    template class Inequality < ComparisonType::Inferior >;
   } // namespace core
 } // namespace hpp

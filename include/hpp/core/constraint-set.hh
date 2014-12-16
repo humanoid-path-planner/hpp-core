@@ -30,7 +30,7 @@ namespace hpp {
     /// Set of constraints applicable to a robot configuration
     ///
     /// \warning If the set is to contain a ConfigProjector and several
-    /// LockedDof instances, the configProjector should be inserted first
+    /// LockedJoint instances, the configProjector should be inserted first
     /// since following numerical projections might affect locked degrees of
     /// freedom.
     class HPP_CORE_DLLAPI ConstraintSet : public Constraint
@@ -51,7 +51,7 @@ namespace hpp {
 	constraint->addToConstraintSet (weak_.lock ());
       }
 
-      /// Whether constraint set contains constraints of type LockedDof.
+      /// Whether constraint set contains constraints of type LockedJoint.
       bool hasLockedDofs () const
       {
 	return hasLockedDofs_;
@@ -61,11 +61,6 @@ namespace hpp {
       {
 	return configProjector_;
       }
-
-      /// Set the level set parameter.
-      /// \param config the configuration used to compute the parameter.
-      /// \return the parameter.
-      vector_t offsetFromConfig (ConfigurationIn_t config);
 
       /// Check whether a configuration statisfies the constraint.
       bool isSatisfied (ConfigurationIn_t config);
@@ -88,11 +83,11 @@ namespace hpp {
 	  (*itConstraint)->addToConstraintSet (constraintSet);
 	}
       }
-      virtual void addLockedDof (const LockedDofPtr_t& lockedDof)
+      virtual void addLockedJoint (const LockedJointPtr_t& lockedJoint)
       {
 	for (Constraints_t::iterator itConstraint = constraints_.begin ();
 	     itConstraint != constraints_.end (); itConstraint ++) {
-	  (*itConstraint)->addLockedDof (lockedDof);
+	  (*itConstraint)->addLockedJoint (lockedJoint);
 	}
       }
 
@@ -113,7 +108,7 @@ namespace hpp {
       bool hasLockedDofs_;
       ConstraintSetWkPtr_t weak_;
 
-      friend class LockedDof;
+      friend class LockedJoint;
       friend class Constraint;
       friend class ConfigProjector;
     }; // class ConstraintSet

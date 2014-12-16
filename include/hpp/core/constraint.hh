@@ -47,11 +47,6 @@ namespace hpp {
 	return name_;
       }
 
-      /// Set the level set parameter.
-      /// \param config the configuration used to compute the parameter.
-      /// \return the parameter.
-      virtual vector_t offsetFromConfig (ConfigurationIn_t config) = 0;
-
       /// Check whether a configuration statisfies the constraint.
       virtual bool isSatisfied (ConfigurationIn_t config) = 0;
 
@@ -71,14 +66,14 @@ namespace hpp {
       virtual std::ostream& print (std::ostream& os) const = 0;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
 
-      virtual void addLockedDof (const LockedDofPtr_t&)
+      virtual void addLockedJoint (const LockedJointPtr_t&)
       {
       }
 
       ConstraintWkPtr_t weak_;
       std::string name_;
       friend class ConstraintSet;
-      friend class LockedDof;
+      friend class LockedJoint;
       friend class ConfigProjector;
       friend std::ostream& operator<< (std::ostream& os, const Constraint&);
     }; // class Constraint

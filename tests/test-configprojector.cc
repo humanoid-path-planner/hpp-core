@@ -275,16 +275,16 @@ BOOST_AUTO_TEST_CASE (ref_zero)
   JointPtr_t xyz = dev->getJointByName ("test_z");
   matrix3_t rot; rot.setIdentity ();
   vector3_t zero; zero.setZero();
-  EquationType::VectorOfTypes types (3, EquationType::Inferior);
+  ComparisonType::VectorOfTypes types (3, ComparisonType::Inferior);
   BOOST_REQUIRE (dev);
   PositionPtr_t position =
     Position::create (dev, xyz, zero, zero, rot);
 
-  types[1] = EquationType::Superior;
-  EquationTypesPtr_t ineq = EquationTypes::create (types);
+  types[1] = ComparisonType::Superior;
+  ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
-  projector->addConstraint (position, ineq);
+  projector->addFunction (position, ineq);
   Configuration_t cfg(dev->configSize ());
   cfg.setZero ();
   cfg [3] = 1; // Normalize quaternion
@@ -311,17 +311,17 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   matrix3_t rot; rot.setIdentity ();
   vector3_t zero; zero.setZero();
   vector_t ref(3);
-  EquationType::VectorOfTypes types (3, EquationType::Inferior);
+  ComparisonType::VectorOfTypes types (3, ComparisonType::Inferior);
   BOOST_REQUIRE (dev);
   PositionPtr_t position =
     Position::create (dev, xyz, zero, vector3_t (1,1,1), rot);
 
   ref[0] = 0; ref[1] = 0; ref[2] = 0;
-  types[1] = EquationType::Superior;
-  EquationTypesPtr_t ineq = EquationTypes::create (types);
+  types[1] = ComparisonType::Superior;
+  ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
-  projector->addConstraint (position, ineq);
+  projector->addFunction (position, ineq);
   Configuration_t cfg(dev->configSize ());
   cfg.setZero ();
   cfg [3] = 1; // Normalize quaternion

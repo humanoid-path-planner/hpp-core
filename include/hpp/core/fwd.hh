@@ -48,7 +48,7 @@ namespace hpp {
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
     HPP_PREDEF_CLASS (JointBoundValidation);
-    HPP_PREDEF_CLASS (LockedDof);
+    HPP_PREDEF_CLASS (LockedJoint);
     class Node;
     HPP_PREDEF_CLASS (Path);
     HPP_PREDEF_CLASS (PathOptimizer);
@@ -69,12 +69,14 @@ namespace hpp {
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;
 
-    class EquationType;
-    typedef boost::shared_ptr <EquationType> EquationTypePtr_t;
+    class ComparisonType;
+    typedef boost::shared_ptr <ComparisonType> ComparisonTypePtr_t;
     class Equality;
     typedef boost::shared_ptr <Equality> EqualityPtr_t;
-    class EquationTypes;
-    typedef boost::shared_ptr <EquationTypes> EquationTypesPtr_t;
+    class EqualToZero;
+    typedef boost::shared_ptr <EqualToZero> EqualToZeroPtr_t;
+    class ComparisonTypes;
+    typedef boost::shared_ptr <ComparisonTypes> ComparisonTypesPtr_t;
     class DoubleInequality;
     typedef boost::shared_ptr <DoubleInequality> DoubleInequalityPtr_t;
 
@@ -125,7 +127,7 @@ namespace hpp {
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
     typedef model::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
-    typedef boost::shared_ptr <LockedDof> LockedDofPtr_t;
+    typedef boost::shared_ptr <LockedJoint> LockedJointPtr_t;
     typedef model::matrix_t matrix_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
@@ -159,8 +161,8 @@ namespace hpp {
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;
-    typedef std::map <std::string, EquationTypePtr_t>
-    EquationTypeMap_t;
+    typedef std::map <std::string, ComparisonTypePtr_t>
+    ComparisonTypeMap_t;
 
     // Collision pairs
     typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>

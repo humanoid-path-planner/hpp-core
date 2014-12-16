@@ -20,7 +20,7 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 #include <hpp/model/joint-configuration.hh>
-#include <hpp/core/fwd.hh>
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/straight-path.hh>
 
 namespace hpp {
@@ -64,9 +64,12 @@ namespace hpp {
 	  (initial_, end_, u, rank, result);
       }
 
-      if (constraints ()) {
-        constraints ()->offsetFromConfig (initial_);
-        constraints ()->apply (result);
+      const ConstraintSetPtr_t& cs (constraints ());
+      if (cs) {
+	if (cs->configProjector ()) {
+	  cs->configProjector ()->rightHandSideFromConfig (initial_);
+	}
+        cs->apply (result);
       }
     }
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const

@@ -160,10 +160,8 @@ namespace hpp {
 	constraints_ = ConstraintSet::create (robot_, "Default constraint set");
     }
 
-    void ProblemSolver::addConstraintToConfigProjector(
-                          const std::string& constraintName,
-                          const DifferentiableFunctionPtr_t& constraint,
-                          const EquationTypePtr_t comp)
+    void ProblemSolver::addFunctionToConfigProjector
+    (const std::string& constraintName, const std::string& functionName)
     {
       if (!robot_) {
 	hppDout (error, "Cannot add constraint while robot is not set");
@@ -174,7 +172,9 @@ namespace hpp {
 	  (robot_, constraintName, errorThreshold_, maxIterations_);
 	constraints_->addConstraint (configProjector);
       }
-      configProjector->addConstraint (constraint, comp);
+      configProjector->addFunction
+	(NumericalConstraintMap_ [functionName],
+	 comparisonTypeMap_ [functionName]);
     }
 
     void ProblemSolver::resetProblem ()

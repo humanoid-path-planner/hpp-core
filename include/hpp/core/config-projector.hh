@@ -21,7 +21,8 @@
 
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
-# include <hpp/core/inequality.hh>
+# include <hpp/core/comparison-type.hh>
+# include "hpp/core/deprecated.hh"
 
 # include <hpp/statistics/success-bin.hh>
 
@@ -30,11 +31,27 @@ namespace hpp {
     /// \addtogroup constraints
     /// \{
 
-    /// Implicit non-linear constraint
-    ///
-    /// Defined by a list of vector-valued functions and solved numerically
-    /// by Newton Raphson like method.
-    /// Store locked degrees of freedom for performance optimisation.
+    /** Implicit non-linear constraint
+
+     This class defines a numerical constraints on a robot configuration
+     of the form:
+     \f{eqnarray*}
+     f_1 (\mathbf{q}) & = \mbox{or} \leq & f_1^0 \\
+     & \vdots\\
+     f_m (\mathbf{q}) & = \mbox{or} \leq & f_m^0
+     \f}
+     Functions \f$f_i\f$ are \ref constraints::DifferentiableFunction
+     "differentiable functions". Vectors \f$f_i^0\f$ are called
+     \b right hand side\b.
+
+     The constraints are solved numerically by a Newton Raphson like method.
+     Instances store locked degrees of freedom for performance optimisation.
+
+     Numerical constraints can be added using method
+     ConfigProjector::addFunction. Default parameter of this method define
+     equality constraints, but inequality constraints can also be defined by
+     passing an object of type ComparisonType to method.
+    */
     class HPP_CORE_DLLAPI ConfigProjector : public Constraint
     {
     public:
@@ -49,12 +66,27 @@ namespace hpp {
 					  value_type errorThreshold,
 					  size_type maxIterations);
 
+      /// Add a function
+      /// \param function The function.
+      /// \param comp For equality constraint, keep the default value.
+      ///             For inequality constraint, it does a comparison to
+      ///             whether the constraint is active.
+      void  addFunction (const DifferentiableFunctionPtr_t& function,
+			ComparisonTypePtr_t comp =
+			 ComparisonType::createDefault());
+
       /// Add constraint
       /// \param constraint The function.
       /// \param comp For equality constraint, keep the default value.
       ///             For inequality constraint, it does a comparison to
       ///             whether the constraint is active.
-      void addConstraint (const DifferentiableFunctionPtr_t& constraint, EquationTypePtr_t comp = Equality::create());
+      /// \deprecated Use addFunction instead.
+      void addConstraint (const DifferentiableFunctionPtr_t& constraint,
+			  ComparisonTypePtr_t comp = Equality::create())
+	HPP_CORE_DEPRECATED
+      {
+	addFunction (constraint, comp);
+      }
 
       /// Get robot
       const DevicePtr_t& robot () const
@@ -101,33 +133,33 @@ namespace hpp {
         return squareNorm_;
       }
 
-      /// \name Parametric configuration projector
-      /// Parametric configuration projector are of the form:
-      /// \f{eqnarray*}
-      ///    f ( q ) = f_0
-      /// \f}
-      ///
-      /// They provide a convenient way of generating configuration in a
-      /// level set of \f$ f \f$. \f$ f_0 \f$ is called the offset or
-      /// level set parameter.
-      ///
-      /// ConfigProjector automatically detects which DifferentiableFunction
-      /// are parametric. Use DifferentiableFunction::isParametric(const bool&) to
-      /// make a function parametric.
+      /// \name Right hand side of equalities - inequalities
       /// @{
 
-      /// Set the offset such that the level set contains the configuration.
-      /// \param config the configuration used to compute the offset.
-      /// \return the level set parameter.
-      vector_t offsetFromConfig (ConfigurationIn_t config);
+      /// Set the right hand side from a configuration
+      ///
+      /// in such a way that the configuration satisfies the numerical
+      /// constraints
+      /// \param config the input configuration.
+      /// \return the right hand side
+      ///
+      /// \warning Only values of the right hand side corresponding to 
+      /// \link Equality "equality constraints" \endlink are set. As a
+      /// result, the input configuration may not satisfy the other constraints.
+      /// The rationale is the following. Equality constraints define a
+      /// foliation of the configuration space. Leaves of the foliation are
+      /// defined by the value of the right hand side of the equality
+      /// constraints. This method is mainly used in manipulation planning
+      /// to retrieve the leaf a configuration lies on.
+      vector_t rightHandSideFromConfig (ConfigurationIn_t config);
 
       /// Set the level set parameter.
       /// \param param the level set parameter.
-      void offset (const vector_t& param);
+      void rightHandSide (const vector_t& param);
 
       /// Get the level set parameter.
       /// \return the parameter.
-      vector_t offset () const;
+      vector_t rightHandSide () const;
 
       /// @}
 
@@ -167,35 +199,36 @@ namespace hpp {
       void normalToSmall (vectorIn_t normal, vectorOut_t small);
       struct FunctionValueAndJacobian_t {
 	FunctionValueAndJacobian_t (DifferentiableFunctionPtr_t f,
-				    vector_t v, matrix_t j, EquationTypePtr_t c):
-                                              function (f),
-                                              value (v),
-                                              jacobian (j),
-                                              comp (c) {}
+				    vector_t v, matrix_t j,
+				    ComparisonTypePtr_t c):
+	  function (f), value (v), jacobian (j), comp (c), constRhs (true)
+	{
+	  constRhs = c->constantRightHandSide ();
+	}
 
 	DifferentiableFunctionPtr_t function;
 	vector_t value;
 	matrix_t jacobian;
-        EquationTypePtr_t comp;
+        ComparisonTypePtr_t comp;
+	// if true the righthandside of the constraint will not be modified by
+	// methd rightHandSideFromConfig.
+	bool constRhs;
       }; // struct FunctionValueAndJacobian_t
-      typedef std::vector < FunctionValueAndJacobian_t > NumericalConstraints_t;
+      typedef std::vector < FunctionValueAndJacobian_t > NumericalFunctions_t;
       void resize ();
       void computeValueAndJacobian (ConfigurationIn_t configuration);
-      virtual void addLockedDof (const LockedDofPtr_t& lockedDof);
+      virtual void addLockedJoint (const LockedJointPtr_t& lockedJoint);
       void computeIntervals ();
-      typedef std::list <LockedDofPtr_t> LockedDofs_t;
+      typedef std::list <LockedJointPtr_t> LockedJoints_t;
       typedef std::vector < std::pair <size_type, size_type> >Intervals_t;
       DevicePtr_t robot_;
-      NumericalConstraints_t constraints_;
-      LockedDofs_t lockedDofs_;
-      Intervals_t allSO3ranks_;
-      Intervals_t lockedSO3ranks_;
-      std::vector < value_type > lockedSO3values_;
+      NumericalFunctions_t functions_;
+      LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
       Intervals_t  intervals_;
       value_type squareErrorThreshold_;
       size_type maxIterations_;
-      vector_t offset_;
+      vector_t rightHandSide_;
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;
@@ -207,6 +240,7 @@ namespace hpp {
       mutable vector_t dq_;
       mutable vector_t dqSmall_;
       size_type nbNonLockedDofs_;
+      size_type nbLockedDofs_;
       value_type squareNorm_;
       ConfigProjectorWkPtr_t weak_;
 
