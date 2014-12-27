@@ -312,6 +312,24 @@ namespace hpp {
       return obstacleMap_ [name];
     }
 
+    std::list <std::string> ProblemSolver::obstacleNames
+    (bool collision, bool distance) const
+    {
+      std::list <std::string> res;
+      if (collision) {
+	for (ObjectVector_t::const_iterator it = collisionObstacles_.begin ();
+	     it != collisionObstacles_.end (); ++it) {
+	  res.push_back ((*it)->name ());
+	}
+      }
+      if (distance) {
+	for (ObjectVector_t::const_iterator it = distanceObstacles_.begin ();
+	     it != distanceObstacles_.end (); ++it) {
+	  res.push_back ((*it)->name ());
+	}
+      }
+      return res;
+    }
 
     const ObjectVector_t& ProblemSolver::collisionObstacles () const
     {
