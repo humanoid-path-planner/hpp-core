@@ -327,7 +327,16 @@ namespace hpp {
       void removeObstacleFromJoint (const std::string& jointName,
 				    const std::string& obstacleName);
 
+      /// Get obstacle by name
       const CollisionObjectPtr_t& obstacle (const std::string& name);
+
+      /// Get list of obstacle names
+      ///
+      /// \param collision whether to return collision obstacle names
+      /// \param distance whether to return distance obstacle names
+      /// \return list of obstacle names
+      std::list <std::string> obstacleNames (bool collision, bool distance)
+	const;
 
       /// Return list of pair of distance computations
       const DistanceBetweenObjectsPtr_t& distanceBetweenObjects () const
