@@ -73,7 +73,7 @@ namespace hpp {
 	value_ = value;
       }
       /// Set the value of the locked joint from a configuration.
-      void valueFromFromConfig (ConfigurationIn_t config)
+      void valueFromConfig (ConfigurationIn_t config)
       {
 	value_ = config.segment (rankInConfiguration_, value_.size ());
       }
