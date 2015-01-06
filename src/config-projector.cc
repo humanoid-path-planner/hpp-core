@@ -350,6 +350,9 @@ namespace hpp {
 	row += nbRows;
       }
       squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      for (LockedJoints_t::iterator it = lockedJoints_.begin ();
+          it != lockedJoints_.end (); ++it )
+        if (!it->isSatisfied (config)) return false;
       return squareNorm_ < squareErrorThreshold_;
     }
 
