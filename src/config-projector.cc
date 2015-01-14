@@ -62,7 +62,8 @@ namespace hpp {
       Constraint (name), robot_ (robot), functions_ (),
       lockedJoints_ (),
       squareErrorThreshold_ (errorThreshold * errorThreshold),
-      maxIterations_ (maxIterations), toMinusFrom_ (robot->numberDof ()),
+      maxIterations_ (maxIterations), rhsReducedSize_ (0),
+      toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
       dq_ (robot->numberDof ()),
       dqSmall_ (robot->numberDof ()),
@@ -71,13 +72,10 @@ namespace hpp {
     {
     }
 
-    void ConfigProjector::addFunction
-    (const DifferentiableFunctionPtr_t& function, ComparisonTypePtr_t comp)
+    void ConfigProjector::add (const NumericalConstraintPtr_t& nm)
     {
-      vector_t value (function->outputSize ());
-      matrix_t jacobian (function->outputSize (), robot_->numberDof ());
-      functions_.push_back (FunctionValueAndJacobian_t (function, value,
-							jacobian, comp));
+      functions_.push_back (nm);
+      rhsReducedSize_ += nm->rhsSize ();
       // TODO: no need to recompute intervals.
       computeIntervals ();
       resize ();
@@ -92,7 +90,7 @@ namespace hpp {
       size_type size;
       lockedJoints_.sort ();
       // temporarily add an element at the end of the list.
-      lockedJoints_.push_back (LockedJoint::create ("temporary", robot_));
+      lockedJoints_.push_back (LockedJoint::create (robot_));
       for (LockedJoints_t::const_iterator itLocked = lockedJoints_.begin ();
 	   itLocked != lockedJoints_.end (); ++itLocked) {
 	int index = (*itLocked)->rankInVelocity ();
@@ -113,12 +111,9 @@ namespace hpp {
     void ConfigProjector::resize ()
     {
       std::size_t size = 0;
-      for (NumericalFunctions_t::const_iterator itConstraint =
-	     functions_.begin ();
-	   itConstraint != functions_.end (); ++itConstraint) {
-	FunctionValueAndJacobian_t fvj = (*itConstraint);
-	size += fvj.function->outputSize ();
-      }
+      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
+	   it != functions_.end (); ++it)
+        size += (*it)->function().outputSize ();
       nbNonLockedDofs_ = robot_->numberDof () - nbLockedDofs_;
       value_.resize (size);
       rightHandSide_ = vector_t::Zero (size);
@@ -136,15 +131,14 @@ namespace hpp {
     (ConfigurationIn_t configuration)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalFunctions_t::iterator itConstraint =
-	     functions_.begin ();
-	   itConstraint != functions_.end (); ++itConstraint) {
-	DifferentiableFunction& f = *(itConstraint->function);
-	vector_t& value = itConstraint->value;
-	matrix_t& jacobian = itConstraint->jacobian;
+      for (NumericalConstraints_t::iterator it = functions_.begin ();
+	   it != functions_.end (); ++it) {
+	DifferentiableFunction& f = (*it)->function ();
+	vector_t& value = (*it)->value ();
+	matrix_t& jacobian = (*it)->jacobian ();
 	f (value, configuration);
 	f.jacobian (jacobian, configuration);
-        (*(itConstraint->comp))(value, jacobian);
+        (*(*it)->comparisonType ()) (value, jacobian);
 	nbRows = f.outputSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
@@ -273,14 +267,13 @@ namespace hpp {
     {
       /// LockedDofs are always sorted by their rankInConfiguration.
       for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
-	   itLock != lockedJoints_.end (); ++itLock) {
-	configuration.segment ((*itLock)->rankInConfiguration (),
-			       (*itLock)->value ().size ()) =
-	  (*itLock)->value ();
+          itLock != lockedJoints_.end (); ++itLock) {
+        configuration.segment ((*itLock)->rankInConfiguration (),
+            (*itLock)->size ()) = (*itLock)->value ();
       }
     }
 
-    void ConfigProjector::addLockedJoint (const LockedJointPtr_t& lockedJoint)
+    void ConfigProjector::add (const LockedJointPtr_t& lockedJoint)
     {
       // If the same dof is already locked, replace by new value
       for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
@@ -291,7 +284,7 @@ namespace hpp {
 	}
       }
       lockedJoints_.push_back (lockedJoint);
-      hppDout (info, "add locked joint " << lockedJoint->name ()
+      hppDout (info, "add locked joint " << lockedJoint->jointName_
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
       computeIntervals ();
@@ -302,6 +295,8 @@ namespace hpp {
 		 << "]");
       }
       resize ();
+      if (!lockedJoint->comparisonType ()->constantRightHandSide ())
+        rhsReducedSize_ += lockedJoint->rhsSize ();
     }
 
     void ConfigProjector::addToConstraintSet
@@ -313,12 +308,6 @@ namespace hpp {
        oss << std::endl << *constraintSet;
        throw std::runtime_error (oss.str ());
       }
-      if (constraintSet->hasLockedDofs ()) {
-	std::ostringstream oss
-	  ("Locked dofs should be inserted after config-projector");
-	oss << std::endl << *constraintSet;
-	throw std::runtime_error (oss.str ());
-      }
       constraintSet->configProjector_ = weak_.lock ();
       constraintSet->removeFirstElement ();
       Constraint::addToConstraintSet (constraintSet);
@@ -327,9 +316,9 @@ namespace hpp {
     std::ostream& ConfigProjector::print (std::ostream& os) const
     {
       os << "Config projector: " << name () << ", contains" << std::endl;
-      for (NumericalFunctions_t::const_iterator it = functions_.begin ();
+      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
-	const DifferentiableFunction& f (*(it->function));
+	const DifferentiableFunction& f = (*it)->function ();
 	os << "    " << f << std::endl;
       }
       return os;
@@ -338,13 +327,12 @@ namespace hpp {
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalFunctions_t::iterator itConstraint =
-	     functions_.begin ();
-	   itConstraint != functions_.end (); ++itConstraint) {
-	DifferentiableFunction& f = *(itConstraint->function);
-	vector_t& value = itConstraint->value;
+      for (NumericalConstraints_t::iterator it = functions_.begin ();
+	   it != functions_.end (); ++it) {
+	DifferentiableFunction& f = (*it)->function ();
+	vector_t& value = (*it)->value ();
 	f (value, config);
-        (*(itConstraint->comp))(value, itConstraint->jacobian);
+        (*(*it)->comparisonType ()) (value, (*it)->jacobian ());
 	nbRows = f.outputSize ();
 	value_.segment (row, nbRows) = value;
 	row += nbRows;
@@ -352,71 +340,74 @@ namespace hpp {
       squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
           it != lockedJoints_.end (); ++it )
-        if (!it->isSatisfied (config)) return false;
+        if (!(*it)->isSatisfied (config)) return false;
       return squareNorm_ < squareErrorThreshold_;
     }
 
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalFunctions_t::iterator itConstraint =
-          functions_.begin ();
-          itConstraint != functions_.end (); ++itConstraint) {
-        vector_t value = vector_t::Zero (itConstraint->value.size ());
-        DifferentiableFunction& f = *(itConstraint->function);
+      for (NumericalConstraints_t::iterator it = functions_.begin ();
+          it != functions_.end (); ++it) {
+        NumericalConstraint& nm = **it;
+        const DifferentiableFunction& f = nm.function ();
         nbRows = f.outputSize ();
-        if (!itConstraint->constRhs) {
-          f (value, config);
-	  rightHandSide_.segment (row, nbRows) = value;
-        }
+        nm.rightHandSideFromConfig (config);
+        rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
         row += nbRows;
       }
       // Update other degrees of freedom.
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
-	   it != lockedJoints_.end (); ++it ){
-	(*it)->value (config.segment ((*it)->rankInConfiguration (),
-				      (*it)->value ().size ()));
-      }
+          it != lockedJoints_.end (); ++it )
+        (*it)->rightHandSideFromConfig (config);
       return rightHandSide();
     }
 
     void ConfigProjector::rightHandSide (const vector_t& small)
     {
-      size_type row = 0, nbRows = 0, s = 0;
-      for (NumericalFunctions_t::iterator itConstraint =
-          functions_.begin ();
-          itConstraint != functions_.end (); ++itConstraint) {
-        DifferentiableFunction& f = *(itConstraint->function);
-        nbRows = f.outputSize ();
-        if (!itConstraint->constRhs) {
-          rightHandSide_.segment (row, nbRows) = small.segment (s, nbRows);
-          s += nbRows;
-        }
+      size_type row = 0, nbRows = 0, sRow = 0;
+      for (NumericalConstraints_t::iterator it = functions_.begin ();
+          it != functions_.end (); ++it) {
+        NumericalConstraint& nm = **it;
+        nbRows = nm.function ().outputSize ();
+        nm.rightHandSide (small.segment (sRow, nm.rhsSize ()));
+        rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
+        sRow += nm.rhsSize ();
         row += nbRows;
       }
       assert (row == rightHandSide_.size ());
+      for (LockedJoints_t::iterator it = lockedJoints_.begin ();
+          it != lockedJoints_.end (); ++it ) {
+        LockedJoint& lj = **it;
+        if (!lj.comparisonType ()->constantRightHandSide ()) {
+          lj.rightHandSide (small.segment (sRow, lj.rhsSize ()));
+          sRow += lj.rhsSize ();
+        }
+      }
+      assert (sRow == small.size ());
     }
 
     vector_t ConfigProjector::rightHandSide () const
     {
-      vector_t small;
-      if (functions_.empty ()) {
-        small.resize (0);
-        return small;
-      }
+      vector_t small(rhsReducedSize_);
       size_type row = 0, nbRows = 0, s = 0;
-      for (NumericalFunctions_t::const_iterator itConstraint =
-          functions_.begin ();
-          itConstraint != functions_.end (); ++itConstraint) {
-        DifferentiableFunction& f = *(itConstraint->function);
-        nbRows = f.outputSize ();
-        if (!itConstraint->constRhs) {
-          small.conservativeResize (s + nbRows);
-          small.segment (s, nbRows) = rightHandSide_.segment (row, nbRows);
-          s += nbRows;
-        }
+      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
+          it != functions_.end (); ++it) {
+        NumericalConstraint& nm = **it;
+        nbRows = nm.function ().outputSize ();
+        small.segment (s, nm.rhsSize ()) = rightHandSide_.segment (row, nm.rhsSize ());
+        s += nm.rhsSize ();
         row += nbRows;
       }
+      for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
+          it != lockedJoints_.end (); ++it ) {
+        LockedJoint& lj = **it;
+        if (!lj.comparisonType ()->constantRightHandSide ()) {
+          small.segment (s, lj.rhsSize ()) = lj.rightHandSide ();
+          s += lj.rhsSize ();
+        }
+      }
+      assert (s == small.size ());
       return small;
     }
   } // namespace core

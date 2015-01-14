@@ -58,8 +58,7 @@ namespace hpp {
     }
     ConstraintSet::ConstraintSet (const DevicePtr_t& robot,
 				  const std::string& name) :
-      Constraint (name), constraints_ (), configProjector_ (),
-      hasLockedDofs_ (false)
+      Constraint (name), constraints_ (), configProjector_ ()
     {
       constraints_.push_back (ConfigProjectorTrivial::create (robot));
     }

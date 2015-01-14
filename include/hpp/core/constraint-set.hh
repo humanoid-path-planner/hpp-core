@@ -51,11 +51,6 @@ namespace hpp {
 	constraint->addToConstraintSet (weak_.lock ());
       }
 
-      /// Whether constraint set contains constraints of type LockedJoint.
-      bool hasLockedDofs () const
-      {
-	return hasLockedDofs_;
-      }
       /// Return pointer to config projector if any
       const ConfigProjectorPtr_t& configProjector () const
       {
@@ -83,13 +78,6 @@ namespace hpp {
 	  (*itConstraint)->addToConstraintSet (constraintSet);
 	}
       }
-      virtual void addLockedJoint (const LockedJointPtr_t& lockedJoint)
-      {
-	for (Constraints_t::iterator itConstraint = constraints_.begin ();
-	     itConstraint != constraints_.end (); itConstraint ++) {
-	  (*itConstraint)->addLockedJoint (lockedJoint);
-	}
-      }
 
       void removeFirstElement ();
 
@@ -105,7 +93,6 @@ namespace hpp {
 
       Constraints_t constraints_;
       ConfigProjectorPtr_t configProjector_;
-      bool hasLockedDofs_;
       ConstraintSetWkPtr_t weak_;
 
       friend class LockedJoint;

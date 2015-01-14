@@ -139,6 +139,9 @@ namespace hpp {
       /// Add a constraint
       void addConstraint (const ConstraintPtr_t& constraint);
 
+      /// Add a LockedJoint
+      void addLockedJoint (const LockedJointPtr_t& lockedJoint);
+
       /// Get constraint set
       const ConstraintSetPtr_t& constraints () const
       {

@@ -45,10 +45,11 @@ namespace hpp {
     HPP_PREDEF_CLASS (Distance);
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
+    HPP_PREDEF_CLASS (NumericalConstraint);
+    HPP_PREDEF_CLASS (LockedJoint);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
     HPP_PREDEF_CLASS (JointBoundValidation);
-    HPP_PREDEF_CLASS (LockedJoint);
     class Node;
     HPP_PREDEF_CLASS (Path);
     HPP_PREDEF_CLASS (PathOptimizer);
@@ -128,6 +129,7 @@ namespace hpp {
     typedef model::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
     typedef boost::shared_ptr <LockedJoint> LockedJointPtr_t;
+    typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
     typedef model::matrix_t matrix_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;

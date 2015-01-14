@@ -55,6 +55,9 @@ SET(${LIBRARY_NAME}_SOURCES
   straight-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
+  numerical-constraint.cc
+  equation.cc
+  locked-joint.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

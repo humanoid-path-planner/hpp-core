@@ -22,6 +22,7 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 # include <hpp/core/comparison-type.hh>
+# include <hpp/core/numerical-constraint.hh>
 # include "hpp/core/deprecated.hh"
 
 # include <hpp/statistics/success-bin.hh>
@@ -71,9 +72,13 @@ namespace hpp {
       /// \param comp For equality constraint, keep the default value.
       ///             For inequality constraint, it does a comparison to
       ///             whether the constraint is active.
+      /// \deprecated Use add(NumericalConstraintPtr_t) instead.
       void  addFunction (const DifferentiableFunctionPtr_t& function,
-			ComparisonTypePtr_t comp =
-			 ComparisonType::createDefault());
+          ComparisonTypePtr_t comp = ComparisonType::createDefault())
+        HPP_CORE_DEPRECATED
+      {
+        add (NumericalConstraint::create (function, comp));
+      }
 
       /// Add constraint
       /// \param constraint The function.
@@ -82,11 +87,19 @@ namespace hpp {
       ///             whether the constraint is active.
       /// \deprecated Use addFunction instead.
       void addConstraint (const DifferentiableFunctionPtr_t& constraint,
-			  ComparisonTypePtr_t comp = Equality::create())
+			  ComparisonTypePtr_t comp = ComparisonType::createDefault ())
 	HPP_CORE_DEPRECATED
       {
-	addFunction (constraint, comp);
+        add (NumericalConstraint::create (constraint, comp));
       }
+
+      /// Add a numerical constraint
+      /// \param numericalConstraint The numerical constraint.
+      void add (const NumericalConstraintPtr_t& numericalConstraint);
+
+      /// Add a locked joint.
+      /// \param lockedJoint The locked joint.
+      void add (const LockedJointPtr_t& lockedJoint);
 
       /// Get robot
       const DevicePtr_t& robot () const
@@ -197,38 +210,21 @@ namespace hpp {
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
       void smallToNormal (vectorIn_t small, vectorOut_t normal);
       void normalToSmall (vectorIn_t normal, vectorOut_t small);
-      struct FunctionValueAndJacobian_t {
-	FunctionValueAndJacobian_t (DifferentiableFunctionPtr_t f,
-				    vector_t v, matrix_t j,
-				    ComparisonTypePtr_t c):
-	  function (f), value (v), jacobian (j), comp (c), constRhs (true)
-	{
-	  constRhs = c->constantRightHandSide ();
-	}
-
-	DifferentiableFunctionPtr_t function;
-	vector_t value;
-	matrix_t jacobian;
-        ComparisonTypePtr_t comp;
-	// if true the righthandside of the constraint will not be modified by
-	// methd rightHandSideFromConfig.
-	bool constRhs;
-      }; // struct FunctionValueAndJacobian_t
-      typedef std::vector < FunctionValueAndJacobian_t > NumericalFunctions_t;
+      typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
       void resize ();
       void computeValueAndJacobian (ConfigurationIn_t configuration);
-      virtual void addLockedJoint (const LockedJointPtr_t& lockedJoint);
       void computeIntervals ();
       typedef std::list <LockedJointPtr_t> LockedJoints_t;
       typedef std::vector < std::pair <size_type, size_type> >Intervals_t;
       DevicePtr_t robot_;
-      NumericalFunctions_t functions_;
+      NumericalConstraints_t functions_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
       Intervals_t  intervals_;
       value_type squareErrorThreshold_;
       size_type maxIterations_;
       vector_t rightHandSide_;
+      size_type rhsReducedSize_;
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;

@@ -63,6 +63,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/edge.hh
   include/hpp/core/fwd.hh
   include/hpp/core/joint-bound-validation.hh
+  include/hpp/core/equation.hh
+  include/hpp/core/numerical-constraint.hh
   include/hpp/core/locked-joint.hh
   include/hpp/core/node.hh
   include/hpp/core/path.hh
