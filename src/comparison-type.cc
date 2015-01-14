@@ -25,7 +25,7 @@ namespace hpp {
 
     ComparisonTypePtr_t ComparisonType::createDefault ()
     {
-      return Equality::unique_;
+      return EqualToZero::unique_;
     }
 
     // -------------------------------------------------------------------
