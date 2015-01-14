@@ -116,7 +116,7 @@ namespace hpp {
       /// \textbf{q}_{res} = \textbf{q}_{from} + \left(I_n -
       /// J^{+}J(\textbf{q}_{from})\right) (\textbf{q}_{to} - \textbf{q}_{from})
       /// \f]
-      void projectOnKernel (ConfigurationIn_t from,
+      virtual void projectOnKernel (ConfigurationIn_t from,
 			    ConfigurationIn_t to, ConfigurationOut_t result);
 
       /// Set maximal number of iterations
