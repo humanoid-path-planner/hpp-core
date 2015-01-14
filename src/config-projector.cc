@@ -191,6 +191,7 @@ namespace hpp {
     {
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
+      if (functions_.empty ()) return true;
       value_type alpha = .2;
       value_type alphaMax = .95;
       size_type errorDecreased = 3, iter = 0;
@@ -248,6 +249,10 @@ namespace hpp {
 					   ConfigurationIn_t to,
 					   ConfigurationOut_t result)
     {
+      if (functions_.empty ()) {
+        result = to;
+        return;
+      }
       computeValueAndJacobian (from);
       model::difference (robot_, to, from, toMinusFrom_);
       normalToSmall (toMinusFrom_, toMinusFromSmall_);
