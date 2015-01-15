@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE (ref_zero)
   ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
-  projector->addFunction (position, ineq);
+  projector->add (NumericalConstraint::create (position, ineq));
   Configuration_t cfg(dev->configSize ());
   cfg.setZero ();
   cfg [3] = 1; // Normalize quaternion
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
-  projector->addFunction (position, ineq);
+  projector->add (NumericalConstraint::create (position, ineq));
   Configuration_t cfg(dev->configSize ());
   cfg.setZero ();
   cfg [3] = 1; // Normalize quaternion
