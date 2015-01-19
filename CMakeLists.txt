@@ -85,6 +85,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/validation-report.hh
   include/hpp/core/visibility-prm-planner.hh
   include/hpp/core/weighed-distance.hh
+  include/hpp/core/path-projector/progressive.hh
+  include/hpp/core/path-projector/dichotomy.hh
+  include/hpp/core/path-projector.hh
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")

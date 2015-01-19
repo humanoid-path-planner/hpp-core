@@ -25,6 +25,8 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/path-projector/dichotomy.hh>
+#include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
@@ -43,12 +45,22 @@ namespace hpp {
       }
     }; // struct NoneOptimizer
 
+    // Struct that constructs an empty shared pointer to PathProjector.
+    struct NonePathProjector
+    {
+      static PathProjectorPtr_t create (const core::DistancePtr_t, value_type)
+      {
+	return PathProjectorPtr_t ();
+      }
+    }; // struct NoneOptimizer
+
     ProblemSolver::ProblemSolver () :
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       pathOptimizerType_ ("RandomShortcut"),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
+      pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
       roadmap_ (), paths_ (),
       pathPlannerFactory_ (), pathOptimizerFactory_ (),
       pathValidationFactory_ (),
@@ -71,6 +83,13 @@ namespace hpp {
 	continuousCollisionChecking::Progressive::create;
       pathValidationFactory_ ["Dichotomy"] =
 	continuousCollisionChecking::Dichotomy::create;
+      // Store path projector methods in map.
+      pathProjectorFactory_ ["None"] =
+	NonePathProjector::create;
+      pathProjectorFactory_ ["Progressive"] =
+	pathProjector::Progressive::create;
+      pathProjectorFactory_ ["Dichotomy"] =
+	pathProjector::Dichotomy::create;
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -111,6 +130,24 @@ namespace hpp {
 	  pathValidationFactory_ [pathValidationType_]
 	  (robot_, pathValidationTolerance_);
 	problem_->pathValidation (pathValidation);
+      }
+    }
+
+    void ProblemSolver::pathProjectorType (const std::string& type,
+					    const value_type& tolerance)
+    {
+      if (pathProjectorFactory_.find (type) == pathProjectorFactory_.end ()) {
+	throw std::runtime_error (std::string ("No path projector method with "
+					       "name ") + type);
+      }
+      pathProjectorType_ = type;
+      pathProjectorTolerance_ = tolerance;
+      // If a robot is present, set path projector method
+      if (robot_ && problem_) {
+	PathProjectorPtr_t pathProjector =
+	  pathProjectorFactory_ [pathProjectorType_]
+	  (problem_->distance (), pathProjectorTolerance_);
+	problem_->pathProjector (pathProjector);
       }
     }
 
@@ -238,6 +275,13 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
+      /// create Path projector
+      PathProjectorBuilder_t createProjector =
+        pathProjectorFactory_ [pathProjectorType_];
+      PathProjectorPtr_t pathProjector_ =
+        createProjector (problem_->distance (), pathProjectorTolerance_);
+      problem_->pathProjector (pathProjector_);
+      /// create Path optimizer
       createPathOptimizer ();
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
@@ -272,6 +316,13 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
+      /// create Path projector
+      PathProjectorBuilder_t createProjector =
+        pathProjectorFactory_ [pathProjectorType_];
+      PathProjectorPtr_t pathProjector_ =
+        createProjector (problem_->distance (), pathProjectorTolerance_);
+      problem_->pathProjector (pathProjector_);
+      /// create Path optimizer
       PathOptimizerBuilder_t createOptimizer =
 	pathOptimizerFactory_ [pathOptimizerType_];
       pathOptimizer_ = createOptimizer (*problem_);

@@ -135,6 +135,21 @@ namespace hpp {
       }
       /// \}
 
+      /// \name Path projector
+      /// \{
+      /// Set path projector method
+      void pathProjector (const PathProjectorPtr_t& pathProjector)
+      {
+        pathProjector_ = pathProjector;
+      }
+
+      /// Get path projector method
+      PathProjectorPtr_t pathProjector () const
+      {
+	return pathProjector_;
+      }
+      /// \}
+
       /// \name Constraints applicable to the robot
       /// \{
 
@@ -191,6 +206,8 @@ namespace hpp {
       ConfigValidationsPtr_t configValidations_;
       /// Path validation
       PathValidationPtr_t pathValidation_;
+      /// Path projector
+      PathProjectorPtr_t pathProjector_;
       /// List of obstacles
       ObjectVector_t collisionObstacles_;
       /// Set of constraints applicable to the robot

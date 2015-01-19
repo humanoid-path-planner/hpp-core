@@ -24,6 +24,7 @@
 #include <hpp/core/edge.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/path-validation.hh>
+#include <hpp/core/path-projector.hh>
 #include <hpp/core/steering-method.hh>
 #include "astar.hh"
 
@@ -113,7 +114,8 @@ namespace hpp {
       // call steering method here to build a direct conexion
       const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      PathPtr_t validPath, path;
+      PathProjectorPtr_t pathProjector (problem ().pathProjector ());
+      PathPtr_t validPath, projPath, path;
       NodePtr_t initNode = roadmap ()->initNode();
       for (Nodes_t::const_iterator itn = roadmap ()->goalNodes ().begin();
 	   itn != roadmap ()->goalNodes ().end (); ++itn) {
@@ -121,13 +123,19 @@ namespace hpp {
 	ConfigurationPtr_t q2 ((*itn)->configuration ());
 	assert (*q1 != *q2);
 	path = (*sm) (*q1, *q2);
-        if (path) {
-          bool pathValid = pathValidation->validate (path, false, validPath);
+        if (!path) continue;
+        if (pathProjector) {
+          if (!pathProjector->apply (path, projPath)) continue;
+        } else {
+          projPath = path;
+        }
+        if (projPath) {
+          bool pathValid = pathValidation->validate (projPath, false, validPath);
           if (pathValid && validPath->timeRange ().second !=
               path->timeRange ().first) {
-            roadmap ()->addEdge (initNode, *itn, path);
-            interval_t timeRange = path->timeRange ();
-            roadmap ()->addEdge (*itn, initNode, path->extract
+            roadmap ()->addEdge (initNode, *itn, projPath);
+            interval_t timeRange = projPath->timeRange ();
+            roadmap ()->addEdge (*itn, initNode, projPath->extract
                 (interval_t (timeRange.second,
                              timeRange.first)));
           }

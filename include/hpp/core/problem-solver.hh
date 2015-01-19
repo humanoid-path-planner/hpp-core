@@ -46,6 +46,10 @@ namespace hpp {
       typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
 						     const value_type&) >
 	PathValidationBuilder_t;
+      typedef boost::function <PathProjectorPtr_t (const core::DistancePtr_t,
+              value_type) >
+        PathProjectorBuilder_t;
+
       /// Constructor
       ProblemSolver ();
 
@@ -126,6 +130,22 @@ namespace hpp {
 				 const PathValidationBuilder_t& builder)
       {
 	pathValidationFactory_ [type] = builder;
+      }
+
+      /// Set path projector method
+      /// \param type name of new path validation method
+      /// \param step discontinuity tolerance
+      void pathProjectorType (const std::string& type,
+			      const value_type& step);
+
+      /// Add a path projector type
+      /// \param type name of the new path projector method,
+      /// \param static method that creates a path projector with a distance
+      /// and tolerance as input.
+      void addPathProjectorType (const std::string& type,
+				 const PathProjectorBuilder_t& builder)
+      {
+	pathProjectorFactory_ [type] = builder;
       }
 
       const RoadmapPtr_t& roadmap () const
@@ -388,6 +408,9 @@ namespace hpp {
       /// Map (string , constructor of path validation method)
       typedef std::map <std::string, PathValidationBuilder_t >
 	PathValidationFactory_t;
+      /// Map (string , constructor of path projector method)
+      typedef std::map <std::string, PathProjectorBuilder_t >
+	PathProjectorFactory_t;
       /// Robot
       DevicePtr_t robot_;
       /// Problem
@@ -406,6 +429,10 @@ namespace hpp {
       std::string pathValidationType_;
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
+      /// Path projector method
+      std::string pathProjectorType_;
+      /// Tolerance of path projector
+      value_type pathProjectorTolerance_;
       /// Store roadmap
       RoadmapPtr_t roadmap_;
       /// Paths
@@ -416,6 +443,8 @@ namespace hpp {
       PathOptimizerFactory_t pathOptimizerFactory_;
       /// Path validation factory
       PathValidationFactory_t pathValidationFactory_;
+      /// Path projector factory
+      PathProjectorFactory_t pathProjectorFactory_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;

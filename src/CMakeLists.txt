@@ -58,6 +58,9 @@ SET(${LIBRARY_NAME}_SOURCES
   numerical-constraint.cc
   equation.cc
   locked-joint.cc
+  path-projector/progressive.cc
+  path-projector/dichotomy.cc
+  path-projector.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

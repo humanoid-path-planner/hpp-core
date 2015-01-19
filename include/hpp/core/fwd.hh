@@ -195,6 +195,15 @@ namespace hpp {
       HPP_PREDEF_CLASS (PathLength);
       typedef boost::shared_ptr <PathLength> PathLengthPtr_t;
     } // namespace pathOptimization
+
+    HPP_PREDEF_CLASS (PathProjector);
+    typedef boost::shared_ptr <PathProjector> PathProjectorPtr_t;
+    namespace pathProjector {
+      HPP_PREDEF_CLASS (Dichotomy);
+      typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
+      HPP_PREDEF_CLASS (Progressive);
+      typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
+    } // namespace pathProjector
   } // namespace core
 } // namespace hpp
 
