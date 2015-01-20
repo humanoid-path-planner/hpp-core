@@ -60,7 +60,7 @@ namespace hpp {
 				      value_type errorThreshold,
 				      size_type maxIterations) :
       Constraint (name), robot_ (robot), functions_ (),
-      lockedJoints_ (),
+      passiveDofs_ (), lockedJoints_ (),
       squareErrorThreshold_ (errorThreshold * errorThreshold),
       maxIterations_ (maxIterations), rhsReducedSize_ (0),
       toMinusFrom_ (robot->numberDof ()),
@@ -160,9 +160,9 @@ namespace hpp {
 	    jacobian.block (0, col0, nbRows, nbCols);
 	  col += nbCols;
 	}
-	row += nbRows;
+        row += nbRows;
+        ++itPassiveDofs;
       }
-      itPassiveDofs++;
       assert (itPassiveDofs == passiveDofs_.end ());
     }
 
