@@ -72,9 +72,11 @@ namespace hpp {
     {
     }
 
-    void ConfigProjector::add (const NumericalConstraintPtr_t& nm)
+    void ConfigProjector::add (const NumericalConstraintPtr_t& nm,
+        const SizeIntervals_t& passiveDofs)
     {
       functions_.push_back (nm);
+      passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
       // TODO: no need to recompute intervals.
       computeIntervals ();
@@ -131,6 +133,8 @@ namespace hpp {
     (ConfigurationIn_t configuration)
     {
       size_type row = 0, nbRows = 0;
+      IntervalsContainer_t::const_iterator itPassiveDofs
+        = passiveDofs_.begin ();
       for (NumericalConstraints_t::iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
 	DifferentiableFunction& f = (*it)->function ();
@@ -143,6 +147,11 @@ namespace hpp {
 	// Copy columns that are not locked
 	size_type col = 0;
 	value_.segment (row, nbRows) = value;
+        /// Set the passive DOFs to zero.
+	for (SizeIntervals_t::const_iterator it = itPassiveDofs->begin ();
+	     it != itPassiveDofs->end (); ++it)
+          jacobian.middleCols (it->first, it->second).setZero ();
+        /// Copy the non locked DOFs.
 	for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	     itInterval != intervals_.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
@@ -153,6 +162,8 @@ namespace hpp {
 	}
 	row += nbRows;
       }
+      itPassiveDofs++;
+      assert (itPassiveDofs == passiveDofs_.end ());
     }
 
     /// Convert vector of non locked degrees of freedom to vector of

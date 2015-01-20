@@ -95,7 +95,12 @@ namespace hpp {
 
       /// Add a numerical constraint
       /// \param numericalConstraint The numerical constraint.
-      void add (const NumericalConstraintPtr_t& numericalConstraint);
+      /// \param passiveDofs column indexes of the jacobian vector that will be
+      ///        set to zero when solving.
+      /// \note The intervals are interpreted as a list of couple
+      /// (index_start, length) and NOT as (index_start, index_end).
+      void add (const NumericalConstraintPtr_t& numericalConstraint,
+          const SizeIntervals_t& passiveDofs = SizeIntervals_t (0));
 
       /// Add a locked joint.
       /// \param lockedJoint The locked joint.
@@ -211,12 +216,14 @@ namespace hpp {
       void smallToNormal (vectorIn_t small, vectorOut_t normal);
       void normalToSmall (vectorIn_t normal, vectorOut_t small);
       typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
+      typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
       void resize ();
       void computeValueAndJacobian (ConfigurationIn_t configuration);
       void computeIntervals ();
       typedef std::list <LockedJointPtr_t> LockedJoints_t;
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
+      IntervalsContainer_t passiveDofs_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
       SizeIntervals_t  intervals_;
