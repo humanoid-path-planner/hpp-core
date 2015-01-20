@@ -143,7 +143,7 @@ namespace hpp {
 	// Copy columns that are not locked
 	size_type col = 0;
 	value_.segment (row, nbRows) = value;
-	for (Intervals_t::const_iterator itInterval = intervals_.begin ();
+	for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	     itInterval != intervals_.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
 	  size_type nbCols = itInterval->second;
@@ -163,7 +163,7 @@ namespace hpp {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
-      for (Intervals_t::const_iterator itInterval = intervals_.begin ();
+      for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); ++itInterval) {
 	size_type col0 = itInterval->first;
 	size_type nbCols = itInterval->second;
@@ -178,7 +178,7 @@ namespace hpp {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
       size_type col = 0;
-      for (Intervals_t::const_iterator itInterval = intervals_.begin ();
+      for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); ++itInterval) {
 	size_type col0 = itInterval->first;
 	size_type nbCols = itInterval->second;
@@ -294,7 +294,7 @@ namespace hpp {
 	       << ", size: " << lockedJoint->numberDof ());
       computeIntervals ();
       hppDout (info, "Intervals: ");
-      for (Intervals_t::const_iterator it = intervals_.begin ();
+      for (SizeIntervals_t::const_iterator it = intervals_.begin ();
 	   it != intervals_.end (); ++it) {
 	hppDout (info, "[" << it->first << "," << it->first + it->second - 1
 		 << "]");

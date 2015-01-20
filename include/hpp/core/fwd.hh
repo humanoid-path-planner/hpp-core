@@ -136,6 +136,8 @@ namespace hpp {
     typedef model::size_type size_type;
     typedef model::value_type value_type;
     typedef std::pair<value_type, value_type> interval_t;
+    typedef std::pair<size_type, size_type> SizeInterval_t;
+    typedef std::vector < SizeInterval_t > SizeIntervals_t;
     typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;

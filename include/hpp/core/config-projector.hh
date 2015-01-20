@@ -215,12 +215,11 @@ namespace hpp {
       void computeValueAndJacobian (ConfigurationIn_t configuration);
       void computeIntervals ();
       typedef std::list <LockedJointPtr_t> LockedJoints_t;
-      typedef std::vector < std::pair <size_type, size_type> >Intervals_t;
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
-      Intervals_t  intervals_;
+      SizeIntervals_t  intervals_;
       value_type squareErrorThreshold_;
       size_type maxIterations_;
       vector_t rightHandSide_;
