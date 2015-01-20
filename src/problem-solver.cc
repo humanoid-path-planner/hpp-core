@@ -65,7 +65,7 @@ namespace hpp {
       pathPlannerFactory_ (), pathOptimizerFactory_ (),
       pathValidationFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (),
-      errorThreshold_ (1e-4), maxIterations_ (20), NumericalConstraintMap_ (),
+      errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
       distanceBetweenObjects_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
@@ -224,7 +224,7 @@ namespace hpp {
 	constraints_->addConstraint (configProjector);
       }
       configProjector->add (NumericalConstraint::create
-          (NumericalConstraintMap_ [functionName],
+          (numericalConstraintMap_ [functionName],
            comparisonTypeMap_ [functionName]));
     }
 

@@ -192,8 +192,8 @@ namespace hpp {
 	bool found = false;
 	// Check whether constraint is in the map
 	for (DifferentiableFunctionMap_t::const_iterator it =
-	       NumericalConstraintMap_.begin ();
-	     it != NumericalConstraintMap_.end (); ++it) {
+	       numericalConstraintMap_.begin ();
+	     it != numericalConstraintMap_.end (); ++it) {
 	  if (it->second == constraint) {
 	    functionName = it->first;
 	    found = true;
@@ -216,7 +216,7 @@ namespace hpp {
 				   const DifferentiableFunctionPtr_t&
 				   constraint)
       {
-	NumericalConstraintMap_ [name] = constraint;
+	numericalConstraintMap_ [name] = constraint;
         comparisonTypeMap_ [name] = ComparisonType::createDefault();
       }
 
@@ -225,7 +225,7 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonType::VectorOfTypes types)
       {
-        DifferentiableFunctionPtr_t df = NumericalConstraintMap_ [name];
+        DifferentiableFunctionPtr_t df = numericalConstraintMap_ [name];
         if (!df)
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
@@ -252,7 +252,7 @@ namespace hpp {
       /// Get constraint with given name
       DifferentiableFunctionPtr_t numericalConstraint (const std::string& name)
       {
-	return NumericalConstraintMap_ [name];
+	return numericalConstraintMap_ [name];
       }
 
       /// Set maximal number of iterations in config projector
@@ -455,7 +455,7 @@ namespace hpp {
       // Maximal number of iterations for numerical constraint resolution
       size_type maxIterations_;
       /// Map of constraints
-      DifferentiableFunctionMap_t NumericalConstraintMap_;
+      DifferentiableFunctionMap_t numericalConstraintMap_;
       /// Map of inequality
       ComparisonTypeMap_t comparisonTypeMap_;
       /// Computation of distances to obstacles
