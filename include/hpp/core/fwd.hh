@@ -167,6 +167,7 @@ namespace hpp {
     DifferentiableFunctionMap_t;
     typedef std::map <std::string, ComparisonTypePtr_t>
     ComparisonTypeMap_t;
+    typedef std::map <std::string, SizeIntervals_t> SizeIntervalsMap_t;
 
     // Collision pairs
     typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>

@@ -66,7 +66,7 @@ namespace hpp {
       pathValidationFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (),
       errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
-      distanceBetweenObjects_ ()
+      passiveDofsMap_ (), distanceBetweenObjects_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathOptimizerFactory_ ["GradientBased"] =

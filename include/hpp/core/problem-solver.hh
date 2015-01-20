@@ -220,6 +220,25 @@ namespace hpp {
         comparisonTypeMap_ [name] = ComparisonType::createDefault();
       }
 
+      /// Add a vector of passive dofs in a local map.
+      /// \param name the key of the vector in the map.
+      /// \param passiveDofs a vector of SizeInterval_t interpreted as
+      ///                    (index_start, interval_length).
+      void addPassiveDofs (const std::string& name,
+                           const SizeIntervals_t& passiveDofs)
+      {
+        passiveDofsMap_ [name] = passiveDofs;
+      }
+
+      /// Get the vector of passive dofs associated with this name.
+      SizeIntervals_t passiveDofs (const std::string& name) const
+      {
+        SizeIntervalsMap_t::const_iterator it = passiveDofsMap_.find (name);
+        if (it == passiveDofsMap_.end ())
+          return SizeIntervals_t ();
+        return it->second;
+      }
+
       /// Set the comparison types of a constraint.
       /// \param name name of the differentiable function.
       void comparisonType (const std::string& name,
@@ -456,6 +475,8 @@ namespace hpp {
       size_type maxIterations_;
       /// Map of constraints
       DifferentiableFunctionMap_t numericalConstraintMap_;
+      /// Map of passive dofs
+      SizeIntervalsMap_t passiveDofsMap_;
       /// Map of inequality
       ComparisonTypeMap_t comparisonTypeMap_;
       /// Computation of distances to obstacles
