@@ -51,8 +51,7 @@ namespace hpp {
 	static_cast <CollisionValidationReport&> (validationReport);
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
-      bool collision = robot_->collisionTest ();
-      if (collision) return false;
+      bool collision = false;
       fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true,
 					      fcl::GST_INDEP);
       fcl::CollisionResult collisionResult;
@@ -111,6 +110,31 @@ namespace hpp {
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
       robot_ (robot)
     {
+      using model::COLLISION;
+      typedef hpp::model::Device::CollisionPairs_t JointPairs_t;
+      using model::ObjectVector_t;
+      const JointPairs_t& jointPairs (robot->collisionPairs (COLLISION));
+      // build collision pairs for internal objects
+      for (JointPairs_t::const_iterator it = jointPairs.begin ();
+	   it != jointPairs.end (); ++it) {
+	JointPtr_t j1 = it->first;
+	JointPtr_t j2 = it->second;
+	BodyPtr_t body1 = j1->linkedBody ();
+	BodyPtr_t body2 = j2->linkedBody ();
+	if (body1 && body2) {
+	  ObjectVector_t objects1 = body1->innerObjects (COLLISION);
+	  ObjectVector_t objects2 = body2->innerObjects (COLLISION);
+	  // Loop over pairs of inner objects of the bodies
+	  for (ObjectVector_t::const_iterator it1 = objects1.begin ();
+	       it1 != objects1.end (); ++it1) {
+	    for (ObjectVector_t::const_iterator it2 = objects2.begin ();
+		 it2 != objects2.end (); ++it2) {
+	      collisionPairs_.push_back (CollisionPair_t (*it1, *it2));
+	    }
+	  }
+	}
+
+      }
     }
   } // namespace core
 } // namespace hpp
