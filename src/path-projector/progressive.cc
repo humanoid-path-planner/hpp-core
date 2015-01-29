@@ -38,6 +38,8 @@ namespace hpp {
         core::interval_t timeRange = sp.timeRange ();
         const Configuration_t& q1 = sp(timeRange.first);
         const Configuration_t& q2 = sp(timeRange.second);
+        const size_t maxDichotomyTries = 10,
+                     maxPathSplit = (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
         if (cp) cp->rightHandSideFromConfig(q1);
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
@@ -65,24 +67,19 @@ namespace hpp {
           const Configuration_t& qb = toSplitRef (timeRange.first);
           curStep = step_;
           curLength = std::numeric_limits <value_type>::max();
-          bool stop = false;
+          size_t dicC = 0;
           /// Find the good length.
           /// Here, it would be good to have an upper bound of the Hessian
           /// of the constraint.
           do {
-            if (curStep < 1e-2) {
-              stop = true;
-              break;
-            }
+            if (dicC >= maxDichotomyTries) break;
             toSplitRef (qi, curStep);
-            if (constraints->apply (qi)) {
+            if (constraints->apply (qi))
               curLength = d (qb, qi);
-            }
             curStep /= 2;
-          } while (curLength > step_ ||
-              curLength < 1e-2);
-          if (stop) break;
-          if (c > 200) break;
+            dicC++;
+          } while (curLength > step_ || curLength < 1e-3);
+          if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
           StraightPathPtr_t part =
             core::StraightPath::create (sp.device (), qb, qi, curLength);
           paths.push (part);
