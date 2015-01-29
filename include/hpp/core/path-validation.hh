@@ -24,6 +24,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup validation
+    /// \{
+
     /// Abstraction of path validation
     ///
     /// Instances of this class compute the latest valid configuration along
@@ -77,6 +80,7 @@ namespace hpp {
       {
       }
     }; // class PathValidation
+    /// \}
   } // namespace core
 } // namespace hpp
 
