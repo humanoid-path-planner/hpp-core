@@ -53,6 +53,7 @@ namespace hpp {
             core::StraightPath::create (sp.device (), q1, q2, d (q1, q2));
         Configuration_t qi (q1.size());
         value_type curStep, curLength;
+        size_t c = 0;
         while (true) {
           const StraightPath& toSplitRef = *toSplit;
           if (toSplitRef.length () < step_) {
@@ -81,11 +82,13 @@ namespace hpp {
           } while (curLength > step_ ||
               curLength < 1e-2);
           if (stop) break;
+          if (c > 200) break;
           StraightPathPtr_t part =
             core::StraightPath::create (sp.device (), qb, qi, curLength);
           paths.push (part);
           toSplit =
             core::StraightPath::create (sp.device (), qi, q2, d (qi, q2));
+          c++;
         }
         switch (paths.size ()) {
           case 0:
