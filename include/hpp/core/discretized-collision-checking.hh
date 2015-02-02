@@ -65,6 +65,16 @@ namespace hpp {
       /// Add an obstacle
       /// \param object obstacle added
       virtual void addObstacle (const CollisionObjectPtr_t&);
+
+      /// Remove a collision pair between a joint and an obstacle
+      /// \param joint the joint that holds the inner objects,
+      /// \param obstacle the obstacle to remove.
+      /// \notice collision configuration validation needs to know about
+      /// obstacles. This virtual method does nothing for configuration
+      /// validation methods that do not care about obstacles.
+      virtual void removeObstacleFromJoint (const JointPtr_t& joint,
+          const CollisionObjectPtr_t& obstacle);
+
     protected:
       DiscretizedCollisionChecking (const DevicePtr_t& robot,
 				    const value_type& stepSize);

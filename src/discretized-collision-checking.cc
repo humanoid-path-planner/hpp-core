@@ -121,5 +121,11 @@ namespace hpp {
     {
     }
 
+    void DiscretizedCollisionChecking::removeObstacleFromJoint (const JointPtr_t& joint,
+        const CollisionObjectPtr_t& obstacle)
+    {
+      assert (collisionValidation_);
+      collisionValidation_->removeObstacleFromJoint (joint, obstacle);
+    }
   } // namespace core
 } // namespace hpp
