@@ -212,6 +212,9 @@ namespace hpp {
           case ComparisonType::Inferior:
             inequalities_.push_back (Inequality <ComparisonType::Inferior>::create ());
             break;
+          case ComparisonType::EqualToZero:
+            inequalities_.push_back (EqualToZero::create ());
+            break;
           default:
             throw std::logic_error ("ComparisonType::Type not known.");
         }
