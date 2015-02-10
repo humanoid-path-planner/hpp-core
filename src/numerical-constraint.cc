@@ -55,10 +55,5 @@ namespace hpp {
         (*function_) (nonConstRightHandSide (), config);
       }
     }
-
-    DifferentiableFunction& NumericalConstraint::function () const
-    {
-      return *function_;
-    }
   } // namespace core
 } // namespace hpp

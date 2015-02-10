@@ -44,7 +44,16 @@ namespace hpp {
         void rightHandSideFromConfig (ConfigurationIn_t config);
 
         /// Return a reference to the inner function.
-        DifferentiableFunction& function () const;
+        DifferentiableFunction& function () const
+        {
+          return *function_;
+        }
+
+        /// Return a reference to the inner function.
+        const DifferentiableFunctionPtr_t& functionPtr () const
+        {
+          return function_;
+        }
 
         /// Return a reference to the value.
         /// This vector can be used to store the output of the function,
