@@ -171,6 +171,28 @@ namespace hpp {
       /// Reset constraint set
       virtual void resetConstraints ();
 
+      /// Add a CenterOfMassComputation object to the local map
+      /// \param name key of the object in the map
+      /// \param comc the object to insert.
+      void addCenterOfMassComputation (const std::string& name,
+          CenterOfMassComputationPtr_t comc)
+      {
+        comcMap_ [name] = comc;
+      }
+
+      /// Get the CenterOfMassComputation object from the local map
+      /// \param name key of the object in the map
+      /// \return the corresponding object.
+      /// \note a null shared pointer is returned if the object was not found
+      CenterOfMassComputationPtr_t centerOfMassComputation (const std::string& name) const
+      {
+        CenterOfMassComputationMap_t::const_iterator it =
+          comcMap_.find (name);
+        if (it == comcMap_.end ())
+          return CenterOfMassComputationPtr_t ();
+        return it->second;
+      }
+
       /// Add differential function to the config projector
       /// \param constraintName Name given to config projector if created by
       ///        this method.
@@ -479,6 +501,8 @@ namespace hpp {
       SizeIntervalsMap_t passiveDofsMap_;
       /// Map of inequality
       ComparisonTypeMap_t comparisonTypeMap_;
+      /// Map of CenterOfMassComputation
+      CenterOfMassComputationMap_t comcMap_;
       /// Computation of distances to obstacles
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
     }; // class ProblemSolver

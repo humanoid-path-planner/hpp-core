@@ -105,6 +105,7 @@ namespace hpp {
     typedef model::Device Device_t;
     typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr_t DeviceWkPtr_t;
+    typedef model::CenterOfMassComputationPtr_t CenterOfMassComputationPtr_t;
     typedef std::deque <DevicePtr_t> Devices_t;
     typedef constraints::DifferentiableFunction DifferentiableFunction;
     typedef constraints::DifferentiableFunctionPtr_t
@@ -168,6 +169,8 @@ namespace hpp {
     typedef std::map <std::string, ComparisonTypePtr_t>
     ComparisonTypeMap_t;
     typedef std::map <std::string, SizeIntervals_t> SizeIntervalsMap_t;
+    typedef std::map <std::string, CenterOfMassComputationPtr_t>
+    CenterOfMassComputationMap_t;
 
     // Collision pairs
     typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>
