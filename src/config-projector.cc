@@ -403,6 +403,20 @@ namespace hpp {
       assert (sRow == small.size ());
     }
 
+    void ConfigProjector::updateRightHandSide ()
+    {
+      size_type row = 0, nbRows = 0, sRow = 0;
+      for (NumericalConstraints_t::iterator it = functions_.begin ();
+          it != functions_.end (); ++it) {
+        NumericalConstraint& nm = **it;
+        nbRows = nm.function ().outputSize ();
+        rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
+        sRow += nm.rhsSize ();
+        row += nbRows;
+      }
+      assert (row == rightHandSide_.size ());
+    }
+
     vector_t ConfigProjector::rightHandSide () const
     {
       vector_t small(rhsReducedSize_);

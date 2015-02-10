@@ -181,6 +181,13 @@ namespace hpp {
       /// \return the parameter.
       vector_t rightHandSide () const;
 
+      /// Regenerate the right hand side
+      /// from the numerical constraint right hand sides.
+      /// \note Class NumericalConstraint contains a cache for its own RHS.
+      /// Its value is simply copied in the ConfigProjector RHS. This allow a
+      /// finer control on the RHS.
+      void updateRightHandSide ();
+
       /// @}
 
       /// Check whether a configuration statisfies the constraint.
