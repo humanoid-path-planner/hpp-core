@@ -101,6 +101,24 @@ namespace hpp {
     }
 
 
+    /// This method performs one step of RRT extension as follows
+    ///  1. a random configuration "q_rand" is shot,
+    ///  2. for each connected component,
+    ///    2.1. the closest node "q_near" is chosen,
+    ///    2.2. "q_rand" is projected first on the tangent space of the
+    ///         non-linear constraint at "q_near", this projection yields
+    ///         "q_tmp", then "q_tmp" is projected on the non-linear constraint
+    ///         manifold as "q_proj" (method extend)
+    ///    2.3. the steering method is called between "q_near" and "q_proj" that
+    ///         returns "path",
+    ///    2.4. a valid connected part of "path", called "validPath" starting at
+    ///         "q_near" is extracted, if "path" is valid (collision free),
+    ///         the full "path" is returned, "q_new" is the end configuration of
+    ///         "validPath",
+    ///    2.5  a new node containing "q_new" is added to the connected
+    ///         component and a new edge is added between nodes containing
+    ///         "q_near" and "q_new".
+
     void DiffusingPlanner::oneStep ()
     {
       typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
