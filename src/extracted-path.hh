@@ -85,6 +85,18 @@ namespace hpp {
 	return path;
       }
 
+      /// Get the initial configuration
+      Configuration_t initial () const
+      {
+        return (*original_)(timeRange_.first);
+      }
+
+      /// Get the final configuration
+      Configuration_t end () const
+      {
+        return (*original_)(timeRange_.second);
+      }
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const

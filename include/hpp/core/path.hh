@@ -120,11 +120,19 @@ namespace hpp {
       {
 	return timeRange_;
       }
+
       /// Get length of definition interval
       value_type length () const
       {
 	return timeRange_.second - timeRange_.first;
       }
+
+      /// Get the initial configuration
+      virtual Configuration_t initial () const = 0;
+
+      /// Get the final configuration
+      virtual Configuration_t end () const = 0;
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const = 0;

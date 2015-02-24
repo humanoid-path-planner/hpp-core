@@ -93,6 +93,18 @@ namespace hpp {
       /// Return the internal robot.
       DevicePtr_t device () const;
 
+      /// Get the initial configuration
+      Configuration_t initial () const
+      {
+        return initial_;
+      }
+
+      /// Get the final configuration
+      Configuration_t end () const
+      {
+        return end_;
+      }
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const

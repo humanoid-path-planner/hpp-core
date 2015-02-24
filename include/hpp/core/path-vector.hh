@@ -92,6 +92,18 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       virtual PathPtr_t extract (const interval_t& subInterval) const;
 
+      /// Get the initial configuration
+      virtual Configuration_t initial () const
+      {
+        return paths_.front ()->initial ();
+      }
+
+      /// Get the final configuration
+      virtual Configuration_t end () const
+      {
+        return paths_.back()->end ();
+      }
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const
