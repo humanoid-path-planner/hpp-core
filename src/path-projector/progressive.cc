@@ -36,8 +36,8 @@ namespace hpp {
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
         const StraightPath& sp = *path;
         core::interval_t timeRange = sp.timeRange ();
-        const Configuration_t& q1 = sp(timeRange.first);
-        const Configuration_t& q2 = sp(timeRange.second);
+        const Configuration_t& q1 = sp.initial ();
+        const Configuration_t& q2 = sp.end ();
         const size_t maxDichotomyTries = 10,
                      maxPathSplit = (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
         if (cp) cp->rightHandSideFromConfig(q1);
@@ -63,8 +63,7 @@ namespace hpp {
             pathIsFullyProjected = true;
             break;
           }
-          timeRange = toSplitRef.timeRange ();
-          const Configuration_t& qb = toSplitRef (timeRange.first);
+          const Configuration_t& qb = toSplitRef.initial ();
           curStep = step_;
           curLength = std::numeric_limits <value_type>::max();
           size_t dicC = 0;
@@ -101,9 +100,9 @@ namespace hpp {
             core::PathVectorPtr_t pv = core::PathVector::create (sp.outputSize (), sp.outputDerivativeSize ());
             qi = q1;
             while (!paths.empty ()) {
-              assert ((qi - (*paths.front ())(paths.front ()->timeRange().first)).isZero ());
+              assert ((qi - paths.front ()->initial ()).isZero ());
               assert (constraints->isSatisfied (qi));
-              qi = (*paths.front ())(paths.front ()->timeRange().second);
+              qi = paths.front ()->end ();
               assert (constraints->isSatisfied (qi));
               paths.front ()->constraints (constraints);
               pv->appendPath (paths.front ());
@@ -112,8 +111,8 @@ namespace hpp {
             projection = pv;
             break;
         }
-        assert (((*projection)(projection->timeRange ().first) - (*path)(path->timeRange ().first)).isZero());
-        assert (!pathIsFullyProjected || ((*projection)(projection->timeRange ().second) - (*path)(path->timeRange ().second)).isZero());
+        assert ((projection->initial () - path->initial ()).isZero());
+        assert (!pathIsFullyProjected || (projection->end () - path->end ()).isZero());
         return pathIsFullyProjected;
       }
     } // namespace pathProjector

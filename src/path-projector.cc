@@ -62,8 +62,8 @@ namespace hpp {
         proj = res;
       }
       assert (proj);
-      assert (((*proj)(proj->timeRange ().first) - (*path)(path->timeRange ().first)).isZero());
-      assert (!success || ((*proj)(proj->timeRange ().second) - (*path)(path->timeRange ().second)).isZero());
+      assert ((proj->initial () - path->initial ()).isZero());
+      assert (!success || (proj->end () - path->end ()).isZero());
       return success;
     }
   } // namespace core
