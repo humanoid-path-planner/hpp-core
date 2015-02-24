@@ -118,6 +118,12 @@ namespace hpp {
     ///    2.5  a new node containing "q_new" is added to the connected
     ///         component and a new edge is added between nodes containing
     ///         "q_near" and "q_new".
+    ///  3. Try to connect new nodes together using the steering method and
+    ///     the current PathValidation instance.
+    ///
+    ///  Note that edges are actually added to the roadmap after step 2 in order
+    ///  to avoid iterating on the list of connected components while modifying
+    ///  this list.
 
     void DiffusingPlanner::oneStep ()
     {
