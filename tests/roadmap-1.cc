@@ -78,9 +78,9 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   // Create steering method
   SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (robot);
   // create roadmap
-  RoadmapPtr_t r = Roadmap::create (WeighedDistance::create
-				    (robot, boost::assign::list_of (1)(1)),
-				    robot);
+  hpp::core::DistancePtr_t distance (WeighedDistance::create
+				     (robot, boost::assign::list_of (1)(1)));
+  RoadmapPtr_t r = Roadmap::create (distance, robot);
 
   std::vector <NodePtr_t> nodes;
 
