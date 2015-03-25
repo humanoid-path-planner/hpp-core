@@ -68,6 +68,7 @@ namespace hpp {
       /// projecting it on the tangent space of qFrom.
       ConfigurationPtr_t applyConstraints (const ConfigurationPtr_t qFrom, 
 					   const ConfigurationPtr_t qTo);
+      bool constrApply_; // True if applyConstraints has successed
     };
     /// \}
   } // namespace core
