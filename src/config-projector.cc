@@ -128,14 +128,14 @@ namespace hpp {
       intervals_.clear ();
       nbLockedDofs_ = 0;
       std::pair < size_type, size_type > interval;
-      int latestIndex = 0;
+      std::size_t latestIndex = 0;
       size_type size;
       lockedJoints_.sort ();
       // temporarily add an element at the end of the list.
       lockedJoints_.push_back (LockedJoint::create (robot_));
       for (LockedJoints_t::const_iterator itLocked = lockedJoints_.begin ();
 	   itLocked != lockedJoints_.end (); ++itLocked) {
-	int index = (*itLocked)->rankInVelocity ();
+    std::size_t index = (*itLocked)->rankInVelocity ();
 	nbLockedDofs_ += (*itLocked)->numberDof ();
 	hppDout (info, "number locked dof " << (*itLocked)->numberDof ());
 	size = (index - latestIndex);
@@ -144,7 +144,7 @@ namespace hpp {
 	  interval.second = size;
 	  intervals_.push_back (interval);
 	}
-	latestIndex = index + (*itLocked)->numberDof ();
+    latestIndex = index + (*itLocked)->numberDof ();
       }
       // Remove temporary element.
       lockedJoints_.pop_back ();

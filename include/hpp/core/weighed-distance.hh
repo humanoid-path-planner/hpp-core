@@ -41,7 +41,7 @@ namespace hpp {
       virtual DistancePtr_t clone () const;
       /// Get weight of joint at given rank
       /// \param rank rank of the joint in robot joint vector
-      value_type getWeight( int rank ) const;
+      value_type getWeight( std::size_t rank ) const;
       /// Set weight of joint at given rank
       /// \param rank rank of the joint in robot joint vector
       void setWeight(unsigned int rank, value_type weight);
