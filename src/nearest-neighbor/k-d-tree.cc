@@ -77,7 +77,7 @@ namespace hpp {
 	      itJoint != jointVector.end (); ++itJoint) {
 	   weights_.segment ((*itJoint)->rankInConfiguration (),
 			     (*itJoint)->configSize ()).setConstant
-	     (distance_->getWeight (i));
+         (distance_->getWeight (i));
 	   ++i;
 	 }
       this->findDeviceBounds();
@@ -239,7 +239,7 @@ namespace hpp {
 			      const ConnectedComponentPtr_t& connectedComponent,
                               value_type& minDistance) {
       // Test if the configuration is in the root box
-      for ( int i=0 ; i<dim_ ; i++ ) {
+      for ( std::size_t i=0 ; i<dim_ ; i++ ) {
 	if ( (*configuration)[i] < lowerBounds_[i] || (*configuration)[i]
 	     > upperBounds_[i] ) {
 	  std::ostringstream oss ("The Configuration isn't in the root box: \n"

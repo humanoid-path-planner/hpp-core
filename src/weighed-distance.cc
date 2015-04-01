@@ -68,7 +68,7 @@ namespace hpp {
       return createCopy (weak_.lock ());
     }
 
-    value_type WeighedDistance::getWeight( int rank ) const
+    value_type WeighedDistance::getWeight( std::size_t rank ) const
     {
       return weights_[rank];
     }

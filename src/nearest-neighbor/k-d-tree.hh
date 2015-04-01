@@ -63,17 +63,17 @@ namespace hpp {
       }
     private:
       DevicePtr_t robot_;
-      int dim_;
+      std::size_t dim_;
 
       WeighedDistancePtr_t distance_;
       vector_t weights_;
       typedef std::map <ConnectedComponentPtr_t, Nodes_t> NodesMap_t;
       NodesMap_t nodesMap_;
-      unsigned int bucketSize_;
-      unsigned int bucket_;
+      std::size_t bucketSize_;
+      std::size_t bucket_;
 
       // number of the splited dimention
-      int splitDim_;
+      std::size_t splitDim_;
       vector_t upperBounds_;
       vector_t lowerBounds_;
 
