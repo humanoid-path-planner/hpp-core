@@ -50,6 +50,8 @@ namespace hpp {
               value_type) >
         PathProjectorBuilder_t;
 
+      typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;
+      typedef std::vector <std::string> PathOptimizerTypes_t;
       /// Constructor
       ProblemSolver ();
 
@@ -97,12 +99,16 @@ namespace hpp {
 	return pathPlanner_;
       }
 
-      /// Set path optimizer type
-      void pathOptimizerType (const std::string& type);
-      /// Get path optimizer
-      const PathOptimizerPtr_t& pathOptimizer () const
+      /// Add a path optimizer in the vector
+      ///
+      /// \param name of the type of path optimizer that should be added
+      void addPathOptimizer (const std::string& type);
+      /// Clear the vector of path optimizers
+      void clearPathOptimizers ();
+      /// Get path optimizer at given rank
+      const PathOptimizerPtr_t& pathOptimizer (std::size_t rank) const
       {
-	return pathOptimizer_;
+	return pathOptimizers_ [rank];
       }
       /// Add a path optimizer type
       /// \param type name of the new path optimizer type
@@ -113,6 +119,13 @@ namespace hpp {
       {
 	pathOptimizerFactory_ [type] = builder;
       }
+
+      /// Optimize path
+      ///
+      /// \param path path to optimize
+      /// Build vector of path optimizers if needed
+      /// \note each intermediate optimization output is stored in this object.
+      void optimizePath (PathVectorPtr_t path);
 
       /// Set path validation method
       /// \param type name of new path validation method
@@ -340,7 +353,7 @@ namespace hpp {
       ///
       /// If a path optimizer is already set, do nothing.
       /// Type of optimizer is determined by method selectPathOptimizer.
-      void createPathOptimizer ();
+      void createPathOptimizers ();
 
       /// Prepare the solver for a step by step planning.
       /// and try to make direct connections (call PathPlanner::tryDirectPath)
@@ -464,8 +477,8 @@ namespace hpp {
       std::string pathPlannerType_;
       PathPlannerPtr_t pathPlanner_;
       /// Path optimizer
-      std::string pathOptimizerType_;
-      PathOptimizerPtr_t pathOptimizer_;
+      PathOptimizerTypes_t pathOptimizerTypes_;
+      PathOptimizers_t pathOptimizers_;
       /// Path validation method
       std::string pathValidationType_;
       /// Tolerance of path validation

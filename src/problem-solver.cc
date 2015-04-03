@@ -58,7 +58,7 @@ namespace hpp {
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
-      pathOptimizerType_ ("RandomShortcut"),
+      pathOptimizerTypes_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
       roadmap_ (), paths_ (),
@@ -106,13 +106,28 @@ namespace hpp {
       pathPlannerType_ = type;
     }
 
-    void ProblemSolver::pathOptimizerType (const std::string& type)
+    void ProblemSolver::addPathOptimizer (const std::string& type)
     {
       if (pathOptimizerFactory_.find (type) == pathOptimizerFactory_.end ()) {
 	throw std::runtime_error (std::string ("No path optimizer with name ") +
 				  type);
       }
-      pathOptimizerType_ = type;
+      pathOptimizerTypes_.push_back (type);
+    }
+
+    void ProblemSolver::clearPathOptimizers ()
+    {
+      pathOptimizerTypes_.clear ();
+    }
+
+    void ProblemSolver::optimizePath (PathVectorPtr_t path)
+    {
+      createPathOptimizers ();
+      for (PathOptimizers_t::const_iterator it = pathOptimizers_.begin ();
+	   it != pathOptimizers_.end (); ++it) {
+	path = (*it)->optimize (path);
+	paths_.push_back (path);
+      }
     }
 
     void ProblemSolver::pathValidationType (const std::string& type,
@@ -261,12 +276,15 @@ namespace hpp {
       roadmap_ = Roadmap::create (problem_->distance (), problem_->robot());
     }
 
-    void ProblemSolver::createPathOptimizer ()
+    void ProblemSolver::createPathOptimizers ()
     {
-      if (!pathOptimizer_) {
-	PathOptimizerBuilder_t createOptimizer =
-	  pathOptimizerFactory_ [pathOptimizerType_];
-	pathOptimizer_ = createOptimizer (*problem_);
+      if (pathOptimizers_.size () == 0) {
+	for (PathOptimizerTypes_t::const_iterator it =
+	       pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
+	     ++it) {
+	  PathOptimizerBuilder_t createOptimizer = pathOptimizerFactory_ [*it];
+	  pathOptimizers_.push_back (createOptimizer (*problem_));
+	}
       }
     }
 
@@ -281,8 +299,6 @@ namespace hpp {
       PathProjectorPtr_t pathProjector_ =
         createProjector (problem_->distance (), pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
-      /// create Path optimizer
-      createPathOptimizer ();
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
@@ -323,9 +339,6 @@ namespace hpp {
         createProjector (problem_->distance (), pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
       /// create Path optimizer
-      PathOptimizerBuilder_t createOptimizer =
-	pathOptimizerFactory_ [pathOptimizerType_];
-      pathOptimizer_ = createOptimizer (*problem_);
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
@@ -336,10 +349,7 @@ namespace hpp {
       }
       PathVectorPtr_t path = pathPlanner_->solve ();
       paths_.push_back (path);
-      if (pathOptimizer_) {
-	path = pathOptimizer_->optimize (path);
-	paths_.push_back (path);
-      }
+      optimizePath (path);
     }
 
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
