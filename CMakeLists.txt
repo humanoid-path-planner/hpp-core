@@ -91,6 +91,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-projector/dichotomy.hh
   include/hpp/core/path-projector.hh
   include/hpp/core/nearest-neighbor.hh
+  include/hpp/core/parser/roadmap-factory.hh
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
