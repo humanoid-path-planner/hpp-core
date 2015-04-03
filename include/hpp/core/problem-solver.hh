@@ -434,6 +434,12 @@ namespace hpp {
       /// Local vector of objects considered for distance computation
       const ObjectVector_t& distanceObstacles () const;
 
+      /// Set the roadmap
+      void roadmap (const RoadmapPtr_t& roadmap)
+      {
+	roadmap_ = roadmap;
+      }
+
     protected:
       /// Constructor
       ///
@@ -450,12 +456,6 @@ namespace hpp {
         if (problem_)
           delete problem_;
 	problem_ = problem;
-      }
-
-      /// Set the roadmap
-      void roadmap (const RoadmapPtr_t& roadmap)
-      {
-	roadmap_ = roadmap;
       }
 
       /// Initialize the new problem
