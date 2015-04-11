@@ -130,6 +130,7 @@ namespace hpp {
     typedef model::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
     typedef boost::shared_ptr <LockedJoint> LockedJointPtr_t;
+    typedef boost::shared_ptr <const LockedJoint> LockedJointConstPtr_t;
     typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
     typedef model::matrix_t matrix_t;
     typedef constraints::matrixIn_t matrixIn_t;

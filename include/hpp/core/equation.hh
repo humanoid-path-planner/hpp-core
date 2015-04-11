@@ -62,6 +62,8 @@ namespace hpp {
 
       protected:
         Equation (const ComparisonTypePtr_t& comp, vectorIn_t rhs);
+	//Copy constructor
+	Equation (const Equation& other);
 
         /// Return the right hand side of the equation.
         vectorOut_t nonConstRightHandSide ();

@@ -67,6 +67,13 @@ namespace hpp {
 					  value_type errorThreshold,
 					  size_type maxIterations);
 
+      /// Return shared pointer to copy
+      /// \param cp shared pointer to object to copy
+      static ConfigProjectorPtr_t createCopy (const ConfigProjectorPtr_t cp);
+
+      /// return shared pointer to copy
+      virtual ConstraintPtr_t copy () const;
+
       /// Add a function
       /// \param function The function.
       /// \param comp For equality constraint, keep the default value.
@@ -208,6 +215,9 @@ namespace hpp {
       ///                      the constraint.
       ConfigProjector (const DevicePtr_t& robot, const std::string& name,
 		       value_type errorThreshold, size_type maxIterations);
+      /// Copy constructor
+      ConfigProjector (const ConfigProjector& cp);
+
       /// Store weak pointer to itself
       void init (const ConfigProjectorPtr_t& self)
       {

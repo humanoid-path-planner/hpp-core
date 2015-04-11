@@ -55,6 +55,15 @@ namespace hpp {
       return shPtr;
     }
 
+    ConfigProjectorPtr_t
+    ConfigProjector::createCopy (const ConfigProjectorPtr_t cp)
+    {
+      ConfigProjector* ptr = new ConfigProjector (*cp);
+      ConfigProjectorPtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
+
     ConfigProjector::ConfigProjector (const DevicePtr_t& robot,
 				      const std::string& name,
 				      value_type errorThreshold,
@@ -70,6 +79,35 @@ namespace hpp {
       nbNonLockedDofs_ (robot_->numberDof ()),
       squareNorm_(0), weak_ ()
     {
+    }
+
+    ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
+      Constraint (cp), robot_ (cp.robot_), functions_ (cp.functions_),
+      passiveDofs_ (cp.passiveDofs_), lockedJoints_ (),
+      intervals_ (cp.intervals_),
+      squareErrorThreshold_ (cp.squareErrorThreshold_),
+      maxIterations_ (cp.maxIterations_),
+      rightHandSide_ (cp.rightHandSide_),
+      rhsReducedSize_ (cp.rhsReducedSize_), value_ (cp.value_.size ()),
+      reducedJacobian_ (cp.reducedJacobian_.rows (),
+			cp.reducedJacobian_.cols ()),
+      reducedProjector_ (cp.reducedProjector_.rows (),
+			 cp.reducedProjector_.cols ()),
+      toMinusFrom_ (cp.toMinusFrom_.size ()),
+      projMinusFrom_ (cp.projMinusFrom_.size ()),
+      dq_ (cp.dq_.size ()), dqSmall_ (cp.dqSmall_.size ()),
+      nbNonLockedDofs_ (cp.nbNonLockedDofs_), nbLockedDofs_ (cp.nbLockedDofs_),
+      squareNorm_ (cp.squareNorm_), weak_ ()
+    {
+      for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
+	   it != cp.lockedJoints_.end (); ++it) {
+	lockedJoints_.push_back ((*it)->copy ());
+      }
+    }
+
+    ConstraintPtr_t ConfigProjector::copy () const
+    {
+      return createCopy (weak_.lock ());
     }
 
     void ConfigProjector::add (const NumericalConstraintPtr_t& nm,

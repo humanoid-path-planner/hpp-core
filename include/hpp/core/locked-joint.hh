@@ -40,6 +40,14 @@ namespace hpp {
           const JointPtr_t& joint, vectorIn_t value,
           ComparisonTypePtr_t comp = ComparisonType::createDefault ());
 
+      /// Return shared pointer to copy
+      /// \param other instance to copy.
+      static LockedJointPtr_t createCopy (LockedJointConstPtr_t other);
+
+      LockedJointPtr_t copy () const
+      {
+	return createCopy (weak_.lock ());
+      }
       /// Get index of locked degree of freedom in robot configuration vector
       std::size_t rankInConfiguration () const;
 
@@ -75,6 +83,8 @@ namespace hpp {
       /// \param value of the constant joint config,
       LockedJoint (const JointPtr_t& joint, vectorIn_t value,
                    ComparisonTypePtr_t comp = ComparisonType::createDefault ());
+      /// Copy constructor
+      LockedJoint (const LockedJoint& other);
 
       void init (const LockedJointPtr_t& self);
 

@@ -50,11 +50,18 @@ namespace hpp {
       /// Check whether a configuration statisfies the constraint.
       virtual bool isSatisfied (ConfigurationIn_t config) = 0;
 
+      /// return shared pointer to copy
+      virtual ConstraintPtr_t copy () const = 0;
+
     protected:
       /// User defined implementation of the constraint.
       virtual bool impl_compute (ConfigurationOut_t configuration) = 0;
       /// Constructor
-      Constraint (const std::string& name) : name_ (name)
+      Constraint (const std::string& name) : name_ (name), weak_ ()
+	{
+	}
+      Constraint (const Constraint& constraint) : name_ (constraint.name_),
+	weak_ ()
 	{
 	}
       /// Store shared pointer to itself
@@ -70,8 +77,8 @@ namespace hpp {
       {
       }
 
-      ConstraintWkPtr_t weak_;
       std::string name_;
+      ConstraintWkPtr_t weak_;
       friend class ConstraintSet;
       friend class LockedJoint;
       friend class ConfigProjector;

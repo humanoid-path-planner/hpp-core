@@ -31,6 +31,15 @@ namespace hpp {
       return shPtr;
     }
 
+
+    LockedJointPtr_t LockedJoint::createCopy (LockedJointConstPtr_t other)
+    {
+      LockedJoint* ptr = new LockedJoint (*other);
+      LockedJointPtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
+
     std::size_t LockedJoint::rankInConfiguration () const
     {
       return rankInConfiguration_;
@@ -113,6 +122,13 @@ namespace hpp {
       jointName_ ("FakeLockedJoint"),
       rankInConfiguration_ (robot->configSize ()),
       rankInVelocity_ (robot->numberDof ()), numberDof_ (0)
+    {
+    }
+
+    LockedJoint::LockedJoint (const LockedJoint& other) :
+      Equation (other), jointName_ (other.jointName_),
+      rankInConfiguration_ (other.rankInConfiguration_),
+      rankInVelocity_ (other.rankInVelocity_), numberDof_ (other.numberDof_)
     {
     }
   } // namespace core

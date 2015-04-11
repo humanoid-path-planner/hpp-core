@@ -45,6 +45,19 @@ namespace hpp {
 	ptr->init (shPtr);
 	return shPtr;
       }
+
+      /// Return shared pointer to new object
+      static ConstraintSetPtr_t createCopy (const ConstraintSetPtr_t& cs)
+      {
+	ConstraintSet* ptr = new ConstraintSet (*cs);
+	ConstraintSetPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+
+      /// return shared pointer to copy
+      virtual ConstraintPtr_t copy () const;
+
       /// Add a constraint to the set
       void addConstraint (const ConstraintPtr_t& constraint)
       {
@@ -63,6 +76,8 @@ namespace hpp {
     protected:
       typedef std::deque <ConstraintPtr_t> Constraints_t;
       ConstraintSet (const DevicePtr_t& robot, const std::string& name);
+      /// Copy constructor
+      ConstraintSet (const ConstraintSet& other);
       /// Store weak pointer to itself.
       void init (const ConstraintSetPtr_t& self)
       {

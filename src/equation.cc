@@ -23,7 +23,7 @@ namespace hpp {
       rhs_ = rhs;
     }
 
-    vectorIn_t Equation::rightHandSide () const 
+    vectorIn_t Equation::rightHandSide () const
     {
       return rhs_;
     }
@@ -49,5 +49,11 @@ namespace hpp {
       if (comparison_->constantRightHandSide ())
         rhs_ = vector_t (0);
     }
+
+    Equation::Equation (const Equation& other) :
+      comparison_ (other.comparison_), rhs_ (other.rhs_)
+    {
+    }				
+
   } // namespace core
 } // namespace hpp
