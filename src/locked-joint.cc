@@ -16,6 +16,7 @@
 
 #include "hpp/core/locked-joint.hh"
 
+#include <hpp/util/debug.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
@@ -72,6 +73,9 @@ namespace hpp {
 
     bool LockedJoint::isSatisfied (ConfigurationIn_t config)
     {
+      hppDout (info, "(" <<
+	       config.segment (rankInConfiguration_, size ()).transpose ()
+	       << ")==(" << rightHandSide ().transpose () << ")");
       return config.segment (rankInConfiguration_, size ()).isApprox (rightHandSide ());
     }
 

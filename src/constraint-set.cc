@@ -16,6 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/debug.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 
@@ -100,10 +102,16 @@ namespace hpp {
 
     bool ConstraintSet::isSatisfied (ConfigurationIn_t configuration)
     {
+      hppDout (info, "ConstraintSet::isSatisfied:" <<
+	       model::displayConfig (configuration));
       for (Constraints_t::iterator itConstraint = constraints_.begin ();
 	   itConstraint != constraints_.end (); ++itConstraint) {
-	if (!(*itConstraint)->isSatisfied (configuration)) return false;
+	if (!(*itConstraint)->isSatisfied (configuration)) {
+	  hppDout (info, "ConstraintSet::isSatisfied failed");
+	  return false;
+	}
       }
+      hppDout (info, "ConstraintSet::isSatisfied succeeded");
       return true;
     }
   } // namespace core
