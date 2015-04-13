@@ -97,6 +97,9 @@ namespace hpp {
 	return constraints_;
       }
       /// Set constraints the path is subject to
+      ///
+      /// constraints constraints the path is subject to.
+      /// \note constraints are not copied.
       void constraints (const ConstraintSetPtr_t& constraints)
       {
 	constraints_ = constraints;
@@ -142,43 +145,31 @@ namespace hpp {
       /// \param outputSize size of the output configuration,
       /// \param outputDerivativeSize number of degrees of freedom of  the
       ///        underlying robot
+      /// \param constraints constraints the set is subject to,
+      ///        constraints are solved at each evaluation of the output
+      ///        configuration.
+      /// \note Constraints are copied.
       Path (const interval_t& interval, size_type outputSize,
-	    size_type outputDerivativeSize) :
-	timeRange_ (interval), outputSize_ (outputSize),
-	outputDerivativeSize_ (outputDerivativeSize), constraints_ ()
-	{
-	}
+	    size_type outputDerivativeSize,
+	    const ConstraintSetPtr_t& constraints);
 
       /// Constructor
       /// \param interval interval of definition of the path,
       /// \param outputSize size of the output configuration,
       /// \param outputDerivativeSize number of degrees of freedom of  the
       ///        underlying robot
-      /// \param constraints constraints the set is subject to,
-      ///        constraints are solved at each evaluation of the output
-      ///        configuration.
       Path (const interval_t& interval, size_type outputSize,
-	    size_type outputDerivativeSize,
-	    const ConstraintSetPtr_t& constraints) :
-	timeRange_ (interval), outputSize_ (outputSize),
-	outputDerivativeSize_ (outputDerivativeSize), constraints_ (constraints)
-	{
-	}
+	    size_type outputDerivativeSize);
 
       /// Copy constructor
-      Path (const Path& path) :
-	timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
-	constraints_ (path.constraints_)
-	  {
-	  }
+      Path (const Path& path);
 
       /// Store weak pointer to itself
       ///
       /// should be called at construction of derived class instances
-      void init (const PathPtr_t& self)
-      {
-	weak_ = self;
-      }
+      void init (const PathPtr_t& self);
+      /// should be called at copy construction of derived class instances
+      void initCopy (const PathPtr_t& self);
       /// \brief Function evaluation.
       ///
       /// \return true if everything went good.

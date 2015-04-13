@@ -102,6 +102,7 @@ namespace hpp {
     typedef std::set <ConnectedComponentPtr_t> ConnectedComponents_t;
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
+    typedef boost::shared_ptr <const ConstraintSet> ConstraintSetConstPtr_t;
     typedef model::Device Device_t;
     typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr_t DeviceWkPtr_t;

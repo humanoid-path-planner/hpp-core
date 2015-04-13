@@ -33,6 +33,10 @@ namespace hpp {
       bool Progressive::impl_apply (const StraightPathPtr_t path, PathPtr_t& projection) const
       {
         ConstraintSetPtr_t constraints = path->constraints ();
+	if (!constraints) {
+	  projection = path;
+	  return true;
+	}
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
         const StraightPath& sp = *path;
         core::interval_t timeRange = sp.timeRange ();
@@ -40,10 +44,8 @@ namespace hpp {
         const Configuration_t& q2 = sp.end ();
         const size_t maxDichotomyTries = 10,
                      maxPathSplit = (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
-        if (cp) cp->rightHandSideFromConfig(q1);
-        if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
-          return false;
-        }
+	assert (constraints->isSatisfied (q1));
+        if (!constraints->isSatisfied (q2)) return false;
         if (!cp) {
           projection = path;
           return true;

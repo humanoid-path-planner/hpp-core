@@ -54,8 +54,8 @@ namespace hpp {
 				      ConfigurationIn_t q2) const
       {
         value_type length = (*distance_) (q1, q2);
-        PathPtr_t path = StraightPath::create (device_.lock (), q1, q2, length);
-        path->constraints (constraints ());
+        PathPtr_t path = StraightPath::create (device_.lock (), q1, q2, length,
+					       constraints ());
         return path;
       }
     protected:

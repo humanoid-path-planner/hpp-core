@@ -17,9 +17,58 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "extracted-path.hh"
+#include <hpp/core/config-projector.hh>
 
 namespace hpp {
   namespace core {
+    // Constructor with constraints
+    Path::Path (const interval_t& interval, size_type outputSize,
+		size_type outputDerivativeSize,
+		const ConstraintSetPtr_t& constraints) :
+      timeRange_ (interval), outputSize_ (outputSize),
+      outputDerivativeSize_ (outputDerivativeSize), constraints_ ()
+    {
+      if (constraints) {
+	constraints_ = HPP_STATIC_PTR_CAST (ConstraintSet,
+					    constraints->copy ());
+      }
+    }
+
+    // Constructor without constraints
+    Path::Path (const interval_t& interval, size_type outputSize,
+		size_type outputDerivativeSize) :
+      timeRange_ (interval), outputSize_ (outputSize),
+      outputDerivativeSize_ (outputDerivativeSize), constraints_ ()
+    {
+    }
+
+    // Copy constructor
+    Path::Path (const Path& path) :
+      timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
+      constraints_ ()
+    {
+      if (path.constraints_) {
+	constraints_ = HPP_STATIC_PTR_CAST (ConstraintSet,
+					    path.constraints_);
+      }
+    }
+
+    // Initialization after creation
+    void Path::init (const PathPtr_t& self)
+    {
+      weak_ = self;
+      if (constraints_ && constraints_->configProjector ()) {
+	constraints_->configProjector ()->rightHandSideFromConfig (initial ());
+      }
+    }
+
+    // Initialization after copy
+    void Path::initCopy (const PathPtr_t& self)
+    {
+      weak_ = self;
+    }
+
+
     PathPtr_t Path::extract (const interval_t& subInterval) const
     {
       if (subInterval == timeRange_)

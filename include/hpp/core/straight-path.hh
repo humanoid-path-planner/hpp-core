@@ -55,13 +55,44 @@ namespace hpp {
 	ptr->init (shPtr);
 	return shPtr;
       }
+
+      /// Create instance and return shared pointer
+      /// \param device Robot corresponding to configurations
+      /// \param init, end Start and end configurations of the path
+      /// \param length Distance between the configurations.
+      /// \param constraints the path is subject to
+      static StraightPathPtr_t create (const DevicePtr_t& device,
+				       ConfigurationIn_t init,
+				       ConfigurationIn_t end,
+				       value_type length,
+				       ConstraintSetPtr_t constraints)
+      {
+	StraightPath* ptr = new StraightPath (device, init, end, length,
+					      constraints);
+	StraightPathPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+
+      /// Create instance and return shared pointer
+      /// \param device Robot corresponding to configurations
+      /// \param init, end Start and end configurations of the path
+      /// \param length Distance between the configurations.
+      /// \param constraints the path is subject to
+      static StraightPathPtr_t createCopy (const StraightPathPtr_t& path)
+      {
+	StraightPath* ptr = new StraightPath (*path);
+	StraightPathPtr_t shPtr (ptr);
+	ptr->initCopy (shPtr);
+	return shPtr;
+      }
       /// Return a shared pointer to this
       ///
       /// As StaightPath are immutable, and refered to by shared pointers,
       /// they do not need to be copied.
       virtual PathPtr_t copy () const
       {
-	return weak_.lock ();
+	return createCopy (weak_.lock ());
       }
 
       /// Extraction/Reversion of a sub-path
@@ -120,6 +151,11 @@ namespace hpp {
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		    ConfigurationIn_t end, value_type length);
 
+      /// Constructor with constraints
+      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
+		    ConfigurationIn_t end, value_type length,
+		    ConstraintSetPtr_t constraints);
+
       /// Copy constructor
       StraightPath (const StraightPath& path);
 
@@ -128,6 +164,13 @@ namespace hpp {
 	parent_t::init (self);
 	weak_ = self;
       }
+
+      void initCopy (StraightPathPtr_t self)
+      {
+	parent_t::initCopy (self);
+	weak_ = self;
+      }
+
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;
 

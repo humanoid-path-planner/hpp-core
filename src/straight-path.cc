@@ -33,11 +33,26 @@ namespace hpp {
 		device->numberDof ()),
       device_ (device), initial_ (init), end_ (end)
     {
+      assert (device);
+      assert (length >= 0);
+    }
+
+    StraightPath::StraightPath (const DevicePtr_t& device,
+				ConfigurationIn_t init,
+				ConfigurationIn_t end,
+				value_type length,
+				ConstraintSetPtr_t constraints) :
+      parent_t (interval_t (0, length), device->configSize (),
+		device->numberDof (), constraints),
+      device_ (device), initial_ (init), end_ (end)
+    {
+      assert (device);
       assert (length >= 0);
     }
 
     StraightPath::StraightPath (const StraightPath& path) :
-      parent_t (path), initial_ (path.initial_), end_ (path.end_)
+      parent_t (path), device_ (path.device_), initial_ (path.initial_),
+      end_ (path.end_)
     {
     }
 
@@ -66,9 +81,6 @@ namespace hpp {
 
       const ConstraintSetPtr_t& cs (constraints ());
       if (cs) {
-	if (cs->configProjector ()) {
-	  cs->configProjector ()->rightHandSideFromConfig (initial_);
-	}
         return cs->apply (result);
       }
       return true;
@@ -80,8 +92,8 @@ namespace hpp {
 
       Configuration_t q1 ((*this) (subInterval.first));
       Configuration_t q2 ((*this) (subInterval.second));
-      PathPtr_t result = StraightPath::create (device_, q1, q2, l);
-      result->constraints (this->constraints ());
+      PathPtr_t result = StraightPath::create (device_, q1, q2, l,
+					       constraints ());
       return result;
     }
 
