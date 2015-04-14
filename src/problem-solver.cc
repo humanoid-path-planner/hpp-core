@@ -118,6 +118,7 @@ namespace hpp {
     void ProblemSolver::clearPathOptimizers ()
     {
       pathOptimizerTypes_.clear ();
+      pathOptimizers_.clear ();
     }
 
     void ProblemSolver::optimizePath (PathVectorPtr_t path)
