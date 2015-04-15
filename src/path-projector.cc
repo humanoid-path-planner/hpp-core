@@ -35,7 +35,8 @@ namespace hpp {
       return (*distance_) (q1, q2);
     }
 
-    bool PathProjector::apply (const PathPtr_t path, PathPtr_t& proj) const
+    bool PathProjector::apply (const PathPtr_t& path,
+			       PathPtr_t& proj) const
     {
       assert (path);
       bool success = false;

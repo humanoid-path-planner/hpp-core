@@ -150,16 +150,19 @@ namespace hpp {
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
     typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
+    typedef boost::shared_ptr <const PathVector> PathVectorConstPtr_t;
     typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
     typedef Problem* ProblemPtr_t;
     typedef ProblemSolver* ProblemSolverPtr_t;
     typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
+    typedef boost::shared_ptr <const StraightPath> StraightPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
     typedef boost::shared_ptr <SteeringMethodStraight>
     SteeringMethodStraightPtr_t;
     typedef std::vector <PathPtr_t> Paths_t;
+    typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef model::vector_t vector_t;
     typedef model::vectorIn_t vectorIn_t;

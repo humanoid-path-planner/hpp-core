@@ -30,18 +30,21 @@ namespace hpp {
         PathProjector (d), step_ (step)
       {}
 
-      bool Progressive::impl_apply (const StraightPathPtr_t path, PathPtr_t& projection) const
+      bool Progressive::impl_apply (const PathPtr_t& path,
+				    PathPtr_t& projection) const
       {
         ConstraintSetPtr_t constraints = path->constraints ();
 	if (!constraints) {
 	  projection = path;
 	  return true;
 	}
+	HPP_STATIC_CAST_REF_CHECK (const StraightPath, *path);
+        StraightPathConstPtr_t sp =
+	  HPP_STATIC_PTR_CAST (const StraightPath, path);
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
-        const StraightPath& sp = *path;
-        core::interval_t timeRange = sp.timeRange ();
-        const Configuration_t& q1 = sp.initial ();
-        const Configuration_t& q2 = sp.end ();
+        core::interval_t timeRange = sp->timeRange ();
+        const Configuration_t& q1 = sp->initial ();
+        const Configuration_t& q2 = sp->end ();
         const size_t maxDichotomyTries = 10,
                      maxPathSplit = (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
 	assert (constraints->isSatisfied (q1));
@@ -54,7 +57,7 @@ namespace hpp {
         bool pathIsFullyProjected = false;
         std::queue <core::StraightPathPtr_t> paths;
         StraightPathPtr_t toSplit =
-            core::StraightPath::create (sp.device (), q1, q2, d (q1, q2));
+            core::StraightPath::create (sp->device (), q1, q2, d (q1, q2));
         Configuration_t qi (q1.size());
         value_type curStep, curLength;
         size_t c = 0;
@@ -82,16 +85,17 @@ namespace hpp {
           } while (curLength > step_ || curLength < 1e-3);
           if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
           StraightPathPtr_t part =
-            core::StraightPath::create (sp.device (), qb, qi, curLength);
+            core::StraightPath::create (sp->device (), qb, qi, curLength);
           paths.push (part);
           toSplit =
-            core::StraightPath::create (sp.device (), qi, q2, d (qi, q2));
+            core::StraightPath::create (sp->device (), qi, q2, d (qi, q2));
           c++;
         }
         switch (paths.size ()) {
           case 0:
-            timeRange = sp.timeRange();
-            projection = sp.extract (std::make_pair (timeRange.first, timeRange.first));
+            timeRange = sp->timeRange();
+            projection = sp->extract
+	      (std::make_pair (timeRange.first, timeRange.first));
             return false;
             break;
           case 1:
@@ -99,7 +103,8 @@ namespace hpp {
             projection->constraints (constraints);
             break;
           default:
-            core::PathVectorPtr_t pv = core::PathVector::create (sp.outputSize (), sp.outputDerivativeSize ());
+            core::PathVectorPtr_t pv = core::PathVector::create
+	      (sp->outputSize (), sp->outputDerivativeSize ());
             qi = q1;
             while (!paths.empty ()) {
               assert ((qi - paths.front ()->initial ()).isZero ());

@@ -43,14 +43,15 @@ namespace hpp {
         /// \param[in] the input path,
         /// \param[out] the output path.
         /// \return True if projection succeded
-        bool apply (const PathPtr_t path, PathPtr_t& projection) const;
+        bool apply (const PathPtr_t& path, PathPtr_t& projection) const;
 
       protected:
         /// Constructor
         PathProjector (const core::DistancePtr_t distance);
 
         /// Method to be reimplemented by inherited class.
-        virtual bool impl_apply (const StraightPathPtr_t path, PathPtr_t& projection) const = 0;
+        virtual bool impl_apply (const PathPtr_t& path,
+				 PathPtr_t& projection) const = 0;
 
         value_type d (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 

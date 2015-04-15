@@ -31,7 +31,8 @@ namespace hpp {
           }
 
         protected:
-          bool impl_apply (const StraightPathPtr_t path, PathPtr_t& projection) const;
+          bool impl_apply (const PathPtr_t& path,
+			   PathPtr_t& projection) const;
 
           Dichotomy (const core::DistancePtr_t distance, value_type maxPathLength);
 
