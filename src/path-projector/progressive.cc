@@ -62,13 +62,12 @@ namespace hpp {
         value_type curStep, curLength;
         size_t c = 0;
         while (true) {
-          const StraightPath& toSplitRef = *toSplit;
-          if (toSplitRef.length () < step_) {
+          if (toSplit->length () < step_) {
             paths.push (toSplit);
             pathIsFullyProjected = true;
             break;
           }
-          const Configuration_t& qb = toSplitRef.initial ();
+          const Configuration_t& qb = toSplit->initial ();
           curStep = step_;
           curLength = std::numeric_limits <value_type>::max();
           size_t dicC = 0;
@@ -77,7 +76,7 @@ namespace hpp {
           /// of the constraint.
           do {
             if (dicC >= maxDichotomyTries) break;
-            toSplitRef (qi, curStep);
+            (*toSplit) (qi, curStep);
             if (constraints->apply (qi))
               curLength = d (qb, qi);
             curStep /= 2;
@@ -100,7 +99,6 @@ namespace hpp {
             break;
           case 1:
             projection = paths.front ();
-            projection->constraints (constraints);
             break;
           default:
             core::PathVectorPtr_t pv = core::PathVector::create
@@ -111,7 +109,6 @@ namespace hpp {
               assert (constraints->isSatisfied (qi));
               qi = paths.front ()->end ();
               assert (constraints->isSatisfied (qi));
-              paths.front ()->constraints (constraints);
               pv->appendPath (paths.front ());
               paths.pop ();
             }
@@ -120,6 +117,7 @@ namespace hpp {
         }
         assert ((projection->initial () - path->initial ()).isZero());
         assert (!pathIsFullyProjected || (projection->end () - path->end ()).isZero());
+	projection->constraints (constraints);
         return pathIsFullyProjected;
       }
     } // namespace pathProjector
