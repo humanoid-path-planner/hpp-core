@@ -114,5 +114,22 @@ namespace hpp {
       hppDout (info, "ConstraintSet::isSatisfied succeeded");
       return true;
     }
+
+    bool ConstraintSet::isSatisfied (ConfigurationIn_t configuration,
+				     vector_t& error)
+    {
+      bool result = true;
+      error.resize (0);
+      vector_t localError;
+      for (Constraints_t::iterator itConstraint = constraints_.begin ();
+	   itConstraint != constraints_.end (); ++itConstraint) {
+	if (!(*itConstraint)->isSatisfied (configuration, localError)) {
+	  error.conservativeResize (error.size () + localError.size ());
+	  error.tail (localError.size ()) = localError;
+	  result = false;
+	}
+      }
+      return result;
+    }
   } // namespace core
 } // namespace core

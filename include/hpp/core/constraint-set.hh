@@ -71,7 +71,13 @@ namespace hpp {
       }
 
       /// Check whether a configuration statisfies the constraint.
-      bool isSatisfied (ConfigurationIn_t config);
+      virtual bool isSatisfied (ConfigurationIn_t config);
+
+      /// Check whether a configuration statisfies the constraint.
+      ///
+      /// \param config the configuration to check
+      /// \retval error concatenation of errors of each constraint.
+      virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error);
 
     protected:
       typedef std::deque <ConstraintPtr_t> Constraints_t;

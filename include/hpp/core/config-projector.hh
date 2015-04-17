@@ -200,6 +200,15 @@ namespace hpp {
       /// Check whether a configuration statisfies the constraint.
       virtual bool isSatisfied (ConfigurationIn_t config);
 
+      /// Check whether a configuration statisfies the constraint.
+      ///
+      /// \param config the configuration to check
+      /// \retval error concatenation of
+      ///         \li difference between value of numerical constraints and
+      ///             right hand side, and
+      ///         \li difference between locked joint value and right and side.
+      virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error);
+
       /// Get the statistics
       ::hpp::statistics::SuccessStatistics& statistics()
       {

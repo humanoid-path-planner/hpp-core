@@ -79,6 +79,12 @@ namespace hpp {
       return config.segment (rankInConfiguration_, size ()).isApprox (rightHandSide ());
     }
 
+    bool LockedJoint::isSatisfied (ConfigurationIn_t config, vector_t& error)
+    {
+      error = config.segment (rankInConfiguration_, size ()) - rightHandSide ();
+      return config.segment (rankInConfiguration_, size ()).isApprox (rightHandSide ());
+    }
+
     void LockedJoint::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       if (!comparisonType ()->constantRightHandSide ())

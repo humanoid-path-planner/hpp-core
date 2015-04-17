@@ -402,6 +402,35 @@ namespace hpp {
       return squareNorm_ < squareErrorThreshold_;
     }
 
+    bool ConfigProjector::isSatisfied (ConfigurationIn_t config,
+				       vector_t& error)
+    {
+      size_type row = 0, nbRows = 0;
+      bool result = true;
+      for (NumericalConstraints_t::iterator it = functions_.begin ();
+	   it != functions_.end (); ++it) {
+	DifferentiableFunction& f = (*it)->function ();
+	vector_t& value = (*it)->value ();
+	f (value, config);
+        (*(*it)->comparisonType ()) (value, (*it)->jacobian ());
+	nbRows = f.outputSize ();
+	value_.segment (row, nbRows) = value;
+	row += nbRows;
+      }
+      error = value_ - rightHandSide_;
+      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      for (LockedJoints_t::iterator it = lockedJoints_.begin ();
+	   it != lockedJoints_.end (); ++it ) {
+	vector_t localError;
+	if (!(*it)->isSatisfied (config, localError)) {
+	  result = false;
+	}
+	error.conservativeResize (error.size () + localError.size ());
+	error.tail (localError.size ()) = localError;
+      }
+      return result && squareNorm_ < squareErrorThreshold_;
+    }
+
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;

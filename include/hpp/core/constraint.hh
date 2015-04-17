@@ -48,7 +48,16 @@ namespace hpp {
       }
 
       /// Check whether a configuration statisfies the constraint.
+      ///
+      /// \param config the configuration to check
       virtual bool isSatisfied (ConfigurationIn_t config) = 0;
+
+      /// Check whether a configuration statisfies the constraint.
+      ///
+      /// \param config the configuration to check
+      /// \retval error error expressed as a vector. Size and content depends
+      ///         on implementations
+      virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error) = 0;
 
       /// return shared pointer to copy
       virtual ConstraintPtr_t copy () const = 0;

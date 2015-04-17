@@ -72,6 +72,13 @@ namespace hpp {
       /// Check whether a configuration statisfies the constraint.
       bool isSatisfied (ConfigurationIn_t config);
 
+      /// Check whether a configuration statisfies the constraint.
+      ///
+      /// \param config input configuration
+      /// \retval error difference between configuration of joint read in
+      ///         input configuration and locked value.
+      bool isSatisfied (ConfigurationIn_t config, vector_t& error);
+
       /// Return the joint name.
       const std::string& jointName () const {
         return jointName_;
