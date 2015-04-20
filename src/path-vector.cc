@@ -53,6 +53,24 @@ namespace hpp {
       timeRange_.second += path->length ();
     }
 
+    PathPtr_t PathVector::pathAtRank (std::size_t rank) const
+    {
+      PathPtr_t copy = paths_ [rank]->copy ();
+      if (constraints ()) {
+	if (copy->constraints ()) {
+	  throw std::runtime_error
+	    ("Attempt to extract a path from a path vector where both "
+	     "are subject to constraints. This is not supported.");
+	} else {
+	  ConstraintPtr_t constraintCopy (constraints ()->copy ());
+	  HPP_STATIC_CAST_REF_CHECK (ConstraintSet, *constraintCopy);
+	  copy->constraints (HPP_STATIC_PTR_CAST (ConstraintSet,
+						  constraintCopy));
+	}
+      }
+      return copy;
+    }
+
     void PathVector::concatenate (const PathVector& path)
     {
       for (std::size_t i=0; i<path.numberPaths (); ++i) {

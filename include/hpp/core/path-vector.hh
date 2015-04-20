@@ -71,9 +71,12 @@ namespace hpp {
       }
 
       /// Get a path in the vector
-      const PathPtr_t& pathAtRank (std::size_t rank) const {
-	return paths_ [rank];
-      }
+      ///
+      /// \param rank rank of the path in the vector. Should be between 0 and
+      ///        numberPaths ().
+      /// \return shared pointer to a copy of the path at requested rank with
+      ///         constraints applicable to the PathVector.
+      PathPtr_t pathAtRank (std::size_t rank) const;
 
       /// Get rank of direct path in vector at param
       ///
