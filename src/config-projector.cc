@@ -79,6 +79,7 @@ namespace hpp {
       nbNonLockedDofs_ (robot_->numberDof ()),
       squareNorm_(0), weak_ ()
     {
+      dq_.setZero ();
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
@@ -99,6 +100,7 @@ namespace hpp {
       nbNonLockedDofs_ (cp.nbNonLockedDofs_), nbLockedDofs_ (cp.nbLockedDofs_),
       squareNorm_ (cp.squareNorm_), weak_ ()
     {
+      dq_.setZero ();
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
 	   it != cp.lockedJoints_.end (); ++it) {
 	lockedJoints_.push_back ((*it)->copy ());
