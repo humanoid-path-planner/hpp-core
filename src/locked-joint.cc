@@ -138,7 +138,8 @@ namespace hpp {
     LockedJoint::LockedJoint (const LockedJoint& other) :
       Equation (other), jointName_ (other.jointName_),
       rankInConfiguration_ (other.rankInConfiguration_),
-      rankInVelocity_ (other.rankInVelocity_), numberDof_ (other.numberDof_)
+      rankInVelocity_ (other.rankInVelocity_), numberDof_ (other.numberDof_),
+      weak_ ()
     {
     }
   } // namespace core
