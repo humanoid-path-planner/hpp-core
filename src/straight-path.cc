@@ -87,11 +87,6 @@ namespace hpp {
 	(*itJoint)->configuration ()->interpolate
 	  (initial_, end_, u, rank, result);
       }
-
-      const ConstraintSetPtr_t& cs (constraints ());
-      if (cs) {
-        return cs->apply (result);
-      }
       return true;
     }
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const
@@ -99,8 +94,13 @@ namespace hpp {
       // Length is assumed to be proportional to interval range
       value_type l = fabs (subInterval.second - subInterval.first);
 
-      Configuration_t q1 ((*this) (subInterval.first));
-      Configuration_t q2 ((*this) (subInterval.second));
+      bool success;
+      Configuration_t q1 ((*this) (subInterval.first, success));
+      if (!success) throw std::runtime_error
+		      ("Failed to apply constraints in StraightPath::extract");
+      Configuration_t q2 ((*this) (subInterval.second, success));
+      if (!success) throw std::runtime_error
+		      ("Failed to apply constraints in StraightPath::extract");
       PathPtr_t result = StraightPath::create (device_, q1, q2, l,
 					       constraints ());
       return result;

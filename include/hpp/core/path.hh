@@ -74,26 +74,40 @@ namespace hpp {
 
       /// \}
 
-      Configuration_t operator () (const value_type& t) const throw ()
+      Configuration_t operator () (const value_type& t) const
       {
 	Configuration_t result (outputSize ());
 	impl_compute (result, t);
+	if (constraints_) {
+	  constraints_->apply (result);
+	}
 	return result;
       }
 
-      Configuration_t operator () (const value_type& t, bool& success) const throw ()
+      Configuration_t operator () (const value_type& t, bool& success) const
       {
 	Configuration_t result (outputSize ());
 	success = impl_compute (result, t);
+	if (!success) return result;
+	if (constraints_) {
+	  success = constraints_->apply (result);
+	}
 	return result;
       }
 
       bool operator () (ConfigurationOut_t result, const value_type& t)
-	const throw ()
+       const throw ()
       {
-	return impl_compute (result, t);
+	bool success = impl_compute (result, t);
+	if (!success) return false;
+	return (!constraints_ || constraints_->apply (result));
       }
 
+      /// \brief Function evaluation without applying constraints
+      ///
+      /// \return true if everything went good.
+      virtual bool impl_compute (ConfigurationOut_t configuration,
+				 value_type t) const = 0;
       /// \name Constraints
       /// \{
 
@@ -171,11 +185,6 @@ namespace hpp {
       void init (const PathPtr_t& self);
       /// should be called at copy construction of derived class instances
       void initCopy (const PathPtr_t& self);
-      /// \brief Function evaluation.
-      ///
-      /// \return true if everything went good.
-      virtual bool impl_compute (ConfigurationOut_t configuration,
-				 value_type t) const = 0;
 
       /// Interval of definition
       interval_t timeRange_;

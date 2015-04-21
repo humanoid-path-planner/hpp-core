@@ -80,9 +80,9 @@ namespace hpp {
       {
 	if (reversed_) {
 	  param = timeRange ().first + timeRange ().second - param ;
-	  return (*original_) (result, param);
+	  return original_->impl_compute (result, param);
 	} else {
-	  return (*original_) (result, param);
+	  return original_->impl_compute (result, param);
 	}
       }
 
