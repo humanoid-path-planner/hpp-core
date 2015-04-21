@@ -35,6 +35,7 @@ namespace hpp {
     {
       assert (device);
       assert (length >= 0);
+      assert (!constraints ());
     }
 
     StraightPath::StraightPath (const DevicePtr_t& device,
@@ -48,6 +49,12 @@ namespace hpp {
     {
       assert (device);
       assert (length >= 0);
+      assert (constraints->isSatisfied (initial_));
+      if (!constraints->isSatisfied (end_)) {
+	hppDout (error, *constraints);
+	hppDout (error, end_.transpose ());
+	abort ();
+      }
     }
 
     StraightPath::StraightPath (const StraightPath& path) :
@@ -63,6 +70,8 @@ namespace hpp {
     {
       assert (constraints->apply (initial_));
       assert (constraints->apply (end_));
+      assert (constraints->isSatisfied (initial_));
+      assert (constraints->isSatisfied (end_));
     }
 
     bool StraightPath::impl_compute (ConfigurationOut_t result,
