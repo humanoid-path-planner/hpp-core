@@ -38,6 +38,15 @@ namespace hpp {
 	return createCopy (weak_.lock ());
       }
 
+      /// Return a shared pointer to a copy of this and set constraints
+      ///
+      /// \param constraints constraints to apply to the copy
+      /// \precond *this should not have constraints.
+      virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
+      {
+	return createCopy (weak_.lock (), constraints);
+      }
+
       static ExtractedPathPtr_t
       create (const PathPtr_t& original, const interval_t& subInterval)
       {
@@ -51,6 +60,16 @@ namespace hpp {
       createCopy (const ExtractedPathPtr_t& path)
       {
 	ExtractedPath* ptr = new ExtractedPath (*path);
+	ExtractedPathPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+
+      static ExtractedPathPtr_t
+      createCopy (const ExtractedPathPtr_t& path,
+		  const ConstraintSetPtr_t& constraints)
+      {
+	ExtractedPath* ptr = new ExtractedPath (*path, constraints);
 	ExtractedPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -135,6 +154,13 @@ namespace hpp {
 						  original_ (path.original_),
 						  reversed_ (path.reversed_),
 						  weak_ ()
+      {
+      }
+
+      ExtractedPath (const ExtractedPath& path,
+		     const ConstraintSetPtr_t& constraints) : 
+	Path (path, constraints), original_ (path.original_),
+	reversed_ (path.reversed_), weak_ ()
       {
       }
 

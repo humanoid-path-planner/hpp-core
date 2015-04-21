@@ -56,6 +56,15 @@ namespace hpp {
     {
     }
 
+    StraightPath::StraightPath (const StraightPath& path,
+				const ConstraintSetPtr_t& constraints) :
+      parent_t (path, constraints), device_ (path.device_),
+      initial_ (path.initial_), end_ (path.end_)
+    {
+      assert (constraints->apply (initial_));
+      assert (constraints->apply (end_));
+    }
+
     bool StraightPath::impl_compute (ConfigurationOut_t result,
 				     value_type param) const
     {

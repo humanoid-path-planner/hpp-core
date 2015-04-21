@@ -98,7 +98,7 @@ namespace hpp {
             return false;
             break;
           case 1:
-            projection = paths.front ();
+            projection = paths.front ()->copy (constraints);
             break;
           default:
             core::PathVectorPtr_t pv = core::PathVector::create
@@ -106,10 +106,8 @@ namespace hpp {
             qi = q1;
             while (!paths.empty ()) {
               assert ((qi - paths.front ()->initial ()).isZero ());
-              assert (constraints->isSatisfied (qi));
               qi = paths.front ()->end ();
-              assert (constraints->isSatisfied (qi));
-              pv->appendPath (paths.front ());
+              pv->appendPath (paths.front ()->copy (constraints));
               paths.pop ();
             }
             projection = pv;
@@ -117,7 +115,6 @@ namespace hpp {
         }
         assert ((projection->initial () - path->initial ()).isZero());
         assert (!pathIsFullyProjected || (projection->end () - path->end ()).isZero());
-	projection->constraints (constraints);
         return pathIsFullyProjected;
       }
     } // namespace pathProjector

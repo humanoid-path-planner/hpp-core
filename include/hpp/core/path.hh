@@ -40,6 +40,12 @@ namespace hpp {
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const = 0;
 
+      /// Return a shared pointer to a copy of this and set constraints
+      ///
+      /// \param constraints constraints to apply to the copy
+      /// \precond *this should not have constraints.
+      virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const = 0;
+
       /// Static cast into a derived type
       template <class T> boost::shared_ptr<T> as (void)
       {
@@ -55,7 +61,7 @@ namespace hpp {
 	assert (HPP_DYNAMIC_PTR_CAST (const T, weak_.lock ()));
 	return HPP_STATIC_PTR_CAST (const T, weak_.lock ());
       }
-	
+
       /// Extraction/Reversion of a sub-path
       /// \param subInterval interval of definition of the extract path
       /// If upper bound of subInterval is smaller than lower bound,
@@ -95,14 +101,6 @@ namespace hpp {
       const ConstraintSetPtr_t& constraints () const
       {
 	return constraints_;
-      }
-      /// Set constraints the path is subject to
-      ///
-      /// constraints constraints the path is subject to.
-      /// \note constraints are not copied.
-      void constraints (const ConstraintSetPtr_t& constraints)
-      {
-	constraints_ = constraints;
       }
       /// \}
 
@@ -163,6 +161,9 @@ namespace hpp {
 
       /// Copy constructor
       Path (const Path& path);
+
+      /// Copy constructor with constraints
+      Path (const Path& path, const ConstraintSetPtr_t& constraints);
 
       /// Store weak pointer to itself
       ///

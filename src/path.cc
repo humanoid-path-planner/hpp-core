@@ -49,8 +49,15 @@ namespace hpp {
     {
       if (path.constraints_) {
 	constraints_ = HPP_STATIC_PTR_CAST (ConstraintSet,
-					    path.constraints_);
+					    path.constraints_->copy ());
       }
+    }
+
+    Path::Path (const Path& path, const ConstraintSetPtr_t& constraints) :
+      timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
+      constraints_ (constraints)
+    {
+      assert (!path.constraints_);
     }
 
     // Initialization after creation

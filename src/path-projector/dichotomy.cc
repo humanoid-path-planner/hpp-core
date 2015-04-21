@@ -89,15 +89,13 @@ namespace hpp {
             return false;
             break;
           case 1:
-            projection = paths.front ();
-            projection->constraints (constraints);
+            projection = paths.front ()->copy (constraints);
             break;
           default:
             core::PathVectorPtr_t pv = core::PathVector::create
 	      (sp->outputSize (), sp->outputDerivativeSize ());
             while (!paths.empty ()) {
-              paths.front ()->constraints (constraints);
-              pv->appendPath (paths.front ());
+              pv->appendPath (paths.front ()->copy (constraints));
               paths.pop ();
             }
             projection = pv;

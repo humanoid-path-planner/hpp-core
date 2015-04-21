@@ -74,11 +74,8 @@ namespace hpp {
 	return shPtr;
       }
 
-      /// Create instance and return shared pointer
-      /// \param device Robot corresponding to configurations
-      /// \param init, end Start and end configurations of the path
-      /// \param length Distance between the configurations.
-      /// \param constraints the path is subject to
+      /// Create copy and return shared pointer
+      /// \param path path to copy
       static StraightPathPtr_t createCopy (const StraightPathPtr_t& path)
       {
 	StraightPath* ptr = new StraightPath (*path);
@@ -86,6 +83,19 @@ namespace hpp {
 	ptr->initCopy (shPtr);
 	return shPtr;
       }
+
+      /// Create copy and return shared pointer
+      /// \param path path to copy
+      /// \param constraints the path is subject to
+      static StraightPathPtr_t createCopy
+	(const StraightPathPtr_t& path, const ConstraintSetPtr_t& constraints)
+      {
+	StraightPath* ptr = new StraightPath (*path, constraints);
+	StraightPathPtr_t shPtr (ptr);
+	ptr->initCopy (shPtr);
+	return shPtr;
+      }
+
       /// Return a shared pointer to this
       ///
       /// As StaightPath are immutable, and refered to by shared pointers,
@@ -94,6 +104,16 @@ namespace hpp {
       {
 	return createCopy (weak_.lock ());
       }
+
+      /// Return a shared pointer to a copy of this and set constraints
+      ///
+      /// \param constraints constraints to apply to the copy
+      /// \precond *this should not have constraints.
+      virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
+      {
+	return createCopy (weak_.lock (), constraints);
+      }
+
 
       /// Extraction/Reversion of a sub-path
       /// \param subInterval interval of definition of the extract path
@@ -158,6 +178,10 @@ namespace hpp {
 
       /// Copy constructor
       StraightPath (const StraightPath& path);
+
+      /// Copy constructor with constraints
+      StraightPath (const StraightPath& path,
+		    const ConstraintSetPtr_t& constraints);
 
       void init (StraightPathPtr_t self)
       {
