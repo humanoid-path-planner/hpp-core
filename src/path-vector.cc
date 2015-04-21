@@ -55,18 +55,20 @@ namespace hpp {
 
     PathPtr_t PathVector::pathAtRank (std::size_t rank) const
     {
-      PathPtr_t copy = paths_ [rank]->copy ();
+      PathPtr_t copy;
       if (constraints ()) {
-	if (copy->constraints ()) {
+	if (paths_ [rank]->constraints ()) {
 	  throw std::runtime_error
 	    ("Attempt to extract a path from a path vector where both "
 	     "are subject to constraints. This is not supported.");
 	} else {
 	  ConstraintPtr_t constraintCopy (constraints ()->copy ());
 	  HPP_STATIC_CAST_REF_CHECK (ConstraintSet, *constraintCopy);
-	  copy->constraints (HPP_STATIC_PTR_CAST (ConstraintSet,
-						  constraintCopy));
+	  copy = paths_ [rank]->copy (HPP_STATIC_PTR_CAST (ConstraintSet,
+							   constraintCopy));
 	}
+      } else {
+	copy = paths_ [rank]->copy ();
       }
       return copy;
     }
