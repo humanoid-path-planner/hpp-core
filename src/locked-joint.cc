@@ -22,11 +22,10 @@
 
 namespace hpp {
   namespace core {
-    LockedJointPtr_t LockedJoint::create (
-        const JointPtr_t& joint, vectorIn_t value,
-        ComparisonTypePtr_t comp)
+    LockedJointPtr_t LockedJoint::create (const JointPtr_t& joint,
+					  vectorIn_t value)
     {
-      LockedJoint* ptr = new LockedJoint (joint, value, comp);
+      LockedJoint* ptr = new LockedJoint (joint, value);
       LockedJointPtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
@@ -91,10 +90,8 @@ namespace hpp {
         nonConstRightHandSide () = config.segment (rankInConfiguration_, size ());
     }
 
-    LockedJoint::LockedJoint (
-        const JointPtr_t& joint, vectorIn_t value,
-        ComparisonTypePtr_t comp) :
-      Equation (comp, vector_t::Zero (joint->configSize ())),
+    LockedJoint::LockedJoint (const JointPtr_t& joint, vectorIn_t value) :
+      Equation (Equality::create (), vector_t::Zero (joint->configSize ())),
       jointName_ (joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration ()),
       rankInVelocity_ (joint->rankInVelocity ()),

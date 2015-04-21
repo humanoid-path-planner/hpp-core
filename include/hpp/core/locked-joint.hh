@@ -36,9 +36,8 @@ namespace hpp {
       /// Return shared pointer to new object
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
-      static LockedJointPtr_t create (
-          const JointPtr_t& joint, vectorIn_t value,
-          ComparisonTypePtr_t comp = ComparisonType::createDefault ());
+      static LockedJointPtr_t create (const JointPtr_t& joint,
+				      vectorIn_t value);
 
       /// Return shared pointer to copy
       /// \param other instance to copy.
@@ -89,8 +88,7 @@ namespace hpp {
       /// Constructor
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
-      LockedJoint (const JointPtr_t& joint, vectorIn_t value,
-                   ComparisonTypePtr_t comp = ComparisonType::createDefault ());
+      LockedJoint (const JointPtr_t& joint, vectorIn_t value);
       /// Copy constructor
       LockedJoint (const LockedJoint& other);
 
