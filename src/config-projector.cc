@@ -375,6 +375,19 @@ namespace hpp {
 	const DifferentiableFunction& f = (*it)->function ();
 	os << "    " << f << std::endl;
       }
+      os << "    Locked dofs" << std::endl;
+      for (LockedJoints_t::const_iterator itLock = lockedJoints_.begin ();
+          itLock != lockedJoints_.end (); ++itLock) {
+	const LockedJoint& lj (*(itLock->get ()));
+	os << "      ";
+	os << lj << std::endl;
+      }
+      os << "    Intervals: ";
+      for (SizeIntervals_t::const_iterator it=intervals_.begin ();
+	   it != intervals_.end (); ++it) {
+	os << "[" << it->first << "," << it->second << "], ";
+      }
+      os << std::endl;
       return os;
     }
 

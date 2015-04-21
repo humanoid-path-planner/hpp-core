@@ -83,7 +83,8 @@ namespace hpp {
       const std::string& jointName () const {
         return jointName_;
       }
-
+      /// Print object in a stream
+      std::ostream& print (std::ostream& os) const;
     protected:
       /// Constructor
       /// \param joint joint that is locked,
@@ -96,7 +97,6 @@ namespace hpp {
       void init (const LockedJointPtr_t& self);
 
     private:
-      virtual std::ostream& print (std::ostream& os) const;
 
       std::string jointName_;
       size_type rankInConfiguration_;
@@ -113,6 +113,10 @@ namespace hpp {
       LockedJoint (const DevicePtr_t& robot);
     }; // class LockedJoint
     /// \}
+    inline std::ostream& operator<< (std::ostream& os, const LockedJoint& lj)
+    {
+      return lj.print (os);
+    }
   } // namespace core
 } // namespace hpp
 
