@@ -29,17 +29,50 @@ namespace hpp {
         PathProjector (d), maxPathLength_ (maxPathLength)
       {}
 
-      bool Dichotomy::impl_apply (const PathPtr_t& path,
-				  PathPtr_t& projection) const
+      bool Dichotomy::impl_apply (const PathPtr_t& path, PathPtr_t& proj) const
+      {
+	assert (path);
+	bool success = false;
+	PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path);
+	if (!pv) {
+	  StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
+	  if (!sp) throw std::invalid_argument
+		     ("Unknow inherited class of Path");
+	  success = applyToStraightPath (sp, proj);
+	} else {
+	  PathVectorPtr_t res = PathVector::create
+	    (pv->outputSize (), pv->outputDerivativeSize ());
+	  PathPtr_t part;
+	  success = true;
+	  for (size_t i = 0; i < pv->numberPaths (); i++) {
+	    if (!apply (pv->pathAtRank (i), part)) {
+	      // We add the path only if part is not NULL and:
+	      // - either its length is not zero,
+	      // - or it's not the first one.
+	      if (part && (part->length () > 0 || i == 0)) {
+		res->appendPath (part);
+	      }
+	      success = false;
+	      break;
+	    }
+	    res->appendPath (part);
+	  }
+	  proj = res;
+	}
+	assert (proj);
+	assert ((proj->initial () - path->initial ()).isZero());
+	assert (!success || (proj->end () - path->end ()).isZero());
+	return success;
+      }
+
+      bool Dichotomy::applyToStraightPath (const StraightPathPtr_t& path,
+					   PathPtr_t& projection) const
       {
         ConstraintSetPtr_t constraints = path->constraints ();
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
-	HPP_STATIC_CAST_REF_CHECK (const StraightPath, *path);
-        StraightPathConstPtr_t sp =
-	  HPP_STATIC_PTR_CAST (const StraightPath, path);
-        core::interval_t timeRange = sp->timeRange ();
-        const Configuration_t& q1 = (*sp)(timeRange.first);
-        const Configuration_t& q2 = (*sp)(timeRange.second);
+        core::interval_t timeRange = path->timeRange ();
+        const Configuration_t& q1 = (*path)(timeRange.first);
+        const Configuration_t& q2 = (*path)(timeRange.second);
         if (cp) cp->rightHandSideFromConfig(q1);
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
@@ -54,7 +87,7 @@ namespace hpp {
         std::stack <core::StraightPathPtr_t> pathToSplit;
         Configuration_t qi (q1.size());
         core::StraightPathPtr_t sPath = core::StraightPath::create
-	  (sp->device (), q1, q2, d (q1, q2));
+	  (path->device (), q1, q2, d (q1, q2));
         pathToSplit.push (sPath);
         while (!pathToSplit.empty ()) {
           sPath = pathToSplit.top ();
@@ -74,9 +107,9 @@ namespace hpp {
             break;
           }
           StraightPathPtr_t firstPart =
-            core::StraightPath::create (sp->device (), qb, qi, d (qb, qi));
+            core::StraightPath::create (path->device (), qb, qi, d (qb, qi));
           StraightPathPtr_t secondPart =
-            core::StraightPath::create (sp->device (), qi, qe, d (qi, qe));
+            core::StraightPath::create (path->device (), qi, qe, d (qi, qe));
           if (secondPart->length () == 0 || firstPart->length () == 0) {
             pathIsFullyProjected = false;
             break;
@@ -93,7 +126,7 @@ namespace hpp {
             break;
           default:
             core::PathVectorPtr_t pv = core::PathVector::create
-	      (sp->outputSize (), sp->outputDerivativeSize ());
+	      (path->outputSize (), path->outputDerivativeSize ());
             while (!paths.empty ()) {
               pv->appendPath (paths.front ()->copy (constraints));
               paths.pop ();

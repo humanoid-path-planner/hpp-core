@@ -25,6 +25,8 @@ namespace hpp {
       class HPP_CORE_DLLAPI Progressive : public PathProjector
       {
         public:
+        typedef hpp::core::StraightPath StraightPath;
+        typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
           static ProgressivePtr_t create (const core::DistancePtr_t distance,
               value_type step)
           {
@@ -37,6 +39,8 @@ namespace hpp {
 
           Progressive (const core::DistancePtr_t distance, value_type step);
 
+	  bool applyToStraightPath (const StraightPathPtr_t& path,
+				    PathPtr_t& projection) const;
         private:
           value_type step_;
       };

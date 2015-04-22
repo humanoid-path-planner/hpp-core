@@ -38,34 +38,7 @@ namespace hpp {
     bool PathProjector::apply (const PathPtr_t& path,
 			       PathPtr_t& proj) const
     {
-      assert (path);
-      bool success = false;
-      PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path);
-      if (!pv) {
-        StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
-        if (!sp) throw std::invalid_argument ("Unknow inherited class of Path");
-        success = impl_apply (sp, proj);
-      } else {
-        PathVectorPtr_t res = PathVector::create (pv->outputSize (), pv->outputDerivativeSize ());
-        PathPtr_t part;
-        success = true;
-        for (size_t i = 0; i < pv->numberPaths (); i++) {
-          if (!apply (pv->pathAtRank (i), part)) {
-            // We add the path only if part is not NULL and:
-            // - either its length is not zero,
-            // - or it's not the first one.
-            if (part && (part->length () > 0 || i == 0)) res->appendPath (part);
-            success = false;
-            break;
-          }
-          res->appendPath (part);
-        }
-        proj = res;
-      }
-      assert (proj);
-      assert ((proj->initial () - path->initial ()).isZero());
-      assert (!success || (proj->end () - path->end ()).isZero());
-      return success;
+      return impl_apply (path, proj);
     }
   } // namespace core
 } // namespace hpp

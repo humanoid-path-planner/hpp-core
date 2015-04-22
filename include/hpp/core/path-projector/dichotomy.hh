@@ -24,6 +24,8 @@ namespace hpp {
       class HPP_CORE_DLLAPI Dichotomy : public PathProjector
       {
         public:
+        typedef hpp::core::StraightPath StraightPath;
+        typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
           static DichotomyPtr_t create (const core::DistancePtr_t distance,
               value_type maxPathLength)
           {
@@ -35,6 +37,8 @@ namespace hpp {
 			   PathPtr_t& projection) const;
 
           Dichotomy (const core::DistancePtr_t distance, value_type maxPathLength);
+	  bool applyToStraightPath (const StraightPathPtr_t& path,
+				    PathPtr_t& projection) const;
 
         private:
           value_type maxPathLength_;

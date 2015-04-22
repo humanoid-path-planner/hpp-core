@@ -31,22 +31,57 @@ namespace hpp {
       {}
 
       bool Progressive::impl_apply (const PathPtr_t& path,
-				    PathPtr_t& projection) const
+				    PathPtr_t& proj) const
+      {
+	assert (path);
+	bool success = false;
+	PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path);
+	if (!pv) {
+	  StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
+	  if (!sp) throw std::invalid_argument
+		     ("Unknow inherited class of Path");
+	  success = applyToStraightPath (sp, proj);
+	} else {
+	  PathVectorPtr_t res = PathVector::create
+	    (pv->outputSize (), pv->outputDerivativeSize ());
+	  PathPtr_t part;
+	  success = true;
+	  for (size_t i = 0; i < pv->numberPaths (); i++) {
+	    if (!apply (pv->pathAtRank (i), part)) {
+	      // We add the path only if part is not NULL and:
+	      // - either its length is not zero,
+	      // - or it's not the first one.
+	      if (part && (part->length () > 0 || i == 0)) {
+		res->appendPath (part);
+	      }
+	      success = false;
+	      break;
+	    }
+	    res->appendPath (part);
+	  }
+	  proj = res;
+	}
+	assert (proj);
+	assert ((proj->initial () - path->initial ()).isZero());
+	assert (!success || (proj->end () - path->end ()).isZero());
+	return success;
+      }
+
+      bool Progressive::applyToStraightPath (const StraightPathPtr_t& path,
+					     PathPtr_t& projection) const
       {
         ConstraintSetPtr_t constraints = path->constraints ();
 	if (!constraints) {
 	  projection = path;
 	  return true;
 	}
-	HPP_STATIC_CAST_REF_CHECK (const StraightPath, *path);
-        StraightPathConstPtr_t sp =
-	  HPP_STATIC_PTR_CAST (const StraightPath, path);
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
-        core::interval_t timeRange = sp->timeRange ();
-        const Configuration_t& q1 = sp->initial ();
-        const Configuration_t& q2 = sp->end ();
+        core::interval_t timeRange = path->timeRange ();
+        const Configuration_t& q1 = path->initial ();
+        const Configuration_t& q2 = path->end ();
         const size_t maxDichotomyTries = 10,
-                     maxPathSplit = (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
+                     maxPathSplit =
+	  (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
 	assert (constraints->isSatisfied (q1));
         if (!constraints->isSatisfied (q2)) return false;
         if (!cp) {
@@ -57,7 +92,7 @@ namespace hpp {
         bool pathIsFullyProjected = false;
         std::queue <core::StraightPathPtr_t> paths;
         StraightPathPtr_t toSplit =
-            core::StraightPath::create (sp->device (), q1, q2, d (q1, q2));
+            core::StraightPath::create (path->device (), q1, q2, d (q1, q2));
         Configuration_t qi (q1.size());
         value_type curStep, curLength;
         size_t c = 0;
@@ -84,16 +119,16 @@ namespace hpp {
           } while (curLength > step_ || curLength < 1e-3);
           if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
           StraightPathPtr_t part =
-            core::StraightPath::create (sp->device (), qb, qi, curLength);
+            core::StraightPath::create (path->device (), qb, qi, curLength);
           paths.push (part);
           toSplit =
-            core::StraightPath::create (sp->device (), qi, q2, d (qi, q2));
+            core::StraightPath::create (path->device (), qi, q2, d (qi, q2));
           c++;
         }
         switch (paths.size ()) {
           case 0:
-            timeRange = sp->timeRange();
-            projection = sp->extract
+            timeRange = path->timeRange();
+            projection = path->extract
 	      (std::make_pair (timeRange.first, timeRange.first));
             return false;
             break;
@@ -102,7 +137,7 @@ namespace hpp {
             break;
           default:
             core::PathVectorPtr_t pv = core::PathVector::create
-	      (sp->outputSize (), sp->outputDerivativeSize ());
+	      (path->outputSize (), path->outputDerivativeSize ());
             qi = q1;
             while (!paths.empty ()) {
               assert ((qi - paths.front ()->initial ()).isZero ());
@@ -114,7 +149,8 @@ namespace hpp {
             break;
         }
         assert ((projection->initial () - path->initial ()).isZero());
-        assert (!pathIsFullyProjected || (projection->end () - path->end ()).isZero());
+        assert (!pathIsFullyProjected ||
+		(projection->end () - path->end ()).isZero());
         return pathIsFullyProjected;
       }
     } // namespace pathProjector

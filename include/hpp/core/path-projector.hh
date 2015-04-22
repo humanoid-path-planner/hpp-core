@@ -31,8 +31,6 @@ namespace hpp {
       public:
         typedef hpp::core::Path Path;
         typedef hpp::core::PathPtr_t PathPtr_t;
-        typedef hpp::core::StraightPath StraightPath;
-        typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
         typedef hpp::core::PathVector PathVector;
         typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
 
