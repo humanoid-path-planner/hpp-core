@@ -49,8 +49,8 @@ namespace hpp {
     {
       assert (device);
       assert (length >= 0);
-      assert (constraints->isSatisfied (initial_));
-      if (!constraints->isSatisfied (end_)) {
+      assert (!constraints || constraints->isSatisfied (initial_));
+      if (constraints && !constraints->isSatisfied (end_)) {
 	hppDout (error, *constraints);
 	hppDout (error, end_.transpose ());
 	abort ();
