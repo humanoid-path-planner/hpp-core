@@ -53,6 +53,17 @@ namespace hpp {
       void projectOnKernel (ConfigurationIn_t,
           ConfigurationIn_t, ConfigurationOut_t)
       {}
+      /// Check whether a configuration statisfies the constraint.
+      virtual bool isSatisfied (ConfigurationIn_t config)
+      {
+	return true;
+      }
+      virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error)
+      {
+	error.resize (0);
+	return true;
+      }
+
       void init (ConfigProjectorTrivialPtr_t weak)
       {
 	ConfigProjector::init (weak);
