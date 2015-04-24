@@ -38,6 +38,7 @@ namespace hpp {
       {
 	SteeringMethodStraight* ptr = new SteeringMethodStraight (device);
 	SteeringMethodStraightPtr_t shPtr (ptr);
+	ptr->init (shPtr);
 	return shPtr;
       }
       /// Create instance and return shared pointer
@@ -47,8 +48,24 @@ namespace hpp {
 	SteeringMethodStraight* ptr = new SteeringMethodStraight (device,
 								  distance);
 	SteeringMethodStraightPtr_t shPtr (ptr);
+	ptr->init (shPtr);
 	return shPtr;
       }
+      /// Copy instance and return shared pointer
+      static SteeringMethodStraightPtr_t createCopy
+	(const SteeringMethodStraightPtr_t& other)
+      {
+	SteeringMethodStraight* ptr = new SteeringMethodStraight (*other);
+	SteeringMethodStraightPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+      /// Copy instance and return shared pointer
+      virtual SteeringMethodPtr_t copy () const
+      {
+	return createCopy (weak_.lock ());
+      }
+
       /// create a path between two configurations
       virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
 				      ConfigurationIn_t q2) const
@@ -63,19 +80,33 @@ namespace hpp {
       /// Weighed distance is created from robot
       SteeringMethodStraight (const DevicePtr_t& device) :
 	SteeringMethod (), device_ (device),
-	distance_ (WeighedDistance::create (device))
+	distance_ (WeighedDistance::create (device)), weak_ ()
       {
       }
       /// Constructor with weighed distance
       SteeringMethodStraight (const DevicePtr_t& device,
 			      const WeighedDistancePtr_t& distance) :
 	SteeringMethod (), device_ (device),
-	distance_ (distance)
+	distance_ (distance), weak_ ()
       {
+      }
+      /// Copy constructor
+      SteeringMethodStraight (const SteeringMethodStraight& other) :
+	SteeringMethod (other), device_ (other.device_),
+	distance_ (other.distance_), weak_ ()
+      {
+      }
+
+      /// Store weak pointer to itself
+      void init (SteeringMethodStraightWkPtr_t weak)
+      {
+	SteeringMethod::init (weak);
+	weak_ = weak;
       }
     private:
       DeviceWkPtr_t device_;
       WeighedDistancePtr_t distance_;
+      SteeringMethodStraightWkPtr_t weak_;
     }; // SteeringMethodStraight
     /// \}
   } // namespace core

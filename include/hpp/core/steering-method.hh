@@ -43,6 +43,9 @@ namespace hpp {
 	return impl_compute (q1, q2);
       }
 
+      /// Copy instance and return shared pointer
+      virtual SteeringMethodPtr_t copy () const = 0;
+
       /// \name Constraints applicable to the robot.
       /// These constraints are not automatically taken into
       /// account. Child class can use it if they need.
@@ -62,12 +65,33 @@ namespace hpp {
       /// \}
 
     protected:
+      /// Constructor
+      SteeringMethod () : constraints_ (), weak_ ()
+	{
+	}
+      /// Copy constructor
+      ///
+      /// Constraints are copied
+      SteeringMethod (const SteeringMethod& other) : constraints_ (), weak_ ()
+	{
+	  if (other.constraints_) {
+	    constraints_ = HPP_DYNAMIC_PTR_CAST (ConstraintSet,
+						 other.constraints_->copy ());
+	  }
+	}
       /// create a path between two configurations
       virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
 				      ConfigurationIn_t q2) const = 0;
+      /// Store weak pointer to itself.
+      void init (SteeringMethodWkPtr_t weak)
+      {
+	weak_ = weak;
+      }
     private:
       /// Set of constraints to apply on the paths produced
       ConstraintSetPtr_t constraints_;
+      /// Weak pointer to itself
+      SteeringMethodWkPtr_t weak_;
     }; // class SteeringMethod
     /// \}
   } // namespace core
