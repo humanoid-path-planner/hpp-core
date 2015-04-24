@@ -46,8 +46,9 @@ namespace hpp {
       typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
 						     const value_type&) >
 	PathValidationBuilder_t;
-      typedef boost::function <PathProjectorPtr_t (const core::DistancePtr_t,
-              value_type) >
+      typedef boost::function <PathProjectorPtr_t (const DistancePtr_t&,
+						   const SteeringMethodPtr_t&,
+						   value_type) >
         PathProjectorBuilder_t;
 
       typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;

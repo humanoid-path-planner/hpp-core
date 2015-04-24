@@ -45,16 +45,25 @@ namespace hpp {
 
       protected:
         /// Constructor
-        PathProjector (const core::DistancePtr_t distance);
+	///
+	/// distance distance metric between configurations
+	/// steeringMethod steering method used to build new paths. The instance
+	///                is copied.
+	/// copySteeringMethodConstraints whether to keep the constraints of the
+	///                               input steering method.
+        PathProjector (const DistancePtr_t& distance,
+		       const SteeringMethodPtr_t& steeringMethod,
+		       bool keepSteeringMethodConstraints = false);
 
         /// Method to be reimplemented by inherited class.
         virtual bool impl_apply (const PathPtr_t& path,
 				 PathPtr_t& projection) const = 0;
 
         value_type d (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
-
+	PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
       private:
-        core::DistancePtr_t distance_;
+        DistancePtr_t distance_;
+	SteeringMethodPtr_t steeringMethod_;
     };
   } // namespace core
 } // namespace hpp

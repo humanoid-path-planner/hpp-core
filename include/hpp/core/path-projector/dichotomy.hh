@@ -26,17 +26,23 @@ namespace hpp {
         public:
         typedef hpp::core::StraightPath StraightPath;
         typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
-          static DichotomyPtr_t create (const core::DistancePtr_t distance,
-              value_type maxPathLength)
+          static DichotomyPtr_t create
+	    (const DistancePtr_t& distance,
+	     const SteeringMethodPtr_t& steeringMethod,
+	     value_type maxPathLength)
           {
-            return DichotomyPtr_t (new Dichotomy (distance, maxPathLength));
+            return DichotomyPtr_t (new Dichotomy (distance, steeringMethod,
+						  maxPathLength));
           }
 
         protected:
           bool impl_apply (const PathPtr_t& path,
 			   PathPtr_t& projection) const;
 
-          Dichotomy (const core::DistancePtr_t distance, value_type maxPathLength);
+          Dichotomy (const DistancePtr_t& distance,
+		     const SteeringMethodPtr_t& steeringMethod,
+		     value_type maxPathLength);
+
 	  bool applyToStraightPath (const StraightPathPtr_t& path,
 				    PathPtr_t& projection) const;
 

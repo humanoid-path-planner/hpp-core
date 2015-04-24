@@ -27,17 +27,21 @@ namespace hpp {
         public:
         typedef hpp::core::StraightPath StraightPath;
         typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
-          static ProgressivePtr_t create (const core::DistancePtr_t distance,
-              value_type step)
+          static ProgressivePtr_t create
+	    (const DistancePtr_t& distance,
+	     const SteeringMethodPtr_t& steeringMethod, value_type step)
           {
-            return ProgressivePtr_t (new Progressive (distance, step));
+            return ProgressivePtr_t (new Progressive (distance, steeringMethod,
+						      step));
           }
 
         protected:
           bool impl_apply (const PathPtr_t& path,
 			   PathPtr_t& projection) const;
 
-          Progressive (const core::DistancePtr_t distance, value_type step);
+          Progressive (const DistancePtr_t& distance,
+		       const SteeringMethodPtr_t& steeringMethod,
+		       value_type step);
 
 	  bool applyToStraightPath (const StraightPathPtr_t& path,
 				    PathPtr_t& projection) const;

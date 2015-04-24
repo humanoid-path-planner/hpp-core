@@ -19,20 +19,36 @@
 #include <hpp/util/pointer.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/distance.hh>
+#include <hpp/core/steering-method.hh>
 
 namespace hpp {
   namespace core {
-    PathProjector::PathProjector (const core::DistancePtr_t distance) :
-      distance_ (distance)
-    {}
+    PathProjector::PathProjector (const DistancePtr_t& distance,
+				  const SteeringMethodPtr_t& steeringMethod,
+				  bool keepSteeringMethodConstraints) :
+      distance_ (distance), steeringMethod_ (steeringMethod->copy ())
+    {
+      assert (distance_ != NULL);
+      assert (steeringMethod_ != NULL);
+      if (!keepSteeringMethodConstraints) {
+	steeringMethod_->constraints (ConstraintSetPtr_t ());
+      }
+    }
 
     PathProjector::~PathProjector ()
     {}
 
     value_type PathProjector::d (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
-      assert (distance_ != NULL);
       return (*distance_) (q1, q2);
+    }
+
+    PathPtr_t PathProjector::steer (ConfigurationIn_t q1,
+				    ConfigurationIn_t q2) const
+    {
+      PathPtr_t result ((*steeringMethod_) (q1, q2));
+      assert (!result->constraints ());
+      return result;
     }
 
     bool PathProjector::apply (const PathPtr_t& path,

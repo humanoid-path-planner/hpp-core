@@ -48,7 +48,8 @@ namespace hpp {
     // Struct that constructs an empty shared pointer to PathProjector.
     struct NonePathProjector
     {
-      static PathProjectorPtr_t create (const core::DistancePtr_t, value_type)
+      static PathProjectorPtr_t create (const DistancePtr_t&,
+					const SteeringMethodPtr_t&, value_type)
       {
 	return PathProjectorPtr_t ();
       }
@@ -162,7 +163,8 @@ namespace hpp {
       if (robot_ && problem_) {
 	PathProjectorPtr_t pathProjector =
 	  pathProjectorFactory_ [pathProjectorType_]
-	  (problem_->distance (), pathProjectorTolerance_);
+	  (problem_->distance (), problem_->steeringMethod (),
+	   pathProjectorTolerance_);
 	problem_->pathProjector (pathProjector);
       }
     }
@@ -297,8 +299,11 @@ namespace hpp {
       /// create Path projector
       PathProjectorBuilder_t createProjector =
         pathProjectorFactory_ [pathProjectorType_];
+      // Create a default steering method until we add a steering method
+      // factory.
+      SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), pathProjectorTolerance_);
+        createProjector (problem_->distance (), sm, pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
@@ -336,8 +341,11 @@ namespace hpp {
       /// create Path projector
       PathProjectorBuilder_t createProjector =
         pathProjectorFactory_ [pathProjectorType_];
+      // Create a default steering method until we add a steering method
+      // factory.
+      SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), pathProjectorTolerance_);
+        createProjector (problem_->distance (), sm, pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
       /// create Path optimizer
       // Reset init and goal configurations

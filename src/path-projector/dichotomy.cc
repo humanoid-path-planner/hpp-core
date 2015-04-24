@@ -25,8 +25,10 @@
 namespace hpp {
   namespace core {
     namespace pathProjector {
-      Dichotomy::Dichotomy (const core::DistancePtr_t d, value_type maxPathLength) :
-        PathProjector (d), maxPathLength_ (maxPathLength)
+      Dichotomy::Dichotomy (const DistancePtr_t& distance,
+			    const SteeringMethodPtr_t& steeringMethod,
+			    value_type maxPathLength) :
+        PathProjector (distance, steeringMethod), maxPathLength_ (maxPathLength)
       {}
 
       bool Dichotomy::impl_apply (const PathPtr_t& path, PathPtr_t& proj) const
@@ -83,33 +85,29 @@ namespace hpp {
         }
 
         bool pathIsFullyProjected = true;
-        std::queue <core::StraightPathPtr_t> paths;
-        std::stack <core::StraightPathPtr_t> pathToSplit;
+        std::queue <PathPtr_t> paths;
+        std::stack <PathPtr_t> pathToSplit;
         Configuration_t qi (q1.size());
-        core::StraightPathPtr_t sPath = core::StraightPath::create
-	  (path->device (), q1, q2, d (q1, q2));
+        PathPtr_t sPath = steer (q1, q2);
         pathToSplit.push (sPath);
         while (!pathToSplit.empty ()) {
           sPath = pathToSplit.top ();
-          const StraightPath& sPathRef = *sPath;
           pathToSplit.pop ();
-          double l = sPathRef.length ();
+          double l = sPath->length ();
           if (l < maxPathLength_) {
             paths.push (sPath);
             continue;
           }
-          timeRange = sPathRef.timeRange ();
-          const Configuration_t& qb = sPathRef (timeRange.first);
-          sPathRef (qi, timeRange.first + l / 2);
-          const Configuration_t& qe = sPathRef (timeRange.second);
+          timeRange = sPath->timeRange ();
+          const Configuration_t& qb = (*sPath) (timeRange.first);
+          (*sPath) (qi, timeRange.first + l / 2);
+          const Configuration_t& qe = (*sPath) (timeRange.second);
           if (!constraints->apply (qi)) {
             pathIsFullyProjected = false;
             break;
           }
-          StraightPathPtr_t firstPart =
-            core::StraightPath::create (path->device (), qb, qi, d (qb, qi));
-          StraightPathPtr_t secondPart =
-            core::StraightPath::create (path->device (), qi, qe, d (qi, qe));
+          PathPtr_t firstPart = steer (qb, qi);
+          PathPtr_t secondPart = steer (qi, qe);
           if (secondPart->length () == 0 || firstPart->length () == 0) {
             pathIsFullyProjected = false;
             break;

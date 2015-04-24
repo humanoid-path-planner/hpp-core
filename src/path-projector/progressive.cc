@@ -26,8 +26,10 @@
 namespace hpp {
   namespace core {
     namespace pathProjector {
-      Progressive::Progressive (const core::DistancePtr_t d, value_type step) :
-        PathProjector (d), step_ (step)
+      Progressive::Progressive (const DistancePtr_t& distance,
+				const SteeringMethodPtr_t& steeringMethod,
+				value_type step) :
+        PathProjector (distance, steeringMethod), step_ (step)
       {}
 
       bool Progressive::impl_apply (const PathPtr_t& path,
@@ -90,9 +92,8 @@ namespace hpp {
         }
 
         bool pathIsFullyProjected = false;
-        std::queue <core::StraightPathPtr_t> paths;
-        StraightPathPtr_t toSplit =
-            core::StraightPath::create (path->device (), q1, q2, d (q1, q2));
+        std::queue <PathPtr_t> paths;
+        PathPtr_t toSplit = steer (q1, q2);
         Configuration_t qi (q1.size());
         value_type curStep, curLength;
         size_t c = 0;
@@ -118,11 +119,10 @@ namespace hpp {
             dicC++;
           } while (curLength > step_ || curLength < 1e-3);
           if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
-          StraightPathPtr_t part =
-            core::StraightPath::create (path->device (), qb, qi, curLength);
+	  assert (curLength == d (qb, qi));
+          PathPtr_t part = steer (qb, qi);
           paths.push (part);
-          toSplit =
-            core::StraightPath::create (path->device (), qi, q2, d (qi, q2));
+          toSplit = steer (qi, q2);
           c++;
         }
         switch (paths.size ()) {
