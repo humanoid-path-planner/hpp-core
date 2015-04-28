@@ -33,9 +33,10 @@ namespace hpp {
       class HPP_CORE_DLLAPI Cost : public DifferentiableFunction
       {
       public:
-	/// Return an approximation of the inverse of the Hessian at minimum
+	/// Return an approximation of the Hessian at minimum
 	/// \retval hessian Hessian matrix of right size
-	virtual void hessianInverse (matrixOut_t hessian) const = 0;
+	virtual void hessian (matrixOut_t hessian) const = 0;
+
       protected:
 	Cost (size_type inputSize, size_type inputDerivativeSize,
 	      const std::string& name) :

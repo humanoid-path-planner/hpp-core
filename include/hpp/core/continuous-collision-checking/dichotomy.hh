@@ -65,7 +65,8 @@ namespace hpp {
 	///         path is valid.
 	/// \return whether the whole path is valid.
 	/// \retval report information about the validation process.
-	/// The parameter is dynamic cast into CollisionPathValidationReport.
+	/// \precond validationReport should be a of type
+	///          CollisionPathValidationReport.
 	virtual bool validate (const PathPtr_t& path, bool reverse,
 			       PathPtr_t& validPart,
 			       ValidationReport& report) HPP_CORE_DEPRECATED;

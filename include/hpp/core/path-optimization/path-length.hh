@@ -29,7 +29,8 @@ namespace hpp {
       /// Instances are initialized by
       /// \li way points stored in a PathVector,
       /// \li a WeighedDistance object that defines the length of the
-      ///     interpolations between way points.
+      ///     interpolations between way points,
+      /// \li weight values to compute the weighted cost.
       ///
       /// The input of the function is a vector concatenating the way points
       /// of the path, excluding the first and last way points.
@@ -47,8 +48,14 @@ namespace hpp {
 	virtual void impl_jacobian (matrixOut_t jacobian,
 				    vectorIn_t arg) const;
 
-	virtual void hessianInverse (matrixOut_t result) const;
+	/// Return an approximation of the Hessian at minimum
+	/// \retval hessian Hessian matrix of right size
+	virtual void hessian (matrixOut_t result) const;
       private:
+	/// Weight are computed according to initial partial
+	/// paths lengths with regard to the total length.
+	void computeWeights (const PathVectorPtr_t& path) const;
+
 	std::size_t nbPaths_;
 	WeighedDistancePtr_t distance_;
 	Configuration_t initial_;
@@ -56,6 +63,7 @@ namespace hpp {
 	DevicePtr_t robot_;
 	size_type configSize_;
 	size_type numberDofs_;
+	mutable vector_t weights_;
       }; // PathLength
     } // namespace pathOptimization
   }  // namespace core
