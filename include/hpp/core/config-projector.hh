@@ -182,7 +182,7 @@ namespace hpp {
       /// \param config the input configuration.
       /// \return the right hand side
       ///
-      /// \warning Only values of the right hand side corresponding to 
+      /// \warning Only values of the right hand side corresponding to
       /// \link Equality "equality constraints" \endlink are set. As a
       /// result, the input configuration may not satisfy the other constraints.
       /// The rationale is the following. Equality constraints define a
@@ -227,6 +227,13 @@ namespace hpp {
         return statistics_;
       }
 
+      /// Get the numerical constraints of the config-projector (and so of the
+      /// Constraint Set)
+      NumericalConstraints_t numericalConstraints () const
+      {
+	return functions_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -255,7 +262,6 @@ namespace hpp {
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
       void smallToNormal (vectorIn_t small, vectorOut_t normal);
       void normalToSmall (vectorIn_t normal, vectorOut_t small);
-      typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
       typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
       void resize ();
       void computeValueAndJacobian (ConfigurationIn_t configuration);

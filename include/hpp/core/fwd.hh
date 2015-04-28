@@ -174,6 +174,7 @@ namespace hpp {
     typedef std::map <std::string, ComparisonTypePtr_t>
     ComparisonTypeMap_t;
     typedef std::map <std::string, SizeIntervals_t> SizeIntervalsMap_t;
+    typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
     typedef std::map <std::string, CenterOfMassComputationPtr_t>
     CenterOfMassComputationMap_t;
 
