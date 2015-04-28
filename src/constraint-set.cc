@@ -54,11 +54,11 @@ namespace hpp {
           ConfigurationIn_t, ConfigurationOut_t)
       {}
       /// Check whether a configuration statisfies the constraint.
-      virtual bool isSatisfied (ConfigurationIn_t config)
+      virtual bool isSatisfied (ConfigurationIn_t)
       {
 	return true;
       }
-      virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error)
+      virtual bool isSatisfied (ConfigurationIn_t, vector_t& error)
       {
 	error.resize (0);
 	return true;
