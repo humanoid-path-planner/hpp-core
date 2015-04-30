@@ -47,7 +47,7 @@ namespace hpp {
       comparison_ (comp), rhs_ (rhs)
     {
       if (comparison_->constantRightHandSide ())
-        rhs_ = vector_t (0);
+        rhs_ = vector_t ();
     }
 
     Equation::Equation (const Equation& other) :

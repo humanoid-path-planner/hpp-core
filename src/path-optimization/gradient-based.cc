@@ -113,7 +113,7 @@ namespace hpp {
       GradientBased::GradientBased (const Problem& problem) :
 	PathOptimizer (problem), cost_ (), robot_ (problem.robot ()),
 	configSize_ (robot_->configSize ()), numberDofs_ (robot_->numberDof ()),
-	initial_ (0), end_ (0)
+    initial_ (), end_ ()
       {
 	distance_ = HPP_DYNAMIC_PTR_CAST (WeighedDistance, problem.distance ());
 	if (!distance_) {
