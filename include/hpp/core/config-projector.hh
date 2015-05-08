@@ -145,6 +145,35 @@ namespace hpp {
       virtual void projectOnKernel (ConfigurationIn_t from,
 			    ConfigurationIn_t to, ConfigurationOut_t result);
 
+      /// Compute value and reduced jacobian at a given configuration
+      ///
+      /// \param configuration input configuration
+      /// \retval value values of the differentiable functions stacked in a
+      ///         vector,
+      /// \retval reducedJacobian Reduced Jacobian of the differentiable
+      ///         functions stacked in a matrix. Reduced Jacobian is defined
+      ///         as the Jacobian to which columns corresponding to locked
+      ///         joints have been removed and to which columns corresponding
+      ///         to passive dofs are set to 0.
+      void computeValueAndJacobian (ConfigurationIn_t configuration,
+				    vectorOut_t value,
+				    matrixOut_t reducedJacobian);
+
+      /// Compress Velocity vector by removing locked degrees of freedom
+      ///
+      /// \param normal input velocity vector
+      /// \retval small compressed velocity vectors
+      void normalToSmall (vectorIn_t normal, vectorOut_t small);
+
+      /// Expand compressed velocity vector
+      ///
+      /// \param small compressed velocity vector without locked degrees of
+      ///              freedom,
+      /// \retval normal uncompressed velocity vector.
+      /// \note locked degree of freedom are not set. They should be initialized
+      ///       to zero.
+      void smallToNormal (vectorIn_t small, vectorOut_t normal);
+
       /// Set maximal number of iterations
       void maxIterations (size_type iterations)
       {
@@ -260,11 +289,8 @@ namespace hpp {
     private:
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
-      void smallToNormal (vectorIn_t small, vectorOut_t normal);
-      void normalToSmall (vectorIn_t normal, vectorOut_t small);
       typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
       void resize ();
-      void computeValueAndJacobian (ConfigurationIn_t configuration);
       void computeIntervals ();
       typedef std::list <LockedJointPtr_t> LockedJoints_t;
       DevicePtr_t robot_;

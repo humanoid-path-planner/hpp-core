@@ -170,7 +170,8 @@ namespace hpp {
     }
 
     void ConfigProjector::computeValueAndJacobian
-    (ConfigurationIn_t configuration)
+    (ConfigurationIn_t configuration, vectorOut_t value,
+     matrixOut_t reducedJacobian)
     {
       size_type row = 0, nbRows = 0;
       IntervalsContainer_t::const_iterator itPassiveDofs
@@ -178,15 +179,15 @@ namespace hpp {
       for (NumericalConstraints_t::iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
 	DifferentiableFunction& f = (*it)->function ();
-	vector_t& value = (*it)->value ();
+	vector_t& v = (*it)->value ();
 	matrix_t& jacobian = (*it)->jacobian ();
-	f (value, configuration);
+	f (v, configuration);
 	f.jacobian (jacobian, configuration);
-        (*(*it)->comparisonType ()) (value, jacobian);
+        (*(*it)->comparisonType ()) (v, jacobian);
 	nbRows = f.outputSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
-	value_.segment (row, nbRows) = value;
+	value.segment (row, nbRows) = v;
         /// Set the passive DOFs to zero.
 	for (SizeIntervals_t::const_iterator it = itPassiveDofs->begin ();
 	     it != itPassiveDofs->end (); ++it)
@@ -196,7 +197,7 @@ namespace hpp {
 	     itInterval != intervals_.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
 	  size_type nbCols = itInterval->second;
-	  reducedJacobian_.block (row, col, nbRows, nbCols) =
+	  reducedJacobian.block (row, col, nbRows, nbCols) =
 	    jacobian.block (0, col0, nbRows, nbCols);
 	  col += nbCols;
 	}
@@ -249,7 +250,7 @@ namespace hpp {
       value_type previousSquareNorm =
 	std::numeric_limits<value_type>::infinity();
       // Fill value and Jacobian
-      computeValueAndJacobian (configuration);
+      computeValueAndJacobian (configuration, value_, reducedJacobian_);
       squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
@@ -265,7 +266,7 @@ namespace hpp {
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
-	computeValueAndJacobian (configuration);
+	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
 	squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
 	hppDout (info, "squareNorm = " << squareNorm_);
@@ -304,7 +305,7 @@ namespace hpp {
         result = velocity;
         return;
       }
-      computeValueAndJacobian (from);
+      computeValueAndJacobian (from, value_, reducedJacobian_);
       normalToSmall (velocity, toMinusFromSmall_);
       typedef Eigen::JacobiSVD < matrix_t > Jacobi_t;
       Jacobi_t svd (reducedJacobian_, Eigen::ComputeFullV);
