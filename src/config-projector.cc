@@ -77,6 +77,7 @@ namespace hpp {
       dq_ (robot->numberDof ()),
       dqSmall_ (robot->numberDof ()),
       nbNonLockedDofs_ (robot_->numberDof ()),
+      nbLockedDofs_ (0),
       squareNorm_(0), weak_ ()
     {
       dq_.setZero ();
@@ -214,6 +215,10 @@ namespace hpp {
     {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
+      if (intervals_.empty ()) {
+	normal = small;
+	return;
+      }
       size_type col = 0;
       for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); ++itInterval) {
@@ -229,6 +234,10 @@ namespace hpp {
     {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
+      if (intervals_.empty ()) {
+	small = normal;
+	return;
+      }
       size_type col = 0;
       for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); ++itInterval) {
@@ -238,6 +247,69 @@ namespace hpp {
 	col += itInterval->second;
       }
     }
+
+    void ConfigProjector::compressMatrix (matrixIn_t normal,
+					  matrixOut_t small, bool rows) const
+    {
+      if (intervals_.empty ()) {
+	small = normal;
+	return;
+      }
+      size_type col = 0;
+      for (SizeIntervals_t::const_iterator itCol = intervals_.begin ();
+	   itCol != intervals_.end (); ++itCol) {
+	size_type col0 = itCol->first;
+	size_type nbCols = itCol->second;
+	if (rows) {
+	  size_type row = 0;
+	  for (SizeIntervals_t::const_iterator itRow = intervals_.begin ();
+	       itRow != intervals_.end (); ++itRow) {
+	    size_type row0 = itRow->first;
+	    size_type nbRows = itRow->second;
+	    small.block (row, col, nbRows, nbCols) =
+	      normal.block (row0, col0, nbRows, nbCols);
+	    row += nbRows;
+	  }
+	  assert (row == small.rows ());
+	} else {
+	  small.middleCols (col, nbCols) = normal.middleCols (col0, nbCols);
+	}
+	col += nbCols;
+      }
+      assert (col == small.cols ());
+    }
+
+    void ConfigProjector::uncompressMatrix (matrixIn_t small,
+					    matrixOut_t normal, bool rows) const
+    {
+      if (intervals_.empty ()) {
+	normal = small;
+	return;
+      }
+      size_type col = 0;
+      for (SizeIntervals_t::const_iterator itCol = intervals_.begin ();
+	   itCol != intervals_.end (); ++itCol) {
+	size_type col0 = itCol->first;
+	size_type nbCols = itCol->second;
+	if (rows) {
+	  size_type row = 0;
+	  for (SizeIntervals_t::const_iterator itRow = intervals_.begin ();
+	       itRow != intervals_.end (); ++itRow) {
+	    size_type row0 = itRow->first;
+	    size_type nbRows = itRow->second;
+	    normal.block (row0, col0, nbRows, nbCols) =
+	      small.block (row, col, nbRows, nbCols);
+	    row += nbRows;
+	  }
+	  assert (row == small.rows ());
+	} else {
+	  normal.middleCols (col0, nbCols) = small.middleCols (col, nbCols);
+	}
+	col += nbCols;
+      }
+      assert (col == small.cols ());
+    }
+
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
@@ -377,6 +449,8 @@ namespace hpp {
        throw std::runtime_error (oss.str ());
       }
       constraintSet->configProjector_ = weak_.lock ();
+      constraintSet->trivialOrNotConfigProjector_ =
+	constraintSet->configProjector_;
       constraintSet->removeFirstElement ();
       Constraint::addToConstraintSet (constraintSet);
     }

@@ -90,7 +90,8 @@ namespace hpp {
 				  const std::string& name) :
       Constraint (name), constraints_ (), configProjector_ ()
     {
-      constraints_.push_back (ConfigProjectorTrivial::create (robot));
+      trivialOrNotConfigProjector_ = ConfigProjectorTrivial::create (robot);
+      constraints_.push_back (trivialOrNotConfigProjector_);
     }
 
     ConstraintSet::ConstraintSet (const ConstraintSet& other) :
@@ -103,6 +104,11 @@ namespace hpp {
       if (other.configProjector_) {
 	configProjector_ = HPP_STATIC_PTR_CAST
 	  (ConfigProjector, other.configProjector_->copy ());
+      } else {
+	assert (HPP_DYNAMIC_PTR_CAST (ConfigProjectorTrivial,
+				      constraints_ [0]));
+	trivialOrNotConfigProjector_ = HPP_STATIC_PTR_CAST
+	  (ConfigProjector, constraints_ [0]);
       }
     }
 
@@ -142,5 +148,31 @@ namespace hpp {
       }
       return result;
     }
+
+    void ConstraintSet::compressVector (vectorIn_t normal,
+					vectorOut_t small) const
+    {
+      trivialOrNotConfigProjector_->compressVector (normal, small);
+    }
+
+    void ConstraintSet::uncompressVector (vectorIn_t small,
+					  vectorOut_t normal) const
+    {
+      trivialOrNotConfigProjector_->uncompressVector (small, normal);
+    }
+
+    void ConstraintSet::compressMatrix (matrixIn_t normal, matrixOut_t small,
+					bool rows) const
+    {
+      trivialOrNotConfigProjector_->compressMatrix (normal, small, rows);
+    }
+
+    void ConstraintSet::uncompressMatrix (matrixIn_t small,
+					  matrixOut_t normal,
+					  bool rows) const
+    {
+      trivialOrNotConfigProjector_->uncompressMatrix (small, normal, rows);
+    }
+
   } // namespace core
 } // namespace core

@@ -158,6 +158,13 @@ namespace hpp {
       void computeValueAndJacobian (ConfigurationIn_t configuration,
 				    vectorOut_t value,
 				    matrixOut_t reducedJacobian);
+      /// \name Compression of locked degrees of freedom
+      ///
+      /// Degrees of freedom related to locked joint are not taken into
+      /// account in numerical constraint resolution. The following methods
+      /// Compress or uncompress vectors or matrices by removing lines and
+      /// columns corresponding to locked degrees of freedom.
+      /// \{
 
       /// Compress Velocity vector by removing locked degrees of freedom
       ///
@@ -173,6 +180,24 @@ namespace hpp {
       /// \note locked degree of freedom are not set. They should be initialized
       ///       to zero.
       void uncompressVector (vectorIn_t small, vectorOut_t normal) const;
+
+      /// Compress matrix
+      ///
+      /// \param normal input matrix
+      /// \retval small compressed matrix
+      /// \param rows whether to compress rows and colums or only columns
+      void compressMatrix (matrixIn_t normal, matrixOut_t small,
+			   bool rows = true) const;
+
+      /// Uncompress matrix
+      ///
+      /// \param small input matrix
+      /// \retval normal uncompressed matrix
+      /// \param rows whether to uncompress rows and colums or only columns
+      void uncompressMatrix (matrixIn_t small, matrixOut_t normal,
+			     bool rows = true) const;
+
+      /// \}
 
       /// Set maximal number of iterations
       void maxIterations (size_type iterations)
