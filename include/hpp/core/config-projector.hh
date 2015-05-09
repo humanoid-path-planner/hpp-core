@@ -163,7 +163,7 @@ namespace hpp {
       ///
       /// \param normal input velocity vector
       /// \retval small compressed velocity vectors
-      void normalToSmall (vectorIn_t normal, vectorOut_t small);
+      void compressVector (vectorIn_t normal, vectorOut_t small) const;
 
       /// Expand compressed velocity vector
       ///
@@ -172,7 +172,7 @@ namespace hpp {
       /// \retval normal uncompressed velocity vector.
       /// \note locked degree of freedom are not set. They should be initialized
       ///       to zero.
-      void smallToNormal (vectorIn_t small, vectorOut_t normal);
+      void uncompressVector (vectorIn_t small, vectorOut_t normal) const;
 
       /// Set maximal number of iterations
       void maxIterations (size_type iterations)

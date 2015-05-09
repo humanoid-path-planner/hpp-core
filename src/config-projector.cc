@@ -209,8 +209,8 @@ namespace hpp {
 
     /// Convert vector of non locked degrees of freedom to vector of
     /// all degrees of freedom
-    void ConfigProjector::smallToNormal (vectorIn_t small,
-					 vectorOut_t normal)
+    void ConfigProjector::uncompressVector (vectorIn_t small,
+					    vectorOut_t normal) const
     {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
@@ -224,8 +224,8 @@ namespace hpp {
       }
     }
 
-    void ConfigProjector::normalToSmall (vectorIn_t normal,
-					 vectorOut_t small)
+    void ConfigProjector::compressVector (vectorIn_t normal,
+					  vectorOut_t small) const
     {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
@@ -262,7 +262,7 @@ namespace hpp {
 					 Eigen::ComputeThinU |
 					 Eigen::ComputeThinV);
 	dqSmall_ = svd.solve(value_ - rightHandSide_);
-	smallToNormal (dqSmall_, dq_);
+	uncompressVector (dqSmall_, dq_);
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
@@ -306,7 +306,7 @@ namespace hpp {
         return;
       }
       computeValueAndJacobian (from, value_, reducedJacobian_);
-      normalToSmall (velocity, toMinusFromSmall_);
+      compressVector (velocity, toMinusFromSmall_);
       typedef Eigen::JacobiSVD < matrix_t > Jacobi_t;
       Jacobi_t svd (reducedJacobian_, Eigen::ComputeFullV);
       size_type p = svd.nonzeroSingularValues ();
@@ -315,7 +315,7 @@ namespace hpp {
       reducedProjector_.setIdentity ();
       reducedProjector_ -= V1 * V1.transpose ();
       projMinusFromSmall_ = reducedProjector_ * toMinusFromSmall_;
-      smallToNormal (projMinusFromSmall_, result);
+      uncompressVector (projMinusFromSmall_, result);
     }
 
     void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
