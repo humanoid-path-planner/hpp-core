@@ -100,10 +100,10 @@ namespace hpp {
 	value_type tmin = subInterval.second;
 	value_type tmax = subInterval.first;
 	value_type localtmin, localtmax;
-	int imin = rankAtParam (tmin, localtmin);
-	int imax = rankAtParam (tmax, localtmax);
+	std::size_t imin = rankAtParam (tmin, localtmin);
+	std::size_t imax = rankAtParam (tmax, localtmax);
 	value_type t1min, t1max;
-	int i = imax;
+	std::size_t i = imax;
 	do {
 	  t1min = paths_ [i]->timeRange ().second;
 	  t1max = paths_ [i]->timeRange ().first;
