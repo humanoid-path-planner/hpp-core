@@ -55,8 +55,12 @@ namespace hpp {
 
       typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;
       typedef std::vector <std::string> PathOptimizerTypes_t;
-      /// Constructor
-      ProblemSolver ();
+
+      /// Create instance and return pointer
+      static ProblemSolverPtr_t create ();
+
+      /// Return latest instance created by method create.
+      static ProblemSolverPtr_t latest ();
 
       /// Destructor
       virtual ~ProblemSolver ();
@@ -433,6 +437,12 @@ namespace hpp {
       const ObjectVector_t& distanceObstacles () const;
 
     protected:
+      /// Constructor
+      ///
+      /// Call create to create an instance. The latest created instance can
+      /// be retrieved by method latest.
+      ProblemSolver ();
+
       /// Store constraints until call to solve.
       ConstraintSetPtr_t constraints_;
 
@@ -530,6 +540,8 @@ namespace hpp {
       CenterOfMassComputationMap_t comcMap_;
       /// Computation of distances to obstacles
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
+      /// Store latest instance created by static method create
+      static ProblemSolverPtr_t latest_;
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp

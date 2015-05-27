@@ -55,6 +55,18 @@ namespace hpp {
       }
     }; // struct NoneOptimizer
 
+    ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
+    ProblemSolverPtr_t ProblemSolver::create ()
+    {
+      latest_ = new ProblemSolver ();
+      return latest_;
+    }
+
+    ProblemSolverPtr_t ProblemSolver::latest ()
+    {
+      return latest_;
+    }
+
     ProblemSolver::ProblemSolver () :
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
