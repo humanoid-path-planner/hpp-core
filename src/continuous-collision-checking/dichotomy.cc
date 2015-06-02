@@ -16,10 +16,12 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <deque>
 #include <hpp/util/debug.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/path-vector.hh>
 
 #include "continuous-collision-checking/dichotomy/body-pair-collision.hh"
 
@@ -90,9 +92,50 @@ namespace hpp {
 	PathValidationReport& report =
 	  static_cast <PathValidationReport&> (validationReport);
 	// also cast configuration report into collision report
-	HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport, *report.configurationReport);
+	HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
+				   *report.configurationReport);
 	CollisionValidationReport& collisionReport =
-	  static_cast <CollisionValidationReport&> (*report.configurationReport);
+	  static_cast <CollisionValidationReport&>(*report.configurationReport);
+	if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path)) {
+	  PathVectorPtr_t validPathVector = PathVector::create
+	    (path->outputSize (), path->outputDerivativeSize ());
+	  validPart = validPathVector;
+	  PathPtr_t localValidPart;
+	  if (reverse) {
+	    value_type param = path->length ();
+	    std::deque <PathPtr_t> paths;
+	    for (std::size_t i=pv->numberPaths () + 1; i != 0 ; --i) {
+	      PathPtr_t localPath (pv->pathAtRank (i-1));
+	      if (validate (localPath, reverse, localValidPart, report)) {
+		paths.push_front (localPath->copy ());
+		param -= localPath->length ();
+	      } else {
+		report.collisionParameter += param - localPath->length ();
+		paths.push_front (localValidPart->copy ());
+		for (std::deque <PathPtr_t>::const_iterator it = paths.begin ();
+		     it != paths.end (); ++it) {
+		  validPathVector->appendPath (*it);
+		}
+		return false;
+	      }
+	    }
+	    return true;
+	  } else {
+	    value_type param = 0;
+	    for (std::size_t i=0; i < pv->numberPaths (); ++i) {
+	      PathPtr_t localPath (pv->pathAtRank (i));
+	      if (validate (localPath, reverse, localValidPart, report)) {
+		validPathVector->appendPath (localPath->copy ());
+		param += localPath->length ();
+	      } else {
+		report.collisionParameter += param;
+		validPathVector->appendPath (localValidPart->copy ());
+		return false;
+	      }
+	    }
+	    return true;
+	  }
+	}
 	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
 	  (StraightPath, path);
 	// for each BodyPairCollision
