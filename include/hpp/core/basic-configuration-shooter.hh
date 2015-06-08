@@ -35,11 +35,12 @@ namespace hpp {
       public ConfigurationShooter
     {
     public:
-      /// Uniformly sample configuration space
-      ///
-      /// Note that translation joints have to be bounded.
-      BasicConfigurationShooter (const DevicePtr_t& robot) : robot_ (robot)
+      static BasicConfigurationShooterPtr_t create (const DevicePtr_t& robot)
       {
+	BasicConfigurationShooter* ptr = new BasicConfigurationShooter (robot);
+	BasicConfigurationShooterPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
       }
       virtual ConfigurationPtr_t shoot () const
       {
@@ -68,8 +69,22 @@ namespace hpp {
 	}
 	return config;
       }
+    protected:
+      /// Uniformly sample configuration space
+      ///
+      /// Note that translation joints have to be bounded.
+      BasicConfigurationShooter (const DevicePtr_t& robot) : robot_ (robot)
+      {
+      }
+      void init (const BasicConfigurationShooterPtr_t& self)
+      {
+	ConfigurationShooter::init (self);
+	weak_ = self;
+      }
+
     private:
       const DevicePtr_t& robot_;
+      BasicConfigurationShooterWkPtr_t weak_;
     }; // class BasicConfigurationShooter
     /// \}
   } //   namespace core

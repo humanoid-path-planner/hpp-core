@@ -51,14 +51,14 @@ namespace hpp {
 
     VisibilityPrmPlanner::VisibilityPrmPlanner (const Problem& problem):
       PathPlanner (problem),
-      configurationShooter_ (new BasicConfigurationShooter (problem.robot ()))
+      configurationShooter_ (problem.configurationShooter())
     {
     }
 
     VisibilityPrmPlanner::VisibilityPrmPlanner (const Problem& problem,
 						const RoadmapPtr_t& roadmap) :
       PathPlanner (problem, roadmap),
-      configurationShooter_ (new BasicConfigurationShooter (problem.robot ()))
+      configurationShooter_ (problem.configurationShooter())
     {
     }
 
