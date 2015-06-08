@@ -29,6 +29,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/basic-configuration-shooter.hh>
 
 namespace hpp {
   namespace core {
@@ -43,7 +44,8 @@ namespace hpp {
       configValidations_ (ConfigValidations::create ()),
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),
-      collisionObstacles_ (), constraints_ ()
+      collisionObstacles_ (), constraints_ (),
+      configurationShooter_(BasicConfigurationShooter::create (robot))
     {
       configValidations_->add (CollisionValidation::create (robot));
       configValidations_->add (JointBoundValidation::create (robot));
@@ -140,6 +142,13 @@ namespace hpp {
 	   it != collisionObstacles_.end (); ++it) {
 	pathValidation_->addObstacle (*it);
       }
+    }
+
+    // ======================================================================
+
+    void Problem::configurationShooter (const ConfigurationShooterPtr_t& configurationShooter)
+    {
+      configurationShooter_ = configurationShooter;
     }
 
     // ======================================================================

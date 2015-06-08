@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
 
   // Build Distance, nearestNeighbor, KDTree
   WeighedDistancePtr_t distance = WeighedDistance::create(robot);
-  BasicConfigurationShooter confShoot(robot);
+  BasicConfigurationShooterPtr_t confShoot = BasicConfigurationShooter::create(robot);
   nearestNeighbor::KDTree kdTree(robot,distance,30);
   nearestNeighbor::Basic basic (distance);
   SteeringMethodPtr_t sm = SteeringMethodStraight::create (robot);
@@ -82,10 +82,10 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   NodePtr_t rootNode [4];
   RoadmapPtr_t roadmap = Roadmap::create (distance, robot);
   for ( int i=0 ; i<4 ; i++ ) {
-    configuration = confShoot.shoot();
+    configuration = confShoot->shoot();
     rootNode [i] = roadmap->addNode (configuration);
     for (int j=1 ; j<200 ; j++) {
-      configuration = confShoot.shoot();
+      configuration = confShoot->shoot();
       PathPtr_t path = (*sm) (*(rootNode [i]->configuration ()),
 			      *configuration);
       node = roadmap->addNodeAndEdges (rootNode [i], configuration, path);
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   NodePtr_t node1;
   NodePtr_t node2;
   for ( int j=0 ; j<200 ; j++ ) {
-    configuration = confShoot.shoot();
+    configuration = confShoot->shoot();
     for ( int i=0 ; i<4 ; i++ ) {
       minDistance1 = std::numeric_limits<value_type>::infinity ();
       minDistance2 = std::numeric_limits<value_type>::infinity ();
