@@ -52,14 +52,13 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
       bool collision = false;
-      fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true,
-					      fcl::GST_INDEP);
-      fcl::CollisionResult collisionResult;
+      fcl::CollisionResult& collisionResult = report.result;
+      collisionResult.clear();
       for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
 	   itCol != collisionPairs_.end (); ++itCol) {
 	if (fcl::collide (itCol->first->fcl ().get (),
 			  itCol->second->fcl ().get (),
-			  collisionRequest, collisionResult) != 0) {
+			  collisionRequest_, collisionResult) != 0) {
 	  report.object1 = itCol->first;
 	  report.object2 = itCol->second;
 	  collision = true;
@@ -108,6 +107,7 @@ namespace hpp {
     }
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
+      collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
       robot_ (robot)
     {
       using model::COLLISION;

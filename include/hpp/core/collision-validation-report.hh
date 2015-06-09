@@ -20,6 +20,7 @@
 # define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 
 # include <hpp/core/validation-report.hh>
+# include <hpp/fcl/collision_data.h>
 
 namespace hpp {
   namespace core {
@@ -34,6 +35,8 @@ namespace hpp {
       CollisionObjectPtr_t object1;
       /// Second object in collision
       CollisionObjectPtr_t object2;
+      /// fcl collision results
+      fcl::CollisionResult result;
     }; // class CollisionValidationReport
     /// \}
   } // namespace core
