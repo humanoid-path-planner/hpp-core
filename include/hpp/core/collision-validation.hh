@@ -21,6 +21,7 @@
 
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/config-validation.hh>
+# include <hpp/fcl/collision_data.h>
 
 namespace hpp {
   namespace core {
