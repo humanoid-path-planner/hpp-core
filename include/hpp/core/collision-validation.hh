@@ -21,6 +21,7 @@
 
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/config-validation.hh>
+# include <hpp/fcl/collision_data.h>
 
 namespace hpp {
   namespace core {
@@ -66,6 +67,11 @@ namespace hpp {
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+    public:
+      /// fcl low level request object used for collision checking.
+      /// modify this attribute to obtain more detailed validation
+      /// reports in a call to validate.
+      fcl::CollisionRequest collisionRequest_;
     protected:
       CollisionValidation (const DevicePtr_t& robot);
     private:
