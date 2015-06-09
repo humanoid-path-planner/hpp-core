@@ -429,7 +429,7 @@ namespace hpp {
       ///        for this object.
       /// \param distance whether distance computation should be performed
       ///        for this object.
-      void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
+      virtual void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
 
       /// Remove collision pair between a joint and an obstacle
