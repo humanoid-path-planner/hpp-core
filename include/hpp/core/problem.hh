@@ -135,6 +135,19 @@ namespace hpp {
       }
       /// \}
 
+
+      /// \name Configuration shooter
+      /// \{
+      /// Set configuration shooter method
+      void configurationShooter (const ConfigurationShooterPtr_t& configurationShooter);
+
+      /// Get path validation method
+      ConfigurationShooterPtr_t configurationShooter () const
+      {
+	return configurationShooter_;
+      }
+      /// \}
+
       /// \name Path projector
       /// \{
       /// Set path projector method
@@ -212,6 +225,8 @@ namespace hpp {
       ObjectVector_t collisionObstacles_;
       /// Set of constraints applicable to the robot
       ConstraintSetPtr_t constraints_;
+      /// Configuration shooter
+      ConfigurationShooterPtr_t configurationShooter_;
     }; // class Problem
     /// \}
   } // namespace core

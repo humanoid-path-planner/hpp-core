@@ -212,8 +212,8 @@ namespace hpp {
 	    Configuration_t q = (*path_) (t);
 	    // Compute position of joint a in frame of common ancestor
 	    model::Transform3f Ma, tmp;
-	    for (int i = indexCommonAncestor_ - 1; i >= 0; --i) {
-	      joints_ [(std::size_t)i]->computePosition (q, Ma, tmp);
+        for (int i = (int)indexCommonAncestor_ - 1; i >= 0; --i) {
+          joints_ [(std::size_t)i]->computePosition (q, Ma, tmp);
 	      Ma = tmp;
 	    }
 	    // Compute position of joint b in frame of common ancestor

@@ -49,7 +49,9 @@ namespace hpp {
       typedef boost::function <PathProjectorPtr_t (const DistancePtr_t&,
 						   const SteeringMethodPtr_t&,
 						   value_type) >
-        PathProjectorBuilder_t;
+	PathProjectorBuilder_t;
+      typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
+	ConfigurationShooterBuilder_t;
 
       typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;
       typedef std::vector <std::string> PathOptimizerTypes_t;
@@ -85,6 +87,8 @@ namespace hpp {
       void resetGoalConfigs ();
       /// Set path planner type
       void pathPlannerType (const std::string& type);
+      /// Set configuration shooter type
+      void configurationShooterType (const std::string& type);
       /// Add a path planner type
       /// \param type name of the new path planner type
       /// \param static method that creates a path planner with a problem
@@ -466,6 +470,9 @@ namespace hpp {
       /// Map (string , constructor of path projector method)
       typedef std::map <std::string, PathProjectorBuilder_t >
 	PathProjectorFactory_t;
+      /// Map (string , constructor of configuration shooter method)
+      typedef std::map <std::string, ConfigurationShooterBuilder_t >
+	ConfigurationShooterFactory_t;
       /// Robot
       DevicePtr_t robot_;
       /// Problem
@@ -476,6 +483,8 @@ namespace hpp {
       Configurations_t goalConfigurations_;
       /// Path planner
       std::string pathPlannerType_;
+      /// Configuration shooter
+      std::string configurationShooterType_;
       PathPlannerPtr_t pathPlanner_;
       /// Path optimizer
       PathOptimizerTypes_t pathOptimizerTypes_;
@@ -494,6 +503,8 @@ namespace hpp {
       PathVectors_t paths_;
       /// Path planner factory
       PathPlannerFactory_t pathPlannerFactory_;
+      /// Configuration shooter factory
+      ConfigurationShooterFactory_t configurationShooterFactory_;
       /// Path optimizer factory
       PathOptimizerFactory_t pathOptimizerFactory_;
       /// Path validation factory

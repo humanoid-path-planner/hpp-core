@@ -50,7 +50,7 @@ namespace hpp {
 
     DiffusingPlanner::DiffusingPlanner (const Problem& problem):
       PathPlanner (problem),
-      configurationShooter_ (new BasicConfigurationShooter (problem.robot ())),
+      configurationShooter_ (problem.configurationShooter()),
       qProj_ (problem.robot ()->configSize ())
     {
     }
@@ -58,7 +58,7 @@ namespace hpp {
     DiffusingPlanner::DiffusingPlanner (const Problem& problem,
 					const RoadmapPtr_t& roadmap) :
       PathPlanner (problem, roadmap),
-      configurationShooter_ (new BasicConfigurationShooter (problem.robot ())),
+      configurationShooter_ (problem.configurationShooter()),
       qProj_ (problem.robot ()->configSize ())
     {
     }

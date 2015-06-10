@@ -107,6 +107,15 @@ namespace hpp {
       pathPlannerType_ = type;
     }
 
+    void ProblemSolver::configurationShooterType (const std::string& type)
+    {
+      if (configurationShooterFactory_.find (type) == configurationShooterFactory_.end ()) {
+    throw std::runtime_error (std::string ("No configuration shooter with name ") +
+                  type);
+      }
+      configurationShooterType_ = type;
+    }
+
     void ProblemSolver::addPathOptimizer (const std::string& type)
     {
       if (pathOptimizerFactory_.find (type) == pathOptimizerFactory_.end ()) {

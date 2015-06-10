@@ -34,11 +34,19 @@ namespace hpp {
     class HPP_CORE_DLLAPI ConfigurationShooter
     {
     public:
-      ConfigurationShooter ()
-	{
-	}
       /// Shoot a random configuration
       virtual ConfigurationPtr_t shoot () const = 0;
+    protected:
+      ConfigurationShooter ()
+    {
+    }
+      /// Store weak pointer to itself
+      void init (const ConfigurationShooterWkPtr_t& weak)
+    {
+  weakPtr_ = weak;
+    }
+    private:
+      ConfigurationShooterWkPtr_t weakPtr_;
     }; // class
   } //   namespace core
   /// \}

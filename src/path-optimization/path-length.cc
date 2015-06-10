@@ -184,7 +184,7 @@ namespace hpp {
 	  for (size_type k = 0; k <= j; ++k) {
 	    result.block (j*numberDofs_, k*numberDofs_,
 			  numberDofs_, numberDofs_) =
-	      ((value_type) (k+1)*(n-j-1))/n*inverseWeight;
+          (value_type) ((k+1)*(n-j-1))/((value_type)n)*inverseWeight;
 	    if (k != j) {
 	      result.block (k*numberDofs_, j*numberDofs_,
 			    numberDofs_, numberDofs_) =
