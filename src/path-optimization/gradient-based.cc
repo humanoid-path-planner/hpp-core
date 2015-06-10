@@ -64,7 +64,7 @@ namespace hpp {
 	PathOptimizer (problem), cost_ (), robot_ (problem.robot ()),
 	configSize_ (robot_->configSize ()), robotNumberDofs_
 	(robot_->numberDof ()),	robotNbNonLockedDofs_ (robot_->numberDof ()),
-	fSize_ (6),
+	fSize_ (1),
 	initial_ (), end_ (), epsilon_ (1e-3), iterMax_ (30), alphaInit_ (0.5),
 	alphaMax_ (1.)
       {
@@ -327,14 +327,14 @@ namespace hpp {
 			   << collisionConstraints.size ());
 		}
 		noCollision = false;
-		alpha_ = alphaInit_;
+		alpha_ = .5;
 	      } else { // path valid
 		x0 = x1;
 		path0 = path1;
 		hppDout (info, "latest valid path: " << pathId - 1);
 		cost_->jacobian (grad, x0);
 		compressVector (grad.transpose (), rgrad_.transpose ());
-		updateReference (collisionConstraints, path0);
+		updateRightHandSide (collisionConstraints, path0);
 		assert (solveConstraints (x0, path0, collisionConstraints));
 		noCollision = true;
 		alpha_ = .5*(1 + alpha_);
@@ -510,18 +510,18 @@ namespace hpp {
 	value_.conservativeResize (Jrows + fSize_);
 	value_.segment (ccr.rowInJacobian (), fSize_).setZero ();
 	rhs_.conservativeResize (Jrows + fSize_);
-	rhs_.segment (ccr.rowInJacobian (), fSize_).setZero ();
+	rhs_ [ccr.rowInJacobian ()] = ccr.distance ();
 	ccr.linearize (path, J_, value_);
       }
 
-      void GradientBased::updateReference
-      (CollisionConstraintsResults_t& collisionConstraints,
-       const PathVectorPtr_t& path)
+      void GradientBased::updateRightHandSide
+      (const CollisionConstraintsResults_t& collisionConstraints,
+       const PathVectorPtr_t& path) const
       {
-	for (CollisionConstraintsResults_t::iterator it =
+	for (CollisionConstraintsResults_t::const_iterator it =
 	       collisionConstraints.begin (); it != collisionConstraints.end ();
 	     ++it) {
-	  it->updateReference (path, rhs_);
+	  it->updateRightHandSide (path, rhs_);
 	}
 
       }

@@ -21,6 +21,7 @@
 # define HPP_CORE_PATH_OPTIMIZATION_COLLISION_CONSTRAINTS_RESULT_HH
 
 # include <hpp/fcl/distance.h>
+# include <hpp/constraints/distance-between-bodies.hh>
 
 namespace hpp {
   namespace core {
@@ -28,10 +29,6 @@ namespace hpp {
     namespace pathOptimization {
       HPP_PREDEF_CLASS (CollisionConstraintsResult);
 
-      using constraints::Transformation;
-      using constraints::RelativeTransformation;
-      using constraints::TransformationPtr_t;
-      using constraints::RelativeTransformationPtr_t;
       /// Storing data about one collision, to facilitate building
       /// collision-constraints in Gradient-Based path-optimizer
 
@@ -82,6 +79,8 @@ namespace hpp {
 	    computeConstraint ();
 	  }
 
+	value_type distance () const { return distance_;}
+
 	/// Get id of row in Jacobian
 	size_type rowInJacobian () const { return rowInJacobian_;}
 
@@ -107,10 +106,7 @@ namespace hpp {
 	  value_type t_local = localPath->length () * posAlongLocalPath_;
 	  Configuration_t q = (*localPath) (t_local);
 	  vector_t fx; fx.resize (f_->outputSize ()); (*f_) (fx, q);
-	  vector_t rotation (fx.bottomRows (3));
-	  vector_t translation (fx.topRows (3));
-	  value_type range = radius_*(rotation.norm ()) + translation.norm ();
-	  if  (range <= distance_) return true;
+	  if (fabs (fx [0] - distance_) < 1e-6) return true;
 	  return false;
 	}
 
@@ -129,6 +125,8 @@ namespace hpp {
 
 	  configProjector_->computeValueAndJacobian
 	    (q, value.segment (rowInJacobian_, fSize_), Jcompressed_);
+	  hppDout (info, "distance = " << value [rowInJacobian_]);
+	  if (value [rowInJacobian_] <= 0) return false;
 	  // Complete 2 blocks in J_ except for begin and end segments
 	  if (position != 1) {
 	    jacobian.block (rowInJacobian_, rank*nbNonLockedDofs_,
@@ -143,73 +141,35 @@ namespace hpp {
 	  return true;
 	}
 
-	/// Update reference of transformation constraint
-	void updateReference (const PathVectorPtr_t& path, vectorOut_t)
+	void updateRightHandSide (const PathVectorPtr_t& path, vectorOut_t rhs)
+	  const
 	{
 	  PathPtr_t localPath (path->pathAtRank (localPathId_));
 	  value_type t_local = localPath->length () * posAlongLocalPath_;
-	  constraintConfig_ = (*localPath) (t_local);
+	  Configuration_t q = (*localPath) (t_local);
 
-	  robot_->currentConfiguration (constraintConfig_);
-	  robot_->computeForwardKinematics ();
-	  model::Transform3f Mref (computeReference ());
-	  if (object2_->joint ()){ // object2_ = body part
-	    HPP_STATIC_CAST_REF_CHECK (RelativeTransformation, *f_);
-	    RelativeTransformationPtr_t f
-	      (HPP_DYNAMIC_PTR_CAST (RelativeTransformation, f_));
-	    f->reference (Mref);
-	  }
-	  else { // object2_ = fixed obstacle and has no joint
-	    HPP_STATIC_CAST_REF_CHECK (Transformation, *f_);
-	    TransformationPtr_t f (HPP_DYNAMIC_PTR_CAST (Transformation, f_));
-	    f->reference (Mref);
-	  }
-	  hppDout (info, "previous distance : " << distance_);
-	  computeDistance ();
-	  hppDout (info, "new distance : " << distance_);
+	  (*f_) (rhs.segment (rowInJacobian_, fSize_), q);
 	}
 
       private:
-	/// Compute reference of transformation constraint
-	model::Transform3f computeReference ()
-	{
-	  JointPtr_t joint1 = object1_->joint ();
-	  model::Transform3f M1 (joint1->currentTransformation());
-	  if (object2_->joint ()){ // object2_ = body part
-	    JointPtr_t joint2 = object2_->joint ();
-	    model::Transform3f M21, M2inv;
-	    M2inv = joint2->currentTransformation();
-	    M2inv.inverse ();
-	    M21 = M2inv * M1;
-	    return M21;
-	  }
-	  else{ // object2_ = fixed obstacle and has no joint
-	    return M1;
-	  }
-	}
-
 	void computeConstraint ()
 	{
 	robot_->currentConfiguration (constraintConfig_);
 	robot_->computeForwardKinematics ();
 	computeDistance ();
 
-	std::vector<bool> m (3, true);
-	std::vector<bool> m6 (6, true);
 	JointPtr_t joint1 = object1_->joint ();
-	model::vector3_t p1; p1.setZero (); // in local frame = origin
-	model::vector3_t p2; p2.setZero (); // in local frame = origin
-	model::matrix3_t I3; I3.setIdentity ();
-	radius_ = joint1->linkedBody ()-> radius ();
+	hppDout (info, "distance = " << distance_);
 
-	model::Transform3f Mref (computeReference ());
 	if (object2_->joint ()){ // object2_ = body part
 	  JointPtr_t joint2 = object2_->joint ();
-	  f_ = RelativeTransformation::create (robot_, joint2,
-							    joint1, Mref, m6);
+	  f_ = constraints::DistanceBetweenBodies::create ("", robot_, joint1,
+							   joint2);
 	}
 	else{ // object2_ = fixed obstacle and has no joint
-	  f_ = Transformation::create(robot_, joint1, Mref, m6);
+	  ObjectVector_t objs; objs.push_back (object2_);
+	  f_ = constraints::DistanceBetweenBodies::create ("", robot_, joint1,
+							   objs);
 	}
 	configProjector_ = ConfigProjector::create (robot_,
 						    "collision constraint",
@@ -246,9 +206,10 @@ namespace hpp {
 	value_type radius_;
 	size_type rowInJacobian_;
 	size_type nbWaypoints_;
+	mutable matrix_t Jconstraint_;
 	mutable matrix_t Jcompressed_;
       }; // struct CollisionConstraintsResult
-      size_type CollisionConstraintsResult::fSize_ = 6;
+      size_type CollisionConstraintsResult::fSize_ = 1;
       typedef std::vector <CollisionConstraintsResult>
       CollisionConstraintsResults_t;
     } // namespace pathOptimization

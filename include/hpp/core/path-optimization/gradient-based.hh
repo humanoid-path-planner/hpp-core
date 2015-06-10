@@ -155,9 +155,9 @@ namespace hpp {
 	///
 	/// Update right hand side with current path so that latest valid path
 	/// perfectly satisfies constraints.
-	void updateReference (CollisionConstraintsResults_t&
-			      collisionConstraints,
-			      const PathVectorPtr_t& path);
+	void updateRightHandSide (const CollisionConstraintsResults_t&
+				  collisionConstraints,
+				  const PathVectorPtr_t& path) const;
 
 	/// Get constraints of problem and update local jacobian J_
 	bool getProblemConstraints ();
