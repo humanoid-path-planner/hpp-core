@@ -92,15 +92,15 @@ namespace hpp {
 	    }
 	    found = true;
 	  }
-	}//if nodeStatus
-      }//for
+	}
+      }
       if (found) {
 	// Store shortest delayed edge in list
 	delayedEdges_.push_back (delayedEdge);
 	return true;
       }
       else return false;
-    }//visibleFromCC
+    }
 
     ConfigurationPtr_t VisibilityPrmPlanner::applyConstraints 
     (const ConfigurationPtr_t qFrom, const ConfigurationPtr_t qTo){
@@ -109,14 +109,16 @@ namespace hpp {
       if (constraints) {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
+	  constrApply_ = false; // while apply has not successed
 	  configProjector->projectOnKernel (*qFrom, *qTo, *qProj);
-	  if (constraints->apply (*qProj)) return qProj;
-	  else return qTo;
+	  if (constraints->apply (*qProj)) {
+	    constrApply_ = true;
+	    return qProj;
+	  }
 	}
-	else return qTo;
       }
-      else return qTo;
-    }//applyConstraints
+      return qTo;
+    }
 
     void VisibilityPrmPlanner::oneStep ()
     {
@@ -125,6 +127,7 @@ namespace hpp {
       RoadmapPtr_t r (roadmap ());
       ConfigurationPtr_t q_rand;
       value_type count; // number of times q has been seen
+      constrApply_ = true; // stay true if no constraint in Problem
       ConfigurationPtr_t q_init 
 	(new Configuration_t (*(r->initNode ()->configuration ())));
 
@@ -138,11 +141,10 @@ namespace hpp {
       // Shoot random config as long as not collision-free
       do {
 	q_rand = configurationShooter_->shoot ();
-	hppDout (info, "q_rand = " << displayConfig (*q_rand));
 	q_rand = applyConstraints(q_init, q_rand);
 	robot->currentConfiguration (*q_rand);
 	robot->computeForwardKinematics ();
-      } while (!configValidations->validate (*q_rand));
+      } while (!configValidations->validate (*q_rand) || !constrApply_);
       count = 0;
 
       for (ConnectedComponents_t::const_iterator itcc =
@@ -153,7 +155,7 @@ namespace hpp {
 	  // delayedEdges_ will completed if visible
 	  count++; // count how many times q has been seen
 	}
-      }//forCC
+      }
 	
       if (count == 0){ // q not visible from anywhere
 	NodePtr_t newNode = r->addNode (q_rand); // add q as a guard node
