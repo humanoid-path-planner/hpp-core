@@ -33,6 +33,7 @@
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
+#include <hpp/core/basic-configuration-shooter.hh>
 
 namespace hpp {
   namespace core {
@@ -71,6 +72,7 @@ namespace hpp {
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
+      configurationShooterType_ ("BasicConfigurationShooter"),
       pathOptimizerTypes_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
@@ -89,6 +91,8 @@ namespace hpp {
 	DiffusingPlanner::createWithRoadmap;
       pathPlannerFactory_ ["VisibilityPrmPlanner"] =
 	VisibilityPrmPlanner::createWithRoadmap;
+      configurationShooterFactory_ ["BasicConfigurationShooter"] =
+    BasicConfigurationShooter::create;
       // Store path validation methods in map.
       pathValidationFactory_ ["Discretized"] =
 	DiscretizedCollisionChecking::create;
@@ -280,6 +284,9 @@ namespace hpp {
       resetRoadmap ();
       // Set constraints
       problem_->constraints (constraints_);
+      // Set shooter
+      problem_->configurationShooter
+        (configurationShooterFactory_ [configurationShooterType_] (robot_));
       // Set path validation method
       PathValidationPtr_t pathValidation =
 	pathValidationFactory_ [pathValidationType_] (robot_,
