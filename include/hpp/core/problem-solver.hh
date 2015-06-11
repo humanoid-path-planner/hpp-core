@@ -465,7 +465,7 @@ namespace hpp {
       /// \note The previous Problem, if any, is not deleted. The function
       ///       should be called when creating Problem object, in resetProblem()
       ///       and all reimplementation in inherited class.
-      void initializeProblem (ProblemPtr_t problem);
+      virtual void initializeProblem (ProblemPtr_t problem);
 
     private:
       /// Map (string , constructor of path planner)
