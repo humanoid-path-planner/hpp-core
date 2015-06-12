@@ -85,14 +85,15 @@ namespace hpp {
       void resetGoalConfigs ();
       /// Set path planner type
       void pathPlannerType (const std::string& type);
+
       /// Add a path planner type
       /// \param type name of the new path planner type
       /// \param static method that creates a path planner with a problem
       /// and a roadmap as input
       void addPathPlannerType (const std::string& type,
-			       const PathPlannerBuilder_t& builder)
+                               const PathPlannerBuilder_t& builder)
       {
-	pathPlannerFactory_ [type] = builder;
+        pathPlannerFactory_ [type] = builder;
       }
       /// Get path planner
       const PathPlannerPtr_t& pathPlanner () const
@@ -396,7 +397,7 @@ namespace hpp {
       ///        for this object.
       /// \param distance whether distance computation should be performed
       ///        for this object.
-      virtual void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
+      virtual void addObstacle (const core::CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
 
       /// Remove collision pair between a joint and an obstacle
@@ -453,10 +454,30 @@ namespace hpp {
       ///       and all reimplementation in inherited class.
       void initializeProblem (ProblemPtr_t problem);
 
+      DevicePtr_t robot_;
+      /// Problem
+      ProblemPtr_t problem_;
+
+      PathPlannerPtr_t pathPlanner_;
+      /// Store roadmap
+      RoadmapPtr_t roadmap_;
+      /// Paths
+      PathVectors_t paths_;
+      /// Path projector method
+      std::string pathProjectorType_;
+      /// Tolerance of path projector
+      value_type pathProjectorTolerance_;
+      typedef std::map <std::string, PathProjectorBuilder_t >
+        PathProjectorFactory_t;
+      /// Path projector factory
+      PathProjectorFactory_t pathProjectorFactory_;
+
+      /// Path planner
+      std::string pathPlannerType_;
     private:
       /// Map (string , constructor of path planner)
       typedef std::map < std::string, PathPlannerBuilder_t >
-	PathPlannerFactory_t;
+        PathPlannerFactory_t;
       /// Map (string , constructor of path optimizer)
       typedef std::map < std::string, PathOptimizerBuilder_t >
 	PathOptimizerFactory_t;
@@ -464,19 +485,14 @@ namespace hpp {
       typedef std::map <std::string, PathValidationBuilder_t >
 	PathValidationFactory_t;
       /// Map (string , constructor of path projector method)
-      typedef std::map <std::string, PathProjectorBuilder_t >
-	PathProjectorFactory_t;
+
       /// Robot
-      DevicePtr_t robot_;
-      /// Problem
-      ProblemPtr_t problem_;
+
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
       Configurations_t goalConfigurations_;
-      /// Path planner
-      std::string pathPlannerType_;
-      PathPlannerPtr_t pathPlanner_;
+
       /// Path optimizer
       PathOptimizerTypes_t pathOptimizerTypes_;
       PathOptimizers_t pathOptimizers_;
@@ -484,22 +500,12 @@ namespace hpp {
       std::string pathValidationType_;
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
-      /// Path projector method
-      std::string pathProjectorType_;
-      /// Tolerance of path projector
-      value_type pathProjectorTolerance_;
-      /// Store roadmap
-      RoadmapPtr_t roadmap_;
-      /// Paths
-      PathVectors_t paths_;
       /// Path planner factory
       PathPlannerFactory_t pathPlannerFactory_;
       /// Path optimizer factory
       PathOptimizerFactory_t pathOptimizerFactory_;
       /// Path validation factory
       PathValidationFactory_t pathValidationFactory_;
-      /// Path projector factory
-      PathProjectorFactory_t pathProjectorFactory_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
