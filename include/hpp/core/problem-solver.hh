@@ -492,6 +492,26 @@ namespace hpp {
       ///       and all reimplementation in inherited class.
       virtual void initializeProblem (ProblemPtr_t problem);
 
+      DevicePtr_t robot_;
+      /// Problem
+      ProblemPtr_t problem_;
+
+      PathPlannerPtr_t pathPlanner_;
+      /// Store roadmap
+      RoadmapPtr_t roadmap_;
+      /// Paths
+      PathVectors_t paths_;
+      /// Path projector method
+      std::string pathProjectorType_;
+      /// Tolerance of path projector
+      value_type pathProjectorTolerance_;
+      typedef std::map <std::string, PathProjectorBuilder_t >
+        PathProjectorFactory_t;
+      /// Path projector factory
+      PathProjectorFactory_t pathProjectorFactory_;
+
+      /// Path planner
+      std::string pathPlannerType_;
     private:
       /// Map (string , constructor of path planner)
       typedef std::map < std::string, PathPlannerBuilder_t >
@@ -509,9 +529,7 @@ namespace hpp {
       typedef std::map <std::string, ConfigurationShooterBuilder_t >
 	ConfigurationShooterFactory_t;
       /// Robot
-      DevicePtr_t robot_;
-      /// Problem
-      ProblemPtr_t problem_;
+
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
@@ -528,14 +546,6 @@ namespace hpp {
       std::string pathValidationType_;
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
-      /// Path projector method
-      std::string pathProjectorType_;
-      /// Tolerance of path projector
-      value_type pathProjectorTolerance_;
-      /// Store roadmap
-      RoadmapPtr_t roadmap_;
-      /// Paths
-      PathVectors_t paths_;
       /// Path planner factory
       PathPlannerFactory_t pathPlannerFactory_;
       /// Configuration shooter factory
@@ -544,8 +554,6 @@ namespace hpp {
       PathOptimizerFactory_t pathOptimizerFactory_;
       /// Path validation factory
       PathValidationFactory_t pathValidationFactory_;
-      /// Path projector factory
-      PathProjectorFactory_t pathProjectorFactory_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
