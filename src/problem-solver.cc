@@ -284,9 +284,6 @@ namespace hpp {
       resetRoadmap ();
       // Set constraints
       problem_->constraints (constraints_);
-      // Set shooter
-      problem_->configurationShooter
-        (configurationShooterFactory_ [configurationShooterType_] (robot_));
       // Set path validation method
       PathValidationPtr_t pathValidation =
 	pathValidationFactory_ [pathValidationType_] (robot_,
@@ -365,6 +362,9 @@ namespace hpp {
     {
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
+      // Set shooter
+      problem_->configurationShooter
+        (configurationShooterFactory_ [configurationShooterType_] (robot_));
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       /// create Path projector
       PathProjectorBuilder_t createProjector =
