@@ -93,6 +93,15 @@ namespace hpp {
       void pathPlannerType (const std::string& type);
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
+      /// Add a ConfigurationShooter type
+      /// \param type name of the ConfigurationShooter type
+      /// \param static method that creates a ConfigurationShooter
+      /// with robot as input
+      void addConfigurationShooterType (const std::string& type,
+			       const ConfigurationShooterBuilder_t& builder)
+      {
+	configurationShooterFactory_ [type] = builder;
+      }
       /// Add a path planner type
       /// \param type name of the new path planner type
       /// \param static method that creates a path planner with a problem
