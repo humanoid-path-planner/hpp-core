@@ -82,15 +82,15 @@ namespace hpp {
 	return initConf_;
       }
       /// Set initial configuration.
-      void initConfig (const ConfigurationPtr_t& config);
+      virtual void initConfig (const ConfigurationPtr_t& config);
       /// Get number of goal configuration.
       const Configurations_t& goalConfigs () const;
       /// Add goal configuration.
-      void addGoalConfig (const ConfigurationPtr_t& config);
+      virtual void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
       void resetGoalConfigs ();
       /// Set path planner type
-      void pathPlannerType (const std::string& type);
+      virtual void pathPlannerType (const std::string& type);
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
       /// Add a ConfigurationShooter type
