@@ -21,6 +21,7 @@
 
 # include <hpp/core/path.hh>
 
+
 namespace hpp {
   namespace core {
     /// \addtogroup steering_method

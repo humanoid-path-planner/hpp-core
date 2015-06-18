@@ -76,11 +76,11 @@ namespace hpp {
 	return initConf_;
       }
       /// Set initial configuration.
-      void initConfig (const ConfigurationPtr_t& config);
+      virtual void initConfig (const ConfigurationPtr_t& config);
       /// Get number of goal configuration.
       const Configurations_t& goalConfigs () const;
       /// Add goal configuration.
-      void addGoalConfig (const ConfigurationPtr_t& config);
+      virtual void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
       void resetGoalConfigs ();
       /// Set path planner type
@@ -139,7 +139,7 @@ namespace hpp {
 
       /// Add a path validation type
       /// \param type name of the new path validation method,
-      /// \param static method that creates a path validation with a robot
+      /// \param static method that creates a path validation with a SteeringMethodXDEFreeFlyer
       /// and tolerance as input.
       void addPathValidationType (const std::string& type,
 				 const PathValidationBuilder_t& builder)

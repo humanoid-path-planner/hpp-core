@@ -76,12 +76,12 @@ namespace hpp {
 
       Configuration_t operator () (const value_type& t) const
       {
-	Configuration_t result (outputSize ());
-	impl_compute (result, t);
-	if (constraints_) {
-	  constraints_->apply (result);
-	}
-	return result;
+        Configuration_t result (outputSize ());
+        impl_compute (result, t);
+        if (constraints_) {
+          constraints_->apply (result);
+        }
+        return result;
       }
 
       Configuration_t operator () (const value_type& t, bool& success) const
