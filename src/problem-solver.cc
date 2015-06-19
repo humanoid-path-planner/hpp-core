@@ -366,6 +366,9 @@ namespace hpp {
       problem_->configurationShooter
         (configurationShooterFactory_ [configurationShooterType_] (robot_));
       pathPlanner_ = createPlanner (*problem_, roadmap_);
+      // Set shooter
+      problem_->configurationShooter
+        (configurationShooterFactory_ [configurationShooterType_] (robot_));
       /// create Path projector
       PathProjectorBuilder_t createProjector =
         pathProjectorFactory_ [pathProjectorType_];

@@ -26,18 +26,32 @@ namespace hpp {
   namespace core {
 
     DiscretizedCollisionCheckingPtr_t
+    DiscretizedCollisionChecking::createWithValidation (const DevicePtr_t& robot,
+					  const value_type& stepSize,
+				    const PathValidationReport& defaultValidationReport,
+				    const ConfigValidationPtr_t& configValidation)
+    {
+      DiscretizedCollisionChecking* ptr =
+	new DiscretizedCollisionChecking(robot, stepSize, defaultValidationReport,
+		configValidation);
+      return DiscretizedCollisionCheckingPtr_t (ptr);
+    }
+
+    DiscretizedCollisionCheckingPtr_t
     DiscretizedCollisionChecking::create (const DevicePtr_t& robot,
 					  const value_type& stepSize)
     {
+			CollisionPathValidationReport unusedReport;
       DiscretizedCollisionChecking* ptr =
-	new DiscretizedCollisionChecking(robot, stepSize);
+	new DiscretizedCollisionChecking(robot, stepSize, unusedReport
+		, CollisionValidation::create (robot));
       return DiscretizedCollisionCheckingPtr_t (ptr);
     }
 
     void DiscretizedCollisionChecking::addObstacle
     (const CollisionObjectPtr_t& object)
     {
-      collisionValidation_->addObstacle (object);
+      configValidation_->addObstacle (object);
     }
 
     bool DiscretizedCollisionChecking::validate
@@ -50,10 +64,10 @@ namespace hpp {
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      ValidationReport& validationReport)
     {
-      HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport,
+      HPP_STATIC_CAST_REF_CHECK (PathValidationReport,
 				 validationReport);
-      CollisionPathValidationReport& report =
-	static_cast <CollisionPathValidationReport&> (validationReport);
+      PathValidationReport& report =
+      static_cast <PathValidationReport&> (validationReport);
       assert (path);
       bool valid = true;
       if (reverse) {
@@ -64,8 +78,8 @@ namespace hpp {
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
-	  if (!collisionValidation_->validate (q, report.collision)) {
-	    report.collisionParameter = t;	    
+      if (!configValidation_->validate (q, *report.configurationReport, false)) {
+	    report.parameter = t;	    
 	    valid = false;
 	  } else {
 	    lastValidTime = t;
@@ -91,8 +105,8 @@ namespace hpp {
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
-	  if (!collisionValidation_->validate (q, report.collision)) {
-	    report.collisionParameter = t;	    
+      if (!configValidation_->validate (q, *report.configurationReport, false)) {
+	    report.parameter = t;	    
 	    valid = false;
 	  } else {
 	    lastValidTime = t;
@@ -114,18 +128,21 @@ namespace hpp {
     }
 
     DiscretizedCollisionChecking::DiscretizedCollisionChecking
-    (const DevicePtr_t& robot, const value_type& stepSize) :
+    (const DevicePtr_t& robot, const value_type& stepSize,
+				    const PathValidationReport& defaultValidationReport,
+				    const ConfigValidationPtr_t& configValidation) :
       PathValidation (), robot_ (robot),
-      collisionValidation_ (CollisionValidation::create (robot)),
-      stepSize_ (stepSize)
+      configValidation_ (configValidation),
+      stepSize_ (stepSize),
+      unusedReport_(defaultValidationReport)
     {
     }
 
     void DiscretizedCollisionChecking::removeObstacleFromJoint (const JointPtr_t& joint,
         const CollisionObjectPtr_t& obstacle)
     {
-      assert (collisionValidation_);
-      collisionValidation_->removeObstacleFromJoint (joint, obstacle);
+      assert (configValidation_);
+      configValidation_->removeObstacleFromJoint (joint, obstacle);
     }
   } // namespace core
 } // namespace hpp

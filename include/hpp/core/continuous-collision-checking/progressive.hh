@@ -97,7 +97,7 @@ namespace hpp {
       private:
 	bool validateConfiguration (const Configuration_t& config,
 				    bool reverse, value_type& tmin,
-				    CollisionPathValidationReport& report);
+				    PathValidationReport& report);
 	DevicePtr_t robot_;
 	value_type tolerance_;
 	progressive::BodyPairCollisions_t bodyPairCollisions_;

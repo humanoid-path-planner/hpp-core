@@ -74,6 +74,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-validation.hh
+  include/hpp/core/path-validation-report.hh
   include/hpp/core/path-vector.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh

@@ -43,8 +43,12 @@ namespace hpp {
 
       bool Progressive::validateConfiguration
       (const Configuration_t& config, bool reverse, value_type& tmin,
-       CollisionPathValidationReport& report)
+       PathValidationReport& report)
       {
+    // also cast configuration report into collision report
+    HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport, *report.configurationReport);
+	CollisionValidationReport& collisionReport =
+	  static_cast <CollisionValidationReport&> (*report.configurationReport);
 	value_type t = tmin;
 	tmin = std::numeric_limits <value_type>::infinity ();
 	value_type tmpMin;
@@ -53,8 +57,8 @@ namespace hpp {
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  if (!(*itPair)->validateConfiguration (t, tmpMin, report.collision)) {
-	    report.collisionParameter = t;
+	  if (!(*itPair)->validateConfiguration (t, tmpMin, collisionReport)) {
+	    report.parameter = t;
 	    return false;
 	  } else {
 	    if (reverse) {
@@ -79,10 +83,10 @@ namespace hpp {
        ValidationReport& validationReport)
       {
 	// Static cast but test dynamic cast in debug mode
-	HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport,
+	HPP_STATIC_CAST_REF_CHECK (PathValidationReport,
 				   validationReport);
-	CollisionPathValidationReport& report =
-	  static_cast <CollisionPathValidationReport&> (validationReport);
+	PathValidationReport& report =
+	  static_cast <PathValidationReport&> (validationReport);
 	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
 	  (StraightPath, path);
 	// for each BodyPairCollision
