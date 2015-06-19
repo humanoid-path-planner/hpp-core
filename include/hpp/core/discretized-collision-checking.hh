@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 # define HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 
-# include <hpp/core/collision-path-validation-report.hh>
+# include <hpp/core/path-validation-report.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {
@@ -33,6 +33,11 @@ namespace hpp {
     class HPP_CORE_DLLAPI DiscretizedCollisionChecking : public PathValidation
     {
     public:
+      static DiscretizedCollisionCheckingPtr_t
+      createWithValidation (const DevicePtr_t& robot, 
+				const value_type& stepSize,
+				const PathValidationReport& defaultValidationReport,
+				const ConfigValidationPtr_t& configValidation);
       static DiscretizedCollisionCheckingPtr_t
       create (const DevicePtr_t& robot, const value_type& stepSize);
       /// Compute the largest valid interval starting from the path beginning
@@ -77,16 +82,18 @@ namespace hpp {
 
     protected:
       DiscretizedCollisionChecking (const DevicePtr_t& robot,
-				    const value_type& stepSize);
+				    const value_type& stepSize,
+				    const PathValidationReport& defaultValidationReport,
+				    const ConfigValidationPtr_t& configValidation);
     private:
       DevicePtr_t robot_;
-      CollisionValidationPtr_t collisionValidation_;
+      ConfigValidationPtr_t configValidation_;
       value_type stepSize_;
       /// This member is used by the validate method that does not take a
       /// validation report as input to call the validate method that expects
       /// a validation report as input. This is not fully satisfactory, but
       /// I did not find a better solution.
-      CollisionPathValidationReport unusedReport_;
+      PathValidationReport unusedReport_;
     }; // class DiscretizedCollisionChecking
     /// \}
   } // namespace core

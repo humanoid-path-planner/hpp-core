@@ -41,6 +41,7 @@ namespace hpp {
       }
     }; // class ValidationReport
     /// \}
+    typedef boost::shared_ptr<ValidationReport> ValidationReportPtr_t;
   } // namespace core
 } // namespace hpp
 
