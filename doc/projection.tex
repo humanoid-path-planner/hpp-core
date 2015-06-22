@@ -23,27 +23,16 @@ O_m & O_{m\times n-m} \\
 O_{n-m\times m} & I_{n-m}
 \end{array}\right) V^T \\
 &=& \left(\begin{array}{cc}
-V_{11} & V_{12} \\
-V_{21} & V_{22} \end{array}\right)
+V_{1} & V_{0} \end{array}\right)
 \left(\begin{array} {cc}
 O_m & O_{m\times n-m} \\
 O_{n-m\times m} & I_{n-m}
 \end{array}\right)
-\left(\begin{array}{cc}
-V^T_{11} & V^T_{21} \\
-V^T_{12} & V^T_{22} \end{array}\right)\\
+\left(\begin{array}{c}
+V^T_{1} \\
+V^T_{0} \end{array}\right)\\
 &=&
-\left(\begin{array} {cc}
-O_m & V_{12} \\
-O_{n-m\times m} & V_{22}
-\end{array}\right)
-\left(\begin{array}{cc}
-V^T_{11} & V^T_{21} \\
-V^T_{12} & V^T_{22} \end{array}\right)\\
-&=&
-\left(\begin{array}{cc}
-V_{12}V^T_{12} & V_{12}V^T_{22} \\
-V_{22}V^T_{12} & V_{22}V^T_{22} \end{array}\right)
+V_0 V_0^T
 \end{eqnarray*}
 
 \paragraph {Projection on the kernel of a matrix $J$}

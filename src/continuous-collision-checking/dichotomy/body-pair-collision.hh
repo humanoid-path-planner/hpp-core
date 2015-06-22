@@ -261,9 +261,6 @@ namespace hpp {
 	    std::string joint2;
 	    if (joint_b_) joint2 = joint_b_->name ();
 	    else joint2 = objects_b_.begin ()->name_;
-	    hppDout (info, "validating [" << t - halfLength << ","
-		     << t + halfLength << "] for pair ("
-		     << joint_a_->name () << "," << joint2 << ")");
 	    assert (!isnan (halfLength));
 	    intervals_.unionInterval
 	      (interval_t(t - halfLength, t + halfLength));

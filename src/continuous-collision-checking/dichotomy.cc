@@ -225,15 +225,12 @@ namespace hpp {
 	    } else {
 	      report.parameter = middle;
 	      validPart = path->extract (interval_t (t0, lower));
-	      hppDout (info, "Return path valid on [" << t0 << "," << lower
-		       << "]");
 	      return false;
 	    }
 	    first = *(bodyPairCollisions_.begin ());
 	  }
 	}
 	validPart = path;
-	hppDout (info, "Path valid defined on [" << t0 << "," << t1 << "]");
 	return true;
       }
 
