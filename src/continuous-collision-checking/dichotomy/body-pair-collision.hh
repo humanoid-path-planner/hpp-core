@@ -54,33 +54,6 @@ namespace hpp {
 	using model::JointAnchorConstPtr_t;
 	using model::Transform3f;
 
-	struct Object
-	{
-	  Object (const CollisionObjectPtr_t& collisionObject) :
-	    fcl_ (collisionObject->fcl ()),
-	    positionInJointFrame_ (collisionObject->positionInJointFrame ()),
-	    name_ (collisionObject->name ()), original_ (collisionObject)
-	  {
-	  }
-	  fcl::CollisionObjectPtr_t fcl_;
-	  Transform3f positionInJointFrame_;
-	  std::string name_;
-	  CollisionObjectPtr_t original_;
-	}; // struct Object
-
-	typedef std::vector <Object> Objects_t;
-
-	Objects_t store (const ObjectVector_t& collisionObjects)
-	{
-	  // Pre-allocate memory
-	  Objects_t result;
-	  result.reserve (collisionObjects.size ());
-	  for (ObjectVector_t::const_iterator itObj = collisionObjects.begin ();
-	       itObj != collisionObjects.end (); ++itObj) {
-	    result.push_back (Object (*itObj));
-	  }
-	  return result;
-	}
 	/// Multiplicative coefficients of linear and angular velocities
 	struct CoefficientVelocity
 	{
@@ -160,16 +133,16 @@ namespace hpp {
 	    objects_b_.push_back (object);
 	  }
 
-	  const Objects_t& objects_b  () const
+	  const ObjectVector_t& objects_b  () const
 	  {
 	    return objects_b_;
 	  }
 
 	  bool removeObjectTo_b (const CollisionObjectPtr_t& object)
 	  {
-	    for (Objects_t::iterator itObj = objects_b_.begin ();
+	    for (ObjectVector_t::iterator itObj = objects_b_.begin ();
 		 itObj != objects_b_.end (); ++itObj) {
-	      if (object->fcl () == itObj->fcl_) {
+	      if (object->fcl () == (*itObj)->fcl ()) {
 		objects_b_.erase (itObj);
 		return true;
 	      }
@@ -225,16 +198,16 @@ namespace hpp {
 	    }
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
-	    for (Objects_t::const_iterator ita = objects_a_.begin ();
+	    for (ObjectVector_t::const_iterator ita = objects_a_.begin ();
 		 ita != objects_a_.end (); ++ita) {
 	      // Compute position of object a
-	      fcl::CollisionObject* object_a = ita->fcl_.get ();
-	      object_a->setTransform (Ma * ita->positionInJointFrame_);
-	      for (Objects_t::const_iterator itb = objects_b_.begin ();
+	      fcl::CollisionObject* object_a = (*ita)->fcl ().get ();
+	      object_a->setTransform (Ma * (*ita)->positionInJointFrame ());
+	      for (ObjectVector_t::const_iterator itb = objects_b_.begin ();
 		   itb != objects_b_.end (); ++itb) {
 		// Compute position of object b
-		fcl::CollisionObject* object_b = itb->fcl_.get ();
-		object_b->setTransform (Mb * itb->positionInJointFrame_);
+		fcl::CollisionObject* object_b = (*itb)->fcl ().get ();
+		object_b->setTransform (Mb * (*itb)->positionInJointFrame ());
 		// Perform collision test
 		fcl::CollisionRequest request (1, false, true, 1, false, true,
 					       fcl::GST_INDEP);
@@ -242,8 +215,8 @@ namespace hpp {
 		fcl::collide (object_a, object_b, request, result);
 		// Get result
 		if (result.isCollision ()) {
-		  report.object1 = ita->original_;
-		  report.object2 = itb->original_;
+		  report.object1 = *ita;
+		  report.object2 = *itb;
 		  return false;
 		}
 		if (result.distance_lower_bound < distanceLowerBound) {
@@ -260,7 +233,7 @@ namespace hpp {
 	    }
 	    std::string joint2;
 	    if (joint_b_) joint2 = joint_b_->name ();
-	    else joint2 = objects_b_.begin ()->name_;
+	    else joint2 = (*objects_b_.begin ())->name ();
 	    assert (!isnan (halfLength));
 	    intervals_.unionInterval
 	      (interval_t(t - halfLength, t + halfLength));
@@ -297,8 +270,8 @@ namespace hpp {
 	    BodyPtr_t body_b = joint_b_->linkedBody ();
 	    assert (body_a);
 	    assert (body_b);
-	    objects_a_ = store (body_a->innerObjects (model::COLLISION));
-	    objects_b_ = store (body_b->innerObjects (model::COLLISION));
+	    objects_a_ = body_a->innerObjects (model::COLLISION);
+	    objects_b_ = body_b->innerObjects (model::COLLISION);
 
 	    if (joint_b_->robot () != joint_a_->robot ()) {
 	      throw std::runtime_error
@@ -333,13 +306,13 @@ namespace hpp {
 	    assert (joint_a);
 	    BodyPtr_t body_a = joint_a_->linkedBody ();
 	    assert (body_a);
-	    objects_a_ = store (body_a->innerObjects (model::COLLISION));
+	    objects_a_ = body_a->innerObjects (model::COLLISION);
 	    for (ObjectVector_t::const_iterator it = objects_b.begin ();
 		 it != objects_b.end (); ++it) {
 	      assert (!(*it)->joint () ||
 		      (*it)->joint ()->robot () != joint_a_->robot ());
 	    }
-	    objects_b_ = store (objects_b);
+	    objects_b_ = objects_b;
 
 	    if (tolerance < 0) {
 	      throw std::runtime_error ("tolerance should be non-negative.");
@@ -445,8 +418,8 @@ namespace hpp {
 
 	  JointConstPtr_t joint_a_;
 	  JointConstPtr_t joint_b_;
-	  Objects_t objects_a_;
-	  Objects_t objects_b_;
+	  ObjectVector_t objects_a_;
+	  ObjectVector_t objects_b_;
 	  std::vector <JointConstPtr_t> joints_;
 	  std::size_t indexCommonAncestor_;
 	  std::vector <CoefficientVelocity> coefficients_;
