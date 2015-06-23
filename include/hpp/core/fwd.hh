@@ -33,7 +33,7 @@ namespace hpp {
     class CollisionPathValidation;
     struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
-    struct CollisionValidationReport;
+    HPP_PREDEF_CLASS (CollisionValidationReport);
     HPP_PREDEF_CLASS (ConfigurationShooter);
     HPP_PREDEF_CLASS (ConfigProjector);
     HPP_PREDEF_CLASS (ConfigValidation);
@@ -86,6 +86,8 @@ namespace hpp {
     typedef hpp::model::Body Body;
     typedef hpp::model::BodyPtr_t BodyPtr_t;
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
+    typedef boost::shared_ptr <CollisionValidationReport>
+    CollisionValidationReportPtr_t;
     typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef model::Configuration_t Configuration_t;
     typedef model::ConfigurationIn_t ConfigurationIn_t;

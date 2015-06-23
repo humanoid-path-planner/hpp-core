@@ -33,10 +33,10 @@ namespace hpp {
     {
     CollisionPathValidationReport()
     : PathValidationReport()
-	{
-		configurationReport = 
-    boost::shared_ptr<CollisionValidationReport>(new CollisionValidationReport);
-	}
+      {
+	configurationReport = 
+	  CollisionValidationReportPtr_t (new CollisionValidationReport);
+      }
     }; // class CollisionPathValidationReport
     /// \}
   } // namespace core
