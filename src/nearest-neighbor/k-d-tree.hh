@@ -40,7 +40,7 @@ namespace hpp {
 	     int bucketSize);
 
       //destructor
-      ~KDTree();
+      virtual ~KDTree();
 
       // add a configuration in the KDTree
       virtual void addNode(const NodePtr_t& node);
