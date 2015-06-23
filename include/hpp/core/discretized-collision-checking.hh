@@ -81,6 +81,7 @@ namespace hpp {
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
+
       /// Add an obstacle
       /// \param object obstacle added
       virtual void addObstacle (const CollisionObjectPtr_t&);
