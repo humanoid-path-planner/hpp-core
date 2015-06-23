@@ -102,7 +102,7 @@ namespace hpp {
 		paths.push_front (localPath->copy ());
 		param -= localPath->length ();
 	      } else {
-		report.collisionParameter += param - localPath->length ();
+		report.parameter += param - localPath->length ();
 		paths.push_front (localValidPart->copy ());
 		for (std::deque <PathPtr_t>::const_iterator it = paths.begin ();
 		     it != paths.end (); ++it) {
@@ -120,7 +120,7 @@ namespace hpp {
 		validPathVector->appendPath (localPath->copy ());
 		param += localPath->length ();
 	      } else {
-		report.collisionParameter += param;
+		report.parameter += param;
 		validPathVector->appendPath (localValidPart->copy ());
 		return false;
 	      }
