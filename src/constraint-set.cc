@@ -145,6 +145,11 @@ namespace hpp {
       return result;
     }
 
+    size_type ConstraintSet::numberNonLockedDof () const
+    {
+      return trivialOrNotConfigProjector_->numberNonLockedDof ();
+    }
+
     void ConstraintSet::compressVector (vectorIn_t normal,
 					vectorOut_t small) const
     {

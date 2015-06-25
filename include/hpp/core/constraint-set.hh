@@ -87,6 +87,9 @@ namespace hpp {
       /// columns corresponding to locked degrees of freedom.
       /// \{
 
+      /// Get number of non-locked degrees of freedom
+      size_type numberNonLockedDof () const;
+
       /// Compress Velocity vector by removing locked degrees of freedom
       ///
       /// \param normal input velocity vector
