@@ -18,6 +18,7 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/model/collision-object.hh>
+#include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
@@ -269,6 +270,29 @@ namespace hpp {
       configProjector->add (NumericalConstraint::create
           (numericalConstraintMap_ [functionName],
            comparisonTypeMap_ [functionName]));
+    }
+
+    void ProblemSolver::computeValueAndJacobian
+    (const Configuration_t& configuration, vector_t& value, matrix_t& jacobian)
+      const
+    {
+      if (!robot ()) throw std::runtime_error ("No robot loaded");
+      ConfigProjectorPtr_t configProjector
+	(constraints ()->configProjector ());
+      if (!configProjector) {
+	throw std::runtime_error ("No constraints have assigned.");
+      }
+      // resize value and Jacobian
+      NumericalConstraints_t constraints
+	(configProjector->numericalConstraints ());
+      size_type rows = 0;
+      for (NumericalConstraints_t::const_iterator it = constraints.begin ();
+	   it != constraints.end (); ++it) {
+	rows += (*it)->function ().outputSize ();
+      }
+      jacobian.resize (rows, configProjector->numberNonLockedDof ());
+      value.resize (rows);
+      configProjector->computeValueAndJacobian (configuration, value, jacobian);
     }
 
     void ProblemSolver::resetProblem ()

@@ -327,6 +327,19 @@ namespace hpp {
 	return numericalConstraintMap_ [name];
       }
 
+      /// Compute value and Jacobian of numerical constraints
+      ///
+      /// \param configuration input configuration
+      /// \retval value values of the numerical constraints stacked in a unique
+      ///         vector,
+      /// \retval jacobian Jacobian of the numerical constraints stacked in a
+      ///         unique matrix.
+      ///
+      /// Columns of the Jacobian corresponding to locked joints are omitted,
+      /// columns corresponding to passive dofs are set to 0.
+      void computeValueAndJacobian (const Configuration_t& configuration,
+				    vector_t& value, matrix_t& jacobian) const;
+
       /// Set maximal number of iterations in config projector
       void maxIterations (size_type iterations)
       {
