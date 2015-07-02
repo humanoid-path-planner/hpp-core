@@ -404,6 +404,9 @@ namespace hpp {
       /// Set and solve the problem
       virtual void solve ();
 
+      /// Interrupt path planning and path optimization
+      void interrupt ();
+
       /// Add a path
       void addPath (const PathVectorPtr_t& path)
       {

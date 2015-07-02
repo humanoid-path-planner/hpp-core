@@ -39,7 +39,14 @@ namespace hpp {
       }
       /// Optimize path
       virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path) = 0;
+      /// Interrupt path optimization
+      void interrupt () { interrupt_ = true; }
+
     protected:
+      /// Whether to interrupt computation
+      /// Set to true at start of optimize method, set to false by method
+      /// interrupt.
+      bool interrupt_;
       PathOptimizer (const Problem& problem) : problem_ (problem)
 	{
 	}

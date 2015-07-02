@@ -413,6 +413,15 @@ namespace hpp {
       optimizePath (path);
     }
 
+    void ProblemSolver::interrupt ()
+    {
+      if (pathPlanner ()) pathPlanner ()->interrupt ();
+      for (PathOptimizers_t::iterator it = pathOptimizers_.begin ();
+	   it != pathOptimizers_.end (); ++it) {
+	(*it)->interrupt ();
+      }
+    }
+
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
