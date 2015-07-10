@@ -33,6 +33,7 @@
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
+#include <hpp/core/basic-configuration-shooter.hh>
 
 namespace hpp {
   namespace core {
@@ -55,10 +56,23 @@ namespace hpp {
       }
     }; // struct NoneOptimizer
 
+    ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
+    ProblemSolverPtr_t ProblemSolver::create ()
+    {
+      latest_ = new ProblemSolver ();
+      return latest_;
+    }
+
+    ProblemSolverPtr_t ProblemSolver::latest ()
+    {
+      return latest_;
+    }
+
     ProblemSolver::ProblemSolver () :
       constraints_ (), robot_ (), problem_ (),
       initConf_ (), goalConfigurations_ (),
       pathPlannerType_ ("DiffusingPlanner"),
+      configurationShooterType_ ("BasicConfigurationShooter"),
       pathOptimizerTypes_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
@@ -77,6 +91,8 @@ namespace hpp {
 	DiffusingPlanner::createWithRoadmap;
       pathPlannerFactory_ ["VisibilityPrmPlanner"] =
 	VisibilityPrmPlanner::createWithRoadmap;
+      configurationShooterFactory_ ["BasicConfigurationShooter"] =
+    BasicConfigurationShooter::create;
       // Store path validation methods in map.
       pathValidationFactory_ ["Discretized"] =
 	DiscretizedCollisionChecking::create;
@@ -105,6 +121,15 @@ namespace hpp {
 				  type);
       }
       pathPlannerType_ = type;
+    }
+
+    void ProblemSolver::configurationShooterType (const std::string& type)
+    {
+      if (configurationShooterFactory_.find (type) == configurationShooterFactory_.end ()) {
+    throw std::runtime_error (std::string ("No configuration shooter with name ") +
+                  type);
+      }
+      configurationShooterType_ = type;
     }
 
     void ProblemSolver::addPathOptimizer (const std::string& type)
@@ -335,6 +360,9 @@ namespace hpp {
 
     void ProblemSolver::solve ()
     {
+      // Set shooter
+      problem_->configurationShooter
+        (configurationShooterFactory_ [configurationShooterType_] (robot_));
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);

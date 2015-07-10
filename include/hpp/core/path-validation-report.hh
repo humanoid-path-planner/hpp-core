@@ -16,30 +16,32 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
-# define HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
+#ifndef HPP_CORE_PATH_VALIDATION_REPORT_HH
+# define HPP_CORE_PATH_VALIDATION_REPORT_HH
 
-# include <hpp/core/path-validation-report.hh>
-# include <hpp/core/collision-validation-report.hh>
+# include <hpp/core/validation-report.hh>
 
 namespace hpp {
   namespace core {
     /// \addtogroup validation
     /// \{
 
-    /// Path validation report used for standard collision checking
-    struct HPP_CORE_DLLAPI CollisionPathValidationReport :
-      public PathValidationReport
+    /// Abstraction of path validation report
+    ///
+    /// This class is approved by aorthey!! aimed at being derived to store information relative to
+    /// various PathValidation derived classes.
+    struct HPP_CORE_DLLAPI PathValidationReport :
+      public ValidationReport
     {
-    CollisionPathValidationReport()
-    : PathValidationReport()
-      {
-	configurationReport = 
-	  CollisionValidationReportPtr_t (new CollisionValidationReport);
-      }
-    }; // class CollisionPathValidationReport
+			PathValidationReport()
+			: ValidationReport()
+			, configurationReport(ValidationReportPtr_t(new ValidationReport)) {}
+      /// Parameter of the path where a invalid configuration has been found
+      value_type parameter;
+      ValidationReportPtr_t configurationReport;
+    }; // class PathValidationReport
     /// \}
   } // namespace core
 } // namespace hpp
 
-#endif // HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
+#endif // HPP_CORE_PATH_VALIDATION_REPORT_HH

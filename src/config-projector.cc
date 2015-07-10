@@ -77,6 +77,7 @@ namespace hpp {
       dq_ (robot->numberDof ()),
       dqSmall_ (robot->numberDof ()),
       nbNonLockedDofs_ (robot_->numberDof ()),
+      nbLockedDofs_ (0),
       squareNorm_(0), weak_ ()
     {
       dq_.setZero ();
@@ -170,7 +171,8 @@ namespace hpp {
     }
 
     void ConfigProjector::computeValueAndJacobian
-    (ConfigurationIn_t configuration)
+    (ConfigurationIn_t configuration, vectorOut_t value,
+     matrixOut_t reducedJacobian)
     {
       size_type row = 0, nbRows = 0;
       IntervalsContainer_t::const_iterator itPassiveDofs
@@ -178,15 +180,15 @@ namespace hpp {
       for (NumericalConstraints_t::iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
 	DifferentiableFunction& f = (*it)->function ();
-	vector_t& value = (*it)->value ();
+	vector_t& v = (*it)->value ();
 	matrix_t& jacobian = (*it)->jacobian ();
-	f (value, configuration);
+	f (v, configuration);
 	f.jacobian (jacobian, configuration);
-        (*(*it)->comparisonType ()) (value, jacobian);
+        (*(*it)->comparisonType ()) (v, jacobian);
 	nbRows = f.outputSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
-	value_.segment (row, nbRows) = value;
+	value.segment (row, nbRows) = v;
         /// Set the passive DOFs to zero.
 	for (SizeIntervals_t::const_iterator it = itPassiveDofs->begin ();
 	     it != itPassiveDofs->end (); ++it)
@@ -196,7 +198,7 @@ namespace hpp {
 	     itInterval != intervals_.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
 	  size_type nbCols = itInterval->second;
-	  reducedJacobian_.block (row, col, nbRows, nbCols) =
+	  reducedJacobian.block (row, col, nbRows, nbCols) =
 	    jacobian.block (0, col0, nbRows, nbCols);
 	  col += nbCols;
 	}
@@ -208,11 +210,15 @@ namespace hpp {
 
     /// Convert vector of non locked degrees of freedom to vector of
     /// all degrees of freedom
-    void ConfigProjector::smallToNormal (vectorIn_t small,
-					 vectorOut_t normal)
+    void ConfigProjector::uncompressVector (vectorIn_t small,
+					    vectorOut_t normal) const
     {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
+      if (intervals_.empty ()) {
+	normal = small;
+	return;
+      }
       size_type col = 0;
       for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); ++itInterval) {
@@ -223,11 +229,15 @@ namespace hpp {
       }
     }
 
-    void ConfigProjector::normalToSmall (vectorIn_t normal,
-					 vectorOut_t small)
+    void ConfigProjector::compressVector (vectorIn_t normal,
+					  vectorOut_t small) const
     {
       assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
       assert (normal.size () == robot_->numberDof ());
+      if (intervals_.empty ()) {
+	small = normal;
+	return;
+      }
       size_type col = 0;
       for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
 	   itInterval != intervals_.end (); ++itInterval) {
@@ -237,6 +247,69 @@ namespace hpp {
 	col += itInterval->second;
       }
     }
+
+    void ConfigProjector::compressMatrix (matrixIn_t normal,
+					  matrixOut_t small, bool rows) const
+    {
+      if (intervals_.empty ()) {
+	small = normal;
+	return;
+      }
+      size_type col = 0;
+      for (SizeIntervals_t::const_iterator itCol = intervals_.begin ();
+	   itCol != intervals_.end (); ++itCol) {
+	size_type col0 = itCol->first;
+	size_type nbCols = itCol->second;
+	if (rows) {
+	  size_type row = 0;
+	  for (SizeIntervals_t::const_iterator itRow = intervals_.begin ();
+	       itRow != intervals_.end (); ++itRow) {
+	    size_type row0 = itRow->first;
+	    size_type nbRows = itRow->second;
+	    small.block (row, col, nbRows, nbCols) =
+	      normal.block (row0, col0, nbRows, nbCols);
+	    row += nbRows;
+	  }
+	  assert (row == small.rows ());
+	} else {
+	  small.middleCols (col, nbCols) = normal.middleCols (col0, nbCols);
+	}
+	col += nbCols;
+      }
+      assert (col == small.cols ());
+    }
+
+    void ConfigProjector::uncompressMatrix (matrixIn_t small,
+					    matrixOut_t normal, bool rows) const
+    {
+      if (intervals_.empty ()) {
+	normal = small;
+	return;
+      }
+      size_type col = 0;
+      for (SizeIntervals_t::const_iterator itCol = intervals_.begin ();
+	   itCol != intervals_.end (); ++itCol) {
+	size_type col0 = itCol->first;
+	size_type nbCols = itCol->second;
+	if (rows) {
+	  size_type row = 0;
+	  for (SizeIntervals_t::const_iterator itRow = intervals_.begin ();
+	       itRow != intervals_.end (); ++itRow) {
+	    size_type row0 = itRow->first;
+	    size_type nbRows = itRow->second;
+	    normal.block (row0, col0, nbRows, nbCols) =
+	      small.block (row, col, nbRows, nbCols);
+	    row += nbRows;
+	  }
+	  assert (row == small.rows ());
+	} else {
+	  normal.middleCols (col0, nbCols) = small.middleCols (col, nbCols);
+	}
+	col += nbCols;
+      }
+      assert (col == small.cols ());
+    }
+
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
@@ -249,7 +322,7 @@ namespace hpp {
       value_type previousSquareNorm =
 	std::numeric_limits<value_type>::infinity();
       // Fill value and Jacobian
-      computeValueAndJacobian (configuration);
+      computeValueAndJacobian (configuration, value_, reducedJacobian_);
       squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
@@ -261,11 +334,11 @@ namespace hpp {
 					 Eigen::ComputeThinU |
 					 Eigen::ComputeThinV);
 	dqSmall_ = svd.solve(value_ - rightHandSide_);
-	smallToNormal (dqSmall_, dq_);
+	uncompressVector (dqSmall_, dq_);
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
 	// Increase alpha towards alphaMax
-	computeValueAndJacobian (configuration);
+	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
 	squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
 	hppDout (info, "squareNorm = " << squareNorm_);
@@ -296,17 +369,16 @@ namespace hpp {
       return true;
     }
 
-    void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
-					   ConfigurationIn_t to,
-					   ConfigurationOut_t result)
+    void ConfigProjector::projectVectorOnKernel (ConfigurationIn_t from,
+						 vectorIn_t velocity,
+						 vectorOut_t result)
     {
       if (functions_.empty ()) {
-        result = to;
+        result = velocity;
         return;
       }
-      computeValueAndJacobian (from);
-      model::difference (robot_, to, from, toMinusFrom_);
-      normalToSmall (toMinusFrom_, toMinusFromSmall_);
+      computeValueAndJacobian (from, value_, reducedJacobian_);
+      compressVector (velocity, toMinusFromSmall_);
       typedef Eigen::JacobiSVD < matrix_t > Jacobi_t;
       Jacobi_t svd (reducedJacobian_, Eigen::ComputeFullV);
       size_type p = svd.nonzeroSingularValues ();
@@ -315,7 +387,19 @@ namespace hpp {
       reducedProjector_.setIdentity ();
       reducedProjector_ -= V1 * V1.transpose ();
       projMinusFromSmall_ = reducedProjector_ * toMinusFromSmall_;
-      smallToNormal (projMinusFromSmall_, projMinusFrom_);
+      uncompressVector (projMinusFromSmall_, result);
+    }
+
+    void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
+					   ConfigurationIn_t to,
+					   ConfigurationOut_t result)
+    {
+      if (functions_.empty ()) {
+        result = to;
+        return;
+      }
+      model::difference (robot_, to, from, toMinusFrom_);
+      projectVectorOnKernel (from, toMinusFrom_, projMinusFrom_);
       model::integrate (robot_, from, projMinusFrom_, result);
     }
 
@@ -365,6 +449,8 @@ namespace hpp {
        throw std::runtime_error (oss.str ());
       }
       constraintSet->configProjector_ = weak_.lock ();
+      constraintSet->trivialOrNotConfigProjector_ =
+	constraintSet->configProjector_;
       constraintSet->removeFirstElement ();
       Constraint::addToConstraintSet (constraintSet);
     }

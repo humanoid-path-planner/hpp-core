@@ -100,22 +100,23 @@ namespace hpp {
 	value_type tmin = subInterval.second;
 	value_type tmax = subInterval.first;
 	value_type localtmin, localtmax;
-	int imin = rankAtParam (tmin, localtmin);
-	int imax = rankAtParam (tmax, localtmax);
+	std::size_t imin = rankAtParam (tmin, localtmin);
+	std::size_t imax = rankAtParam (tmax, localtmax);
 	value_type t1min, t1max;
-	int i = imax;
+	long int i = imax; // i should be a signed int otherwise the loop below
+	                   // fails.
 	do {
 	  t1min = paths_ [i]->timeRange ().second;
 	  t1max = paths_ [i]->timeRange ().first;
-	  if (i == imax) {
+	  if (i == (long int) imax) {
 	    t1min = localtmax;
 	  }
-	  if (i == imin) {
+	  if (i == (long int) imin) {
 	    t1max = localtmin;
 	  }
 	  path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
 	  --i;
-	} while (i >= imin);
+	} while (i >= (long int) imin);
       } else {
 	value_type tmin = subInterval.first;
 	value_type tmax = subInterval.second;

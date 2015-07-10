@@ -121,6 +121,18 @@ namespace hpp {
 	return robot_;
       }
 
+      /// Project velocity on constraint tangent space in "from"
+      ///
+      /// \param from configuration,
+      /// \param velocity velocity to project
+      ///
+      /// \f[
+      /// \textbf{q}_{res} = \left(I_n -
+      /// J^{+}J(\textbf{q}_{from})\right) (\textbf{v})
+      /// \f]
+      void projectVectorOnKernel (ConfigurationIn_t from,
+			    vectorIn_t velocity, vectorOut_t result);
+
       /// Project configuration "to" on constraint tangent space in "from"
       ///
       /// \param from configuration,
@@ -132,6 +144,66 @@ namespace hpp {
       /// \f]
       virtual void projectOnKernel (ConfigurationIn_t from,
 			    ConfigurationIn_t to, ConfigurationOut_t result);
+
+      /// Compute value and reduced jacobian at a given configuration
+      ///
+      /// \param configuration input configuration
+      /// \retval value values of the differentiable functions stacked in a
+      ///         vector,
+      /// \retval reducedJacobian Reduced Jacobian of the differentiable
+      ///         functions stacked in a matrix. Reduced Jacobian is defined
+      ///         as the Jacobian to which columns corresponding to locked
+      ///         joints have been removed and to which columns corresponding
+      ///         to passive dofs are set to 0.
+      void computeValueAndJacobian (ConfigurationIn_t configuration,
+				    vectorOut_t value,
+				    matrixOut_t reducedJacobian);
+      /// \name Compression of locked degrees of freedom
+      ///
+      /// Degrees of freedom related to locked joint are not taken into
+      /// account in numerical constraint resolution. The following methods
+      /// Compress or uncompress vectors or matrices by removing lines and
+      /// columns corresponding to locked degrees of freedom.
+      /// \{
+
+      /// Get number of non-locked degrees of freedom
+      size_type numberNonLockedDof () const
+      {
+	return nbNonLockedDofs_;
+      }
+
+      /// Compress Velocity vector by removing locked degrees of freedom
+      ///
+      /// \param normal input velocity vector
+      /// \retval small compressed velocity vectors
+      void compressVector (vectorIn_t normal, vectorOut_t small) const;
+
+      /// Expand compressed velocity vector
+      ///
+      /// \param small compressed velocity vector without locked degrees of
+      ///              freedom,
+      /// \retval normal uncompressed velocity vector.
+      /// \note locked degree of freedom are not set. They should be initialized
+      ///       to zero.
+      void uncompressVector (vectorIn_t small, vectorOut_t normal) const;
+
+      /// Compress matrix
+      ///
+      /// \param normal input matrix
+      /// \retval small compressed matrix
+      /// \param rows whether to compress rows and colums or only columns
+      void compressMatrix (matrixIn_t normal, matrixOut_t small,
+			   bool rows = true) const;
+
+      /// Uncompress matrix
+      ///
+      /// \param small input matrix
+      /// \retval normal uncompressed matrix
+      /// \param rows whether to uncompress rows and colums or only columns
+      void uncompressMatrix (matrixIn_t small, matrixOut_t normal,
+			     bool rows = true) const;
+
+      /// \}
 
       /// Set maximal number of iterations
       void maxIterations (size_type iterations)
@@ -170,7 +242,7 @@ namespace hpp {
       /// \param config the input configuration.
       /// \return the right hand side
       ///
-      /// \warning Only values of the right hand side corresponding to 
+      /// \warning Only values of the right hand side corresponding to
       /// \link Equality "equality constraints" \endlink are set. As a
       /// result, the input configuration may not satisfy the other constraints.
       /// The rationale is the following. Equality constraints define a
@@ -215,6 +287,13 @@ namespace hpp {
         return statistics_;
       }
 
+      /// Get the numerical constraints of the config-projector (and so of the
+      /// Constraint Set)
+      NumericalConstraints_t numericalConstraints () const
+      {
+	return functions_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -241,12 +320,8 @@ namespace hpp {
     private:
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
-      void smallToNormal (vectorIn_t small, vectorOut_t normal);
-      void normalToSmall (vectorIn_t normal, vectorOut_t small);
-      typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
       typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
       void resize ();
-      void computeValueAndJacobian (ConfigurationIn_t configuration);
       void computeIntervals ();
       typedef std::list <LockedJointPtr_t> LockedJoints_t;
       DevicePtr_t robot_;

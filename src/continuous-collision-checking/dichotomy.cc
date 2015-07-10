@@ -16,10 +16,12 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <deque>
 #include <hpp/util/debug.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/path-vector.hh>
 
 #include "continuous-collision-checking/dichotomy/body-pair-collision.hh"
 
@@ -85,10 +87,55 @@ namespace hpp {
        ValidationReport& validationReport)
       {
 	// Static cast but test dynamic cast in debug mode
-	HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport,
+	HPP_STATIC_CAST_REF_CHECK (PathValidationReport,
 				   validationReport);
-	CollisionPathValidationReport& report =
-	  static_cast <CollisionPathValidationReport&> (validationReport);
+	PathValidationReport& report =
+	  static_cast <PathValidationReport&> (validationReport);
+	// also cast configuration report into collision report
+	HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
+				   *report.configurationReport);
+	CollisionValidationReport& collisionReport =
+	  static_cast <CollisionValidationReport&>(*report.configurationReport);
+	if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path)) {
+	  PathVectorPtr_t validPathVector = PathVector::create
+	    (path->outputSize (), path->outputDerivativeSize ());
+	  validPart = validPathVector;
+	  PathPtr_t localValidPart;
+	  if (reverse) {
+	    value_type param = path->length ();
+	    std::deque <PathPtr_t> paths;
+	    for (std::size_t i=pv->numberPaths () + 1; i != 0 ; --i) {
+	      PathPtr_t localPath (pv->pathAtRank (i-1));
+	      if (validate (localPath, reverse, localValidPart, report)) {
+		paths.push_front (localPath->copy ());
+		param -= localPath->length ();
+	      } else {
+		report.parameter += param - localPath->length ();
+		paths.push_front (localValidPart->copy ());
+		for (std::deque <PathPtr_t>::const_iterator it = paths.begin ();
+		     it != paths.end (); ++it) {
+		  validPathVector->appendPath (*it);
+		}
+		return false;
+	      }
+	    }
+	    return true;
+	  } else {
+	    value_type param = 0;
+	    for (std::size_t i=0; i < pv->numberPaths (); ++i) {
+	      PathPtr_t localPath (pv->pathAtRank (i));
+	      if (validate (localPath, reverse, localValidPart, report)) {
+		validPathVector->appendPath (localPath->copy ());
+		param += localPath->length ();
+	      } else {
+		report.parameter += param;
+		validPathVector->appendPath (localValidPart->copy ());
+		return false;
+	      }
+	    }
+	    return true;
+	  }
+	}
 	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
 	  (StraightPath, path);
 	// for each BodyPairCollision
@@ -102,8 +149,8 @@ namespace hpp {
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath);
 	    // If collision at end point, return false
-	    if (!(*itPair)->validateInterval (t1, report.collision)) {
-	      report.collisionParameter = t1;
+	    if (!(*itPair)->validateInterval (t1, collisionReport)) {
+	      report.parameter = t1;
 	      validPart = path->extract (interval_t (t1, t1));
 	      return false;
 	    }
@@ -129,10 +176,10 @@ namespace hpp {
 	      lower = t0;
 	    }
 	    value_type middle = .5 * (lower + upper);
-	    if (first->validateInterval (middle, report.collision)) {
+	    if (first->validateInterval (middle, collisionReport)) {
 	      partialSort (bodyPairCollisions_, compareReverseBodyPairCol);
 	    } else {
-	      report.collisionParameter = middle;
+	      report.parameter = middle;
 	      validPart = path->extract (interval_t (upper, t1));
 	      return false;
 	    }
@@ -144,9 +191,9 @@ namespace hpp {
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
 	    (*itPair)->path (straightPath);
 	    // If collision at start point, return false
-	    bool valid = (*itPair)->validateInterval (t0, report.collision);
+	    bool valid = (*itPair)->validateInterval (t0, collisionReport);
 	    if (!valid) {
-	      report.collisionParameter = t0;
+          report.parameter = t0;
 	      validPart = path->extract (interval_t (t0, t0));
 	      hppDout (error, "Initial position in collision.");
 	      return false;
@@ -173,20 +220,17 @@ namespace hpp {
 	      upper = t1;
 	    }
 	    value_type middle = .5 * (lower + upper);
-	    if (first->validateInterval (middle, report.collision)) {
+	    if (first->validateInterval (middle, collisionReport)) {
 	      partialSort (bodyPairCollisions_, compareBodyPairCol);
 	    } else {
-	      report.collisionParameter = middle;
+	      report.parameter = middle;
 	      validPart = path->extract (interval_t (t0, lower));
-	      hppDout (info, "Return path valid on [" << t0 << "," << lower
-		       << "]");
 	      return false;
 	    }
 	    first = *(bodyPairCollisions_.begin ());
 	  }
 	}
 	validPart = path;
-	hppDout (info, "Path valid defined on [" << t0 << "," << t1 << "]");
 	return true;
       }
 

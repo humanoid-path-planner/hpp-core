@@ -21,7 +21,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET(CXX_DISABLE_WERROR TRUE)
 INCLUDE(cmake/base.cmake)
-INCLUDE(cmake/cpack.cmake)
+INCLUDE(cmake/boost.cmake)
 
 SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
@@ -34,6 +34,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 SETUP_PROJECT()
 
+SEARCH_FOR_BOOST()
 # Activate hpp-util logging if requested
 SET (HPP_DEBUG FALSE CACHE BOOL "trigger hpp-util debug output")
 IF (HPP_DEBUG)
@@ -73,6 +74,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-validation.hh
+  include/hpp/core/path-validation-report.hh
   include/hpp/core/path-vector.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
@@ -102,4 +104,3 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
 
 SETUP_PROJECT_FINALIZE()
-SETUP_PROJECT_CPACK()

@@ -79,6 +79,49 @@ namespace hpp {
       /// \retval error concatenation of errors of each constraint.
       virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error);
 
+      /// \name Compression of locked degrees of freedom
+      ///
+      /// Degrees of freedom related to locked joint are not taken into
+      /// account in numerical constraint resolution. The following methods
+      /// Compress or uncompress vectors or matrices by removing lines and
+      /// columns corresponding to locked degrees of freedom.
+      /// \{
+
+      /// Get number of non-locked degrees of freedom
+      size_type numberNonLockedDof () const;
+
+      /// Compress Velocity vector by removing locked degrees of freedom
+      ///
+      /// \param normal input velocity vector
+      /// \retval small compressed velocity vectors
+      void compressVector (vectorIn_t normal, vectorOut_t small) const;
+
+      /// Expand compressed velocity vector
+      ///
+      /// \param small compressed velocity vector without locked degrees of
+      ///              freedom,
+      /// \retval normal uncompressed velocity vector.
+      /// \note locked degree of freedom are not set. They should be initialized
+      ///       to zero.
+      void uncompressVector (vectorIn_t small, vectorOut_t normal) const;
+
+      /// Compress matrix
+      ///
+      /// \param normal input matrix
+      /// \retval small compressed matrix
+      /// \param rows whether to compress rows and colums or only columns
+      void compressMatrix (matrixIn_t normal, matrixOut_t small,
+			   bool rows = true) const;
+
+      /// Uncompress matrix
+      ///
+      /// \param small input matrix
+      /// \retval normal uncompressed matrix
+      /// \param rows whether to uncompress rows and colums or only columns
+      void uncompressMatrix (matrixIn_t small, matrixOut_t normal,
+			     bool rows = true) const;
+      /// \}
+
     protected:
       typedef std::deque <ConstraintPtr_t> Constraints_t;
       ConstraintSet (const DevicePtr_t& robot, const std::string& name);
@@ -114,6 +157,7 @@ namespace hpp {
 
       Constraints_t constraints_;
       ConfigProjectorPtr_t configProjector_;
+      ConfigProjectorPtr_t trivialOrNotConfigProjector_;
       ConstraintSetWkPtr_t weak_;
 
       friend class LockedJoint;
