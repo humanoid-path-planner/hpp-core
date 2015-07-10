@@ -84,7 +84,7 @@ namespace hpp {
       /// Reset the set of goal configurations
       void resetGoalConfigs ();
       /// Set path planner type
-      void pathPlannerType (const std::string& type);
+      virtual void pathPlannerType (const std::string& type);
 
       /// Add a path planner type
       /// \param type name of the new path planner type

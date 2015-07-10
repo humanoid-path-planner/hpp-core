@@ -98,6 +98,7 @@ namespace hpp {
       }
       return true;
     }
+
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const
     {
       // Length is assumed to be proportional to interval range
