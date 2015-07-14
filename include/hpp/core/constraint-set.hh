@@ -73,7 +73,7 @@ namespace hpp {
       /// Check whether a configuration statisfies the constraint.
       virtual bool isSatisfied (ConfigurationIn_t config);
 
-      /// Check whether a configuration statisfies the constraint.
+      /// Check whether a configuration satisfies the constraint.
       ///
       /// \param config the configuration to check
       /// \retval error concatenation of errors of each constraint.
