@@ -17,6 +17,7 @@
 #include "hpp/core/locked-joint.hh"
 
 #include <hpp/util/debug.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
@@ -109,7 +110,7 @@ namespace hpp {
     std::ostream& LockedJoint::print (std::ostream& os) const
     {
       os << "Locked joint " << jointName_
-        << ", value = " << rightHandSide ()
+	 << ", value = " << model::displayConfig (rightHandSide ())
         << ": rank in configuration = " << rankInConfiguration_
         << ": rank in velocity = " << rankInVelocity_
         << std::endl;

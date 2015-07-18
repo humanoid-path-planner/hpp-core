@@ -473,7 +473,7 @@ namespace hpp {
       os << "    Intervals: ";
       for (SizeIntervals_t::const_iterator it=intervals_.begin ();
 	   it != intervals_.end (); ++it) {
-	os << "[" << it->first << "," << it->second << "], ";
+	os << "[" << it->first << "," << it->first + it->second - 1 << "], ";
       }
       os << std::endl;
       return os;
