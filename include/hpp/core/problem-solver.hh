@@ -492,6 +492,7 @@ namespace hpp {
       ///       and all reimplementation in inherited class.
       virtual void initializeProblem (ProblemPtr_t problem);
 
+      /// Robot
       DevicePtr_t robot_;
       /// Problem
       ProblemPtr_t problem_;
@@ -527,8 +528,7 @@ namespace hpp {
 	PathProjectorFactory_t;
       /// Map (string , constructor of configuration shooter method)
       typedef std::map <std::string, ConfigurationShooterBuilder_t >
-	ConfigurationShooterFactory_t;
-      /// Robot
+        ConfigurationShooterFactory_t;
 
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;

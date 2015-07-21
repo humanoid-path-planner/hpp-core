@@ -37,7 +37,6 @@ SET(${LIBRARY_NAME}_SOURCES
   distance-between-objects.cc
   extracted-path.hh
   joint-bound-validation.cc
-  nearest-neighbor.hh
   nearest-neighbor/basic.hh
   nearest-neighbor/k-d-tree.cc
   nearest-neighbor/k-d-tree.hh

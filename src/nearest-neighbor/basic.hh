@@ -22,7 +22,7 @@
 # include <limits>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/distance.hh>
-# include "../src/nearest-neighbor.hh"
+# include <hpp/core/nearest-neighbor.hh>
 
 namespace hpp {
   namespace core {
