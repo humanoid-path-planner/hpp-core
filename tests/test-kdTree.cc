@@ -81,6 +81,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   NodePtr_t node;
   NodePtr_t rootNode [4];
   RoadmapPtr_t roadmap = Roadmap::create (distance, robot);
+  roadmap->nearestNeighbor(&kdTree);
   for ( int i=0 ; i<4 ; i++ ) {
     configuration = confShoot->shoot();
     rootNode [i] = roadmap->addNode (configuration);

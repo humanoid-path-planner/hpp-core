@@ -157,7 +157,7 @@ namespace hpp {
 
       /// Add a path validation type
       /// \param type name of the new path validation method,
-      /// \param static method that creates a path validation with a SteeringMethodXDEFreeFlyer
+      /// \param static method that creates a path validation with a robot
       /// and tolerance as input.
       void addPathValidationType (const std::string& type,
 				 const PathValidationBuilder_t& builder)
@@ -415,7 +415,7 @@ namespace hpp {
       ///        for this object.
       /// \param distance whether distance computation should be performed
       ///        for this object.
-      virtual void addObstacle (const core::CollisionObjectPtr_t& inObject, bool collision,
+      virtual void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
 			bool distance);
 
       /// Remove collision pair between a joint and an obstacle
@@ -478,6 +478,7 @@ namespace hpp {
       ///       and all reimplementation in inherited class.
       virtual void initializeProblem (ProblemPtr_t problem);
 
+      /// Robot
       DevicePtr_t robot_;
       /// Problem
       ProblemPtr_t problem_;
@@ -514,8 +515,6 @@ namespace hpp {
       /// Map (string , constructor of configuration shooter method)
       typedef std::map <std::string, ConfigurationShooterBuilder_t >
         ConfigurationShooterFactory_t;
-
-      /// Robot
 
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
