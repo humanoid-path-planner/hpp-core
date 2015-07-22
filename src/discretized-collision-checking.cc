@@ -74,7 +74,7 @@ namespace hpp {
 	value_type tmin = path->timeRange ().first;
 	value_type tmax = path->timeRange ().second;
 	value_type lastValidTime = tmax;
-	value_type t = tmax - stepSize_;
+	value_type t = tmax;
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
@@ -101,7 +101,7 @@ namespace hpp {
 	value_type tmin = path->timeRange ().first;
 	value_type tmax = path->timeRange ().second;
 	value_type lastValidTime = tmin;
-	value_type t = tmin + stepSize_;
+	value_type t = tmin;
 	unsigned finished = 0;
 	while (finished < 2 && valid) {
 	  Configuration_t q = (*path) (t);
