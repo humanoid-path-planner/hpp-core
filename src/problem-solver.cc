@@ -70,19 +70,21 @@ namespace hpp {
     }
 
     ProblemSolver::ProblemSolver () :
-      constraints_ (), robot_ (), problem_ (),
-      initConf_ (), goalConfigurations_ (),
-      pathPlannerType_ ("DiffusingPlanner"),
-      configurationShooterType_ ("BasicConfigurationShooter"),
-      pathOptimizerTypes_ (),
-      pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
-      pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
+      constraints_ (), robot_ (), problem_ (), pathPlanner_ (),
       roadmap_ (), paths_ (),
-      pathPlannerFactory_ (), pathOptimizerFactory_ (),
-      pathValidationFactory_ (),
-      collisionObstacles_ (), distanceObstacles_ (),
+      pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
+      pathProjectorFactory_ (),
+      pathPlannerType_ ("DiffusingPlanner"),
+      initConf_ (), goalConfigurations_ (),
+      configurationShooterType_ ("BasicConfigurationShooter"),
+      pathOptimizerTypes_ (), pathOptimizers_ (),
+      pathValidationType_ (), pathValidationTolerance_ (0.05),
+      pathPlannerFactory_ (), configurationShooterFactory_ (),
+      pathOptimizerFactory_ (), pathValidationFactory_ (),
+      collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
       errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
-      passiveDofsMap_ (), distanceBetweenObjects_ ()
+      passiveDofsMap_ (), comparisonTypeMap_ (), comcMap_ (),
+      distanceBetweenObjects_ ()
     {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathOptimizerFactory_ ["GradientBased"] =

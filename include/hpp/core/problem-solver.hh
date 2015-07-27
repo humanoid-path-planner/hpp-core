@@ -523,9 +523,6 @@ namespace hpp {
       /// Map (string , constructor of path validation method)
       typedef std::map <std::string, PathValidationBuilder_t >
 	PathValidationFactory_t;
-      /// Map (string , constructor of path projector method)
-      typedef std::map <std::string, PathProjectorBuilder_t >
-	PathProjectorFactory_t;
       /// Map (string , constructor of configuration shooter method)
       typedef std::map <std::string, ConfigurationShooterBuilder_t >
         ConfigurationShooterFactory_t;
@@ -534,11 +531,8 @@ namespace hpp {
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
       Configurations_t goalConfigurations_;
-      /// Path planner
-      std::string pathPlannerType_;
       /// Configuration shooter
       std::string configurationShooterType_;
-      PathPlannerPtr_t pathPlanner_;
       /// Path optimizer
       PathOptimizerTypes_t pathOptimizerTypes_;
       PathOptimizers_t pathOptimizers_;
