@@ -24,7 +24,7 @@
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/model/device.hh>
-# include "../src/nearest-neighbor.hh"
+# include <hpp/core/nearest-neighbor.hh>
 
 namespace hpp {
   namespace core {

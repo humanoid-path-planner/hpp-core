@@ -52,7 +52,7 @@ namespace hpp {
       virtual PathVectorPtr_t solve ();
       /// Try to make direct connection between init and goal
       /// configurations, in order to avoid a random shoot.
-      void tryDirectPath();
+      virtual void tryDirectPath();
       /// User implementation of one step of resolution
       virtual void oneStep () = 0;
       /// Post processing of the resulting path

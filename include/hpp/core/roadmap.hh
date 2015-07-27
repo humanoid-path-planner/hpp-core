@@ -108,8 +108,14 @@ namespace hpp {
       {
 	return goalNodes_;
       }
-      // Get list of connected component of the roadmap
+      /// Get list of connected component of the roadmap
       const ConnectedComponents_t& connectedComponents () const;
+
+      /// Get nearestNeighbor object
+      NearestNeighborPtr_t nearestNeighbor();
+
+      /// Set new NearestNeighbor (roadmap must be empty)
+      void nearestNeighbor(NearestNeighborPtr_t nearestNeighbor);
 
       /// \name Distance used for nearest neighbor search
       /// \{

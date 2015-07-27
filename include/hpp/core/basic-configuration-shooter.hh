@@ -62,7 +62,7 @@ namespace hpp {
 	      (range == std::numeric_limits<double>::infinity())) {
 	    std::ostringstream oss
 	      ("Cannot uniformy sample extra config variable ");
-	    oss << i << ". min = " << ", max = " << upper << std::endl;
+	    oss << i << ". min = " <<lower<< ", max = " << upper << std::endl;
 	    throw std::runtime_error (oss.str ());
 	  }
 	  (*config) [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;

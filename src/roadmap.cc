@@ -54,6 +54,20 @@ namespace hpp {
       return connectedComponents_;
     }
 
+
+    NearestNeighborPtr_t Roadmap::nearestNeighbor(){
+      return nearestNeighbor_;
+    }
+
+
+    void Roadmap::nearestNeighbor(NearestNeighborPtr_t nearestNeighbor){
+      if (nodes_.size() != 0) {
+        throw std::runtime_error ("The roadmap must be empty before setting a new NearestNeighbor object.");
+      }
+      if(nearestNeighbor)
+        nearestNeighbor_ = nearestNeighbor;
+    }
+
     void Roadmap::clear ()
     {
       connectedComponents_.clear ();
