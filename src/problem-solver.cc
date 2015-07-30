@@ -78,7 +78,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
-      pathValidationType_ (), pathValidationTolerance_ (0.05),
+      pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       pathPlannerFactory_ (), configurationShooterFactory_ (),
       pathOptimizerFactory_ (), pathValidationFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
