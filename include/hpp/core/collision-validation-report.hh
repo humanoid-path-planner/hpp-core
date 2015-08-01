@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 # define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 
+# include <hpp/model/collision-object.hh>
 # include <hpp/core/validation-report.hh>
 # include <hpp/fcl/collision_data.h>
 
@@ -37,6 +38,13 @@ namespace hpp {
       CollisionObjectPtr_t object2;
       /// fcl collision results
       fcl::CollisionResult result;
+      /// Write report in a stream
+      virtual std::ostream& print (std::ostream& os) const
+      {
+	os << "Collision between object " << object1->name () << " and "
+	   << object2->name ();
+	return os;
+      }
     }; // class CollisionValidationReport
     /// \}
   } // namespace core

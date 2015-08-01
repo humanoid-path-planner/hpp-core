@@ -20,6 +20,7 @@
 # define HPP_CORE_CONFIG_VALIDATION_HH
 
 # include <hpp/core/validation-report.hh>
+# include <hpp/core/deprecated.hh>
 
 namespace hpp {
   namespace core {
@@ -38,8 +39,10 @@ namespace hpp {
       /// \param config the config to check for validity,
       /// \param throwIfInValid if true throw an exception if config is invalid.
       /// \return whether the whole config is valid.
+      /// \deprecated Use the method that takes as input a reference to a shared
+      ///             pointer to a validation report instead
       virtual bool validate (const Configuration_t& config,
-			     bool throwIfInValid) = 0;
+			     bool throwIfInValid) HPP_CORE_DEPRECATED = 0;
 
       /// Compute whether the configuration is valid
       ///
@@ -49,10 +52,21 @@ namespace hpp {
       ///         information.
       /// \param throwIfInValid if true throw an exception if config is invalid.
       /// \return whether the whole config is valid.
+      /// \deprecated Use method that take as input a reference to a shared
+      ///             pointer to a validation report instead
       virtual bool validate (const Configuration_t& config,
 			     ValidationReport& validationReport,
-			     bool throwIfInValid) = 0;
+			     bool throwIfInValid) HPP_CORE_DEPRECATED = 0;
 
+      /// Compute whether the configuration is valid
+      ///
+      /// \param config the config to check for validity,
+      /// \retval validationReport report on validation. If non valid,
+      ///         a validation report will be allocated and returned via this
+      ///         shared pointer.
+      /// \return whether the whole config is valid.
+      virtual bool validate (const Configuration_t& config,
+			     ValidationReportPtr_t& validationReport) = 0;
       /// Add an obstacle
       /// \param object obstacle added
       /// \notice collision configuration validation needs to know about

@@ -39,9 +39,15 @@ namespace hpp {
       virtual ~ValidationReport ()
       {
       }
+      /// Write report in a stream
+      virtual std::ostream& print (std::ostream& os) const = 0;
     }; // class ValidationReport
+    inline std::ostream& operator<< (std::ostream& os,
+				     const ValidationReport& report)
+    {
+      return report.print (os);
+    }
     /// \}
-    typedef boost::shared_ptr<ValidationReport> ValidationReportPtr_t;
   } // namespace core
 } // namespace hpp
 

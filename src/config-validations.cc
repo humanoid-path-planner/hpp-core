@@ -55,6 +55,19 @@ namespace hpp {
       return true;
     }
 
+    bool ConfigValidations::validate (const Configuration_t& config,
+				      ValidationReportPtr_t& validationReport)
+    {
+      for (std::vector <ConfigValidationPtr_t>::iterator
+	     it = validations_.begin (); it != validations_.end (); ++it) {
+	if ((*it)->validate (config, validationReport)
+	    == false) {
+	  return false;
+	}
+      }
+      return true;
+    }
+
     void ConfigValidations::add (const ConfigValidationPtr_t& configValidation)
     {
       validations_.push_back (configValidation);

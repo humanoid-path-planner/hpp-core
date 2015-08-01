@@ -50,7 +50,7 @@ namespace hpp {
       ///         can be derived for specific implementation
       /// \return whether the whole path is valid.
       virtual bool validate (const PathPtr_t& path, bool reverse,
-			     PathPtr_t& validPart);
+			     PathPtr_t& validPart) HPP_CORE_DEPRECATED;
 
       /// Compute the largest valid interval starting from the path beginning
       ///
@@ -66,7 +66,21 @@ namespace hpp {
       /// \return whether the whole path is valid.
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
-			     ValidationReport& validationReport);
+			     ValidationReport& validationReport)
+	HPP_CORE_DEPRECATED;
+
+      /// Compute the largest valid interval starting from the path beginning
+      ///
+      /// \param path the path to check for validity,
+      /// \param reverse if true check from the end,
+      /// \retval the extracted valid part of the path, pointer to path if
+      ///         path is valid.
+      /// \retval report information about the validation process. A report
+      ///         is allocated if the path is not valid.
+      /// \return whether the whole path is valid.
+      virtual bool validate (const PathPtr_t& path, bool reverse,
+			     PathPtr_t& validPart,
+			     PathValidationReportPtr_t& report);
       /// Add an obstacle
       /// \param object obstacle added
       virtual void addObstacle (const CollisionObjectPtr_t&);

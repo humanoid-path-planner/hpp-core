@@ -127,6 +127,72 @@ namespace hpp {
       }
     }
 
+    bool DiscretizedCollisionChecking::validate
+    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+     PathValidationReportPtr_t& validationReport)
+    {
+      ValidationReportPtr_t configReport;
+      assert (path);
+      bool valid = true;
+      if (reverse) {
+	value_type tmin = path->timeRange ().first;
+	value_type tmax = path->timeRange ().second;
+	value_type lastValidTime = tmax;
+	value_type t = tmax;
+	unsigned finished = 0;
+	while (finished < 2 && valid) {
+	  Configuration_t q = (*path) (t);
+      if (!configValidation_->validate (q, configReport)) {
+	validationReport = CollisionPathValidationReportPtr_t
+	  (new CollisionPathValidationReport (t, configReport));
+	    valid = false;
+	  } else {
+	    lastValidTime = t;
+	    t -= stepSize_;
+	  }
+	  if (t < tmin) {
+	    t = tmin;
+	    finished++;
+	  }
+	}
+	if (valid) {
+	  validPart = path;
+	  return true;
+	} else {
+	  validPart = path->extract (std::make_pair (lastValidTime, tmax));
+	  return false;
+	}
+      } else {
+	value_type tmin = path->timeRange ().first;
+	value_type tmax = path->timeRange ().second;
+	value_type lastValidTime = tmin;
+	value_type t = tmin;
+	unsigned finished = 0;
+	while (finished < 2 && valid) {
+	  Configuration_t q = (*path) (t);
+      if (!configValidation_->validate (q, configReport)) {
+	validationReport = CollisionPathValidationReportPtr_t
+	  (new CollisionPathValidationReport (t, configReport));
+	    valid = false;
+	  } else {
+	    lastValidTime = t;
+	    t += stepSize_;
+	  }
+	  if (t > tmax) {
+	    t = tmax;
+	    finished ++;
+	  }
+	}
+	if (valid) {
+	  validPart = path;
+	  return true;
+	} else {
+	  validPart = path->extract (std::make_pair (tmin, lastValidTime));
+	  return false;
+	}
+      }
+    }
+
     DiscretizedCollisionChecking::DiscretizedCollisionChecking
     (const DevicePtr_t& robot, const value_type& stepSize,
 				    const PathValidationReport& defaultValidationReport,

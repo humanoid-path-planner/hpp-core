@@ -73,6 +73,29 @@ namespace hpp {
       return !collision;
     }
 
+    bool CollisionValidation::validate (const Configuration_t& config,
+					ValidationReportPtr_t& validationReport)
+    {
+      robot_->currentConfiguration (config);
+      robot_->computeForwardKinematics ();
+      fcl::CollisionResult collisionResult;
+      for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
+	   itCol != collisionPairs_.end (); ++itCol) {
+	if (fcl::collide (itCol->first->fcl ().get (),
+			  itCol->second->fcl ().get (),
+			  collisionRequest_, collisionResult) != 0) {
+	  CollisionValidationReportPtr_t report (new CollisionValidationReport);
+	  report->object1 = itCol->first;
+	  report->object2 = itCol->second;
+	  report->result = collisionResult;
+	  validationReport = report;
+	  return false;
+	}
+      }
+      return true;
+    }
+
+
     void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
     {
       using model::COLLISION;

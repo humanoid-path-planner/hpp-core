@@ -73,6 +73,37 @@ namespace hpp {
 	return true;
       }
 
+      bool Progressive::validateConfiguration
+      (const Configuration_t& config, bool reverse, value_type& tmin,
+       PathValidationReportPtr_t& report)
+      {
+	value_type t = tmin;
+	tmin = std::numeric_limits <value_type>::infinity ();
+	value_type tmpMin;
+	robot_->currentConfiguration (config);
+	robot_->computeForwardKinematics ();
+	for (BodyPairCollisions_t::iterator itPair =
+	       bodyPairCollisions_.begin ();
+	     itPair != bodyPairCollisions_.end (); ++itPair) {
+	  CollisionValidationReportPtr_t collisionReport;
+	  if (!(*itPair)->validateConfiguration (t, tmpMin, collisionReport)) {
+	    report = CollisionPathValidationReportPtr_t
+	      (new CollisionPathValidationReport);
+	    report->configurationReport = collisionReport;
+	    report->parameter = t;
+	    return false;
+	  } else {
+	    if (reverse) {
+	      tmin = std::max (tmin, tmpMin);
+	    } else {
+	      tmin = std::min (tmin, tmpMin);
+	    }
+	  }
+	}
+	hppDout (info, "tmin=" << tmin);
+	return true;
+      }
+
       bool Progressive::validate
       (const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
       {
@@ -193,6 +224,121 @@ namespace hpp {
 	  }
 	}
       }
+
+      bool Progressive::validate (const PathPtr_t& path, bool reverse,
+				  PathPtr_t& validPart,
+				  PathValidationReportPtr_t& report)
+      {
+	if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path)) {
+	  PathVectorPtr_t validPathVector = PathVector::create
+	    (path->outputSize (), path->outputDerivativeSize ());
+	  validPart = validPathVector;
+	  PathPtr_t localValidPart;
+	  if (reverse) {
+	    value_type param = path->length ();
+	    std::deque <PathPtr_t> paths;
+	    for (std::size_t i=pv->numberPaths () + 1; i != 0 ; --i) {
+	      PathPtr_t localPath (pv->pathAtRank (i-1));
+	      if (validate (localPath, reverse, localValidPart, report)) {
+		paths.push_front (localPath->copy ());
+		param -= localPath->length ();
+	      } else {
+		report->parameter += param - localPath->length ();
+		paths.push_front (localValidPart->copy ());
+		for (std::deque <PathPtr_t>::const_iterator it = paths.begin ();
+		     it != paths.end (); ++it) {
+		  validPathVector->appendPath (*it);
+		}
+		return false;
+	      }
+	    }
+	    return true;
+	  } else {
+	    value_type param = 0;
+	    for (std::size_t i=0; i < pv->numberPaths (); ++i) {
+	      PathPtr_t localPath (pv->pathAtRank (i));
+	      if (validate (localPath, reverse, localValidPart, report)) {
+		validPathVector->appendPath (localPath->copy ());
+		param += localPath->length ();
+	      } else {
+		report->parameter += param;
+		validPathVector->appendPath (localValidPart->copy ());
+		return false;
+	      }
+	    }
+	    return true;
+	  }
+	}
+	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
+	  (StraightPath, path);
+	// for each BodyPairCollision
+	//   - set path,
+	//   - compute valid interval at start (end if reverse)
+	bool valid = true;
+	for (BodyPairCollisions_t::iterator itPair =
+	       bodyPairCollisions_.begin ();
+	     itPair != bodyPairCollisions_.end (); ++itPair) {
+	  (*itPair)->path (straightPath, reverse);
+	}
+	if (reverse) {
+	  value_type tmin = path->timeRange ().first;
+	  value_type tmax = path->timeRange ().second;
+	  value_type lastValidTime = tmax;
+	  value_type t = tmax;
+	  unsigned finished = 0;
+	  while (finished < 2 && valid) {
+	    Configuration_t q = (*path) (t);
+	    value_type tprev = t;
+	    PathValidationReportPtr_t pathReport;
+	    if (!validateConfiguration (q, reverse, t, pathReport)) {
+	      report = pathReport;
+	      valid = false;
+	    } else {
+	      lastValidTime = tprev;
+	    }
+	    if (t <= tmin) {
+	      t = tmin;
+	      finished ++;
+	    }
+	  }
+	  if (valid) {
+	    validPart = path;
+	    return true;
+	  } else {
+	    validPart = path->extract (std::make_pair (lastValidTime, tmax));
+	    return false;
+	  }
+	} else {
+	  value_type tmin = path->timeRange ().first;
+	  value_type tmax = path->timeRange ().second;
+	  value_type lastValidTime = tmin;
+	  value_type t = tmin;
+	  unsigned finished = 0;
+	  while (finished < 2 && valid) {
+	    Configuration_t q = (*path) (t);
+	    value_type tprev = t;
+	    PathValidationReportPtr_t pathReport;
+	    if (!validateConfiguration (q, reverse, t, pathReport)) {
+	      report = pathReport;
+	      valid = false;
+	    } else {
+	      lastValidTime = tprev;
+	    }
+	    if (t >= tmax) {
+	      t = tmax;
+	      finished ++;
+	    }
+	  }
+	  if (valid) {
+	    validPart = path;
+	    return true;
+	  } else {
+	    validPart = path->extract (std::make_pair (tmin, lastValidTime));
+	    return false;
+	  }
+	}
+      }
+
 
       void Progressive::addObstacle
       (const CollisionObjectPtr_t& object)

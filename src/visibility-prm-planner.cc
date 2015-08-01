@@ -83,7 +83,8 @@ namespace hpp {
 	if(nodeStatus_ [*n_it]){// only iterate on guard nodes
 	  ConfigurationPtr_t qCC = (*n_it)->configuration ();
 	  PathPtr_t path = (*sm) (*q, *qCC);
-	  if (pathValidation->validate (path, false, validPart)){
+	  PathValidationReportPtr_t report;
+	  if (pathValidation->validate (path, false, validPart, report)){
 	    // q and qCC see each other
 	    if (path->length () < length) {
 	      length = path->length ();
@@ -139,12 +140,14 @@ namespace hpp {
       }
 
       // Shoot random config as long as not collision-free
+      ValidationReportPtr_t report;
       do {
 	q_rand = configurationShooter_->shoot ();
 	q_rand = applyConstraints(q_init, q_rand);
 	robot->currentConfiguration (*q_rand);
 	robot->computeForwardKinematics ();
-      } while (!configValidations->validate (*q_rand) || !constrApply_);
+      } while (!configValidations->validate (*q_rand, report) ||
+	       !constrApply_);
       count = 0;
 
       for (ConnectedComponents_t::const_iterator itcc =

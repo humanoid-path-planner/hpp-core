@@ -30,7 +30,7 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BasicConfigurationShooter);
-    class CollisionPathValidation;
+    HPP_PREDEF_CLASS (CollisionPathValidation);
     struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
     HPP_PREDEF_CLASS (CollisionValidationReport);
@@ -50,13 +50,15 @@ namespace hpp {
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
     HPP_PREDEF_CLASS (JointBoundValidation);
+    struct JointBoundValidationReport;
     class Node;
     HPP_PREDEF_CLASS (Path);
     HPP_PREDEF_CLASS (PathOptimizer);
     HPP_PREDEF_CLASS (PathPlanner);
     HPP_PREDEF_CLASS (PathVector);
     HPP_PREDEF_CLASS (PathValidation);
-    class PathValidation;
+    struct PathValidationReport;
+    HPP_PREDEF_CLASS (PathValidation);
     HPP_PREDEF_CLASS (PlanAndOptimize);
     HPP_PREDEF_CLASS (Problem);
     class ProblemSolver;
@@ -65,7 +67,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
-    class ValidationReport;
+    HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;
@@ -85,6 +87,10 @@ namespace hpp {
     BasicConfigurationShooterPtr_t;
     typedef hpp::model::Body Body;
     typedef hpp::model::BodyPtr_t BodyPtr_t;
+    typedef boost::shared_ptr <CollisionPathValidationReport>
+    CollisionPathValidationReportPtr_t;
+    typedef std::vector <CollisionPathValidationReport> 
+    CollisionPathValidationReports_t;
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef boost::shared_ptr <CollisionValidationReport>
     CollisionValidationReportPtr_t;
@@ -129,6 +135,8 @@ namespace hpp {
     typedef model::JointConstPtr_t JointConstPtr_t;
     typedef model::JointPtr_t JointPtr_t;
     typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
+    typedef boost::shared_ptr <JointBoundValidationReport>
+    JointBoundValidationReportPtr_t;
     typedef model::HalfJointJacobian_t HalfJointJacobian_t;
     typedef model::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
@@ -151,6 +159,7 @@ namespace hpp {
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
+    typedef boost::shared_ptr <PathValidationReport> PathValidationReportPtr_t;
     typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
     typedef boost::shared_ptr <const PathVector> PathVectorConstPtr_t;
     typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
@@ -170,6 +179,7 @@ namespace hpp {
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
     typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
+    typedef boost::shared_ptr <ValidationReport> ValidationReportPtr_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef std::map <std::string, DifferentiableFunctionPtr_t>
     DifferentiableFunctionMap_t;

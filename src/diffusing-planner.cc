@@ -148,7 +148,9 @@ namespace hpp {
 	NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
 	path = extend (near, q_rand);
 	if (path) {
-	  bool pathValid = pathValidation->validate (path, false, validPath);
+	  PathValidationReportPtr_t report;
+	  bool pathValid = pathValidation->validate (path, false, validPath,
+						     report);
 	  // Insert new path to q_near in roadmap
 	  value_type t_final = validPath->timeRange ().second;
 	  if (t_final != path->timeRange ().first) {
@@ -192,7 +194,9 @@ namespace hpp {
 	  ConfigurationPtr_t q2 ((*itn2)->configuration ());
 	  assert (*q1 != *q2);
 	  path = (*sm) (*q1, *q2);
-	  if (path && pathValidation->validate (path, false, validPath)) {
+	  PathValidationReportPtr_t report;
+	  if (path && pathValidation->validate (path, false, validPath,
+						report)) {
 	    roadmap ()->addEdge (*itn1, *itn2, path);
 	    interval_t timeRange = path->timeRange ();
 	    roadmap ()->addEdge (*itn2, *itn1, path->extract

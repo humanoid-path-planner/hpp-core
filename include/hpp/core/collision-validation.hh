@@ -41,7 +41,7 @@ namespace hpp {
       /// \param throwIfInValid if true throw an exception if config is invalid.
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
-			     bool throwIfInValid = false);
+			     bool throwIfInValid = false) HPP_CORE_DEPRECATED;
 
       /// Compute whether the configuration is valid
       ///
@@ -52,7 +52,17 @@ namespace hpp {
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
 			     ValidationReport& validationReport,
-			     bool throwIfInValid = false);
+			     bool throwIfInValid = false) HPP_CORE_DEPRECATED;
+
+      /// Compute whether the configuration is valid
+      ///
+      /// \param config the config to check for validity,
+      /// \retval validationReport report on validation. If non valid,
+      ///         a validation report will be allocated and returned via this
+      ///         shared pointer.
+      /// \return whether the whole config is valid.
+      virtual bool validate (const Configuration_t& config,
+			     ValidationReportPtr_t& validationReport);
 
       /// Add an obstacle
       /// \param object obstacle added

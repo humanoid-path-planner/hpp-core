@@ -37,7 +37,12 @@ namespace hpp {
 	configurationReport = 
 	  CollisionValidationReportPtr_t (new CollisionValidationReport);
       }
-    }; // class CollisionPathValidationReport
+
+      CollisionPathValidationReport (const value_type& param,
+				     const ValidationReportPtr_t& report) :
+	PathValidationReport (param, report)
+      {}
+    }; // struct CollisionPathValidationReport
     /// \}
   } // namespace core
 } // namespace hpp

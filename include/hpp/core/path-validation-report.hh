@@ -35,7 +35,18 @@ namespace hpp {
     {
 			PathValidationReport()
 			: ValidationReport()
-			, configurationReport(ValidationReportPtr_t(new ValidationReport)) {}
+			, configurationReport() {}
+      PathValidationReport (const value_type& param,
+			    const ValidationReportPtr_t& report) :
+	parameter (param), configurationReport (report)
+      {}
+
+      virtual std::ostream& print (std::ostream& os) const
+      {
+	os << "Invalid configuration at parameter " << parameter << std::endl;
+	os << *configurationReport;
+	return os;
+      }
       /// Parameter of the path where a invalid configuration has been found
       value_type parameter;
       ValidationReportPtr_t configurationReport;

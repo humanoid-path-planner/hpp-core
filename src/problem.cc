@@ -167,7 +167,12 @@ namespace hpp {
 	throw std::runtime_error (msg);
       }
 
-      configValidations_->validate (*initConf_, true);
+      ValidationReportPtr_t report;
+      if (!configValidations_->validate (*initConf_, report)) {
+	std::ostringstream oss;
+	oss << *report;
+	throw std::runtime_error (oss.str ());
+      }
 
       if (goalConfigurations_.size () == 0) {
 	std::string msg ("No goal config in problem.");
@@ -178,7 +183,11 @@ namespace hpp {
       for (ConfigConstIterator_t it = goalConfigurations_.begin ();
 	   it != goalConfigurations_.end (); it++) {
 	const ConfigurationPtr_t& goalConf (*it);
-	configValidations_->validate (*goalConf, true);
+	if (!configValidations_->validate (*goalConf, report)) {
+	  std::ostringstream oss;
+	  oss << *report;
+	  throw std::runtime_error (oss.str ());
+	}
       }
     }
 
