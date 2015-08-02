@@ -73,10 +73,19 @@ namespace hpp {
 
     bool LockedJoint::isSatisfied (ConfigurationIn_t config)
     {
-      hppDout (info, "(" <<
-	       config.segment (rankInConfiguration_, size ()).transpose ()
-	       << ")==(" << rightHandSide ().transpose () << ")");
-      return config.segment (rankInConfiguration_, size ()).isApprox (rightHandSide ());
+      bool result (config.segment (rankInConfiguration_,
+				   size ()).isApprox (rightHandSide ()));
+      if (result) {
+	hppDout (info, "(" <<
+		 config.segment (rankInConfiguration_, size ()).transpose ()
+		 << ")==(" << rightHandSide ().transpose () << ") succeeded");
+	return true;
+      } else {
+	hppDout (info, "(" <<
+		 config.segment (rankInConfiguration_, size ()).transpose ()
+		 << ")==(" << rightHandSide ().transpose () << ") failed");
+	return false;
+      }
     }
 
     bool LockedJoint::isSatisfied (ConfigurationIn_t config, vector_t& error)
