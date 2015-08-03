@@ -232,33 +232,6 @@ namespace hpp {
       virtual void addFunctionToConfigProjector
 	(const std::string& constraintName, const std::string& functionName);
 
-      /// Add differentialFunction to the config projector
-      /// Build the config projector if not constructed
-      /// \deprecated use addFunctionToConfigProjector instead.
-      virtual void addConstraintToConfigProjector
-	(const std::string& constraintName,
-	 const DifferentiableFunctionPtr_t& constraint,
-	 const ComparisonTypePtr_t comp = Equality::create ())
-	HPP_CORE_DEPRECATED
-      {
-	std::string functionName;
-	bool found = false;
-	// Check whether constraint is in the map
-	for (DifferentiableFunctionMap_t::const_iterator it =
-	       numericalConstraintMap_.begin ();
-	     it != numericalConstraintMap_.end (); ++it) {
-	  if (it->second == constraint) {
-	    functionName = it->first;
-	    found = true;
-	  }
-	}
-	if (!found) {
-	  throw std::runtime_error ("constraint is not in the map");
-	}
-	comparisonTypeMap_ [functionName] = comp;
-	addFunctionToConfigProjector (constraintName, functionName);
-      }
-
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
       /// \param constraint numerical constraint

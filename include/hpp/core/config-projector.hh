@@ -74,34 +74,6 @@ namespace hpp {
       /// return shared pointer to copy
       virtual ConstraintPtr_t copy () const;
 
-      /// Add a function
-      /// \param function The function.
-      /// \param comp For equality constraint, keep the default value.
-      ///             For inequality constraint, it does a comparison to
-      ///             whether the constraint is active.
-      /// \deprecated Use hpp::core::ConfigProjector::add
-      /// (NumericalConstraintPtr_t) instead.
-      void  addFunction (const DifferentiableFunctionPtr_t& function,
-          ComparisonTypePtr_t comp = ComparisonType::createDefault())
-        HPP_CORE_DEPRECATED
-      {
-        add (NumericalConstraint::create (function, comp));
-      }
-
-      /// Add constraint
-      /// \param constraint The function.
-      /// \param comp For equality constraint, keep the default value.
-      ///             For inequality constraint, it does a comparison to
-      ///             whether the constraint is active.
-      /// \deprecated Use hpp::core::ConfigProjector::add
-      /// (NumericalConstraintPtr_t) instead.
-      void addConstraint (const DifferentiableFunctionPtr_t& constraint,
-			  ComparisonTypePtr_t comp = ComparisonType::createDefault ())
-	HPP_CORE_DEPRECATED
-      {
-        add (NumericalConstraint::create (constraint, comp));
-      }
-
       /// Add a numerical constraint
       /// \param numericalConstraint The numerical constraint.
       /// \param passiveDofs column indexes of the jacobian vector that will be
