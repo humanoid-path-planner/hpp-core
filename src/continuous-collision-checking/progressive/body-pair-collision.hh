@@ -138,15 +138,16 @@ namespace hpp {
 	    return objects_b_;
 	  }
 
-	  void removeObjectTo_b (const CollisionObjectPtr_t& object)
+	  bool removeObjectTo_b (const CollisionObjectPtr_t& object)
 	  {
 	    for (ObjectVector_t::iterator itObj = objects_b_.begin ();
 		 itObj != objects_b_.end (); ++itObj) {
 	      if (object == *itObj) {
 		objects_b_.erase (itObj);
-		return;
+		return true;
 	      }
 	    }
+	    return false;
 	  }
 
 	  /// Set path to validate

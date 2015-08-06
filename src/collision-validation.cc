@@ -124,7 +124,22 @@ namespace hpp {
 	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	     itInner != bodyObjects.end (); ++itInner) {
 	  CollisionPair_t colPair (*itInner, obstacle);
+	  std::size_t before = collisionPairs_.size ();
 	  collisionPairs_.remove (colPair);
+	  std::size_t after = collisionPairs_.size ();
+	  if (after == before) {
+	    std::ostringstream oss;
+	    oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
+		<< obstacle->name () <<
+	      "\" is not registered as obstacle for joint \"" << joint->name ()
+		<< "\".";
+	    throw std::runtime_error (oss.str ());
+	  } else if (before - after >= 2) {
+	    hppDout (error, "obstacle "<< obstacle->name () <<
+		     " was registered " << before - after
+		     << " times as obstacle for joint " << joint->name ()
+		     << ".");
+	  }
 	}
       }
     }

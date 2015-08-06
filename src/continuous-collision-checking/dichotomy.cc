@@ -413,17 +413,26 @@ namespace hpp {
       void Dichotomy::removeObstacleFromJoint
       (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
       {
+	bool removed = false;
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
 	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
 	    if ((*itPair)->removeObjectTo_b (obstacle)) {
+	      removed = true;
 	      if ((*itPair)->objects_b ().empty ()) {
 		bodyPairCollisions_.erase (itPair);
 	      }
-	      return;
 	    }
 	  }
+	}
+	if (!removed) {
+	  std::ostringstream oss;
+	  oss << "Dichotomy::removeObstacleFromJoint: obstacle \""
+	      << obstacle->name () <<
+	    "\" is not registered as obstacle for joint \"" << joint->name ()
+	      << "\".";
+	  throw std::runtime_error (oss.str ());
 	}
       }
 

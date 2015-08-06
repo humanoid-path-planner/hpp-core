@@ -359,16 +359,26 @@ namespace hpp {
       void Progressive::removeObstacleFromJoint
       (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
       {
+	bool removed = false;
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
 	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
-	    (*itPair)->removeObjectTo_b (obstacle);
-	    if ((*itPair)->objects_b ().empty ()) {
-	      bodyPairCollisions_.erase (itPair);
+	    if ((*itPair)->removeObjectTo_b (obstacle)) {
+	      removed = true;
+	      if ((*itPair)->objects_b ().empty ()) {
+		bodyPairCollisions_.erase (itPair);
+	      }
 	    }
-	    return;
 	  }
+	}
+	if (!removed) {
+	  std::ostringstream oss;
+	  oss << "Progressive::removeObstacleFromJoint: obstacle \""
+	      << obstacle->name () <<
+	    "\" is not registered as obstacle for joint \"" << joint->name ()
+	      << "\".";
+	  throw std::runtime_error (oss.str ());
 	}
       }
 
