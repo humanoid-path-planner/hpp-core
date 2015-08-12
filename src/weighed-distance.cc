@@ -73,13 +73,18 @@ namespace hpp {
       return weights_[rank];
     }
 
-    void WeighedDistance::setWeight(unsigned int rank, value_type weight )
+    void WeighedDistance::setWeight (std::size_t rank, value_type weight )
     {
       if ( rank < weights_.size() ) 
       {
 	weights_[rank] = weight;
       }
-      else { throw std::runtime_error("Distance::setWeight : rank is out of range"); }
+      else {
+	std::ostringstream oss;
+	oss << "Distance::setWeight : rank " << rank << " is out of range ("
+	    << weights_.size () << ").";
+	throw std::runtime_error(oss.str ());
+      }
     } 
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :

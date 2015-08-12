@@ -44,7 +44,12 @@ namespace hpp {
       value_type getWeight( std::size_t rank ) const;
       /// Set weight of joint at given rank
       /// \param rank rank of the joint in robot joint vector
-      void setWeight(unsigned int rank, value_type weight);
+      void setWeight(std::size_t rank, value_type weight);
+      /// Get size of weight vector
+      std::size_t size () const
+      {
+	return weights_.size ();
+      }
 
       /// Get robot
       const DevicePtr_t& robot () const
