@@ -54,7 +54,7 @@ namespace hpp {
       private:
 	/// Weight are computed according to initial partial
 	/// paths lengths with regard to the total length.
-	void computeWeights (const PathVectorPtr_t& path) const;
+	void computeLambda (const PathVectorPtr_t& path) const;
 
 	std::size_t nbPaths_;
 	WeighedDistancePtr_t distance_;
@@ -63,7 +63,7 @@ namespace hpp {
 	DevicePtr_t robot_;
 	size_type configSize_;
 	size_type numberDofs_;
-	mutable vector_t weights_;
+	mutable vector_t lambda_;
       }; // PathLength
     } // namespace pathOptimization
   }  // namespace core

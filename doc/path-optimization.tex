@@ -1,0 +1,130 @@
+%
+% Copyright (c) 2015 CNRS
+% Authors: Florent Lamiraux
+%
+% This file is part of hpp-core
+% hpp-core is free software: you can redistribute it
+% and/or modify it under the terms of the GNU Lesser General Public
+% License as published by the Free Software Foundation, either version
+% 3 of the License, or (at your option) any later version.
+%
+% hpp-core is distributed in the hope that it will be
+% useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+% of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Lesser Public License for more details.  You should have
+% received a copy of the GNU Lesser General Public License along with
+% hpp-core  If not, see
+% <http://www.gnu.org/licenses/>.
+
+\documentclass {article}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}  %\usepackage[noend]{algpseudocode}
+\usepackage {graphics}
+\usepackage {color}
+\usepackage {amssymb}
+\newcommand\body{{\cal B}}
+\newcommand\CS{{\cal C}}
+\newcommand\cost{C}
+\newcommand\path{P}
+\newcommand\state{\mathbf{x}}
+\newcommand\conf{\textbf{q}}
+\newcommand\linvel{\textbf{v}}
+\newcommand\angvel{\omega}
+\newcommand\reals{\mathbb{R}}
+\newcommand\crossprod[1]{\left[#1\right]_{\times}}
+\newcommand\weight{W}
+\title {Path length optimization}
+\author {Florent Lamiraux}
+
+\begin {document}
+\maketitle
+\section {Definitions and Notation}
+
+\subsection {Robot}
+We consider a robot composed of $p$ joints. Each joint $i$ has $n_i$ degrees of freedom. 
+
+\subsection {Path}
+
+A path is defined by a sequence of $wp+2$ waypoints:
+\begin{equation}\label{eq:def-path}
+  \path = (\conf_0,\conf_1,\cdots,\conf_{wp+1})
+\end{equation}
+The path is the concatenation of straight interpolations between consecutive waypoints.
+The first and last waypoints are fixed. The optimization state variable is therefore defined by
+\begin{equation}\label{eq:def-state}
+  \state = (\conf_1,\cdots,\conf_{wp})
+\end{equation}
+
+\section {Cost}
+
+The optimization cost is defined by the following sum
+\begin{equation}\label{eq:def-cost}
+  \cost (\state) = \frac{1}{2}\sum_{i=1}^{wp+1} \lambda_{i-1} (\conf_{i}-\conf_{i-1})^T \weight^2 (\conf_{i}-\conf_{i-1})
+\end{equation}
+where
+$$
+\lambda_{i-1} = \frac{1}{\sqrt{(\conf_{i\,0}-\conf_{i-1\,0})^T \weight^2 (\conf_{i\,0}-\conf_{i-1\,0})}}
+$$
+are constant coefficient aiming at keeping the same ratio between path segment lengths at minimum as at initial path.
+$\weight$ is a block-diagonal matrix of weights:
+\begin{equation}\label{def-weight}
+W = \left(\begin{array}{ccccc}
+w_1 I_{n_1} & 0 & \cdots & \cdots & 0 \\
+0 & w_2 I_{n_2} & 0 & \cdots & 0 \\
+\vdots & \ddots & \ddots & \ddots & \cdots \\
+0 & \cdots & 0 & w_{p-1} I_{n_{p-1}} & 0 \\
+0 & \cdots & \ddots & 0 & w_p I_{n_p}
+\end{array}\right)
+\end{equation}
+where each $w_i$, $1 \leq i \leq p$ is the weight associated to joint $i$.
+
+\subsection {Gradient}
+
+\begin{eqnarray*}
+  d\cost (\state) &=& \sum_{i=1}^{wp+1} \lambda_{i-1} (\conf_{i}-\conf_{i-1})^T \weight^2 (d\conf_{i}-d\conf_{i-1}) \\
+  &=& \lambda_{0} (\conf_{1}-\conf_{0})^T \weight^2 (d\conf_{1}-d\conf_{0}) \\
+  && + \lambda_{1} (\conf_{2}-\conf_{1})^T \weight^2 (d\conf_{2}-d\conf_{1}) \\
+  && \vdots \\
+  && + \lambda_{wp}(\conf_{wp+1}-\conf_{wp})^T \weight^2 (d\conf_{wp+1}-d\conf_{wp}) \\
+  &=& + \left(\lambda_{0}(\conf_1-\conf_0) - \lambda_{1}(\conf_2-\conf_1)\right)^T \weight^2d\conf_1\\
+  && + \left(\lambda_{1}(\conf_2-\conf_1) - \lambda_{2}(\conf_3-\conf_2)\right)^T \weight^2d\conf_2\\
+  && + \vdots \\
+  && + \left(\lambda_{wp-1}(\conf_{wp}-\conf_{wp-1}) - \lambda_{wp}(\conf_{wp+1}-\conf_{wp})\right)^T \weight^2d\conf_{wp}\\
+\end{eqnarray*}
+\begin {equation}\label{eq:gradient-cost}
+  \nabla \cost (\state) = \left( (\lambda_{i}(\conf_{i+1} - \conf_{i})^T - \lambda_{i+1}(\conf_{i+2} - \conf_{i+1})^T) \weight^2 \right)_{i=0\cdots wp-1}
+\end {equation}
+
+\subsubsection {Computation}
+
+\begin{algorithm}
+  \begin{algorithmic}
+    \Procedure {ComputeGradient} {$\path$}
+    \State $u_1\leftarrow (\conf_1 - \conf_0)^T\weight^2$
+    \For {$i=0$ to $wp-2$}
+    \State $u_2\leftarrow (\conf_{i+2} - \conf_{i+1})^T\weight^2$
+    \State $gradient [i\,n_{dof}:(i+1)\,n_{dof}]\leftarrow \lambda_{i}u_1 - \lambda_{i+1}u_2$
+    \State $u_1\leftarrow u_2$
+    \EndFor
+    \State $u_2\leftarrow (\conf_{wp+1} - \conf_{wp})^T\weight^2$
+    \State $gradient [(wp-1)\,n_{dof}:wp\,n_{dof}]\leftarrow \lambda_{wp-1}u_1 - \lambda_{wp}u_2$
+    \EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\subsection {Hessian}
+{\tiny
+\begin{equation}\label{eq:hessian-cost}
+\mbox{Hess}\ \cost (\state) = \left(\begin{array}{cccccc}
+(\lambda_{0}+\lambda_{1})\weight^2 & -\lambda_{1}\weight^2 & 0 & \cdots & & 0 \\
+-\lambda_{1}\weight^2 & (\lambda_{1}+\lambda_{2})\weight^2 & -\lambda_{2}\weight^2 & 0 & \cdots & 0 \\
+0 & -\lambda_{2}\weight^2 &  (\lambda_{2}+\lambda_{3})\weight^2 & -\lambda_{3}\weight^2 & 0 & \vdots \\
+\vdots & \ddots & \ddots & \ddots & \ddots & \vdots\\
+\vdots & & \ddots & \ddots & \ddots & \vdots\\
+0 & \cdots  & 0 & -\lambda_{wp-2}\weight^2 & (\lambda_{wp-2}+\lambda_{wp-1})\weight^2 & -\lambda_{wp-1}\weight^2 \\
+0 & \cdots &  \cdots & 0 & -\lambda_{wp-1}\weight^2 & (\lambda_{wp-1}+\lambda_{wp})\weight^2  \\
+\end{array}\right)
+\end{equation}
+}
+\end{document}

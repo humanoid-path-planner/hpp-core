@@ -65,7 +65,7 @@ namespace hpp {
 	configSize_ (robot_->configSize ()), robotNumberDofs_
 	(robot_->numberDof ()),	robotNbNonLockedDofs_ (robot_->numberDof ()),
 	fSize_ (1),
-	initial_ (), end_ (), epsilon_ (1e-3), iterMax_ (30), alphaInit_ (0.5),
+	initial_ (), end_ (), epsilon_ (1e-5), iterMax_ (30), alphaInit_ (0.25),
 	alphaMax_ (1.)
       {
 	distance_ = HPP_DYNAMIC_PTR_CAST (WeighedDistance, problem.distance ());
@@ -163,7 +163,7 @@ namespace hpp {
 	alpha_ = alphaInit_;
       }
 
-      vector_t GradientBased::computeIterate () const
+      vector_t GradientBased::computeIterate (vectorIn_t x) const
       {
 	if (J_.rows () == 0) {
 	  // no constraints
@@ -189,27 +189,45 @@ namespace hpp {
 	  // C (x) = (grad (x1) + p0^T H) V0 z  + 1/2 z^T V0^T H V0 z + C (x1)
 	  // z = - (V0^T H V0)^{-1} V0^T(grad (x1)^T + H p0)
 	  Jacobi_t svd (J_, Eigen::ComputeThinU | Eigen::ComputeFullV);
-	  svd.setThreshold (1e-3);
+	  svd.setThreshold (1e-6);
 	  size_type rank = svd.rank();
 	  hppDout (info, "J_ singular values = " <<
 		   svd.singularValues ().transpose ());
+	  hppDout (info, "Jrows = " << J_.rows ());
 	  hppDout (info, "rank(J) = " << rank);
 	  V0_ = svd.matrixV ().rightCols (numberDofs_-rank);
+	  hppDout (info, "rhs_ - value_ = " << rhs_ - value_);
 	  p0_ = svd.solve (rhs_ - value_);
 	  if (V0_.cols () != 0) {
 	    Hz_ = V0_.transpose () * H_ * V0_;
 	    gz_ = - V0_.transpose () * (rgrad_.transpose () + H_ * p0_);
 	    Jacobi_t svd2 (Hz_, Eigen::ComputeThinU | Eigen::ComputeFullV);
-	    svd2.setThreshold (1e-3);
+	    //svd2.setThreshold (1e-6);
 	    rank = svd2.rank ();
 	    hppDout (info, "Hz_ singular values = " <<
 		     svd2.singularValues ().transpose ());
 	    hppDout (info, "rank(Hz_) = " << rank);
+	    vector_t z (svd2.solve (gz_));
+	    hppDout (info, "Hz_ * z - gz_=" << (Hz_ * z - gz_).transpose ());
 	    p_ = p0_ + V0_ * svd2.solve (gz_);
 	    hppDout (info, "constraint satisfaction: " <<
 		     (J_*p_ - (rhs_ - value_)).squaredNorm ());
 	    hppDout (info, "norm(grad*V0)? = " <<
 		     ((rgrad_ + (H_*p_).transpose ())*V0_).squaredNorm ());
+#ifdef HPP_DEBUG
+	    vector_t xmin; xmin.resize (x.size ());
+	    integrate (x, p_, xmin);
+	    rowvector_t rgradMin; rgradMin.resize (p_.size ());
+	    rowvector_t gradMin; gradMin.resize (cost_->inputDerivativeSize ());
+	    cost_->jacobian (gradMin, xmin);
+	    compressVector (gradMin.transpose (), rgradMin.transpose ());
+	    hppDout (info, "p=" << p_.transpose ());
+	    hppDout (info, "grad (xmin) - grad (x) - H * (xmin - x) = "
+		     << ((rgradMin - rgrad_).transpose () - H_ * p_).transpose
+		     ());
+	    hppDout (info, "norm(grad*V0) = "
+		     << (rgradMin*V0_).squaredNorm ());
+#endif
 	  } else {
 	    p_ = p0_;
 	  }
@@ -260,7 +278,7 @@ namespace hpp {
 	pathToVector (path, x1);
 	vector_t x0 = x1;
 	Hinverse_ = H_.inverse ();
-	hppDout (info, "inverse Hessian = " << Hinverse_);
+	hppDout (info, "Hessian = " << H_);
 
 	/* Fill jacobian J_ and Jf_ with constraints FROM Problem */
 	cost_->jacobian (grad, x1);
@@ -275,11 +293,9 @@ namespace hpp {
 	}
 	if (!minimumReached) {
 	  do {
-	    // Compute value and Jacobian in x0
-	    updateProblemConstraints (x0);
-	    vector_t s = computeIterate ();
+	    vector_t s = computeIterate (x0);
 	    hppDout (info, "alpha_ = " << alpha_);
-	    minimumReached = s.norm () < epsilon_;
+	    minimumReached = (s.norm () < epsilon_ || alpha_ == 1.);
 	    hppDout (info, "norm of s: " << s.norm ());
 	    hppDout (info, "s: " << s.transpose ());
 	    integrate (x0, s, x1);
@@ -294,27 +310,10 @@ namespace hpp {
 	      ++pathId;
 	    }
 
-	    // Solve problem constraints and linearize collision constraints
-	    // around new x1.
-	    if (!solveConstraints (x1, path1, collisionConstraints)) {
-	      if (ProblemSolver::latest ()) {
-		hppDout (info, "failed to apply constraints: path id = "
-			 << pathId);
-		ProblemSolver::latest ()->addPath (path1);
-		++pathId;
-	      }
-	      alpha_ *= .5;
-	    } else { // (!solveConstraints (x1, path1, collisionConstraints))
-	      hppDout (info, "x1=" << x1.transpose ());
-	      if (ProblemSolver::latest ()) {
-		hppDout (info, "successfully applied constraints: path id = "
-			 << pathId);
-		ProblemSolver::latest ()->addPath (path1);
-		++pathId;
-	      }
-	      bool isPathValid = validatePath (pathValidation, path1, reports);
-	      // if new path is in collision, we add some constraints
-	      if (!isPathValid) {
+	    bool isPathValid = validatePath (pathValidation, path1, reports);
+	    // if new path is in collision, we add some constraints
+	    if (!isPathValid) {
+	      if (alpha_ != 1.) {
 		for (Reports_t::const_iterator it = reports.begin ();
 		     it != reports.end (); ++it) {
 		  CollisionConstraintsResult ccr (robot_, path0, path1,
@@ -325,20 +324,24 @@ namespace hpp {
 		  collisionConstraints.push_back (ccr);
 		  hppDout (info, "Number of collision constraints: "
 			   << collisionConstraints.size ());
+		  // When adding a new constraint, try first minimum under this
+		  // constraint. If this latter minimum is in collision,
+		  // re-initialize alpha_ to alphaInit_.
+		  alpha_ = 1.;
 		}
-		noCollision = false;
-		alpha_ = .5;
-	      } else { // path valid
-		x0 = x1;
-		path0 = path1;
-		hppDout (info, "latest valid path: " << pathId - 1);
-		cost_->jacobian (grad, x0);
-		compressVector (grad.transpose (), rgrad_.transpose ());
-		updateRightHandSide (collisionConstraints, path0);
-		assert (solveConstraints (x0, path0, collisionConstraints));
-		noCollision = true;
-		alpha_ = .5*(1 + alpha_);
+	      } else {
+		alpha_ = alphaInit_;
 	      }
+	      noCollision = false;
+	    } else { // path valid
+	      rowvector_t rgrad0 (rgrad_);
+	      x0 = x1;
+	      path0 = path1;
+	      hppDout (info, "latest valid path: " << pathId - 1);
+	      cost_->jacobian (grad, x0);
+	      compressVector (grad.transpose (), rgrad_.transpose ());
+	      noCollision = true;
+	      alpha_ = .5*(1 + alpha_);
 	    }
 	  } while (!(noCollision && minimumReached) && (!interrupt_));
 	} // while (!minimumReached)
@@ -348,6 +351,7 @@ namespace hpp {
       void GradientBased::integrate (vectorIn_t x0, vectorIn_t step,
 				     vectorOut_t x1) const
       {
+	assert (x0.size () == x1.size ());
 	size_type indexConfig = 0;
 	size_type indexVelocity = 0;
 	// uncompress step
@@ -360,6 +364,7 @@ namespace hpp {
 	  indexConfig += configSize_;
 	  indexVelocity += robotNumberDofs_;
 	}
+	assert (indexConfig == x0.size ());
 	assert (indexVelocity == stepNormal_.size ());
       }
 
@@ -504,7 +509,6 @@ namespace hpp {
 	const
       {
 	size_type Jrows = J_.rows ();
-	hppDout (info, "Jrows = " << Jrows);
 	J_.conservativeResize (Jrows + fSize_, J_.cols ());
 	J_.middleRows (ccr.rowInJacobian (), fSize_).setZero ();
 	value_.conservativeResize (Jrows + fSize_);

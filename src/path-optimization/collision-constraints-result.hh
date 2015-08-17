@@ -184,8 +184,6 @@ namespace hpp {
 	{
 	  model::DistanceResult result;
 	  fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
-	  robot_->currentConfiguration (constraintConfig_);
-	  robot_->computeForwardKinematics ();
 	  fcl::distance (object1_->fcl ().get (), object2_->fcl ().get (),
 			 distanceRequest, result.fcl);
 	  distance_ = result.distance ();

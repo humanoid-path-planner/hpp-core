@@ -124,7 +124,7 @@ namespace hpp {
 	void integrate (vectorIn_t x0, vectorIn_t step, vectorOut_t x1) const;
 
 	/// Compute iteration of optimization program
-	vector_t computeIterate () const;
+	vector_t computeIterate (vectorIn_t x) const;
 
 	/// Display path waypoints in log file
 	void displayPath (vectorIn_t x, std::string

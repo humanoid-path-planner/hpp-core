@@ -59,38 +59,47 @@ namespace hpp {
 	initial_ = (*first) (path->timeRange ().first);
 	PathPtr_t last = path->pathAtRank (nbPaths_-1);
 	end_ = (*last) (last->timeRange ().second);
-	weights_.resize (nbPaths_);
-	weights_.setZero ();
-	computeWeights (path);
+	computeLambda (path);
       }
 
-      void PathLength::computeWeights (const PathVectorPtr_t& path) const
+      void PathLength::computeLambda (const PathVectorPtr_t& path) const
       {
+	lambda_.resize (nbPaths_);
+	lambda_.setZero ();
+	value_type lambdaMax = 0;
 	for (std::size_t i=0; i < nbPaths_; ++i) {
 	  value_type d = (*distance_) (path->pathAtRank (i)->initial (),
 				       path->pathAtRank (i)->end ());
-	  weights_ [i] = 1/d;
+	  lambda_ [i] = d;
+	  if (d > lambdaMax) lambdaMax = lambda;
 	}
-	hppDout (info, "computed weights_ = " << weights_.transpose ());
+	for (std::size_t i=0; i < nbPaths_; ++i) {
+	  value_type d (lambda_ [i]);
+	  if (d > 1e-6*lambdaMax)
+	    lambda_ [i] = 1./d;
+	  else
+	    lambda_ [i] = 1e6/lambdaMax;
+	}
+
+	hppDout (info, "computed lambda_ = " << lambda_.transpose ());
       }
 
       void PathLength::impl_compute (vectorOut_t result,
 				     vectorIn_t argument) const
       {
-	vector_t weights (weights_);
 	size_type index = 0;
 	value_type d = (*distance_)
 	  (initial_, argument.segment (index, configSize_));
-	value_type cost = d*d * weights [0];
+	value_type cost = d*d * lambda_ [0];
 	for (std::size_t i=0; i < nbPaths_ - 2; ++i) {
 	  value_type d = (*distance_) (argument.segment (index, configSize_),
 				       argument.segment (index + configSize_,
 							 configSize_));
-	  cost += d*d * weights [i+1];
+	  cost += d*d * lambda_ [i+1];
 	  index += configSize_;
 	}
 	d = (*distance_) (argument.segment (index, configSize_), end_);
-	cost += d*d * weights [nbPaths_ - 1];
+	cost += d*d * lambda_ [nbPaths_ - 1];
 	result [0] = .5*cost;
       }
 
@@ -138,7 +147,7 @@ namespace hpp {
 	    }
 	  }
 	  jacobian.block (0, indexVelocity, 1, numberDofs_) =
-	    (u1* weights_ [i] - u2* weights_ [i+1]).transpose ();
+	    (u1* lambda_ [i] - u2* lambda_ [i+1]).transpose ();
 	  indexConfig += configSize_;
 	  indexVelocity += numberDofs_;
 	  u1 = u2;
@@ -159,12 +168,10 @@ namespace hpp {
 	    ++rank;
 	  }
 	}
-	u1 *= weights_ [weights_.size () - 2];
-	u2 *= weights_ [weights_.size () - 1];
-
 	// Compute last waypoint gradient
 	jacobian.block (0, indexVelocity, 1, numberDofs_) =
-	  (u1 - u2).transpose ();
+	  (u1 * lambda_ [nbPaths_-2] -
+	   u2 * lambda_ [nbPaths_-1]).transpose ();
 	indexConfig += configSize_;
 	indexVelocity += numberDofs_;
 	assert (indexConfig == argument.size ());
@@ -176,11 +183,9 @@ namespace hpp {
 	assert (result.rows () == inputDerivativeSize ());
 	assert (result.cols () == inputDerivativeSize ());
 
-	size_type n = nbPaths_;
+	size_type n = nbPaths_ - 1;
 	// Fill inverse weight matrix
-	matrix_t inverseWeight (numberDofs_, numberDofs_);
-	matrix_t weight (numberDofs_, numberDofs_);
-	inverseWeight.setZero ();
+	matrix_t W2 (numberDofs_, numberDofs_); W2.setZero ();
 	size_type index = 0;
 	size_type rank = 0;
 	const JointVector_t & jv (robot_->getJointVector ());
@@ -191,9 +196,8 @@ namespace hpp {
 	    value_type w = distance_->getWeight (rank);
 	    hppDout (info, "rank = " << rank << ", joint = " <<
 		     (*itJoint)->name () << ", weight = " << w);
-	    w = 1./(w*w);
 	    while (s>0) {
-	      inverseWeight (index, index) = w;
+	      W2 (index, index) = w*w;
 	      --s;
 	      ++index;
 	    }
@@ -202,22 +206,19 @@ namespace hpp {
 	}
 	assert (index == numberDofs_);
 
-	weight = inverseWeight.inverse ();
 	matrix_t hessian (inputDerivativeSize (), inputDerivativeSize ());
 	hessian.setZero ();
-	hessian.block (0, 0, numberDofs_, numberDofs_) =
-	  weight *( weights_ [0] +  weights_ [1]);
-	for (size_type i = 0; i < n-2; ++i) {
+	for (size_type i = 0; i < n-1; ++i) {
 	  hessian.block (i*numberDofs_, i*numberDofs_,
 			 numberDofs_, numberDofs_) =
-	    weight *( weights_ [i] +  weights_ [i+1]);
+	    (lambda_ [i] +  lambda_ [i+1]) * W2;
 	  hessian.block ((i+1)*numberDofs_, i*numberDofs_,
-			 numberDofs_, numberDofs_) = -weight * weights_ [i+1];
+			 numberDofs_, numberDofs_) = -lambda_ [i+1] * W2;
 	  hessian.block (i*numberDofs_, (i+1)*numberDofs_,
-			 numberDofs_, numberDofs_) = -weight * weights_ [i+1];
+			 numberDofs_, numberDofs_) = -lambda_ [i+1] * W2;
 	}
-	hessian.block ((n-2)*numberDofs_, (n-2)*numberDofs_, numberDofs_,
-		       numberDofs_) = weight * (weights_ [n-2] + weights_[n-1]);
+	hessian.block ((n-1)*numberDofs_, (n-1)*numberDofs_, numberDofs_,
+		       numberDofs_) = (lambda_ [n-1] + lambda_[n]) * W2;
 	result = hessian;
       }
     } // namespace pathOptimization
