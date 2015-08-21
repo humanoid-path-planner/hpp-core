@@ -45,9 +45,6 @@
 #include <hpp/constraints/relative-transformation.hh>
 #include "path-optimization/collision-constraints-result.hh"
 
-// For debug
-#include <hpp/core/problem-solver.hh>
-
 namespace hpp {
   namespace core {
     namespace pathOptimization {
@@ -219,20 +216,6 @@ namespace hpp {
 		     (J_*p_ - (rhs_ - value_)).squaredNorm ());
 	    hppDout (info, "norm(grad*V0)? = " <<
 		     ((rgrad_ + (H_*p_).transpose ())*V0_).squaredNorm ());
-#ifdef HPP_DEBUG
-	    vector_t xmin; xmin.resize (x.size ());
-	    integrate (x, p_, xmin);
-	    rowvector_t rgradMin; rgradMin.resize (p_.size ());
-	    rowvector_t gradMin; gradMin.resize (cost_->inputDerivativeSize ());
-	    cost_->jacobian (gradMin, xmin);
-	    compressVector (gradMin.transpose (), rgradMin.transpose ());
-	    hppDout (info, "p=" << p_.transpose ());
-	    hppDout (info, "grad (xmin) - grad (x) - H * (xmin - x) = "
-		     << ((rgradMin - rgrad_).transpose () - H_ * p_).transpose
-		     ());
-	    hppDout (info, "norm(grad*V0) = "
-		     << (rgradMin*V0_).squaredNorm ());
-#endif
 	  } else {
 	    p_ = p0_;
 	  }
@@ -292,10 +275,6 @@ namespace hpp {
 
 	PathVectorPtr_t path0 (path);
 	CollisionConstraintsResults_t collisionConstraints;
-	size_type pathId = 0;
-	if (ProblemSolver::latest ()) {
-	  pathId = ProblemSolver::latest ()->paths ().size ();
-	}
 	if (!minimumReached) {
 	  do {
 	    vector_t s = computeIterate (x0);
@@ -310,13 +289,6 @@ namespace hpp {
 	    PathVectorPtr_t path1 = PathVector::create (configSize_,
 							robotNumberDofs_);
 	    vectorToPath (x1, path1);
-	    if (ProblemSolver::latest ()) {
-	      hppDout (info, "applied iteration to lastest valid path:"
-		       " path id = " << pathId);
-	      ProblemSolver::latest ()->addPath (path1);
-	      ++pathId;
-	    }
-
 	    bool isPathValid = validatePath (pathValidation, path1, reports);
 	    // if new path is in collision, we add some constraints
 	    if (!isPathValid) {
@@ -344,7 +316,6 @@ namespace hpp {
 	      rowvector_t rgrad0 (rgrad_);
 	      x0 = x1;
 	      path0 = path1;
-	      hppDout (info, "latest valid path: " << pathId - 1);
 	      cost_->jacobian (grad, x0);
 	      compressVector (grad.transpose (), rgrad_.transpose ());
 	      noCollision = true;
