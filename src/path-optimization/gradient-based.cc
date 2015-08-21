@@ -146,6 +146,7 @@ namespace hpp {
 	hppDout (info, "size of x = " << cost_->inputSize ());
 	numberDofs_ = cost_->inputDerivativeSize ();
 	stepNormal_.resize (numberDofs_);
+	p_.resize (numberDofs_);
 	// Get problem constraints and locked degrees of freedom
 	initializeProblemConstraints ();
 
@@ -195,6 +196,10 @@ namespace hpp {
 		   svd.singularValues ().transpose ());
 	  hppDout (info, "Jrows = " << J_.rows ());
 	  hppDout (info, "rank(J) = " << rank);
+	  if (J_.rows () < rank) {
+	    p_.setZero ();
+	    return p_;
+	  }
 	  V0_ = svd.matrixV ().rightCols (numberDofs_-rank);
 	  hppDout (info, "rhs_ - value_ = " << rhs_ - value_);
 	  p0_ = svd.solve (rhs_ - value_);
@@ -295,9 +300,11 @@ namespace hpp {
 	  do {
 	    vector_t s = computeIterate (x0);
 	    hppDout (info, "alpha_ = " << alpha_);
-	    minimumReached = (s.norm () < epsilon_ || alpha_ == 1.);
-	    hppDout (info, "norm of s: " << s.norm ());
+	    value_type norm_s (s.norm ());
+	    minimumReached = (norm_s < epsilon_ || alpha_ == 1.);
+	    hppDout (info, "norm of s: " << norm_s);
 	    hppDout (info, "s: " << s.transpose ());
+	    if (norm_s == 0) return path0;
 	    integrate (x0, s, x1);
 	    hppDout (info, "x1=" << x1.transpose ());
 	    PathVectorPtr_t path1 = PathVector::create (configSize_,

@@ -71,7 +71,7 @@ namespace hpp {
 	  value_type d = (*distance_) (path->pathAtRank (i)->initial (),
 				       path->pathAtRank (i)->end ());
 	  lambda_ [i] = d;
-	  if (d > lambdaMax) lambdaMax = lambda;
+	  if (d > lambdaMax) lambdaMax = d;
 	}
 	for (std::size_t i=0; i < nbPaths_; ++i) {
 	  value_type d (lambda_ [i]);
