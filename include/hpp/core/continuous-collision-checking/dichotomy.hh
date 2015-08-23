@@ -36,6 +36,39 @@ namespace hpp {
       /// \{
 
       /// Continuous validation of a path for collision
+      ///
+      /// This class tests for collision
+      /// \li straight paths, or
+      /// \li concatenation of straight paths.
+      ///
+      /// A path is valid if and only if each pair of objects to test is
+      /// collision-free along the whole interval of definition. 
+      ///
+      /// For each pair, a union of sub-intervals where the pair is
+      /// collision-free is computed.
+      ///
+      /// First, each pair is tested at the beginning of the interval
+      /// (at the end if reverse is set to true). Then the pair that
+      /// has the smaller upper bound of the first valid sub-interval is
+      /// tested at the middle of the segment delimited by the upper bound
+      /// of the first valid sub-interval and by the lower bound of the second
+      /// valid sub-interval (or the end of the interval of definition if the
+      /// union of sub-intervals contains only one sub-interval).
+      ///
+      /// Collision pairs between bodies of the robot are initialized at
+      /// construction of the instance.
+      ///
+      /// Method Dichotomy::addObstacle adds an obstacle in the environment.
+      /// This obstacle is added to the pair corresponding to each joint with
+      /// the environment.
+      ///
+      /// Validation of pairs along straight interpolations is based on the
+      /// computation of an upper-bound of the relative velocity of objects
+      /// of one joint (or of the environment) in the reference frame of the
+      /// other joint.
+      ///
+      /// See <a href="continuous-collision-checking.pdf"> this document </a>
+      /// for details.
       class HPP_CORE_DLLAPI Dichotomy : public PathValidation
       {
       public:
