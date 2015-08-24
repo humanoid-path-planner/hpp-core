@@ -161,7 +161,7 @@ namespace hpp {
 	alpha_ = alphaInit_;
       }
 
-      vector_t GradientBased::computeIterate (vectorIn_t x) const
+      vector_t GradientBased::computeIterate (vectorIn_t) const
       {
 	if (J_.rows () == 0) {
 	  // no constraints
