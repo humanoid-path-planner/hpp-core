@@ -193,7 +193,7 @@ namespace hpp {
 		   svd.singularValues ().transpose ());
 	  hppDout (info, "Jrows = " << J_.rows ());
 	  hppDout (info, "rank(J) = " << rank);
-	  if (J_.rows () < rank) {
+	  if (rank < J_.rows ()) {
 	    p_.setZero ();
 	    return p_;
 	  }
