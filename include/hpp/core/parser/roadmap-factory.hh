@@ -80,7 +80,7 @@ namespace hpp {
 
           RoadmapPtr_t roadmap_;
 
-          typedef std::vector<unsigned int> SizeVector_t;
+          typedef std::vector <std::size_t> SizeVector_t;
           SizeVector_t permutation_;
 
           typedef std::vector <NodePtr_t> Nodes_t;

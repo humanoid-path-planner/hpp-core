@@ -127,7 +127,7 @@ namespace hpp {
           JointPtr_t j = robot_->getJointByName (jn[i]);
           if (!j) throw std::invalid_argument ("Joint " + jn[i] + " not found");
           for (size_type r = 0; r < j->configSize (); ++r)
-            permutation_ [rank + r] = j->rankInConfiguration() + r;
+            permutation_ [rank + r] = j->rankInConfiguration() + (std::size_t)r;
           rank += j->configSize();
         }
         if (rank != permutation_.size())
