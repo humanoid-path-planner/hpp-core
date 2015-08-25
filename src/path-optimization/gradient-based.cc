@@ -62,7 +62,7 @@ namespace hpp {
 	configSize_ (robot_->configSize ()), robotNumberDofs_
 	(robot_->numberDof ()),	robotNbNonLockedDofs_ (robot_->numberDof ()),
 	fSize_ (1),
-	initial_ (), end_ (), epsilon_ (1e-5), iterMax_ (30), alphaInit_ (0.25),
+	initial_ (), end_ (), epsilon_ (1e-5), iterMax_ (30), alphaInit_ (0.1),
 	alphaMax_ (1.)
       {
 	distance_ = HPP_DYNAMIC_PTR_CAST (WeighedDistance, problem.distance ());
@@ -193,10 +193,6 @@ namespace hpp {
 		   svd.singularValues ().transpose ());
 	  hppDout (info, "Jrows = " << J_.rows ());
 	  hppDout (info, "rank(J) = " << rank);
-	  if (rank < J_.rows ()) {
-	    p_.setZero ();
-	    return p_;
-	  }
 	  V0_ = svd.matrixV ().rightCols (numberDofs_-rank);
 	  hppDout (info, "rhs_ - value_ = " << rhs_ - value_);
 	  p0_ = svd.solve (rhs_ - value_);
@@ -319,7 +315,6 @@ namespace hpp {
 	      cost_->jacobian (grad, x0);
 	      compressVector (grad.transpose (), rgrad_.transpose ());
 	      noCollision = true;
-	      alpha_ = .5*(1 + alpha_);
 	    }
 	  } while (!(noCollision && minimumReached) && (!interrupt_));
 	} // while (!minimumReached)
@@ -361,12 +356,7 @@ namespace hpp {
 	  // Apply problem constraints to each waypoint.
 	  size_type sizeConstraint = configProjector->rightHandSide ().size ();
 	  rows = sizeConstraint * nbWaypoints_;
-	  rhs_.resize (rows);
-	  // Fill right hand side
-	  for (size_type i=0; i<nbWaypoints_; ++i) {
-	    rhs_.segment (i*sizeConstraint, sizeConstraint) =
-	      configProjector->rightHandSide ();
-	  }
+	  rhs_.resize (rows); rhs_.setZero ();
 	}
 	value_.resize (rows);
 	J_.resize (rows, numberDofs_); J_.setZero ();
@@ -411,8 +401,8 @@ namespace hpp {
       ///       the user that there is no collision
       ///
       bool GradientBased::constraintsSatisfied
-      (vectorOut_t& x, PathVectorPtr_t& path,
-       CollisionConstraintsResults_t& collisionConstraints)
+      (vectorOut_t& x, PathVectorPtr_t&,
+       CollisionConstraintsResults_t&)
       {
 	bool satisfied = true;
 	if (problem ().constraints ()) {
@@ -422,15 +412,6 @@ namespace hpp {
 	      satisfied = false;
 	    }
 	  }
-	}
-	path = PathVector::create (configSize_, robotNumberDofs_);
-	vectorToPath (x, path);
-	// Check that collision constraints are within bounds, if not
-	// linearize around new value.
-	for (CollisionConstraintsResults_t::iterator it =
-	       collisionConstraints.begin (); it != collisionConstraints.end ();
-	     ++it) {
-	  if (!it->satisfied (path)) satisfied = false;
 	}
 	return satisfied;
       }
@@ -492,7 +473,7 @@ namespace hpp {
 	value_.conservativeResize (Jrows + fSize_);
 	value_.segment (ccr.rowInJacobian (), fSize_).setZero ();
 	rhs_.conservativeResize (Jrows + fSize_);
-	rhs_ [ccr.rowInJacobian ()] = ccr.distance ();
+	rhs_ [ccr.rowInJacobian ()] = 0;
 	ccr.linearize (path, J_, value_);
       }
 

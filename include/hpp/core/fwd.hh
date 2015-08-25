@@ -175,6 +175,7 @@ namespace hpp {
     typedef std::vector <PathPtr_t> Paths_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
+    typedef model::vector3_t vector3_t;
     typedef model::vector_t vector_t;
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
