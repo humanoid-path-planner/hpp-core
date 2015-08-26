@@ -62,7 +62,7 @@ namespace hpp {
 	configSize_ (robot_->configSize ()), robotNumberDofs_
 	(robot_->numberDof ()),	robotNbNonLockedDofs_ (robot_->numberDof ()),
 	fSize_ (1),
-	initial_ (), end_ (), epsilon_ (1e-5), iterMax_ (30), alphaInit_ (0.1),
+	initial_ (), end_ (), epsilon_ (1e-5), iterMax_ (30), alphaInit_ (0.25),
 	alphaMax_ (1.)
       {
 	distance_ = HPP_DYNAMIC_PTR_CAST (WeighedDistance, problem.distance ());
@@ -187,12 +187,15 @@ namespace hpp {
 	  // C (x) = (grad (x1) + p0^T H) V0 z  + 1/2 z^T V0^T H V0 z + C (x1)
 	  // z = - (V0^T H V0)^{-1} V0^T(grad (x1)^T + H p0)
 	  Jacobi_t svd (J_, Eigen::ComputeThinU | Eigen::ComputeFullV);
-	  svd.setThreshold (1e-6);
 	  size_type rank = svd.rank();
 	  hppDout (info, "J_ singular values = " <<
 		   svd.singularValues ().transpose ());
 	  hppDout (info, "Jrows = " << J_.rows ());
 	  hppDout (info, "rank(J) = " << rank);
+	  if (rank < J_.rows ()) {
+	    p_.setZero ();
+	    return p_;
+	  }
 	  V0_ = svd.matrixV ().rightCols (numberDofs_-rank);
 	  hppDout (info, "rhs_ - value_ = " << rhs_ - value_);
 	  p0_ = svd.solve (rhs_ - value_);
@@ -200,7 +203,6 @@ namespace hpp {
 	    Hz_ = V0_.transpose () * H_ * V0_;
 	    gz_ = - V0_.transpose () * (rgrad_.transpose () + H_ * p0_);
 	    Jacobi_t svd2 (Hz_, Eigen::ComputeThinU | Eigen::ComputeFullV);
-	    //svd2.setThreshold (1e-6);
 	    rank = svd2.rank ();
 	    hppDout (info, "Hz_ singular values = " <<
 		     svd2.singularValues ().transpose ());
