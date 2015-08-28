@@ -80,7 +80,7 @@ namespace hpp {
       }
 
     private:
-      const DistancePtr_t& distance_;
+      const DistancePtr_t distance_;
     }; // class Basic
     } // namespace nearestNeighbor
   } // namespace core

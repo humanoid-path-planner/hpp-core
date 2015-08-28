@@ -182,7 +182,7 @@ namespace hpp {
       void merge (const ConnectedComponentPtr_t& cc1,
 		  ConnectedComponents_t& ccs);
 
-      const DistancePtr_t& distance_;
+      const DistancePtr_t distance_;
       ConnectedComponents_t connectedComponents_;
       Nodes_t nodes_;
       Edges_t edges_;
