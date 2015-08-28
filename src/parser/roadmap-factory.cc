@@ -60,6 +60,7 @@ namespace hpp {
         p.addObjectFactory ("roadmap", RoadmapFactory::ArgumentParser::create);
         p.addObjectFactory ("joints", create <StringSequence>);
         p.addObjectFactory ("node", create <ConfigurationFactory>);
+        p.addObjectFactory ("path", create <ObjectFactory>);
         p.parseFile (fn);
         ObjectFactory* rf = 0;
         p.root ()->getChildOfType ("roadmap", rf);
