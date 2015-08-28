@@ -53,7 +53,7 @@ namespace hpp {
 				connectedComponent,
 			       value_type& distance)
       {
-	NodePtr_t result;
+	NodePtr_t result = NULL;
 	distance = std::numeric_limits <value_type>::infinity ();
 	for (Nodes_t::const_iterator itNode =
 	       connectedComponent->nodes ().begin ();
