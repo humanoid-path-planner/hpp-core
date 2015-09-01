@@ -14,10 +14,12 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/debug.hh>
 #include "hpp/core/parser/roadmap-factory.hh"
 
 #include <string>
 
+#include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
@@ -143,6 +145,7 @@ namespace hpp {
         Configuration_t& q =*cfg;
         for (size_type i = 0; i < q.size(); ++i)
           q[i] = config [permutation_[i]];
+	normalize (robot_, q);
         return cfg;
       }
 
