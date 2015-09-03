@@ -138,10 +138,6 @@ namespace hpp {
       /// \param node node pointing to the connected component.
       /// \note The node is added in the connected component.
       void addConnectedComponent (const NodePtr_t& node);
-      
-      /// Whether nodes of cc can be reached by nodes of this
-      /// \param cc a connected component.
-      bool canReach (const ConnectedComponentPtr_t& cc);
 
       /// Give child class the opportunity to get the event
       /// "A node has been added to the roadmap"
