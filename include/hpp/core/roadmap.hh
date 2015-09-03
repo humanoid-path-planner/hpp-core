@@ -146,6 +146,11 @@ namespace hpp {
         nodes_.push_back (n);
       }
 
+      /// Node factory
+      /// Reimplement the function if you want to create an instance of a
+      /// child class of Node
+      virtual NodePtr_t createNode (const ConfigurationPtr_t& configuration) const;
+
     private:
       /// Add a node with given configuration
       /// \param config configuration

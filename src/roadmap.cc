@@ -96,7 +96,7 @@ namespace hpp {
 	  return nearest;
 	}
       }
-      NodePtr_t node = new Node (configuration);
+      NodePtr_t node = createNode (configuration);
       hppDout (info, "Added node: " << displayConfig (*configuration));
       push_node (node);
       // Node constructor creates a new connected component. This new
@@ -118,7 +118,8 @@ namespace hpp {
 	  return nearest;
 	}
       }
-      NodePtr_t node = new Node (configuration, connectedComponent);
+      NodePtr_t node = createNode (configuration);
+      node->connectedComponent (connectedComponent);
       hppDout (info, "Added node: " << displayConfig (*configuration));
       push_node (node);
       // The new node needs to be registered in the connected
@@ -213,6 +214,12 @@ namespace hpp {
       connectedComponents_.insert (node->connectedComponent ());
       node->connectedComponent ()->addNode (node);
       nearestNeighbor_->addNode(node);
+    }
+
+    NodePtr_t Roadmap::createNode (const ConfigurationPtr_t& configuration)
+      const
+    {
+      return NodePtr_t (new Node (configuration));
     }
 
     void Roadmap::connect (const ConnectedComponentPtr_t& cc1,
