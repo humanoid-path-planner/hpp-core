@@ -35,6 +35,7 @@ namespace hpp {
       using hpp::util::parser::XMLElement;
       typedef hpp::util::parser::SequenceFactory<std::string> StringSequence;
       typedef hpp::util::parser::SequenceFactory<double> ConfigurationFactory;
+      typedef hpp::util::parser::SequenceFactory<unsigned int> IdSequence;
 
       void writeRoadmap (std::ostream& o, const RoadmapPtr_t roadmap,
           const DevicePtr_t robot);
@@ -77,6 +78,8 @@ namespace hpp {
           void computePermutation (const std::vector <std::string>& jointNames);
           ConfigurationPtr_t permuteAndCreateConfiguration
             (const std::vector <double>& config);
+
+          size_type getNodeIdFromRoadmap (const NodePtr_t& node) const;
 
           RoadmapPtr_t roadmap_;
 

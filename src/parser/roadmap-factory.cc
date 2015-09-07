@@ -62,6 +62,7 @@ namespace hpp {
         p.addObjectFactory ("roadmap", RoadmapFactory::ArgumentParser::create);
         p.addObjectFactory ("joints", create <StringSequence>);
         p.addObjectFactory ("node", create <ConfigurationFactory>);
+        p.addObjectFactory ("goal_nodes", create <IdSequence>);
         p.addObjectFactory ("path", create <ObjectFactory>);
         p.parseFile (fn);
         ObjectFactory* rf = 0;
@@ -118,6 +119,24 @@ namespace hpp {
           edges_.push_back (
             roadmap_->addEdge (from, to, path)
             );
+        }
+
+        /// Set init node
+        if (hasAttribute ("init_node")) {
+          int initId = boost::lexical_cast <int> (getAttribute ("init_node"));
+          NodePtr_t init = nodes_[initId];
+          roadmap_->initNode (init->configuration ());
+        }
+        /// Set goal nodes
+        try {
+          getChildOfType ("goal_nodes", o);
+          IdSequence* idSeq = o->as <IdSequence> ();
+          for (IdSequence::OutType::const_iterator it = idSeq->values ().begin ();
+              it != idSeq->values().end(); ++it) {
+            roadmap_->addGoalNode (nodes_[*it]->configuration ());
+          }
+        } catch (const std::invalid_argument& e) {
+          hppDout (warning, e.what());
         }
       }
 
@@ -185,13 +204,7 @@ namespace hpp {
               ed != edges.end (); ++ed) {
             ObjectFactory* of = new ObjectFactory ("path", this);
             // Find id of final configuration
-            NodePtr_t to = (*ed)->to ();
-            size_type toId = -1;
-            for (NodeList::const_iterator it2 = nodes.begin ();
-                it2 != nodes.end(); ++it2) {
-              toId++;
-              if (*it2 == to) break;
-            }
+            size_type toId = getNodeIdFromRoadmap ((*ed)->to());
             if (toId < 0) {
               hppDout (error, "Id not found");
             }
@@ -201,8 +214,33 @@ namespace hpp {
           }
           fromId++;
         }
+
+        size_type initId = getNodeIdFromRoadmap (roadmap_->initNode ());
+        if (initId >= 0) {
+          addAttribute ("init_node", boost::lexical_cast <std::string> (initId));
+        }
+        IdSequence* goalNodes = new IdSequence ("goal_nodes", this);
+        IdSequence::OutType values;
+        for (core::Nodes_t::const_iterator it = roadmap_->goalNodes ().begin ();
+            it != roadmap_->goalNodes ().end(); ++it) {
+          size_type id = getNodeIdFromRoadmap (*it);
+          if (id >= 0) {
+            values.push_back (id);
+          }
+        }
+        goalNodes->values (values);
       }
 
+      size_type RoadmapFactory::getNodeIdFromRoadmap (const NodePtr_t& node) const
+      {
+        size_type id = -1;
+        for (core::Nodes_t::const_iterator it = roadmap_->nodes().begin ();
+            it != roadmap_->nodes().end(); ++it) {
+          id++;
+          if (*it == node) break;
+        }
+        return id;
+      }
     } // namespace parser
   } // namespace core
 } // namespace hpp
