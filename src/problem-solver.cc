@@ -344,6 +344,9 @@ namespace hpp {
 
     bool ProblemSolver::prepareSolveStepByStep ()
     {
+      // Set shooter
+      problem_->configurationShooter
+        (configurationShooterFactory_ [configurationShooterType_] (robot_));
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
