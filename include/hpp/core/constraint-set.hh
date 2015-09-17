@@ -134,16 +134,6 @@ namespace hpp {
 	weak_ = self;
       }
       virtual bool impl_compute (ConfigurationOut_t configuration);
-    private:
-      virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
-      {
-	for (Constraints_t::iterator itConstraint = constraints_.begin ();
-	     itConstraint != constraints_.end (); itConstraint ++) {
-	  (*itConstraint)->addToConstraintSet (constraintSet);
-	}
-      }
-
-      void removeFirstElement ();
 
       virtual std::ostream& print (std::ostream& os) const
       {
@@ -154,6 +144,16 @@ namespace hpp {
 	}
 	return os;
       }
+    private:
+      virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
+      {
+	for (Constraints_t::iterator itConstraint = constraints_.begin ();
+	     itConstraint != constraints_.end (); itConstraint ++) {
+	  (*itConstraint)->addToConstraintSet (constraintSet);
+	}
+      }
+
+      void removeFirstElement ();
 
       Constraints_t constraints_;
       ConfigProjectorPtr_t configProjector_;
