@@ -95,8 +95,11 @@ namespace hpp {
 	for (unsigned i=0; i<3; ++i) {
 	  PathPtr_t validPart;
 	  PathValidationReportPtr_t report;
-	  valid [i] = problem ().pathValidation ()->validate
-	    (straight [i], false, validPart, report);
+          if (!straight [i]) valid[i] = false;
+          else {
+            valid [i] = problem ().pathValidation ()->validate
+              (straight [i], false, validPart, report);
+          }
 	}
 	// Replace valid parts
 	result = PathVector::create (path->outputSize (),
