@@ -22,6 +22,7 @@
 #include <hpp/model/joint-configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/projection-error.hh>
 
 namespace hpp {
   namespace core {
@@ -105,10 +106,10 @@ namespace hpp {
 
       bool success;
       Configuration_t q1 ((*this) (subInterval.first, success));
-      if (!success) throw std::runtime_error
+      if (!success) throw projection_error
 		      ("Failed to apply constraints in StraightPath::extract");
       Configuration_t q2 ((*this) (subInterval.second, success));
-      if (!success) throw std::runtime_error
+      if (!success) throw projection_error
 		      ("Failed to apply constraints in StraightPath::extract");
       PathPtr_t result = StraightPath::create (device_, q1, q2, l,
 					       constraints ());
