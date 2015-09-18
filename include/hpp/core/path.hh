@@ -23,6 +23,7 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint-set.hh>
+# include <hpp/core/deprecated.hh>
 
 namespace hpp {
   namespace core {
@@ -75,6 +76,7 @@ namespace hpp {
       /// \}
 
       Configuration_t operator () (const value_type& t) const
+        HPP_CORE_DEPRECATED
       {
 	Configuration_t result (outputSize ());
 	impl_compute (result, t);
