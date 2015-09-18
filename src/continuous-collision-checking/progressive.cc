@@ -286,11 +286,12 @@ namespace hpp {
 	  value_type lastValidTime = tmax;
 	  value_type t = tmax;
 	  unsigned finished = 0;
+          Configuration_t q (path->outputSize ());
 	  while (finished < 2 && valid) {
-	    Configuration_t q = (*path) (t);
+	    bool success = (*path) (q, t);
 	    value_type tprev = t;
 	    PathValidationReportPtr_t pathReport;
-	    if (!validateConfiguration (q, reverse, t, pathReport)) {
+	    if (!success || !validateConfiguration (q, reverse, t, pathReport)) {
 	      report = pathReport;
 	      valid = false;
 	    } else {
@@ -314,11 +315,12 @@ namespace hpp {
 	  value_type lastValidTime = tmin;
 	  value_type t = tmin;
 	  unsigned finished = 0;
+          Configuration_t q (path->outputSize ());
 	  while (finished < 2 && valid) {
-	    Configuration_t q = (*path) (t);
+	    bool success = (*path) (q, t);
 	    value_type tprev = t;
 	    PathValidationReportPtr_t pathReport;
-	    if (!validateConfiguration (q, reverse, t, pathReport)) {
+	    if (!success || !validateConfiguration (q, reverse, t, pathReport)) {
 	      report = pathReport;
 	      valid = false;
 	    } else {

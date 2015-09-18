@@ -30,6 +30,7 @@
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
+# include <hpp/core/projection-error.hh>
 # include "continuous-collision-checking/intervals.hh"
 
 
@@ -182,7 +183,10 @@ namespace hpp {
 	  {
 	    using std::numeric_limits;
 	    // Get configuration of robot corresponding to parameter
-	    Configuration_t q = (*path_) (t);
+            bool success;
+	    Configuration_t q = (*path_) (t, success);
+            if (!success) throw
+              projection_error(std::string ("Unable to apply constraints in ") + __PRETTY_FUNCTION__);
 	    // Compute position of joint a in frame of common ancestor
 	    model::Transform3f Ma, tmp;
         for (int i = (int)indexCommonAncestor_ - 1; i >= 0; --i) {

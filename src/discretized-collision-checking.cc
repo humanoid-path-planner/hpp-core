@@ -140,9 +140,10 @@ namespace hpp {
 	value_type lastValidTime = tmax;
 	value_type t = tmax;
 	unsigned finished = 0;
+        Configuration_t q (path->outputSize());
 	while (finished < 2 && valid) {
-	  Configuration_t q = (*path) (t);
-      if (!configValidation_->validate (q, configReport)) {
+          bool success = (*path) (q, t);
+      if (!success || !configValidation_->validate (q, configReport)) {
 	validationReport = CollisionPathValidationReportPtr_t
 	  (new CollisionPathValidationReport (t, configReport));
 	    valid = false;
@@ -168,9 +169,10 @@ namespace hpp {
 	value_type lastValidTime = tmin;
 	value_type t = tmin;
 	unsigned finished = 0;
+        Configuration_t q (path->outputSize());
 	while (finished < 2 && valid) {
-	  Configuration_t q = (*path) (t);
-      if (!configValidation_->validate (q, configReport)) {
+	  bool success = (*path) (q, t);
+      if (!success || !configValidation_->validate (q, configReport)) {
 	validationReport = CollisionPathValidationReportPtr_t
 	  (new CollisionPathValidationReport (t, configReport));
 	    valid = false;
