@@ -442,17 +442,18 @@ namespace hpp {
     void ConfigProjector::addToConstraintSet
     (const ConstraintSetPtr_t& constraintSet)
     {
-      if (constraintSet->configProjector_) {
+      if (constraintSet->configProjector ()) {
        std::ostringstream oss
          ("Constraint set cannot store more than one config-projector");
        oss << std::endl << *constraintSet;
        throw std::runtime_error (oss.str ());
       }
-      constraintSet->configProjector_ = weak_.lock ();
-      constraintSet->trivialOrNotConfigProjector_ =
-	constraintSet->configProjector_;
-      constraintSet->removeFirstElement ();
+      // The constraint is added at the end of the set.
       Constraint::addToConstraintSet (constraintSet);
+      constraintSet->removeFirstElement ();
+      constraintSet->configProjectorIt_ = constraintSet->constraints_.end () - 1;
+      constraintSet->trivialOrNotConfigProjectorIt_ =
+	constraintSet->configProjectorIt_;
     }
 
     std::ostream& ConfigProjector::print (std::ostream& os) const

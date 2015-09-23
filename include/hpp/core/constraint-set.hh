@@ -65,10 +65,7 @@ namespace hpp {
       }
 
       /// Return pointer to config projector if any
-      const ConfigProjectorPtr_t& configProjector () const
-      {
-	return configProjector_;
-      }
+      ConfigProjectorPtr_t configProjector () const;
 
       /// Check whether a configuration statisfies the constraint.
       virtual bool isSatisfied (ConfigurationIn_t config);
@@ -156,8 +153,8 @@ namespace hpp {
       void removeFirstElement ();
 
       Constraints_t constraints_;
-      ConfigProjectorPtr_t configProjector_;
-      ConfigProjectorPtr_t trivialOrNotConfigProjector_;
+      Constraints_t::iterator configProjectorIt_;
+      Constraints_t::iterator trivialOrNotConfigProjectorIt_;
       ConstraintSetWkPtr_t weak_;
 
       friend class LockedJoint;

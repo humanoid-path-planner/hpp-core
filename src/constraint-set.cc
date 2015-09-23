@@ -88,33 +88,42 @@ namespace hpp {
 
     ConstraintSet::ConstraintSet (const DevicePtr_t& robot,
 				  const std::string& name) :
-      Constraint (name), constraints_ (), configProjector_ ()
+      Constraint (name), constraints_ ()
     {
-      trivialOrNotConfigProjector_ = ConfigProjectorTrivial::create (robot);
-      constraints_.push_back (trivialOrNotConfigProjector_);
+      constraints_.push_back (ConfigProjectorTrivial::create (robot));
+      trivialOrNotConfigProjectorIt_ = constraints_.begin ();
+      configProjectorIt_ = constraints_.end ();
     }
 
     ConstraintSet::ConstraintSet (const ConstraintSet& other) :
-      Constraint (other), constraints_ (), configProjector_ ()
+      Constraint (other), constraints_ ()
     {
       for (Constraints_t::const_iterator it = other.constraints_.begin ();
 	   it != other.constraints_.end (); ++it) {
 	constraints_.push_back ((*it)->copy ());
       }
-      if (other.configProjector_) {
-	configProjector_ = HPP_STATIC_PTR_CAST
-	  (ConfigProjector, other.configProjector_->copy ());
-      } else {
-	assert (HPP_DYNAMIC_PTR_CAST (ConfigProjectorTrivial,
-				      constraints_ [0]));
-	trivialOrNotConfigProjector_ = HPP_STATIC_PTR_CAST
-	  (ConfigProjector, constraints_ [0]);
-      }
+
+      configProjectorIt_ = constraints_.begin ();
+      Constraints_t::const_iterator b = other.constraints_.begin(); 
+      Constraints_t::const_iterator it = other.configProjectorIt_; 
+      std::advance (configProjectorIt_, std::distance (b, it));
+
+      trivialOrNotConfigProjectorIt_ = constraints_.begin ();
+      b = other.constraints_.begin(); 
+      it = other.configProjectorIt_; 
+      std::advance (trivialOrNotConfigProjectorIt_, std::distance (b, it));
     }
 
     void ConstraintSet::removeFirstElement ()
     {
       constraints_.pop_front ();
+    }
+
+    ConfigProjectorPtr_t ConstraintSet::configProjector () const
+    {
+      if (configProjectorIt_ != constraints_.end ())
+        return HPP_STATIC_PTR_CAST (ConfigProjector, *configProjectorIt_);
+      else return ConfigProjectorPtr_t ();
     }
 
     bool ConstraintSet::isSatisfied (ConfigurationIn_t configuration)
@@ -147,32 +156,33 @@ namespace hpp {
 
     size_type ConstraintSet::numberNonLockedDof () const
     {
-      return trivialOrNotConfigProjector_->numberNonLockedDof ();
+      return HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)
+        ->numberNonLockedDof ();
     }
 
     void ConstraintSet::compressVector (vectorIn_t normal,
 					vectorOut_t small) const
     {
-      trivialOrNotConfigProjector_->compressVector (normal, small);
+      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->compressVector (normal, small);
     }
 
     void ConstraintSet::uncompressVector (vectorIn_t small,
 					  vectorOut_t normal) const
     {
-      trivialOrNotConfigProjector_->uncompressVector (small, normal);
+      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->uncompressVector (small, normal);
     }
 
     void ConstraintSet::compressMatrix (matrixIn_t normal, matrixOut_t small,
 					bool rows) const
     {
-      trivialOrNotConfigProjector_->compressMatrix (normal, small, rows);
+      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->compressMatrix (normal, small, rows);
     }
 
     void ConstraintSet::uncompressMatrix (matrixIn_t small,
 					  matrixOut_t normal,
 					  bool rows) const
     {
-      trivialOrNotConfigProjector_->uncompressMatrix (small, normal, rows);
+      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->uncompressMatrix (small, normal, rows);
     }
 
   } // namespace core
