@@ -50,7 +50,6 @@ namespace hpp {
       /// Static cast into a derived type
       template <class T> boost::shared_ptr<T> as (void)
       {
-	BOOST_CONCEPT_ASSERT ((boost::Convertible <T*, Path*>));
 	assert (HPP_DYNAMIC_PTR_CAST (T, weak_.lock ()));
 	return HPP_STATIC_PTR_CAST (T, weak_.lock ());
       }
@@ -58,7 +57,6 @@ namespace hpp {
       /// Static cast into a derived type
       template <class T> boost::shared_ptr<const T> as (void) const
       {
-	BOOST_CONCEPT_ASSERT ((boost::Convertible <T*, Path*>));
 	assert (HPP_DYNAMIC_PTR_CAST (const T, weak_.lock ()));
 	return HPP_STATIC_PTR_CAST (const T, weak_.lock ());
       }
