@@ -20,6 +20,8 @@
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/collision.h>
 
+#include <hpp/util/timer.hh>
+
 #include <Eigen/SVD>
 #include <Eigen/Dense>
 #include <hpp/util/debug.hh>
@@ -48,6 +50,11 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
+      namespace {
+        HPP_DEFINE_TIMECOUNTER(GBO_computeIterate);
+        HPP_DEFINE_TIMECOUNTER(GBO_oneStep);
+      }
+
       using model::displayConfig;
       GradientBasedPtr_t GradientBased::create
       (const Problem& problem)
@@ -273,13 +280,20 @@ namespace hpp {
 	CollisionConstraintsResults_t collisionConstraints;
 	if (!minimumReached) {
 	  do {
+            HPP_START_TIMECOUNTER(GBO_oneStep);
+            HPP_START_TIMECOUNTER(GBO_computeIterate);
 	    vector_t s = computeIterate (x0);
+            HPP_STOP_TIMECOUNTER(GBO_computeIterate);
+            HPP_DISPLAY_TIMECOUNTER(GBO_computeIterate);
 	    hppDout (info, "alpha_ = " << alpha_);
 	    value_type norm_s (s.norm ());
 	    minimumReached = (norm_s < epsilon_ || alpha_ == 1.);
 	    hppDout (info, "norm of s: " << norm_s);
 	    hppDout (info, "s: " << s.transpose ());
-	    if (norm_s == 0) return path0;
+	    if (norm_s == 0) {
+              HPP_STOP_TIMECOUNTER(GBO_oneStep);
+              return path0;
+            }
 	    integrate (x0, s, x1);
 	    hppDout (info, "x1=" << x1.transpose ());
 	    PathVectorPtr_t path1 = PathVector::create (configSize_,
@@ -316,6 +330,8 @@ namespace hpp {
 	      compressVector (grad.transpose (), rgrad_.transpose ());
 	      noCollision = true;
 	    }
+            HPP_STOP_TIMECOUNTER(GBO_oneStep);
+            HPP_DISPLAY_TIMECOUNTER(GBO_oneStep);
 	  } while (!(noCollision && minimumReached) && (!interrupt_));
 	} // while (!minimumReached)
 	return path0;

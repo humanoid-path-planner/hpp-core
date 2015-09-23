@@ -40,6 +40,11 @@ SET (HPP_DEBUG FALSE CACHE BOOL "trigger hpp-util debug output")
 IF (HPP_DEBUG)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
 ENDIF()
+# Activate hpp-util logging if requested
+SET (HPP_BENCHMARK FALSE CACHE BOOL "trigger hpp-util benchmark output")
+IF (HPP_BENCHMARK)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_ENABLE_BENCHMARK")
+ENDIF()
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
