@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_CONFIG_PROJECTOR_HH
 # define HPP_CORE_CONFIG_PROJECTOR_HH
 
+# include <Eigen/SVD>
+
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 # include <hpp/core/comparison-type.hh>
@@ -309,6 +311,7 @@ namespace hpp {
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;
+      mutable Eigen::JacobiSVD <matrix_t> svd_;
       mutable matrix_t reducedProjector_;
       mutable vector_t toMinusFrom_;
       mutable vector_t toMinusFromSmall_;

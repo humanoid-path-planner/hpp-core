@@ -17,7 +17,6 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <limits>
-#include <Eigen/SVD>
 #include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
@@ -93,6 +92,8 @@ namespace hpp {
       rhsReducedSize_ (cp.rhsReducedSize_), value_ (cp.value_.size ()),
       reducedJacobian_ (cp.reducedJacobian_.rows (),
 			cp.reducedJacobian_.cols ()),
+      svd_ (cp.reducedJacobian_.rows (), cp.reducedJacobian_.cols (),
+          Eigen::ComputeThinU | Eigen::ComputeThinV),
       reducedProjector_ (cp.reducedProjector_.rows (),
 			 cp.reducedProjector_.cols ()),
       toMinusFrom_ (cp.toMinusFrom_.size ()),
@@ -162,6 +163,8 @@ namespace hpp {
       rightHandSide_ = vector_t::Zero (size);
       reducedJacobian_.resize (size, nbNonLockedDofs_);
       reducedJacobian_.setConstant (sqrt (-1));
+      svd_ = Eigen::JacobiSVD <matrix_t> (reducedJacobian_.rows(),
+          reducedJacobian_.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV);
       dqSmall_.resize (nbNonLockedDofs_);
       dq_.setZero ();
       toMinusFromSmall_.resize (nbNonLockedDofs_);
@@ -330,10 +333,8 @@ namespace hpp {
 	// 0 - v_{i} = J (q_i) (q_{i+1} - q_{i})
 	// q_{i+1} = q_{i} - \alpha_{i} J(q_i)^{+} v_{i}
 	// dq = J(q_i)^{+} v_{i}
-	Eigen::JacobiSVD <matrix_t> svd (reducedJacobian_,
-					 Eigen::ComputeThinU |
-					 Eigen::ComputeThinV);
-	dqSmall_ = svd.solve(value_ - rightHandSide_);
+        svd_.compute (reducedJacobian_);
+	dqSmall_ = svd_.solve(value_ - rightHandSide_);
 	uncompressVector (dqSmall_, dq_);
 	vector_t v (-alpha * dq_);
 	model::integrate (robot_, configuration, v, configuration);
