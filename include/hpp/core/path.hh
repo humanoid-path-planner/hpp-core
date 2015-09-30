@@ -188,6 +188,14 @@ namespace hpp {
 
       /// Interval of definition
       interval_t timeRange_;
+
+      /// Set the constraints
+      /// \warning this method is protected for child classes that need to
+      ///          initialize themselves before being sure that the initial and
+      ///          end configuration satisfy the constraints
+      void constraints (const ConstraintSetPtr_t& constraint) {
+        constraints_ = constraint;
+      }
     private:
       /// Size of the configuration space
       size_type outputSize_;
