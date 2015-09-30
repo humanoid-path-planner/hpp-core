@@ -18,6 +18,7 @@
 
 #include <limits>
 #include <hpp/util/debug.hh>
+#include <hpp/util/timer.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
@@ -28,6 +29,9 @@
 
 namespace hpp {
   namespace core {
+    namespace {
+      HPP_DEFINE_TIMECOUNTER (projection);
+    }
 
     std::ostream& operator<< (std::ostream& os, const hpp::statistics::SuccessStatistics& ss)
     {
@@ -319,6 +323,7 @@ namespace hpp {
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
       if (functions_.empty ()) return true;
+      HPP_START_TIMECOUNTER (projection);
       value_type alpha = .2;
       value_type alphaMax = .95;
       size_type errorDecreased = 3, iter = 0;
@@ -361,6 +366,8 @@ namespace hpp {
       } else {
         statistics_.addSuccess();
       }
+      HPP_STOP_TIMECOUNTER (projection);
+      HPP_DISPLAY_TIMECOUNTER (projection);
       hppDout (info, "number of iterations: " << iter);
       if (squareNorm_ > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");
