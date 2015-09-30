@@ -112,6 +112,7 @@ namespace hpp {
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef boost::shared_ptr <const ConstraintSet> ConstraintSetConstPtr_t;
+    typedef std::deque <ConstraintPtr_t> Constraints_t;
     typedef model::Device Device_t;
     typedef model::DevicePtr_t DevicePtr_t;
     typedef model::DeviceWkPtr_t DeviceWkPtr_t;
@@ -145,6 +146,7 @@ namespace hpp {
     typedef boost::shared_ptr <Equation> EquationPtr_t;
     typedef boost::shared_ptr <const LockedJoint> LockedJointConstPtr_t;
     typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
+    typedef std::list <LockedJointPtr_t> LockedJoints_t;
     typedef model::matrix_t matrix_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
@@ -153,6 +155,7 @@ namespace hpp {
     typedef std::pair<value_type, value_type> interval_t;
     typedef std::pair<size_type, size_type> SizeInterval_t;
     typedef std::vector < SizeInterval_t > SizeIntervals_t;
+    typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
     typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
     typedef model::ObjectVector_t ObjectVector_t;

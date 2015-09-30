@@ -268,6 +268,16 @@ namespace hpp {
 	return functions_;
       }
 
+      /// Get the passive DOF of the ConfigProjector
+      IntervalsContainer_t passiveDofs () const
+      {
+	return passiveDofs_;
+      }
+
+      LockedJoints_t lockedJoints () const {
+        return lockedJoints_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -294,10 +304,8 @@ namespace hpp {
     private:
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
-      typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
       void resize ();
       void computeIntervals ();
-      typedef std::list <LockedJointPtr_t> LockedJoints_t;
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
       IntervalsContainer_t passiveDofs_;

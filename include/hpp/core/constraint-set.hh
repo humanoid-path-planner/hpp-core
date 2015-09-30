@@ -67,6 +67,15 @@ namespace hpp {
       /// Return pointer to config projector if any
       ConfigProjectorPtr_t configProjector () const;
 
+      /// Iterator over the constraints
+      Constraints_t::iterator begin () {
+        return constraints_.begin ();
+      }
+      /// Iterator over the constraints
+      Constraints_t::iterator end () {
+        return constraints_.end ();
+      }
+
       /// Check whether a configuration statisfies the constraint.
       virtual bool isSatisfied (ConfigurationIn_t config);
 
@@ -120,7 +129,6 @@ namespace hpp {
       /// \}
 
     protected:
-      typedef std::deque <ConstraintPtr_t> Constraints_t;
       ConstraintSet (const DevicePtr_t& robot, const std::string& name);
       /// Copy constructor
       ConstraintSet (const ConstraintSet& other);
