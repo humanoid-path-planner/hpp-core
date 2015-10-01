@@ -339,10 +339,9 @@ namespace hpp {
 	// q_{i+1} = q_{i} - \alpha_{i} J(q_i)^{+} v_{i}
 	// dq = J(q_i)^{+} v_{i}
         svd_.compute (reducedJacobian_);
-	dqSmall_ = svd_.solve(value_ - rightHandSide_);
+	dqSmall_ = alpha * svd_.solve(rightHandSide_ - value_);
 	uncompressVector (dqSmall_, dq_);
-	vector_t v (-alpha * dq_);
-	model::integrate (robot_, configuration, v, configuration);
+	model::integrate (robot_, configuration, dq_, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
