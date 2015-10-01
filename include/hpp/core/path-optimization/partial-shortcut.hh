@@ -29,9 +29,13 @@ namespace hpp {
 
       /// Partial shortcut
       ///
-      /// Path optimizer that iteratively samples random configurations along a
-      /// path and that tries to connect these configurations by a call to
-      /// the steering method.
+      /// The algorithm has 3 steps:
+      /// \li find a suitable set of joints that can be optimized.
+      /// \li try a direct path for each of this joints. If this step fails for
+      ///     a joint, then the joint is inserted in a input set of next step.
+      /// \li try to find random shortcut on each joint in the set.
+      ///
+      /// See Parameters for information on how to tune the algorithm.
       ///
       /// \note The optimizer assumes that the input path is a vector of optimal
       ///       paths for the distance function.
@@ -45,9 +49,23 @@ namespace hpp {
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
           struct Parameters {
+            /// Whether of not the joint that are locked by the constraints
+            /// in the path should not be optimized.
+            /// This is safe if you have the same constraints along the path.
+            /// Defaults to true
             bool removeLockedJoints;
+
+
+            /// The optimization will stop after a number of consecutive failure
+            /// on each joint.
+            /// Defaults to 5
             std::size_t numberOfConsecutiveFailurePerJoints;
+
+            /// An iteration will be considered as a failure is the path length
+            /// did not decrease more than progressionMargin.
+            /// Defaults is 1e-3
             value_type progressionMargin;
+
             Parameters ();
           } parameters;
 

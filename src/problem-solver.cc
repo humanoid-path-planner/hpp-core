@@ -56,7 +56,7 @@ namespace hpp {
       {
 	return PathProjectorPtr_t ();
       }
-    }; // struct NoneOptimizer
+    }; // struct NonePathProjector
 
     ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
     ProblemSolverPtr_t ProblemSolver::create ()
