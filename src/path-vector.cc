@@ -79,6 +79,17 @@ namespace hpp {
 	appendPath (path.pathAtRank (i)->copy ());
       }
     }
+
+    void PathVector::flatten (PathVectorPtr_t p) const
+    {
+      for (std::size_t i = 0; i < numberPaths (); ++i) {
+        PathPtr_t path = pathAtRank (i);
+        PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST(PathVector, path);
+        if (pv) pv->flatten (p);
+        else    p->appendPath (path);
+      }
+    }
+
     bool PathVector::impl_compute (ConfigurationOut_t result,
 				   value_type t) const
     {

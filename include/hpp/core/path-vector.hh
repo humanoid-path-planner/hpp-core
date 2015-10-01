@@ -125,6 +125,10 @@ namespace hpp {
         return paths_.back()->end ();
       }
 
+      /// Return the a path vector representing the same path but ensuring
+      /// that there is no PathVector in the PathVector.
+      void flatten (PathVectorPtr_t flattenedPath) const;
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const
