@@ -61,8 +61,8 @@ namespace hpp {
       }
 
       PartialShortcut::Parameters::Parameters () :
-        removeLockedJoints (true), numberOfConsecutiveFailurePerJoints (5),
-        progressionMargin (1e-3)
+        removeLockedJoints (true), onlyFullShortcut (true),
+        numberOfConsecutiveFailurePerJoints (5), progressionMargin (1e-3)
       {}
 
       PartialShortcutPtr_t PartialShortcut::create (const Problem& problem)
@@ -88,6 +88,7 @@ namespace hpp {
 
         /// Step 2: First try to optimize each joint from beginning to end
         PathVectorPtr_t result = optimizeFullPath (unpacked, straight_jv, jv);
+        if (parameters.onlyFullShortcut) return result;
 
         /// Step 3: Optimize randomly each joint
         return optimizeRandom (result, jv);

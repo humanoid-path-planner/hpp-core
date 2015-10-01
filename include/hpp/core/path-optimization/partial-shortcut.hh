@@ -55,6 +55,9 @@ namespace hpp {
             /// Defaults to true
             bool removeLockedJoints;
 
+            /// Set it to true if you want to skip step 3
+            /// Defaults to false
+            bool onlyFullShortcut;
 
             /// The optimization will stop after a number of consecutive failure
             /// on each joint.
