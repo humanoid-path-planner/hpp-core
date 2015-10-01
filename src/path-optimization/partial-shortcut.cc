@@ -106,6 +106,7 @@ namespace hpp {
 
         PathVectorPtr_t pv = PathVector::create (
             path->outputSize (), path->outputDerivativeSize ());
+        PathPtr_t last;
 
         std::size_t rkCfg = joint->rankInConfiguration ();
         Configuration_t qi = q1;
@@ -123,11 +124,18 @@ namespace hpp {
               return PathVectorPtr_t ();
             }
           }
-          pv->appendPath ((*sm) (qi, q_inter));
+          last = (*sm) (qi, q_inter);
+          if (!last) return PathVectorPtr_t ();
+          pv->appendPath (last);
           qi = q_inter;
         }
-        pv->appendPath ((*sm) (qi, q2));
-        return pv;
+        last = (*sm) (qi, q2);
+        if (!last) return PathVectorPtr_t ();
+        pv->appendPath (last);
+        PathVectorPtr_t out = PathVector::create (
+            path->outputSize (), path->outputDerivativeSize ());
+        pv->flatten (out);
+        return out;
       }
 
       JointVector_t PartialShortcut::generateJointVector
@@ -204,7 +212,7 @@ namespace hpp {
           const PathVectorPtr_t& pv, const JointVector_t& jv) const
       {
         PathVectorPtr_t current = pv,
-                        result;
+                        result = pv;
         const value_type t0 = 0;
         value_type t3;
         Configuration_t q0 = pv->initial ();
@@ -235,8 +243,10 @@ namespace hpp {
             (*current) (q1, t1) &&
             (*current) (q2, t2);
           if (success) {
-            hppDout (error, "The constraints could not be applied to the "
+            hppDout (warning, "The constraints could not be applied to the "
                 "current path");
+            nbFail++;
+            continue;
           }
           // Validate sub parts
           bool valid [3];
@@ -264,20 +274,18 @@ namespace hpp {
             result->concatenate (*straight [0]);
           else
             result->concatenate (*(current->extract
-                  (std::make_pair <value_type,value_type> (t0, t1))->
-                  as <PathVector> ()));
+                  (std::make_pair (t0, t1))-> as <PathVector> ()));
           if (valid [1])
             result->concatenate (*straight [1]);
           else
             result->concatenate (*(current->extract
-                  (std::make_pair <value_type,value_type> (t1, t2))->
-                  as <PathVector> ()));
+                  (std::make_pair (t1, t2))-> as <PathVector> ()));
           if (valid [2])
             result->concatenate (*straight [2]);
           else
             result->concatenate (*(current->extract
-                  (std::make_pair <value_type, value_type> (t2, t3))->
-                  as <PathVector> ()));
+                  (std::make_pair (t2, t3))-> as <PathVector> ()));
+
           newLength = pathLength (result, problem ().distance ());
           if (newLength >= length) {
             nbFail++;
