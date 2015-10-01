@@ -39,9 +39,24 @@ namespace hpp {
       ///
       /// \note The optimizer assumes that the input path is a vector of optimal
       ///       paths for the distance function.
+      struct PartialShortcutTrait {
+        static bool        removeLockedJoints ()
+        { return true; }
+        static bool        onlyFullShortcut ()
+        { return false; }
+        static std::size_t numberOfConsecutiveFailurePerJoints ()
+        { return 5; }
+        static value_type  progressionMargin ()
+        { return 1e-3; }
+      };
+
       class HPP_CORE_DLLAPI PartialShortcut : public PathOptimizer
       {
         public:
+          /// Return shared pointer to new object.
+          template < typename Traits > static
+            PartialShortcutPtr_t createWithTrait (const Problem& problem);
+
           /// Return shared pointer to new object.
           static PartialShortcutPtr_t create (const Problem& problem);
 
@@ -100,6 +115,18 @@ namespace hpp {
               const JointVector_t& jv) const;
       }; // class RandomShortcut
       /// \}
+
+      template < typename Traits > PartialShortcutPtr_t
+        PartialShortcut::createWithTrait (const Problem& problem)
+      {
+        PartialShortcut* ptr = new PartialShortcut (problem);
+        ptr->parameters.removeLockedJoints = Traits::removeLockedJoints();
+        ptr->parameters.onlyFullShortcut   = Traits::onlyFullShortcut();
+        ptr->parameters.progressionMargin  = Traits::progressionMargin ();
+        ptr->parameters.numberOfConsecutiveFailurePerJoints =
+          Traits::numberOfConsecutiveFailurePerJoints();
+        return PartialShortcutPtr_t (ptr);
+      }
     } // namespace pathOptimization
   } // namespace core
 } // namespace hpp
