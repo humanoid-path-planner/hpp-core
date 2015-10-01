@@ -45,6 +45,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-optimization/collision-constraints-result.hh
   path-optimization/path-length.cc
   path-optimization/gradient-based.cc
+  path-optimization/partial-shortcut.cc
   path-planner.cc
   path-vector.cc
   plan-and-optimize.cc

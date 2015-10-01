@@ -29,6 +29,7 @@
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
+#include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
@@ -89,6 +90,8 @@ namespace hpp {
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathOptimizerFactory_ ["GradientBased"] =
 	pathOptimization::GradientBased::create;
+      pathOptimizerFactory_ ["PartialShortcut"] =
+	pathOptimization::PartialShortcut::create;
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
       pathPlannerFactory_ ["DiffusingPlanner"] =
 	DiffusingPlanner::createWithRoadmap;
