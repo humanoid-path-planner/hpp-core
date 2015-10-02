@@ -32,6 +32,7 @@ namespace hpp {
   namespace core {
     namespace {
       HPP_DEFINE_TIMECOUNTER (projection);
+      HPP_DEFINE_TIMECOUNTER (optimize);
     }
 
     std::ostream& operator<< (std::ostream& os, const hpp::statistics::SuccessStatistics& ss)
@@ -490,6 +491,40 @@ namespace hpp {
 	return false;
       }
       hppDout (info, "After projection: " << configuration.transpose ());
+      return true;
+    }
+
+    bool ConfigProjector::optimize (ConfigurationOut_t configuration,
+        std::size_t maxIter, const value_type alpha)
+    {
+      /// TODO: What should be checked first ?
+      if (functions_.empty ()) return true;
+      if (!isSatisfied (configuration)) return false;
+      if (maxIter == 0) maxIter = maxIterations_;
+      hppDout (info, "before optimization: " << configuration.transpose ());
+      HPP_START_TIMECOUNTER (optimize);
+      Configuration_t current = configuration;
+      std::size_t iter = 0;
+      computeValueAndJacobian (configuration, value_, reducedJacobian_);
+      do {
+        computePrioritizedIncrement (value_, reducedJacobian_, dq_);
+	model::integrate (robot_, configuration, - alpha * dq_, current);
+        impl_compute (current);
+        computeValueAndJacobian (current, value_, reducedJacobian_);
+        computeError ();
+	hppDout (info, "squareNorm = " << squareNorm_);
+	if (squareNorm_ >= squareErrorThreshold_) break;
+        configuration = current;
+	++iter;
+      } while (iter < maxIter); // && squareNorm_ < squareErrorThreshold_
+      HPP_STOP_TIMECOUNTER (optimize);
+      HPP_DISPLAY_TIMECOUNTER (optimize);
+      hppDout (info, "number of iterations: " << iter);
+      if (iter == 0) {
+	hppDout (info, "Optimization failed.");
+	return false;
+      }
+      hppDout (info, "After optimization: " << configuration.transpose ());
       return true;
     }
 

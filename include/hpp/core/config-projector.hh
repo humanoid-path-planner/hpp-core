@@ -98,6 +98,13 @@ namespace hpp {
         return lastIsOptional_;
       }
 
+      /// Optimize the configuration while respecting the constraints
+      /// The input configuration must already satisfy the constraints.
+      /// \return true if the configuration was optimized.
+      /// \param maxIter if 0, use maxIterations().
+      bool optimize (ConfigurationOut_t config,
+          std::size_t maxIter = 0, const value_type alpha = 0.2);
+
       /// Add a locked joint.
       /// \param lockedJoint The locked joint.
       void add (const LockedJointPtr_t& lockedJoint);
