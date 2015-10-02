@@ -30,6 +30,7 @@
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
+#include <hpp/core/path-optimization/config-optimization.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
@@ -99,6 +100,8 @@ namespace hpp {
 	pathOptimization::GradientBased::create;
       pathOptimizerFactory_ ["PartialShortcut"] =
 	pathOptimization::PartialShortcut::create;
+      pathOptimizerFactory_ ["ConfigOptimization"] =
+	pathOptimization::ConfigOptimization::create;
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
       // Store path validation methods in map.
       pathValidationFactory_ ["Discretized"] =

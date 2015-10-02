@@ -46,6 +46,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-optimization/path-length.cc
   path-optimization/gradient-based.cc
   path-optimization/partial-shortcut.cc
+  path-optimization/config-optimization.cc
   path-planner.cc
   path-vector.cc
   plan-and-optimize.cc

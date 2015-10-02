@@ -78,6 +78,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/path-length.hh
   include/hpp/core/path-optimization/gradient-based.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
+  include/hpp/core/path-optimization/config-optimization.hh
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-validation.hh
