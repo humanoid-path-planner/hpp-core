@@ -73,8 +73,8 @@ namespace hpp {
         ConstraintSetPtr_t constraints = path->constraints ();
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
         core::interval_t timeRange = path->timeRange ();
-        const Configuration_t& q1 = (*path)(timeRange.first);
-        const Configuration_t& q2 = (*path)(timeRange.second);
+        const Configuration_t& q1 = path->initial ();
+        const Configuration_t& q2 = path->end ();
         if (cp) cp->rightHandSideFromConfig(q1);
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
@@ -99,9 +99,9 @@ namespace hpp {
             continue;
           }
           timeRange = sPath->timeRange ();
-          const Configuration_t& qb = (*sPath) (timeRange.first);
+          const Configuration_t& qb = sPath->initial ();
           (*sPath) (qi, timeRange.first + l / 2);
-          const Configuration_t& qe = (*sPath) (timeRange.second);
+          const Configuration_t& qe = sPath->end ();
           if (!constraints->apply (qi)) {
             pathIsFullyProjected = false;
             break;

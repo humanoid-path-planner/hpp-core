@@ -87,18 +87,19 @@ namespace hpp {
       passiveDofsMap_ (), comparisonTypeMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
+      pathPlannerFactory_ ["DiffusingPlanner"] =
+	DiffusingPlanner::createWithRoadmap;
+      pathPlannerFactory_ ["VisibilityPrmPlanner"] =
+	VisibilityPrmPlanner::createWithRoadmap;
+      configurationShooterFactory_ ["BasicConfigurationShooter"] =
+        BasicConfigurationShooter::create;
+      // Store path optimization methods in map.
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathOptimizerFactory_ ["GradientBased"] =
 	pathOptimization::GradientBased::create;
       pathOptimizerFactory_ ["PartialShortcut"] =
 	pathOptimization::PartialShortcut::create;
       pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
-      pathPlannerFactory_ ["DiffusingPlanner"] =
-	DiffusingPlanner::createWithRoadmap;
-      pathPlannerFactory_ ["VisibilityPrmPlanner"] =
-	VisibilityPrmPlanner::createWithRoadmap;
-      configurationShooterFactory_ ["BasicConfigurationShooter"] =
-    BasicConfigurationShooter::create;
       // Store path validation methods in map.
       pathValidationFactory_ ["Discretized"] =
 	DiscretizedCollisionChecking::create;

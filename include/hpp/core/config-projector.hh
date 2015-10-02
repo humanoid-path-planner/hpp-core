@@ -51,7 +51,7 @@ namespace hpp {
      Instances store locked degrees of freedom for performance optimisation.
 
      Numerical constraints can be added using method
-     ConfigProjector::addFunction. Default parameter of this method define
+     ConfigProjector::add. Default parameter of this method define
      equality constraints, but inequality constraints can also be defined by
      passing an object of type ComparisonType to method.
     */
