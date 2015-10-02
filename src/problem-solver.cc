@@ -261,7 +261,9 @@ namespace hpp {
     }
 
     void ProblemSolver::addFunctionToConfigProjector
-    (const std::string& constraintName, const std::string& functionName)
+    (const std::string& constraintName, const std::string& functionName,
+     const std::size_t priority
+     )
     {
       if (!robot_) {
 	hppDout (error, "Cannot add constraint while robot is not set");
@@ -274,7 +276,7 @@ namespace hpp {
       }
       configProjector->add (NumericalConstraint::create
           (numericalConstraintMap_ [functionName],
-           comparisonTypeMap_ [functionName]));
+           comparisonTypeMap_ [functionName]), SizeIntervals_t (0), priority);
     }
 
     void ProblemSolver::computeValueAndJacobian

@@ -230,7 +230,8 @@ namespace hpp {
       /// \param functionName name of the function as stored in internal map.
       /// Build the config projector if not yet constructed.
       virtual void addFunctionToConfigProjector
-	(const std::string& constraintName, const std::string& functionName);
+	(const std::string& constraintName, const std::string& functionName,
+         const std::size_t priority = 0);
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,

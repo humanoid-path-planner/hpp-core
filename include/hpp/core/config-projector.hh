@@ -80,10 +80,13 @@ namespace hpp {
       /// \param numericalConstraint The numerical constraint.
       /// \param passiveDofs column indexes of the jacobian vector that will be
       ///        set to zero when solving.
+      /// \param priority priority of the function. The last level might be
+      ///        optinal.
       /// \note The intervals are interpreted as a list of couple
       /// (index_start, length) and NOT as (index_start, index_end).
       void add (const NumericalConstraintPtr_t& numericalConstraint,
-          const SizeIntervals_t& passiveDofs = SizeIntervals_t (0));
+          const SizeIntervals_t& passiveDofs = SizeIntervals_t (0),
+          const std::size_t priority = 0);
 
       /// Add a locked joint.
       /// \param lockedJoint The locked joint.
@@ -139,6 +142,10 @@ namespace hpp {
       /// dq = J(q_i)^{+} ( rhs - v_{i} )
       void computeIncrement (vectorIn_t value, matrixIn_t reducedJacobian,
           vectorOut_t dq);
+
+      void computePrioritizedIncrement (vectorIn_t value,
+          matrixIn_t reducedJacobian, vectorOut_t dq);
+
       /// \name Compression of locked degrees of freedom
       ///
       /// Degrees of freedom related to locked joint are not taken into
@@ -310,16 +317,37 @@ namespace hpp {
 
     private:
       typedef Eigen::JacobiSVD <matrix_t> SVD_t;
+      struct PriorityStack {
+        std::size_t level_; // 0, 1, 2 or 3.
+        std::size_t outputSize_, cols_;
+        NumericalConstraints_t functions_;
+        IntervalsContainer_t passiveDofs_;
+        mutable SVD_t svd_;
+        matrix_t PK_;
+        
+        PriorityStack (std::size_t level, std::size_t cols);
+        void add (const NumericalConstraintPtr_t& numericalConstraint,
+            const SizeIntervals_t& passiveDofs);
+        void nbNonLockedDofs (const std::size_t nbNonLockedDofs);
+        void computeValueAndJacobian (ConfigurationIn_t cfg,
+            const SizeIntervals_t& intervals,
+            vectorOut_t value, matrixOut_t reducedJacobian);
+        /// Return false if it is not possible solve this constraints.
+        bool computeIncrement (vectorIn_t value, matrixIn_t jacobian,
+            vectorOut_t dq, matrixOut_t projector);
+      };
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
       void resize ();
       void computeIntervals ();
+      inline void computeError ();
       DevicePtr_t robot_;
+      std::vector <PriorityStack> stack_;
       NumericalConstraints_t functions_;
       IntervalsContainer_t passiveDofs_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
-      SizeIntervals_t  intervals_;
+      SizeIntervals_t intervals_;
       value_type squareErrorThreshold_;
       size_type maxIterations_;
       vector_t rightHandSide_;

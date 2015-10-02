@@ -22,6 +22,7 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
+#include <hpp/model/eigen.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/differentiable-function.hh>
@@ -84,10 +85,12 @@ namespace hpp {
       squareNorm_(0), weak_ ()
     {
       dq_.setZero ();
+      stack_.push_back (PriorityStack (3,nbNonLockedDofs_)); /// First and last
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
-      Constraint (cp), robot_ (cp.robot_), functions_ (cp.functions_),
+      Constraint (cp), robot_ (cp.robot_), stack_ (cp.stack_),
+      functions_ (cp.functions_),
       passiveDofs_ (cp.passiveDofs_), lockedJoints_ (),
       intervals_ (cp.intervals_),
       squareErrorThreshold_ (cp.squareErrorThreshold_),
@@ -118,12 +121,47 @@ namespace hpp {
       return createCopy (weak_.lock ());
     }
 
+    ConfigProjector::PriorityStack::PriorityStack (std::size_t level,
+        std::size_t cols) :
+      level_ (level), outputSize_ (0), cols_ (cols),
+      svd_ (outputSize_,cols,Eigen::ComputeThinU | Eigen::ComputeThinV),
+      PK_ (cols, cols)
+    {}
+
+    void ConfigProjector::PriorityStack::add (
+        const NumericalConstraintPtr_t& nm, const SizeIntervals_t& passiveDofs)
+    {
+      functions_.push_back (nm);
+      passiveDofs_.push_back (passiveDofs);
+      outputSize_ += nm->function().outputSize ();
+      svd_ = SVD_t (outputSize_, cols_,
+          Eigen::ComputeThinU | Eigen::ComputeThinV);
+    }
+
+    void ConfigProjector::PriorityStack::nbNonLockedDofs
+      (const std::size_t cols)
+    {
+      cols_ = cols;
+      svd_ = SVD_t (outputSize_, cols_,
+          Eigen::ComputeThinU | Eigen::ComputeThinV);
+      PK_.resize (cols_, cols_);
+    }
+
     void ConfigProjector::add (const NumericalConstraintPtr_t& nm,
-        const SizeIntervals_t& passiveDofs)
+        const SizeIntervals_t& passiveDofs,
+        const std::size_t priority)
     {
       functions_.push_back (nm);
       passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
+      for (std::size_t i = stack_.size (); i < priority + 1; ++i) {
+        stack_.push_back (PriorityStack (1, nbNonLockedDofs_)); // Middle
+      }
+      if (priority > 0) { // There are more than 2 levels
+        stack_.front ().level_ = 0; // First
+        stack_.back  ().level_ = 2; // Last
+      }
+      stack_[priority].add (nm, passiveDofs);
       // TODO: no need to recompute intervals.
       computeIntervals ();
       resize ();
@@ -159,9 +197,12 @@ namespace hpp {
     void ConfigProjector::resize ()
     {
       std::size_t size = 0;
-      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
-	   it != functions_.end (); ++it)
-        size += (*it)->function().outputSize ();
+      for (std::vector <PriorityStack>::const_iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) {
+        for (NumericalConstraints_t::const_iterator it = itPs->functions_.begin ();
+            it != itPs->functions_.end (); ++it)
+          size += (*it)->function().outputSize ();
+      }
       nbNonLockedDofs_ = robot_->numberDof () - nbLockedDofs_;
       value_.resize (size);
       rightHandSide_ = vector_t::Zero (size);
@@ -175,11 +216,14 @@ namespace hpp {
       projMinusFromSmall_.resize (nbNonLockedDofs_);
       projMinusFrom_.setZero ();
       reducedProjector_.resize (nbNonLockedDofs_, nbNonLockedDofs_);
+      for (std::vector <PriorityStack>::iterator it = stack_.begin ();
+          it != stack_.end (); ++it)
+        it->nbNonLockedDofs (nbNonLockedDofs_);
     }
 
-    void ConfigProjector::computeValueAndJacobian
-    (ConfigurationIn_t configuration, vectorOut_t value,
-     matrixOut_t reducedJacobian)
+    void ConfigProjector::PriorityStack::computeValueAndJacobian
+    (ConfigurationIn_t configuration, const SizeIntervals_t& intervals,
+     vectorOut_t value, matrixOut_t reducedJacobian)
     {
       size_type row = 0, nbRows = 0;
       IntervalsContainer_t::const_iterator itPassiveDofs
@@ -201,8 +245,8 @@ namespace hpp {
 	     it != itPassiveDofs->end (); ++it)
           jacobian.middleCols (it->first, it->second).setZero ();
         /// Copy the non locked DOFs.
-	for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
-	     itInterval != intervals_.end (); ++itInterval) {
+	for (SizeIntervals_t::const_iterator itInterval = intervals.begin ();
+	     itInterval != intervals.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
 	  size_type nbCols = itInterval->second;
 	  reducedJacobian.block (row, col, nbRows, nbCols) =
@@ -213,6 +257,75 @@ namespace hpp {
         ++itPassiveDofs;
       }
       assert (itPassiveDofs == passiveDofs_.end ());
+    }
+
+    void ConfigProjector::computeValueAndJacobian
+    (ConfigurationIn_t configuration, vectorOut_t value,
+     matrixOut_t reducedJacobian)
+    {
+      size_type row = 0, nbRows = 0;
+      for (std::vector <PriorityStack>::iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) { 
+        nbRows = itPs->outputSize_;
+        itPs->computeValueAndJacobian (configuration, intervals_,
+            value.segment (row, nbRows),
+            reducedJacobian.middleRows (row, nbRows));
+        row += nbRows;
+      }
+    }
+
+    bool ConfigProjector::PriorityStack::computeIncrement (vectorIn_t error,
+        matrixIn_t jacobian, vectorOut_t dq, matrixOut_t projector)
+    {
+      // TODO: handle case where this is the first element of the stack and it
+      // has no functions
+      if (functions_.size () == 0) return true;
+      /// projector is of size numberDof
+      switch (level_) {
+        case 0: // First
+          // dq should be zero and projector should be identity
+          svd_.compute (jacobian);
+          dq = svd_.solve (error);
+          break;
+        case 2: // Last
+          // No need to compute projector for next step.
+          svd_.compute (jacobian * projector);
+          dq.noalias() += svd_.solve (error - jacobian * dq);
+          return true; // The return value is not important in this case.
+          break;
+        case 3: // First and last (one level only)
+          svd_.compute (jacobian);
+          dq = svd_.solve (error);
+          return true; // The return value is not important in this case.
+          break;
+        default: /// General case
+          svd_.compute (jacobian * projector);
+          dq.noalias() += svd_.solve (error - jacobian * dq);
+          break;
+      }
+      /// compute projector for next step.
+      hpp::model::projectorOnKernel <SVD_t> (svd_, PK_);
+      projector.noalias() -= PK_;
+      return (jacobian * dq - error).isZero ();
+    }
+
+    void ConfigProjector::computePrioritizedIncrement (vectorIn_t value,
+        matrixIn_t reducedJacobian, vectorOut_t dq)
+    {
+      vector_t error = value - rightHandSide_;
+      matrix_t projector =
+        matrix_t::Identity (nbNonLockedDofs_, nbNonLockedDofs_);
+      std::size_t row = 0;
+      dqSmall_.setZero ();
+      for (std::vector <PriorityStack>::iterator it = stack_.begin ();
+          it != stack_.end (); ++it) {
+        if (!it->computeIncrement (error.segment (row, it->outputSize_),
+            reducedJacobian.middleRows (row, it->outputSize_),
+            dqSmall_, projector))
+          break;
+        row += it->outputSize_;
+      }
+      uncompressVector (dqSmall_, dq);
     }
 
     void ConfigProjector::computeIncrement (vectorIn_t value,
@@ -338,15 +451,15 @@ namespace hpp {
 	std::numeric_limits<value_type>::infinity();
       // Fill value and Jacobian
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
-      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      computeError ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
-        computeIncrement (value_, reducedJacobian_, dq_);
+        computePrioritizedIncrement (value_, reducedJacobian_, dq_);
 	model::integrate (robot_, configuration, - alpha * dq_, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
-	squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+        computeError ();
 	hppDout (info, "squareNorm = " << squareNorm_);
 	--errorDecreased;
 	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
@@ -500,7 +613,7 @@ namespace hpp {
 	value_.segment (row, nbRows) = value;
 	row += nbRows;
       }
-      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      computeError ();
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
           it != lockedJoints_.end (); ++it )
         if (!(*it)->isSatisfied (config)) {
@@ -527,7 +640,7 @@ namespace hpp {
 	row += nbRows;
       }
       error = value_ - rightHandSide_;
-      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      computeError ();
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
 	   it != lockedJoints_.end (); ++it ) {
 	vector_t localError;
@@ -543,14 +656,17 @@ namespace hpp {
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalConstraints_t::iterator it = functions_.begin ();
-          it != functions_.end (); ++it) {
-        NumericalConstraint& nm = **it;
-        const DifferentiableFunction& f = nm.function ();
-        nbRows = f.outputSize ();
-        nm.rightHandSideFromConfig (config);
-        rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
-        row += nbRows;
+      for (std::vector <PriorityStack>::iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) { 
+        for (NumericalConstraints_t::iterator it = itPs->functions_.begin ();
+            it != itPs->functions_.end (); ++it) {
+          NumericalConstraint& nm = **it;
+          const DifferentiableFunction& f = nm.function ();
+          nbRows = f.outputSize ();
+          nm.rightHandSideFromConfig (config);
+          rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
+          row += nbRows;
+        }
       }
       // Update other degrees of freedom.
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
@@ -562,14 +678,17 @@ namespace hpp {
     void ConfigProjector::rightHandSide (const vector_t& small)
     {
       size_type row = 0, nbRows = 0, sRow = 0;
-      for (NumericalConstraints_t::iterator it = functions_.begin ();
-          it != functions_.end (); ++it) {
-        NumericalConstraint& nm = **it;
-        nbRows = nm.function ().outputSize ();
-        nm.rightHandSide (small.segment (sRow, nm.rhsSize ()));
-        rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
-        sRow += nm.rhsSize ();
-        row += nbRows;
+      for (std::vector <PriorityStack>::iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) { 
+        for (NumericalConstraints_t::iterator it = itPs->functions_.begin ();
+            it != itPs->functions_.end (); ++it) {
+          NumericalConstraint& nm = **it;
+          nbRows = nm.function ().outputSize ();
+          nm.rightHandSide (small.segment (sRow, nm.rhsSize ()));
+          rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
+          sRow += nm.rhsSize ();
+          row += nbRows;
+        }
       }
       assert (row == rightHandSide_.size ());
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
@@ -586,13 +705,16 @@ namespace hpp {
     void ConfigProjector::updateRightHandSide ()
     {
       size_type row = 0, nbRows = 0, sRow = 0;
-      for (NumericalConstraints_t::iterator it = functions_.begin ();
-          it != functions_.end (); ++it) {
-        NumericalConstraint& nm = **it;
-        nbRows = nm.function ().outputSize ();
-        rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
-        sRow += nm.rhsSize ();
-        row += nbRows;
+      for (std::vector <PriorityStack>::iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) { 
+        for (NumericalConstraints_t::iterator it = itPs->functions_.begin ();
+            it != itPs->functions_.end (); ++it) {
+          NumericalConstraint& nm = **it;
+          nbRows = nm.function ().outputSize ();
+          rightHandSide_.segment (row, nm.rhsSize ()) = nm.rightHandSide ();
+          sRow += nm.rhsSize ();
+          row += nbRows;
+        }
       }
       assert (row == rightHandSide_.size ());
     }
@@ -601,13 +723,16 @@ namespace hpp {
     {
       vector_t small(rhsReducedSize_);
       size_type row = 0, nbRows = 0, s = 0;
-      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
-          it != functions_.end (); ++it) {
-        NumericalConstraint& nm = **it;
-        nbRows = nm.function ().outputSize ();
-        small.segment (s, nm.rhsSize ()) = rightHandSide_.segment (row, nm.rhsSize ());
-        s += nm.rhsSize ();
-        row += nbRows;
+      for (std::vector <PriorityStack>::const_iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) { 
+        for (NumericalConstraints_t::const_iterator it = itPs->functions_.begin ();
+            it != itPs->functions_.end (); ++it) {
+          NumericalConstraint& nm = **it;
+          nbRows = nm.function ().outputSize ();
+          small.segment (s, nm.rhsSize ()) = rightHandSide_.segment (row, nm.rhsSize ());
+          s += nm.rhsSize ();
+          row += nbRows;
+        }
       }
       for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
           it != lockedJoints_.end (); ++it ) {
@@ -619,6 +744,11 @@ namespace hpp {
       }
       assert (s == small.size ());
       return small;
+    }
+
+    void ConfigProjector::computeError ()
+    {
+      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
     }
   } // namespace core
 } // namespace hpp
