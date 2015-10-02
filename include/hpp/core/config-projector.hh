@@ -88,6 +88,16 @@ namespace hpp {
           const SizeIntervals_t& passiveDofs = SizeIntervals_t (0),
           const std::size_t priority = 0);
 
+      void lastIsOptional (bool optional)
+      {
+        lastIsOptional_ = optional;
+      }
+
+      bool lastIsOptional () const
+      {
+        return lastIsOptional_;
+      }
+
       /// Add a locked joint.
       /// \param lockedJoint The locked joint.
       void add (const LockedJointPtr_t& lockedJoint);
@@ -352,6 +362,7 @@ namespace hpp {
       size_type maxIterations_;
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
+      bool lastIsOptional_;
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;

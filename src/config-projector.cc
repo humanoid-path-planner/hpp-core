@@ -76,6 +76,7 @@ namespace hpp {
       passiveDofs_ (), lockedJoints_ (),
       squareErrorThreshold_ (errorThreshold * errorThreshold),
       maxIterations_ (maxIterations), rhsReducedSize_ (0),
+      lastIsOptional_ (false),
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
       dq_ (robot->numberDof ()),
@@ -96,7 +97,9 @@ namespace hpp {
       squareErrorThreshold_ (cp.squareErrorThreshold_),
       maxIterations_ (cp.maxIterations_),
       rightHandSide_ (cp.rightHandSide_),
-      rhsReducedSize_ (cp.rhsReducedSize_), value_ (cp.value_.size ()),
+      rhsReducedSize_ (cp.rhsReducedSize_),
+      lastIsOptional_ (cp.lastIsOptional_),
+      value_ (cp.value_.size ()),
       reducedJacobian_ (cp.reducedJacobian_.rows (),
 			cp.reducedJacobian_.cols ()),
       svd_ (cp.reducedJacobian_.rows (), cp.reducedJacobian_.cols (),
@@ -748,7 +751,14 @@ namespace hpp {
 
     void ConfigProjector::computeError ()
     {
-      squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      if (lastIsOptional_) {
+        std::size_t rows = value_.size() - stack_.back ().outputSize_;
+        squareNorm_ = (
+            value_.segment (0, rows) - rightHandSide_.segment (0, rows)
+            ).squaredNorm ();
+      } else {
+        squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
+      }
     }
   } // namespace core
 } // namespace hpp
