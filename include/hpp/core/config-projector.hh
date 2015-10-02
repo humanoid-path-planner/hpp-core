@@ -132,6 +132,13 @@ namespace hpp {
       void computeValueAndJacobian (ConfigurationIn_t configuration,
 				    vectorOut_t value,
 				    matrixOut_t reducedJacobian);
+
+      /// Linearization of the system of equations
+      /// rhs - v_{i} = J (q_i) (dq_{i+1} - q_{i})
+      /// q_{i+1} - q_{i} = J(q_i)^{+} ( rhs - v_{i} )
+      /// dq = J(q_i)^{+} ( rhs - v_{i} )
+      void computeIncrement (vectorIn_t value, matrixIn_t reducedJacobian,
+          vectorOut_t dq);
       /// \name Compression of locked degrees of freedom
       ///
       /// Degrees of freedom related to locked joint are not taken into
@@ -302,6 +309,7 @@ namespace hpp {
       void computeLockedDofs (ConfigurationOut_t configuration);
 
     private:
+      typedef Eigen::JacobiSVD <matrix_t> SVD_t;
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
       void resize ();
@@ -319,7 +327,7 @@ namespace hpp {
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;
-      mutable Eigen::JacobiSVD <matrix_t> svd_;
+      mutable SVD_t svd_;
       mutable matrix_t reducedProjector_;
       mutable vector_t toMinusFrom_;
       mutable vector_t toMinusFromSmall_;

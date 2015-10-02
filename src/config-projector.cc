@@ -167,8 +167,8 @@ namespace hpp {
       rightHandSide_ = vector_t::Zero (size);
       reducedJacobian_.resize (size, nbNonLockedDofs_);
       reducedJacobian_.setConstant (sqrt (-1));
-      svd_ = Eigen::JacobiSVD <matrix_t> (reducedJacobian_.rows(),
-          reducedJacobian_.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV);
+      svd_ = SVD_t (size, nbNonLockedDofs_,
+          Eigen::ComputeThinU | Eigen::ComputeThinV);
       dqSmall_.resize (nbNonLockedDofs_);
       dq_.setZero ();
       toMinusFromSmall_.resize (nbNonLockedDofs_);
@@ -213,6 +213,14 @@ namespace hpp {
         ++itPassiveDofs;
       }
       assert (itPassiveDofs == passiveDofs_.end ());
+    }
+
+    void ConfigProjector::computeIncrement (vectorIn_t value,
+        matrixIn_t reducedJacobian, vectorOut_t dq)
+    {
+      svd_.compute (reducedJacobian);
+      dqSmall_ = svd_.solve(value - rightHandSide_);
+      uncompressVector (dqSmall_, dq);
     }
 
     /// Convert vector of non locked degrees of freedom to vector of
@@ -317,7 +325,6 @@ namespace hpp {
       assert (col == small.cols ());
     }
 
-
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
       hppDout (info, "before projection: " << configuration.transpose ());
@@ -334,14 +341,8 @@ namespace hpp {
       squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
-	// Linearization of the system of equations
-	// 0 - v_{i} = J (q_i) (q_{i+1} - q_{i})
-	// q_{i+1} = q_{i} - \alpha_{i} J(q_i)^{+} v_{i}
-	// dq = J(q_i)^{+} v_{i}
-        svd_.compute (reducedJacobian_);
-	dqSmall_ = alpha * svd_.solve(rightHandSide_ - value_);
-	uncompressVector (dqSmall_, dq_);
-	model::integrate (robot_, configuration, dq_, configuration);
+        computeIncrement (value_, reducedJacobian_, dq_);
+	model::integrate (robot_, configuration, - alpha * dq_, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
@@ -386,8 +387,7 @@ namespace hpp {
       }
       computeValueAndJacobian (from, value_, reducedJacobian_);
       compressVector (velocity, toMinusFromSmall_);
-      typedef Eigen::JacobiSVD < matrix_t > Jacobi_t;
-      Jacobi_t svd (reducedJacobian_, Eigen::ComputeFullV);
+      SVD_t svd (reducedJacobian_, Eigen::ComputeFullV);
       size_type p = svd.nonzeroSingularValues ();
       size_type n = nbNonLockedDofs_;
       const Eigen::Block <const matrix_t> V1=svd.matrixV ().block (0, 0, n, p);
