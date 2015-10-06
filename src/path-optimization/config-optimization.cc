@@ -86,7 +86,7 @@ namespace hpp {
         SteeringMethod& sm (*problem ().steeringMethod ());
         value_type length = pathLength (unpacked, problem().distance());
         hppDout (info, "ConfigOptimization: length " << length);
-        value_type alpha = 0.1;
+        value_type alpha = parameters.alphaInit;
         for (std::size_t ipass = 0; ipass < parameters.numberOfPass; ++ipass) {
           PathVectorPtr_t optedF = PathVector::create (path->outputSize(),
               path->outputDerivativeSize ());

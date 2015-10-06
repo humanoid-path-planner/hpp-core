@@ -43,6 +43,8 @@ namespace hpp {
 
         static std::size_t numberOfIterations () { return 3; }
 
+        static value_type alphaInit () { return 0.4; }
+
         static Configuration_t getGoal (const PathVector& path)
         { return path.initial (); }
 
@@ -72,6 +74,8 @@ namespace hpp {
             std::size_t numberOfPass;
 
             std::size_t numberOfIterations;
+
+            value_type alphaInit;
 
             boost::function <Configuration_t (const PathVector&)> getGoal;
 
@@ -125,6 +129,7 @@ namespace hpp {
           Traits::addConfigConstraintToPath ();
         ptr->parameters.numberOfPass = Traits::numberOfPass ();
         ptr->parameters.numberOfIterations = Traits::numberOfIterations ();
+        ptr->parameters.alphaInit = Traits::alphaInit ();
         ptr->parameters.getGoal = Traits::getGoal;
         ptr->parameters.getConfigProjector = Traits::getConfigProjector;
         ptr->parameters.shouldFilter = Traits::shouldFilter;
