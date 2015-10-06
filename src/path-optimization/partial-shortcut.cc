@@ -67,7 +67,7 @@ namespace hpp {
 
       PartialShortcutPtr_t PartialShortcut::create (const Problem& problem)
       {
-        return createWithTrait <PartialShortcutTrait> (problem);
+        return createWithTraits <PartialShortcutTraits> (problem);
       }
 
       PartialShortcut::PartialShortcut (const Problem& problem) :

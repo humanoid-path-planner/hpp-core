@@ -62,7 +62,7 @@ namespace hpp {
 
       ConfigOptimizationPtr_t ConfigOptimization::create (const Problem& problem)
       {
-        return createWithTrait <ConfigOptimizationTraits> (problem);
+        return createWithTraits <ConfigOptimizationTraits> (problem);
       }
 
       ConfigOptimization::ConfigOptimization (const Problem& problem) :

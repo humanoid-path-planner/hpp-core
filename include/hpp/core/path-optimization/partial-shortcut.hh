@@ -39,7 +39,7 @@ namespace hpp {
       ///
       /// \note The optimizer assumes that the input path is a vector of optimal
       ///       paths for the distance function.
-      struct PartialShortcutTrait {
+      struct PartialShortcutTraits {
         static bool        removeLockedJoints ()
         { return true; }
         static bool        onlyFullShortcut ()
@@ -55,7 +55,7 @@ namespace hpp {
         public:
           /// Return shared pointer to new object.
           template < typename Traits > static
-            PartialShortcutPtr_t createWithTrait (const Problem& problem);
+            PartialShortcutPtr_t createWithTraits (const Problem& problem);
 
           /// Return shared pointer to new object.
           static PartialShortcutPtr_t create (const Problem& problem);
@@ -117,7 +117,7 @@ namespace hpp {
       /// \}
 
       template < typename Traits > PartialShortcutPtr_t
-        PartialShortcut::createWithTrait (const Problem& problem)
+        PartialShortcut::createWithTraits (const Problem& problem)
       {
         PartialShortcut* ptr = new PartialShortcut (problem);
         ptr->parameters.removeLockedJoints = Traits::removeLockedJoints();

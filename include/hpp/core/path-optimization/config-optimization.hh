@@ -52,7 +52,7 @@ namespace hpp {
         public:
           /// Return shared pointer to new object.
           template < typename Traits > static
-            ConfigOptimizationPtr_t createWithTrait (const Problem& problem);
+            ConfigOptimizationPtr_t createWithTraits (const Problem& problem);
 
           /// Return shared pointer to new object.
           static ConfigOptimizationPtr_t create (const Problem& problem);
@@ -85,7 +85,7 @@ namespace hpp {
       /// \}
 
       template < typename Traits > ConfigOptimizationPtr_t
-        ConfigOptimization::createWithTrait (const Problem& problem)
+        ConfigOptimization::createWithTraits (const Problem& problem)
       {
         ConfigOptimization* ptr = new ConfigOptimization (problem);
         ptr->parameters.addConfigConstraintToPath =
