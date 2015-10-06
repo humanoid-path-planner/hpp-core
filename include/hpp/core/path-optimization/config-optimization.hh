@@ -45,6 +45,11 @@ namespace hpp {
 
         static Configuration_t getGoal (const PathVector& path)
         { return path.initial (); }
+
+        static ConfigProjectorPtr_t getConfigProjector
+          (const PathPtr_t& before, const PathPtr_t& after, bool& isReverse);
+
+        static bool shouldFilter (const JointPtr_t joint, const size_type iDof);
       };
 
       class HPP_CORE_DLLAPI ConfigOptimization : public PathOptimizer
@@ -68,7 +73,14 @@ namespace hpp {
 
             std::size_t numberOfIterations;
 
-            boost::function <Configuration_t (const PathVector& path)> getGoal;
+            boost::function <Configuration_t (const PathVector&)> getGoal;
+
+            boost::function <
+              ConfigProjectorPtr_t (const PathPtr_t&, const PathPtr_t&, bool&)
+              > getConfigProjector;
+
+            boost::function <bool (const JointPtr_t, const size_type)>
+              shouldFilter;
 
             Parameters ();
           } parameters;
@@ -76,11 +88,32 @@ namespace hpp {
         protected:
           ConfigOptimization (const Problem& problem);
 
+          virtual NumericalConstraintPtr_t createNumConstraint
+            (const PathVector& path) const;
+
+          struct Optimizer {
+            ConfigProjectorPtr_t proj;
+            virtual bool optimize (ConfigurationOut_t q,
+                const std::size_t numIter,
+                const value_type alpha) const;
+          };
+
+          typedef std::vector <Optimizer> Optimizers_t;
+
+          virtual std::size_t buildOptimizers (const PathVector& pv,
+              Optimizers_t& projectors);
+
         private:
           bool isValid (const PathPtr_t& p) const;
 
-          NumericalConstraintPtr_t createNumConstraint
-            (const PathVectorPtr_t& path) const;
+          void buildConfigVector (const PathVector& path,
+              vectorOut_t configs) const;
+
+          template <bool forward> bool pass (
+              vectorIn_t configs, vectorOut_t newConfigs,
+              const Optimizers_t& optimizers, const std::size_t& index,
+              const value_type& alpha, PathVectorPtr_t opted, bool& didChange)
+            const;
       }; // class RandomShortcut
       /// \}
 
@@ -92,8 +125,9 @@ namespace hpp {
           Traits::addConfigConstraintToPath ();
         ptr->parameters.numberOfPass = Traits::numberOfPass ();
         ptr->parameters.numberOfIterations = Traits::numberOfIterations ();
-          Traits::addConfigConstraintToPath ();
         ptr->parameters.getGoal = Traits::getGoal;
+        ptr->parameters.getConfigProjector = Traits::getConfigProjector;
+        ptr->parameters.shouldFilter = Traits::shouldFilter;
         return ConfigOptimizationPtr_t (ptr);
       }
     } // namespace pathOptimization
