@@ -294,7 +294,7 @@ namespace hpp {
         case 2: // Last
           // No need to compute projector for next step.
           svd_.compute (jacobian * projector);
-          dq.noalias() += svd_.solve (error - jacobian * dq);
+          dq.noalias() += projector * svd_.solve (error - jacobian * dq);
           return true; // The return value is not important in this case.
           break;
         case 3: // First and last (one level only)
@@ -304,19 +304,20 @@ namespace hpp {
           break;
         default: /// General case
           svd_.compute (jacobian * projector);
-          dq.noalias() += svd_.solve (error - jacobian * dq);
+          dq.noalias() += projector * svd_.solve (error - jacobian * dq);
           break;
       }
       /// compute projector for next step.
       hpp::model::projectorOnKernel <SVD_t> (svd_, PK_);
-      projector.noalias() -= PK_;
+      assert ((projector * PK_ - PK_).isZero());
+      projector -= PK_;
       return (jacobian * dq - error).isZero ();
     }
 
     void ConfigProjector::computePrioritizedIncrement (vectorIn_t value,
-        matrixIn_t reducedJacobian, vectorOut_t dq)
+        matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq)
     {
-      vector_t error = value - rightHandSide_;
+      vector_t error = - alpha * (value - rightHandSide_);
       matrix_t projector =
         matrix_t::Identity (nbNonLockedDofs_, nbNonLockedDofs_);
       std::size_t row = 0;
@@ -332,11 +333,33 @@ namespace hpp {
       uncompressVector (dqSmall_, dq);
     }
 
+    void ConfigProjector::computePrioritizedIncrement (vectorIn_t value,
+        matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq,
+        const std::size_t& level)
+    {
+      vector_t error = alpha * (rightHandSide_ - value);
+      matrix_t projector =
+        matrix_t::Identity (nbNonLockedDofs_, nbNonLockedDofs_);
+      std::size_t row = 0;
+      dqSmall_.setZero ();
+      std::vector <PriorityStack>::iterator end = stack_.begin ();
+      std::advance (end, level);
+      for (std::vector <PriorityStack>::iterator it = stack_.begin ();
+          it != end; ++it) {
+        if (!it->computeIncrement (error.segment (row, it->outputSize_),
+            reducedJacobian.middleRows (row, it->outputSize_),
+            dqSmall_, projector))
+          break;
+        row += it->outputSize_;
+      }
+      uncompressVector (dqSmall_, dq);
+    }
+
     void ConfigProjector::computeIncrement (vectorIn_t value,
-        matrixIn_t reducedJacobian, vectorOut_t dq)
+        matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq)
     {
       svd_.compute (reducedJacobian);
-      dqSmall_ = svd_.solve(value - rightHandSide_);
+      dqSmall_ = svd_.solve(alpha * (rightHandSide_ - value));
       uncompressVector (dqSmall_, dq);
     }
 
@@ -458,8 +481,8 @@ namespace hpp {
       computeError ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
-        computePrioritizedIncrement (value_, reducedJacobian_, dq_);
-	model::integrate (robot_, configuration, - alpha * dq_, configuration);
+        computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
+	model::integrate (robot_, configuration, dq_, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
@@ -507,13 +530,20 @@ namespace hpp {
       std::size_t iter = 0;
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
       do {
-        computePrioritizedIncrement (value_, reducedJacobian_, dq_);
-	model::integrate (robot_, configuration, - alpha * dq_, current);
-        impl_compute (current);
+        computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
+	model::integrate (robot_, configuration, dq_, current);
         computeValueAndJacobian (current, value_, reducedJacobian_);
         computeError ();
+        if (squareNorm_ >= squareErrorThreshold_) {
+          /// Ignore last level
+          computePrioritizedIncrement (value_, reducedJacobian_, 1, dq_,
+              stack_.size() - 1);
+          model::integrate (robot_, current, dq_, current);
+          computeValueAndJacobian (current, value_, reducedJacobian_);
+          computeError ();
+          if (squareNorm_ >= squareErrorThreshold_) break;
+        }
 	hppDout (info, "squareNorm = " << squareNorm_);
-	if (squareNorm_ >= squareErrorThreshold_) break;
         configuration = current;
 	++iter;
       } while (iter < maxIter); // && squareNorm_ < squareErrorThreshold_

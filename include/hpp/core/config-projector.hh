@@ -158,10 +158,14 @@ namespace hpp {
       /// q_{i+1} - q_{i} = J(q_i)^{+} ( rhs - v_{i} )
       /// dq = J(q_i)^{+} ( rhs - v_{i} )
       void computeIncrement (vectorIn_t value, matrixIn_t reducedJacobian,
-          vectorOut_t dq);
+          const value_type& alpha, vectorOut_t dq);
 
       void computePrioritizedIncrement (vectorIn_t value,
-          matrixIn_t reducedJacobian, vectorOut_t dq);
+          matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq);
+
+      void computePrioritizedIncrement (vectorIn_t value,
+          matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq,
+          const std::size_t& level);
 
       /// \name Compression of locked degrees of freedom
       ///
