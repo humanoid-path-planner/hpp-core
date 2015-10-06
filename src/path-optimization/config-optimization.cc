@@ -106,7 +106,7 @@ namespace hpp {
                 link = sm (
                     newConfigs.segment ((rIndex + 1)*N, N),
                     newConfigs.segment ((rIndex    )*N, N));
-                link = link->reverse ();
+                if (link) link = link->reverse ();
               }
               if (isValid (link)) {
                 opted = optedF;
