@@ -26,6 +26,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/locked-joint.hh>
+#include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {
   namespace core {
@@ -116,6 +117,9 @@ namespace hpp {
     void ConfigProjector::add (const NumericalConstraintPtr_t& nm,
         const SizeIntervals_t& passiveDofs)
     {
+      if (HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm)) {
+	explicitFunctions_.push_back (functions_.size ());
+      }
       functions_.push_back (nm);
       passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
@@ -316,6 +320,12 @@ namespace hpp {
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
       if (functions_.empty ()) return true;
+      if ((functions_.size () == 1) && (explicitFunctions_.size () == 1)) {
+	HPP_STATIC_CAST_REF_CHECK (ExplicitNumericalConstraint,
+				   *(functions_ [0]));
+	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
+			     functions_ [0])->solve (configuration);
+      }
       value_type alpha = .2;
       value_type alphaMax = .95;
       size_type errorDecreased = 3, iter = 0;

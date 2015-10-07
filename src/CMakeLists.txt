@@ -35,6 +35,7 @@ SET(${LIBRARY_NAME}_SOURCES
   diffusing-planner.cc
   discretized-collision-checking.cc
   distance-between-objects.cc
+  explicit-numerical-constraint.cc
   extracted-path.hh
   joint-bound-validation.cc
   nearest-neighbor/basic.hh

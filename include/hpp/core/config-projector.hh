@@ -298,6 +298,7 @@ namespace hpp {
       typedef std::list <LockedJointPtr_t> LockedJoints_t;
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
+      std::vector <std::size_t> explicitFunctions_;
       IntervalsContainer_t passiveDofs_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom

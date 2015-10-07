@@ -68,6 +68,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
   include/hpp/core/edge.hh
+  include/hpp/core/explicit-numerical-constraint.hh
   include/hpp/core/fwd.hh
   include/hpp/core/joint-bound-validation.hh
   include/hpp/core/equation.hh
