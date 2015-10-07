@@ -68,6 +68,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
+    HPP_PREDEF_CLASS (InterpolatedPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
@@ -174,6 +175,8 @@ namespace hpp {
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
     typedef boost::shared_ptr <const StraightPath> StraightPathConstPtr_t;
+    typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
+    typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
     typedef boost::shared_ptr <SteeringMethodStraight>
     SteeringMethodStraightPtr_t;
