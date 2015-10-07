@@ -50,6 +50,9 @@ namespace hpp {
       PathOptimizer (const Problem& problem) : problem_ (problem)
 	{
 	}
+
+      PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+
     private:
       const Problem& problem_;
     }; // class PathOptimizer;

@@ -26,7 +26,6 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/random-shortcut.hh>
-#include <hpp/core/steering-method.hh>
 
 namespace hpp {
   namespace core {
@@ -87,11 +86,9 @@ namespace hpp {
 	// Validate sub parts
 	bool valid [3];
 	PathPtr_t straight [3];
-	const SteeringMethodPtr_t& steeringMethod
-	  (problem ().steeringMethod ());
-	straight [0] = (*steeringMethod) (q0, q1);
-	straight [1] = (*steeringMethod) (q1, q2);
-	straight [2] = (*steeringMethod) (q2, q3);
+	straight [0] = steer (q0, q1);
+	straight [1] = steer (q1, q2);
+	straight [2] = steer (q2, q3);
 	for (unsigned i=0; i<3; ++i) {
 	  PathPtr_t validPart;
 	  PathValidationReportPtr_t report;

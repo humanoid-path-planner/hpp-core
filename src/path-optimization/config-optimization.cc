@@ -84,7 +84,6 @@ namespace hpp {
         buildConfigVector (*unpacked, configs);
         newConfigs = configs;
 
-        SteeringMethod& sm (*problem ().steeringMethod ());
         value_type length = pathLength (unpacked, problem().distance());
         hppDout (info, "ConfigOptimization: length " << length);
         value_type alpha = parameters.alphaInit;
@@ -105,11 +104,11 @@ namespace hpp {
             if (successB && (didChangeF || didChangeB)) {
               // Try to link the two passes (the steering method may not be
               // symmetric so try in both directions)
-              PathPtr_t link = sm (
+              PathPtr_t link = steer (
                   newConfigs.segment ((rIndex    )*N, N),
                   newConfigs.segment ((rIndex + 1)*N, N));
               if (!link) {
-                link = sm (
+                link = steer (
                     newConfigs.segment ((rIndex + 1)*N, N),
                     newConfigs.segment ((rIndex    )*N, N));
                 if (link) link = link->reverse ();
@@ -284,7 +283,6 @@ namespace hpp {
           const value_type& alpha, PathVectorPtr_t opted, bool& didChange
           ) const
       {
-        SteeringMethod& sm (*problem ().steeringMethod ());
         std::list <PathPtr_t> paths;
         const std::size_t N = opted->outputSize ();
         const std::size_t P = optimizers.size () + 1;
@@ -300,11 +298,11 @@ namespace hpp {
               parameters.numberOfIterations, alpha);
           PathPtr_t current;
           if (isOpted)
-            current = sm (newConfigs.segment (iN*N, N),
+            current = steer (newConfigs.segment (iN*N, N),
                           newConfigs.segment (i *N, N));
           if (!isOpted || !isValid (current)) {
             /// Try from last newConfigs to old ones.
-            current = sm (newConfigs.segment (iN*N, N),
+            current = steer (newConfigs.segment (iN*N, N),
                              configs.segment (i *N, N));
             if (isValid (current)) {
               /// We do not change that configuration.
