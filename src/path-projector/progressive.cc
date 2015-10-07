@@ -17,6 +17,7 @@
 #include "hpp/core/path-projector/progressive.hh"
 
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
 
 #include <limits>
@@ -95,11 +96,12 @@ namespace hpp {
         std::queue <PathPtr_t> paths;
         PathPtr_t toSplit = steer (q1, q2);
         Configuration_t qi (q1.size());
-        value_type curStep, curLength;
+        value_type curStep, curLength, totalLength = 0;
         size_t c = 0;
         while (true) {
           if (toSplit->length () < step_) {
             paths.push (toSplit);
+            totalLength += toSplit->length ();
             pathIsFullyProjected = true;
             break;
           }
@@ -122,6 +124,7 @@ namespace hpp {
 	  assert (curLength == d (qb, qi));
           PathPtr_t part = steer (qb, qi);
           paths.push (part);
+          totalLength += part->length ();
           toSplit = steer (qi, q2);
           c++;
         }
@@ -136,16 +139,21 @@ namespace hpp {
             projection = paths.front ()->copy (constraints);
             break;
           default:
-            core::PathVectorPtr_t pv = core::PathVector::create
-	      (path->outputSize (), path->outputDerivativeSize ());
-            qi = q1;
+            InterpolatedPathPtr_t p = InterpolatedPath::create
+              (path->device (), q1, q2, totalLength,
+               path->constraints ());
+            value_type t = paths.front ()->length ();
+            qi = paths.front()->end ();
+            paths.pop ();
             while (!paths.empty ()) {
               assert ((qi - paths.front ()->initial ()).isZero ());
               qi = paths.front ()->end ();
-              pv->appendPath (paths.front ()->copy (constraints));
+              p->insert (t, paths.front()->initial ());
+              assert (t <= totalLength);
+              t += paths.front()->length ();
               paths.pop ();
             }
-            projection = pv;
+            projection = p;
             break;
         }
         assert ((projection->initial () - path->initial ()).isZero());
