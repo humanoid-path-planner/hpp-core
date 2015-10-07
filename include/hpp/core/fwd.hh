@@ -243,6 +243,11 @@ namespace hpp {
       HPP_PREDEF_CLASS (Progressive);
       typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
     } // namespace pathProjector
+
+    namespace steeringMethod {
+      HPP_PREDEF_CLASS (Interpolated);
+      typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
+    } // namespace steeringMethod
   } // namespace core
 } // namespace hpp
 
