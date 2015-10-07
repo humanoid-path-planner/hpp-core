@@ -37,10 +37,8 @@ namespace hpp {
       value_type result = 0;
       for (std::size_t i=0; i<path->numberPaths (); ++i) {
 	const PathPtr_t& element (path->pathAtRank (i));
-	const value_type& tmin (element->timeRange ().first);
-	const value_type& tmax (element->timeRange ().second);
-	Configuration_t q1 ((*element) (tmin));
-	Configuration_t q2 ((*element) (tmax));
+	Configuration_t q1 = element->initial ();
+	Configuration_t q2 = element->end ();
 	result += (*distance) (q1, q2);
       }
       return result;
@@ -64,8 +62,8 @@ namespace hpp {
       using std::make_pair;
       bool finished = false;
       value_type t3 = path->timeRange ().second;
-      Configuration_t q0 = (*path) (0);
-      Configuration_t q3 = (*path) (t3);
+      Configuration_t q0 = path->initial ();
+      Configuration_t q3 = path->end ();
       PathVectorPtr_t tmpPath = path;
 
       // Maximal number of iterations without improvements
@@ -74,6 +72,8 @@ namespace hpp {
 				      numeric_limits <value_type>::infinity ());
       length.push_back (pathLength (tmpPath, problem ().distance ()));
       PathVectorPtr_t result;
+      Configuration_t q1 (path->outputSize ()),
+                      q2 (path->outputSize ());
 
       while (!finished) {
 	t3 = tmpPath->timeRange ().second;
@@ -81,8 +81,14 @@ namespace hpp {
 	value_type u1 = t3 * rand ()/RAND_MAX;
 	value_type t1, t2;
 	if (u1 < u2) {t1 = u1; t2 = u2;} else {t1 = u2; t2 = u1;}
-	Configuration_t q1 = (*tmpPath) (t1);
-	Configuration_t q2 = (*tmpPath) (t2);
+	if (!(*tmpPath) (q1, t1)) {
+          hppDout (error, "Configuration at param " << t1 << " could not be "
+              "projected");
+        }
+	if (!(*tmpPath) (q2, t2)) {
+          hppDout (error, "Configuration at param " << t1 << " could not be "
+              "projected");
+        }
 	// Validate sub parts
 	bool valid [3];
 	PathPtr_t straight [3];
