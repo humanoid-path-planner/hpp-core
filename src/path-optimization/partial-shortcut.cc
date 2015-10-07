@@ -28,7 +28,6 @@
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/steering-method.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/locked-joint.hh>
 
@@ -98,7 +97,6 @@ namespace hpp {
           const value_type t1, ConfigurationIn_t q1,
           const value_type t2, ConfigurationIn_t q2) const
       {
-        const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
         value_type lt1, lt2;
         std::size_t rkAtP1 = path->rankAtParam (t1, lt1);
         std::size_t rkAtP2 = path->rankAtParam (t2, lt2);
@@ -124,12 +122,12 @@ namespace hpp {
               return PathVectorPtr_t ();
             }
           }
-          last = (*sm) (qi, q_inter);
+          last = (steer) (qi, q_inter);
           if (!last) return PathVectorPtr_t ();
           pv->appendPath (last);
           qi = q_inter;
         }
-        last = (*sm) (qi, q2);
+        last = steer (qi, q2);
         if (!last) return PathVectorPtr_t ();
         pv->appendPath (last);
         PathVectorPtr_t out = PathVector::create (
