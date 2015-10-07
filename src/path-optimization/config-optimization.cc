@@ -77,6 +77,7 @@ namespace hpp {
         const std::size_t N = problem().robot()->configSize ();
         const std::size_t P = unpacked->numberPaths();
 
+        // Build the optimizers and config vectors
         Optimizers_t optimizers;
         const std::size_t rIndex = buildOptimizers (*unpacked, optimizers);
         vector_t configs (N*(P+1)), newConfigs;
@@ -87,18 +88,23 @@ namespace hpp {
         value_type length = pathLength (unpacked, problem().distance());
         hppDout (info, "ConfigOptimization: length " << length);
         value_type alpha = parameters.alphaInit;
+        // Loop over pass index.
         for (std::size_t ipass = 0; ipass < parameters.numberOfPass; ++ipass) {
           PathVectorPtr_t optedF = PathVector::create (path->outputSize(),
               path->outputDerivativeSize ());
           PathVectorPtr_t optedB = PathVector::create (path->outputSize(),
               path->outputDerivativeSize ());
           bool didChangeF, didChangeB;
+          // Forward pass: from path 0 to rIndex
           bool successF = pass <true> (configs, newConfigs, optimizers,
               rIndex  , alpha, optedF, didChangeF);
           if (successF) {
+            // Backward pass from P-1 ro rIndex + 1
             bool successB = pass <false> (configs, newConfigs, optimizers,
                 rIndex + 1, alpha, optedB, didChangeB);
             if (successB && (didChangeF || didChangeB)) {
+              // Try to link the two passes (the steering method may not be
+              // symmetric so try in both directions)
               PathPtr_t link = sm (
                   newConfigs.segment ((rIndex    )*N, N),
                   newConfigs.segment ((rIndex + 1)*N, N));
@@ -117,16 +123,21 @@ namespace hpp {
                 if (optedLength < length) {
                   unpacked = opted;
                   length = optedLength;
-                  hppDout (info, "ConfigOptimization: accepted length " << length);
+                  hppDout (info, "ConfigOptimization: accepted length "
+                      << length << ", alpha = " << alpha);
                   /// Update configs
                   configs = newConfigs;
                   continue;
                 }
+              } else {
+                hppDout (info, "ConfigOptimization: "
+                    "Could not link forward and backward pass");
               }
             }
           }
           /// Failure
-          hppDout (info, "ConfigOptimization: pass " << ipass << " failed");
+          hppDout (info, "ConfigOptimization: pass " << ipass << " failed"
+                      << ", alpha = " << alpha);
           alpha /= 2.;
         }
 
@@ -313,6 +324,11 @@ namespace hpp {
         for (std::list<PathPtr_t>::iterator it = paths.begin();
             it != paths.end (); ++it)
             opted->appendPath (*it);
+        if (forward) {
+          hppDout (info, "ConfigOptimization: forward pass succeeded.");
+        } else {
+          hppDout (info, "ConfigOptimization: backward pass succeeded.");
+        }
         return true;
       }
     } // namespace pathOptimization
