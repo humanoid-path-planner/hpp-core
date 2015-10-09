@@ -103,6 +103,12 @@ namespace hpp {
 	return (!constraints_ || constraints_->apply (result));
       }
 
+      /// Get the configuration at a parameter without applying the constraints.
+      bool at (const value_type& t, ConfigurationOut_t result) const
+      {
+        return impl_compute (result, t);
+      }
+
       /// \brief Function evaluation without applying constraints
       ///
       /// \return true if everything went good.
