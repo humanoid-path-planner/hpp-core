@@ -232,6 +232,8 @@ namespace hpp {
           projectors[i].proj->add (cc, SizeIntervals_t (0), 1);
           projectors[i].proj->lastIsOptional (true);
 
+          hppDout (info, "ConfigOptimization: rank " << i <<
+              " reversed ? " << reverse);
           if (reverse) {
             if (!reverseStarted) {
               indexReverse = i;

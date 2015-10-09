@@ -131,8 +131,12 @@ namespace hpp {
 	hppDout (info, "length = " << length [n-1]);
 	tmpPath = result;
       }
+      hppDout (info, "RandomShortcut:" << *result);
+      for (std::size_t i = 0; i < result->numberPaths (); ++i) {
+        hppDout (info, "At rank " << i << ", constraints are " <<
+            *result->pathAtRank(i)->constraints());
+      }
       return result;
     }
-
   } // namespace core
 } // namespace hpp
