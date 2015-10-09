@@ -36,7 +36,11 @@ namespace hpp {
     class HPP_CORE_DLLAPI InterpolatedPath : public Path
     {
     public:
+      typedef std::pair <value_type, Configuration_t> InterpolationPoint_t;
+      typedef std::map <value_type, Configuration_t, std::less <value_type>,
+        Eigen::aligned_allocator <InterpolationPoint_t> > InterpolationPoints_t;
       typedef Path parent_t;
+
       /// Destructor
       virtual ~InterpolatedPath () throw () {}
 
@@ -148,6 +152,8 @@ namespace hpp {
         return (--(configs_.end ()))->second;
       }
 
+      const InterpolationPoints_t& interpolationPoints () const;
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const
@@ -187,9 +193,6 @@ namespace hpp {
       inline void checkPath () const;
 
       DevicePtr_t device_;
-      typedef std::pair <value_type, Configuration_t> InterpolationPoint_t;
-      typedef std::map <value_type, Configuration_t, std::less <value_type>,
-        Eigen::aligned_allocator <InterpolationPoint_t> > InterpolationPoints_t;
       InterpolationPoints_t configs_;
       InterpolatedPathWkPtr_t weak_;
     }; // class InterpolatedPath
