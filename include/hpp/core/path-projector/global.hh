@@ -47,23 +47,28 @@ namespace hpp {
         private:
           value_type step_;
 
+          const value_type alphaMin;
+          const value_type alphaMax;
+
           typedef std::list <Configuration_t,
                   Eigen::aligned_allocator <Configuration_t> > Configs_t;
           typedef std::list <value_type> Lengths_t;
+          typedef std::list <value_type> Alphas_t;
           typedef std::vector <bool> Bools_t;
 
           bool projectOneStep (ConfigProjector& p,
               Configs_t& q, Bools_t& b, Lengths_t& l,
-              const value_type& alpha) const;
+              Alphas_t& alpha) const;
 
           /// Returns the number of new points
           std::size_t reinterpolate (const DevicePtr_t& robot,
-              Configs_t& q, Bools_t& b, Lengths_t& l,
+              Configs_t& q, Bools_t& b, Lengths_t& l, Alphas_t& alpha,
               const value_type& maxDist) const;
 
-          static bool createPath (const DevicePtr_t& robot,
-              ConstraintSetPtr_t constraint,
-              Configs_t& q, Bools_t& b, Lengths_t& l, PathPtr_t& result);
+          bool createPath (const DevicePtr_t& robot,
+              const ConstraintSetPtr_t& constraint,
+              const Configs_t& q, const Bools_t& b, const Lengths_t& l,
+              PathPtr_t& result) const;
 
           bool project (const PathPtr_t& path, PathPtr_t& projection) const;
 

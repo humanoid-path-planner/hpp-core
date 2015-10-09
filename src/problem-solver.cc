@@ -26,6 +26,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
@@ -117,6 +118,8 @@ namespace hpp {
 	pathProjector::Progressive::create;
       pathProjectorFactory_ ["Dichotomy"] =
 	pathProjector::Dichotomy::create;
+      pathProjectorFactory_ ["Global"] =
+	pathProjector::Global::create;
     }
 
     ProblemSolver::~ProblemSolver ()

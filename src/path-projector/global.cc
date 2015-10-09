@@ -16,6 +16,7 @@
 
 #include "hpp/core/path-projector/global.hh"
 
+#include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 
 #include <hpp/core/path-vector.hh>
@@ -32,7 +33,8 @@ namespace hpp {
       Global::Global (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
 				value_type step) :
-        PathProjector (distance, steeringMethod), step_ (step)
+        PathProjector (distance, steeringMethod), step_ (step),
+        alphaMin (0.2), alphaMax (0.95)
       {}
 
       bool Global::impl_apply (const PathPtr_t& path,
@@ -80,23 +82,37 @@ namespace hpp {
         Configs_t cfgs;
         ConfigProjector& p = *path->constraints ()->configProjector ();
         initialConfigList (path, cfgs);
+        if (cfgs.size() == 2) { // Shorter than step_
+          proj = path;
+          return true;
+        }
+        assert ((cfgs.back () - path->end ()).isZero ());
 
         Bools_t projected (cfgs.size () - 2, false);
+        Alphas_t alphas   (cfgs.size () - 2, alphaMin);
         Lengths_t lengths (cfgs.size () - 1, 0);
 
-        value_type alpha = 0.2;
-        const value_type alphaMax = 0.95;
         std::size_t nbIter = 0;
         const std::size_t maxIter = p.maxIterations ();
+        const std::size_t maxCfgNum =
+          2 + (std::size_t)(10 * path->length() / step_);
 
-        while (projectOneStep (p, cfgs, projected, lengths, alpha)) {
-          reinterpolate (p.robot(), cfgs, projected, lengths, step_);
+        hppDout (info, "start with " << cfgs.size () << " configs");
+        while (!projectOneStep (p, cfgs, projected, lengths, alphas)) {
+          assert ((cfgs.back () - path->end ()).isZero ());
+          if (cfgs.size() < maxCfgNum) {
+            const std::size_t newCs =
+              reinterpolate (p.robot(), cfgs, projected, lengths, alphas,
+                  step_);
+            if (newCs > 0) {
+              nbIter = 0;
+              hppDout (info, "Added " << newCs << " configs");
+            }
+          }
+
           nbIter++;
 
           if (nbIter > maxIter) break;
-
-          /// Prepare next iteration
-          alpha = alphaMax - .8*(alphaMax - alpha);
         }
 
         // Build the projection
@@ -106,19 +122,21 @@ namespace hpp {
 
       bool Global::projectOneStep (ConfigProjector& p,
           Configs_t& q, Bools_t& b, Lengths_t& l,
-          const value_type& alpha) const
+          Alphas_t& a) const
       {
         /// First and last should not be updated
         const Configs_t::iterator begin = ++(q.begin ());
         const Configs_t::iterator end   = --(q.end ());
         Bools_t  ::iterator itB   =   (b.begin ());
+        Alphas_t ::iterator itA   =   (a.begin ());
         Lengths_t::iterator itL   =   (l.begin ());
         Configs_t::iterator itCp  =   (q.begin ());
         bool allAreSatisfied = true;
         bool curUpdated = false, prevUpdated = false;
         for (Configs_t::iterator it = begin; it != end; ++it) {
           if (!*itB) {
-            *itB = p.oneStep (*it, alpha);
+            *itB = p.oneStep (*it, *itA);
+            *itA = alphaMax - 0.8 * (alphaMax - *itA);
             allAreSatisfied = allAreSatisfied && *itB;
             curUpdated = true;
           }
@@ -130,16 +148,19 @@ namespace hpp {
           ++itB;
           ++itL;
         }
+        if (prevUpdated)
+          *itL = d (*itCp, *end);
         return allAreSatisfied;
       }
 
       std::size_t Global::reinterpolate (const DevicePtr_t& robot,
-          Configs_t& q, Bools_t& b, Lengths_t& l,
+          Configs_t& q, Bools_t& b, Lengths_t& l, Alphas_t& a,
           const value_type& maxDist) const
       {
-        const Configs_t::iterator begin = ++(q.begin ());
+        Configs_t::iterator begin = ++(q.begin ());
         Configs_t::iterator end   =   (q.end ());
         Bools_t  ::iterator itB   =   (b.begin ());
+        Alphas_t ::iterator itA   =   (a.begin ());
         Lengths_t::iterator itL   =   (l.begin ());
         Configs_t::iterator itCp  =   (q.begin ());
         Configuration_t newQ (robot->configSize ());
@@ -150,8 +171,9 @@ namespace hpp {
             hpp::model::interpolate (robot, *itCp, *it, 0.5, newQ);
             // FIXME: make sure the iterator are valid after insertion
             // Insert new respective elements
-            it = q.insert (it, newQ);
+            it  = q.insert (it, newQ);
             itB = b.insert (itB, false);
+            itA = a.insert (itA, alphaMin);
             itL = l.insert (itL, d (*itCp, *it));
             // Update length after
             Configs_t::iterator itNC = it;  ++itNC;
@@ -159,48 +181,61 @@ namespace hpp {
             *itNL = d (*it, *itNC);
             // FIXME: End has changed ?
             end = q.end();
+            it = itCp;
             continue;
           }
           ++itCp;
           ++itB;
+          ++itA;
           ++itL;
         }
         return nbNewC;
       }
 
       bool Global::createPath (const DevicePtr_t& robot,
-          ConstraintSetPtr_t constraint, Configs_t& q, Bools_t& b, Lengths_t& l,
-          PathPtr_t& result)
+          const ConstraintSetPtr_t& constraint, const Configs_t& q,
+          const Bools_t& b, const Lengths_t& l, PathPtr_t& result) const
       {
         /// Compute total length
         value_type length = 0;
-        Bools_t  ::iterator itB   =   (b.begin ());
-        Configs_t::iterator itCl  =   (q.begin ());
+        Lengths_t::const_iterator itL   = (l.begin ());
+        Bools_t  ::const_iterator itB   = (b.begin ());
+        Configs_t::const_iterator itCl  = (q.begin ());
         bool fullyProjected = true;
-        for (Lengths_t::iterator itL = l.begin (); itL != l.end (); ++itL) {
-          if (!*itB) {
+        for (; itB != b.end (); ++itB) {
+          if (!*itB || *itL > step_) {
             fullyProjected = false;
             break;
           }
-          ++itCl;
-          ++itB;
           length += *itL;
+          ++itCl;
+          ++itL;
         }
-        if (fullyProjected) ++itCl;
+        if (fullyProjected) {
+          length += *itL;
+          ++itCl;
+          ++itL;
+          assert (itL == l.end ());
+        }
 
         InterpolatedPathPtr_t out = InterpolatedPath::create
           (robot, q.front(), *itCl, length, constraint);
 
-        Lengths_t::iterator itL   =   (l.begin ());
-        Configs_t::iterator itCp  =   (q.begin ());
-
-        length = 0;
-        const Configs_t::iterator begin = ++(q.begin ());
-        for (Configs_t::iterator it = begin; it != itCl; ++it) {
-          length += *itL;
-          out->insert (length, *it);
+        if (itCl != q.begin ()) {
+          length = 0;
+          Lengths_t::const_iterator itL   =   (l.begin ());
+          Configs_t::const_iterator begin = ++(q.begin ());
+          for (Configs_t::const_iterator it = begin; it != itCl; ++it) {
+            length += *itL;
+            out->insert (length, *it);
+            ++itL;
+          }
+        } else {
+          hppDout (info, "Path of length 0");
+          assert (!fullyProjected);
         }
         result = out;
+        hppDout (info, "Projection succeeded ? " << fullyProjected);
         return fullyProjected;
       }
 
@@ -221,7 +256,9 @@ namespace hpp {
           const value_type L = path->length ();
           Configuration_t q (path->outputSize ());
           cfgs.push_back (path->initial ());
-          for (value_type t = step_; t < L; t += step_) {
+          // Factor 0.99 is to ensure that the distance between two consecutives
+          // configurations will be smaller that step_
+          for (value_type t = step_; t < L; t += step_*0.99) {
             // Interpolate without taking care of the constraints
             // FIXME: Path must not be a PathVector otherwise the constraints
             // are applied.
