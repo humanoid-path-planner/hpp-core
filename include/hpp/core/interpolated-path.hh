@@ -152,7 +152,10 @@ namespace hpp {
         return (--(configs_.end ()))->second;
       }
 
-      const InterpolationPoints_t& interpolationPoints () const;
+      const InterpolationPoints_t& interpolationPoints () const
+      {
+        return configs_;
+      }
 
     protected:
       /// Print path in a stream
