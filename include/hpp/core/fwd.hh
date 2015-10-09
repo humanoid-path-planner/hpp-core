@@ -238,6 +238,8 @@ namespace hpp {
     HPP_PREDEF_CLASS (PathProjector);
     typedef boost::shared_ptr <PathProjector> PathProjectorPtr_t;
     namespace pathProjector {
+      HPP_PREDEF_CLASS (Global);
+      typedef boost::shared_ptr <Global> GlobalPtr_t;
       HPP_PREDEF_CLASS (Dichotomy);
       typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
       HPP_PREDEF_CLASS (Progressive);

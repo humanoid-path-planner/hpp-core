@@ -64,6 +64,7 @@ SET(${LIBRARY_NAME}_SOURCES
   locked-joint.cc
   path-projector/progressive.cc
   path-projector/dichotomy.cc
+  path-projector/global.cc
   path-projector.cc
   parser/roadmap-factory.cc
   )
