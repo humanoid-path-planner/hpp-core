@@ -517,6 +517,15 @@ namespace hpp {
       return true;
     }
 
+    bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
+        const value_type& alpha)
+    {
+      computeValueAndJacobian (configuration, value_, reducedJacobian_);
+      computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
+      model::integrate (robot_, configuration, dq_, configuration);
+      return isSatisfied (configuration);
+    }
+
     bool ConfigProjector::optimize (ConfigurationOut_t configuration,
         std::size_t maxIter, const value_type alpha)
     {

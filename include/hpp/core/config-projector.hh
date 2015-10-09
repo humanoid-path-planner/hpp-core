@@ -153,6 +153,10 @@ namespace hpp {
 				    vectorOut_t value,
 				    matrixOut_t reducedJacobian);
 
+      /// Execute one iteration of the projection algorithm
+      /// \return true if the constraints are satisfied
+      bool oneStep (ConfigurationOut_t config, const value_type& alpha);
+
       /// Linearization of the system of equations
       /// rhs - v_{i} = J (q_i) (dq_{i+1} - q_{i})
       /// q_{i+1} - q_{i} = J(q_i)^{+} ( rhs - v_{i} )
