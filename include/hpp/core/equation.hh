@@ -62,6 +62,9 @@ namespace hpp {
         /// Return the ComparisonType
         const ComparisonTypePtr_t& comparisonType () const;
 
+	/// Set the comparison type
+	void comparisonType (const ComparisonTypePtr_t& comp);
+
         /// Return the right hand side of the equation.
         vectorOut_t nonConstRightHandSide ();
 

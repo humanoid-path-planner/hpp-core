@@ -43,6 +43,11 @@ namespace hpp {
       return comparison_;
     }
 
+    void Equation::comparisonType (const ComparisonTypePtr_t& comp)
+    {
+      comparison_ = comp;
+    }
+
     Equation::Equation (const ComparisonTypePtr_t& comp, vectorIn_t rhs) :
       comparison_ (comp), rhs_ (rhs)
     {
@@ -53,7 +58,7 @@ namespace hpp {
     Equation::Equation (const Equation& other) :
       comparison_ (other.comparison_), rhs_ (other.rhs_)
     {
-    }				
+    }
 
   } // namespace core
 } // namespace hpp
