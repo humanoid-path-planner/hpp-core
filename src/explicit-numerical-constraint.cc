@@ -157,7 +157,7 @@ namespace hpp {
 	    ++row;
 	  }
 	}
-	
+
 	size_type index = 0;
 	for (SizeIntervals_t::const_iterator it = inputConfIntervals_.begin ();
 	     it != inputConfIntervals_.end (); ++it) {
