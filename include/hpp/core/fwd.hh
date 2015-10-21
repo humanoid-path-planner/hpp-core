@@ -195,8 +195,8 @@ namespace hpp {
     typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
     typedef boost::shared_ptr <ValidationReport> ValidationReportPtr_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
-    typedef std::map <std::string, DifferentiableFunctionPtr_t>
-    DifferentiableFunctionMap_t;
+    typedef std::map <std::string, NumericalConstraintPtr_t>
+    NumericalConstraintMap_t;
     typedef std::map <std::string, ComparisonTypePtr_t>
     ComparisonTypeMap_t;
     typedef std::map <std::string, SizeIntervals_t> SizeIntervalsMap_t;

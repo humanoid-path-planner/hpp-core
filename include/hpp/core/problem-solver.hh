@@ -235,16 +235,30 @@ namespace hpp {
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
-      /// \param constraint numerical constraint
+      /// \param function left hand side of numerical constraint
       ///
       /// Numerical constraints are to be inserted in the ConfigProjector of
       /// the constraint set.
       void addNumericalConstraint (const std::string& name,
 				   const DifferentiableFunctionPtr_t&
+				   function) HPP_CORE_DEPRECATED
+      {
+	NumericalConstraintPtr_t constraint (NumericalConstraint::create
+					     (function));
+	numericalConstraintMap_ [name] = constraint;
+      }
+
+      /// Add a a numerical constraint in local map.
+      /// \param name name of the numerical constraint as stored in local map,
+      /// \param constraint numerical constraint
+      ///
+      /// Numerical constraints are to be inserted in the ConfigProjector of
+      /// the constraint set.
+      void addNumericalConstraint (const std::string& name,
+				   const NumericalConstraintPtr_t&
 				   constraint)
       {
 	numericalConstraintMap_ [name] = constraint;
-        comparisonTypeMap_ [name] = ComparisonType::createDefault();
       }
 
       /// Add a vector of passive dofs in a local map.
@@ -271,12 +285,12 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonType::VectorOfTypes types)
       {
-        DifferentiableFunctionPtr_t df = numericalConstraintMap_ [name];
-        if (!df)
+        NumericalConstraintPtr_t constraint (numericalConstraintMap_ [name]);
+        if (!constraint)
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
         ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
-        comparisonTypeMap_ [name] = eqtypes;
+        constraint->comparisonType (eqtypes);
       }
 
       /// Set the comparison type of a constraint
@@ -284,19 +298,25 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonTypePtr_t eq)
       {
-        comparisonTypeMap_ [name] = eq;
+        NumericalConstraintPtr_t constraint (numericalConstraintMap_ [name]);
+        if (!constraint)
+          throw std::logic_error (std::string ("Numerical constraint ") +
+				  name + std::string (" not defined."));
+        constraint->comparisonType (eq);
       }
 
       ComparisonTypePtr_t comparisonType (const std::string& name) const
       {
-        ComparisonTypeMap_t::const_iterator it = comparisonTypeMap_.find (name);
-        if (it == comparisonTypeMap_.end ())
-          return Equality::create ();
-        return it->second;
+        NumericalConstraintMap_t::const_iterator it =
+	  numericalConstraintMap_.find (name);
+        if (it == numericalConstraintMap_.end ())
+          throw std::logic_error (std::string ("Numerical constraint ") +
+				  name + std::string (" not defined."));
+        return it->second->comparisonType ();
       }
 
       /// Get constraint with given name
-      DifferentiableFunctionPtr_t numericalConstraint (const std::string& name)
+      NumericalConstraintPtr_t numericalConstraint (const std::string& name)
       {
 	return numericalConstraintMap_ [name];
       }
@@ -532,11 +552,9 @@ namespace hpp {
       // Maximal number of iterations for numerical constraint resolution
       size_type maxIterations_;
       /// Map of constraints
-      DifferentiableFunctionMap_t numericalConstraintMap_;
+      NumericalConstraintMap_t numericalConstraintMap_;
       /// Map of passive dofs
       SizeIntervalsMap_t passiveDofsMap_;
-      /// Map of inequality
-      ComparisonTypeMap_t comparisonTypeMap_;
       /// Map of CenterOfMassComputation
       CenterOfMassComputationMap_t comcMap_;
       /// Computation of distances to obstacles

@@ -86,7 +86,7 @@ namespace hpp {
       pathOptimizerFactory_ (), pathValidationFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
       errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
-      passiveDofsMap_ (), comparisonTypeMap_ (), comcMap_ (),
+      passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
       pathPlannerFactory_ ["DiffusingPlanner"] =
@@ -281,9 +281,8 @@ namespace hpp {
 	  (robot_, constraintName, errorThreshold_, maxIterations_);
 	constraints_->addConstraint (configProjector);
       }
-      configProjector->add (NumericalConstraint::create
-          (numericalConstraintMap_ [functionName],
-           comparisonTypeMap_ [functionName]), SizeIntervals_t (0), priority);
+      configProjector->add (numericalConstraintMap_ [functionName],
+			    SizeIntervals_t (0), priority);
     }
 
     void ProblemSolver::computeValueAndJacobian
