@@ -23,6 +23,12 @@
 
 namespace hpp {
   namespace core {
+    /// Copy object and return shared pointer to copy
+    EquationPtr_t LockedJoint::copy () const
+    {
+      return createCopy (weak_.lock ());
+    }
+
     LockedJointPtr_t LockedJoint::create (const JointPtr_t& joint,
 					  vectorIn_t value)
     {

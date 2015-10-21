@@ -93,6 +93,8 @@ namespace hpp {
       public NumericalConstraint
     {
     public:
+      /// Copy object and return shared pointer to copy
+      virtual EquationPtr_t copy () const;
       /// Create instance and return shared pointer
       ///
       /// function relation between input configuration variables and output
@@ -122,6 +124,10 @@ namespace hpp {
 	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity, vectorIn_t rhs);
+
+      /// Create a copy and return shared pointer
+      static ExplicitNumericalConstraintPtr_t createCopy
+	(const ExplicitNumericalConstraintPtr_t& other);
 
       /// Solve constraint
       ///
@@ -159,9 +165,30 @@ namespace hpp {
 	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity, vectorIn_t rhs);
+
+      /// Create instance and return shared pointer
+      ///
+      /// \param robot Robot for which the constraint is defined.
+      /// \param function relation between input configuration variables and
+      ///        output configuration variables,
+      /// \param outputConf set of integer intervals defining indices
+      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
+      /// \param outputVeclocity set of integer defining indices
+      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
+      /// \param rhs        right hand side.
+      /// \note comparison type for this constraint is always equality
+      ExplicitNumericalConstraint (const ExplicitNumericalConstraint& other);
+
+      // Store weak pointer to itself
+      void init (const ExplicitNumericalConstraintWkPtr_t& weak)
+	{
+	  NumericalConstraint::init (weak);
+	  weak_ = weak;
+	}
     private:
       // Relation between input and output configuration variables
       DifferentiableFunctionPtr_t inputToOutput_;
+      ExplicitNumericalConstraintWkPtr_t weak_;
     }; // class ExplicitNumericalConstraint
     /// \}
   } // namespace core

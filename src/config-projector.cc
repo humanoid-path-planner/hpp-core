@@ -117,7 +117,8 @@ namespace hpp {
       dq_.setZero ();
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
 	   it != cp.lockedJoints_.end (); ++it) {
-	lockedJoints_.push_back ((*it)->copy ());
+	lockedJoints_.push_back (HPP_STATIC_PTR_CAST (LockedJoint,
+						      (*it)->copy ()));
       }
     }
 

@@ -30,6 +30,8 @@ namespace hpp {
     /// \li in which \f$ f \f$ is a differentiable function.
     class HPP_CORE_DLLAPI NumericalConstraint : public Equation {
       public:
+        /// Copy object and return shared pointer to copy
+        virtual EquationPtr_t copy () const;
         /// Create a shared pointer to a new instance.
         /// \sa constructors
         static NumericalConstraintPtr_t create (const DifferentiableFunctionPtr_t& function,
@@ -39,6 +41,10 @@ namespace hpp {
         /// \sa constructors
         static NumericalConstraintPtr_t create (const DifferentiableFunctionPtr_t& function,
             ComparisonTypePtr_t comp, vectorIn_t rhs);
+
+	/// Create a copy and return shared pointer
+	static NumericalConstraintPtr_t createCopy
+	  (const NumericalConstraintPtr_t& other);
 
         /// \sa Equation::rightHandSideFromConfig
         void rightHandSideFromConfig (ConfigurationIn_t config);
@@ -83,11 +89,22 @@ namespace hpp {
         NumericalConstraint (const DifferentiableFunctionPtr_t& function,
             ComparisonTypePtr_t comp, vectorIn_t rhs);
 
+	/// Copy constructor
+	NumericalConstraint (const NumericalConstraint& other);
+
+	// Store weak pointer to itself
+	void init (const NumericalConstraintWkPtr_t& weak)
+	{
+	  Equation::init (weak);
+	  weak_ = weak;
+	}
+
       private:
         DifferentiableFunctionPtr_t function_;
 
         vector_t value_;
         matrix_t jacobian_;
+	NumericalConstraintWkPtr_t weak_;
     };
     /// \}
   } // namespace core

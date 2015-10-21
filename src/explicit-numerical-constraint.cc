@@ -208,6 +208,22 @@ namespace hpp {
       return ExplicitNumericalConstraintPtr_t (ptr);
     }
 
+    ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::createCopy
+    (const ExplicitNumericalConstraintPtr_t& other)
+    {
+      ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
+	(*other);
+      ExplicitNumericalConstraintPtr_t shPtr (ptr);
+      ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
+    }
+
+    EquationPtr_t ExplicitNumericalConstraint::copy () const
+    {
+      return createCopy (weak_.lock ());
+    }
+
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
      const SizeIntervals_t& outputConf,
@@ -225,6 +241,12 @@ namespace hpp {
       NumericalConstraint (ImplicitFunction::create
 			   (robot, function, outputConf, outputVelocity),
 			   Equality::create (), rhs)
+    {
+    }
+
+    ExplicitNumericalConstraint::ExplicitNumericalConstraint
+    (const ExplicitNumericalConstraint& other) :
+      NumericalConstraint (other), inputToOutput_ (other.inputToOutput_)
     {
     }
 

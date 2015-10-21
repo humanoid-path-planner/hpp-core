@@ -33,6 +33,9 @@ namespace hpp {
     class HPP_CORE_DLLAPI LockedJoint : public Equation
     {
     public:
+      /// Copy object and return shared pointer to copy
+      virtual EquationPtr_t copy () const;
+
       /// Return shared pointer to new object
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
@@ -43,10 +46,6 @@ namespace hpp {
       /// \param other instance to copy.
       static LockedJointPtr_t createCopy (LockedJointConstPtr_t other);
 
-      LockedJointPtr_t copy () const
-      {
-	return createCopy (weak_.lock ());
-      }
       /// Get index of locked degree of freedom in robot configuration vector
       std::size_t rankInConfiguration () const;
 

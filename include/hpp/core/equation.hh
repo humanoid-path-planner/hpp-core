@@ -31,6 +31,8 @@ namespace hpp {
     /// \f$ f(q) = \textbf{or} \le rhs \f$.
     class HPP_CORE_DLLAPI Equation {
       public:
+        /// Copy object and return shared pointer to copy
+        virtual EquationPtr_t copy () const = 0;
         /// Set the right hand side from a configuration
         ///
         /// in such a way that the configuration satisfies the numerical
@@ -68,9 +70,15 @@ namespace hpp {
 	//Copy constructor
 	Equation (const Equation& other);
 
+	// Store weak pointer to itself
+	void init (const EquationWkPtr_t& weak)
+	{
+	  weak_ = weak;
+	}
       private:
         ComparisonTypePtr_t comparison_;
         vector_t rhs_;
+	EquationWkPtr_t weak_;
     };
     /// \}
   } // namespace core

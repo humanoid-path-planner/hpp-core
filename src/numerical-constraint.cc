@@ -33,19 +33,46 @@ namespace hpp {
       jacobian_ (matrix_t (function->outputSize (), function->inputDerivativeSize ()))
     {}
 
+    NumericalConstraint::NumericalConstraint (const NumericalConstraint& other):
+      Equation (other), function_ (other.function_), value_ (other.value_),
+      jacobian_ (other.jacobian_)
+    {
+    }
+
     NumericalConstraintPtr_t NumericalConstraint::create (
         const DifferentiableFunctionPtr_t& function, ComparisonTypePtr_t comp)
     {
-      NumericalConstraintPtr_t sh (new NumericalConstraint (function, comp));
-      return sh;
+      NumericalConstraint* ptr = new NumericalConstraint (function, comp);
+      NumericalConstraintPtr_t shPtr (ptr);
+      NumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
     }
 
     NumericalConstraintPtr_t NumericalConstraint::create (
         const DifferentiableFunctionPtr_t& function,
         ComparisonTypePtr_t comp, vectorIn_t rhs)
     {
-      NumericalConstraintPtr_t sh (new NumericalConstraint (function, comp, rhs));
-      return sh;
+      NumericalConstraint* ptr = new NumericalConstraint (function, comp, rhs);
+      NumericalConstraintPtr_t shPtr (ptr);
+      NumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
+    }
+
+    NumericalConstraintPtr_t NumericalConstraint::createCopy
+    (const NumericalConstraintPtr_t& other)
+    {
+      NumericalConstraint* ptr = new NumericalConstraint (*other);
+      NumericalConstraintPtr_t shPtr (ptr);
+      NumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
+    }
+
+    EquationPtr_t NumericalConstraint::copy () const
+    {
+      return createCopy (weak_.lock ());
     }
 
     void NumericalConstraint::rightHandSideFromConfig (ConfigurationIn_t config)
