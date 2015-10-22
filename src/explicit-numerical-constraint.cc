@@ -108,7 +108,7 @@ namespace hpp {
 	// Sum of configuration output interval sizes equal function output size
 	for (SizeIntervals_t::const_iterator it = outputConf.begin ();
 	     it != outputConf.end (); ++it) {
-	  size += it->second - it->first;
+	  size += it->second;
 	}
 	assert (size == function->outputSize ());
 	// Sum of velocity output interval sizes equal function output
@@ -116,7 +116,7 @@ namespace hpp {
 	size = 0;
 	for (SizeIntervals_t::const_iterator it = outputVelocity.begin ();
 	     it != outputVelocity.end (); ++it) {
-	  size += it->second - it->first;
+	  size += it->second;
 	}
 	assert (size == function->outputDerivativeSize ());
 	// Conpute input intervals
@@ -171,7 +171,8 @@ namespace hpp {
 	for (SizeIntervals_t::const_iterator it = inputDerivIntervals_.begin ();
 	     it != inputDerivIntervals_.end (); ++it) {
 	  jacobian.block (0, it->first, nbRows, it->second) =
-	    - J_.block (0, col, nbRows, it->second - it->first);
+	    - J_.block (0, col, nbRows, it->second);
+	  col += it->second;
 	}
       }
 
