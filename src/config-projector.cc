@@ -205,19 +205,23 @@ namespace hpp {
 
     void ConfigProjector::resize ()
     {
-      std::size_t size = 0;
+      std::size_t sizeOutput = 0;
       for (std::vector <PriorityStack>::const_iterator itPs = stack_.begin ();
           itPs != stack_.end (); ++itPs) {
-        for (NumericalConstraints_t::const_iterator it = itPs->functions_.begin ();
-            it != itPs->functions_.end (); ++it)
-          size += (*it)->function().outputSize ();
+        for (NumericalConstraints_t::const_iterator it =
+	       itPs->functions_.begin (); it != itPs->functions_.end (); ++it) {
+	  // Make sure functions take values in a vector space
+	  assert ((*it)->function().outputDerivativeSize () ==
+		  (*it)->function().outputSize ());
+	  sizeOutput += (*it)->function().outputSize ();
+	}
       }
       nbNonLockedDofs_ = robot_->numberDof () - nbLockedDofs_;
-      value_.resize (size);
-      rightHandSide_ = vector_t::Zero (size);
-      reducedJacobian_.resize (size, nbNonLockedDofs_);
+      value_.resize (sizeOutput);
+      rightHandSide_ = vector_t::Zero (sizeOutput);
+      reducedJacobian_.resize (sizeOutput, nbNonLockedDofs_);
       reducedJacobian_.setConstant (sqrt (-1));
-      svd_ = SVD_t (size, nbNonLockedDofs_,
+      svd_ = SVD_t (sizeOutput, nbNonLockedDofs_,
           Eigen::ComputeThinU | Eigen::ComputeThinV);
       dqSmall_.resize (nbNonLockedDofs_);
       dq_.setZero ();
@@ -234,7 +238,7 @@ namespace hpp {
     (ConfigurationIn_t configuration, const SizeIntervals_t& intervals,
      vectorOut_t value, matrixOut_t reducedJacobian)
     {
-      size_type row = 0, nbRows = 0;
+      size_type row = 0, nvRows = 0, njRows = 0;
       IntervalsContainer_t::const_iterator itPassiveDofs
         = passiveDofs_.begin ();
       for (NumericalConstraints_t::iterator it = functions_.begin ();
@@ -245,10 +249,11 @@ namespace hpp {
 	f (v, configuration);
 	f.jacobian (jacobian, configuration);
         (*(*it)->comparisonType ()) (v, jacobian);
-	nbRows = f.outputSize ();
+	nvRows = f.outputSize ();
+	njRows = f.outputDerivativeSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
-	value.segment (row, nbRows) = v;
+	value.segment (row, nvRows) = v;
         /// Set the passive DOFs to zero.
 	for (SizeIntervals_t::const_iterator it = itPassiveDofs->begin ();
 	     it != itPassiveDofs->end (); ++it)
@@ -258,11 +263,11 @@ namespace hpp {
 	     itInterval != intervals.end (); ++itInterval) {
 	  size_type col0 = itInterval->first;
 	  size_type nbCols = itInterval->second;
-	  reducedJacobian.block (row, col, nbRows, nbCols) =
-	    jacobian.block (0, col0, nbRows, nbCols);
+	  reducedJacobian.block (row, col, njRows, nbCols) =
+	    jacobian.block (0, col0, njRows, nbCols);
 	  col += nbCols;
 	}
-        row += nbRows;
+        row += njRows;
         ++itPassiveDofs;
       }
       assert (itPassiveDofs == passiveDofs_.end ());

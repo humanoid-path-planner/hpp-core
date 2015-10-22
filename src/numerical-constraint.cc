@@ -24,7 +24,8 @@ namespace hpp {
         ComparisonTypePtr_t comp) :
       Equation (comp, vector_t::Zero (function->outputSize ())),
       function_ (function), value_ (function->outputSize ()),
-      jacobian_ (matrix_t (function->outputSize (), function->inputDerivativeSize ()))
+      jacobian_ (function->outputDerivativeSize (),
+		 function->inputDerivativeSize ())
     {}
 
     NumericalConstraint::NumericalConstraint (const DifferentiableFunctionPtr_t& function,
