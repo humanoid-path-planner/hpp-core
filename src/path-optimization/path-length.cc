@@ -56,9 +56,10 @@ namespace hpp {
 	}
 	// Store first and last way points.
 	PathPtr_t first = path->pathAtRank (0);
-	initial_ = (*first) (path->timeRange ().first);
+	bool success;
+	initial_ = (*first) (path->timeRange ().first, success);
 	PathPtr_t last = path->pathAtRank (nbPaths_-1);
-	end_ = (*last) (last->timeRange ().second);
+	end_ = (*last) (last->timeRange ().second, success);
 	computeLambda (path);
       }
 

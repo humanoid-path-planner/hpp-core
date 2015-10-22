@@ -406,8 +406,9 @@ namespace hpp {
 	    value_type t0 = path_->timeRange ().first;
 	    value_type t1 = path_->timeRange ().second;
 	    value_type T = t1 - t0;
-	    Configuration_t q1 = (*path_) (t0);
-	    Configuration_t q2 = (*path_) (t1);
+	    bool success;
+	    Configuration_t q1 = (*path_) (t0, success);
+	    Configuration_t q2 = (*path_) (t1, success);
 
 	    maximalVelocity_ = 0;
 	    for (std::vector <CoefficientVelocity>::const_iterator itCoef =

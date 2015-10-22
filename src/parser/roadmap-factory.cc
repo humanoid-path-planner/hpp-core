@@ -225,7 +225,7 @@ namespace hpp {
             it != roadmap_->goalNodes ().end(); ++it) {
           size_type id = getNodeIdFromRoadmap (*it);
           if (id >= 0) {
-            values.push_back (id);
+            values.push_back ((unsigned int)id);
           }
         }
         goalNodes->values (values);

@@ -154,6 +154,7 @@ namespace hpp {
 	  // Insert new path to q_near in roadmap
 	  value_type t_final = validPath->timeRange ().second;
 	  if (t_final != path->timeRange ().first) {
+	    bool success;
 	    ConfigurationPtr_t q_new (new Configuration_t
 				      (validPath->end ()));
 	    if (!pathValid || !belongs (q_new, newNodes)) {

@@ -161,7 +161,8 @@ namespace hpp {
 	    localPathId_ = report.second;
 	    hppDout (info, "localPathId_ = " << localPathId_);
 	    PathPtr_t localPath = currentPath->pathAtRank(localPathId_);
-	    Configuration_t qColl = (*localPath) (t_local);
+	    bool success;
+	    Configuration_t qColl = (*localPath) (t_local, success);
 	    posAlongLocalPath_ = t_local/localPath->length ();
 	    HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
 				       *(report.first->configurationReport));
@@ -181,7 +182,7 @@ namespace hpp {
 	    PathPtr_t prevLocalPath = previousPath->pathAtRank (localPathId_);
 	    value_type t_local_new =
 	      prevLocalPath->length () * posAlongLocalPath_;
-	    qFree_ = (*prevLocalPath) (t_local_new);
+	    qFree_ = (*prevLocalPath) (t_local_new, success);
 	    hppDout (info, "qFree_ = "
 		     << displayConfig (qFree_));
 
@@ -203,7 +204,8 @@ namespace hpp {
 	{
 	  PathPtr_t localPath (path->pathAtRank (localPathId_));
 	  value_type t_local = localPath->length () * posAlongLocalPath_;
-	  Configuration_t q = (*localPath) (t_local);
+	  bool success;
+	  Configuration_t q = (*localPath) (t_local, success);
 	  size_type rank = localPathId_ - 1;
 	  value_type position = 0; // 0=not extremity, 1=begin, 2=end
 	  if (rank + 1 == 0)
@@ -233,8 +235,8 @@ namespace hpp {
 	{
 	  PathPtr_t localPath (path->pathAtRank (localPathId_));
 	  value_type t_local = localPath->length () * posAlongLocalPath_;
-	  Configuration_t q = (*localPath) (t_local);
-
+	  bool success;
+	  Configuration_t q = (*localPath) (t_local, success);
 	  (*f_) (rhs.segment (rowInJacobian_, fSize_), q);
 	}
 

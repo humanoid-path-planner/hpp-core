@@ -107,15 +107,15 @@ namespace hpp {
       /// Get the initial configuration
       Configuration_t initial () const
       {
-        bool noWarning;
-        return (*original_)(timeRange_.first, noWarning);
+	bool success;
+        return (*original_)(timeRange_.first, success);
       }
 
       /// Get the final configuration
       Configuration_t end () const
       {
-        bool noWarning;
-        return (*original_)(timeRange_.second, noWarning);
+	bool success;
+        return (*original_)(timeRange_.second, success);
       }
 
     protected:
