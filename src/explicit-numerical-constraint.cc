@@ -196,7 +196,10 @@ namespace hpp {
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
 	(robot, function, outputConf, outputVelocity);
-      return ExplicitNumericalConstraintPtr_t (ptr);
+      ExplicitNumericalConstraintPtr_t shPtr (ptr);
+      ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
     }
 
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
@@ -206,7 +209,10 @@ namespace hpp {
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
 	(robot, function, outputConf, outputVelocity, rhs);
-      return ExplicitNumericalConstraintPtr_t (ptr);
+      ExplicitNumericalConstraintPtr_t shPtr (ptr);
+      ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
     }
 
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::createCopy
