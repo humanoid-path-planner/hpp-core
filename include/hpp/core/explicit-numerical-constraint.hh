@@ -25,11 +25,11 @@ namespace hpp {
     /// \{
 
     /** Explicit numerical constraint
-       
+
         An explicit numerical constraint is a constraint such that some
         configuration variables called \b output are function of the
         others called \b input.
-       
+
         Let
          \li \f$(ic_{1}, \cdots, ic_{n_{ic}})\f$ be the list of indices
              corresponding to ordered input configuration variables,
@@ -39,13 +39,13 @@ namespace hpp {
              corresponding to ordered input degrees of freedom,
          \li \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$ be the list of indices
              corresponding to ordered output degrees of freedom.
-       
+
         Recall that degrees of freedom refer to velocity vectors.
-       
+
         Let us notice that \f$n_{ic} + n_{oc}\f$ is equal to the robot
         configuration size, and \f$n_{iv} + n_{ov}\f$ is equal to the velocity
         size.
-       
+
         Then the differential function is of the form
         \f{equation*}
         \left(\begin{array}{c}
@@ -53,10 +53,10 @@ namespace hpp {
         \end{array}\right) -
         f \left((q_{ic_{1}} \cdots q_{ic_{n_{ic}}})^T\right)
         \f}
-       
+
         It is straightforward that equality constraint with this function can
         solved explicitely:
-       
+
         \f{align*}
         \left(\begin{array}{c}
         q_{oc_{1}} \\ \vdots \\ q_{oc_{n_{oc}}}
@@ -71,13 +71,13 @@ namespace hpp {
        
         Considered as a numerical constraint, the Jacobian of the differentiable
         function above is built as follows:
-       
+
         for any index \f$i\f$ between 0 and the size of velocity vectors, either
-        \li \f$\dot{q}_i\f$ is an input degree of freedom: 
+        \li \f$\dot{q}_i\f$ is an input degree of freedom:
         \f$\exists j\in n_{iv}\f$ such that \f$i=iv_{j}\f$, or
-        \li \f$\dot{q}_i\f$ is an output degree of freedom: 
+        \li \f$\dot{q}_i\f$ is an output degree of freedom:
         \f$\exists j\in n_{ov}\f$ such that \f$i=ov_{j}\f$.
-       
+
         \f{equation*}
         J = \left(\begin{array}{cccccccccccc}
         \cdots & ov_1 & \cdots & iv_{1} & \cdots & ov_2 & \cdots & iv_2 & \cdots & ov_{n_{ov}} & \cdots \\
@@ -135,7 +135,7 @@ namespace hpp {
       /// \param configuration input and output configuration
       void solve (ConfigurationOut_t configuration);
     protected:
-      /// Create instance and return shared pointer
+      /// Constructor
       ///
       /// \param robot Robot for which the constraint is defined.
       /// \param function relation between input configuration variables and
@@ -150,7 +150,7 @@ namespace hpp {
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity);
 
-      /// Create instance and return shared pointer
+      /// Constructor
       ///
       /// \param robot Robot for which the constraint is defined.
       /// \param function relation between input configuration variables and
