@@ -68,7 +68,11 @@ namespace hpp {
         \end{array}\right) &=
         f \left((q_{ic_{1}} \cdots q_{ic_{n_{ic}}})^T\right) + rhs \\
         \f}
-       
+
+	\note If function $\f$f\f$ takes values in a sub-manifold, the above
+	impicit formulation does not make sense. In this case, users may
+	derive method \code solve \endcode to implement its own resolution.
+
         Considered as a numerical constraint, the Jacobian of the differentiable
         function above is built as follows:
 
@@ -133,7 +137,7 @@ namespace hpp {
       ///
       /// Compute output with respect to input.
       /// \param configuration input and output configuration
-      void solve (ConfigurationOut_t configuration);
+      virtual void solve (ConfigurationOut_t configuration);
     protected:
       /// Constructor
       ///
@@ -166,7 +170,18 @@ namespace hpp {
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity, vectorIn_t rhs);
 
-      /// Create instance and return shared pointer
+      /// Constructor
+      ///
+      /// \param implicitConstraint Function that is used when this constraint
+      ///        is handled as an implicit constraint
+      ///
+      /// This constructor is aimed at specializing this class, in order to
+      /// provide a function in case the default implicit function is not
+      /// appropriate.
+      ExplicitNumericalConstraint
+	(const DifferentiableFunctionPtr_t& implicitConstraint);
+
+      /// Constructor
       ///
       /// \param robot Robot for which the constraint is defined.
       /// \param function relation between input configuration variables and

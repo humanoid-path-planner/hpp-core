@@ -16,6 +16,7 @@
 
 #include <hpp/model/device.hh>
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/core/comparison-type.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {
@@ -248,6 +249,12 @@ namespace hpp {
       NumericalConstraint (ImplicitFunction::create
 			   (robot, function, outputConf, outputVelocity),
 			   Equality::create (), rhs)
+    {
+    }
+
+    ExplicitNumericalConstraint::ExplicitNumericalConstraint
+    (const DifferentiableFunctionPtr_t& implicitConstraint) :
+      NumericalConstraint (implicitConstraint, EqualToZero::create ())
     {
     }
 
