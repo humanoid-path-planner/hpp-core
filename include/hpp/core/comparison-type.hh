@@ -153,6 +153,12 @@ namespace hpp {
         static ComparisonTypesPtr_t create
 	  (const std::vector <ComparisonType::Type> types);
 
+        ComparisonTypePtr_t& at (const std::size_t index)
+        {
+          assert (index < inequalities_.size());
+          return inequalities_[index];
+        }
+
       protected:
         ComparisonTypes (const std::vector <ComparisonType::Type> types);
 
