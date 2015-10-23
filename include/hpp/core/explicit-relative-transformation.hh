@@ -30,6 +30,11 @@ namespace hpp {
       public ExplicitNumericalConstraint
     {
     public:
+      /// Copy object and return shared pointer to copy
+      virtual EquationPtr_t copy () const
+      {
+	return createCopy (weak_.lock ());
+      }
       /// Return a shared pointer to a new instance
       ///
       /// \param name the name of the constraints,
@@ -51,6 +56,18 @@ namespace hpp {
 	ptr->init (shPtr);
 	return shPtr;
       }
+
+      static ExplicitRelativeTransformationPtr_t createCopy
+	(const ExplicitRelativeTransformationPtr_t& other)
+      {
+	ExplicitRelativeTransformation* ptr = new ExplicitRelativeTransformation
+	  (*other);
+	ExplicitRelativeTransformationPtr_t shPtr (ptr);
+	ExplicitRelativeTransformationWkPtr_t wkPtr (shPtr);
+	ptr->init (wkPtr);
+	return shPtr;
+    }
+
       /// Solve constraint
       ///
       /// Compute output with respect to input.
@@ -97,8 +114,17 @@ namespace hpp {
 	{
 	}
 
+      ExplicitRelativeTransformation
+	(const ExplicitRelativeTransformation& other) :
+	ExplicitNumericalConstraint (other),
+	robot_ (other.robot_), parentJoint_ (other.parentJoint_),
+	relativeTransformation_ (other.relativeTransformation_),
+	index_ (other.index_)
+	{
+	}
+
       // Store weak pointer to itself
-      void init (const ExplicitRelativeTransformationPtr_t& weak)
+      void init (const ExplicitRelativeTransformationWkPtr_t& weak)
 	{
 	  ExplicitNumericalConstraint::init (weak);
 	  weak_ = weak;
