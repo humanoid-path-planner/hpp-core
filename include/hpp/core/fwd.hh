@@ -46,6 +46,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
     HPP_PREDEF_CLASS (Equation);
+    HPP_PREDEF_CLASS (ExplicitNumericalConstraint);
     HPP_PREDEF_CLASS (NumericalConstraint);
     HPP_PREDEF_CLASS (LockedJoint);
     class Edge;
@@ -132,6 +133,8 @@ namespace hpp {
     typedef model::DistanceResults_t DistanceResults_t;
     typedef Edge* EdgePtr_t;
     typedef std::list <Edge*> Edges_t;
+    typedef boost::shared_ptr <ExplicitNumericalConstraint>
+    ExplicitNumericalConstraintPtr_t;
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
     typedef model::JointJacobian_t JointJacobian_t;
     typedef model::Joint Joint;
@@ -154,6 +157,7 @@ namespace hpp {
     typedef model::size_type size_type;
     typedef model::value_type value_type;
     typedef std::pair<value_type, value_type> interval_t;
+    /// Interval of indices as (first index, number of indices)
     typedef std::pair<size_type, size_type> SizeInterval_t;
     typedef std::vector < SizeInterval_t > SizeIntervals_t;
     typedef std::vector < SizeIntervals_t > IntervalsContainer_t;

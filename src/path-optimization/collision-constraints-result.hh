@@ -64,44 +64,59 @@ namespace hpp {
 	   
        {
 	 difference_.resize (robot->numberDof ());
-	 // Compute distance and closest points in configuration qFree
-	 robot_->currentConfiguration (qFree);
+	 // Compute contact point in configuration qColl
+	 robot_->currentConfiguration (qColl);
 	 robot_->computeForwardKinematics ();
-	 model::DistanceResult result;
-	 fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
-	 fcl::distance (object1->fcl ().get (), object2->fcl ().get (),
-			distanceRequest, result.fcl);
-	 hppDout (info, "distance = " << result.distance ());
-	 vector_t s; s.resize (robot->numberDof ());
-	 model::difference (robot, qColl, qFree, s);
+	 fcl::CollisionResult result;
+	 fcl::CollisionRequest collisionRequest (1, true, false, 1, false, true,
+						 fcl::GST_INDEP);
+	 fcl::collide (object1->fcl ().get (), object2->fcl ().get (),
+		       collisionRequest, result);
+	 assert (result.numContacts () == 1);
+	 const vector3_t& contactPoint (result.getContact (0).pos);
+	 hppDout (info, "contact point = " << contactPoint);
+
 	 JointPtr_t joint1 = object1->joint ();
-	 model::difference (robot, qColl, qFree, s);
+	 Transform3f M1 (joint1->currentTransformation ());
 	 if (object2->joint ()) { // object2 = body part
-	   vector3_t x1; x1.setZero ();
-	   const vector3_t& O2 (result.closestPointOuter ());
 	   JointPtr_t joint2 = object2->joint ();
-	   Transform3f M2inv (joint2->currentTransformation ());
-	   M2inv.inverse ();
-	   vector3_t x2 = M2inv.transform (O2);
+	   Transform3f M2 (joint2->currentTransformation ());
+	   // Position of contact point in each object local frame
+	   vector3_t x1_J1 = inverse (M1).transform (contactPoint);
+	   vector3_t x2_J2 = inverse (M2).transform (contactPoint);
+	   // Compute contact points in configuration qFree
+	   robot_->currentConfiguration (qFree);
+	   robot_->computeForwardKinematics ();
+	   M2 = joint2->currentTransformation ();
+	   M1 = joint1->currentTransformation ();
+	   // Position of x2 in local frame of joint1
+	   vector3_t x2_J1 (inverse (M1).transform (M2.transform (x2_J2)));
+	   hppDout (info, "x1 in J1 = " << x1_J1);
+	   hppDout (info, "x2 in J1 = " << x2_J1);
+	   eigen::vector3_t u; model::toEigen (x2_J1 - x1_J1, u);
 	   DifferentiableFunctionPtr_t f = constraints::RelativePosition::create
-	     ("", robot_, joint1, joint2, x1, x2);
+	     ("", robot_, joint1, joint2, x1_J1, x2_J2);
 	   matrix_t Jpos (f->outputSize (), f->inputDerivativeSize ());
 	   f->jacobian (Jpos, qFree);
-	   eigen::vector3_t v (Jpos * s);
-	   J_ = v.transpose () * Jpos.transpose () * Jpos;
+	   J_ = u.transpose () * Jpos;
 	   assert (J_.rows () == 1);
 	 } else{ // object2 = fixed obstacle and has no joint
-	   const vector3_t& O1 (result.closestPointOuter ());
-	   Transform3f M1inv (joint1->currentTransformation ());
-	   M1inv.inverse ();
-	   vector3_t x1 = M1inv.transform (O1);
-	   vector3_t x2; x2.setZero ();
+	   vector3_t x1_J1 (inverse (M1).transform (contactPoint));
+	   vector3_t x2_J2 (contactPoint);
+	   // Compute contact points in configuration qFree
+	   robot_->currentConfiguration (qFree);
+	   robot_->computeForwardKinematics ();
+	   Transform3f M1 (joint1->currentTransformation ());
+	   // position of x1 in global frame
+	   vector3_t x1_J2 (M1.transform (x1_J1));
+	   hppDout (info, "x1 in J2 = " << x1_J2);
+	   eigen::vector3_t u; model::toEigen (x1_J2 - x2_J2, u);
+
 	   DifferentiableFunctionPtr_t f = constraints::Position::create
-	     ("", robot_, joint1, x1, x2);
+	     ("", robot_, joint1, x1_J1, x2_J2);
 	   matrix_t Jpos (f->outputSize (), f->inputDerivativeSize ());
 	   f->jacobian (Jpos, qFree);
-	   eigen::vector3_t v (Jpos * s);
-	   J_ = v.transpose () * Jpos;
+	   J_ = u.transpose () * Jpos;
 	   assert (J_.rows () == 1);
 	 }
        }

@@ -27,6 +27,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/locked-joint.hh>
+#include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {
   namespace core {
@@ -155,6 +156,9 @@ namespace hpp {
         const SizeIntervals_t& passiveDofs,
         const std::size_t priority)
     {
+      if (HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm)) {
+	explicitFunctions_.push_back (functions_.size ());
+      }
       functions_.push_back (nm);
       passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
@@ -470,6 +474,12 @@ namespace hpp {
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
       if (functions_.empty ()) return true;
+      if ((functions_.size () == 1) && (explicitFunctions_.size () == 1)) {
+	HPP_STATIC_CAST_REF_CHECK (ExplicitNumericalConstraint,
+				   *(functions_ [0]));
+	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
+			     functions_ [0])->solve (configuration);
+      }
       HPP_START_TIMECOUNTER (projection);
       value_type alpha = .2;
       value_type alphaMax = .95;
