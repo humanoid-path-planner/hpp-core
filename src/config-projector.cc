@@ -22,7 +22,7 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
-#include <hpp/model/eigen.hh>
+#include <hpp/constraints/svd.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/differentiable-function.hh>
@@ -312,7 +312,7 @@ namespace hpp {
           break;
       }
       /// compute projector for next step.
-      hpp::model::projectorOnKernel <SVD_t> (svd_, PK_);
+      hpp::constraints::projectorOnKernel <SVD_t> (svd_, PK_);
       assert ((projector * PK_ - PK_).isZero());
       projector -= PK_;
       return (jacobian * dq - error).isZero ();
