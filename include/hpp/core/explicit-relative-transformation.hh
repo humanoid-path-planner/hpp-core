@@ -26,6 +26,21 @@ namespace hpp {
     using constraints::RelativeTransformation;
     using constraints::RelativeTransformationPtr_t;
 
+    /// \addtogroup constraints
+    /// \{
+
+    /// Relative transformation as an explicit constraint
+    ///
+    /// When the positions of two joints are constrained by a full
+    /// transformation constraint, if the second joint is hold by a freeflyer
+    /// sequence (R3 x SO(3)), the position of this latter joint can be
+    /// explicitely expressed with respect to the position of the first joint.
+    ///
+    /// This class provides this expression through method solve.
+    ///
+    /// When considered as an implicit constraint, for instance if this
+    /// constraint is grouped with other constraints, the classical
+    //  constraint::RelativeTransformation class is used.
     class HPP_CORE_DLLAPI ExplicitRelativeTransformation :
       public ExplicitNumericalConstraint
     {
@@ -139,6 +154,7 @@ namespace hpp {
       mutable Transform3f freeflyerPose_;
       ExplicitRelativeTransformationWkPtr_t weak_;
     }; // class ExplicitRelativeTransformation
+    /// \}
   } // namespace core
 } // namespace hpp
 
