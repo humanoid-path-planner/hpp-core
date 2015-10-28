@@ -121,7 +121,9 @@ namespace hpp {
 	ExplicitNumericalConstraint (RelativeTransformation::create
 				     (name, robot, joint1, joint2, frame1,
 				      frame2, boost::assign::list_of (true)
-				      (true)(true)(true)(true)(true))),
+				      (true)(true)(true)(true)(true)),
+				     privOutputConf (joint2),
+				     privOutputVelocity (joint2)),
 	robot_ (robot), parentJoint_ (joint2->parentJoint ()->parentJoint ()),
 	relativeTransformation_ (HPP_STATIC_PTR_CAST (RelativeTransformation,
 						      functionPtr ())),
@@ -145,6 +147,18 @@ namespace hpp {
 	  weak_ = weak;
 	}
     private:
+      SizeIntervals_t privOutputConf (const JointPtr_t& joint) {
+	SizeIntervals_t result;
+	result.push_back (SizeInterval_t
+			  (joint->parentJoint ()->rankInConfiguration (), 7));
+	return result;
+      }
+      SizeIntervals_t privOutputVelocity (const JointPtr_t& joint) {
+	SizeIntervals_t result;
+	result.push_back (SizeInterval_t
+			  (joint->parentJoint ()->rankInVelocity (), 6));
+	return result;
+      }
       DevicePtr_t robot_;
       // Parent of the R3 joint.
       JointPtr_t parentJoint_;

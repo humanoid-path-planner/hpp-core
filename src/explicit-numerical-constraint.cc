@@ -238,7 +238,8 @@ namespace hpp {
      const SizeIntervals_t& outputVelocity) :
       NumericalConstraint (ImplicitFunction::create
 			   (robot, function, outputConf, outputVelocity),
-			   Equality::create ())
+			   Equality::create ()), outputConf_ (outputConf),
+      outputVelocity_ (outputVelocity)
     {
     }
 
@@ -248,19 +249,24 @@ namespace hpp {
      const SizeIntervals_t& outputVelocity, vectorIn_t rhs) :
       NumericalConstraint (ImplicitFunction::create
 			   (robot, function, outputConf, outputVelocity),
-			   Equality::create (), rhs)
+			   Equality::create (), rhs), outputConf_ (outputConf),
+      outputVelocity_ (outputVelocity)
     {
     }
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
-    (const DifferentiableFunctionPtr_t& implicitConstraint) :
-      NumericalConstraint (implicitConstraint, EqualToZero::create ())
+    (const DifferentiableFunctionPtr_t& implicitConstraint,
+     const SizeIntervals_t& outputConf,
+     const SizeIntervals_t& outputVelocity) :
+      NumericalConstraint (implicitConstraint, EqualToZero::create ()),
+      outputConf_ (outputConf), outputVelocity_ (outputVelocity)
     {
     }
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const ExplicitNumericalConstraint& other) :
-      NumericalConstraint (other), inputToOutput_ (other.inputToOutput_)
+      NumericalConstraint (other), inputToOutput_ (other.inputToOutput_),
+      outputConf_ (other.outputConf_), outputVelocity_ (other.outputVelocity_)
     {
     }
 

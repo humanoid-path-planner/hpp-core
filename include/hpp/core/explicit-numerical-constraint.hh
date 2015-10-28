@@ -138,6 +138,17 @@ namespace hpp {
       /// Compute output with respect to input.
       /// \param configuration input and output configuration
       virtual void solve (ConfigurationOut_t configuration);
+
+      /// Get output configuration variables
+      const SizeIntervals_t& outputConf () const
+      {
+	return outputConf_;
+      }
+      /// Get output degrees of freedom
+      const SizeIntervals_t& outputVelocity () const
+      {
+	return outputVelocity_;
+      }
     protected:
       /// Constructor
       ///
@@ -179,7 +190,9 @@ namespace hpp {
       /// provide a function in case the default implicit function is not
       /// appropriate.
       ExplicitNumericalConstraint
-	(const DifferentiableFunctionPtr_t& implicitConstraint);
+	(const DifferentiableFunctionPtr_t& implicitConstraint,
+	 const SizeIntervals_t& outputConf,
+	 const SizeIntervals_t& outputVelocity);
 
       /// Constructor
       ///
@@ -203,6 +216,8 @@ namespace hpp {
     private:
       // Relation between input and output configuration variables
       DifferentiableFunctionPtr_t inputToOutput_;
+      SizeIntervals_t outputConf_;
+      SizeIntervals_t outputVelocity_;
       ExplicitNumericalConstraintWkPtr_t weak_;
     }; // class ExplicitNumericalConstraint
     /// \}
