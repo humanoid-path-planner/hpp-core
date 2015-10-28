@@ -156,9 +156,25 @@ namespace hpp {
             projection = p;
             break;
         }
-        assert ((projection->initial () - path->initial ()).isZero());
+	if (d (projection->initial (), path->initial ()) != 0) {
+	  hppDout (error, "projection->initial () = "
+		   << projection->initial ().transpose ());
+	  hppDout (error, "path->initial ()       = "
+		   << path->initial ().transpose ());
+	}
+        assert (d (projection->initial (), path->initial ()) == 0);
+	if (pathIsFullyProjected &&
+	    (d (projection->end (), path->end ()) != 0)) {
+	  hppDout (error, "projection->end () = "
+		   << projection->end ().transpose ());
+	  hppDout (error, "path->end ()       = " << path->end ().transpose ());
+	  hppDout (error, "d (projection->end (), path->end ()) = "
+		   << d (projection->end (), path->end ()));
+	  hppDout (error, "projection->end () - path->end () = "
+		   << (projection->end () - path->end ()).transpose ());
+	}
         assert (!pathIsFullyProjected ||
-		(projection->end () - path->end ()).isZero());
+		(d (projection->end (), path->end ()) == 0));
         return pathIsFullyProjected;
       }
     } // namespace pathProjector
