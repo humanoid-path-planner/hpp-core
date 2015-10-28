@@ -363,6 +363,8 @@ namespace hpp {
       };
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
+      void updateExplicitComputation ();
+      bool isSatisfiedNoLockedJoint (ConfigurationIn_t config);
       void resize ();
       void computeIntervals ();
       inline void computeError ();
@@ -393,6 +395,7 @@ namespace hpp {
       size_type nbNonLockedDofs_;
       size_type nbLockedDofs_;
       value_type squareNorm_;
+      bool explicitComputation_;
       ConfigProjectorWkPtr_t weak_;
 
       ::hpp::statistics::SuccessStatistics statistics_;

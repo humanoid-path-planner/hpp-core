@@ -85,7 +85,7 @@ namespace hpp {
       dqSmall_ (robot->numberDof ()),
       nbNonLockedDofs_ (robot_->numberDof ()),
       nbLockedDofs_ (0),
-      squareNorm_(0), weak_ ()
+      squareNorm_(0), explicitComputation_ (false), weak_ ()
     {
       dq_.setZero ();
       stack_.push_back (PriorityStack (3,nbNonLockedDofs_)); /// First and last
@@ -112,7 +112,8 @@ namespace hpp {
       projMinusFrom_ (cp.projMinusFrom_.size ()),
       dq_ (cp.dq_.size ()), dqSmall_ (cp.dqSmall_.size ()),
       nbNonLockedDofs_ (cp.nbNonLockedDofs_), nbLockedDofs_ (cp.nbLockedDofs_),
-      squareNorm_ (cp.squareNorm_), weak_ ()
+      squareNorm_ (cp.squareNorm_),
+      explicitComputation_ (cp.explicitComputation_), weak_ ()
     {
       dq_.setZero ();
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
@@ -174,6 +175,7 @@ namespace hpp {
       // TODO: no need to recompute intervals.
       computeIntervals ();
       resize ();
+      updateExplicitComputation ();
     }
 
     void ConfigProjector::computeIntervals ()
@@ -475,12 +477,44 @@ namespace hpp {
       assert (col == small.cols ());
     }
 
+    void ConfigProjector::updateExplicitComputation ()
+    {
+      if ((functions_.size () != 1) || (explicitFunctions_.size () != 1)) {
+	explicitComputation_ = false;
+	return;
+      }
+      HPP_STATIC_CAST_REF_CHECK (ExplicitNumericalConstraint,
+				 *(functions_ [0]));
+      const SizeIntervals_t& output =
+	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
+			     functions_ [0])->outputConf ();
+      for (LockedJoints_t::const_iterator itLocked = lockedJoints_.begin ();
+	   itLocked != lockedJoints_.end (); ++itLocked) {
+	size_type a = (size_type) (*itLocked)->rankInConfiguration ();
+	size_type b = (size_type) (*itLocked)->rankInConfiguration () +
+	  (*itLocked)->size () - 1;
+	for (SizeIntervals_t::const_iterator itOut = output.begin ();
+	     itOut != output.end (); ++itOut) {
+	  size_type c = itOut->first;
+	  size_type d = itOut->first + itOut->second - 1;
+	  if ((d >= a) && (b >= c)) {
+	    explicitComputation_ = false;
+	    return;
+	  }
+	}
+      }
+      explicitComputation_ = true;
+    }
+
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
+      if (isSatisfiedNoLockedJoint (configuration)) return true;
       if (functions_.empty ()) return true;
-      if ((functions_.size () == 1) && (explicitFunctions_.size () == 1)) {
+      if (explicitComputation_) {
+	hppDout (info, "Explicit computation: " <<
+		 functions_ [0]->functionPtr ()->name ());
 	HPP_STATIC_CAST_REF_CHECK (ExplicitNumericalConstraint,
 				   *(functions_ [0]));
 	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
@@ -648,6 +682,7 @@ namespace hpp {
 		 << "]");
       }
       resize ();
+      updateExplicitComputation ();
       if (!lockedJoint->comparisonType ()->constantRightHandSide ())
         rhsReducedSize_ += lockedJoint->rhsSize ();
     }
@@ -693,7 +728,7 @@ namespace hpp {
       return os;
     }
 
-    bool ConfigProjector::isSatisfied (ConfigurationIn_t config)
+    bool ConfigProjector::isSatisfiedNoLockedJoint (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
       for (NumericalConstraints_t::iterator it = functions_.begin ();
@@ -707,14 +742,19 @@ namespace hpp {
 	row += nbRows;
       }
       computeError ();
+      return squareNorm_ < squareErrorThreshold_;
+    }
+
+    bool ConfigProjector::isSatisfied (ConfigurationIn_t config)
+    {
+      if (!isSatisfiedNoLockedJoint (config)) return false;
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
-          it != lockedJoints_.end (); ++it )
-        if (!(*it)->isSatisfied (config)) {
+	   it != lockedJoints_.end (); ++it )
+	if (!(*it)->isSatisfied (config)) {
 	  hppDout (info, "locked joint not satisfied.");
 	  return false;
 	}
-      hppDout (info, name () << ": squared error=" << squareNorm_);
-      return squareNorm_ < squareErrorThreshold_;
+      return true;
     }
 
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config,
