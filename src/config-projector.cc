@@ -29,6 +29,9 @@
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
 
+// #define SVD_THRESHOLD Eigen::NumTraits<value_type>::dummy_precision()
+#define SVD_THRESHOLD 1e-5
+
 namespace hpp {
   namespace core {
     namespace {
@@ -133,7 +136,9 @@ namespace hpp {
       level_ (level), outputSize_ (0), cols_ (cols),
       svd_ (outputSize_,cols,Eigen::ComputeThinU | Eigen::ComputeThinV),
       PK_ (cols, cols)
-    {}
+    {
+      svd_.setThreshold (SVD_THRESHOLD);
+    }
 
     void ConfigProjector::PriorityStack::add (
         const NumericalConstraintPtr_t& nm, const SizeIntervals_t& passiveDofs)
@@ -143,6 +148,7 @@ namespace hpp {
       outputSize_ += nm->function().outputSize ();
       svd_ = SVD_t (outputSize_, cols_,
           Eigen::ComputeThinU | Eigen::ComputeThinV);
+      svd_.setThreshold (SVD_THRESHOLD);
     }
 
     void ConfigProjector::PriorityStack::nbNonLockedDofs
@@ -151,6 +157,7 @@ namespace hpp {
       cols_ = cols;
       svd_ = SVD_t (outputSize_, cols_,
           Eigen::ComputeThinU | Eigen::ComputeThinV);
+      svd_.setThreshold (SVD_THRESHOLD);
       PK_.resize (cols_, cols_);
     }
 
@@ -164,6 +171,8 @@ namespace hpp {
       functions_.push_back (nm);
       passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
+      if (stack_.size () > 0)
+        stack_.back ().level_ = 1; // General case
       for (std::size_t i = stack_.size (); i < priority + 1; ++i) {
         stack_.push_back (PriorityStack (1, nbNonLockedDofs_)); // Middle
       }
@@ -301,27 +310,30 @@ namespace hpp {
         case 0: // First
           // dq should be zero and projector should be identity
           svd_.compute (jacobian);
+          HPP_DEBUG_SVDCHECK (svd_);
           dq = svd_.solve (error);
           break;
         case 2: // Last
           // No need to compute projector for next step.
           svd_.compute (jacobian * projector);
-          dq.noalias() += projector * svd_.solve (error - jacobian * dq);
+          HPP_DEBUG_SVDCHECK (svd_);
+          dq.noalias() += svd_.solve (error - jacobian * dq);
           return true; // The return value is not important in this case.
           break;
         case 3: // First and last (one level only)
           svd_.compute (jacobian);
+          HPP_DEBUG_SVDCHECK (svd_);
           dq = svd_.solve (error);
           return true; // The return value is not important in this case.
           break;
         default: /// General case
           svd_.compute (jacobian * projector);
-          dq.noalias() += projector * svd_.solve (error - jacobian * dq);
+          HPP_DEBUG_SVDCHECK (svd_);
+          dq.noalias() += svd_.solve (error - jacobian * dq);
           break;
       }
       /// compute projector for next step.
-      hpp::constraints::projectorOnKernel <SVD_t> (svd_, PK_);
-      assert ((projector * PK_ - PK_).isZero());
+      hpp::constraints::projectorOnSpan <SVD_t> (svd_, PK_);
       projector -= PK_;
       return (jacobian * dq - error).isZero ();
     }
