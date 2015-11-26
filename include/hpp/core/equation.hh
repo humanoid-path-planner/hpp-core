@@ -81,6 +81,7 @@ namespace hpp {
       private:
         ComparisonTypePtr_t comparison_;
         vector_t rhs_;
+        size_type rhsRealSize_;
 	EquationWkPtr_t weak_;
     };
     /// \}
