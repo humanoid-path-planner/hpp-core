@@ -28,30 +28,38 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/config-projector.hh>
+# include <hpp/core/container.hh>
 
 namespace hpp {
   namespace core {
+    typedef boost::function < PathOptimizerPtr_t (const Problem&) >
+      PathOptimizerBuilder_t;
+    typedef boost::function < PathPlannerPtr_t (const Problem&,
+        const RoadmapPtr_t&) >
+      PathPlannerBuilder_t;
+    typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
+        const value_type&) >
+      PathValidationBuilder_t;
+    typedef boost::function <PathProjectorPtr_t (const DistancePtr_t&,
+        const SteeringMethodPtr_t&,
+        value_type) >
+      PathProjectorBuilder_t;
+    typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
+      ConfigurationShooterBuilder_t;
+
     /// Set and solve a path planning problem
     ///
     /// This class is a container that does the interface between
     /// hpp-core library and component to be running in a middleware
     /// like CORBA or ROS.
-    class HPP_CORE_DLLAPI ProblemSolver {
+    class HPP_CORE_DLLAPI ProblemSolver :
+      public Container <PathPlannerBuilder_t>,
+      public Container <PathOptimizerBuilder_t>,
+      public Container <PathValidationBuilder_t>,
+      public Container <PathProjectorBuilder_t>,
+      public Container <ConfigurationShooterBuilder_t>
+    {
     public:
-      typedef boost::function < PathPlannerPtr_t (const Problem&,
-						  const RoadmapPtr_t&) >
-	PathPlannerBuilder_t;
-      typedef boost::function < PathOptimizerPtr_t (const Problem&) >
-	PathOptimizerBuilder_t;
-      typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
-						     const value_type&) >
-	PathValidationBuilder_t;
-      typedef boost::function <PathProjectorPtr_t (const DistancePtr_t&,
-						   const SteeringMethodPtr_t&,
-						   value_type) >
-	PathProjectorBuilder_t;
-      typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
-	ConfigurationShooterBuilder_t;
       typedef boost::function <SteeringMethodPtr_t (const DevicePtr_t&) >
 	SteeringMethodBuilder_t;
 
@@ -112,8 +120,9 @@ namespace hpp {
       /// with robot as input
       void addConfigurationShooterType (const std::string& type,
 			       const ConfigurationShooterBuilder_t& builder)
+        HPP_CORE_DEPRECATED
       {
-	configurationShooterFactory_ [type] = builder;
+	add <ConfigurationShooterBuilder_t> (type, builder);
       }
       /// Add a path planner type
       /// \param type name of the new path planner type
@@ -121,8 +130,9 @@ namespace hpp {
       /// and a roadmap as input
       void addPathPlannerType (const std::string& type,
 			       const PathPlannerBuilder_t& builder)
+        HPP_CORE_DEPRECATED
       {
-	pathPlannerFactory_ [type] = builder;
+	add <PathPlannerBuilder_t> (type, builder);
       }
       /// Get path planner
       const PathPlannerPtr_t& pathPlanner () const
@@ -147,9 +157,38 @@ namespace hpp {
       /// as input
       void addPathOptimizerType (const std::string& type,
 				 const PathOptimizerBuilder_t& builder)
+        HPP_CORE_DEPRECATED
       {
-	pathOptimizerFactory_ [type] = builder;
+        add (type, builder);
       }
+
+      /// Add an element to a container
+      template <typename Element>
+        void add (const std::string& name, const Element& element)
+        {
+          Container <Element>::add (name, element);
+        }
+
+      /// Check if a Container has a key.
+      template <typename Element>
+        bool has (const std::string& name)
+        {
+          return Container <Element>::has (name);
+        }
+
+      /// Get an element of a container
+      template <typename Element>
+        const Element& get (const std::string& name)
+        {
+          return Container <Element>::get (name);
+        }
+
+      /// Get keys of a container
+      template <typename Element, typename ReturnType>
+        ReturnType getKeys () const
+        {
+          return Container <Element>::template getKeys <ReturnType> ();
+        }
 
       /// Optimize path
       ///
@@ -172,8 +211,9 @@ namespace hpp {
       /// and tolerance as input.
       void addPathValidationType (const std::string& type,
 				 const PathValidationBuilder_t& builder)
+        HPP_CORE_DEPRECATED
       {
-	pathValidationFactory_ [type] = builder;
+	add (type, builder);
       }
 
       /// Set path projector method
@@ -188,8 +228,9 @@ namespace hpp {
       /// and tolerance as input.
       void addPathProjectorType (const std::string& type,
 				 const PathProjectorBuilder_t& builder)
+        HPP_CORE_DEPRECATED
       {
-	pathProjectorFactory_ [type] = builder;
+	add (type, builder);
       }
 
       const RoadmapPtr_t& roadmap () const
@@ -513,30 +554,13 @@ namespace hpp {
       std::string pathProjectorType_;
       /// Tolerance of path projector
       value_type pathProjectorTolerance_;
-      typedef std::map <std::string, PathProjectorBuilder_t >
-        PathProjectorFactory_t;
-      /// Path projector factory
-      PathProjectorFactory_t pathProjectorFactory_;
 
       /// Path planner
       std::string pathPlannerType_;
     private:
-      /// Map (string , constructor of path planner)
-      typedef std::map < std::string, PathPlannerBuilder_t >
-	PathPlannerFactory_t;
-      /// Map (string , constructor of path optimizer)
-      typedef std::map < std::string, PathOptimizerBuilder_t >
-	PathOptimizerFactory_t;
-      /// Map (string , constructor of path validation method)
-      typedef std::map <std::string, PathValidationBuilder_t >
-	PathValidationFactory_t;
       /// Map (string , constructor of steering method)
       typedef std::map <std::string, SteeringMethodBuilder_t >
         SteeringMethodFactory_t;
-      /// Map (string , constructor of configuration shooter method)
-      typedef std::map <std::string, ConfigurationShooterBuilder_t >
-        ConfigurationShooterFactory_t;
-
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
@@ -552,16 +576,8 @@ namespace hpp {
       std::string pathValidationType_;
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
-      /// Path planner factory
-      PathPlannerFactory_t pathPlannerFactory_;
       /// Steering Method factory
       SteeringMethodFactory_t steeringMethodFactory_;
-      /// Configuration shooter factory
-      ConfigurationShooterFactory_t configurationShooterFactory_;
-      /// Path optimizer factory
-      PathOptimizerFactory_t pathOptimizerFactory_;
-      /// Path validation factory
-      PathValidationFactory_t pathValidationFactory_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;

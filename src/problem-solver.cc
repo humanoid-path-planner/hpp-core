@@ -76,53 +76,42 @@ namespace hpp {
       constraints_ (), robot_ (), problem_ (), pathPlanner_ (),
       roadmap_ (), paths_ (),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
-      pathProjectorFactory_ (),
       pathPlannerType_ ("DiffusingPlanner"),
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
       steeringMethodType_ ("SteeringMethodStraight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
-      pathPlannerFactory_ (), configurationShooterFactory_ (),
-      pathOptimizerFactory_ (), pathValidationFactory_ (),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
       errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
-      pathPlannerFactory_ ["DiffusingPlanner"] =
-	DiffusingPlanner::createWithRoadmap;
-      pathPlannerFactory_ ["VisibilityPrmPlanner"] =
-	VisibilityPrmPlanner::createWithRoadmap;
-      configurationShooterFactory_ ["BasicConfigurationShooter"] =
-        BasicConfigurationShooter::create;
+      add <PathPlannerBuilder_t> ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
+      add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
+
+      add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
+
       steeringMethodFactory_ ["SteeringMethodStraight"] =
         boost::bind(static_cast<SteeringMethodStraightPtr_t (*)(const DevicePtr_t&)>(&SteeringMethodStraight::create), _1);
+
       // Store path optimization methods in map.
-      pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
-      pathOptimizerFactory_ ["GradientBased"] =
-	pathOptimization::GradientBased::create;
-      pathOptimizerFactory_ ["PartialShortcut"] =
-	pathOptimization::PartialShortcut::create;
-      pathOptimizerFactory_ ["ConfigOptimization"] =
-	pathOptimization::ConfigOptimization::create;
-      pathOptimizerFactory_ ["None"] = NoneOptimizer::create;
+      add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
+      add <PathOptimizerBuilder_t> ("GradientBased",      pathOptimization::GradientBased::create);
+      add <PathOptimizerBuilder_t> ("PartialShortcut",    pathOptimization::PartialShortcut::create);
+      add <PathOptimizerBuilder_t> ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
+      add <PathOptimizerBuilder_t> ("None",               NoneOptimizer::create); // TODO: Delete me
+
       // Store path validation methods in map.
-      pathValidationFactory_ ["Discretized"] =
-	DiscretizedCollisionChecking::create;
-      pathValidationFactory_ ["Progressive"] =
-	continuousCollisionChecking::Progressive::create;
-      pathValidationFactory_ ["Dichotomy"] =
-	continuousCollisionChecking::Dichotomy::create;
+      add <PathValidationBuilder_t> ("Discretized", DiscretizedCollisionChecking::create);
+      add <PathValidationBuilder_t> ("Progressive", continuousCollisionChecking::Progressive::create);
+      add <PathValidationBuilder_t> ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
+
       // Store path projector methods in map.
-      pathProjectorFactory_ ["None"] =
-	NonePathProjector::create;
-      pathProjectorFactory_ ["Progressive"] =
-	pathProjector::Progressive::create;
-      pathProjectorFactory_ ["Dichotomy"] =
-	pathProjector::Dichotomy::create;
-      pathProjectorFactory_ ["Global"] =
-	pathProjector::Global::create;
+      add <PathProjectorBuilder_t> ("None",        NonePathProjector::create);
+      add <PathProjectorBuilder_t> ("Progressive", pathProjector::Progressive::create);
+      add <PathProjectorBuilder_t> ("Dichotomy",   pathProjector::Dichotomy::create);
+      add <PathProjectorBuilder_t> ("Global",      pathProjector::Global::create);
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -141,7 +130,7 @@ namespace hpp {
 
     void ProblemSolver::pathPlannerType (const std::string& type)
     {
-      if (pathPlannerFactory_.find (type) == pathPlannerFactory_.end ()) {
+      if (!has <PathPlannerBuilder_t> (type)) {
 	throw std::runtime_error (std::string ("No path planner with name ") +
 				  type);
       }
@@ -150,7 +139,7 @@ namespace hpp {
 
     void ProblemSolver::configurationShooterType (const std::string& type)
     {
-      if (configurationShooterFactory_.find (type) == configurationShooterFactory_.end ()) {
+      if (!has <ConfigurationShooterBuilder_t> (type)) {
     throw std::runtime_error (std::string ("No configuration shooter with name ") +
                   type);
       }
@@ -159,7 +148,7 @@ namespace hpp {
 
     void ProblemSolver::addPathOptimizer (const std::string& type)
     {
-      if (pathOptimizerFactory_.find (type) == pathOptimizerFactory_.end ()) {
+      if (!has <PathOptimizerBuilder_t> (type)) {
 	throw std::runtime_error (std::string ("No path optimizer with name ") +
 				  type);
       }
@@ -185,7 +174,7 @@ namespace hpp {
     void ProblemSolver::pathValidationType (const std::string& type,
 					    const value_type& tolerance)
     {
-      if (pathValidationFactory_.find (type) == pathValidationFactory_.end ()) {
+      if (!has <PathValidationBuilder_t> (type)) {
 	throw std::runtime_error (std::string ("No path validation method with "
 					       "name ") + type);
       }
@@ -194,7 +183,7 @@ namespace hpp {
       // If a robot is present, set path validation method
       if (robot_ && problem_) {
 	PathValidationPtr_t pathValidation =
-	  pathValidationFactory_ [pathValidationType_]
+	  get <PathValidationBuilder_t> (pathValidationType_)
 	  (robot_, pathValidationTolerance_);
 	problem_->pathValidation (pathValidation);
       }
@@ -203,7 +192,7 @@ namespace hpp {
     void ProblemSolver::pathProjectorType (const std::string& type,
 					    const value_type& tolerance)
     {
-      if (pathProjectorFactory_.find (type) == pathProjectorFactory_.end ()) {
+      if (!has <PathProjectorBuilder_t> (type)) {
 	throw std::runtime_error (std::string ("No path projector method with "
 					       "name ") + type);
       }
@@ -212,7 +201,7 @@ namespace hpp {
       // If a robot is present, set path projector method
       if (robot_ && problem_) {
 	PathProjectorPtr_t pathProjector =
-	  pathProjectorFactory_ [pathProjectorType_]
+          get <PathProjectorBuilder_t> (pathProjectorType_)
 	  (problem_->distance (), problem_->steeringMethod (),
 	   pathProjectorTolerance_);
 	problem_->pathProjector (pathProjector);
@@ -335,8 +324,8 @@ namespace hpp {
       problem_->constraints (constraints_);
       // Set path validation method
       PathValidationPtr_t pathValidation =
-	pathValidationFactory_ [pathValidationType_] (robot_,
-						      pathValidationTolerance_);
+	get <PathValidationBuilder_t> (pathValidationType_)
+        (robot_, pathValidationTolerance_);
       problem_->pathValidation (pathValidation);
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
@@ -359,7 +348,8 @@ namespace hpp {
 	for (PathOptimizerTypes_t::const_iterator it =
 	       pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
 	     ++it) {
-	  PathOptimizerBuilder_t createOptimizer = pathOptimizerFactory_ [*it];
+	  PathOptimizerBuilder_t createOptimizer =
+            get<PathOptimizerBuilder_t> (*it);
 	  pathOptimizers_.push_back (createOptimizer (*problem_));
 	}
       }
@@ -368,17 +358,18 @@ namespace hpp {
     bool ProblemSolver::prepareSolveStepByStep ()
     {
       // Set shooter
-      problem_->configurationShooter
-        (configurationShooterFactory_ [configurationShooterType_] (robot_));
+      problem_->configurationShooter (
+          get <ConfigurationShooterBuilder_t> (configurationShooterType_)
+          (robot_));
       // Set steeringMethod
       problem_->steeringMethod
         (steeringMethodFactory_ [steeringMethodType_] (robot_));
       PathPlannerBuilder_t createPlanner =
-	pathPlannerFactory_ [pathPlannerType_];
+	get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       /// create Path projector
       PathProjectorBuilder_t createProjector =
-        pathProjectorFactory_ [pathProjectorType_];
+        get <PathProjectorBuilder_t> (pathProjectorType_);
       // Create a default steering method until we add a steering method
       // factory.
       SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
@@ -417,16 +408,16 @@ namespace hpp {
     {
       // Set shooter
       problem_->configurationShooter
-        (configurationShooterFactory_ [configurationShooterType_] (robot_));
+        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
       // Set steeringMethod
       problem_->steeringMethod
         (steeringMethodFactory_ [steeringMethodType_] (robot_));
       PathPlannerBuilder_t createPlanner =
-	pathPlannerFactory_ [pathPlannerType_];
+        get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       /// create Path projector
       PathProjectorBuilder_t createProjector =
-        pathProjectorFactory_ [pathProjectorType_];
+        get <PathProjectorBuilder_t> (pathProjectorType_);
       // Create a default steering method until we add a steering method
       // factory.
       SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
