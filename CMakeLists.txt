@@ -61,6 +61,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/connected-component.hh
   include/hpp/core/constraint.hh
   include/hpp/core/constraint-set.hh
+  include/hpp/core/container.hh
   include/hpp/core/continuous-collision-checking/dichotomy.hh
   include/hpp/core/continuous-collision-checking/progressive.hh
   include/hpp/core/diffusing-planner.hh
