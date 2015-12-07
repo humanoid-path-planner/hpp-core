@@ -83,7 +83,7 @@ namespace hpp {
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
-      errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
+      errorThreshold_ (1e-4), maxIterations_ (20),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -282,7 +282,7 @@ namespace hpp {
 	  (robot_, constraintName, errorThreshold_, maxIterations_);
 	constraints_->addConstraint (configProjector);
       }
-      configProjector->add (numericalConstraintMap_ [functionName],
+      configProjector->add (numericalConstraint (functionName),
 			    SizeIntervals_t (0), priority);
     }
 

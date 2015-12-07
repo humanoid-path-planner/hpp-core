@@ -57,7 +57,8 @@ namespace hpp {
       public Container <PathOptimizerBuilder_t>,
       public Container <PathValidationBuilder_t>,
       public Container <PathProjectorBuilder_t>,
-      public Container <ConfigurationShooterBuilder_t>
+      public Container <ConfigurationShooterBuilder_t>,
+      public Container <NumericalConstraintPtr_t>
     {
     public:
       typedef boost::function <SteeringMethodPtr_t (const DevicePtr_t&) >
@@ -171,14 +172,14 @@ namespace hpp {
 
       /// Check if a Container has a key.
       template <typename Element>
-        bool has (const std::string& name)
+        bool has (const std::string& name) const
         {
           return Container <Element>::has (name);
         }
 
       /// Get an element of a container
       template <typename Element>
-        const Element& get (const std::string& name)
+        const Element& get (const std::string& name) const
         {
           return Container <Element>::get (name);
         }
@@ -299,7 +300,7 @@ namespace hpp {
       {
 	NumericalConstraintPtr_t constraint (NumericalConstraint::create
 					     (function));
-	numericalConstraintMap_ [name] = constraint;
+        add <NumericalConstraintPtr_t> (name, constraint);
       }
 
       /// Add a a numerical constraint in local map.
@@ -312,7 +313,7 @@ namespace hpp {
 				   const NumericalConstraintPtr_t&
 				   constraint)
       {
-	numericalConstraintMap_ [name] = constraint;
+        add (name, constraint);
       }
 
       /// Add a vector of passive dofs in a local map.
@@ -339,12 +340,11 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonType::VectorOfTypes types)
       {
-        NumericalConstraintPtr_t constraint (numericalConstraintMap_ [name]);
-        if (!constraint)
+        if (!has <NumericalConstraintPtr_t> (name))
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
         ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
-        constraint->comparisonType (eqtypes);
+        get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
       }
 
       /// Set the comparison type of a constraint
@@ -352,27 +352,26 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonTypePtr_t eq)
       {
-        NumericalConstraintPtr_t constraint (numericalConstraintMap_ [name]);
-        if (!constraint)
+        if (!has <NumericalConstraintPtr_t> (name))
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
-        constraint->comparisonType (eq);
+        get<NumericalConstraintPtr_t> (name)->comparisonType (eq);
       }
 
       ComparisonTypePtr_t comparisonType (const std::string& name) const
       {
-        NumericalConstraintMap_t::const_iterator it =
-	  numericalConstraintMap_.find (name);
-        if (it == numericalConstraintMap_.end ())
+        if (!has <NumericalConstraintPtr_t> (name))
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
-        return it->second->comparisonType ();
+        return get<NumericalConstraintPtr_t> (name)->comparisonType ();
       }
 
       /// Get constraint with given name
       NumericalConstraintPtr_t numericalConstraint (const std::string& name)
       {
-	return numericalConstraintMap_ [name];
+        if (!has <NumericalConstraintPtr_t> (name))
+          return NumericalConstraintPtr_t ();
+        return get <NumericalConstraintPtr_t> (name);
       }
 
       /// Compute value and Jacobian of numerical constraints
@@ -587,8 +586,6 @@ namespace hpp {
       value_type errorThreshold_;
       // Maximal number of iterations for numerical constraint resolution
       size_type maxIterations_;
-      /// Map of constraints
-      NumericalConstraintMap_t numericalConstraintMap_;
       /// Map of passive dofs
       SizeIntervalsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation
