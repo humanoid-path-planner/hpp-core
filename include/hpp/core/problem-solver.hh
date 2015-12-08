@@ -52,6 +52,8 @@ namespace hpp {
 	PathProjectorBuilder_t;
       typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
 	ConfigurationShooterBuilder_t;
+      typedef boost::function <SteeringMethodPtr_t (const DevicePtr_t&) >
+	SteeringMethodBuilder_t;
 
       typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;
       typedef std::vector <std::string> PathOptimizerTypes_t;
@@ -91,6 +93,17 @@ namespace hpp {
       void resetGoalConfigs ();
       /// Set path planner type
       virtual void pathPlannerType (const std::string& type);
+      /// Set steering method type
+      void steeringMethodType (const std::string& type);
+      /// Add a SteeringMethod type
+      /// \param type name of the SteeringMethod type
+      /// \param static method that creates a SteeringMethod
+      /// with robot as input
+      void addSteeringMethodType (const std::string& type,
+			       const SteeringMethodBuilder_t& builder)
+      {
+	steeringMethodFactory_ [type] = builder;
+      }
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
       /// Add a ConfigurationShooter type
@@ -517,6 +530,9 @@ namespace hpp {
       /// Map (string , constructor of path validation method)
       typedef std::map <std::string, PathValidationBuilder_t >
 	PathValidationFactory_t;
+      /// Map (string , constructor of steering method)
+      typedef std::map <std::string, SteeringMethodBuilder_t >
+        SteeringMethodFactory_t;
       /// Map (string , constructor of configuration shooter method)
       typedef std::map <std::string, ConfigurationShooterBuilder_t >
         ConfigurationShooterFactory_t;
@@ -527,6 +543,8 @@ namespace hpp {
       Configurations_t goalConfigurations_;
       /// Configuration shooter
       std::string configurationShooterType_;
+      /// Steering method
+      std::string steeringMethodType_;
       /// Path optimizer
       PathOptimizerTypes_t pathOptimizerTypes_;
       PathOptimizers_t pathOptimizers_;
@@ -536,6 +554,8 @@ namespace hpp {
       value_type pathValidationTolerance_;
       /// Path planner factory
       PathPlannerFactory_t pathPlannerFactory_;
+      /// Steering Method factory
+      SteeringMethodFactory_t steeringMethodFactory_;
       /// Configuration shooter factory
       ConfigurationShooterFactory_t configurationShooterFactory_;
       /// Path optimizer factory
