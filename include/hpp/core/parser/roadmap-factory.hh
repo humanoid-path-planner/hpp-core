@@ -66,6 +66,8 @@ namespace hpp {
             }
           };
 
+          virtual bool finishAttributes ();
+
           virtual void finishTags ();
 
           RoadmapFactory (const DevicePtr_t& robot, RoadmapPtr_t roadmap,
@@ -85,6 +87,8 @@ namespace hpp {
 
           typedef std::vector <std::size_t> SizeVector_t;
           SizeVector_t permutation_;
+
+          size_type extraCSsize_;
 
           typedef std::vector <NodePtr_t> Nodes_t;
           typedef std::vector <EdgePtr_t> Edges_t;

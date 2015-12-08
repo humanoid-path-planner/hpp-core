@@ -73,8 +73,23 @@ namespace hpp {
       RoadmapFactory::RoadmapFactory (const DistancePtr_t& distance,
           const DevicePtr_t& robot, ObjectFactory* parent,
           const XMLElement* element)
-        : ObjectFactory (parent, element), distance_ (distance), robot_ (robot)
+        : ObjectFactory (parent, element), distance_ (distance), robot_ (robot),
+        extraCSsize_ (0)
       {
+      }
+
+      bool RoadmapFactory::finishAttributes ()
+      {
+        if (hasAttribute ("extra_config_space")) {
+          extraCSsize_ = boost::lexical_cast <size_type>
+            (getAttribute ("extra_config_space"));
+        }
+        if (extraCSsize_ != robot_->extraConfigSpace().dimension()) {
+          hppDout (error, "Robot extra config space do not match attribute "
+              "\"extra_config_space\"");
+          return false;
+        }
+        return ObjectFactory::finishAttributes ();
       }
 
       void RoadmapFactory::finishTags ()
@@ -152,9 +167,12 @@ namespace hpp {
             permutation_ [rank + r] = j->rankInConfiguration() + (std::size_t)r;
           rank += j->configSize();
         }
-        if (rank != permutation_.size())
+        if (rank + extraCSsize_ != permutation_.size())
           throw std::logic_error (
               "The list of joints does not correspond to this robot.");
+        for (size_type i = 0; i < extraCSsize_; ++i) {
+          permutation_ [rank + i] = rank + i;
+        }
       }
 
       ConfigurationPtr_t RoadmapFactory::permuteAndCreateConfiguration (
@@ -170,8 +188,13 @@ namespace hpp {
 
       RoadmapFactory::RoadmapFactory (const DevicePtr_t& robot, RoadmapPtr_t roadmap,
           ObjectFactory* parent) :
-        ObjectFactory ("roadmap", parent), robot_ (robot), roadmap_ (roadmap)
+        ObjectFactory ("roadmap", parent), robot_ (robot), roadmap_ (roadmap),
+        extraCSsize_ (robot->extraConfigSpace().dimension())
       {
+        if (extraCSsize_ > 0)
+          addAttribute ("extra_config_space",
+              boost::lexical_cast <std::string> (extraCSsize_));
+
         // Write joint names
         const JointVector_t& joints = robot_->getJointVector ();
         size_type rank = -1;
