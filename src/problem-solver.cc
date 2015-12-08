@@ -80,6 +80,7 @@ namespace hpp {
       pathPlannerType_ ("DiffusingPlanner"),
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
+      steeringMethodType_ ("SteeringMethodStraight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       pathPlannerFactory_ (), configurationShooterFactory_ (),
@@ -95,6 +96,8 @@ namespace hpp {
 	VisibilityPrmPlanner::createWithRoadmap;
       configurationShooterFactory_ ["BasicConfigurationShooter"] =
         BasicConfigurationShooter::create;
+      steeringMethodFactory_ ["SteeringMethodStraight"] =
+        boost::bind(static_cast<SteeringMethodStraightPtr_t (*)(const DevicePtr_t&)>(&SteeringMethodStraight::create), _1);
       // Store path optimization methods in map.
       pathOptimizerFactory_ ["RandomShortcut"] = RandomShortcut::create;
       pathOptimizerFactory_ ["GradientBased"] =
@@ -125,6 +128,15 @@ namespace hpp {
     ProblemSolver::~ProblemSolver ()
     {
       if (problem_) delete problem_;
+    }
+
+    void ProblemSolver::steeringMethodType (const std::string& type)
+    {
+      if (steeringMethodFactory_.find (type) == steeringMethodFactory_.end ()) {
+	throw std::runtime_error (std::string ("No steering method with name ") +
+				  type);
+      }
+      steeringMethodType_ = type;
     }
 
     void ProblemSolver::pathPlannerType (const std::string& type)
@@ -358,6 +370,9 @@ namespace hpp {
       // Set shooter
       problem_->configurationShooter
         (configurationShooterFactory_ [configurationShooterType_] (robot_));
+      // Set steeringMethod
+      problem_->steeringMethod
+        (steeringMethodFactory_ [steeringMethodType_] (robot_));
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
@@ -403,6 +418,9 @@ namespace hpp {
       // Set shooter
       problem_->configurationShooter
         (configurationShooterFactory_ [configurationShooterType_] (robot_));
+      // Set steeringMethod
+      problem_->steeringMethod
+        (steeringMethodFactory_ [steeringMethodType_] (robot_));
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
