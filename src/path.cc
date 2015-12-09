@@ -65,7 +65,11 @@ namespace hpp {
     {
       weak_ = self;
       if (constraints_ && constraints_->configProjector ()) {
-	constraints_->configProjector ()->rightHandSideFromConfig (initial ());
+	vector_t rhs = (
+            constraints_->configProjector()->rightHandSideFromConfig (initial())
+            + constraints_->configProjector()->rightHandSideFromConfig (end())
+            ) / 2;
+        constraints_->configProjector()->rightHandSide (rhs);
       }
     }
 
