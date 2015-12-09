@@ -24,6 +24,7 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint-set.hh>
 # include <hpp/core/deprecated.hh>
+# include <hpp/core/projection-error.hh>
 
 namespace hpp {
   namespace core {
@@ -65,7 +66,11 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       /// If upper bound of subInterval is smaller than lower bound,
       /// result is reversed.
-      virtual PathPtr_t extract (const interval_t& subInterval) const;
+      /// \exception projection_error is thrown when an end configuration of
+      ///                             the returned path could not be computed
+      ///                             due to projection failure.
+      virtual PathPtr_t extract (const interval_t& subInterval) const
+        throw (projection_error);
 
       /// Reversion of a path
       /// \return a new path that is this one reversed.

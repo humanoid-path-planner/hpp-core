@@ -136,6 +136,7 @@ namespace hpp {
     }
 
     PathPtr_t InterpolatedPath::extract (const interval_t& subInterval) const
+        throw (projection_error)
     {
       // Length is assumed to be proportional to interval range
       const bool reverse = (subInterval.first > subInterval.second);
@@ -160,6 +161,26 @@ namespace hpp {
       else
         for (; it->first < tmax; ++it)
           result->insert (it->first - tmin, it->second); 
+
+      return result;
+    }
+
+    PathPtr_t InterpolatedPath::reverse () const
+    {
+      const value_type& l = length();
+
+      InterpolatedPathPtr_t result =
+        InterpolatedPath::create (device_, end(), initial(), length(),
+					       constraints ());
+
+      if (configs_.size () > 2) {
+        InterpolationPoints_t::const_reverse_iterator it = configs_.rbegin();
+        ++it;
+        InterpolationPoints_t::const_reverse_iterator itEnd = configs_.rend();
+        --itEnd;
+        for (; it != itEnd; ++it)
+          result->insert (l - it->first, it->second); 
+      }
 
       return result;
     }

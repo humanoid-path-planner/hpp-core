@@ -77,6 +77,7 @@ namespace hpp {
 
 
     PathPtr_t Path::extract (const interval_t& subInterval) const
+        throw (projection_error)
     {
       if (subInterval == timeRange_)
 	return this->copy ();

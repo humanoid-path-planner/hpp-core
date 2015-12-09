@@ -103,6 +103,7 @@ namespace hpp {
     }
 
     PathPtr_t PathVector::extract (const interval_t& subInterval) const
+        throw (projection_error)
     {
       using std::make_pair;
       PathVectorPtr_t path = create (outputSize (), outputDerivativeSize ());
