@@ -18,8 +18,7 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
+#include <hpp/model/configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -89,14 +88,7 @@ namespace hpp {
       value_type u = param/timeRange ().second;
       if (timeRange ().second == 0)
 	u = 0;
-      // Loop over device joint and interpolate
-      const JointVector_t& jv (device_->getJointVector ());
-      for (model::JointVector_t::const_iterator itJoint = jv.begin ();
-	   itJoint != jv.end (); ++itJoint) {
-	std::size_t rank = (*itJoint)->rankInConfiguration ();
-	(*itJoint)->configuration ()->interpolate
-	  (initial_, end_, u, rank, result);
-      }
+      model::interpolate (device_, initial_, end_, u, result);
       return true;
     }
 
