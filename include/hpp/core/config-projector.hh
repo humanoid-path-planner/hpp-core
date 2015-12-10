@@ -173,6 +173,7 @@ namespace hpp {
       /// Compute value and reduced jacobian at a given configuration
       ///
       /// \param configuration input configuration
+      /// \param skipJ do not compute the jacobian
       /// \retval value values of the differentiable functions stacked in a
       ///         vector,
       /// \retval reducedJacobian Reduced Jacobian of the differentiable
@@ -182,7 +183,8 @@ namespace hpp {
       ///         to passive dofs are set to 0.
       void computeValueAndJacobian (ConfigurationIn_t configuration,
 				    vectorOut_t value,
-				    matrixOut_t reducedJacobian);
+				    matrixOut_t reducedJacobian,
+                                    bool skipJ = false);
 
       /// Execute one iteration of the projection algorithm
       /// \return true if the constraints are satisfied
@@ -202,6 +204,9 @@ namespace hpp {
       void computePrioritizedIncrement (vectorIn_t value,
           matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq,
           const std::size_t& level);
+
+      bool computeStepSize (ConfigurationOut_t q, vectorOut_t value,
+          vectorOut_t dq, value_type& alpha);
 
       /// \name Compression of locked degrees of freedom
       ///
@@ -408,6 +413,7 @@ namespace hpp {
         bool add (const NumericalConstraintPtr_t& numericalConstraint,
 		  const SizeIntervals_t& passiveDofs);
         void nbNonLockedDofs (const std::size_t nbNonLockedDofs);
+        template < bool skipJ >
         void computeValueAndJacobian (ConfigurationIn_t cfg,
             const SizeIntervals_t& intervals,
             vectorOut_t value, matrixOut_t reducedJacobian);

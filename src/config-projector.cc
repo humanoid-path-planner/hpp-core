@@ -292,7 +292,8 @@ namespace hpp {
         it->nbNonLockedDofs (nbNonLockedDofs_);
     }
 
-    void ConfigProjector::PriorityStack::computeValueAndJacobian
+    template < bool skipJ >
+      void ConfigProjector::PriorityStack::computeValueAndJacobian
     (ConfigurationIn_t configuration, const SizeIntervals_t& intervals,
      vectorOut_t value, matrixOut_t reducedJacobian)
     {
@@ -302,46 +303,57 @@ namespace hpp {
       for (NumericalConstraints_t::iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
 	DifferentiableFunction& f = (*it)->function ();
-	vector_t& v = (*it)->value ();
-	matrix_t& jacobian = (*it)->jacobian ();
+        vector_t& v = (*it)->value ();
+        matrix_t& jacobian = (*it)->jacobian ();
 	f (v, configuration);
-	f.jacobian (jacobian, configuration);
-        (*(*it)->comparisonType ()) (v, jacobian);
+        if (!skipJ) {
+          f.jacobian (jacobian, configuration);
+          (*(*it)->comparisonType ()) (v, jacobian);
+        } else {
+          (*(*it)->comparisonType ()) (v);
+        }
 	nvRows = f.outputSize ();
 	njRows = f.outputDerivativeSize ();
 	// Copy columns that are not locked
 	size_type col = 0;
-	value.segment (row, nvRows) = v;
-        /// Set the passive DOFs to zero.
-	for (SizeIntervals_t::const_iterator it = itPassiveDofs->begin ();
-	     it != itPassiveDofs->end (); ++it)
-          jacobian.middleCols (it->first, it->second).setZero ();
-        /// Copy the non locked DOFs.
-	for (SizeIntervals_t::const_iterator itInterval = intervals.begin ();
-	     itInterval != intervals.end (); ++itInterval) {
-	  size_type col0 = itInterval->first;
-	  size_type nbCols = itInterval->second;
-	  reducedJacobian.block (row, col, njRows, nbCols) =
-	    jacobian.block (0, col0, njRows, nbCols);
-	  col += nbCols;
-	}
+        value.segment (row, nvRows) = v;
+        if (!skipJ) {
+          /// Set the passive DOFs to zero.
+          for (SizeIntervals_t::const_iterator it = itPassiveDofs->begin ();
+              it != itPassiveDofs->end (); ++it)
+            jacobian.middleCols (it->first, it->second).setZero ();
+          /// Copy the non locked DOFs.
+          for (SizeIntervals_t::const_iterator itInterval = intervals.begin ();
+              itInterval != intervals.end (); ++itInterval) {
+            size_type col0 = itInterval->first;
+            size_type nbCols = itInterval->second;
+            reducedJacobian.block (row, col, njRows, nbCols) =
+              jacobian.block (0, col0, njRows, nbCols);
+            col += nbCols;
+          }
+          ++itPassiveDofs;
+        }
         row += njRows;
-        ++itPassiveDofs;
       }
-      assert (itPassiveDofs == passiveDofs_.end ());
+      assert (skipJ || itPassiveDofs == passiveDofs_.end ());
     }
 
     void ConfigProjector::computeValueAndJacobian
     (ConfigurationIn_t configuration, vectorOut_t value,
-     matrixOut_t reducedJacobian)
+     matrixOut_t reducedJacobian, bool skipJ)
     {
       size_type row = 0, nbRows = 0;
       for (std::vector <PriorityStack>::iterator itPs = stack_.begin ();
           itPs != stack_.end (); ++itPs) { 
         nbRows = itPs->outputSize_;
-        itPs->computeValueAndJacobian (configuration, intervals_,
-            value.segment (row, nbRows),
-            reducedJacobian.middleRows (row, nbRows));
+        if (skipJ)
+          itPs->computeValueAndJacobian <true> (configuration, intervals_,
+              value.segment (row, nbRows),
+              reducedJacobian.middleRows (row, nbRows));
+        else
+          itPs->computeValueAndJacobian <false> (configuration, intervals_,
+              value.segment (row, nbRows),
+              reducedJacobian.middleRows (row, nbRows));
         row += nbRows;
       }
     }
@@ -424,6 +436,45 @@ namespace hpp {
         row += it->outputSize_;
       }
       uncompressVector (dqSmall_, dq);
+    }
+
+    bool ConfigProjector::computeStepSize (ConfigurationOut_t config,
+        vectorOut_t value, vectorOut_t dq, value_type& alpha)
+    {
+      const value_type c = 0.001, tau = 0.7;
+      const value_type t = 2 * c * (reducedJacobian_ * dqSmall_).dot (value);
+      const value_type f_q_norm2 = (value - rightHandSide_).squaredNorm ();
+      const value_type smallAlpha = 0.2; // 0.8 ^ 7 = 0.209, 0.8 ^ 8 = 0.1677
+
+      if (t > 0) {
+        hppDout (error, "The descent direction is not valid: " << t/c);
+      } else {
+        alpha = 1;
+
+        Configuration_t q_dq = config;
+        while (alpha > smallAlpha) {
+          model::integrate (robot_, config, alpha * dq, q_dq);
+          computeValueAndJacobian (q_dq, value, reducedJacobian_, true);
+          // Check if we are doing better than the linear approximation with coef
+          // multiplied by c < 1
+          // t < 0 must hold
+          const value_type f_q_dq_norm2 =
+            (value - rightHandSide_).squaredNorm(); 
+          if (f_q_norm2 - f_q_dq_norm2 >= - alpha * t) {
+            config = q_dq;
+            return true;
+          }
+          // Prepare next step
+          alpha *= tau;
+        }
+        hppDout (error, "Could find alpha such that ||f(q)||**2 + "
+            << c << " * 2*(f(q)^T * J * dq) is doing worse than "
+            "||f(q + alpha * dq)||**2");
+      }
+
+      alpha = smallAlpha;
+      model::integrate (robot_, config, alpha * dq, config);
+      return false;
     }
 
     void ConfigProjector::computeIncrement (vectorIn_t value,
@@ -592,11 +643,11 @@ namespace hpp {
       computeError ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
-        computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_,level);
-	model::integrate (robot_, configuration, dq_, configuration);
+        alpha = 1;
+        computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
+        computeStepSize (configuration, value_, dq_, alpha);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
-	alpha = alphaMax - .8*(alphaMax - alpha);
         computeError ();
 	hppDout (info, "squareNorm = " << squareNorm_);
     hppDout(notice,"alpha = "<<alpha);
@@ -792,16 +843,7 @@ namespace hpp {
     bool ConfigProjector::isSatisfiedNoLockedJoint (ConfigurationIn_t config)
     {
       size_type row = 0, nbRows = 0;
-      for (NumericalConstraints_t::iterator it = functions_.begin ();
-	   it != functions_.end (); ++it) {
-	DifferentiableFunction& f = (*it)->function ();
-	vector_t& value = (*it)->value ();
-	f (value, config);
-        (*(*it)->comparisonType ()) (value, (*it)->jacobian ());
-	nbRows = f.outputSize ();
-	value_.segment (row, nbRows) = value;
-	row += nbRows;
-      }
+      computeValueAndJacobian (config, value_, reducedJacobian_, true);
       computeError ();
       return squareNorm_ < squareErrorThreshold_;
     }
