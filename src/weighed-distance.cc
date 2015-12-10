@@ -170,6 +170,7 @@ namespace hpp {
 	  ++i;
 	}
       }
+      res+=(q1 - q2).tail (robot_->extraConfigSpace ().dimension()).squaredNorm ();
       return sqrt (res);
     }
   } //   namespace core

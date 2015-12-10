@@ -16,6 +16,8 @@
 
 #include "hpp/core/locked-joint.hh"
 
+#include <sstream>
+
 #include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
@@ -23,6 +25,13 @@
 
 namespace hpp {
   namespace core {
+    namespace {
+        template <typename T>
+	std::string numToStr (const T& v) {
+ 	  std::stringstream ss; ss<<v; return ss.str ();
+	}
+    }
+
     /// Copy object and return shared pointer to copy
     EquationPtr_t LockedJoint::copy () const
     {
@@ -128,7 +137,7 @@ namespace hpp {
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
         vectorIn_t value) :
       Equation (Equality::create (), vector_t::Zero (value.size())),
-      jointName_ (dev->name() + "_extraDof"),
+      jointName_ (dev->name() + "_extraDof" + numToStr (index)),
       rankInConfiguration_
       (dev->configSize () - dev->extraConfigSpace().dimension() + index),
       rankInVelocity_
