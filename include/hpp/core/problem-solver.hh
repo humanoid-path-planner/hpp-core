@@ -46,6 +46,8 @@ namespace hpp {
       PathProjectorBuilder_t;
     typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
       ConfigurationShooterBuilder_t;
+    typedef boost::function <SteeringMethodPtr_t (const DevicePtr_t&) >
+      SteeringMethodBuilder_t;
 
     /// Set and solve a path planning problem
     ///
@@ -58,11 +60,10 @@ namespace hpp {
       public Container <PathValidationBuilder_t>,
       public Container <PathProjectorBuilder_t>,
       public Container <ConfigurationShooterBuilder_t>,
-      public Container <NumericalConstraintPtr_t>
+      public Container <NumericalConstraintPtr_t>,
+      public Container <SteeringMethodBuilder_t>
     {
     public:
-      typedef boost::function <SteeringMethodPtr_t (const DevicePtr_t&) >
-	SteeringMethodBuilder_t;
 
       typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;
       typedef std::vector <std::string> PathOptimizerTypes_t;
@@ -111,7 +112,7 @@ namespace hpp {
       void addSteeringMethodType (const std::string& type,
 			       const SteeringMethodBuilder_t& builder)
       {
-	steeringMethodFactory_ [type] = builder;
+	add <SteeringMethodBuilder_t> (type, builder);
       }
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
@@ -557,9 +558,6 @@ namespace hpp {
       /// Path planner
       std::string pathPlannerType_;
     private:
-      /// Map (string , constructor of steering method)
-      typedef std::map <std::string, SteeringMethodBuilder_t >
-        SteeringMethodFactory_t;
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
@@ -575,8 +573,6 @@ namespace hpp {
       std::string pathValidationType_;
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
-      /// Steering Method factory
-      SteeringMethodFactory_t steeringMethodFactory_;
       /// Store obstacles until call to solve.
       ObjectVector_t collisionObstacles_;
       ObjectVector_t distanceObstacles_;
