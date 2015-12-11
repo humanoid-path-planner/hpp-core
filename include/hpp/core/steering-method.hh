@@ -74,7 +74,8 @@ namespace hpp {
       /// Copy constructor
       ///
       /// Constraints are copied
-      SteeringMethod (const SteeringMethod& other) : constraints_ (), weak_ ()
+      SteeringMethod (const SteeringMethod& other) :
+        problem_ (other.problem_), constraints_ (), weak_ ()
 	{
 	  if (other.constraints_) {
 	    constraints_ = HPP_DYNAMIC_PTR_CAST (ConstraintSet,
