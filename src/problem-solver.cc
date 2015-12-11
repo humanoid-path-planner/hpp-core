@@ -419,8 +419,9 @@ namespace hpp {
       problem_->configurationShooter
         (configurationShooterFactory_ [configurationShooterType_] (robot_));
       // Set steeringMethod
-      problem_->steeringMethod
-        (steeringMethodFactory_ [steeringMethodType_] (robot_));
+      SteeringMethodPtr_t sm (steeringMethodFactory_ [steeringMethodType_]
+			      (robot_));
+      problem_->steeringMethod (sm);
       PathPlannerBuilder_t createPlanner =
 	pathPlannerFactory_ [pathPlannerType_];
       pathPlanner_ = createPlanner (*problem_, roadmap_);
@@ -429,7 +430,6 @@ namespace hpp {
         pathProjectorFactory_ [pathProjectorType_];
       // Create a default steering method until we add a steering method
       // factory.
-      SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
       PathProjectorPtr_t pathProjector_ =
         createProjector (problem_->distance (), sm, pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
