@@ -426,7 +426,9 @@ namespace hpp {
       // Create a default steering method until we add a steering method
       // factory.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), sm, pathProjectorTolerance_);
+        createProjector (problem_->distance (), 
+            SteeringMethodStraight::create (problem_),
+            pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
       /// create Path optimizer
       // Reset init and goal configurations
