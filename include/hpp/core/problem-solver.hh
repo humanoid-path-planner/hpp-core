@@ -46,7 +46,7 @@ namespace hpp {
       PathProjectorBuilder_t;
     typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
       ConfigurationShooterBuilder_t;
-    typedef boost::function <SteeringMethodPtr_t (const DevicePtr_t&) >
+    typedef boost::function <SteeringMethodPtr_t (const ProblemPtr_t&) >
       SteeringMethodBuilder_t;
 
     /// Set and solve a path planning problem

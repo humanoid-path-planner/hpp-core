@@ -93,7 +93,7 @@ namespace hpp {
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
-            static_cast<SteeringMethodStraightPtr_t (*)(const DevicePtr_t&)>
+            static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
               (&SteeringMethodStraight::create), _1
             ));
 
@@ -365,7 +365,7 @@ namespace hpp {
           (robot_));
       // Set steeringMethod
       SteeringMethodPtr_t sm (
-         get <SteeringMethodBuilder_t> (steeringMethodType_) (robot_)
+         get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
          );
       problem_->steeringMethod (sm);
       PathPlannerBuilder_t createPlanner =
@@ -414,7 +414,7 @@ namespace hpp {
         (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
       // Set steeringMethod
       SteeringMethodPtr_t sm (
-          get <SteeringMethodBuilder_t> (steeringMethodType_) (robot_)
+          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
           );
       problem_->steeringMethod (sm);
       PathPlannerBuilder_t createPlanner =

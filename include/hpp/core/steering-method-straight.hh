@@ -19,6 +19,9 @@
 #ifndef HPP_CORE_STEERING_METHOD_STRAIGHT_HH
 # define HPP_CORE_STEERING_METHOD_STRAIGHT_HH
 
+# include <hpp/core/config.hh>
+# include <hpp/core/fwd.hh>
+# include <hpp/core/problem.hh>
 # include <hpp/core/steering-method.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/weighed-distance.hh>
@@ -34,9 +37,9 @@ namespace hpp {
     {
     public:
       /// Create instance and return shared pointer
-      static SteeringMethodStraightPtr_t create (const DevicePtr_t& device)
+      static SteeringMethodStraightPtr_t create (const ProblemPtr_t& problem)
       {
-	SteeringMethodStraight* ptr = new SteeringMethodStraight (device);
+	SteeringMethodStraight* ptr = new SteeringMethodStraight (problem);
 	SteeringMethodStraightPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -44,6 +47,7 @@ namespace hpp {
       /// Create instance and return shared pointer
       static SteeringMethodStraightPtr_t create
 	(const DevicePtr_t& device, const WeighedDistancePtr_t& distance)
+        HPP_CORE_DEPRECATED
       {
 	SteeringMethodStraight* ptr = new SteeringMethodStraight (device,
 								  distance);
@@ -70,30 +74,28 @@ namespace hpp {
       virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
 				      ConfigurationIn_t q2) const
       {
-        value_type length = (*distance_) (q1, q2);
-        PathPtr_t path = StraightPath::create (device_.lock (), q1, q2, length,
-					       constraints ());
+        value_type length = (*problem_->distance()) (q1, q2);
+        PathPtr_t path = StraightPath::create
+          (problem_->robot(), q1, q2, length, constraints ());
         return path;
       }
     protected:
       /// Constructor with robot
       /// Weighed distance is created from robot
-      SteeringMethodStraight (const DevicePtr_t& device) :
-	SteeringMethod (), device_ (device),
-	distance_ (WeighedDistance::create (device)), weak_ ()
+      SteeringMethodStraight (const ProblemPtr_t& problem) :
+	SteeringMethod (problem), weak_ ()
       {
       }
       /// Constructor with weighed distance
       SteeringMethodStraight (const DevicePtr_t& device,
 			      const WeighedDistancePtr_t& distance) :
-	SteeringMethod (), device_ (device),
-	distance_ (distance), weak_ ()
+	SteeringMethod (new Problem (device)), weak_ ()
       {
+        problem_->distance (distance);
       }
       /// Copy constructor
       SteeringMethodStraight (const SteeringMethodStraight& other) :
-	SteeringMethod (other), device_ (other.device_),
-	distance_ (other.distance_), weak_ ()
+	SteeringMethod (other), weak_ ()
       {
       }
 
@@ -103,9 +105,9 @@ namespace hpp {
 	SteeringMethod::init (weak);
 	weak_ = weak;
       }
+
     private:
-      DeviceWkPtr_t device_;
-      WeighedDistancePtr_t distance_;
+
       SteeringMethodStraightWkPtr_t weak_;
     }; // SteeringMethodStraight
     /// \}

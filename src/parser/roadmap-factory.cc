@@ -23,7 +23,8 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
-#include "hpp/core/steering-method-straight.hh"
+#include "hpp/core/problem.hh"
+#include "hpp/core/steering-method.hh"
 #include "hpp/core/roadmap.hh"
 #include "hpp/core/node.hh"
 #include "hpp/core/edge.hh"
@@ -31,18 +32,15 @@
 namespace hpp {
   namespace core {
     namespace parser {
-      DistancePtr_t RoadmapFactory::ArgumentParser::d_ = DistancePtr_t ();
-      DevicePtr_t   RoadmapFactory::ArgumentParser::r_ = DevicePtr_t ();
-
-      void writeRoadmap (std::ostream& o, const RoadmapPtr_t roadmap,
-          const DevicePtr_t robot)
+      void writeRoadmap (std::ostream& o, const ProblemPtr_t& problem,
+          const RoadmapPtr_t& roadmap)
       {
         using namespace hpp::util::parser;
         XMLDocument doc;
         XMLPrinter printer;
         doc.InsertEndChild (XMLDeclaration ("0.0", "Unknown", "yes"));
         doc.InsertEndChild (XMLComment ("This file was automatically generated."));
-        RoadmapFactory rf (robot, roadmap);
+        RoadmapFactory rf (problem, roadmap);
         // XMLNode* node = rf.write (&doc);
         rf.write (&doc);
         doc.Accept (&printer);
@@ -50,16 +48,12 @@ namespace hpp {
         o << printer.Str();
       }
 
-      RoadmapPtr_t readRoadmap (const std::string& fn, const DistancePtr_t distance,
-          const DevicePtr_t robot)
+      RoadmapPtr_t readRoadmap (const std::string& fn, const ProblemPtr_t& problem)
       {
         using namespace hpp::util::parser;
         Parser p;
-        // RoadmapFactory::ArgumentParser ap (distance, robot);
-        // p.addObjectFactory ("roadmap", (Parser::FactoryType)(&(ap.create)));
-        RoadmapFactory::ArgumentParser::d_ = distance;
-        RoadmapFactory::ArgumentParser::r_ = robot;
-        p.addObjectFactory ("roadmap", RoadmapFactory::ArgumentParser::create);
+        p.addObjectFactory ("roadmap",
+            boost::bind (RoadmapFactory::create, problem, _1, _2));
         p.addObjectFactory ("joints", create <StringSequence>);
         p.addObjectFactory ("node", create <ConfigurationFactory>);
         p.addObjectFactory ("goal_nodes", create <IdSequence>);
@@ -70,10 +64,9 @@ namespace hpp {
         return rf->as<RoadmapFactory>()->roadmap ();
       }
 
-      RoadmapFactory::RoadmapFactory (const DistancePtr_t& distance,
-          const DevicePtr_t& robot, ObjectFactory* parent,
-          const XMLElement* element)
-        : ObjectFactory (parent, element), distance_ (distance), robot_ (robot),
+      RoadmapFactory::RoadmapFactory (const ProblemPtr_t& problem,
+          ObjectFactory* parent, const XMLElement* element)
+        : ObjectFactory (parent, element), problem_ (problem),
         extraCSsize_ (0)
       {
       }
@@ -84,7 +77,7 @@ namespace hpp {
           extraCSsize_ = boost::lexical_cast <size_type>
             (getAttribute ("extra_config_space"));
         }
-        if (extraCSsize_ != robot_->extraConfigSpace().dimension()) {
+        if (extraCSsize_ != problem_->robot()->extraConfigSpace().dimension()) {
           hppDout (error, "Robot extra config space do not match attribute "
               "\"extra_config_space\"");
           return false;
@@ -100,7 +93,7 @@ namespace hpp {
         StringSequence* jointNames = o->as <StringSequence>();
         computePermutation (jointNames->values());
 
-        roadmap_ = Roadmap::create (distance_, robot_);
+        roadmap_ = Roadmap::create (problem_->distance(), problem_->robot());
 
         /// Get all the configurations and build the list of nodes
         ObjectFactory::ObjectFactoryList nodeList = getChildrenOfType ("node");
@@ -116,8 +109,8 @@ namespace hpp {
 
         /// Get all the edges and build a path
         ObjectFactory::ObjectFactoryList pathList = getChildrenOfType ("path");
-        SteeringMethodStraightPtr_t sm_ptr = SteeringMethodStraight::create (robot_);
-        SteeringMethodStraight& sm = *sm_ptr;
+        SteeringMethodPtr_t sm_ptr = problem_->steeringMethod ();
+        SteeringMethod& sm = *sm_ptr;
         for (ObjectFactory::ObjectFactoryList::const_iterator
             it = pathList.begin(); it != pathList.end(); ++it) {
           ObjectFactory* p = *it;
@@ -159,9 +152,9 @@ namespace hpp {
           const std::vector <std::string>& jn)
       {
         size_t rank = 0;
-        permutation_ = SizeVector_t (robot_->configSize ());
+        permutation_ = SizeVector_t (problem_->robot()->configSize ());
         for (size_t i = 0; i < jn.size (); ++i) {
-          JointPtr_t j = robot_->getJointByName (jn[i]);
+          JointPtr_t j = problem_->robot()->getJointByName (jn[i]);
           if (!j) throw std::invalid_argument ("Joint " + jn[i] + " not found");
           for (size_type r = 0; r < j->configSize (); ++r)
             permutation_ [rank + r] = j->rankInConfiguration() + (std::size_t)r;
@@ -178,25 +171,26 @@ namespace hpp {
       ConfigurationPtr_t RoadmapFactory::permuteAndCreateConfiguration (
           const std::vector <double>& config)
       {
-        ConfigurationPtr_t cfg (new Configuration_t (robot_->configSize()));
+        ConfigurationPtr_t cfg (new Configuration_t (problem_->robot()->configSize()));
         Configuration_t& q =*cfg;
         for (size_type i = 0; i < q.size(); ++i)
           q[i] = config [permutation_[i]];
-	normalize (robot_, q);
+	normalize (problem_->robot(), q);
         return cfg;
       }
 
-      RoadmapFactory::RoadmapFactory (const DevicePtr_t& robot, RoadmapPtr_t roadmap,
-          ObjectFactory* parent) :
-        ObjectFactory ("roadmap", parent), robot_ (robot), roadmap_ (roadmap),
-        extraCSsize_ (robot->extraConfigSpace().dimension())
+      RoadmapFactory::RoadmapFactory (const ProblemPtr_t& problem,
+          const RoadmapPtr_t& roadmap, ObjectFactory* parent) :
+        ObjectFactory ("roadmap", parent), problem_ (problem),
+        roadmap_ (roadmap),
+        extraCSsize_ (problem_->robot()->extraConfigSpace().dimension())
       {
         if (extraCSsize_ > 0)
           addAttribute ("extra_config_space",
               boost::lexical_cast <std::string> (extraCSsize_));
 
         // Write joint names
-        const JointVector_t& joints = robot_->getJointVector ();
+        const JointVector_t& joints = problem_->robot()->getJointVector ();
         size_type rank = -1;
         StringSequence::OutType ssValues (joints.size());
         for (JointVector_t::const_iterator it = joints.begin();

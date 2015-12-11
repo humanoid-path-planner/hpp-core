@@ -37,45 +37,39 @@ namespace hpp {
       typedef hpp::util::parser::SequenceFactory<double> ConfigurationFactory;
       typedef hpp::util::parser::SequenceFactory<unsigned int> IdSequence;
 
-      void writeRoadmap (std::ostream& o, const RoadmapPtr_t roadmap,
-          const DevicePtr_t robot);
+      void writeRoadmap (std::ostream& o, const ProblemPtr_t& problem,
+          const RoadmapPtr_t& roadmap);
 
-      RoadmapPtr_t readRoadmap (const std::string& filename, const DistancePtr_t distance,
-          const DevicePtr_t robot);
+      /// Read a roadmap from a file.
+      RoadmapPtr_t readRoadmap (const std::string& filename,
+          const ProblemPtr_t& problem);
 
       class HPP_CORE_DLLAPI RoadmapFactory : public ObjectFactory {
         public:
           typedef ::hpp::util::parser::ObjectFactory Parent_t;
 
-          RoadmapFactory (const DistancePtr_t& distance,
-              const DevicePtr_t& robot, ObjectFactory* parent,
+          RoadmapFactory (const ProblemPtr_t& problem, ObjectFactory* parent,
               const XMLElement* element);
 
           RoadmapPtr_t roadmap () const {
             return roadmap_;
           }
 
-          struct ArgumentParser {
-            static DistancePtr_t d_;
-            static DevicePtr_t r_;
-            // ArgumentParser (const DistancePtr_t& d,
-              // const DevicePtr_t& r) : d_ (d), r_ (r) {}
-            static ObjectFactory* create (ObjectFactory* parent = NULL,
-                const XMLElement* element = NULL) {
-              return new RoadmapFactory (d_, r_, parent, element);
-            }
-          };
+          static ObjectFactory* create (const ProblemPtr_t& p,
+              ObjectFactory* parent, const XMLElement* el)
+          {
+            return new RoadmapFactory (p, parent, el);
+          }
 
           virtual bool finishAttributes ();
 
           virtual void finishTags ();
 
-          RoadmapFactory (const DevicePtr_t& robot, RoadmapPtr_t roadmap,
-              ObjectFactory* parent = NULL);
+          RoadmapFactory (const ProblemPtr_t& problem,
+              const RoadmapPtr_t& roadmap, ObjectFactory* parent = NULL);
 
         private:
-          DistancePtr_t distance_;
-          DevicePtr_t robot_;
+          ProblemPtr_t problem_;
 
           void computePermutation (const std::vector <std::string>& jointNames);
           ConfigurationPtr_t permuteAndCreateConfiguration
