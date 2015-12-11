@@ -411,6 +411,12 @@ namespace hpp {
       /// Set and solve the problem
       virtual void solve ();
 
+      /// Make direct connection between two configurations
+      /// \param start, end: the configurations to link.
+      /// \throw Error if steering method fails to create a direct path of if
+      /// direct path is not valid
+      void directPath (ConfigurationIn_t start, ConfigurationIn_t end);
+
       /// Interrupt path planning and path optimization
       void interrupt ();
 

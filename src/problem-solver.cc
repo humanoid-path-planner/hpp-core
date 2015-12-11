@@ -447,6 +447,29 @@ namespace hpp {
       optimizePath (path);
     }
 
+    void ProblemSolver::directPath (ConfigurationIn_t start,
+				    ConfigurationIn_t end)
+    {
+      // Create steering method using factory
+      SteeringMethodPtr_t sm (steeringMethodFactory_ [steeringMethodType_]
+			      (robot_));
+      problem_->steeringMethod (sm);
+      PathPtr_t dp = (*sm) (start, end);
+      PathPtr_t unused;
+      PathValidationReportPtr_t report;
+      if (!problem()->pathValidation ()->validate
+	  (dp, false, unused, report)) {
+	std::ostringstream oss; oss << *report;
+	throw std::runtime_error (oss.str ().c_str ());
+      }
+      // Add Path in problem
+      PathVectorPtr_t path
+	(core::PathVector::create (dp->outputSize (),
+				   dp->outputDerivativeSize ()));
+      path->appendPath (dp);
+      addPath (path);
+    }
+
     void ProblemSolver::interrupt ()
     {
       if (pathPlanner ()) pathPlanner ()->interrupt ();
