@@ -106,7 +106,7 @@ namespace hpp {
             break;
           }
           const Configuration_t& qb = toSplit->initial ();
-          curStep = step_;
+          curStep = step_ - Eigen::NumTraits<value_type>::epsilon ();
           curLength = std::numeric_limits <value_type>::max();
           size_t dicC = 0;
           /// Find the good length.
