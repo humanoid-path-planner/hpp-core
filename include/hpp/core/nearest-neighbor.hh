@@ -34,9 +34,22 @@ namespace hpp {
 				connectedComponent,
 			       value_type& distance) = 0;
 
+      virtual NodePtr_t search (const NodePtr_t& node,
+			       const ConnectedComponentPtr_t&
+				connectedComponent,
+			       value_type& distance) = 0;
+
       /// \param[out] distance to the Kth closest neighbor
       /// \return the K nearest neighbors
       virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+			              const ConnectedComponentPtr_t&
+                                        connectedComponent,
+                                      const std::size_t K,
+			              value_type& distance) = 0;
+
+      /// \param[out] distance to the Kth closest neighbor
+      /// \return the K nearest neighbors
+      virtual Nodes_t KnearestSearch (const NodePtr_t& node,
 			              const ConnectedComponentPtr_t&
                                         connectedComponent,
                                       const std::size_t K,

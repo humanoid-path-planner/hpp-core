@@ -54,6 +54,18 @@ namespace hpp {
 				connectedComponent,
 				value_type& minDistance);
 
+      // search nearest node
+      virtual NodePtr_t search (const NodePtr_t& configuration,
+			        const ConnectedComponentPtr_t&
+				connectedComponent,
+				value_type& minDistance);
+
+      virtual Nodes_t KnearestSearch (const NodePtr_t& configuration,
+                                      const ConnectedComponentPtr_t&
+                                        connectedComponent,
+                                      const std::size_t K,
+                                      value_type& distance);
+
       virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
                                       const ConnectedComponentPtr_t&
                                         connectedComponent,

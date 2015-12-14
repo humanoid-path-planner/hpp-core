@@ -46,12 +46,23 @@ namespace hpp {
       {
       }
 
+      virtual NodePtr_t search (const NodePtr_t& node,
+			       const ConnectedComponentPtr_t&
+				connectedComponent,
+			       value_type& distance);
+
       virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
 			       const ConnectedComponentPtr_t&
 				connectedComponent,
 			       value_type& distance);
 
       virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+                                      const ConnectedComponentPtr_t&
+                                        connectedComponent,
+                                      const std::size_t K,
+                                      value_type& distance);
+
+      virtual Nodes_t KnearestSearch (const NodePtr_t& node,
                                       const ConnectedComponentPtr_t&
                                         connectedComponent,
                                       const std::size_t K,

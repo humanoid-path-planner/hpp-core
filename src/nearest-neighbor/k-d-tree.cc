@@ -259,6 +259,19 @@ namespace hpp {
       return nearest;
     }
 
+    NodePtr_t KDTree::search (const NodePtr_t& node,
+			      const ConnectedComponentPtr_t& connectedComponent,
+                              value_type& minDistance) {
+      return search (node->configuration (), connectedComponent, minDistance);
+    }
+
+    Nodes_t KDTree::KnearestSearch (const NodePtr_t&,
+        const ConnectedComponentPtr_t&, const std::size_t,
+        value_type&)
+    {
+      assert (false && "K-nearest neighbor in KD-tree: unimplemented features");
+    }
+
     Nodes_t KDTree::KnearestSearch (const ConfigurationPtr_t&,
         const ConnectedComponentPtr_t&, const std::size_t,
         value_type&)

@@ -60,6 +60,27 @@ namespace hpp {
 	return result;
       }
 
+      NodePtr_t Basic::search (const NodePtr_t& node,
+			       const ConnectedComponentPtr_t&
+				connectedComponent,
+			       value_type& distance)
+      {
+	NodePtr_t result = NULL;
+	distance = std::numeric_limits <value_type>::infinity ();
+        const Distance& dist = *distance_;
+	for (Nodes_t::const_iterator itNode =
+	       connectedComponent->nodes ().begin ();
+	     itNode != connectedComponent->nodes ().end (); ++itNode) {
+	  value_type d = dist (*itNode, node);
+	  if (d < distance) {
+	    distance = d;
+	    result = *itNode;
+	  }
+	}
+	assert (result);
+	return result;
+      }
+
       Nodes_t Basic::KnearestSearch (const ConfigurationPtr_t& configuration,
           const ConnectedComponentPtr_t&
           connectedComponent,
@@ -76,17 +97,43 @@ namespace hpp {
           value_type d = dist (*(*itNode)->configuration (), q);
           if (ns.size () < K)
             ns.push (DistAndNode_t (d, (*itNode)));
-          else {
-            if (ns.top().first > d) {
-              ns.pop ();
-              ns.push (DistAndNode_t (d, (*itNode)));
-            }
+          else if (ns.top().first > d) {
+            ns.pop ();
+            ns.push (DistAndNode_t (d, (*itNode)));
           }
         }
         Nodes_t nodes;
         if (ns.size() > 0) distance = ns.top ().first;
         while (ns.size () > 0) {
-          nodes.push_back (ns.top().second); ns.pop ();
+          nodes.push_front (ns.top().second); ns.pop ();
+        }
+        return nodes;
+      }
+
+      Nodes_t Basic::KnearestSearch (const NodePtr_t& node,
+          const ConnectedComponentPtr_t&
+          connectedComponent,
+          const std::size_t K,
+          value_type& distance)
+      {
+        Queue_t ns;
+        distance = std::numeric_limits <value_type>::infinity ();
+        const Distance& dist = *distance_;
+        for (Nodes_t::const_iterator itNode =
+            connectedComponent->nodes ().begin ();
+            itNode != connectedComponent->nodes ().end (); ++itNode) {
+          value_type d = dist (*itNode, node);
+          if (ns.size () < K)
+            ns.push (DistAndNode_t (d, (*itNode)));
+          else if (ns.top().first > d) {
+            ns.pop ();
+            ns.push (DistAndNode_t (d, (*itNode)));
+          }
+        }
+        Nodes_t nodes;
+        if (ns.size() > 0) distance = ns.top ().first;
+        while (ns.size () > 0) {
+          nodes.push_front (ns.top().second); ns.pop ();
         }
         return nodes;
       }
