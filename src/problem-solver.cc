@@ -357,28 +357,32 @@ namespace hpp {
       }
     }
 
-    bool ProblemSolver::prepareSolveStepByStep ()
+    void ProblemSolver::initProblem ()
     {
       // Set shooter
-      problem_->configurationShooter (
-          get <ConfigurationShooterBuilder_t> (configurationShooterType_)
-          (robot_));
+      problem_->configurationShooter
+        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
       // Set steeringMethod
       SteeringMethodPtr_t sm (
-         get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
-         );
+          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
+          );
       problem_->steeringMethod (sm);
       PathPlannerBuilder_t createPlanner =
-	get <PathPlannerBuilder_t> (pathPlannerType_);
+        get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       /// create Path projector
       PathProjectorBuilder_t createProjector =
         get <PathProjectorBuilder_t> (pathProjectorType_);
       // Create a default steering method until we add a steering method
       // factory.
+      // TODO: the steering method of a path projector should not have
+      //       the problem constraints.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), sm, pathProjectorTolerance_);
+        createProjector (problem_->distance (), 
+            SteeringMethodStraight::create (problem_),
+            pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
+      /// create Path optimizer
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
@@ -387,6 +391,11 @@ namespace hpp {
 	   itConfig != goalConfigurations_.end (); ++itConfig) {
 	problem_->addGoalConfig (*itConfig);
       }
+    }
+
+    bool ProblemSolver::prepareSolveStepByStep ()
+    {
+      initProblem ();
 
       pathPlanner_->startSolve ();
       pathPlanner_->tryDirectPath ();
@@ -409,36 +418,8 @@ namespace hpp {
 
     void ProblemSolver::solve ()
     {
-      // Set shooter
-      problem_->configurationShooter
-        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
-      // Set steeringMethod
-      SteeringMethodPtr_t sm (
-          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
-          );
-      problem_->steeringMethod (sm);
-      PathPlannerBuilder_t createPlanner =
-        get <PathPlannerBuilder_t> (pathPlannerType_);
-      pathPlanner_ = createPlanner (*problem_, roadmap_);
-      /// create Path projector
-      PathProjectorBuilder_t createProjector =
-        get <PathProjectorBuilder_t> (pathProjectorType_);
-      // Create a default steering method until we add a steering method
-      // factory.
-      PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), 
-            SteeringMethodStraight::create (problem_),
-            pathProjectorTolerance_);
-      problem_->pathProjector (pathProjector_);
-      /// create Path optimizer
-      // Reset init and goal configurations
-      problem_->initConfig (initConf_);
-      problem_->resetGoalConfigs ();
-      for (Configurations_t::const_iterator itConfig =
-	     goalConfigurations_.begin ();
-	   itConfig != goalConfigurations_.end (); ++itConfig) {
-	problem_->addGoalConfig (*itConfig);
-      }
+      initProblem ();
+
       PathVectorPtr_t path = pathPlanner_->solve ();
       paths_.push_back (path);
       optimizePath (path);

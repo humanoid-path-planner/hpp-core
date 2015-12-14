@@ -596,6 +596,8 @@ namespace hpp {
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
       /// Store latest instance created by static method create
       static ProblemSolverPtr_t latest_;
+
+      void initProblem ();
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp
