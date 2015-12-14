@@ -54,6 +54,13 @@ namespace hpp {
 				connectedComponent,
 				value_type& minDistance);
 
+      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+                                      const ConnectedComponentPtr_t&
+                                        connectedComponent,
+                                      const std::size_t K,
+                                      value_type& distance);
+
+
       // merge two connected components in the whole tree
       void merge(ConnectedComponentPtr_t cc1, ConnectedComponentPtr_t cc2);
       // Get distance function

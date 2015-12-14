@@ -164,8 +164,8 @@ namespace hpp {
     typedef std::pair<size_type, size_type> SizeInterval_t;
     typedef std::vector < SizeInterval_t > SizeIntervals_t;
     typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
-    typedef std::list <Node*> Nodes_t;
     typedef Node* NodePtr_t;
+    typedef std::list <NodePtr_t> Nodes_t;
     typedef model::ObjectVector_t ObjectVector_t;
     typedef boost::shared_ptr <Path> PathPtr_t;
     typedef boost::shared_ptr <const Path> PathConstPtr_t;
