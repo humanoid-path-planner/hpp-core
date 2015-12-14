@@ -489,6 +489,10 @@ namespace hpp {
 	    value_type t0 = path_->timeRange ().first;
 	    value_type t1 = path_->timeRange ().second;
 	    value_type T = t1 - t0;
+            if (T == 0) {
+              maximalVelocity_ = std::numeric_limits<value_type>::infinity();
+              return;
+            }
 	    Configuration_t q1 = (*path_) (t0);
 	    Configuration_t q2 = (*path_) (t1);
 
