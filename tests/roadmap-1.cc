@@ -23,10 +23,12 @@
 #include <hpp/model/joint.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/weighed-distance.hh>
 #include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
+#include <hpp/core/nearest-neighbor.hh>
 #include <hpp/model/joint-configuration.hh>
 
 #include <hpp/core/steering-method-straight.hh>
@@ -41,6 +43,7 @@ using hpp::model::JointPtr_t;
 using hpp::model::Device;
 using hpp::model::DevicePtr_t;
 using hpp::model::JointTranslation;
+using hpp::core::Problem;
 using hpp::core::SteeringMethodStraight;
 using hpp::core::SteeringMethodStraightPtr_t;
 using hpp::core::RoadmapPtr_t;
@@ -76,7 +79,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   xJoint->addChildJoint (yJoint);
 
   // Create steering method
-  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (robot);
+  Problem p = Problem (robot);
+  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::create
 				     (robot, boost::assign::list_of (1)(1)));
