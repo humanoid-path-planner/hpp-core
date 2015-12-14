@@ -66,6 +66,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/continuous-collision-checking/progressive.hh
   include/hpp/core/diffusing-planner.hh
   include/hpp/core/discretized-collision-checking.hh
+  include/hpp/core/discretized-path-validation.hh
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
   include/hpp/core/edge.hh
