@@ -32,7 +32,7 @@ namespace hpp {
     /// Abstract class for distance between configurations
     class HPP_CORE_DLLAPI Distance {
     public:
-      virtual value_type operator () (ConfigurationIn_t q1,
+      value_type operator () (ConfigurationIn_t q1,
 				  ConfigurationIn_t q2) const
       {
 	return impl_distance (q1, q2);
