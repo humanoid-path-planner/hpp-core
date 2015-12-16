@@ -119,7 +119,8 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       /// If upper bound of subInterval is smaller than lower bound,
       /// result is reversed.
-      virtual PathPtr_t extract (const interval_t& subInterval) const;
+      virtual PathPtr_t extract (const interval_t& subInterval) const
+        throw (projection_error);
 
       /// Modify initial configuration
       /// \param initial new initial configuration

@@ -126,10 +126,11 @@ namespace hpp {
       }
 
       /// Extraction/Reversion of a sub-path
-      /// \param subInterval interval of definition of the extract path
-      /// If upper bound of subInterval is smaller than lower bound,
-      /// result is reversed.
-      virtual PathPtr_t extract (const interval_t& subInterval) const;
+      /// See Path::extract
+      virtual PathPtr_t extract (const interval_t& subInterval) const
+        throw (projection_error);
+
+      virtual PathPtr_t reverse () const;
 
       /// Return the internal robot.
       DevicePtr_t device () const;

@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_STEERING_METHOD_HH
 # define HPP_CORE_STEERING_METHOD_HH
 
+# include <hpp/core/fwd.hh>
 # include <hpp/core/path.hh>
 
 namespace hpp {
@@ -66,13 +67,15 @@ namespace hpp {
 
     protected:
       /// Constructor
-      SteeringMethod () : constraints_ (), weak_ ()
-	{
-	}
+      SteeringMethod (ProblemPtr_t problem) :
+        problem_ (problem), constraints_ (), weak_ ()
+      {
+      }
       /// Copy constructor
       ///
       /// Constraints are copied
-      SteeringMethod (const SteeringMethod& other) : constraints_ (), weak_ ()
+      SteeringMethod (const SteeringMethod& other) :
+        problem_ (other.problem_), constraints_ (), weak_ ()
 	{
 	  if (other.constraints_) {
 	    constraints_ = HPP_DYNAMIC_PTR_CAST (ConstraintSet,
@@ -87,6 +90,9 @@ namespace hpp {
       {
 	weak_ = weak;
       }
+
+      ProblemPtr_t problem_;
+
     private:
       /// Set of constraints to apply on the paths produced
       ConstraintSetPtr_t constraints_;

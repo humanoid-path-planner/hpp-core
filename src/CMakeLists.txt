@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2010, 2011 CNRS
+# Copyright (c) 2010, 2011, 2012, 2013, 2014, 2015, 2016 CNRS
 # Authors: Florent Lamiraux
 #
 #
@@ -34,11 +34,13 @@ SET(${LIBRARY_NAME}_SOURCES
   continuous-collision-checking/progressive/body-pair-collision.hh
   diffusing-planner.cc
   discretized-collision-checking.cc
+  discretized-path-validation.cc
   distance-between-objects.cc
   explicit-numerical-constraint.cc
   extracted-path.hh
   joint-bound-validation.cc
   nearest-neighbor/basic.hh
+  nearest-neighbor/basic.cc
   nearest-neighbor/k-d-tree.cc
   nearest-neighbor/k-d-tree.hh
   node.cc

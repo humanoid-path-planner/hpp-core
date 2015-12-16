@@ -111,7 +111,8 @@ namespace hpp {
 
       /// Extraction of a sub-path
       /// \param subInterval interval of definition of the extract path
-      virtual PathPtr_t extract (const interval_t& subInterval) const;
+      virtual PathPtr_t extract (const interval_t& subInterval) const
+        throw (projection_error);
 
       /// Get the initial configuration
       virtual Configuration_t initial () const

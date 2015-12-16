@@ -46,7 +46,8 @@ namespace hpp {
       PathProjectorBuilder_t;
     typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
       ConfigurationShooterBuilder_t;
-
+    typedef boost::function <SteeringMethodPtr_t (const ProblemPtr_t&) >
+      SteeringMethodBuilder_t;
     /// Set and solve a path planning problem
     ///
     /// This class is a container that does the interface between
@@ -57,7 +58,9 @@ namespace hpp {
       public Container <PathOptimizerBuilder_t>,
       public Container <PathValidationBuilder_t>,
       public Container <PathProjectorBuilder_t>,
-      public Container <ConfigurationShooterBuilder_t>
+      public Container <ConfigurationShooterBuilder_t>,
+      public Container <NumericalConstraintPtr_t>,
+      public Container <SteeringMethodBuilder_t>
     {
     public:
 
@@ -99,6 +102,17 @@ namespace hpp {
       void resetGoalConfigs ();
       /// Set path planner type
       virtual void pathPlannerType (const std::string& type);
+      /// Set steering method type
+      void steeringMethodType (const std::string& type);
+      /// Add a SteeringMethod type
+      /// \param type name of the SteeringMethod type
+      /// \param static method that creates a SteeringMethod
+      /// with robot as input
+      void addSteeringMethodType (const std::string& type,
+			       const SteeringMethodBuilder_t& builder)
+      {
+	add <SteeringMethodBuilder_t> (type, builder);
+      }
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
       /// Add a ConfigurationShooter type
@@ -158,14 +172,14 @@ namespace hpp {
 
       /// Check if a Container has a key.
       template <typename Element>
-        bool has (const std::string& name)
+        bool has (const std::string& name) const
         {
           return Container <Element>::has (name);
         }
 
       /// Get an element of a container
       template <typename Element>
-        const Element& get (const std::string& name)
+        const Element& get (const std::string& name) const
         {
           return Container <Element>::get (name);
         }
@@ -286,7 +300,7 @@ namespace hpp {
       {
 	NumericalConstraintPtr_t constraint (NumericalConstraint::create
 					     (function));
-	numericalConstraintMap_ [name] = constraint;
+        add <NumericalConstraintPtr_t> (name, constraint);
       }
 
       /// Add a a numerical constraint in local map.
@@ -299,7 +313,7 @@ namespace hpp {
 				   const NumericalConstraintPtr_t&
 				   constraint)
       {
-	numericalConstraintMap_ [name] = constraint;
+        add (name, constraint);
       }
 
       /// Add a vector of passive dofs in a local map.
@@ -326,12 +340,11 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonType::VectorOfTypes types)
       {
-        NumericalConstraintPtr_t constraint (numericalConstraintMap_ [name]);
-        if (!constraint)
+        if (!has <NumericalConstraintPtr_t> (name))
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
         ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
-        constraint->comparisonType (eqtypes);
+        get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
       }
 
       /// Set the comparison type of a constraint
@@ -339,27 +352,26 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonTypePtr_t eq)
       {
-        NumericalConstraintPtr_t constraint (numericalConstraintMap_ [name]);
-        if (!constraint)
+        if (!has <NumericalConstraintPtr_t> (name))
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
-        constraint->comparisonType (eq);
+        get<NumericalConstraintPtr_t> (name)->comparisonType (eq);
       }
 
       ComparisonTypePtr_t comparisonType (const std::string& name) const
       {
-        NumericalConstraintMap_t::const_iterator it =
-	  numericalConstraintMap_.find (name);
-        if (it == numericalConstraintMap_.end ())
+        if (!has <NumericalConstraintPtr_t> (name))
           throw std::logic_error (std::string ("Numerical constraint ") +
 				  name + std::string (" not defined."));
-        return it->second->comparisonType ();
+        return get<NumericalConstraintPtr_t> (name)->comparisonType ();
       }
 
       /// Get constraint with given name
       NumericalConstraintPtr_t numericalConstraint (const std::string& name)
       {
-	return numericalConstraintMap_ [name];
+        if (!has <NumericalConstraintPtr_t> (name))
+          return NumericalConstraintPtr_t ();
+        return get <NumericalConstraintPtr_t> (name);
       }
 
       /// Compute value and Jacobian of numerical constraints
@@ -438,6 +450,12 @@ namespace hpp {
 
       /// Set and solve the problem
       virtual void solve ();
+
+      /// Make direct connection between two configurations
+      /// \param start, end: the configurations to link.
+      /// \throw Error if steering method fails to create a direct path of if
+      /// direct path is not valid
+      void directPath (ConfigurationIn_t start, ConfigurationIn_t end);
 
       /// Interrupt path planning and path optimization
       void interrupt ();
@@ -551,6 +569,8 @@ namespace hpp {
       Configurations_t goalConfigurations_;
       /// Configuration shooter
       std::string configurationShooterType_;
+      /// Steering method
+      std::string steeringMethodType_;
       /// Path optimizer
       PathOptimizerTypes_t pathOptimizerTypes_;
       PathOptimizers_t pathOptimizers_;
@@ -567,8 +587,6 @@ namespace hpp {
       value_type errorThreshold_;
       // Maximal number of iterations for numerical constraint resolution
       size_type maxIterations_;
-      /// Map of constraints
-      NumericalConstraintMap_t numericalConstraintMap_;
       /// Map of passive dofs
       SizeIntervalsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation
@@ -577,6 +595,8 @@ namespace hpp {
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
       /// Store latest instance created by static method create
       static ProblemSolverPtr_t latest_;
+
+      void initProblem ();
     }; // class ProblemSolver
   } // namespace core
 } // namespace hpp

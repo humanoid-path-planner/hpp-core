@@ -79,10 +79,11 @@ namespace hpp {
       pathPlannerType_ ("DiffusingPlanner"),
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
+      steeringMethodType_ ("SteeringMethodStraight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
-      errorThreshold_ (1e-4), maxIterations_ (20), numericalConstraintMap_ (),
+      errorThreshold_ (1e-4), maxIterations_ (20),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -90,6 +91,11 @@ namespace hpp {
       add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
+
+      add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
+            static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
+              (&SteeringMethodStraight::create), _1
+            ));
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
@@ -113,6 +119,15 @@ namespace hpp {
     ProblemSolver::~ProblemSolver ()
     {
       if (problem_) delete problem_;
+    }
+
+    void ProblemSolver::steeringMethodType (const std::string& type)
+    {
+      if (!has <SteeringMethodBuilder_t> (type)) {
+	throw std::runtime_error (std::string ("No steering method with name ") +
+				  type);
+      }
+      steeringMethodType_ = type;
     }
 
     void ProblemSolver::pathPlannerType (const std::string& type)
@@ -269,7 +284,7 @@ namespace hpp {
 	  (robot_, constraintName, errorThreshold_, maxIterations_);
 	constraints_->addConstraint (configProjector);
       }
-      configProjector->add (numericalConstraintMap_ [functionName],
+      configProjector->add (numericalConstraint (functionName),
 			    SizeIntervals_t (0), priority);
     }
 
@@ -342,24 +357,32 @@ namespace hpp {
       }
     }
 
-    bool ProblemSolver::prepareSolveStepByStep ()
+    void ProblemSolver::initProblem ()
     {
       // Set shooter
-      problem_->configurationShooter (
-          get <ConfigurationShooterBuilder_t> (configurationShooterType_)
-          (robot_));
+      problem_->configurationShooter
+        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
+      // Set steeringMethod
+      SteeringMethodPtr_t sm (
+          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
+          );
+      problem_->steeringMethod (sm);
       PathPlannerBuilder_t createPlanner =
-	get <PathPlannerBuilder_t> (pathPlannerType_);
+        get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       /// create Path projector
       PathProjectorBuilder_t createProjector =
         get <PathProjectorBuilder_t> (pathProjectorType_);
       // Create a default steering method until we add a steering method
       // factory.
-      SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
+      // TODO: the steering method of a path projector should not have
+      //       the problem constraints.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), sm, pathProjectorTolerance_);
+        createProjector (problem_->distance (), 
+            SteeringMethodStraight::create (problem_),
+            pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
+      /// create Path optimizer
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
@@ -368,6 +391,11 @@ namespace hpp {
 	   itConfig != goalConfigurations_.end (); ++itConfig) {
 	problem_->addGoalConfig (*itConfig);
       }
+    }
+
+    bool ProblemSolver::prepareSolveStepByStep ()
+    {
+      initProblem ();
 
       pathPlanner_->startSolve ();
       pathPlanner_->tryDirectPath ();
@@ -390,33 +418,35 @@ namespace hpp {
 
     void ProblemSolver::solve ()
     {
-      // Set shooter
-      problem_->configurationShooter
-        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
-      PathPlannerBuilder_t createPlanner =
-        get <PathPlannerBuilder_t> (pathPlannerType_);
-      pathPlanner_ = createPlanner (*problem_, roadmap_);
-      /// create Path projector
-      PathProjectorBuilder_t createProjector =
-        get <PathProjectorBuilder_t> (pathProjectorType_);
-      // Create a default steering method until we add a steering method
-      // factory.
-      SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot ()));
-      PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), sm, pathProjectorTolerance_);
-      problem_->pathProjector (pathProjector_);
-      /// create Path optimizer
-      // Reset init and goal configurations
-      problem_->initConfig (initConf_);
-      problem_->resetGoalConfigs ();
-      for (Configurations_t::const_iterator itConfig =
-	     goalConfigurations_.begin ();
-	   itConfig != goalConfigurations_.end (); ++itConfig) {
-	problem_->addGoalConfig (*itConfig);
-      }
+      initProblem ();
+
       PathVectorPtr_t path = pathPlanner_->solve ();
       paths_.push_back (path);
       optimizePath (path);
+    }
+
+    void ProblemSolver::directPath (ConfigurationIn_t start,
+				    ConfigurationIn_t end)
+    {
+      // Create steering method using factory
+      SteeringMethodPtr_t sm (
+          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
+          );
+      problem_->steeringMethod (sm);
+      PathPtr_t dp = (*sm) (start, end);
+      PathPtr_t unused;
+      PathValidationReportPtr_t report;
+      if (!problem()->pathValidation ()->validate
+	  (dp, false, unused, report)) {
+	std::ostringstream oss; oss << *report;
+	throw std::runtime_error (oss.str ().c_str ());
+      }
+      // Add Path in problem
+      PathVectorPtr_t path
+	(core::PathVector::create (dp->outputSize (),
+				   dp->outputDerivativeSize ()));
+      path->appendPath (dp);
+      addPath (path);
     }
 
     void ProblemSolver::interrupt ()

@@ -22,6 +22,7 @@
 # include <hpp/model/fwd.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
+# include <hpp/core/node.hh>
 
 namespace hpp {
   namespace core {
@@ -31,10 +32,15 @@ namespace hpp {
     /// Abstract class for distance between configurations
     class HPP_CORE_DLLAPI Distance {
     public:
-      virtual value_type operator () (ConfigurationIn_t q1,
+      value_type operator () (ConfigurationIn_t q1,
 				  ConfigurationIn_t q2) const
       {
 	return impl_distance (q1, q2);
+      }
+
+      value_type operator () (NodePtr_t n1, NodePtr_t n2) const
+      {
+	return impl_distance (n1, n2);
       }
 
       virtual DistancePtr_t clone () const = 0;
@@ -47,6 +53,10 @@ namespace hpp {
       /// Derived class should implement this function
       virtual value_type impl_distance (ConfigurationIn_t q1,
 				    ConfigurationIn_t q2) const = 0;
+      virtual value_type impl_distance (NodePtr_t n1, NodePtr_t n2) const
+      {
+        return impl_distance (*n1->configuration(), *n2->configuration());
+      }
     }; // class Distance
     /// \}
   } //   namespace core

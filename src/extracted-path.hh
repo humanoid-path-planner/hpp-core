@@ -87,6 +87,7 @@ namespace hpp {
       }
 
       virtual PathPtr_t extract (const interval_t& subInterval) const
+        throw (projection_error)
       {
 	ExtractedPathPtr_t path = createCopy (weak_.lock ());
 	bool reversed = subInterval.first > subInterval.second ? true : false;
