@@ -45,11 +45,11 @@ namespace hpp {
       ///
       /// \param other connected component to merge into this one.
       /// \note other will be empty after calling this method.
-      void merge (const ConnectedComponentPtr_t& other);
+      virtual void merge (const ConnectedComponentPtr_t& other);
 
       /// Add node in connected component
       /// \param node node to add.
-      void addNode (const NodePtr_t& node)
+      virtual void addNode (const NodePtr_t& node)
       {
 	nodes_.push_back (node);
       }
