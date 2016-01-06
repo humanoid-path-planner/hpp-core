@@ -46,7 +46,9 @@ namespace hpp {
       /// \param other connected component to merge into this one.
       /// \note other will be empty after calling this method.
       virtual void merge (const ConnectedComponentPtr_t& other);
-
+      
+      virtual ~ConnectedComponent() {}
+      
       /// Add node in connected component
       /// \param node node to add.
       virtual void addNode (const NodePtr_t& node)
