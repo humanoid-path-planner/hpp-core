@@ -48,7 +48,6 @@ namespace hpp {
       ConfigurationShooterBuilder_t;
     typedef boost::function <SteeringMethodPtr_t (const ProblemPtr_t&) >
       SteeringMethodBuilder_t;
-
     /// Set and solve a path planning problem
     ///
     /// This class is a container that does the interface between
