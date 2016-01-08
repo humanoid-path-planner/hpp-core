@@ -195,14 +195,16 @@ namespace hpp {
 	  assert (*q1 != *q2);
 	  path = (*sm) (*q1, *q2);
 	  PathValidationReportPtr_t report;
-	  if (path && pathValidation->validate (path, false, validPath,
-						report)) {
+          if (!path) continue;
+	  bool valid = pathValidation->validate (path, false, validPath, report);
+          if (valid) {
 	    roadmap ()->addEdge (*itn1, *itn2, path);
-	    interval_t timeRange = path->timeRange ();
-	    roadmap ()->addEdge (*itn2, *itn1, path->extract
-				 (interval_t (timeRange.second,
-					      timeRange.first)));
-	  }
+	    roadmap ()->addEdge (*itn2, *itn1, path->reverse ());
+          } else if (validPath && validPath->length () > 0) {
+            // A -> B
+            ConfigurationPtr_t cfg (new Configuration_t (validPath->end()));
+            roadmap ()->addNodeAndEdges (*itn1, cfg, validPath);
+          }
 	}
       }
     }
