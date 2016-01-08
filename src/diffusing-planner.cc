@@ -133,7 +133,7 @@ namespace hpp {
       DelayedEdges_t delayedEdges;
       DevicePtr_t robot (problem ().robot ());
       PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      Nodes_t newNodes;
+      Nodes_t newNodes, nearestNeighbors;
       PathPtr_t validPath, path;
       // Pick a random node
       ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
@@ -146,6 +146,7 @@ namespace hpp {
 	// Find nearest node in roadmap
 	value_type distance;
 	NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
+        nearestNeighbors.push_back (near);
 	path = extend (near, q_rand);
 	if (path) {
 	  PathValidationReportPtr_t report;
@@ -188,6 +189,7 @@ namespace hpp {
       const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       for (Nodes_t::const_iterator itn1 = newNodes.begin ();
 	   itn1 != newNodes.end (); ++itn1) {
+        /// Try connecting to the other new nodes.
 	for (Nodes_t::const_iterator itn2 = boost::next (itn1);
 	     itn2 != newNodes.end (); ++itn2) {
 	  ConfigurationPtr_t q1 ((*itn1)->configuration ());
@@ -196,6 +198,27 @@ namespace hpp {
 	  path = (*sm) (*q1, *q2);
 	  PathValidationReportPtr_t report;
           if (!path) continue;
+	  bool valid = pathValidation->validate (path, false, validPath, report);
+          if (valid) {
+	    roadmap ()->addEdge (*itn1, *itn2, path);
+	    roadmap ()->addEdge (*itn2, *itn1, path->reverse ());
+          } else if (validPath && validPath->length () > 0) {
+            // A -> B
+            ConfigurationPtr_t cfg (new Configuration_t (validPath->end()));
+            roadmap ()->addNodeAndEdges (*itn1, cfg, validPath);
+          }
+	}
+        /// Try connecting this node to the list of nearest neighbors.
+        const ConnectedComponentPtr_t& cc1 = (*itn1)->connectedComponent();
+        ConfigurationPtr_t q1 ((*itn1)->configuration ());
+	for (Nodes_t::const_iterator itn2 = nearestNeighbors.begin();
+	     itn2 != nearestNeighbors.end (); ++itn2) {
+          if (cc1 == (*itn2)->connectedComponent ()) continue;
+	  ConfigurationPtr_t q2 ((*itn2)->configuration ());
+	  assert (*q1 != *q2);
+	  path = (*sm) (*q1, *q2);
+          if (!path) continue;
+	  PathValidationReportPtr_t report;
 	  bool valid = pathValidation->validate (path, false, validPath, report);
           if (valid) {
 	    roadmap ()->addEdge (*itn1, *itn2, path);
