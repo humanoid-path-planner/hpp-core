@@ -53,6 +53,11 @@ namespace hpp {
       /// Try to make direct connection between init and goal
       /// configurations, in order to avoid a random shoot.
       virtual void tryDirectPath();
+      /// Create path between two configurations. In case of failure, returns NULL pointer.
+      PathPtr_t steer (const ConfigurationPtr_t& q1, const ConfigurationPtr_t& q2);
+      /// validate a path. Returns TRUE if the whole path is valid, otherwise FALSE.
+      /// Always returns the valid section of a full path.
+      void validate (const PathPtr_t& path, PathPtr_t& validPath);
       /// User implementation of one step of resolution
       virtual void oneStep () = 0;
       /// Post processing of the resulting path
