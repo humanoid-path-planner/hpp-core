@@ -144,38 +144,5 @@ namespace hpp {
         }
       }
     }
-
-    PathPtr_t PathPlanner::steer (const ConfigurationPtr_t& q1, const ConfigurationPtr_t& q2)
-    {
-      // call steering method here to build a direct conexion
-      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      PathProjectorPtr_t pathProjector (problem ().pathProjector ());
-      PathPtr_t path, projPath;
-      assert (*q1 != *q2);
-      path = (*sm) (*q1, *q2);
-      if (path) {
-	if (pathProjector) {
-          if (pathProjector->apply (path, projPath)) return projPath;
-        } else {
-          projPath = path;
-        }
-	return projPath;
-      }
-      // if creating a path fails, return NULL pointer
-      PathPtr_t nullPathPtr;
-      return nullPathPtr;
-    }
-
-    void PathPlanner::validate (const PathPtr_t& path, PathPtr_t& validPath);
-    {
-      PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      PathPtr_t validPath;
-      if (path) {
-	PathValidationReportPtr_t reprt;
-	bool pathValid = pathValidation->validate (path, false, validPath, report);
-      }
-    }
-
-
   } //   namespace core
 } // namespace hpp
