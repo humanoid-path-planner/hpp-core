@@ -456,7 +456,14 @@ namespace hpp {
       /// \param start, end: the configurations to link.
       /// \throw Error if steering method fails to create a direct path of if
       /// direct path is not valid
-      void directPath (ConfigurationIn_t start, ConfigurationIn_t end);
+      bool directPath (ConfigurationIn_t start, ConfigurationIn_t end);
+
+      /// Add random configuration into roadmap as new node. 
+      bool addConfigToRoadmap (const ConfigurationPtr_t& config);
+
+      /// Add an edge between two roadmap nodes.
+      bool addEdgeToRoadmap (const ConfigurationPtr_t& config1, 
+                             const ConfigurationPtr_t& config2, const PathPtr_t& path);
 
       /// Interrupt path planning and path optimization
       void interrupt ();

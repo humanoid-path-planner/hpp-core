@@ -425,28 +425,62 @@ namespace hpp {
       optimizePath (path);
     }
 
-    void ProblemSolver::directPath (ConfigurationIn_t start,
+    bool ProblemSolver::directPath (ConfigurationIn_t start,
 				    ConfigurationIn_t end)
     {
       // Create steering method using factory
-      SteeringMethodPtr_t sm (
-          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
-          );
+      SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
+                             (steeringMethodType_) (problem_));
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
-      PathPtr_t unused;
+      PathPtr_t validSection;
+      bool PathValid = false;
       PathValidationReportPtr_t report;
       if (!problem()->pathValidation ()->validate
-	  (dp, false, unused, report)) {
-	std::ostringstream oss; oss << *report;
-	throw std::runtime_error (oss.str ().c_str ());
+	 (dp, PathValid, validSection, report)) {
+	std::cerr << "Path only partly valid!" << std::endl;
+	dp = validSection;
       }
       // Add Path in problem
-      PathVectorPtr_t path
-	(core::PathVector::create (dp->outputSize (),
-				   dp->outputDerivativeSize ()));
+      PathVectorPtr_t path (core::PathVector::create (dp->outputSize (),
+		 	   dp->outputDerivativeSize ()));
       path->appendPath (dp);
       addPath (path);
+      
+      unsigned long count = 0;
+      for (PathVectors_t::const_iterator itPath = paths_.begin(); 
+          itPath != paths_.end(); itPath++) {
+	if (*itPath == path) {
+	  break;
+	}
+	count++;
+      }
+      unsigned long pathId = count;
+      return PathValid;
+    }
+
+    bool ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
+    {
+      NodePtr_t newNode = roadmap_->addNode(config);
+      // add check to make sure node successfully added?
+      return true;	
+    }  
+
+    bool ProblemSolver::addEdgeToRoadmap (const ConfigurationPtr_t& config1, 
+                                           const ConfigurationPtr_t& config2,
+					   const PathPtr_t& path) 
+    {
+      NodePtr_t node1, node2;
+      value_type accuracy = 10e-6;
+      value_type distance1, distance2;
+      node1 = roadmap_->nearestNode(config1, distance1);
+      node2 = roadmap_->nearestNode(config2, distance2);
+      if (distance1 < accuracy && distance2 < accuracy) {
+        EdgePtr_t newEdge = roadmap_->addEdge(node1, node2, path);      
+        // add check for successful addition of edge?
+        return true;
+      }
+      return false;
     }
 
     void ProblemSolver::interrupt ()
