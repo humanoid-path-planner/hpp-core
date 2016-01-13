@@ -426,7 +426,7 @@ namespace hpp {
     }
 
     bool ProblemSolver::directPath (ConfigurationIn_t start,
-				    ConfigurationIn_t end)
+				    ConfigurationIn_t end, unsigned short& pathId)
     {
       // Create steering method using factory
       SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
@@ -455,7 +455,7 @@ namespace hpp {
 	}
 	count++;
       }
-      unsigned long pathId = count;
+      pathId = count;
       return PathValid;
     }
 

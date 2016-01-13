@@ -454,9 +454,9 @@ namespace hpp {
 
       /// Make direct connection between two configurations
       /// \param start, end: the configurations to link.
-      /// \throw Error if steering method fails to create a direct path of if
-      /// direct path is not valid
-      bool directPath (ConfigurationIn_t start, ConfigurationIn_t end);
+      /// \param pathId gets updated within the function as path added into path vector
+      /// return false if direct path is not fully valid
+      bool directPath (ConfigurationIn_t start, ConfigurationIn_t end, unsigned short& pathId);
 
       /// Add random configuration into roadmap as new node. 
       bool addConfigToRoadmap (const ConfigurationPtr_t& config);
