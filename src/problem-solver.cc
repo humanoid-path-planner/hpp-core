@@ -438,7 +438,7 @@ namespace hpp {
       PathValidationReportPtr_t report;
       if (!problem()->pathValidation ()->validate
 	 (dp, PathValid, validSection, report)) {
-	std::cerr << "Path only partly valid!" << std::endl;
+	hppDout(info, "Path only partly valid!");
 	dp = validSection;
       }
       // Add Path in problem
