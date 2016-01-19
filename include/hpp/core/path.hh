@@ -207,6 +207,9 @@ namespace hpp {
       void constraints (const ConstraintSetPtr_t& constraint) {
         constraints_ = constraint;
       }
+
+      /// Should be called by child classes after having init.
+      void checkPath () const;
     private:
       /// Size of the configuration space
       size_type outputSize_;

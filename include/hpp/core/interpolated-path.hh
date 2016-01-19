@@ -194,8 +194,6 @@ namespace hpp {
 				 value_type param) const;
 
     private:
-      inline void checkPath () const;
-
       DevicePtr_t device_;
       InterpolationPoints_t configs_;
       InterpolatedPathWkPtr_t weak_;

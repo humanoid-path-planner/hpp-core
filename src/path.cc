@@ -17,6 +17,9 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "extracted-path.hh"
+
+#include <hpp/util/debug.hh>
+
 #include <hpp/core/config-projector.hh>
 
 namespace hpp {
@@ -64,13 +67,6 @@ namespace hpp {
     void Path::init (const PathPtr_t& self)
     {
       weak_ = self;
-      if (constraints_ && constraints_->configProjector ()) {
-	vector_t rhs = (
-            constraints_->configProjector()->rightHandSideFromConfig (initial())
-            + constraints_->configProjector()->rightHandSideFromConfig (end())
-            ) / 2;
-        constraints_->configProjector()->rightHandSide (rhs);
-      }
     }
 
     // Initialization after copy
@@ -78,7 +74,6 @@ namespace hpp {
     {
       weak_ = self;
     }
-
 
     PathPtr_t Path::extract (const interval_t& subInterval) const
         throw (projection_error)
@@ -96,5 +91,14 @@ namespace hpp {
       return this->extract (interval);
     }
 
+    void Path::checkPath () const
+    {
+      assert (!constraints() || constraints()->isSatisfied (initial()));
+      if (constraints() && !constraints()->isSatisfied (end())) {
+	hppDout (error, *constraints());
+	hppDout (error, end().transpose ());
+	abort ();
+      }
+    }
   } //   namespace core
 } // namespace hpp

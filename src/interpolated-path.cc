@@ -181,16 +181,6 @@ namespace hpp {
     {
       return device_;
     }
-
-    void InterpolatedPath::checkPath () const
-    {
-      assert (!constraints() || constraints()->isSatisfied (initial()));
-      if (constraints() && !constraints()->isSatisfied (end())) {
-	hppDout (error, *constraints());
-	hppDout (error, end().transpose ());
-	abort ();
-      }
-    }
   } //   namespace core
 } // namespace hpp
 
