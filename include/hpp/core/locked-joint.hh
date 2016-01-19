@@ -43,6 +43,14 @@ namespace hpp {
 				      vectorIn_t value);
 
       /// Return shared pointer to new object
+      /// \param joint joint that is locked,
+      /// \param index index of the extra DOF that is locked,
+      /// \param value of the constant joint config,
+      static LockedJointPtr_t create (const JointPtr_t& joint,
+                                      const size_type index,
+				      vectorIn_t value);
+
+      /// Return shared pointer to new object
       /// \param robot robot
       /// \param index index of the extra DOF that is locked,
       /// \param value of the constant joint config,
@@ -96,6 +104,14 @@ namespace hpp {
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
       LockedJoint (const JointPtr_t& joint, vectorIn_t value);
+      /// Constructor of partial locked joint
+      /// \param joint joint that is locked,
+      /// \param start index of the first locked DOF (in configuration)
+      /// \param value of the constant joint config,
+      /// \note this is valid only for joint having as many configuration
+      /// parameter as velocity parameter.
+      LockedJoint (const JointPtr_t& joint, const size_type index,
+          vectorIn_t value);
       /// Constructor
       LockedJoint (const DevicePtr_t& dev, const size_type index,
           vectorIn_t value);

@@ -47,6 +47,16 @@ namespace hpp {
       return shPtr;
     }
 
+    LockedJointPtr_t LockedJoint::create (const JointPtr_t& joint,
+                                          const size_type index,
+					  vectorIn_t value)
+    {
+      LockedJoint* ptr = new LockedJoint (joint, index, value);
+      LockedJointPtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
+
     LockedJointPtr_t LockedJoint::create (const DevicePtr_t& dev,
         const size_type index, vectorIn_t value)
     {
@@ -132,6 +142,18 @@ namespace hpp {
     {
       rightHandSide (value);
       assert (rhsSize () == joint->configSize ());
+    }
+
+    LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
+        vectorIn_t value) :
+      Equation (Equality::create (), vector_t::Zero (value.size ())),
+      jointName_ ("partial_" + joint->name ()),
+      rankInConfiguration_ (joint->rankInConfiguration () + index),
+      rankInVelocity_ (joint->rankInVelocity () + index),
+      numberDof_ (joint->numberDof ())
+    {
+      assert (joint->numberDof () == joint->configSize ());
+      rightHandSide (value);
     }
 
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
