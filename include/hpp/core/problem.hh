@@ -23,6 +23,7 @@
 # include <hpp/model/device.hh>
 # include <hpp/util/pointer.hh>
 
+# include <hpp/core/config.hh>
 # include <hpp/core/steering-method.hh>
 
 namespace hpp {
@@ -69,12 +70,25 @@ namespace hpp {
       }
       /// Set initial configuration.
       void initConfig (const ConfigurationPtr_t& inConfig);
+      /// Set the target
+      void target (const ProblemTargetPtr_t& target)
+      {
+        target_ = target;
+      }
+      /// Get the target
+      const ProblemTargetPtr_t& target () const
+      {
+        return target_;
+      }
       /// Get number of goal configuration.
-      const Configurations_t& goalConfigs () const;
+      /// \deprecated use target ()
+      const Configurations_t& goalConfigs () const HPP_CORE_DEPRECATED;
       /// Add goal configuration.
-      void addGoalConfig (const ConfigurationPtr_t& config);
+      /// \deprecated use target ()
+      void addGoalConfig (const ConfigurationPtr_t& config) HPP_CORE_DEPRECATED;
       /// Reset the set of goal configurations
-      void resetGoalConfigs ();
+      /// \deprecated use target ()
+      void resetGoalConfigs () HPP_CORE_DEPRECATED;
 
       /// \}
 
@@ -211,8 +225,8 @@ namespace hpp {
       DistancePtr_t distance_;
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
-      /// Shared pointer to goal configuration.
-      Configurations_t goalConfigurations_;
+      /// Shared pointer to problem target
+      ProblemTargetPtr_t target_;
       /// Steering method associated to the problem
       SteeringMethodPtr_t steeringMethod_;
       /// Configuration validation

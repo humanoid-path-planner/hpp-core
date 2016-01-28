@@ -70,6 +70,8 @@ SET(${LIBRARY_NAME}_SOURCES
   path-projector/global.cc
   path-projector.cc
   parser/roadmap-factory.cc
+  problem-target/goal-configurations.cc
+  problem-target/task-target.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

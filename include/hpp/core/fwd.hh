@@ -59,6 +59,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (Path);
     HPP_PREDEF_CLASS (PathOptimizer);
     HPP_PREDEF_CLASS (PathPlanner);
+    HPP_PREDEF_CLASS (ProblemTarget);
     HPP_PREDEF_CLASS (PathVector);
     HPP_PREDEF_CLASS (PathValidation);
     struct PathValidationReport;
@@ -174,6 +175,7 @@ namespace hpp {
     typedef boost::shared_ptr <const Path> PathConstPtr_t;
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
+    typedef boost::shared_ptr <ProblemTarget> ProblemTargetPtr_t;
     typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
     typedef boost::shared_ptr <PathValidationReport> PathValidationReportPtr_t;
     typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
@@ -261,6 +263,13 @@ namespace hpp {
       HPP_PREDEF_CLASS (Interpolated);
       typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
     } // namespace steeringMethod
+
+    namespace problemTarget {
+      HPP_PREDEF_CLASS (GoalConfigurations);
+      HPP_PREDEF_CLASS (TaskTarget);
+      typedef boost::shared_ptr <GoalConfigurations> GoalConfigurationsPtr_t;
+      typedef boost::shared_ptr <TaskTarget> TaskTargetPtr_t;
+    } // namespace problemTarget
   } // namespace core
 } // namespace hpp
 

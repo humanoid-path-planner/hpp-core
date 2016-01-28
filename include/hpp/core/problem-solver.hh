@@ -101,6 +101,15 @@ namespace hpp {
       virtual void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
       void resetGoalConfigs ();
+      /// Add goal constraints
+      void addGoalConstraint (const ConstraintPtr_t& constraint);
+      /// Add goal LockedJoint
+      void addGoalConstraint (const LockedJointPtr_t& lj);
+      /// Add goal numerical constraints
+      void addGoalConstraint (const std::string& constraintName,
+          const std::string& functionName, const std::size_t priority);
+      /// Reset goal constraints
+      void resetGoalConstraint ();
       /// Set path planner type
       virtual void pathPlannerType (const std::string& type);
       /// Set steering method type
@@ -575,6 +584,8 @@ namespace hpp {
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
       Configurations_t goalConfigurations_;
+      /// Stored the goal constraints
+      ConstraintSetPtr_t goalConstraints_;
       /// Configuration shooter
       std::string configurationShooterType_;
       /// Steering method

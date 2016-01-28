@@ -16,10 +16,13 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-# include <hpp/util/debug.hh>
 #include <hpp/core/path-planner.hh>
+
+#include <hpp/util/debug.hh>
+
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
+#include <hpp/core/problem-target.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/path.hh>
@@ -64,13 +67,8 @@ namespace hpp {
     {
       problem_.checkProblem ();
       // Tag init and goal configurations in the roadmap
-      roadmap()->resetGoalNodes ();
       roadmap()->initNode (problem_.initConfig ());
-      const Configurations_t goals (problem_.goalConfigs ());
-      for (Configurations_t::const_iterator itGoal = goals.begin ();
-	   itGoal != goals.end (); ++itGoal) {
-       roadmap()->addGoalNode (*itGoal);
-      }
+      problem_.target()->initRoadmap ();
     }
 
     PathVectorPtr_t PathPlanner::solve ()
@@ -85,6 +83,7 @@ namespace hpp {
       }
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
+        problem_.target ()->oneStep ();
 	oneStep ();
        solved = roadmap()->pathExists ();
 	if (interrupt_) throw std::runtime_error ("Interruption");

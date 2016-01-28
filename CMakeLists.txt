@@ -106,6 +106,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-projector.hh
   include/hpp/core/nearest-neighbor.hh
   include/hpp/core/parser/roadmap-factory.hh
+  include/hpp/core/problem-target.hh
+  include/hpp/core/problem-target/goal-configurations.hh
+  include/hpp/core/problem-target/task-target.hh
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
