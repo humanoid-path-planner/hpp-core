@@ -20,6 +20,8 @@
 
 #include <hpp/util/debug.hh>
 
+#include <hpp/core/node.hh>
+#include <hpp/core/connected-component.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/path-planner.hh>
@@ -30,8 +32,10 @@
 namespace hpp {
   namespace core {
     namespace problemTarget {
-      HPP_DEFINE_REASON_FAILURE (REASON_PROJECTION_FAILED, "Projection failed");
-      HPP_DEFINE_REASON_FAILURE (REASON_COLLISION, "Collision");
+      namespace {
+        HPP_DEFINE_REASON_FAILURE (REASON_PROJECTION_FAILED, "Projection failed");
+        HPP_DEFINE_REASON_FAILURE (REASON_COLLISION, "Collision");
+      }
 
       TaskTargetPtr_t TaskTarget::create (const PathPlannerPtr_t& planner)
       {
@@ -53,12 +57,8 @@ namespace hpp {
       void TaskTarget::initRoadmap ()
       {
         planner_->roadmap()->resetGoalNodes ();
-        std::size_t trials = 1;
-        ConfigurationPtr_t ng = generateNewConfig (trials);
-        if (ng) {
-          planner_->roadmap()->addGoalNode (ng);
-          goals_.push_back (ng);
-        }
+        std::size_t trials = 2;
+        generateNewConfig (trials);
       }
 
       void TaskTarget::oneStep ()
@@ -66,34 +66,50 @@ namespace hpp {
         if (goals_.size () > planner_->roadmap()->nodes().size() / 10)
           return;
         std::size_t trials = 1;
-        ConfigurationPtr_t ng = generateNewConfig (trials);
-        if (ng) {
-          planner_->roadmap()->addGoalNode (ng);
-          goals_.push_back (ng);
-        }
+        generateNewConfig (trials);
       }
 
       ConfigurationPtr_t TaskTarget::generateNewConfig (std::size_t& tries)
       {
         ConfigurationPtr_t q;
-        const ConfigValidationsPtr_t& confValidations =
-          planner_->problem().configValidations();
-        ValidationReportPtr_t report;
         while (tries > 0) {
           tries--;
-          q = planner_->problem().configurationShooter()->shoot ();
-          if (constraints_->apply (*q)) {
-            if (confValidations->validate (*q, report)) {
-              statistics_.addSuccess ();
-              return q;
-            } else
-              statistics_.addFailure (REASON_COLLISION);
-          } else statistics_.addFailure (REASON_PROJECTION_FAILED);
+          q = shootConfig ();
+          if (impl_addGoalConfig (q)) return q;
         }
         return ConfigurationPtr_t();
       }
 
+      ConfigurationPtr_t TaskTarget::shootConfig ()
+      {
+        ConfigurationPtr_t q;
+        const RoadmapPtr_t& r = planner_->roadmap ();
+        const NodeVector_t& initCCnodes =
+          r->initNode()->connectedComponent()->nodes();
+        if (initCCnodes.size() < indexInInitcc_) {
+          // The list of nodes must have changed.
+          // Try again from initial configuration.
+          indexInInitcc_ = 0;
+          hppDout (info, "Connected component of init node has been shrinked. "
+             "Reinititializing index.");
+        }
+        if (initCCnodes.size() > indexInInitcc_) {
+          q = ConfigurationPtr_t (new Configuration_t (
+                *(initCCnodes[indexInInitcc_]->configuration())
+              ));
+          indexInInitcc_++;
+        } else {
+          q = planner_->problem().configurationShooter()->shoot ();
+        }
+        return q;
+      }
+
       void TaskTarget::addGoalConfig (const ConfigurationPtr_t& config)
+      {
+        impl_addGoalConfig (config);
+      }
+
+      inline bool TaskTarget::impl_addGoalConfig (const ConfigurationPtr_t& config)
       {
         const ConfigValidationsPtr_t& confValidations =
           planner_->problem().configValidations();
@@ -101,9 +117,13 @@ namespace hpp {
         if (constraints_->apply (*config)) {
           if (confValidations->validate (*config, report)) {
             statistics_.addSuccess ();
+            planner_->roadmap()->addGoalNode (config);
+            goals_.push_back (config);
+            return true;
           } else
             statistics_.addFailure (REASON_COLLISION);
         } else statistics_.addFailure (REASON_PROJECTION_FAILED);
+        return false;
       }
     } // namespace problemTarget
   } // namespace core

@@ -55,6 +55,7 @@ namespace hpp {
           void constraints (const ConstraintSetPtr_t& c)
           {
             constraints_ = c;
+            indexInInitcc_ = 0;
           }
 
           /// Apply the constraints to the configuration and
@@ -71,12 +72,20 @@ namespace hpp {
           /// Constructor
           TaskTarget (const PathPlannerPtr_t& planner)
             : ProblemTarget (planner)
+            , indexInInitcc_ (0)
+            , statistics_ ("Task target")
           {}
 
         private:
           ConfigurationPtr_t generateNewConfig (std::size_t& tries);
 
+          ConfigurationPtr_t shootConfig ();
+
+          bool impl_addGoalConfig (const ConfigurationPtr_t& config);
+
           ConstraintSetPtr_t constraints_;
+
+          std::size_t indexInInitcc_;
 
           ::hpp::statistics::SuccessStatistics statistics_;
       }; // class TaskTarget
