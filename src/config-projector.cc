@@ -40,10 +40,6 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER (optimize);
     }
 
-    std::ostream& operator<< (std::ostream& os, const hpp::statistics::SuccessStatistics& ss)
-    {
-      return ss.print (os);
-    }
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
 
@@ -89,7 +85,8 @@ namespace hpp {
       dqSmall_ (robot->numberDof ()),
       nbNonLockedDofs_ (robot_->numberDof ()),
       nbLockedDofs_ (0),
-      squareNorm_(0), explicitComputation_ (false), weak_ ()
+      squareNorm_(0), explicitComputation_ (false), weak_ (),
+      statistics_ ("ConfigProjector " + name)
     {
       dq_.setZero ();
       stack_.push_back (PriorityStack (3,nbNonLockedDofs_)); /// First and last
@@ -557,15 +554,8 @@ namespace hpp {
 	++iter;
       };
       if (squareNorm_ > squareErrorThreshold_) {
-        if (!errorDecreased)
-          statistics_.addFailure (REASON_ERROR_INCREASED);
-        else
-          statistics_.addFailure (REASON_MAX_ITER);
-        if (statistics_.nbFailure () > statistics_.nbSuccess ()) {
-          hppDout (warning, "Config projector " << name()
-              << " seems to fail often.");
-          hppDout (warning, statistics_);
-        }
+        statistics_.addFailure ((!errorDecreased)?REASON_ERROR_INCREASED:REASON_MAX_ITER);
+        statistics_.isLowRatio (true);
       } else {
         statistics_.addSuccess();
       }

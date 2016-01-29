@@ -123,6 +123,7 @@ namespace hpp {
           } else
             statistics_.addFailure (REASON_COLLISION);
         } else statistics_.addFailure (REASON_PROJECTION_FAILED);
+        statistics_.isLowRatio (true);
         return false;
       }
     } // namespace problemTarget

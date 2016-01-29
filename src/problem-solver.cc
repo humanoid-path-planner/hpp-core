@@ -285,7 +285,6 @@ namespace hpp {
 			    SizeIntervals_t (0), priority);
     }
 
-
     void ProblemSolver::resetGoalConstraint ()
     {
       goalConstraints_.reset ();
