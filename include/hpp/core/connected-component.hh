@@ -30,8 +30,6 @@ namespace hpp {
     /// Set of nodes reachable from one another.
     class HPP_CORE_DLLAPI ConnectedComponent {
     public:
-      // List of nodes within the connected component
-      typedef std::list <NodePtr_t> Nodes_t;
       // variable for ranking connected components
       static unsigned int globalFinishTime_;
       static ConnectedComponentPtr_t create ()
@@ -56,7 +54,7 @@ namespace hpp {
 	nodes_.push_back (node);
       }
       /// Access to the nodes
-      const Nodes_t& nodes () const
+      const NodeVector_t& nodes () const
       {
 	return nodes_;
       }
@@ -92,12 +90,13 @@ namespace hpp {
       /// Constructor
       ConnectedComponent () : nodes_ (), explored_ (false), weak_ ()
 	  {
+            nodes_.reserve (1000);
 	  }
       void init (const ConnectedComponentPtr_t& shPtr){
 	weak_ = shPtr;
       }
     private:
-      Nodes_t nodes_;
+      NodeVector_t nodes_;
       // List of CCs from which this connected component can be reached
       ConnectedComponents_t reachableFrom_;
       // List of CCs that can be reached from this connected component

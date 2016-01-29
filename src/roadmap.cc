@@ -322,7 +322,7 @@ namespace hpp {
 	const ConnectedComponentPtr_t cc = *it;
 	os << "Connected component " << ccId [cc] << std::endl;
 	os << "Nodes : ";
-	for (Nodes_t::const_iterator itNode = cc->nodes ().begin ();
+	for (NodeVector_t::const_iterator itNode = cc->nodes ().begin ();
 	     itNode != cc->nodes ().end (); ++itNode) {
 	  os << nodeId [*itNode] << ", ";
 	}

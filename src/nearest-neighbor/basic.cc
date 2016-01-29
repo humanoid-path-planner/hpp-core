@@ -46,7 +46,7 @@ namespace hpp {
 	NodePtr_t result = NULL;
 	distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
-	for (Nodes_t::const_iterator itNode =
+	for (NodeVector_t::const_iterator itNode =
 	       connectedComponent->nodes ().begin ();
 	     itNode != connectedComponent->nodes ().end (); ++itNode) {
 	  value_type d = dist (*(*itNode)->configuration (),
@@ -68,7 +68,7 @@ namespace hpp {
 	NodePtr_t result = NULL;
 	distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
-	for (Nodes_t::const_iterator itNode =
+	for (NodeVector_t::const_iterator itNode =
 	       connectedComponent->nodes ().begin ();
 	     itNode != connectedComponent->nodes ().end (); ++itNode) {
 	  value_type d = dist (*itNode, node);
@@ -91,7 +91,7 @@ namespace hpp {
         distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
         const Configuration_t& q = *configuration;
-        for (Nodes_t::const_iterator itNode =
+        for (NodeVector_t::const_iterator itNode =
             connectedComponent->nodes ().begin ();
             itNode != connectedComponent->nodes ().end (); ++itNode) {
           value_type d = dist (*(*itNode)->configuration (), q);
@@ -119,7 +119,7 @@ namespace hpp {
         Queue_t ns;
         distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
-        for (Nodes_t::const_iterator itNode =
+        for (NodeVector_t::const_iterator itNode =
             connectedComponent->nodes ().begin ();
             itNode != connectedComponent->nodes ().end (); ++itNode) {
           value_type d = dist (*itNode, node);

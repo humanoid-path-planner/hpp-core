@@ -78,7 +78,7 @@ namespace hpp {
       RoadmapPtr_t r (roadmap ());
       DelayedEdge_t delayedEdge;
 
-      for (Nodes_t::const_iterator n_it = cc->nodes ().begin (); 
+      for (NodeVector_t::const_iterator n_it = cc->nodes ().begin (); 
 	   n_it != cc->nodes ().end (); ++n_it){
 	if(nodeStatus_ [*n_it]){// only iterate on guard nodes
 	  ConfigurationPtr_t qCC = (*n_it)->configuration ();

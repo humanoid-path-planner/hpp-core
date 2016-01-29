@@ -34,12 +34,12 @@ namespace hpp {
     void ConnectedComponent::merge (const ConnectedComponentPtr_t& other)
     {
       // Tell other's nodes that they now belong to this connected component
-      for (Nodes_t::iterator itNode = other->nodes_.begin ();
+      for (NodeVector_t::iterator itNode = other->nodes_.begin ();
 	   itNode != other->nodes_.end (); ++itNode) {
 	(*itNode)->connectedComponent (weak_.lock ());
       }
       // Add other's nodes to this list.
-      nodes_.splice (nodes_.end (), other->nodes_);
+      nodes_.insert (nodes_.end (), other->nodes_.begin(), other->nodes_.end());
 
       // Tell other's reachableTo's that other has been replaced by this
       for (ConnectedComponents_t::iterator itcc = other->reachableTo_.begin ();
