@@ -465,7 +465,8 @@ namespace hpp {
       /// \param start, end: the configurations to link.
       /// \param pathId gets updated within the function as path added into path vector
       /// return false if direct path is not fully valid
-      bool directPath (ConfigurationIn_t start, ConfigurationIn_t end, unsigned short& pathId);
+      bool directPath (ConfigurationIn_t start, ConfigurationIn_t end,
+          std::size_t& pathId);
 
       /// Add random configuration into roadmap as new node. 
       bool addConfigToRoadmap (const ConfigurationPtr_t& config);
@@ -478,9 +479,11 @@ namespace hpp {
       void interrupt ();
 
       /// Add a path
-      void addPath (const PathVectorPtr_t& path)
+      std::size_t addPath (const PathVectorPtr_t& path)
       {
+        std::size_t s = paths_.size();
 	paths_.push_back (path);
+        return s;
       }
 
       /// Return vector of paths

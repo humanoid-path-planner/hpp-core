@@ -482,7 +482,7 @@ namespace hpp {
     }
 
     bool ProblemSolver::directPath (ConfigurationIn_t start,
-				    ConfigurationIn_t end, unsigned short& pathId)
+				    ConfigurationIn_t end, std::size_t& pathId)
     {
       // Create steering method using factory
       SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
@@ -501,24 +501,13 @@ namespace hpp {
       PathVectorPtr_t path (core::PathVector::create (dp->outputSize (),
 		 	   dp->outputDerivativeSize ()));
       path->appendPath (dp);
-      addPath (path);
-      
-      unsigned long count = 0;
-      for (PathVectors_t::const_iterator itPath = paths_.begin(); 
-          itPath != paths_.end(); itPath++) {
-	if (*itPath == path) {
-	  break;
-	}
-	count++;
-      }
-      pathId = count;
+      pathId = addPath (path);
       return PathValid;
     }
 
     bool ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
     {
-      NodePtr_t newNode = roadmap_->addNode(config);
-      // add check to make sure node successfully added?
+      roadmap_->addNode(config);
       return true;	
     }  
 
@@ -532,8 +521,7 @@ namespace hpp {
       node1 = roadmap_->nearestNode(config1, distance1);
       node2 = roadmap_->nearestNode(config2, distance2);
       if (distance1 < accuracy && distance2 < accuracy) {
-        EdgePtr_t newEdge = roadmap_->addEdge(node1, node2, path);      
-        // add check for successful addition of edge?
+        roadmap_->addEdge(node1, node2, path);      
         return true;
       }
       return false;
