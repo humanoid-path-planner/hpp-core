@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
 
+SET(BOOST_COMPONENTS system timer unit_test_framework)
+SEARCH_FOR_BOOST()
+
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
-
 
 # Make Boost.Test generates the main function in test cases.
 #ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
@@ -54,3 +56,5 @@ ADD_TESTCASE (test-intervals FALSE)
 ADD_TESTCASE (test-body-pair-collision FALSE)
 ADD_TESTCASE (test-gradient-based FALSE)
 ADD_TESTCASE (test-configprojector FALSE)
+
+ADD_SUBDIRECTORY (path-projector)

@@ -140,7 +140,7 @@ namespace hpp {
             break;
           default:
             InterpolatedPathPtr_t p = InterpolatedPath::create
-              (path->device (), q1, q2, totalLength,
+              (path->device (), q1, paths.back()->end(), totalLength,
                path->constraints ());
             value_type t = paths.front ()->length ();
             qi = paths.front()->end ();
