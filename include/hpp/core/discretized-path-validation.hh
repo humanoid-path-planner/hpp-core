@@ -78,7 +78,7 @@ namespace hpp {
 			     PathValidationReportPtr_t& report);
 
       /// Add a configuration validation object
-      void add (const ConfigValidationPtr_t& configValidation);
+      virtual void add (const ConfigValidationPtr_t& configValidation);
 
       /// Add an obstacle
       /// \param object obstacle added
@@ -95,12 +95,13 @@ namespace hpp {
 
     protected:
       DiscretizedPathValidation
-	(const DevicePtr_t& robot, const value_type& stepSize);
+  (const DevicePtr_t& robot, const value_type& stepSize);
+
+      value_type stepSize_;
 
     private:
       DevicePtr_t robot_;
       ConfigValidationsPtr_t configValidations_;
-      value_type stepSize_;
     }; // class DiscretizedPathValidation
     /// \}
   } // namespace core
