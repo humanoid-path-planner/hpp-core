@@ -115,11 +115,11 @@ ADD_REQUIRED_DEPENDENCY("hpp-statistics")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3")
 ADD_DOC_DEPENDENCY("hpp-model >= 3")
 
-# Add dependency toward hpp-model library in pkg-config file.
-PKG_CONFIG_APPEND_LIBS("hpp-core")
-
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
+
+# Add dependency toward hpp-core library in pkg-config file.
+PKG_CONFIG_APPEND_LIBS("hpp-core")
 
 INSTALL (FILES doc/continuous-collision-checking.pdf
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
