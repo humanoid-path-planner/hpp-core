@@ -17,6 +17,7 @@
 #include "hpp/core/path-projector/global.hh"
 
 #include <hpp/util/debug.hh>
+#include <hpp/util/timer.hh>
 #include <hpp/model/configuration.hh>
 
 #include <hpp/core/path-vector.hh>
@@ -30,6 +31,12 @@
 namespace hpp {
   namespace core {
     namespace pathProjector {
+      namespace {
+        HPP_DEFINE_TIMECOUNTER (globalPathProjector_initCfgList);
+        HPP_DEFINE_TIMECOUNTER (globalPathProjector_projOneStep);
+        HPP_DEFINE_TIMECOUNTER (globalPathProjector_reinterpolate);
+        HPP_DEFINE_TIMECOUNTER (globalPathProjector_createPath);
+      }
       Global::Global (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
 				value_type step) :
@@ -81,12 +88,14 @@ namespace hpp {
       {
         Configs_t cfgs;
         ConfigProjector& p = *path->constraints ()->configProjector ();
+        HPP_START_TIMECOUNTER(globalPathProjector_initCfgList);
         initialConfigList (path, cfgs);
         if (cfgs.size() == 2) { // Shorter than step_
           proj = path;
           return true;
         }
         assert ((cfgs.back () - path->end ()).isZero ());
+        HPP_STOP_AND_DISPLAY_TIMECOUNTER(globalPathProjector_initCfgList);
 
         Bools_t projected (cfgs.size () - 2, false);
         Alphas_t alphas   (cfgs.size () - 2, alphaMin);
@@ -119,16 +128,22 @@ namespace hpp {
 
           if (nbIter > maxIter) break;
         }
+        HPP_DISPLAY_TIMECOUNTER(globalPathProjector_projOneStep);
+        HPP_DISPLAY_TIMECOUNTER(globalPathProjector_reinterpolate);
 
         // Build the projection
-        return createPath (p.robot(), path->constraints(),
-            cfgs, projected, lengths, proj);
+        HPP_START_TIMECOUNTER (globalPathProjector_createPath);
+        bool ret = createPath (p.robot(), path->constraints(),
+            cfgs, last, projected, lengths, proj);
+        HPP_STOP_AND_DISPLAY_TIMECOUNTER (globalPathProjector_createPath);
+        return ret;
       }
 
       bool Global::projectOneStep (ConfigProjector& p,
           Configs_t& q, Configs_t::iterator& last,
           Bools_t& b, Lengths_t& l, Alphas_t& a) const
       {
+        HPP_START_TIMECOUNTER(globalPathProjector_projOneStep);
         /// First and last should not be updated
         const Configs_t::iterator begin = ++(q.begin ());
         const Configs_t::iterator end   = --(q.end ());
@@ -203,6 +218,7 @@ namespace hpp {
         }
         if (prevUpdated)
           *itL = d (*itCp, *end);
+        HPP_STOP_TIMECOUNTER(globalPathProjector_projOneStep);
         return allAreSatisfied;
       }
 
@@ -211,6 +227,7 @@ namespace hpp {
           Bools_t& b, Lengths_t& l, Alphas_t& a,
           const value_type& maxDist) const
       {
+        HPP_START_TIMECOUNTER(globalPathProjector_reinterpolate);
         Configs_t::iterator begin = ++(q.begin ());
         Configs_t::iterator end   = last; ++end;
         Bools_t  ::iterator itB   =   (b.begin ());
@@ -258,6 +275,7 @@ namespace hpp {
           ++itA;
           ++itL;
         }
+        HPP_STOP_TIMECOUNTER(globalPathProjector_reinterpolate);
         return nbNewC;
       }
 
