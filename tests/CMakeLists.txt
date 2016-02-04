@@ -56,5 +56,4 @@ ADD_TESTCASE (test-intervals FALSE)
 ADD_TESTCASE (test-body-pair-collision FALSE)
 ADD_TESTCASE (test-gradient-based FALSE)
 ADD_TESTCASE (test-configprojector FALSE)
-
-ADD_SUBDIRECTORY (path-projector)
+ADD_TESTCASE (path-projectors FALSE)
