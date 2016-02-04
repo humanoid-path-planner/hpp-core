@@ -68,6 +68,7 @@ namespace hpp {
 
       // Maximal number of iterations without improvements
       const std::size_t n = 5;
+      std::size_t projectionError = n;
       std::deque <value_type> length (n-1,
 				      numeric_limits <value_type>::infinity ());
       length.push_back (pathLength (tmpPath, problem ().distance ()));
@@ -75,7 +76,7 @@ namespace hpp {
       Configuration_t q1 (path->outputSize ()),
                       q2 (path->outputSize ());
 
-      while (!finished) {
+      while (!finished && projectionError != 0) {
 	t3 = tmpPath->timeRange ().second;
 	value_type u2 = t3 * rand ()/RAND_MAX;
 	value_type u1 = t3 * rand ()/RAND_MAX;
@@ -84,10 +85,14 @@ namespace hpp {
 	if (!(*tmpPath) (q1, t1)) {
           hppDout (error, "Configuration at param " << t1 << " could not be "
               "projected");
+          projectionError--;
+          continue;
         }
 	if (!(*tmpPath) (q2, t2)) {
           hppDout (error, "Configuration at param " << t1 << " could not be "
               "projected");
+          projectionError--;
+          continue;
         }
 	// Validate sub parts
 	bool valid [3];
@@ -107,24 +112,32 @@ namespace hpp {
 	// Replace valid parts
 	result = PathVector::create (path->outputSize (),
 				     path->outputDerivativeSize ());
-	if (valid [0])
-	  result->appendPath (straight [0]);
-	else
-	  result->concatenate (*(tmpPath->extract
-				 (make_pair <value_type,value_type> (0, t1))->
-				 as <PathVector> ()));
-	if (valid [1])
-	  result->appendPath (straight [1]);
-	else
-	  result->concatenate (*(tmpPath->extract
-				 (make_pair <value_type,value_type> (t1, t2))->
-				 as <PathVector> ()));
-	if (valid [2])
-	  result->appendPath (straight [2]);
-	else
-	  result->concatenate (*(tmpPath->extract
-				(make_pair <value_type, value_type> (t2, t3))->
-				 as <PathVector> ()));
+        try {
+          if (valid [0])
+            result->appendPath (straight [0]);
+          else
+            result->concatenate (*(tmpPath->extract
+                  (make_pair <value_type,value_type> (0, t1))->
+                  as <PathVector> ()));
+          if (valid [1])
+            result->appendPath (straight [1]);
+          else
+            result->concatenate (*(tmpPath->extract
+                  (make_pair <value_type,value_type> (t1, t2))->
+                  as <PathVector> ()));
+          if (valid [2])
+            result->appendPath (straight [2]);
+          else
+            result->concatenate (*(tmpPath->extract
+                  (make_pair <value_type, value_type> (t2, t3))->
+                  as <PathVector> ()));
+        } catch (const projection_error& e) {
+          hppDout (error, "Caught exception at with time " << t1 << " and " <<
+              t2 << ": " << e.what ());
+          projectionError--;
+          result = tmpPath;
+          continue;
+        }
 	length.push_back (pathLength (result, problem ().distance ()));
 	length.pop_front ();
 	finished = (length [0] <= length [n-1]);
