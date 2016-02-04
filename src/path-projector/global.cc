@@ -91,6 +91,7 @@ namespace hpp {
         Bools_t projected (cfgs.size () - 2, false);
         Alphas_t alphas   (cfgs.size () - 2, alphaMin);
         Lengths_t lengths (cfgs.size () - 1, 0);
+        Configs_t::iterator last = --(cfgs.end());
 
         std::size_t nbIter = 0;
         const std::size_t maxIter = p.maxIterations ();
@@ -98,15 +99,19 @@ namespace hpp {
           2 + (std::size_t)(10 * path->length() / step_);
 
         hppDout (info, "start with " << cfgs.size () << " configs");
-        while (!projectOneStep (p, cfgs, projected, lengths, alphas)) {
+        while (!projectOneStep (p, cfgs, last, projected, lengths, alphas)) {
           assert ((cfgs.back () - path->end ()).isZero ());
           if (cfgs.size() < maxCfgNum) {
-            const std::size_t newCs =
-              reinterpolate (p.robot(), cfgs, projected, lengths, alphas,
+            const size_type newCs =
+              reinterpolate (p.robot(), cfgs, last, projected, lengths, alphas,
                   step_);
             if (newCs > 0) {
               nbIter = 0;
-              hppDout (info, "Added " << newCs << " configs");
+              hppDout (info, "Added " << newCs << " configs. Cur / Max = "
+                  << cfgs.size() << '/' << maxCfgNum);
+            } else if (newCs < 0) {
+              hppDout (info, "Removed " << -newCs << " configs. Cur / Max = "
+                  << cfgs.size() << '/' << maxCfgNum);
             }
           }
 
@@ -121,8 +126,8 @@ namespace hpp {
       }
 
       bool Global::projectOneStep (ConfigProjector& p,
-          Configs_t& q, Bools_t& b, Lengths_t& l,
-          Alphas_t& a) const
+          Configs_t& q, Configs_t::iterator& last,
+          Bools_t& b, Lengths_t& l, Alphas_t& a) const
       {
         /// First and last should not be updated
         const Configs_t::iterator begin = ++(q.begin ());
@@ -133,19 +138,60 @@ namespace hpp {
         Configs_t::iterator itCp  =   (q.begin ());
         bool allAreSatisfied = true;
         bool curUpdated = false, prevUpdated = false;
+        /// Eigen matrices storage order defaults to column major.
+        Eigen::Matrix <value_type, Eigen::Dynamic, 2>
+          oldQ (p.robot()->configSize(),2);
         Eigen::Matrix <value_type, Eigen::Dynamic, 2>
           dq (p.robot()->numberDof(),2);
         dq.setZero();
+        vector_t qMinusQPrev (p.robot()->numberDof());
         size_type iCol = 0;
         size_type iNCol = (iCol+1)%2;
-        for (Configs_t::iterator it = begin; it != end; ++it) {
+        for (Configs_t::iterator it = begin; it != last; ++it) {
           if (!*itB) {
+            oldQ.col(iCol) = *it;
             *itB = p.oneStep (*it, dq.col(iCol),*itA);
             *itA = alphaMax - 0.8 * (alphaMax - *itA);
             allAreSatisfied = allAreSatisfied && *itB;
             curUpdated = true;
+            if (prevUpdated) {
+
+              /// Detect large increase in size
+              hpp::model::difference (p.robot(), oldQ.col(iCol), oldQ.col(iNCol), qMinusQPrev);
+              const vector_t deltaDQ = dq.col(iCol) - dq.col(iNCol);
+              const value_type N2 = qMinusQPrev.squaredNorm();
+              if (sqrt(N2) < Eigen::NumTraits<value_type>::dummy_precision ()) {
+                hppDout (error, "The two config should be removed:"
+                    << "\noldQ = " << oldQ.transpose()
+                    << "\nqMinusQPrev = " << qMinusQPrev.transpose()
+                    << "\nDistance is " << d (oldQ.col(iCol), oldQ.col(iNCol))
+                    << "\nand in mem  " << *itL
+                    );
+              } else {
+                const value_type alphaSquare = 1 - 2 * qMinusQPrev.dot(deltaDQ) / N2 + qMinusQPrev.squaredNorm() / N2;
+                // alpha > 4 => the distance between the two points has been
+                // mutiplied by more than 4.
+                if (alphaSquare > 16) {
+                  hppDout (error, "alpha^2 = " << alphaSquare
+                      << "\nqMinusQPrev = " << qMinusQPrev.transpose()
+                      << "\ndeltaDQ = " << deltaDQ.transpose());
+                  last = it; --last;
+                  return false;
+                }
+              }
+
+              const value_type limitCos = 0.5;
+              vector_t dots = dq.colwise().normalized ().transpose() * qMinusQPrev.normalized();
+              // Check if both updates are pointing outward
+              if (dots[iCol] > limitCos && dots[iNCol] < - limitCos) {
+                hppDout (error, "Descent step is going in opposite direction: "
+                    << dots << ". It is likely a discontinuity.");
+                  last = it; --last;
+                  return false;
+              }
               iNCol = iCol;
               iCol = (iCol+1)%2;
+            }
           }
           if (prevUpdated || curUpdated)
             *itL = d (*itCp, *it);
@@ -160,19 +206,20 @@ namespace hpp {
         return allAreSatisfied;
       }
 
-      std::size_t Global::reinterpolate (const DevicePtr_t& robot,
-          Configs_t& q, Bools_t& b, Lengths_t& l, Alphas_t& a,
+      size_type Global::reinterpolate (const DevicePtr_t& robot,
+          Configs_t& q, const Configs_t::iterator& last,
+          Bools_t& b, Lengths_t& l, Alphas_t& a,
           const value_type& maxDist) const
       {
         Configs_t::iterator begin = ++(q.begin ());
-        Configs_t::iterator end   =   (q.end ());
+        Configs_t::iterator end   = last; ++end;
         Bools_t  ::iterator itB   =   (b.begin ());
         Alphas_t ::iterator itA   =   (a.begin ());
         Lengths_t::iterator itL   =   (l.begin ());
         Configs_t::iterator itCp  =   (q.begin ());
         Configuration_t newQ (robot->configSize ());
-        std::size_t nbNewC = 0;
-        for (Configs_t::iterator it = begin; it != end; ++it) {
+        size_type nbNewC = 0;
+        for (Configs_t::iterator it = begin; it != last; ++it) {
           if (*itL > maxDist) {
             ++nbNewC;
             hpp::model::interpolate (robot, *itCp, *it, 0.5, newQ);
@@ -190,6 +237,21 @@ namespace hpp {
             end = q.end();
             it = itCp;
             continue;
+          } else if (*itL < maxDist * 1e-2) {
+            nbNewC--;
+            hppDout (warning, "Removing configuration: " << it->transpose()
+                << "\nToo close to: " << itCp->transpose()
+                );
+            // The distance to the previous point is very small.
+            // This point can safely be removed.
+            it  = q.erase (it);
+            itB = b.erase (itB);
+            itA = a.erase (itA);
+            itL = l.erase (itL);
+            // Update length
+            *itL = d (*itCp, *it);
+            it = itCp;
+            continue;
           }
           ++itCp;
           ++itB;
@@ -200,7 +262,8 @@ namespace hpp {
       }
 
       bool Global::createPath (const DevicePtr_t& robot,
-          const ConstraintSetPtr_t& constraint, const Configs_t& q,
+          const ConstraintSetPtr_t& constraint,
+          const Configs_t& q, const Configs_t::iterator&,
           const Bools_t& b, const Lengths_t& l, PathPtr_t& result) const
       {
         /// Compute total length

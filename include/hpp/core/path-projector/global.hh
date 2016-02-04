@@ -57,17 +57,19 @@ namespace hpp {
           typedef std::vector <bool> Bools_t;
 
           bool projectOneStep (ConfigProjector& p,
-              Configs_t& q, Bools_t& b, Lengths_t& l,
-              Alphas_t& alpha) const;
+              Configs_t& q, Configs_t::iterator& last,
+              Bools_t& b, Lengths_t& l, Alphas_t& alpha) const;
 
           /// Returns the number of new points
-          std::size_t reinterpolate (const DevicePtr_t& robot,
-              Configs_t& q, Bools_t& b, Lengths_t& l, Alphas_t& alpha,
+          size_type reinterpolate (const DevicePtr_t& robot,
+              Configs_t& q, const Configs_t::iterator& last,
+              Bools_t& b, Lengths_t& l, Alphas_t& alpha,
               const value_type& maxDist) const;
 
           bool createPath (const DevicePtr_t& robot,
               const ConstraintSetPtr_t& constraint,
-              const Configs_t& q, const Bools_t& b, const Lengths_t& l,
+              const Configs_t& q, const Configs_t::iterator& last,
+              const Bools_t& b, const Lengths_t& l,
               PathPtr_t& result) const;
 
           bool project (const PathPtr_t& path, PathPtr_t& projection) const;
