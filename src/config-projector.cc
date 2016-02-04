@@ -571,11 +571,11 @@ namespace hpp {
     }
 
     bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
-        const value_type& alpha)
+        vectorOut_t dq, const value_type& alpha)
     {
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
-      computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
-      model::integrate (robot_, configuration, dq_, configuration);
+      computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq);
+      model::integrate (robot_, configuration, dq, configuration);
       return isSatisfied (configuration);
     }
 

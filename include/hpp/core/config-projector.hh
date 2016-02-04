@@ -155,7 +155,8 @@ namespace hpp {
 
       /// Execute one iteration of the projection algorithm
       /// \return true if the constraints are satisfied
-      bool oneStep (ConfigurationOut_t config, const value_type& alpha);
+      bool oneStep (ConfigurationOut_t config, vectorOut_t dq,
+          const value_type& alpha);
 
       /// Linearization of the system of equations
       /// rhs - v_{i} = J (q_i) (dq_{i+1} - q_{i})

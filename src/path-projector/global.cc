@@ -133,12 +133,19 @@ namespace hpp {
         Configs_t::iterator itCp  =   (q.begin ());
         bool allAreSatisfied = true;
         bool curUpdated = false, prevUpdated = false;
+        Eigen::Matrix <value_type, Eigen::Dynamic, 2>
+          dq (p.robot()->numberDof(),2);
+        dq.setZero();
+        size_type iCol = 0;
+        size_type iNCol = (iCol+1)%2;
         for (Configs_t::iterator it = begin; it != end; ++it) {
           if (!*itB) {
-            *itB = p.oneStep (*it, *itA);
+            *itB = p.oneStep (*it, dq.col(iCol),*itA);
             *itA = alphaMax - 0.8 * (alphaMax - *itA);
             allAreSatisfied = allAreSatisfied && *itB;
             curUpdated = true;
+              iNCol = iCol;
+              iCol = (iCol+1)%2;
           }
           if (prevUpdated || curUpdated)
             *itL = d (*itCp, *it);
