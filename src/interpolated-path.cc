@@ -109,12 +109,11 @@ namespace hpp {
 				     value_type param) const
     {
       assert (param >= timeRange().first);
-      assert (param <= timeRange().second);
       if (param == timeRange ().first || timeRange ().second == 0) {
 	result.noalias () = initial();
 	return true;
       }
-      if (param == timeRange ().second) {
+      if (param >= timeRange ().second) {
 	result.noalias () = end();
 	return true;
       }
