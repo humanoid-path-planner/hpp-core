@@ -81,13 +81,13 @@ namespace hpp {
         return target_;
       }
       /// Get number of goal configuration.
-      /// \deprecated use target ()
+      /// \deprecated use Problem::target
       const Configurations_t& goalConfigs () const HPP_CORE_DEPRECATED;
       /// Add goal configuration.
-      /// \deprecated use target ()
+      /// \deprecated use Problem::target
       void addGoalConfig (const ConfigurationPtr_t& config) HPP_CORE_DEPRECATED;
       /// Reset the set of goal configurations
-      /// \deprecated use target ()
+      /// \deprecated use Problem::target
       void resetGoalConfigs () HPP_CORE_DEPRECATED;
 
       /// \}
