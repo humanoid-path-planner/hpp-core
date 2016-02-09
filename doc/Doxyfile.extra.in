@@ -1,5 +1,6 @@
 INPUT = @CMAKE_SOURCE_DIR@/include \
-      @CMAKE_SOURCE_DIR@/doc
+      @CMAKE_SOURCE_DIR@/doc \
+      @CMAKE_SOURCE_DIR@/src/continuous-collision-checking/progressive/body-pair-collision.hh
 
 TAGFILES          = @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag=@HPP_MODEL_DOXYGENDOCDIR@ \
 		  @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag=@HPP_CONSTRAINTS_DOXYGENDOCDIR@

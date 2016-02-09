@@ -159,8 +159,6 @@ namespace hpp {
 	    return true;
 	  }
 	}
-	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
-	  (StraightPath, path);
 	// for each BodyPairCollision
 	//   - set path,
 	//   - compute valid interval at start (end if reverse)
@@ -168,7 +166,7 @@ namespace hpp {
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  (*itPair)->path (straightPath, reverse);
+	  (*itPair)->path (path, reverse);
 	}
 	if (reverse) {
 	  value_type tmin = path->timeRange ().first;
@@ -270,8 +268,6 @@ namespace hpp {
 	    return true;
 	  }
 	}
-	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
-	  (StraightPath, path);
 	// for each BodyPairCollision
 	//   - set path,
 	//   - compute valid interval at start (end if reverse)
@@ -279,7 +275,7 @@ namespace hpp {
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  (*itPair)->path (straightPath, reverse);
+	  (*itPair)->path (path, reverse);
 	}
 	if (reverse) {
 	  value_type tmin = path->timeRange ().first;
