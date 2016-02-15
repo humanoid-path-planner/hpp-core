@@ -114,7 +114,8 @@ namespace hpp {
       dq_ (cp.dq_.size ()), dqSmall_ (cp.dqSmall_.size ()),
       nbNonLockedDofs_ (cp.nbNonLockedDofs_), nbLockedDofs_ (cp.nbLockedDofs_),
       squareNorm_ (cp.squareNorm_),
-      explicitComputation_ (cp.explicitComputation_), weak_ ()
+      explicitComputation_ (cp.explicitComputation_), weak_ (),
+      statistics_ (cp.statistics_)
     {
       dq_.setZero ();
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
