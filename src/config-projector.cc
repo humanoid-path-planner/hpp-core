@@ -31,7 +31,7 @@
 #include <hpp/core/explicit-numerical-constraint.hh>
 
 // #define SVD_THRESHOLD Eigen::NumTraits<value_type>::dummy_precision()
-#define SVD_THRESHOLD 1e-5
+#define SVD_THRESHOLD 1e-8
 
 namespace hpp {
   namespace core {
@@ -170,14 +170,21 @@ namespace hpp {
       functions_.push_back (nm);
       passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
-      if (stack_.size () > 0)
-        stack_.back ().level_ = 1; // General case
-      for (std::size_t i = stack_.size (); i < priority + 1; ++i) {
-        stack_.push_back (PriorityStack (1, nbNonLockedDofs_)); // Middle
+      if (priority >= stack_.size ()) { // If we must add a priority level
+        stack_.front ().level_ = 0; // become (or stay) First
+        stack_.back ().level_ = 1; // becomes Middle
+        for (std::size_t i = stack_.size (); i < priority; ++i) {
+          stack_.push_back (PriorityStack (1, nbNonLockedDofs_)); // Middle
+        }
+        stack_.push_back (PriorityStack (2, nbNonLockedDofs_)); // Last
       }
       if (priority > 0) { // There are more than 2 levels
-        stack_.front ().level_ = 0; // First
-        stack_.back  ().level_ = 2; // Last
+        assert (stack_.front ().level_ == 0);
+        assert (stack_.back ().level_ == 2);
+        // stack_.front ().level_ = 0; // First
+        // stack_.back  ().level_ = 2; // Last
+      } else {
+        assert (stack_.front ().level_ == 3);
       }
       stack_[priority].add (nm, passiveDofs);
       // TODO: no need to recompute intervals.
