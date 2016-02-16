@@ -673,6 +673,7 @@ namespace hpp {
 
     void ConfigProjector::add (const LockedJointPtr_t& lockedJoint)
     {
+      if (lockedJoint->numberDof () == 0) return;
       // If the same dof is already locked, replace by new value
       for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
 	   itLock != lockedJoints_.end (); ++itLock) {
