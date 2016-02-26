@@ -34,7 +34,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI PathPlanner {
     public:
       /// Get roadmap
-      const RoadmapPtr_t& roadmap () const;
+      virtual const RoadmapPtr_t& roadmap () const;
       /// Get problem
       const Problem& problem () const;
       /// Initialize the problem resolution
