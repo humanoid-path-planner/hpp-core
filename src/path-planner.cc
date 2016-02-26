@@ -64,12 +64,12 @@ namespace hpp {
     {
       problem_.checkProblem ();
       // Tag init and goal configurations in the roadmap
-      roadmap_->resetGoalNodes ();
-      roadmap_->initNode (problem_.initConfig ());
+      roadmap()->resetGoalNodes ();
+      roadmap()->initNode (problem_.initConfig ());
       const Configurations_t goals (problem_.goalConfigs ());
       for (Configurations_t::const_iterator itGoal = goals.begin ();
 	   itGoal != goals.end (); ++itGoal) {
-	roadmap_->addGoalNode (*itGoal);
+       roadmap()->addGoalNode (*itGoal);
       }
     }
 
@@ -79,14 +79,14 @@ namespace hpp {
       bool solved = false;
       startSolve ();
       tryDirectPath ();
-      solved = roadmap_->pathExists ();
+      solved = roadmap()->pathExists ();
       if (solved ) {
 	hppDout (info, "tryDirectPath succeeded");
       }
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
 	oneStep ();
-	solved = roadmap_->pathExists ();
+       solved = roadmap()->pathExists ();
 	if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
@@ -100,7 +100,7 @@ namespace hpp {
 
     PathVectorPtr_t PathPlanner::computePath () const
     {
-      Astar astar (roadmap_, problem_.distance ());
+      Astar astar (roadmap(), problem_.distance ());
       return astar.solution ();
     }
 
