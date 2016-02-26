@@ -370,6 +370,7 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner =
         get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
+      roadmap_ = pathPlanner_->roadmap();
       /// create Path projector
       PathProjectorBuilder_t createProjector =
         get <PathProjectorBuilder_t> (pathProjectorType_);
