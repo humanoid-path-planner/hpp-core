@@ -84,8 +84,8 @@ namespace hpp {
       fcl::CollisionRequest collisionRequest_;
     protected:
       CollisionValidation (const DevicePtr_t& robot);
-    private:
       DevicePtr_t robot_;
+    private:
       CollisionPairs_t collisionPairs_;
       /// This member is used by the validate method that does not take a
       /// validation report as input to call the validate method that expects
