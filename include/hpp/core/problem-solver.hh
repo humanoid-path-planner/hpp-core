@@ -55,13 +55,14 @@ namespace hpp {
     /// hpp-core library and component to be running in a middleware
     /// like CORBA or ROS.
     class HPP_CORE_DLLAPI ProblemSolver :
-      public Container <PathPlannerBuilder_t>,
-      public Container <PathOptimizerBuilder_t>,
-      public Container <PathValidationBuilder_t>,
-      public Container <PathProjectorBuilder_t>,
-      public Container <ConfigurationShooterBuilder_t>,
-      public Container <NumericalConstraintPtr_t>,
-      public Container <SteeringMethodBuilder_t>
+      public Containers <
+        boost::mpl::vector < PathPlannerBuilder_t,
+                             PathOptimizerBuilder_t,
+                             PathValidationBuilder_t,
+                             PathProjectorBuilder_t,
+                             ConfigurationShooterBuilder_t,
+                             NumericalConstraintPtr_t,
+                             SteeringMethodBuilder_t> >
     {
     public:
 
@@ -172,34 +173,6 @@ namespace hpp {
       {
         add (type, builder);
       }
-
-      /// Add an element to a container
-      template <typename Element>
-        void add (const std::string& name, const Element& element)
-        {
-          Container <Element>::add (name, element);
-        }
-
-      /// Check if a Container has a key.
-      template <typename Element>
-        bool has (const std::string& name) const
-        {
-          return Container <Element>::has (name);
-        }
-
-      /// Get an element of a container
-      template <typename Element>
-        const Element& get (const std::string& name) const
-        {
-          return Container <Element>::get (name);
-        }
-
-      /// Get keys of a container
-      template <typename Element, typename ReturnType>
-        ReturnType getKeys () const
-        {
-          return Container <Element>::template getKeys <ReturnType> ();
-        }
 
       /// Optimize path
       ///
