@@ -133,8 +133,11 @@ namespace hpp {
       }
       hppDout (info, "RandomShortcut:" << *result);
       for (std::size_t i = 0; i < result->numberPaths (); ++i) {
-        hppDout (info, "At rank " << i << ", constraints are " <<
-            *result->pathAtRank(i)->constraints());
+        if (result->pathAtRank(i)->constraints())
+          hppDout (info, "At rank " << i << ", constraints are " <<
+              *result->pathAtRank(i)->constraints());
+        else
+          hppDout (info, "At rank " << i << ", no constraints");
       }
       return result;
     }

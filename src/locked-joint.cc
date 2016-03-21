@@ -16,6 +16,8 @@
 
 #include "hpp/core/locked-joint.hh"
 
+#include <sstream>
+
 #include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
@@ -23,6 +25,13 @@
 
 namespace hpp {
   namespace core {
+    namespace {
+        template <typename T>
+	std::string numToStr (const T& v) {
+ 	  std::stringstream ss; ss<<v; return ss.str ();
+	}
+    }
+
     /// Copy object and return shared pointer to copy
     EquationPtr_t LockedJoint::copy () const
     {
@@ -38,6 +47,14 @@ namespace hpp {
       return shPtr;
     }
 
+    LockedJointPtr_t LockedJoint::create (const DevicePtr_t& dev,
+        const size_type index, vectorIn_t value)
+    {
+      LockedJoint* ptr = new LockedJoint (dev, index, value);
+      LockedJointPtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
 
     LockedJointPtr_t LockedJoint::createCopy (LockedJointConstPtr_t other)
     {
@@ -115,6 +132,22 @@ namespace hpp {
     {
       rightHandSide (value);
       assert (rhsSize () == joint->configSize ());
+    }
+
+    LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
+        vectorIn_t value) :
+      Equation (Equality::create (), vector_t::Zero (value.size())),
+      jointName_ (dev->name() + "_extraDof" + numToStr (index)),
+      rankInConfiguration_
+      (dev->configSize () - dev->extraConfigSpace().dimension() + index),
+      rankInVelocity_
+      (dev->numberDof ()  - dev->extraConfigSpace().dimension() + index),
+      numberDof_ (value.size())
+    {
+      assert (value.size() > 0);
+      assert (rankInConfiguration_ + value.size() <= dev->configSize());
+      rightHandSide (value);
+      assert (rhsSize () == value.size());
     }
 
     void LockedJoint::init (const LockedJointPtr_t& self)

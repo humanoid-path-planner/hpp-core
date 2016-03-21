@@ -15,6 +15,9 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#ifndef HPP_CORE_PROJECTION_ERROR_HH
+#define HPP_CORE_PROJECTION_ERROR_HH
+
 #include <exception>
 
 namespace hpp {
@@ -36,3 +39,5 @@ namespace hpp {
     };
   } // namespace core
 } // namespace hpp
+
+#endif // HPP_CORE_PROJECTION_ERROR_HH

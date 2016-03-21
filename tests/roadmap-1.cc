@@ -23,10 +23,12 @@
 #include <hpp/model/joint.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/weighed-distance.hh>
 #include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
+#include <hpp/core/nearest-neighbor.hh>
 #include <hpp/model/joint-configuration.hh>
 
 #include <hpp/core/steering-method-straight.hh>
@@ -41,6 +43,7 @@ using hpp::model::JointPtr_t;
 using hpp::model::Device;
 using hpp::model::DevicePtr_t;
 using hpp::model::JointTranslation;
+using hpp::core::Problem;
 using hpp::core::SteeringMethodStraight;
 using hpp::core::SteeringMethodStraightPtr_t;
 using hpp::core::RoadmapPtr_t;
@@ -76,7 +79,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   xJoint->addChildJoint (yJoint);
 
   // Create steering method
-  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (robot);
+  Problem p = Problem (robot);
+  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::create
 				     (robot, boost::assign::list_of (1)(1)));
@@ -280,6 +284,95 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   BOOST_CHECK (r->pathExists ());
   std::cout << *r << std::endl;
 
+}
+
+BOOST_AUTO_TEST_CASE (nearestNeighbor) {
+  // Build robot
+  DevicePtr_t robot = Device::create("robot");
+  JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
+  xJoint->isBounded(0,1);
+  xJoint->lowerBound(0,-3.);
+  xJoint->upperBound(0,3.);
+  JointPtr_t yJoint = new JointTranslation <1>
+    (fcl::Transform3f(fcl::Quaternion3f (sqrt (2)/2, 0, 0, sqrt(2)/2)));
+  yJoint->isBounded(0,1);
+  yJoint->lowerBound(0,-3.);
+  yJoint->upperBound(0,3.);
+
+  robot->rootJoint (xJoint);
+  xJoint->addChildJoint (yJoint);
+
+  // Create steering method
+  Problem p (robot);
+  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
+  // create roadmap
+  hpp::core::DistancePtr_t distance (WeighedDistance::create
+				     (robot, boost::assign::list_of (1)(1)));
+  RoadmapPtr_t r = Roadmap::create (distance, robot);
+
+  std::vector <NodePtr_t> nodes;
+
+  // nodes [0]
+  ConfigurationPtr_t q (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0; (*q) [1] = 0;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [1]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 1; (*q) [1] = 0;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [2]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0.5; (*q) [1] = 0.9;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [3]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = -0.1; (*q) [1] = -0.9;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [4]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 1.5; (*q) [1] = 2.9;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [5]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 2.5; (*q) [1] = 2.9;
+  nodes.push_back (r->addNode (q));
+  r->addGoalNode (nodes [5]->configuration ());
+
+  // nodes [6]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0; (*q) [1] = 0.2;
+  nodes.push_back (r->addNode (q));
+  r->addGoalNode (nodes [6]->configuration ());
+
+  // 0 -> 1
+  addEdge (r, *sm, nodes, 0, 1);
+  // 1 -> 0
+  addEdge (r, *sm, nodes, 1, 0);
+  // 1 -> 2
+  addEdge (r, *sm, nodes, 1, 2);
+  // 2 -> 0
+  addEdge (r, *sm, nodes, 2, 0);
+  // 0 -> 3
+  addEdge (r, *sm, nodes, 0, 3);
+  // 3 -> 2
+  addEdge (r, *sm, nodes, 3, 2);
+
+  hpp::model::value_type dist;
+  using hpp::core::Nodes_t;
+  Nodes_t knearest = r->nearestNeighbor()->KnearestSearch
+    (nodes[0]->configuration(), nodes[0]->connectedComponent (), 3, dist);
+  for (Nodes_t::const_iterator it = knearest.begin (); it != knearest.end(); ++it) {
+    BOOST_MESSAGE ("q = [" << (*it)->configuration()->transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), *(*it)->configuration()));
+  }
+  for (std::vector<NodePtr_t>::const_iterator it = nodes.begin (); it != nodes.end(); ++it) {
+    Configuration_t& q = *(*it)->configuration();
+    BOOST_MESSAGE ("[" << q.transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), q));
+  }
 }
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -46,10 +46,14 @@ namespace hpp {
     void Equation::comparisonType (const ComparisonTypePtr_t& comp)
     {
       comparison_ = comp;
+      if (comparison_->constantRightHandSide ())
+        rhs_ = vector_t ();
+      else
+        rhs_ = vector_t::Zero (rhsRealSize_);
     }
 
     Equation::Equation (const ComparisonTypePtr_t& comp, vectorIn_t rhs) :
-      comparison_ (comp), rhs_ (rhs)
+      comparison_ (comp), rhs_ (rhs), rhsRealSize_ (rhs.size())
     {
       if (comparison_->constantRightHandSide ())
         rhs_ = vector_t ();

@@ -99,6 +99,22 @@ namespace hpp {
       return inEdges_;
     }
 
+    bool Node::isOutNeighbor (const NodePtr_t& n) const
+    {
+      for (Edges_t::const_iterator it=outEdges_.begin (); it != outEdges_.end ();
+	   ++it)
+	if ((*it)->to () == n) return true;
+      return false;
+    }
+
+    bool Node::isInNeighbor (const NodePtr_t& n) const
+    {
+      for (Edges_t::const_iterator it=inEdges_.begin (); it != inEdges_.end ();
+	   ++it)
+	if ((*it)->from () == n) return true;
+      return false;
+    }
+
     ConfigurationPtr_t Node::configuration () const
     {
       return configuration_;

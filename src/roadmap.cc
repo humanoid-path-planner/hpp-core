@@ -133,12 +133,12 @@ namespace hpp {
 			    const PathPtr_t& path)
     {
       EdgePtr_t edge = new Edge (from, to, path);
-      from->addOutEdge (edge);
-      to->addInEdge (edge);
+      if (!from->isOutNeighbor (to)) from->addOutEdge (edge);
+      if (!to->isInNeighbor  (from)) to->addInEdge (edge);
       edges_.push_back (edge);
       edge = new Edge (to, from, path->reverse ());
-      from->addInEdge (edge);
-      to->addOutEdge (edge);
+      if (!from->isInNeighbor  (to)) from->addInEdge (edge);
+      if (!to->isOutNeighbor (from)) to->addOutEdge (edge);
       edges_.push_back (edge);
     }
 
@@ -198,8 +198,8 @@ namespace hpp {
 				const PathPtr_t& path)
     {
       EdgePtr_t edge = new Edge (n1, n2, path);
-      n1->addOutEdge (edge);
-      n2->addInEdge (edge);
+      if (!n1->isOutNeighbor (n2)) n1->addOutEdge (edge);
+      if (!n2->isInNeighbor  (n1)) n2->addInEdge (edge);
       edges_.push_back (edge);
 
       ConnectedComponentPtr_t cc1 = n1->connectedComponent ();

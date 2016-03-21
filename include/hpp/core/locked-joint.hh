@@ -42,6 +42,14 @@ namespace hpp {
       static LockedJointPtr_t create (const JointPtr_t& joint,
 				      vectorIn_t value);
 
+      /// Return shared pointer to new object
+      /// \param robot robot
+      /// \param index index of the extra DOF that is locked,
+      /// \param value of the constant joint config,
+      static LockedJointPtr_t create (const DevicePtr_t& dev,
+                                      const size_type index,
+				      vectorIn_t value);
+
       /// Return shared pointer to copy
       /// \param other instance to copy.
       static LockedJointPtr_t createCopy (LockedJointConstPtr_t other);
@@ -88,6 +96,9 @@ namespace hpp {
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
       LockedJoint (const JointPtr_t& joint, vectorIn_t value);
+      /// Constructor
+      LockedJoint (const DevicePtr_t& dev, const size_type index,
+          vectorIn_t value);
       /// Copy constructor
       LockedJoint (const LockedJoint& other);
 

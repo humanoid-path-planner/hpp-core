@@ -53,6 +53,15 @@ namespace hpp {
       const Edges_t& outEdges () const;
       /// Access to inEdges
       const Edges_t& inEdges () const;
+      /// Check whether otherNode is an out-neighbor of this node.
+      /// Node B is an out-neighbor of node A if node A has an outgoing edge
+      /// going to B.
+      bool isOutNeighbor (const NodePtr_t& n) const;
+      /// Check whether otherNode is an in-neighbor of this node.
+      /// Node B is an in-neighbor of node A if node A has an ingoing edge
+      /// going to B.
+      bool isInNeighbor (const NodePtr_t& n) const;
+
       ConfigurationPtr_t configuration () const;
       /// Print node in a stream
       std::ostream& print (std::ostream& os) const;

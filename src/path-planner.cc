@@ -144,6 +144,5 @@ namespace hpp {
         }
       }
     }
-
   } //   namespace core
 } // namespace hpp

@@ -84,7 +84,8 @@ namespace hpp {
 	  ConfigurationPtr_t qCC = (*n_it)->configuration ();
 	  PathPtr_t path = (*sm) (*q, *qCC);
 	  PathValidationReportPtr_t report;
-	  if (pathValidation->validate (path, false, validPart, report)){
+	  if (path && pathValidation->validate (path, false, validPart,
+						report)){
 	    // q and qCC see each other
 	    if (path->length () < length) {
 	      length = path->length ();

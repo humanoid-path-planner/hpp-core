@@ -176,6 +176,7 @@ namespace hpp {
 	  value_type lastValidTime = tmax;
 	  value_type t = tmax;
 	  unsigned finished = 0;
+          if (t <= tmin) finished++;
 	  while (finished < 2 && valid) {
 	    Configuration_t q = (*path) (t);
 	    value_type tprev = t;
@@ -316,6 +317,7 @@ namespace hpp {
 	  value_type t = tmin;
 	  unsigned finished = 0;
           Configuration_t q (path->outputSize ());
+          if (t >= tmax) finished++;
 	  while (finished < 2 && valid) {
 	    bool success = (*path) (q, t);
 	    value_type tprev = t;

@@ -19,9 +19,7 @@
 #ifndef HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH
 # define HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH
 
-# include <limits>
 # include <hpp/core/fwd.hh>
-# include <hpp/core/distance.hh>
 # include <hpp/core/nearest-neighbor.hh>
 
 namespace hpp {
@@ -48,26 +46,27 @@ namespace hpp {
       {
       }
 
+      virtual NodePtr_t search (const NodePtr_t& node,
+			       const ConnectedComponentPtr_t&
+				connectedComponent,
+			       value_type& distance);
+
       virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
 			       const ConnectedComponentPtr_t&
 				connectedComponent,
-			       value_type& distance)
-      {
-	NodePtr_t result = NULL;
-	distance = std::numeric_limits <value_type>::infinity ();
-	for (Nodes_t::const_iterator itNode =
-	       connectedComponent->nodes ().begin ();
-	     itNode != connectedComponent->nodes ().end (); ++itNode) {
-	  value_type d = (*distance_) (*(*itNode)->configuration (),
-				       *configuration);
-	  if (d < distance) {
-	    distance = d;
-	    result = *itNode;
-	  }
-	}
-	assert (result);
-	return result;
-      }
+			       value_type& distance);
+
+      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+                                      const ConnectedComponentPtr_t&
+                                        connectedComponent,
+                                      const std::size_t K,
+                                      value_type& distance);
+
+      virtual Nodes_t KnearestSearch (const NodePtr_t& node,
+                                      const ConnectedComponentPtr_t&
+                                        connectedComponent,
+                                      const std::size_t K,
+                                      value_type& distance);
 
       virtual void merge (ConnectedComponentPtr_t, ConnectedComponentPtr_t)
       {
