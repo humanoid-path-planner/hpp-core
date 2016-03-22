@@ -27,6 +27,8 @@
 # include <boost/mpl/inherit.hpp>
 # include <boost/mpl/vector.hpp>
 # include <boost/mpl/for_each.hpp>
+# include <boost/type_traits/is_pointer.hpp>
+# include <boost/type_traits/remove_pointer.hpp>
 
 # include <hpp/core/config.hh>
 
@@ -34,6 +36,19 @@ namespace hpp {
   namespace core {
     /// @cond INTERNAL
     namespace internal {
+      template <typename T> struct is_pointer : boost::is_pointer<T> {};
+      template <typename T> struct is_pointer<boost::shared_ptr<T> > : boost::true_type {};
+      template <typename T> struct remove_pointer : boost::remove_pointer<T> {};
+      template <typename T> struct remove_pointer<boost::shared_ptr<T> > { typedef T type; };
+      template <typename T> struct remove_pointer<const boost::shared_ptr<T> > { typedef T type; };
+
+      template <bool deref_ptr> struct deref {
+        template <typename T> static inline T get (T t) { return t; }
+      };
+      template <> struct deref <true> {
+        template <typename T> static inline typename remove_pointer<T>::type get (T t) { return *t; }
+      };
+
       template <typename Key, typename Type>
         struct field
         {
@@ -46,8 +61,7 @@ namespace hpp {
               for (typename Map_t::const_iterator
                   it = map.begin (); it != map.end (); ++it)
               {
-                if (deref_ptr) os << it->first << " : " << *it->second << std::endl;
-                else           os << it->first << " : " <<  it->second << std::endl;
+                os << it->first << " : " << deref<deref_ptr>::template get<const Type> (it->second) << std::endl;
               }
             }
         };
@@ -160,9 +174,12 @@ namespace hpp {
         }
 
         /// Print object in a stream
+        template <typename Type>
         std::ostream& print (std::ostream& os) const
         {
-          boost::mpl::for_each < Types > (print <false> (os));
+          internal::print< internal::is_pointer<Type>::value > printer (os);
+          printer (*((internal::field<Key, Type> const*)this));
+          // boost::mpl::for_each < Types > (print <false> (os));
           return os;
         }
 
