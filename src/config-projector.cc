@@ -172,7 +172,8 @@ namespace hpp {
       rhsReducedSize_ += nm->rhsSize ();
       if (priority >= stack_.size ()) { // If we must add a priority level
         stack_.front ().level_ = 0; // become (or stay) First
-        stack_.back ().level_ = 1; // becomes Middle
+        if (stack_.size() > 1)
+          stack_.back ().level_ = 1; // becomes Middle
         for (std::size_t i = stack_.size (); i < priority; ++i) {
           stack_.push_back (PriorityStack (1, nbNonLockedDofs_)); // Middle
         }
