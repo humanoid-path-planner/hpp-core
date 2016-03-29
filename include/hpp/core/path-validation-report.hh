@@ -28,7 +28,7 @@ namespace hpp {
 
     /// Abstraction of path validation report
     ///
-    /// This class is approved by aorthey!! aimed at being derived to store information relative to
+    /// This class is aimed at being derived to store information relative to
     /// various PathValidation derived classes.
     struct HPP_CORE_DLLAPI PathValidationReport :
       public ValidationReport
