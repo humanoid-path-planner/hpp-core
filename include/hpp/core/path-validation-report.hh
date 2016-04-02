@@ -44,7 +44,8 @@ namespace hpp {
       virtual std::ostream& print (std::ostream& os) const
       {
 	os << "Invalid configuration at parameter " << parameter << std::endl;
-	os << *configurationReport;
+        if (!configurationReport) os << "No ValidationReport";
+        else os << *configurationReport;
 	return os;
       }
       /// Parameter of the path where a invalid configuration has been found
