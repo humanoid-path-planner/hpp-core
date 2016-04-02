@@ -44,12 +44,13 @@ namespace hpp {
 
     protected:
       /// Whether to interrupt computation
-      /// Set to true at start of optimize method, set to false by method
+      /// Set to false at start of optimize method, set to true by method
       /// interrupt.
       bool interrupt_;
-      PathOptimizer (const Problem& problem) : problem_ (problem)
-	{
-	}
+
+      PathOptimizer (const Problem& problem) :
+        interrupt_ (false), problem_ (problem)
+      {}
 
       PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
