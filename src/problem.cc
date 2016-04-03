@@ -133,6 +133,17 @@ namespace hpp {
 	configValidations_->removeObstacleFromJoint (joint, obstacle);
       }
     }
+    // ======================================================================
+
+    void Problem::filterCollisionPairs ()
+    {
+      if (pathValidation_) {
+	pathValidation_->filterCollisionPairs (constraints_);
+      }
+      if (configValidations_) {
+	configValidations_->filterCollisionPairs (constraints_);
+      }
+    }
 
     // ======================================================================
 

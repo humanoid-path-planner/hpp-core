@@ -484,6 +484,8 @@ namespace hpp {
       void removeObstacleFromJoint (const std::string& jointName,
 				    const std::string& obstacleName);
 
+      void filterCollisionPairs ();
+
       /// Get obstacle by name
       const CollisionObjectPtr_t& obstacle (const std::string& name);
 

@@ -90,6 +90,16 @@ namespace hpp {
       }
     }
 
+    size_type ConfigValidations::filterCollisionPairs (const ConstraintSetPtr_t& c)
+    {
+      size_type ret = 0;
+      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
+	     validations_.begin (); itVal != validations_.end (); ++itVal) {
+	ret += (*itVal)->filterCollisionPairs (c);
+      }
+      return ret;
+    }
+
     ConfigValidations::ConfigValidations () : validations_ ()
     {
     }

@@ -135,6 +135,12 @@ namespace hpp {
       configValidations_->removeObstacleFromJoint (joint, obstacle);
     }
 
+    size_type DiscretizedPathValidation::filterCollisionPairs (
+        const ConstraintSetPtr_t& constraints)
+    {
+      return configValidations_->filterCollisionPairs (constraints);
+    }
+
     DiscretizedPathValidation::DiscretizedPathValidation
     (const DevicePtr_t& robot, const value_type& stepSize) :
       stepSize_ (stepSize), robot_ (robot),

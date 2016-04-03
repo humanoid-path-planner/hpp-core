@@ -23,6 +23,9 @@
 #include <hpp/model/device.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/constraint-set.hh>
+#include <hpp/core/config-projector.hh>
+#include <hpp/core/locked-joint.hh>
 
 namespace hpp {
   namespace core {
@@ -144,9 +147,81 @@ namespace hpp {
       }
     }
 
+    size_type CollisionValidation::filterCollisionPairs (const ConstraintSetPtr_t& c)
+    {
+      ConfigProjectorPtr_t proj = c->configProjector();
+      if (!proj) return 0;
+      const LockedJoints_t& lj = proj->lockedJoints ();
+      // true
+      typedef std::map <std::string, std::size_t> StringIndex_m;
+      typedef std::list<JointPtr_t> Joints_t;
+      typedef std::vector<Joints_t> JointLists_t;
+
+      StringIndex_m nameToIndex;
+      // A vector of (list of sequential locked joints)
+      JointLists_t jls;
+      for (LockedJoints_t::const_iterator it = lj.begin ();
+          it != lj.end (); ++it) {
+        // Extra dofs and partial locked joints
+        JointPtr_t j = robot_->getJointByName ((*it)->jointName());
+        JointPtr_t parent = j->parentJoint ();
+        while (parent != NULL && parent->numberDof() == 0)
+          parent = parent->parentJoint();
+        if (parent == NULL ||
+             nameToIndex.find (parent->name()) == nameToIndex.end()) {
+          // Create a new list
+          nameToIndex[j->name()] = jls.size();
+          Joints_t js;
+          if (parent == NULL) js.push_back (NULL);
+          js.push_back (j);
+          jls.push_back (js);
+        } else {
+          std::size_t i = nameToIndex[parent->name()];
+          jls[i].push_back (j);
+          nameToIndex[j->name()] = i;
+        }
+      }
+      // Build the matrix of joint pairs to be disabled.
+      Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> disable
+        (robot_->numberDof() + 1, robot_->numberDof() + 1);
+      size_type i1, i2;
+      disable.setConstant (false);
+      for (JointLists_t::const_iterator _jls = jls.begin();
+          _jls != jls.end(); ++_jls) {
+        for (Joints_t::const_iterator _js1 = _jls->begin();
+            _js1 != _jls->end(); ++_js1) {
+          for (Joints_t::const_iterator _js2 = _js1;
+              _js2 != _jls->end(); ++_js2) {
+            i1 = ((*_js1 == NULL) ? robot_->numberDof () : (*_js1)->rankInVelocity());
+            i2 = ((*_js2 == NULL) ? robot_->numberDof () : (*_js2)->rankInVelocity());
+            disable(i1, i2) = true;
+            disable(i2, i1) = true;
+          }
+        }
+      }
+      // Loop over collision pairs and remove disabled ones.
+      CollisionPairs_t::iterator _colPairs = collisionPairs_.begin ();
+      size_type ret = 0;
+      while (_colPairs != collisionPairs_.end ()) {
+        i1 = (_colPairs->first ->joint() == NULL) ? robot_->numberDof () : _colPairs->first ->joint()->rankInVelocity();
+        i2 = (_colPairs->second->joint() == NULL) ? robot_->numberDof () : _colPairs->second->joint()->rankInVelocity();
+        if (disable (i1, i2)) {
+          CollisionPair_t pair = *_colPairs;
+          _colPairs = collisionPairs_.erase (_colPairs);
+          disabledPairs_.push_back (pair);
+          ++ret;
+          hppDout(info, "Disabling collision between "
+              << _colPairs->first ->name() << " and "
+              << _colPairs->second->name());
+        } else ++_colPairs;
+      }
+      return ret;
+    }
+
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
       collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
-      robot_ (robot)
+      robot_ (robot),
+      disabledPairs_ ()
     {
       using model::COLLISION;
       typedef hpp::model::Device::CollisionPairs_t JointPairs_t;

@@ -216,6 +216,8 @@ namespace hpp {
       void removeObstacleFromJoint (const JointPtr_t& joint,
 				    const CollisionObjectPtr_t& obstacle);
 
+      void filterCollisionPairs ();
+
       /// Vector of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;
       /// Set the vector of objects considered for collision detection

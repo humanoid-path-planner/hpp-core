@@ -86,6 +86,20 @@ namespace hpp {
 					   const CollisionObjectPtr_t&)
       {
       }
+
+      /// \brief Filter collision pairs.
+      /// Remove pairs of object that cannot be in collision
+      /// when these constraints are statisfied.
+      /// This effectively disables collision detection between objects that
+      /// have no possible relative motion due to the constraints.
+      /// \todo Before disabling collision pair, check if there is a collision.
+      ///
+      /// \param the set of constraints
+      /// \return the number of pairs disabled.
+      virtual size_type filterCollisionPairs (const ConstraintSetPtr_t&)
+      {
+        return 0;
+      }
     protected:
       ConfigValidation ()
       {

@@ -573,6 +573,11 @@ namespace hpp {
       problem ()->removeObstacleFromJoint (joint, object);
     }
 
+    void ProblemSolver::filterCollisionPairs ()
+    {
+      problem()->filterCollisionPairs ();
+    }
+
     const CollisionObjectPtr_t& ProblemSolver::obstacle
     (const std::string& name)
     {

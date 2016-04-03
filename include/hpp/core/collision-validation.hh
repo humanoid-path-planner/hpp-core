@@ -77,6 +77,9 @@ namespace hpp {
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+
+      /// \todo Extra dofs and partial locked joints
+      size_type filterCollisionPairs (const ConstraintSetPtr_t& constraint);
     public:
       /// fcl low level request object used for collision checking.
       /// modify this attribute to obtain more detailed validation
@@ -87,6 +90,7 @@ namespace hpp {
       DevicePtr_t robot_;
     private:
       CollisionPairs_t collisionPairs_;
+      CollisionPairs_t disabledPairs_;
       /// This member is used by the validate method that does not take a
       /// validation report as input to call the validate method that expects
       /// a validation report as input. This is not fully satisfactory, but

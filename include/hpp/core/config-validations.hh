@@ -74,6 +74,8 @@ namespace hpp {
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+
+      size_type filterCollisionPairs (const ConstraintSetPtr_t& c);
     protected:
       ConfigValidations ();
     private:

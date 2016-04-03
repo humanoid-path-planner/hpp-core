@@ -89,6 +89,12 @@ namespace hpp {
 					    const CollisionObjectPtr_t&)
       {
       }
+
+      virtual size_type filterCollisionPairs (const ConstraintSetPtr_t&)
+      {
+        return 0;
+      }
+
     protected:
       PathValidation ()
       {

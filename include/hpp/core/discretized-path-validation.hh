@@ -93,6 +93,8 @@ namespace hpp {
       virtual void removeObstacleFromJoint (const JointPtr_t& joint,
           const CollisionObjectPtr_t& obstacle);
 
+      virtual size_type filterCollisionPairs (const ConstraintSetPtr_t& constraints);
+
     protected:
       DiscretizedPathValidation
   (const DevicePtr_t& robot, const value_type& stepSize);
