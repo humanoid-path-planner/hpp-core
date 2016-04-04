@@ -23,6 +23,7 @@ SET(${LIBRARY_NAME}_SOURCES
   astar.hh
   bi-rrt-planner.cc
   collision-validation.cc
+  relative-motion.cc
   config-projector.cc
   comparison-type.cc
   config-validations.cc

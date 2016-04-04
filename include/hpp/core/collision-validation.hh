@@ -78,7 +78,6 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
 
-      /// \todo Extra dofs and partial locked joints
       size_type filterCollisionPairs (const ConstraintSetPtr_t& constraint);
     public:
       /// fcl low level request object used for collision checking.
