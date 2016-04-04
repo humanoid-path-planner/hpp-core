@@ -20,15 +20,30 @@
 #include <hpp/model/body.hh>
 #include <hpp/model/collision-object.hh>
 #include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/collision-validation-report.hh>
-#include <hpp/core/constraint-set.hh>
-#include <hpp/core/config-projector.hh>
-#include <hpp/core/locked-joint.hh>
+#include <hpp/core/relative-motion.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
+          const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
+        return fcl::collide (
+                    _colPair->first ->fcl ().get (),
+                    _colPair->second->fcl ().get (),
+                    req, res);
+      }
+
+      inline bool collide (const CollisionPairs_t& pairs,
+         const fcl::CollisionRequest& req, fcl::CollisionResult& res,
+         CollisionPairs_t::const_iterator& _col) {
+        for (_col = pairs.begin (); _col != pairs.end (); ++_col)
+          if (collide (_col, req, res) != 0)
+            return true;
+        return false;
+      }
+    }
     using model::displayConfig;
 
     typedef model::JointConfiguration* JointConfigurationPtr_t;
@@ -54,26 +69,26 @@ namespace hpp {
 	static_cast <CollisionValidationReport&> (validationReport);
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
-      bool collision = false;
       fcl::CollisionResult& collisionResult = report.result;
       collisionResult.clear();
-      for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
-	   itCol != collisionPairs_.end (); ++itCol) {
-	if (fcl::collide (itCol->first->fcl ().get (),
-			  itCol->second->fcl ().get (),
-			  collisionRequest_, collisionResult) != 0) {
-	  report.object1 = itCol->first;
-	  report.object2 = itCol->second;
-	  collision = true;
-	  break;
-	}
+      CollisionPairs_t::const_iterator _col;
+      bool collision = (
+        collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+        ||
+        ( checkParameterized_ &&
+          collide (parameterizedPairs_, collisionRequest_, collisionResult, _col))
+        );
+      if (collision) {
+        report.object1 = _col->first;
+        report.object2 = _col->second;
+        if (throwIfInValid) {
+          std::ostringstream oss ("Configuration in collision: ");
+          oss << displayConfig (config);
+          throw std::runtime_error (oss.str ());
+        }
+        return true;
       }
-      if (collision && throwIfInValid) {
-	std::ostringstream oss ("Configuration in collision: ");
-	oss << displayConfig (config);
-	throw std::runtime_error (oss.str ());
-      }
-      return !collision;
+      return false;
     }
 
     bool CollisionValidation::validate (const Configuration_t& config,
@@ -82,22 +97,21 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
       fcl::CollisionResult collisionResult;
-      for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
-	   itCol != collisionPairs_.end (); ++itCol) {
-	if (fcl::collide (itCol->first->fcl ().get (),
-			  itCol->second->fcl ().get (),
-			  collisionRequest_, collisionResult) != 0) {
-	  CollisionValidationReportPtr_t report (new CollisionValidationReport);
-	  report->object1 = itCol->first;
-	  report->object2 = itCol->second;
-	  report->result = collisionResult;
-	  validationReport = report;
-	  return false;
-	}
+      CollisionPairs_t::const_iterator _col;
+      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+          ||
+          ( checkParameterized_ &&
+            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+          )) {
+        CollisionValidationReportPtr_t report (new CollisionValidationReport);
+        report->object1 = _col->first;
+        report->object2 = _col->second;
+        report->result = collisionResult;
+        validationReport = report;
+        return false;
       }
       return true;
     }
-
 
     void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
     {
@@ -184,14 +198,11 @@ namespace hpp {
               ++ret;
               _colPair = collisionPairs_.erase (_colPair);
               break;
-          case RelativeMotion::Unconstrained:
-            ++_colPair;
-            break;
+          case RelativeMotion::Unconstrained: ++_colPair; break;
           default:
             hppDout (warning, "RelativeMotionType not understood");
             ++_colPair;
             break;
-
         }
       }
       return ret;
@@ -200,7 +211,8 @@ namespace hpp {
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
       collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
       robot_ (robot),
-      disabledPairs_ ()
+      parameterizedPairs_(), disabledPairs_(),
+      checkParameterized_(false)
     {
       using model::COLLISION;
       typedef hpp::model::Device::CollisionPairs_t JointPairs_t;

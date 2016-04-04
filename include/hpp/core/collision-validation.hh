@@ -79,6 +79,16 @@ namespace hpp {
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
 
       size_type filterCollisionPairs (const ConstraintSetPtr_t& constraint);
+
+      void checkParameterized (bool active)
+      {
+        checkParameterized_ = active;
+      }
+
+      bool checkParameterized () const
+      {
+        return checkParameterized_;
+      }
     public:
       /// fcl low level request object used for collision checking.
       /// modify this attribute to obtain more detailed validation
@@ -88,8 +98,12 @@ namespace hpp {
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
     private:
-      CollisionPairs_t collisionPairs_;
-      CollisionPairs_t disabledPairs_;
+      CollisionPairs_t collisionPairs_,
+                       parameterizedPairs_,
+                       disabledPairs_;
+
+      bool checkParameterized_;
+
       /// This member is used by the validate method that does not take a
       /// validation report as input to call the validate method that expects
       /// a validation report as input. This is not fully satisfactory, but
