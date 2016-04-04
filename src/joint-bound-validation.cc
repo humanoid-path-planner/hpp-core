@@ -32,44 +32,6 @@ namespace hpp {
       return JointBoundValidationPtr_t (ptr);
     }
 
-    bool JointBoundValidation::validate (const Configuration_t& config,
-					 bool throwIfInValid)
-    {
-      return validate (config, *((ValidationReport*)(0x0)), throwIfInValid);
-    }
-
-    bool JointBoundValidation::validate (const Configuration_t& config,
-					 ValidationReport&,
-					 bool throwIfInValid)
-    {
-      const JointVector_t jv = robot_->getJointVector ();
-      for (JointVector_t::const_iterator itJoint = jv.begin ();
-	   itJoint != jv.end (); ++itJoint) {
-	size_type index = (*itJoint)->rankInConfiguration ();
-	JointConfigurationPtr_t jc = (*itJoint)->configuration ();
-	for (size_type i=0; i < (*itJoint)->configSize (); ++i) {
-	  if (jc->isBounded (i)) {
-	    value_type lower = jc->lowerBound (i);
-	    value_type upper = jc->upperBound (i);
-	    value_type value = config [index + i];
-	    if (value < lower || upper < value) {
-	      if (throwIfInValid) {
-		std::ostringstream oss ("Joint: ");
-		oss << (*itJoint)->name () << ", rank: " << i
-		    << ", value out of range: " << value << " not in ["
-		    << lower << ", " << upper << "]";
-		throw JointBoundException (oss.str (), *itJoint, i, lower,
-					   upper, value);
-	      } else {
-		return false;
-	      }
-	    }
-	  }
-	}
-      }
-      return true;
-    }
-
     bool JointBoundValidation::validate
     (const Configuration_t& config, ValidationReportPtr_t& validationReport)
     {

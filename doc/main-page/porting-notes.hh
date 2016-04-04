@@ -14,7 +14,7 @@ the right type and call the validation method. This strategy however is not
 scalable to an extension of the hierarchy of validation methods and of
 validation reports. For this reason the following modifications have been done.
 
-The following methods related to configuration validation are deprecated
+The following methods related to configuration validation have been removed
 
 \li \code virtual bool ConfigValidation::validate (const Configuration_t& config, bool throwIfInValid) = 0 \endcode
 \li \code virtual bool ConfigValidation::validate (const Configuration_t& config, ValidationReport& validationReport, bool throwIfInValid) = 0 \endcode
@@ -30,7 +30,7 @@ The following methods related to configuration validation are deprecated
 
 Methods taking a \c ValidationReportPtr_t& as second argument should be used instead.
 
-The following methods related to path validation are deprecated:
+The following methods related to path validation have been removed
 
 \li \code virtual bool PathValidation::validate (const PathPtr_t& path, bool reverse, PathPtr_t& validPart) = 0 \endcode
 \li \code virtual bool PathValidation::validate (const PathPtr_t& path, bool reverse, PathPtr_t& validPart, ValidationReport& report) = 0 \endcode
