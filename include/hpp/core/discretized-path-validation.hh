@@ -35,34 +35,6 @@ namespace hpp {
     public:
       static DiscretizedPathValidationPtr_t
 	create (const DevicePtr_t& robot, const value_type& stepSize);
-      /// Compute the largest valid interval starting from the path beginning
-      ///
-      /// \param path the path to check for validity,
-      /// \param reverse if true check from the end,
-      /// \retval validPart the extracted valid part of the path,
-      ///         pointer to path if path is valid.
-      /// \retval report information about the validation process. The type
-      ///         can be derived for specific implementation
-      /// \return whether the whole path is valid.
-      virtual bool validate (const PathPtr_t& path, bool reverse,
-			     PathPtr_t& validPart) HPP_CORE_DEPRECATED;
-
-      /// Compute the largest valid interval starting from the path beginning
-      ///
-      /// \param path the path to check for validity,
-      /// \param reverse if true check from the end,
-      /// \retval validPart the extracted valid part of the path,
-      ///         pointer to path if path is valid.
-      /// \retval validationReport information about the validation process:
-      ///         which objects have been detected in collision and at which
-      ///         parameter along the path.
-      /// \pre validationReport should be a of type
-      ///      CollisionPathValidationReport.
-      /// \return whether the whole path is valid.
-      virtual bool validate (const PathPtr_t& path, bool reverse,
-			     PathPtr_t& validPart,
-			     ValidationReport& validationReport)
-	HPP_CORE_DEPRECATED;
 
       /// Compute the largest valid interval starting from the path beginning
       ///

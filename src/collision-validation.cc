@@ -55,43 +55,6 @@ namespace hpp {
     }
 
     bool CollisionValidation::validate (const Configuration_t& config,
-					bool throwIfInValid)
-    {
-      return validate (config, unusedReport, throwIfInValid);
-    }
-
-    bool CollisionValidation::validate (const Configuration_t& config,
-					ValidationReport& validationReport,
-					bool throwIfInValid)
-    {
-      HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport, validationReport);
-      CollisionValidationReport& report =
-	static_cast <CollisionValidationReport&> (validationReport);
-      robot_->currentConfiguration (config);
-      robot_->computeForwardKinematics ();
-      fcl::CollisionResult& collisionResult = report.result;
-      collisionResult.clear();
-      CollisionPairs_t::const_iterator _col;
-      bool collision = (
-        collide (collisionPairs_, collisionRequest_, collisionResult, _col)
-        ||
-        ( checkParameterized_ &&
-          collide (parameterizedPairs_, collisionRequest_, collisionResult, _col))
-        );
-      if (collision) {
-        report.object1 = _col->first;
-        report.object2 = _col->second;
-        if (throwIfInValid) {
-          std::ostringstream oss ("Configuration in collision: ");
-          oss << displayConfig (config);
-          throw std::runtime_error (oss.str ());
-        }
-        return true;
-      }
-      return false;
-    }
-
-    bool CollisionValidation::validate (const Configuration_t& config,
 					ValidationReportPtr_t& validationReport)
     {
       robot_->currentConfiguration (config);

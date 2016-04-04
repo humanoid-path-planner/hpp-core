@@ -48,20 +48,6 @@ namespace hpp {
     }
 
     bool DiscretizedPathValidation::validate
-    (const PathPtr_t&, bool, PathPtr_t&)
-    {
-      throw std::runtime_error
-	("Deprecated DiscretizedPathValidation::validate: Not implemented");
-    }
-
-    bool DiscretizedPathValidation::validate
-    (const PathPtr_t&, bool, PathPtr_t&, ValidationReport&)
-    {
-      throw std::runtime_error
-	("Deprecated DiscretizedPathValidation::validate: Not implemented");
-    }
-
-    bool DiscretizedPathValidation::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
     {
