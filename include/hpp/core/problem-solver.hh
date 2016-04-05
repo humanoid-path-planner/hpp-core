@@ -186,8 +186,8 @@ namespace hpp {
       /// \param tolerance acceptable penetration for path validation
       /// Path validation methods are used to validate edges in path planning
       /// path optimization methods.
-      void pathValidationType (const std::string& type,
-			       const value_type& tolerance);
+      virtual void pathValidationType (const std::string& type,
+                                       const value_type& tolerance);
 
       /// Add a path validation type
       /// \param type name of the new path validation method,
