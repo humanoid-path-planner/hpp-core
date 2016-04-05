@@ -63,14 +63,12 @@ namespace hpp {
       }
     }
 
-    size_type ConfigValidations::filterCollisionPairs (const ConstraintSetPtr_t& c)
+    void ConfigValidations::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
-      size_type ret = 0;
       for (std::vector <ConfigValidationPtr_t>::iterator itVal =
 	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	ret += (*itVal)->filterCollisionPairs (c);
+	(*itVal)->filterCollisionPairs (matrix);
       }
-      return ret;
     }
 
     ConfigValidations::ConfigValidations () : validations_ ()

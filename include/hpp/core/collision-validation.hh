@@ -59,7 +59,7 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
 
-      size_type filterCollisionPairs (const ConstraintSetPtr_t& constraint);
+      void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
 
       void checkParameterized (bool active)
       {

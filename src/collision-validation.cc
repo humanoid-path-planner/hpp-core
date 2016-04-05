@@ -124,16 +124,12 @@ namespace hpp {
       }
     }
 
-    size_type CollisionValidation::filterCollisionPairs (const ConstraintSetPtr_t& c)
+    void CollisionValidation::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
-      RelativeMotion::matrix_type matrix = RelativeMotion::matrix (robot_);
-      RelativeMotion::fromConstraint (matrix, robot_, c);
-      hppDout (info, '\n' << matrix);
-
       // Loop over collision pairs and remove disabled ones.
       const size_type N = robot_->numberDof () + 1;
       CollisionPairs_t::iterator _colPair = collisionPairs_.begin ();
-      size_type ret = 0, i1, i2;
+      size_type i1, i2;
       fcl::CollisionResult unused;
       while (_colPair != collisionPairs_.end ()) {
         const JointPtr_t& j1 = _colPair->first ->joint(),
@@ -146,7 +142,6 @@ namespace hpp {
                   << _colPair->first ->name() << " and "
                   << _colPair->second->name());
               parameterizedPairs_.push_back (*_colPair);
-              ++ret;
               _colPair = collisionPairs_.erase (_colPair);
               break;
           case RelativeMotion::Constrained:
@@ -158,7 +153,6 @@ namespace hpp {
                     "body in collision.");
               }
               disabledPairs_.push_back (*_colPair);
-              ++ret;
               _colPair = collisionPairs_.erase (_colPair);
               break;
           case RelativeMotion::Unconstrained: ++_colPair; break;
@@ -168,7 +162,6 @@ namespace hpp {
             break;
         }
       }
-      return ret;
     }
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :

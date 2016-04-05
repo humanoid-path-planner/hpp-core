@@ -20,6 +20,7 @@
 # define HPP_CORE_CONFIG_VALIDATION_HH
 
 # include <hpp/core/validation-report.hh>
+# include <hpp/core/relative-motion.hh>
 # include <hpp/core/deprecated.hh>
 
 namespace hpp {
@@ -70,12 +71,10 @@ namespace hpp {
       /// have no possible relative motion due to the constraints.
       /// \todo Before disabling collision pair, check if there is a collision.
       ///
-      /// \param the set of constraints
-      /// \return the number of pairs disabled.
-      virtual size_type filterCollisionPairs (const ConstraintSetPtr_t&)
-      {
-        return 0;
-      }
+      /// \param square symmetric matrix of RelativeMotionType of size numberDof x numberDof
+      virtual void filterCollisionPairs (const RelativeMotion::matrix_type&)
+      {}
+
     protected:
       ConfigValidation ()
       {
