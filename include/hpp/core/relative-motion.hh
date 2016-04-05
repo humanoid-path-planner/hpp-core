@@ -40,8 +40,12 @@ namespace hpp {
 
       typedef Eigen::Matrix<RelativeMotionType, Eigen::Dynamic, Eigen::Dynamic> matrix_type;
 
+      /// Build a new RelativeMotion matrix initialized with RelativeMotion::Unconstrained.
       static matrix_type matrix (const DevicePtr_t& robot);
 
+      /// Fill the relative motion matrix with information extracted from the
+      /// provided ConstraintSet.
+      /// \note Only LockedJoint are currently taken into account.
       /// \todo LockedJoint always has a non-constant RHS which means it will
       ///       always be treated a parameterized constraint. Even when the
       ///       value is not going to change...
