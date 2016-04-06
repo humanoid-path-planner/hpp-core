@@ -176,9 +176,8 @@ namespace hpp {
 	/// I_, H_ Identity matrix and cost Hessian respectively
 	/// Jf_  collision-constraints jacobian for now
 	/// J_ problem-constraints jacobian
-	/// V0_ orthogonal base of Jf_ null space
 	/// Aplusb = Jf^{+}*b (for affine constraints)
-	mutable matrix_t H_, Hinverse_, J_, V0_;
+	mutable matrix_t H_, Hinverse_, J_;
 	mutable matrix_t Hz_, gz_;
 	mutable vector_t stepNormal_;
 	mutable bool fullRank_;

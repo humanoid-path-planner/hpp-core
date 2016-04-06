@@ -207,12 +207,17 @@ namespace hpp {
 	    p_.setZero ();
 	    return p_;
 	  }
-	  V0_ = svd.matrixV ().rightCols (numberDofs_-rank);
 	  hppDout (info, "rhs_ - value_ = " << rhs_ - value_);
 	  p0_ = svd.solve (rhs_ - value_);
-	  if (V0_.cols () != 0) {
-	    Hz_ = V0_.transpose () * H_ * V0_;
-	    gz_ = - V0_.transpose () * (rgrad_.transpose () + H_ * p0_);
+          const size_type nullity = numberDofs_ - rank; 
+	  if (nullity != 0) {
+            const Jacobi_t::MatrixVType& V = svd.matrixV();
+            // V0_ orthogonal base of Jf_ null space
+            // V0_ = svd.matrixV().rightCols (numberDofs_-rank);
+            // Hz_ = V0_.transpose () * H_ * V0_;
+            Hz_ = V.rightCols(nullity).transpose() * H_ * V.rightCols(nullity);
+            // gz_ = - V0_.transpose () * (rgrad_.transpose () + H_ * p0_);
+            gz_ = - V.rightCols(nullity).transpose() * (rgrad_.transpose () + H_ * p0_);
 	    Jacobi_t svd2 (Hz_, Eigen::ComputeThinU | Eigen::ComputeFullV);
 	    rank = svd2.rank ();
 	    hppDout (info, "Hz_ singular values = " <<
@@ -220,11 +225,12 @@ namespace hpp {
 	    hppDout (info, "rank(Hz_) = " << rank);
 	    vector_t z (svd2.solve (gz_));
 	    hppDout (info, "Hz_ * z - gz_=" << (Hz_ * z - gz_).transpose ());
-	    p_ = p0_ + V0_ * svd2.solve (gz_);
+	    // p_ = p0_ + V0_ * z;
+	    p_ = p0_ + V.rightCols(nullity) * z;
 	    hppDout (info, "constraint satisfaction: " <<
 		     (J_*p_ - (rhs_ - value_)).squaredNorm ());
 	    hppDout (info, "norm(grad*V0)? = " <<
-		     ((rgrad_ + (H_*p_).transpose ())*V0_).squaredNorm ());
+		     ((rgrad_ + (H_*p_).transpose ())*V.rightCols(nullity)).squaredNorm ());
 	  } else {
 	    p_ = p0_;
 	  }
