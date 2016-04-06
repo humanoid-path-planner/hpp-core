@@ -38,7 +38,6 @@
 #include <hpp/core/path-optimization/path-length.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/projection-error.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/position.hh>
 #include <hpp/constraints/relative-position.hh>
@@ -167,50 +166,6 @@ namespace hpp {
 	initial_ = path->initial ();
 	end_ = path->end ();
 	alpha_ = alphaInit_;
-      }
-
-      void GradientBased::pathToVector (const PathVectorPtr_t& path, vectorOut_t x) const
-      {
-        size_type index = 0;
-        for (std::size_t i=0; i < path->numberPaths () - 1; ++i) {
-          const PathPtr_t& localPath = path->pathAtRank (i);
-          value_type t1 = localPath->timeRange ().second;
-          if (!(*localPath) (x.segment (index, configSize_), t1))
-            throw projection_error ("GradientBased optimizer could not build"
-                " the initial vector");
-          index += configSize_;
-        }
-        assert (index == x.size ());
-      }
-
-      void GradientBased::vectorToPath (vectorIn_t x, const PathVectorPtr_t& result) const
-      {
-        Configuration_t q0 = initial_, q1;
-        size_type index = 0;
-        while (index < x.size ()) {
-          q1 = x.segment (index, configSize_);
-          PathPtr_t p = (*steeringMethod_) (q0, q1);
-          result->appendPath (p);
-          q0 = q1;
-          index += configSize_;
-        }
-        q1 = end_;
-        PathPtr_t p = (*steeringMethod_) (q0, q1);
-        result->appendPath (p);
-      }
-
-      bool GradientBased::applyConstraints (vectorOut_t x) const
-      {
-        ConstraintSetPtr_t constraints (problem ().constraints ());
-        if (!constraints) return true;
-        size_type index = 0;
-        bool success = true;
-        while (index < x.size ()) {
-          if (!constraints->apply (x.segment (index, configSize_)))
-            success = false;
-          index += configSize_;
-        }
-        return success;
       }
 
       vector_t GradientBased::computeIterate (vectorIn_t) const
@@ -343,11 +298,6 @@ namespace hpp {
             }
 	    integrate (x0, s, x1);
 	    hppDout (info, "x1=" << x1.transpose ());
-            if (!applyConstraints (x1)) {
-              alpha_ /= 2;
-              HPP_STOP_TIMECOUNTER(GBO_oneStep);
-              continue;
-            }
 	    PathVectorPtr_t path1 = PathVector::create (configSize_,
 							robotNumberDofs_);
 	    vectorToPath (x1, path1);
