@@ -186,6 +186,12 @@ namespace hpp {
 	return nbNonLockedDofs_;
       }
 
+      /// Get constraint dimension
+      size_type dimension () const
+      {
+	return value_.size();
+      }
+
       /// Compress Velocity vector by removing locked degrees of freedom
       ///
       /// \param normal input velocity vector
