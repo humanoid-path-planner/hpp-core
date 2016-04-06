@@ -81,6 +81,8 @@ namespace hpp {
 				   *(problem.steeringMethod ()));
 	steeringMethod_ = HPP_DYNAMIC_PTR_CAST
 	  (SteeringMethodStraight, problem.steeringMethod ()->copy ());
+        // Unset the constraints.
+        steeringMethod_->constraints (ConstraintSetPtr_t());
       }
 
       void GradientBased::compressHessian (matrixIn_t normal, matrixOut_t small)
@@ -150,6 +152,7 @@ namespace hpp {
 	hppDout (info, "size of x = " << cost_->inputSize ());
 	numberDofs_ = cost_->inputDerivativeSize ();
 	stepNormal_.resize (numberDofs_);
+	stepNormal_.setZero ();
 	p_.resize (numberDofs_);
 	// Get problem constraints and locked degrees of freedom
 	initializeProblemConstraints ();
@@ -193,6 +196,7 @@ namespace hpp {
 	  //         + 1/2 (p0 + V0 z)^T H (p0 + V0 z)
 	  // C (x) = (grad (x1) + p0^T H) V0 z  + 1/2 z^T V0^T H V0 z + C (x1)
 	  // z = - (V0^T H V0)^{-1} V0^T(grad (x1)^T + H p0)
+          hppDout (info, "J_\n" << J_);
 	  Jacobi_t svd (J_, Eigen::ComputeThinU | Eigen::ComputeFullV);
 	  size_type rank = svd.rank();
 	  hppDout (info, "J_ singular values = " <<
@@ -280,6 +284,7 @@ namespace hpp {
 
 	PathVectorPtr_t path0 (path);
 	CollisionConstraintsResults_t collisionConstraints;
+        updateProblemConstraints (x0);
 	if (!minimumReached) {
 	  do {
             HPP_START_TIMECOUNTER(GBO_oneStep);
@@ -301,6 +306,13 @@ namespace hpp {
 	    PathVectorPtr_t path1 = PathVector::create (configSize_,
 							robotNumberDofs_);
 	    vectorToPath (x1, path1);
+            // if (!applyConstraints (x1)) {
+            if (!solveConstraints (x1, path1, collisionConstraints)) {
+              hppDout (info, "solveConstraints failed");
+              alpha_ /= 2;
+              HPP_STOP_TIMECOUNTER(GBO_oneStep);
+              continue;
+            }
 	    bool isPathValid = validatePath (pathValidation, path1, reports);
 	    // if new path is in collision, we add some constraints
 	    if (!isPathValid) {
@@ -310,6 +322,13 @@ namespace hpp {
 		  CollisionConstraintsResult ccr (robot_, path0, path1,
 						  *it, J_.rows (),
 						  robotNbNonLockedDofs_);
+                  ConstraintSetPtr_t constraints (problem ().constraints ());
+                  if (constraints) {
+                    ConfigProjectorPtr_t configProjector =
+                      constraints->configProjector ();
+                    if (configProjector)
+                      ccr.add (configProjector->lockedJoints());
+                  }
 		  // Compute J_
 		  addCollisionConstraint (ccr, path0);
 		  collisionConstraints.push_back (ccr);
@@ -372,7 +391,7 @@ namespace hpp {
 	size_type rows = 0;
 	if (configProjector) {
 	  // Apply problem constraints to each waypoint.
-	  size_type sizeConstraint = configProjector->rightHandSide ().size ();
+	  size_type sizeConstraint = configProjector->dimension ();
 	  rows = sizeConstraint * nbWaypoints_;
 	  rhs_.resize (rows); rhs_.setZero ();
 	}
@@ -396,7 +415,7 @@ namespace hpp {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
 	  // Apply problem constraints to each waypoint.
-	  size_type sizeConstraint = configProjector->rightHandSide ().size ();
+          size_type sizeConstraint = configProjector->dimension ();
 	  for (size_type i=0; i<nbWaypoints_; ++i) {
 	    configProjector->computeValueAndJacobian
 	      (x.segment (i*configSize_, configSize_),
@@ -426,7 +445,7 @@ namespace hpp {
 	if (problem ().constraints ()) {
 	  for (size_type i=0; i<nbWaypoints_; ++i) {
 	    if (!problem ().constraints ()->isSatisfied
-		(x.segment (i*robotNumberDofs_, robotNumberDofs_))) {
+		(x.segment (i*configSize_, configSize_))) {
 	      satisfied = false;
 	    }
 	  }
