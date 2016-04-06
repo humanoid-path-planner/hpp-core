@@ -93,11 +93,19 @@ namespace hpp {
 
     void Path::checkPath () const
     {
-      assert (!constraints() || constraints()->isSatisfied (initial()));
-      if (constraints() && !constraints()->isSatisfied (end())) {
-	hppDout (error, *constraints());
-	hppDout (error, end().transpose ());
-	abort ();
+      if (constraints()) {
+        if (!constraints()->isSatisfied (initial())) {
+          hppDout (error, *constraints());
+          hppDout (error, initial().transpose ());
+          throw projection_error ("Initial configuration of path does not satisfy "
+              "the constraints");
+        }
+        if (constraints() && !constraints()->isSatisfied (end())) {
+          hppDout (error, *constraints());
+          hppDout (error, end().transpose ());
+          throw projection_error ("End configuration of path does not satisfy "
+              "the constraints");
+        }
       }
     }
   } //   namespace core

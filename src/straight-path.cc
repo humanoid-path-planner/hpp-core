@@ -49,12 +49,6 @@ namespace hpp {
     {
       assert (device);
       assert (length >= 0);
-      assert (!constraints || constraints->isSatisfied (initial_));
-      if (constraints && !constraints->isSatisfied (end_)) {
-	hppDout (error, *constraints);
-	hppDout (error, end_.transpose ());
-	abort ();
-      }
     }
 
     StraightPath::StraightPath (const StraightPath& path) :

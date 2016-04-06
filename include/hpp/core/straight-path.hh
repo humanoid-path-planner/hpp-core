@@ -53,6 +53,7 @@ namespace hpp {
 	StraightPath* ptr = new StraightPath (device, init, end, length);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
+        ptr->checkPath ();
 	return shPtr;
       }
 
@@ -71,6 +72,7 @@ namespace hpp {
 					      constraints);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
+        ptr->checkPath ();
 	return shPtr;
       }
 
@@ -81,6 +83,7 @@ namespace hpp {
 	StraightPath* ptr = new StraightPath (*path);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->initCopy (shPtr);
+        ptr->checkPath ();
 	return shPtr;
       }
 
@@ -93,6 +96,7 @@ namespace hpp {
 	StraightPath* ptr = new StraightPath (*path, constraints);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->initCopy (shPtr);
+        ptr->checkPath ();
 	return shPtr;
       }
 
