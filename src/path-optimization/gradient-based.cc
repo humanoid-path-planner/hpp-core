@@ -274,7 +274,7 @@ namespace hpp {
 	Configuration_t qCollConstr, qCollConstr_old;
 	ConfigValidationsPtr_t configValtions (problem ().configValidations());
 	Reports_t reports;
-	bool noCollision;
+	bool noCollision = true; // Assume there is no collision
 	/* Create initial path */
 	vector_t x1; x1.resize (cost_->inputSize ());
 	rowvector_t grad; grad.resize (cost_->inputDerivativeSize ());
@@ -291,8 +291,7 @@ namespace hpp {
 	PathVectorPtr_t path0 (path);
 	CollisionConstraintsResults_t collisionConstraints;
         updateProblemConstraints (x0);
-	if (!minimumReached) {
-	  do {
+        while (!(noCollision && minimumReached) && (!interrupt_)) {
             HPP_START_TIMECOUNTER(GBO_oneStep);
             HPP_START_TIMECOUNTER(GBO_computeIterate);
 	    vector_t s = computeIterate (x0);
@@ -312,7 +311,6 @@ namespace hpp {
 	    PathVectorPtr_t path1 = PathVector::create (configSize_,
 							robotNumberDofs_);
 	    vectorToPath (x1, path1);
-            // if (!applyConstraints (x1)) {
             if (!solveConstraints (x1, path1, collisionConstraints)) {
               hppDout (info, "solveConstraints failed");
               alpha_ /= 2;
@@ -359,8 +357,7 @@ namespace hpp {
 	    }
             HPP_STOP_TIMECOUNTER(GBO_oneStep);
             HPP_DISPLAY_TIMECOUNTER(GBO_oneStep);
-	  } while (!(noCollision && minimumReached) && (!interrupt_));
-	} // while (!minimumReached)
+        } // while (!(noCollision && minimumReached) && (!interrupt_))
 	return path0;
       }
 

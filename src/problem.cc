@@ -139,7 +139,7 @@ namespace hpp {
     {
       RelativeMotion::matrix_type matrix = RelativeMotion::matrix (robot_);
       RelativeMotion::fromConstraint (matrix, robot_, constraints_);
-      hppDout (info, 'RelativeMotion matrix:\n' << matrix);
+      hppDout (info, "RelativeMotion matrix:\n" << matrix);
 
       if (pathValidation_) {
 	pathValidation_->filterCollisionPairs (matrix);
