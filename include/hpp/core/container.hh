@@ -121,6 +121,20 @@ namespace hpp {
         {
           return this->_F <Element>::T::map;
         }
+				
+				/// Erase the element named name
+				template <typename Element>
+				void erase (const Key& name)
+				{
+					_map<Element> ().erase (name);
+				}
+
+				/// Clear content of container
+				template <typename Element>
+				void clear () 
+				{
+					_map<Element> ().clear ();
+				}
 
         /// Add an element
         template <typename Element>
