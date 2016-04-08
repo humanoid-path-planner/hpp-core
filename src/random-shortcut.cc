@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2014 CNRS
-// Authors: Florent Lamiraux
+// Authors: Florent Lamiraux, Joseph Mirabel
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -31,18 +31,23 @@ namespace hpp {
   namespace core {
     // Compute the length of a vector of paths assuming that each element
     // is optimal for the given distance.
-    static value_type pathLength (const PathVectorPtr_t& path,
-				  const DistancePtr_t& distance)
-    {
-      value_type result = 0;
-      for (std::size_t i=0; i<path->numberPaths (); ++i) {
-	const PathPtr_t& element (path->pathAtRank (i));
-	Configuration_t q1 = element->initial ();
-	Configuration_t q2 = element->end ();
-	result += (*distance) (q1, q2);
+    template <bool reEstimateLength = false> struct PathLength {
+      static inline value_type run (const PathVectorPtr_t& path,
+                             const DistancePtr_t& distance)
+      {
+        if (reEstimateLength) return path->length ();
+        else {
+          value_type result = 0;
+          for (std::size_t i=0; i<path->numberPaths (); ++i) {
+            const PathPtr_t& element (path->pathAtRank (i));
+            Configuration_t q1 = element->initial ();
+            Configuration_t q2 = element->end ();
+            result += (*distance) (q1, q2);
+          }
+          return result;
+        }
       }
-      return result;
-    }
+    };
 
     RandomShortcutPtr_t
     RandomShortcut::create (const Problem& problem)
@@ -61,9 +66,9 @@ namespace hpp {
       using std::numeric_limits;
       using std::make_pair;
       bool finished = false;
-      value_type t3 = path->timeRange ().second;
-      Configuration_t q0 = path->initial ();
-      Configuration_t q3 = path->end ();
+      value_type t0, t3;
+      const Configuration_t q0 = path->initial ();
+      const Configuration_t q3 = path->end ();
       PathVectorPtr_t tmpPath = path;
 
       // Maximal number of iterations without improvements
@@ -71,13 +76,14 @@ namespace hpp {
       std::size_t projectionError = n;
       std::deque <value_type> length (n-1,
 				      numeric_limits <value_type>::infinity ());
-      length.push_back (pathLength (tmpPath, problem ().distance ()));
+      length.push_back (PathLength<>::run (tmpPath, problem ().distance ()));
       PathVectorPtr_t result;
       Configuration_t q1 (path->outputSize ()),
                       q2 (path->outputSize ());
 
       while (!finished && projectionError != 0) {
-	t3 = tmpPath->timeRange ().second;
+        t0 = tmpPath->timeRange ().first;
+        t3 = t0 + tmpPath->timeRange ().second;
 	value_type u2 = t3 * rand ()/RAND_MAX;
 	value_type u1 = t3 * rand ()/RAND_MAX;
 	value_type t1, t2;
@@ -117,7 +123,7 @@ namespace hpp {
             result->appendPath (straight [0]);
           else
             result->concatenate (*(tmpPath->extract
-                  (make_pair <value_type,value_type> (0, t1))->
+                  (make_pair <value_type,value_type> (t0, t1))->
                   as <PathVector> ()));
           if (valid [1])
             result->appendPath (straight [1]);
@@ -138,7 +144,7 @@ namespace hpp {
           result = tmpPath;
           continue;
         }
-	length.push_back (pathLength (result, problem ().distance ()));
+	length.push_back (PathLength<>::run (result, problem ().distance ()));
 	length.pop_front ();
 	finished = (length [0] <= length [n-1]);
 	hppDout (info, "length = " << length [n-1]);
