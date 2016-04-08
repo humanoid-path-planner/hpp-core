@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2010, 2011, 2012, 2013, 2014, 2015, 2016 CNRS
-# Authors: Florent Lamiraux
+# Authors: Florent Lamiraux, Joseph Mirabel
 #
 #
 # This file is part of hpp-core
@@ -54,6 +54,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-optimization/config-optimization.cc
   path-planner.cc
   path-vector.cc
+  reeds-shepp-path.cc
   plan-and-optimize.cc
   problem.cc
   problem-solver.cc
