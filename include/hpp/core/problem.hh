@@ -20,11 +20,14 @@
 #ifndef HPP_CORE_PROBLEM_HH
 # define HPP_CORE_PROBLEM_HH
 
+# include <boost/any.hpp>
+
 # include <hpp/model/device.hh>
 # include <hpp/util/pointer.hh>
 
 # include <hpp/core/config.hh>
 # include <hpp/core/steering-method.hh>
+# include <hpp/core/container.hh>
 
 namespace hpp {
   namespace core {
@@ -41,7 +44,8 @@ namespace hpp {
     /// \li a method to validate paths,
     /// \li a set of methods to validate configurations. Default methods are
     /// collision checking and joint bound checking.
-    class HPP_CORE_DLLAPI Problem
+    class HPP_CORE_DLLAPI Problem :
+      public Containers < boost::mpl::vector < boost::any > >
     {
     public:
       /// Create a path planning problem.
@@ -217,6 +221,24 @@ namespace hpp {
       /// Set the vector of objects considered for collision detection
       void collisionObstacles (const ObjectVector_t& collisionObstacles);
       /// \}
+
+      /// Get a parameter named name.
+      ///
+      /// \param name of the parameter.
+      /// \param defaultValue value returned if there is no parameter of this
+      ///        name
+      /// \throw boost::bad_any_cast if a parameter exists but has the wrong
+      ///        type.
+      template <typename T> T getParameter
+        (const std::string& name, const T& defaultValue) const
+        throw (boost::bad_any_cast)
+      {
+        if (has<boost::any>(name)) {
+          const boost::any& val = get<boost::any>(name);
+          return boost::any_cast<T>(val);
+        }
+        return defaultValue;
+      }
 
     private :
       /// The robot
