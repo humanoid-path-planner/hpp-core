@@ -19,6 +19,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/model/collision-object.hh>
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/core/bi-rrt-planner.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
@@ -91,6 +92,7 @@ namespace hpp {
     {
       add <PathPlannerBuilder_t> ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
       add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
+      add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
