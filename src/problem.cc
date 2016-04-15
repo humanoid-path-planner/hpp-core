@@ -51,6 +51,8 @@ namespace hpp {
     {
       configValidations_->add (CollisionValidation::create (robot));
       configValidations_->add (JointBoundValidation::create (robot));
+
+      add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
     }
 
     // ======================================================================
