@@ -240,6 +240,22 @@ namespace hpp {
         return defaultValue;
       }
 
+      /// Set a parameter named name.
+      ///
+      /// \param name of the parameter.
+      /// \param value value of the parameter
+      /// \throw std::invalid_argument if a parameter exists but has a different
+      ///        type.
+      /// \note if you do not want any type checking but would rather erase any
+      ///       previous values, use
+      ///       \code
+      ///       add<boost::any>(name, (ExpectedType)value);
+      ///       \endcode
+      ///       If there is an ambiguity on the type, it is recommended to
+      ///       explicitely write it.
+      void setParameter (const std::string& name, const boost::any& value)
+        throw (std::invalid_argument);
+
     private :
       /// The robot
       DevicePtr_t robot_;
