@@ -292,71 +292,71 @@ namespace hpp {
 	CollisionConstraintsResults_t collisionConstraints;
         updateProblemConstraints (x0);
         while (!(noCollision && minimumReached) && (!interrupt_)) {
-            HPP_START_TIMECOUNTER(GBO_oneStep);
-            HPP_START_TIMECOUNTER(GBO_computeIterate);
-	    vector_t s = computeIterate (x0);
-            HPP_STOP_TIMECOUNTER(GBO_computeIterate);
-            HPP_DISPLAY_TIMECOUNTER(GBO_computeIterate);
-	    hppDout (info, "alpha_ = " << alpha_);
-	    value_type norm_s (s.norm ());
-	    minimumReached = (norm_s < epsilon_ || alpha_ == 1.);
-	    hppDout (info, "norm of s: " << norm_s);
-	    hppDout (info, "s: " << s.transpose ());
-	    if (norm_s == 0) {
-              HPP_STOP_TIMECOUNTER(GBO_oneStep);
-              return path0;
-            }
-	    integrate (x0, s, x1);
-	    hppDout (info, "x1=" << x1.transpose ());
-	    PathVectorPtr_t path1 = PathVector::create (configSize_,
-							robotNumberDofs_);
-	    vectorToPath (x1, path1);
-            if (!solveConstraints (x1, path1, collisionConstraints)) {
-              hppDout (info, "solveConstraints failed");
-              alpha_ /= 2;
-              HPP_STOP_TIMECOUNTER(GBO_oneStep);
-              continue;
-            }
-	    bool isPathValid = validatePath (pathValidation, path1, reports);
-	    // if new path is in collision, we add some constraints
-	    if (!isPathValid) {
-	      if (alpha_ != 1.) {
-		for (Reports_t::const_iterator it = reports.begin ();
-		     it != reports.end (); ++it) {
-		  CollisionConstraintsResult ccr (robot_, path0, path1,
-						  *it, J_.rows (),
-						  robotNbNonLockedDofs_);
-                  ConstraintSetPtr_t constraints (problem ().constraints ());
-                  if (constraints) {
-                    ConfigProjectorPtr_t configProjector =
-                      constraints->configProjector ();
-                    if (configProjector)
-                      ccr.add (configProjector->lockedJoints());
-                  }
-		  // Compute J_
-		  addCollisionConstraint (ccr, path0);
-		  collisionConstraints.push_back (ccr);
-		  hppDout (info, "Number of collision constraints: "
-			   << collisionConstraints.size ());
-		  // When adding a new constraint, try first minimum under this
-		  // constraint. If this latter minimum is in collision,
-		  // re-initialize alpha_ to alphaInit_.
-		  alpha_ = 1.;
-		}
-	      } else {
-		alpha_ = alphaInit_;
-	      }
-	      noCollision = false;
-	    } else { // path valid
-	      rowvector_t rgrad0 (rgrad_);
-	      x0 = x1;
-	      path0 = path1;
-	      cost_->jacobian (grad, x0);
-	      compressVector (grad.transpose (), rgrad_.transpose ());
-	      noCollision = true;
-	    }
+          HPP_START_TIMECOUNTER(GBO_oneStep);
+          HPP_START_TIMECOUNTER(GBO_computeIterate);
+          vector_t s = computeIterate (x0);
+          HPP_STOP_TIMECOUNTER(GBO_computeIterate);
+          HPP_DISPLAY_TIMECOUNTER(GBO_computeIterate);
+          hppDout (info, "alpha_ = " << alpha_);
+          value_type norm_s (s.norm ());
+          minimumReached = (norm_s < epsilon_ || alpha_ == 1.);
+          hppDout (info, "norm of s: " << norm_s);
+          hppDout (info, "s: " << s.transpose ());
+          if (norm_s == 0) {
             HPP_STOP_TIMECOUNTER(GBO_oneStep);
-            HPP_DISPLAY_TIMECOUNTER(GBO_oneStep);
+            return path0;
+          }
+          integrate (x0, s, x1);
+          hppDout (info, "x1=" << x1.transpose ());
+          PathVectorPtr_t path1 = PathVector::create (configSize_,
+              robotNumberDofs_);
+          vectorToPath (x1, path1);
+          if (!solveConstraints (x1, path1, collisionConstraints)) {
+            hppDout (info, "solveConstraints failed");
+            alpha_ /= 2;
+            HPP_STOP_TIMECOUNTER(GBO_oneStep);
+            continue;
+          }
+          bool isPathValid = validatePath (pathValidation, path1, reports);
+          // if new path is in collision, we add some constraints
+          if (!isPathValid) {
+            if (alpha_ != 1.) {
+              for (Reports_t::const_iterator it = reports.begin ();
+                  it != reports.end (); ++it) {
+                CollisionConstraintsResult ccr (robot_, path0, path1,
+                    *it, J_.rows (),
+                    robotNbNonLockedDofs_);
+                ConstraintSetPtr_t constraints (problem ().constraints ());
+                if (constraints) {
+                  ConfigProjectorPtr_t configProjector =
+                    constraints->configProjector ();
+                  if (configProjector)
+                    ccr.add (configProjector->lockedJoints());
+                }
+                // Compute J_
+                addCollisionConstraint (ccr, path0);
+                collisionConstraints.push_back (ccr);
+                hppDout (info, "Number of collision constraints: "
+                    << collisionConstraints.size ());
+                // When adding a new constraint, try first minimum under this
+                // constraint. If this latter minimum is in collision,
+                // re-initialize alpha_ to alphaInit_.
+                alpha_ = 1.;
+              }
+            } else {
+              alpha_ = alphaInit_;
+            }
+            noCollision = false;
+          } else { // path valid
+            rowvector_t rgrad0 (rgrad_);
+            x0 = x1;
+            path0 = path1;
+            cost_->jacobian (grad, x0);
+            compressVector (grad.transpose (), rgrad_.transpose ());
+            noCollision = true;
+          }
+          HPP_STOP_TIMECOUNTER(GBO_oneStep);
+          HPP_DISPLAY_TIMECOUNTER(GBO_oneStep);
         } // while (!(noCollision && minimumReached) && (!interrupt_))
 	return path0;
       }
