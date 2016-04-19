@@ -19,18 +19,44 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
+#include <hpp/constraints/relative-transformation.hh>
+
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/locked-joint.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      inline void symSet (RelativeMotion::matrix_type& m, size_type i0, size_type i1, RelativeMotion::RelativeMotionType t)
+      {
+        m(i0,i1) = m(i1,i0) = t;
+      }
+
+      inline JointPtr_t getNonAnchorParent (const JointPtr_t j)
+      {
+        JointPtr_t parent = j;
+        // Find the closest non-fixed parent in the kinematic chain
+        while (
+            ((parent = parent->parentJoint()) != NULL) 
+            && parent->numberDof() == 0) {}
+        return parent;
+      }
+
+      inline size_type index (const JointPtr_t j, const size_type& idIfNull)
+      {
+        if (j == NULL) return idIfNull;
+        else return j->rankInVelocity();
+      }
+    }
+
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
     {
       assert (dev);
       const size_type N = dev->numberDof () + 1;
       matrix_type matrix (N, N);
       matrix.setConstant (Unconstrained);
+      matrix.diagonal().setConstant(Constrained);
       return matrix;
     }
 
@@ -38,6 +64,8 @@ namespace hpp {
         const DevicePtr_t& robot,
         const ConstraintSetPtr_t& c)
     {
+      using constraints::RelativeTransformation;
+      using constraints::RelativeTransformationPtr_t;
       assert (robot);
       assert (c);
 
@@ -47,16 +75,9 @@ namespace hpp {
 
       ConfigProjectorPtr_t proj = c->configProjector();
       if (!proj) return;
+
+      // Loop over the LockedJoint
       const LockedJoints_t& lj = proj->lockedJoints ();
-
-      typedef std::map <std::string, std::size_t> StringIndex_m;
-      typedef std::pair<JointPtr_t, bool> JointAndCstRhs_t;
-      typedef std::list<JointAndCstRhs_t> Joints_t;
-      typedef std::vector<Joints_t> JointLists_t;
-
-      StringIndex_m nameToIndex;
-      // A vector of (list of sequential locked joints)
-      JointLists_t jls;
       for (LockedJoints_t::const_iterator it = lj.begin ();
           it != lj.end (); ++it) {
         JointPtr_t j;
@@ -69,49 +90,69 @@ namespace hpp {
           hppDout (info, "Joint not found:" << e.what ());
           continue;
         }
-        JointPtr_t parent = j->parentJoint ();
-
         bool cstRHS = (*it)->comparisonType()->constantRightHandSide();
 
-        // Find the closest non-fixed parent in the kinematic chain
-        while (parent != NULL && parent->numberDof() == 0)
-          parent = parent->parentJoint();
-
-        if (parent == NULL ||
-            nameToIndex.find (parent->name()) == nameToIndex.end()) {
-          // Create a new list
-          nameToIndex[j->name()] = jls.size();
-          Joints_t js;
-          if (parent == NULL) js.push_back (JointAndCstRhs_t (NULL, true));
-          js.push_back (JointAndCstRhs_t (j, cstRHS));
-          jls.push_back (js);
-        } else {
-          std::size_t i = nameToIndex[parent->name()];
-          jls[i].push_back (JointAndCstRhs_t (j, cstRHS));
-          nameToIndex[j->name()] = i;
-        }
+        const size_type i1 = index(j, N-1),
+                        i2 = index(getNonAnchorParent(j),N-1);
+        recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
 
-      // Build the matrix of joint pairs to be disabled.
-      size_type i1, i2;
-      for (JointLists_t::const_iterator _jls = jls.begin();
-          _jls != jls.end(); ++_jls) {
-        for (Joints_t::const_iterator _js1 = _jls->begin();
-            _js1 != _jls->end(); ++_js1) {
-          RelativeMotionType type = Constrained;
-          const JointPtr_t j1 = _js1->first;
-          i1 = ((j1 == NULL) ? N - 1 : j1->rankInVelocity());
-          matrix(i1, i1) = Constrained;
-          for (Joints_t::const_iterator _js2 = ++Joints_t::const_iterator(_js1);
-              _js2 != _jls->end(); ++_js2) {
-            // If one LockedJoint in the chain has non-constant RHS,
-            // then the relative motion between the joints is parameterized.
-            if (!_js2->second) type = Parameterized;
-            const JointPtr_t j2 = _js2->first;
-            i2 = ((j2 == NULL) ? N - 1 : j2->rankInVelocity());
-            matrix(i1, i2) = type;
-            matrix(i2, i1) = type;
-          }
+      // Loop over the DifferentiableFunction
+      const NumericalConstraints_t& ncs = proj->numericalConstraints ();
+      for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
+          _ncs != ncs.end(); ++_ncs) {
+        const NumericalConstraint& nc = **_ncs;
+        if (nc.comparisonType()->constantRightHandSide()) {
+          RelativeTransformationPtr_t rt =
+            HPP_DYNAMIC_PTR_CAST(RelativeTransformation,
+                nc.functionPtr());
+          if (!rt && rt->outputSize() != 6) continue;
+          const size_type i1 = index(rt->joint1(), N-1),
+                          i2 = index(rt->joint2(), N-1);
+
+          bool cstRHS = nc.comparisonType()->constantRightHandSide();
+          recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
+        }
+      }
+    }
+
+    void RelativeMotion::recurseSetRelMotion(matrix_type& matrix,
+        const size_type& i1, const size_type& i2,
+        const RelativeMotion::RelativeMotionType& type)
+    {
+      bool param = (type == Parameterized);
+      RelativeMotionType t = Unconstrained;
+      if (type == Unconstrained) return;
+      symSet(matrix, i1, i2, type);
+
+      // i1 to i3
+      for (size_type i3 = 0; i3 < matrix.rows(); ++i3) {
+        if (i3 == i1) continue;
+        if (i3 == i2) continue;
+        if (matrix(i2,i3) != Unconstrained) {
+          t = (!param && matrix(i2,i3) == Constrained) ? Constrained : Parameterized;
+          symSet(matrix, i1, i3, t);
+        }
+      }
+      for (size_type i0 = 0; i0 < matrix.rows(); ++i0) {
+        if (i0 == i2) continue;
+        if (i0 == i1) continue;
+        // i0 to i2
+        if (matrix(i0,i1) != Unconstrained) {
+          t = (!param && matrix(i0,i1) == Constrained) ? Constrained : Parameterized;
+          symSet (matrix, i0, i2 ,t);
+        }
+
+        // from i0 to i3
+        if (matrix(i0,i1) == Unconstrained) continue;
+        for (size_type i3 = 0; i3 < matrix.rows(); ++i3) {
+          if (i3 == i2) continue;
+          if (i3 == i1) continue;
+          if (i3 == i0) continue;
+          if (matrix(i2,i3) == Unconstrained) continue;
+          t = (!param && matrix(i0,i1) == Constrained && matrix(i2,i3) == Constrained)
+            ? Constrained : Parameterized;
+          symSet (matrix, i0, i3, t);
         }
       }
     }

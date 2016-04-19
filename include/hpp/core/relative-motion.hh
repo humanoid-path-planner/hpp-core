@@ -45,7 +45,8 @@ namespace hpp {
 
       /// Fill the relative motion matrix with information extracted from the
       /// provided ConstraintSet.
-      /// \note Only LockedJoint are currently taken into account.
+      /// \note Only LockedJoint and RelativeTransformation of dimension 6
+      ///       are currently taken into account.
       /// \todo LockedJoint always has a non-constant RHS which means it will
       ///       always be treated a parameterized constraint. Even when the
       ///       value is not going to change...
@@ -53,6 +54,24 @@ namespace hpp {
           matrix_type& matrix,
           const DevicePtr_t& robot,
           const ConstraintSetPtr_t& constraint);
+
+      /// Set the relative motion between two joints
+      ///
+      /// This does nothing if type is Unconstrained.
+      /// The full matrix is updated as follow. For any indexes i0 and i3
+      /// different from both i1 and i2:
+      /// - set matrix(i0,i2) if i0 and i1 was constrained,
+      /// - set matrix(i1,i3) if i2 and i3 was constrained,
+      /// - set matrix(i0,i3) if the two previous condition are fulfilled.
+      ///
+      /// The RelativeMotionType is deduced as follow:
+      /// - RelativeMotion::Constrained   + RelativeMotion::Parameterized -> RelativeMotion::Parameterized
+      /// - RelativeMotion::Constrained   + RelativeMotion::Constrained   -> RelativeMotion::Constrained
+      /// - RelativeMotion::Parameterized + RelativeMotion::Parameterized -> RelativeMotion::Parameterized
+      /// - RelativeMotion::Unconstrained +                 *             -> RelativeMotion::Unconstrained
+      static void recurseSetRelMotion(matrix_type& matrix,
+          const size_type& i1, const size_type& i2,
+          const RelativeMotionType& type);
     };
   } // namespace core
 } // namespace hpp
