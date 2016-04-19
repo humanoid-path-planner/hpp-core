@@ -30,6 +30,7 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BasicConfigurationShooter);
+    HPP_PREDEF_CLASS (BiRRTPlanner);
     HPP_PREDEF_CLASS (CollisionPathValidation);
     struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
@@ -91,6 +92,7 @@ namespace hpp {
 
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
+    typedef boost::shared_ptr <BiRRTPlanner> BiRRTPlannerPtr_t;
     typedef hpp::model::Body Body;
     typedef hpp::model::BodyPtr_t BodyPtr_t;
     typedef boost::shared_ptr <CollisionPathValidationReport>
