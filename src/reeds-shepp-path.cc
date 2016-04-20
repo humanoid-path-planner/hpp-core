@@ -531,8 +531,7 @@ namespace hpp {
       parent_t (interval_t (0, 1.), device->configSize (),
 		device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
-      xyId_ (xyId), rzId_ (rzId),
-      sa_ (NULL), typeId_ (0), rho_ (rho)
+      xyId_ (xyId), rzId_ (rzId), typeId_ (0), rho_ (rho)
     {
       assert (device);
       assert (rho_ > 0);
@@ -547,8 +546,7 @@ namespace hpp {
       parent_t (interval_t (0, 1.), device->configSize (),
 		device->numberDof (), constraints),
       device_ (device), initial_ (init), end_ (end),
-      xyId_ (xyId), rzId_ (rzId),
-      sa_ (NULL), typeId_ (0), rho_ (rho)
+      xyId_ (xyId), rzId_ (rzId), typeId_ (0), rho_ (rho)
     {
       assert (device);
       assert (rho_ > 0);
@@ -557,9 +555,8 @@ namespace hpp {
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
       parent_t (path), device_ (path.device_), initial_ (path.initial_),
       end_ (path.end_), xyId_ (path.xyId_), rzId_ (path.rzId_),
-      sa_ (path.sa_),
-      typeId_ (path.typeId_),
-      lengths_(path.lengths_), rho_ (path.rho_)
+      wheels_ (path.wheels_),
+      typeId_ (path.typeId_), lengths_(path.lengths_), rho_ (path.rho_)
     {
     }
 
@@ -568,7 +565,7 @@ namespace hpp {
       parent_t (path, constraints), device_ (path.device_),
       initial_ (path.initial_), end_ (path.end_),
       xyId_ (path.xyId_), rzId_ (path.rzId_),
-      sa_ (path.sa_),
+      wheels_ (path.wheels_),
       typeId_ (path.typeId_), lengths_(path.lengths_), rho_ (path.rho_)
     {
       assert (constraints->apply (initial_));
@@ -582,17 +579,32 @@ namespace hpp {
       return (j->upperBound(i) + j->lowerBound(i))/2;
     }
 
-    void ReedsSheppPath::setWheelJoints (const JointPtr_t left,
-        const JointPtr_t right, const value_type& alphaPrime)
+    inline value_type saturate (const value_type& v, const JointPtr_t& j, const size_type& i)
     {
-      wheels_.l = left;
-      wheels_.r = right;
-      wheels_.Sl = meanBounds(left,0);
-      wheels_.Sr = meanBounds(right,0);
-      wheels_.Ll = left->upperBound(0);
-      wheels_.Lr = wheels_.Sr + alphaPrime;
-      wheels_.Rl = wheels_.Sl - alphaPrime;
-      wheels_.Rr = right->lowerBound(0);
+      return std::min(j->upperBound(i), std::max(j->lowerBound(i), v));
+    }
+
+    void ReedsSheppPath::setWheelJoints (const JointPtr_t rz,
+        const std::vector<JointPtr_t> wheels)
+    {
+      Transform3f zt (rz->currentTransformation ());
+      zt.inverse();
+
+      wheels_.resize(wheels.size());
+      std::size_t rk = 0;
+      for (std::vector<JointPtr_t>::const_iterator _wheels = wheels.begin();
+          _wheels != wheels.end(); ++_wheels) {
+        wheels_[rk].j = *_wheels;
+        wheels_[rk].S = meanBounds(wheels_[rk].j, 0);
+
+        const vector3_t radius = zt.transform (wheels_[rk].j->currentTransformation().getTranslation());
+        const value_type left  = std::atan(radius[2] / (- radius[1] - rho_));
+        const value_type right = std::atan(radius[2] / (- radius[1] + rho_));
+
+        wheels_[rk].L = saturate(wheels_[rk].S + left, *_wheels, 0);
+        wheels_[rk].R = saturate(wheels_[rk].S + right, *_wheels, 0);
+        ++rk;
+      }
     }
 
     void ReedsSheppPath::buildReedsShepp()
@@ -630,14 +642,11 @@ namespace hpp {
       model::interpolate (device_, initial_, end_, u, result);
 
       // Compute the position of the car.
-      bool hasWs = (wheels_.l != NULL && wheels_.r != NULL);
-      bool hasSa = (!hasWs && sa_ != NULL);
-      const size_type lwId = (hasWs?wheels_.l->rankInConfiguration():-1),
-                      rwId = (hasWs?wheels_.r->rankInConfiguration():-1),
-                      saId = (hasSa?sa_->rankInConfiguration():-1);
       result.segment <2> (xyId_).setZero();
       value_type t = param, v,
                  phi = atan2(initial_(rzId_+1), initial_(rzId_));
+
+      SegmentType lastType = RS_NOP;
       for (unsigned int i=0; i<5 && t>0; ++i)
       {
         if (lengths_[i] < 0) {
@@ -653,22 +662,19 @@ namespace hpp {
           case RS_LEFT:
             result(xyId_+0) +=   sin(phi+v) - sin(phi);
             result(xyId_+1) += - cos(phi+v) + cos(phi);
-            if (hasWs) { result(lwId) = wheels_.Ll; result(rwId) = wheels_.Lr; }
-            if (hasSa) result(saId) = sa_->upperBound(0);
+            lastType = RS_LEFT;
             phi += v;
             break;
           case RS_RIGHT:
             result(xyId_+0) += - sin(phi-v) + sin(phi);
             result(xyId_+1) +=   cos(phi-v) - cos(phi);
-            if (hasWs) { result(lwId) = wheels_.Rl; result(rwId) = wheels_.Rr; }
-            if (hasSa) result(saId) = sa_->lowerBound(0);
+            lastType = RS_RIGHT;
             phi -= v;
             break;
           case RS_STRAIGHT:
             result(xyId_+0) += v * cos(phi);
             result(xyId_+1) += v * sin(phi);
-            if (hasWs) { result(lwId) = wheels_.Sl; result(rwId) = wheels_.Sr; }
-            if (hasSa) result(saId) = meanBounds(sa_, 0);
+            lastType = RS_STRAIGHT;
             break;
           case RS_NOP:
             break;
@@ -678,6 +684,26 @@ namespace hpp {
       result.segment <2> (xyId_) += initial_.segment<2>(xyId_);
       result(rzId_+0) = cos(phi);
       result(rzId_+1) = sin(phi);
+      switch(lastType)
+      {
+        case RS_LEFT:
+          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+              _w != wheels_.end(); ++_w)
+            result(_w->j->rankInConfiguration()) = _w->L;
+          break;
+        case RS_RIGHT:
+          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+              _w != wheels_.end(); ++_w)
+            result(_w->j->rankInConfiguration()) = _w->R;
+          break;
+        case RS_STRAIGHT:
+          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+              _w != wheels_.end(); ++_w)
+            result(_w->j->rankInConfiguration()) = _w->S;
+          break;
+        case RS_NOP:
+          break;
+      }
       return true;
     }
   } //   namespace hpp-core

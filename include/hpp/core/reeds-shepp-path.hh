@@ -128,15 +128,12 @@ namespace hpp {
         return end_;
       }
 
-      /// Set the wheel joint for a motorcycle-like vehicle.
-      inline void setSteeringJoint (const JointPtr_t sa)
-      {
-        sa_ = sa;
-      }
-
       /// Set the wheel joints for a car-like vehicle.
-      void setWheelJoints (const JointPtr_t left, const JointPtr_t right,
-          const value_type& alphaPrime);
+      ///
+      /// \param rz joint from which the turning radius was computed.
+      /// \param wheels bounded rotation joints.
+      void setWheelJoints (const JointPtr_t rz,
+          const std::vector<JointPtr_t> wheels);
 
     protected:
       /// Print path in a stream
@@ -203,14 +200,12 @@ namespace hpp {
       Configuration_t initial_;
       Configuration_t end_;
       const size_type xyId_,rzId_;
-      JointPtr_t sa_;
       struct Wheels_t {
-        value_type Ll, Lr; // Left turn
-        value_type Rl, Rr; // Right turn
-        value_type Sl, Sr; // Straight
-        JointPtr_t l, r;
-        Wheels_t () : l(NULL), r(NULL) {}
-      } wheels_;
+        value_type L, R, S; // Left, Right and Straight turn
+        JointPtr_t j;
+        Wheels_t () : j(NULL) {}
+      };
+      std::vector<Wheels_t> wheels_;
       std::size_t typeId_;
       Lengths_t lengths_;
       value_type rho_;

@@ -22,12 +22,9 @@
 # include <hpp/util/debug.hh>
 # include <hpp/util/pointer.hh>
 
-# include <hpp/model/joint.hh>
-
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/steering-method.hh>
-# include <hpp/core/reeds-shepp-path.hh>
 
 namespace hpp {
   namespace core {
@@ -40,14 +37,37 @@ namespace hpp {
       class HPP_CORE_DLLAPI ReedsShepp : public SteeringMethod
       {
         public:
-          /// Create instance and return shared pointer
-          static ReedsSheppPtr_t create (const ProblemPtr_t& problem)
+          /// Create an instance
+          ///
+          /// This constructor assumes that:
+          /// - the 2 parameters of the configurations corresponds to the XY
+          ///   translation joint,
+          /// - the 2 following parameters corresponds to the RZ unbounded
+          ///   rotation joint.
+          /// Use ReedsShepp::setWheelJoints to set the wheel joints.
+          static ReedsSheppPtr_t createWithGuess (const ProblemPtr_t& problem)
           {
             ReedsShepp* ptr = new ReedsShepp (problem);
             ReedsSheppPtr_t shPtr (ptr);
             ptr->init (shPtr);
             return shPtr;
           }
+
+          /// Create an instance
+          ///
+          /// This constructor does no assumption.
+          static ReedsSheppPtr_t create (const ProblemPtr_t& problem,
+              const value_type turningRadius,
+              JointPtr_t xyJoint, JointPtr_t rzJoint,
+              std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
+          {
+            ReedsShepp* ptr = new ReedsShepp (problem, turningRadius,
+                xyJoint, rzJoint, wheels);
+            ReedsSheppPtr_t shPtr (ptr);
+            ptr->init (shPtr);
+            return shPtr;
+          }
+
           /// Copy instance and return shared pointer
           static ReedsSheppPtr_t createCopy
             (const ReedsSheppPtr_t& other)
@@ -57,6 +77,7 @@ namespace hpp {
               ptr->init (shPtr);
               return shPtr;
             }
+
           /// Copy instance and return shared pointer
           virtual SteeringMethodPtr_t copy () const
           {
@@ -65,32 +86,38 @@ namespace hpp {
 
           /// create a path between two configurations
           virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
-              ConfigurationIn_t q2) const
+              ConfigurationIn_t q2) const;
+
+          /// Set the wheels
+          /// \param computeRadius when true, the turning radius is computed
+          ///        from the position of the wheels.
+          void setWheelJoints (const std::vector<JointPtr_t> wheels)
           {
-            ReedsSheppPathPtr_t path =
-              ReedsSheppPath::create (device_.lock (), q1, q2,
-                  rho_ , xy_->rankInConfiguration(),
-                  rz_->rankInConfiguration(), constraints ());
-            if (lw_ && rw_) path->setWheelJoints (lw_, rw_, alphaPrime_);
-            if (sa_) path->setSteeringJoint (sa_);
-            return path;
+            wheels_ = wheels;
           }
+
+          /// Compute the turning radius.
+          ///
+          /// The turning radius is the maximum of the turning radius of each
+          /// wheel. The turning radius of a wheel is the radius of the circle
+          /// defined by:
+          /// - its center is on the plane x = 0 in the frame of joint RZ,
+          /// - the origin of joint RZ is on the circle,
+          /// - the bounds of the joint wheel are saturated.
+          void computeRadius ();
+
         protected:
-          /// Constructor with robot
-          /// Weighed distance is created from robot
-          ReedsShepp (const ProblemPtr_t& problem) :
-            SteeringMethod (problem), device_ (problem->robot ()),
-            rho_ (1.), weak_ ()
-        {
-          computeDistanceBetweenAxes ();
-        }
+          /// Constructor
+          ReedsShepp (const ProblemPtr_t& problem);
+
+          /// Constructor
+          ReedsShepp (const ProblemPtr_t& problem,
+              const value_type turningRadius,
+              JointPtr_t xyJoint, JointPtr_t rzJoint,
+              std::vector <JointPtr_t> wheels);
 
           /// Copy constructor
-          ReedsShepp (const ReedsShepp& other) :
-            SteeringMethod (other), device_ (other.device_),
-            rho_ (other.rho_)
-        {
-        }
+          ReedsShepp (const ReedsShepp& other);
 
           /// Store weak pointer to itself
           void init (ReedsSheppWkPtr_t weak)
@@ -98,79 +125,17 @@ namespace hpp {
             core::SteeringMethod::init (weak);
             weak_ = weak;
           }
+
         private:
-          inline void computeAngles() 
-          {
-            const Transform3f& zt (rz_->currentTransformation ());
-            const Transform3f& lt (lw_->currentTransformation ());
-            const Transform3f& rt (rw_->currentTransformation ());
-            const vector3_t& zp (zt.getTranslation ());
-            const vector3_t& lp (lt.getTranslation ());
-            const vector3_t& rp (rt.getTranslation ());
-            value_type beta = (zp - (lp + rp) / 2).norm();
-            value_type delta = (lp - rp).norm();
-            alpha_ = (lw_->upperBound(0) - lw_->lowerBound(0)) / 2;
-            rho_ = delta / 2 + beta / std::tan(alpha_);
-            alphaPrime_ = std::atan2(beta, rho_ + delta/2);
-          }
+          value_type computeAngle(const JointPtr_t wheel) const;
 
-          inline void computeAngle() 
-          {
-            const Transform3f& zt (rz_->currentTransformation ());
-            const Transform3f& st (sa_->currentTransformation ());
-            const vector3_t& zp (zt.getTranslation ());
-            const vector3_t& sp (st.getTranslation ());
-            value_type beta = (zp - sp).norm();
-            alpha_ = (lw_->upperBound(0) - lw_->lowerBound(0)) / 2;
-            rho_ = beta / std::tan(alpha_);
-          }
-
-          void computeDistanceBetweenAxes ()
-          {
-            DevicePtr_t d (device_.lock());
-            sa_ = NULL; lw_ = NULL; rw_ = NULL;
-            rho_ = 1;
-            xy_ = d->rootJoint ();
-            // Test that kinematic chain is as expected
-            if (!dynamic_cast <model::JointTranslation <2>* > (xy_)) {
-              throw std::runtime_error ("root joint should be of type "
-                  "model::JointTranslation <2>");
-            }
-            if (xy_->numberChildJoints () != 1) {
-              throw std::runtime_error ("Root joint should have one child");
-            }
-            rz_ = xy_->childJoint (0);
-            if (!dynamic_cast <model::jointRotation::UnBounded*> (rz_)) {
-              throw std::runtime_error ("second joint should be of type "
-                  "model::jointRotation::Unbounded");
-            }
-            try {
-              const model::JointGroup_t& g = d->jointGroup ("reedsshepp_wheels");
-              switch (g.size()) {
-                case 1: {
-                          sa_ = g[0];
-                          computeAngle ();
-                        }
-                        break;
-                case 2: {
-                          lw_ = g[0]; // Left wheel first
-                          rw_ = g[1];
-                          computeAngles ();
-                        }
-                        break;
-                default:
-                        break;
-              }
-            } catch (const std::runtime_error&) {
-              throw std::runtime_error ("A group named \"reedsshepp_wheels\" must be defined in the SRDF");
-            }
-            hppDout (info, "rho_ = " << rho_);
-          }
+          void guessWheels();
 
           DeviceWkPtr_t device_;
           // distance between front and rear wheel axes.
-          value_type rho_, alpha_, alphaPrime_;
-          JointPtr_t xy_, rz_, sa_, lw_, rw_;
+          value_type rho_;
+          JointPtr_t xy_, rz_;
+          std::vector<JointPtr_t> wheels_;
           ReedsSheppWkPtr_t weak_;
       }; // ReedsShepp
       /// \}

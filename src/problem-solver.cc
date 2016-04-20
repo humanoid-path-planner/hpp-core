@@ -101,7 +101,7 @@ namespace hpp {
             static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
               (&SteeringMethodStraight::create), _1
             ));
-      add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::create);
+      add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
