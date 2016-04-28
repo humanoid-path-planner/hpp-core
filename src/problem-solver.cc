@@ -492,20 +492,21 @@ namespace hpp {
                              (steeringMethodType_) (problem_));
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
-      PathPtr_t validSection;
-      bool PathValid = false;
-      PathValidationReportPtr_t report;
-      if (!problem()->pathValidation ()->validate
-	 (dp, PathValid, validSection, report)) {
+      if (!dp) throw std::runtime_error ("The steering method failed to create a path");
+      PathPtr_t vp;
+      bool valid = false;
+      PathValidationReportPtr_t rpt;
+      valid = problem()->pathValidation ()->validate(dp, false, vp, rpt);
+      if (!valid) {
 	hppDout(info, "Path only partly valid!");
-	dp = validSection;
+	dp = vp;
       }
       // Add Path in problem
       PathVectorPtr_t path (core::PathVector::create (dp->outputSize (),
 		 	   dp->outputDerivativeSize ()));
       path->appendPath (dp);
       pathId = addPath (path);
-      return PathValid;
+      return valid;
     }
 
     bool ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
