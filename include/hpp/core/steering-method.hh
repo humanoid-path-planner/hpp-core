@@ -19,8 +19,11 @@
 #ifndef HPP_CORE_STEERING_METHOD_HH
 # define HPP_CORE_STEERING_METHOD_HH
 
+# include <hpp/util/debug.hh>
+
 # include <hpp/core/fwd.hh>
 # include <hpp/core/path.hh>
+# include <hpp/core/projection-error.hh>
 
 namespace hpp {
   namespace core {
@@ -41,7 +44,12 @@ namespace hpp {
       PathPtr_t operator() (ConfigurationIn_t q1,
 			    ConfigurationIn_t q2) const
       {
-	return impl_compute (q1, q2);
+        try {
+          return impl_compute (q1, q2);
+        } catch (const projection_error& e) {
+          hppDout (info, "Could not build path: " << e.what());
+        }
+	return PathPtr_t ();
       }
 
       /// Copy instance and return shared pointer
