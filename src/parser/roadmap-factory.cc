@@ -118,8 +118,7 @@ namespace hpp {
 
         /// Get all the edges and build a path
         ObjectFactory::ObjectFactoryList pathList = getChildrenOfType ("path");
-        SteeringMethodPtr_t sm_ptr = problem_->steeringMethod ();
-        SteeringMethod& sm = *sm_ptr;
+        SteeringMethodPtr_t sm = problem_->steeringMethod ();
         for (ObjectFactory::ObjectFactoryList::const_iterator
             it = pathList.begin(); it != pathList.end(); ++it) {
           ObjectFactory* p = *it;
@@ -127,8 +126,19 @@ namespace hpp {
                 toId = boost::lexical_cast <int> (p->getAttribute ("to"));
           NodePtr_t from = nodes_[fromId],
                     to   = nodes_[toId];
-          PathPtr_t path = sm (*(from->configuration()),
-                               *(to  ->configuration()));
+          PathPtr_t path = (*sm) (*(from->configuration()),
+                                  *(to  ->configuration()));
+          if (!path) {
+            hppDout (warning, "Unable to create path from " << fromId << " to "
+                << toId << ". Trying reverse path");
+            path = (*sm) (*(to  ->configuration()),
+                          *(from->configuration()));
+            if (path) path = path->reverse();
+            else {
+              hppDout (error, "Reverse path could not be built");
+              continue;
+            }
+          }
           if (o->hasAttribute ("constraint")) {
             std::string constraintName = o->getAttribute ("constraint");
             hppDout (warning, "Constraints in paths is not supported yet");
