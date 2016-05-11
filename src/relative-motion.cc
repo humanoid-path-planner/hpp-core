@@ -106,7 +106,7 @@ namespace hpp {
           RelativeTransformationPtr_t rt =
             HPP_DYNAMIC_PTR_CAST(RelativeTransformation,
                 nc.functionPtr());
-          if (!rt && rt->outputSize() != 6) continue;
+          if (!rt || rt->outputSize() != 6) continue;
           const size_type i1 = index(rt->joint1(), N-1),
                           i2 = index(rt->joint2(), N-1);
 
