@@ -50,10 +50,18 @@ namespace hpp {
 
       RoadmapPtr_t readRoadmap (const std::string& fn, const ProblemPtr_t& problem)
       {
+        return readRoadmap (fn, 
+            Roadmap::create (problem->distance(), problem->robot()),
+            problem);
+      }
+
+      RoadmapPtr_t readRoadmap (const std::string& fn,
+          const RoadmapPtr_t& roadmap, const ProblemPtr_t& problem)
+      {
         using namespace hpp::util::parser;
         Parser p;
         p.addObjectFactory ("roadmap",
-            boost::bind (RoadmapFactory::create, problem, _1, _2));
+            boost::bind (RoadmapFactory::create, roadmap, problem, _1, _2));
         p.addObjectFactory ("joints", create <StringSequence>);
         p.addObjectFactory ("node", create <ConfigurationFactory>);
         p.addObjectFactory ("goal_nodes", create <IdSequence>);
@@ -61,13 +69,16 @@ namespace hpp {
         p.parseFile (fn);
         ObjectFactory* rf = 0;
         p.root ()->getChildOfType ("roadmap", rf);
-        return rf->as<RoadmapFactory>()->roadmap ();
+        return roadmap;
       }
 
-      RoadmapFactory::RoadmapFactory (const ProblemPtr_t& problem,
+      RoadmapFactory::RoadmapFactory (
+          const RoadmapPtr_t& roadmap, const ProblemPtr_t& problem,
           ObjectFactory* parent, const XMLElement* element)
-        : ObjectFactory (parent, element), problem_ (problem),
-        extraCSsize_ (0)
+        : ObjectFactory (parent, element)
+          , problem_ (problem)
+          , roadmap_ (roadmap)
+          , extraCSsize_ (0)
       {
       }
 
@@ -92,8 +103,6 @@ namespace hpp {
         getChildOfType ("joints", o);
         StringSequence* jointNames = o->as <StringSequence>();
         computePermutation (jointNames->values());
-
-        roadmap_ = Roadmap::create (problem_->distance(), problem_->robot());
 
         /// Get all the configurations and build the list of nodes
         ObjectFactory::ObjectFactoryList nodeList = getChildrenOfType ("node");
@@ -227,7 +236,8 @@ namespace hpp {
             }
             of->addAttribute ("from", boost::lexical_cast <std::string> (fromId));
             of->addAttribute ("to", boost::lexical_cast <std::string> (toId));
-            of->addAttribute ("constraint", (*ed)->path()->constraints()->name());
+            ConstraintSetPtr_t c = (*ed)->path()->constraints();
+            if (c) of->addAttribute ("constraint", c->name());
           }
           fromId++;
         }
