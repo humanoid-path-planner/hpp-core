@@ -542,6 +542,11 @@ namespace hpp {
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
+			if (obstacleMap_.find (object->name()) != obstacleMap_.end()) {
+					std::string errorMsg = "object with name " + object->name () +
+					" already added! Choose another name (prefix).";
+					throw std::runtime_error (errorMsg);
+			}
 
       if (collision){
 	collisionObstacles_.push_back (object);
