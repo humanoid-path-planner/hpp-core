@@ -494,11 +494,12 @@ namespace hpp {
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
       PathPtr_t validSection;
-      bool PathValid = false;
       PathValidationReportPtr_t report;
-      if (!problem()->pathValidation ()->validate
-	 (dp, PathValid, validSection, report)) {
+      bool PathValid = problem()->pathValidation ()->validate
+	(dp, false, validSection, report);
+      if (!PathValid) {
 	hppDout(info, "Path only partly valid!");
+	hppDout (info, *report);
 	dp = validSection;
       }
       // Add Path in problem

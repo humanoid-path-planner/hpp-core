@@ -438,6 +438,9 @@ namespace hpp {
       /// \param start, end: the configurations to link.
       /// \param pathId gets updated within the function as path added into path vector
       /// return false if direct path is not fully valid
+      ///
+      /// \note If path is only partly valid, valid part starting at start
+      ///       configuration is inserted in path vector.
       bool directPath (ConfigurationIn_t start, ConfigurationIn_t end,
           std::size_t& pathId);
 
