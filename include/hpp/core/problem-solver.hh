@@ -513,6 +513,16 @@ namespace hpp {
 	roadmap_ = roadmap;
       }
 
+      /// Initialize steering method
+      ///
+      /// Set steering method by calling the steering method factory
+      void initSteeringMethod ();
+
+      /// Initialize path projector
+      ///
+      /// Set path projector by calling path projector factory
+      void initPathProjector ();
+
     protected:
       /// Constructor
       ///

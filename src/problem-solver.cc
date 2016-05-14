@@ -204,11 +204,7 @@ namespace hpp {
       pathProjectorTolerance_ = tolerance;
       // If a robot is present, set path projector method
       if (robot_ && problem_) {
-	PathProjectorPtr_t pathProjector =
-          get <PathProjectorBuilder_t> (pathProjectorType_)
-	  (problem_->distance (), problem_->steeringMethod (),
-	   pathProjectorTolerance_);
-	problem_->pathProjector (pathProjector);
+	initPathProjector ();
       }
     }
 
@@ -404,32 +400,41 @@ namespace hpp {
       }
     }
 
-    void ProblemSolver::initProblem ()
+    void ProblemSolver::initSteeringMethod ()
     {
-      // Set shooter
-      problem_->configurationShooter
-        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
-      // Set steeringMethod
       SteeringMethodPtr_t sm (
           get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
           );
       problem_->steeringMethod (sm);
-      PathPlannerBuilder_t createPlanner =
-        get <PathPlannerBuilder_t> (pathPlannerType_);
-      pathPlanner_ = createPlanner (*problem_, roadmap_);
-      roadmap_ = pathPlanner_->roadmap();
-      /// create Path projector
+    }
+
+    void ProblemSolver::initPathProjector ()
+    {
       PathProjectorBuilder_t createProjector =
         get <PathProjectorBuilder_t> (pathProjectorType_);
       // Create a default steering method until we add a steering method
       // factory.
       // TODO: the steering method of a path projector should not have
       //       the problem constraints.
-      PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), 
-            SteeringMethodStraight::create (problem_),
-            pathProjectorTolerance_);
-      problem_->pathProjector (pathProjector_);
+      PathProjectorPtr_t pathProjector = createProjector
+	(problem_->distance (), problem_->steeringMethod (),
+	 pathProjectorTolerance_);
+      problem_->pathProjector (pathProjector);
+    }
+
+    void ProblemSolver::initProblem ()
+    {
+      // Set shooter
+      problem_->configurationShooter
+        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
+      // Set steeringMethod
+      initSteeringMethod ();
+      PathPlannerBuilder_t createPlanner =
+        get <PathPlannerBuilder_t> (pathPlannerType_);
+      pathPlanner_ = createPlanner (*problem_, roadmap_);
+      roadmap_ = pathPlanner_->roadmap();
+      /// create Path projector
+      initPathProjector ();
       /// create Path optimizer
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
