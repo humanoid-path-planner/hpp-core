@@ -436,13 +436,14 @@ namespace hpp {
 
       /// Make direct connection between two configurations
       /// \param start, end: the configurations to link.
-      /// \param pathId gets updated within the function as path added into path vector
+      /// \retval pathId Id of the path that is inserted in the path vector,
+      /// \retval report Reason for non validation if relevant.
       /// return false if direct path is not fully valid
       ///
       /// \note If path is only partly valid, valid part starting at start
       ///       configuration is inserted in path vector.
       bool directPath (ConfigurationIn_t start, ConfigurationIn_t end,
-          std::size_t& pathId);
+		       std::size_t& pathId, std::string& report);
 
       /// Add random configuration into roadmap as new node. 
       bool addConfigToRoadmap (const ConfigurationPtr_t& config);
