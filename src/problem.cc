@@ -181,5 +181,21 @@ namespace hpp {
 
     // ======================================================================
 
+    void Problem::setParameter (const std::string& name, const boost::any& value)
+      throw (std::invalid_argument)
+    {
+      if (has<boost::any>(name)) {
+        const boost::any& val = get<boost::any>(name);
+        if (value.type() != val.type()) {
+          std::string ret = "Wrong boost::any type. Expects ";
+          ret += val.type().name();
+          throw std::invalid_argument (ret.c_str());
+        }
+      }
+      add<boost::any> (name, value);
+    }
+
+    // ======================================================================
+
   } // namespace core
 } // namespace hpp

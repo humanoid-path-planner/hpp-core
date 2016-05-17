@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2014 CNRS
-// Authors: Florent Lamiraux
+// Authors: Florent Lamiraux, Joseph Mirabel
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -30,6 +30,7 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BasicConfigurationShooter);
+    HPP_PREDEF_CLASS (BiRRTPlanner);
     HPP_PREDEF_CLASS (CollisionPathValidation);
     struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
@@ -73,6 +74,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
     HPP_PREDEF_CLASS (InterpolatedPath);
+    HPP_PREDEF_CLASS (ReedsSheppPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
@@ -91,6 +93,7 @@ namespace hpp {
 
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
+    typedef boost::shared_ptr <BiRRTPlanner> BiRRTPlannerPtr_t;
     typedef hpp::model::Body Body;
     typedef hpp::model::BodyPtr_t BodyPtr_t;
     typedef boost::shared_ptr <CollisionPathValidationReport>
@@ -188,6 +191,8 @@ namespace hpp {
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
     typedef boost::shared_ptr <const StraightPath> StraightPathConstPtr_t;
+    typedef boost::shared_ptr <ReedsSheppPath> ReedsSheppPathPtr_t;
+    typedef boost::shared_ptr <const ReedsSheppPath> ReedsSheppPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
@@ -198,6 +203,7 @@ namespace hpp {
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef model::Transform3f Transform3f;
     typedef model::vector3_t vector3_t;
+    typedef Eigen::Matrix<value_type, 2, 1> vector2_t;
     typedef model::vector_t vector_t;
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
@@ -263,6 +269,8 @@ namespace hpp {
     namespace steeringMethod {
       HPP_PREDEF_CLASS (Interpolated);
       typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
+      HPP_PREDEF_CLASS (ReedsShepp);
+      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
     } // namespace steeringMethod
 
     namespace problemTarget {

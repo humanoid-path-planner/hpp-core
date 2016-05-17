@@ -19,6 +19,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/model/collision-object.hh>
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/core/bi-rrt-planner.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
@@ -37,6 +38,7 @@
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/reeds-shepp.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
@@ -91,6 +93,7 @@ namespace hpp {
     {
       add <PathPlannerBuilder_t> ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
       add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
+      add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
@@ -98,6 +101,7 @@ namespace hpp {
             static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
               (&SteeringMethodStraight::create), _1
             ));
+      add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
@@ -552,6 +556,11 @@ namespace hpp {
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
+			if (obstacleMap_.find (object->name()) != obstacleMap_.end()) {
+					std::string errorMsg = "object with name " + object->name () +
+					" already added! Choose another name (prefix).";
+					throw std::runtime_error (errorMsg);
+			}
 
       if (collision){
 	collisionObstacles_.push_back (object);

@@ -90,15 +90,18 @@ namespace hpp {
         throw (projection_error)
       {
 	ExtractedPathPtr_t path = createCopy (weak_.lock ());
-	bool reversed = subInterval.first > subInterval.second ? true : false;
 	value_type tmin, tmax;
-	if (reversed) {
-	  tmin = subInterval.second; tmax = subInterval.first;
-	} else {
-	  tmin = subInterval.first; tmax = subInterval.second;
-	}
-	path->reversed_ = ((this->reversed_) && (!reversed)) ||
-	  ((!this->reversed_) && (reversed));
+        if (this->reversed_) {
+	  tmin = timeRange ().first + timeRange ().second - subInterval.first;
+	  tmax = timeRange ().first + timeRange ().second - subInterval.second;
+        } else {
+	  tmin = subInterval.first;
+	  tmax = subInterval.second;
+        }
+	path->reversed_ = tmin > tmax;
+	if (path->reversed_) std::swap (tmin, tmax);
+	// path->reversed_ = ((this->reversed_) && (!reversed)) ||
+	  // ((!this->reversed_) && (reversed));
 	path->timeRange_ = std::make_pair (tmin, tmax);
 	assert (path->timeRange_.first >= timeRange ().first);
 	assert (path->timeRange_.second <= timeRange ().second);
@@ -106,17 +109,21 @@ namespace hpp {
       }
 
       /// Get the initial configuration
-      Configuration_t initial () const
+      inline Configuration_t initial () const
       {
 	bool success;
-        return (*original_)(timeRange_.first, success);
+        return (*original_)(timeRange_.first +
+              reversed_?timeRange_.second:0,
+              success);
       }
 
       /// Get the final configuration
-      Configuration_t end () const
+      inline Configuration_t end () const
       {
 	bool success;
-        return (*original_)(timeRange_.second, success);
+        return (*original_)(timeRange_.first +
+              reversed_?0:timeRange_.second,
+              success);
       }
 
     protected:
