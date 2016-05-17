@@ -21,9 +21,8 @@
 # define HPP_CORE_PATH_OPTIMIZATION_COLLISION_CONSTRAINTS_RESULT_HH
 
 # include <hpp/fcl/distance.h>
-# include <hpp/constraints/position.hh>
-# include <hpp/constraints/relative-position.hh>
 # include <hpp/model/fcl-to-eigen.hh>
+# include <hpp/constraints/generic-transformation.hh>
 
 namespace hpp {
   namespace core {

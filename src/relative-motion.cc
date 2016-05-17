@@ -19,7 +19,7 @@
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
-#include <hpp/constraints/relative-transformation.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>

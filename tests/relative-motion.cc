@@ -42,7 +42,7 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/model/object-factory.hh>
 
-#include <hpp/constraints/relative-transformation.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/relative-motion.hh>

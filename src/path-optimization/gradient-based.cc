@@ -38,13 +38,7 @@
 #include <hpp/core/path-optimization/path-length.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/constraints/differentiable-function.hh>
-#include <hpp/constraints/position.hh>
-#include <hpp/constraints/relative-position.hh>
-#include <hpp/constraints/orientation.hh>
-#include <hpp/constraints/relative-orientation.hh>
-#include <hpp/constraints/transformation.hh>
-#include <hpp/constraints/relative-transformation.hh>
+#include <hpp/constraints/generic-transformation.hh>
 #include "path-optimization/collision-constraints-result.hh"
 
 namespace hpp {

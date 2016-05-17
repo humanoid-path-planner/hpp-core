@@ -18,7 +18,7 @@
 # define HPP_CORE_EXPLICIT_RELATIVE_TRANSFORM_HH
 
 # include <hpp/fcl/math/transform.h>
-# include <hpp/constraints/relative-transformation.hh>
+# include <hpp/constraints/generic-transformation.hh>
 # include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {

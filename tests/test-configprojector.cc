@@ -24,10 +24,7 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/model/object-factory.hh>
 
-#include <hpp/constraints/position.hh>
-#include <hpp/constraints/orientation.hh>
-#include <hpp/constraints/relative-position.hh>
-#include <hpp/constraints/relative-orientation.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 using hpp::model::Device;
 using hpp::model::DevicePtr_t;
@@ -275,12 +272,12 @@ BOOST_AUTO_TEST_CASE (ref_zero)
   JointPtr_t xyz = dev->getJointByName ("test_z");
   matrix3_t rot; rot.setIdentity ();
   vector3_t zero; zero.setZero();
-  ComparisonType::VectorOfTypes types (3, ComparisonType::Inferior);
+  ComparisonType::VectorOfTypes types (3, ComparisonType::Superior);
   BOOST_REQUIRE (dev);
   PositionPtr_t position =
-    Position::create (dev, xyz, zero, zero, rot);
+    Position::create ("Position", dev, xyz, zero);
 
-  types[1] = ComparisonType::Superior;
+  types[1] = ComparisonType::Inferior;
   ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
@@ -311,13 +308,13 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   matrix3_t rot; rot.setIdentity ();
   vector3_t zero; zero.setZero();
   vector_t ref(3);
-  ComparisonType::VectorOfTypes types (3, ComparisonType::Inferior);
+  ComparisonType::VectorOfTypes types (3, ComparisonType::Superior);
   BOOST_REQUIRE (dev);
   PositionPtr_t position =
-    Position::create (dev, xyz, zero, vector3_t (1,1,1), rot);
+    Position::create ("Position", dev, xyz, zero, vector3_t (1,1,1));
 
   ref[0] = 0; ref[1] = 0; ref[2] = 0;
-  types[1] = ComparisonType::Superior;
+  types[1] = ComparisonType::Inferior;
   ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
