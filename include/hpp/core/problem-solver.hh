@@ -436,6 +436,9 @@ namespace hpp {
 
       /// Make direct connection between two configurations
       /// \param start, end: the configurations to link.
+      /// \param validate whether path should be validated. If true, path
+      ///        validation is called and only valid part of path is inserted
+      ///        in the path vector.
       /// \retval pathId Id of the path that is inserted in the path vector,
       /// \retval report Reason for non validation if relevant.
       /// return false if direct path is not fully valid
@@ -443,13 +446,13 @@ namespace hpp {
       /// \note If path is only partly valid, valid part starting at start
       ///       configuration is inserted in path vector.
       bool directPath (ConfigurationIn_t start, ConfigurationIn_t end,
-		       std::size_t& pathId, std::string& report);
+		       bool validate, std::size_t& pathId, std::string& report);
 
-      /// Add random configuration into roadmap as new node. 
+      /// Add random configuration into roadmap as new node.
       bool addConfigToRoadmap (const ConfigurationPtr_t& config);
 
       /// Add an edge between two roadmap nodes.
-      bool addEdgeToRoadmap (const ConfigurationPtr_t& config1, 
+      bool addEdgeToRoadmap (const ConfigurationPtr_t& config1,
                              const ConfigurationPtr_t& config2, const PathPtr_t& path);
 
       /// Interrupt path planning and path optimization

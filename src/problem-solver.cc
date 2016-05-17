@@ -485,9 +485,9 @@ namespace hpp {
       optimizePath (path);
     }
 
-    bool ProblemSolver::directPath (ConfigurationIn_t start,
-				    ConfigurationIn_t end, std::size_t& pathId,
-				    std::string& report)
+    bool ProblemSolver::directPath
+    (ConfigurationIn_t start, ConfigurationIn_t end, bool validate,
+     std::size_t& pathId, std::string& report)
     {
       // Create steering method using factory
       SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
@@ -496,8 +496,11 @@ namespace hpp {
       PathPtr_t dp = (*sm) (start, end);
       PathPtr_t validSection;
       PathValidationReportPtr_t r;
-      bool PathValid = problem()->pathValidation ()->validate
-	(dp, false, validSection, r);
+      bool PathValid = true;
+      if (validate) {
+	PathValid = problem()->pathValidation ()->validate
+	  (dp, false, validSection, r);
+      }
       if (!PathValid) {
 	hppDout(info, "Path only partly valid!");
 	hppDout (info, *r);
