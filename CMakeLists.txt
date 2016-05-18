@@ -44,7 +44,8 @@ SET (HPP_BENCHMARK FALSE CACHE BOOL "trigger hpp-util benchmark output")
 IF (HPP_BENCHMARK)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_ENABLE_BENCHMARK")
 ENDIF()
-
+# Ask Doxygen to create a tree view in html documentation
+SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/basic-configuration-shooter.hh
