@@ -40,7 +40,13 @@ namespace hpp {
 
       typedef Eigen::Matrix<RelativeMotionType, Eigen::Dynamic, Eigen::Dynamic> matrix_type;
 
-      /// Build a new RelativeMotion matrix initialized with RelativeMotion::Unconstrained.
+      /// Build a new RelativeMotion matrix from a robot
+      ///
+      /// \param robot a Device,
+      /// initialize a matirx of size (N+1) x (N+1) where N is the robot number
+      /// of degrees of freedom.
+      /// Diagonal elements are set to RelativeMotion::Constrained,
+      /// other elements are set to RelativeMotion::Unconstrained.
       static matrix_type matrix (const DevicePtr_t& robot);
 
       /// Fill the relative motion matrix with information extracted from the

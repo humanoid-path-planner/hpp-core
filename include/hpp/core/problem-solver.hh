@@ -511,6 +511,9 @@ namespace hpp {
       void removeObstacleFromJoint (const std::string& jointName,
 				    const std::string& obstacleName);
 
+      /// Build matrix of relative motions between joints
+      ///
+      /// Call Problem::filterCollisionPairs.
       void filterCollisionPairs ();
 
       /// Get obstacle by name

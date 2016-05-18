@@ -216,6 +216,23 @@ namespace hpp {
       void removeObstacleFromJoint (const JointPtr_t& joint,
 				    const CollisionObjectPtr_t& obstacle);
 
+      /// Build matrix of relative motions between joints
+      ///
+      /// Loop over constraints in the current constraint set
+      /// (see Problem::constraints) and for each LockedJoint and each
+      /// constraints::RelativeTransformation, fill a matrix the column and
+      /// rows represent joints and the values are the following
+      /// \li RelativeMotionType::Constrained when the two joints are rigidly
+      ///     fixed by the constraint,
+      /// \li RelativeMotionType::Parameterized when the two joints are rigidly
+      ///     fixed by the constraint, the relative position is a parameter
+      ///     constant along path, but that can change for different paths,
+      /// \li RelativeMotionType::Unconstrained when the two joints are not
+      ///     rigidly fixed by the constraint.
+      ///
+      /// \note the matrix is passed to the current configuration validation
+      ///    instance (Problem::configValidation) and to the current
+      /// path validation instance (Problem::pathValidation).
       void filterCollisionPairs ();
 
       /// Vector of objects considered for collision detection
