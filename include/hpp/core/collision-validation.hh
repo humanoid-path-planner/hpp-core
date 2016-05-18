@@ -58,6 +58,18 @@ namespace hpp {
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+
+      void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
+
+      void checkParameterized (bool active)
+      {
+        checkParameterized_ = active;
+      }
+
+      bool checkParameterized () const
+      {
+        return checkParameterized_;
+      }
     public:
       /// fcl low level request object used for collision checking.
       /// modify this attribute to obtain more detailed validation
@@ -67,7 +79,11 @@ namespace hpp {
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
     private:
-      CollisionPairs_t collisionPairs_;
+      CollisionPairs_t collisionPairs_,
+                       parameterizedPairs_,
+                       disabledPairs_;
+
+      bool checkParameterized_;
     }; // class ConfigValidation
     /// \}
   } // namespace core

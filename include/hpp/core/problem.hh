@@ -144,7 +144,7 @@ namespace hpp {
       /// \name Path validation
       /// \{
       /// Set path validation method
-      void pathValidation (const PathValidationPtr_t& pathValidation);
+      virtual void pathValidation (const PathValidationPtr_t& pathValidation);
 
       /// Get path validation method
       PathValidationPtr_t pathValidation () const
@@ -215,6 +215,8 @@ namespace hpp {
       /// \param the obstacle to remove.
       void removeObstacleFromJoint (const JointPtr_t& joint,
 				    const CollisionObjectPtr_t& obstacle);
+
+      void filterCollisionPairs ();
 
       /// Vector of objects considered for collision detection
       const ObjectVector_t& collisionObstacles () const;

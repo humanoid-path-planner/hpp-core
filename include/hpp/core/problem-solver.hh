@@ -113,8 +113,14 @@ namespace hpp {
       void resetGoalConstraint ();
       /// Set path planner type
       virtual void pathPlannerType (const std::string& type);
+      const std::string& pathPlannerType () const {
+        return pathPlannerType_;
+      }
       /// Set steering method type
       void steeringMethodType (const std::string& type);
+      const std::string& steeringMethodType () const {
+        return steeringMethodType_;
+      }
       /// Add a SteeringMethod type
       /// \param type name of the SteeringMethod type
       /// \param static method that creates a SteeringMethod
@@ -126,6 +132,9 @@ namespace hpp {
       }
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
+      const std::string& configurationShooterType () const {
+        return configurationShooterType_;
+      }
       /// Add a ConfigurationShooter type
       /// \param type name of the ConfigurationShooter type
       /// \param static method that creates a ConfigurationShooter
@@ -156,6 +165,9 @@ namespace hpp {
       ///
       /// \param name of the type of path optimizer that should be added
       void addPathOptimizer (const std::string& type);
+      PathOptimizerTypes_t pathOptimizerTypes () const {
+        return pathOptimizerTypes_;
+      }
       /// Clear the vector of path optimizers
       void clearPathOptimizers ();
       /// Get path optimizer at given rank
@@ -186,8 +198,12 @@ namespace hpp {
       /// \param tolerance acceptable penetration for path validation
       /// Path validation methods are used to validate edges in path planning
       /// path optimization methods.
-      void pathValidationType (const std::string& type,
-			       const value_type& tolerance);
+      virtual void pathValidationType (const std::string& type,
+                                       const value_type& tolerance);
+      const std::string& pathValidationType (value_type& tolerance) {
+        tolerance = pathValidationTolerance_;
+        return pathValidationType_;
+      }
 
       /// Add a path validation type
       /// \param type name of the new path validation method,
@@ -205,6 +221,10 @@ namespace hpp {
       /// \param step discontinuity tolerance
       void pathProjectorType (const std::string& type,
 			      const value_type& step);
+      const std::string& pathProjectorType (value_type& tolerance) const {
+        tolerance = pathProjectorTolerance_;
+        return pathProjectorType_;
+      }
 
       /// Add a path projector type
       /// \param type name of the new path projector method,
@@ -490,6 +510,8 @@ namespace hpp {
       /// \param obstacleName name of the obstacle
       void removeObstacleFromJoint (const std::string& jointName,
 				    const std::string& obstacleName);
+
+      void filterCollisionPairs ();
 
       /// Get obstacle by name
       const CollisionObjectPtr_t& obstacle (const std::string& name);

@@ -36,7 +36,6 @@
 #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/random-shortcut.hh>
-#include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
 #include <hpp/core/visibility-prm-planner.hh>
@@ -585,6 +584,11 @@ namespace hpp {
       JointPtr_t joint = robot_->getJointByName (jointName);
       const CollisionObjectPtr_t& object = obstacle (obstacleName);
       problem ()->removeObstacleFromJoint (joint, object);
+    }
+
+    void ProblemSolver::filterCollisionPairs ()
+    {
+      problem()->filterCollisionPairs ();
     }
 
     const CollisionObjectPtr_t& ProblemSolver::obstacle

@@ -20,12 +20,30 @@
 #include <hpp/model/body.hh>
 #include <hpp/model/collision-object.hh>
 #include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/relative-motion.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
+          const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
+        return fcl::collide (
+                    _colPair->first ->fcl ().get (),
+                    _colPair->second->fcl ().get (),
+                    req, res);
+      }
+
+      inline bool collide (const CollisionPairs_t& pairs,
+         const fcl::CollisionRequest& req, fcl::CollisionResult& res,
+         CollisionPairs_t::const_iterator& _col) {
+        for (_col = pairs.begin (); _col != pairs.end (); ++_col)
+          if (collide (_col, req, res) != 0)
+            return true;
+        return false;
+      }
+    }
     using model::displayConfig;
 
     typedef model::JointConfiguration* JointConfigurationPtr_t;
@@ -42,22 +60,21 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
       fcl::CollisionResult collisionResult;
-      for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
-	   itCol != collisionPairs_.end (); ++itCol) {
-	if (fcl::collide (itCol->first->fcl ().get (),
-			  itCol->second->fcl ().get (),
-			  collisionRequest_, collisionResult) != 0) {
-	  CollisionValidationReportPtr_t report (new CollisionValidationReport);
-	  report->object1 = itCol->first;
-	  report->object2 = itCol->second;
-	  report->result = collisionResult;
-	  validationReport = report;
-	  return false;
-	}
+      CollisionPairs_t::const_iterator _col;
+      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+          ||
+          ( checkParameterized_ &&
+            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+          )) {
+        CollisionValidationReportPtr_t report (new CollisionValidationReport);
+        report->object1 = _col->first;
+        report->object2 = _col->second;
+        report->result = collisionResult;
+        validationReport = report;
+        return false;
       }
       return true;
     }
-
 
     void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
     {
@@ -107,9 +124,51 @@ namespace hpp {
       }
     }
 
+    void CollisionValidation::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
+    {
+      // Loop over collision pairs and remove disabled ones.
+      const size_type N = robot_->numberDof () + 1;
+      CollisionPairs_t::iterator _colPair = collisionPairs_.begin ();
+      size_type i1, i2;
+      fcl::CollisionResult unused;
+      while (_colPair != collisionPairs_.end ()) {
+        const JointPtr_t& j1 = _colPair->first ->joint(),
+                          j2 = _colPair->second->joint();
+        i1 = (j1 == NULL) ? N - 1 : j1->rankInVelocity();
+        i2 = (j2 == NULL) ? N - 1 : j2->rankInVelocity();
+        switch (matrix(i1, i2)) {
+          case RelativeMotion::Parameterized:
+              hppDout(info, "Parameterized collision pairs between "
+                  << _colPair->first ->name() << " and "
+                  << _colPair->second->name());
+              parameterizedPairs_.push_back (*_colPair);
+              _colPair = collisionPairs_.erase (_colPair);
+              break;
+          case RelativeMotion::Constrained:
+              hppDout(info, "Disabling collision between "
+                  << _colPair->first ->name() << " and "
+                  << _colPair->second->name());
+              if (collide (_colPair, collisionRequest_, unused) != 0) {
+                hppDout(warning, "Disabling collision detection between two "
+                    "body in collision.");
+              }
+              disabledPairs_.push_back (*_colPair);
+              _colPair = collisionPairs_.erase (_colPair);
+              break;
+          case RelativeMotion::Unconstrained: ++_colPair; break;
+          default:
+            hppDout (warning, "RelativeMotionType not understood");
+            ++_colPair;
+            break;
+        }
+      }
+    }
+
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
       collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
-      robot_ (robot)
+      robot_ (robot),
+      parameterizedPairs_(), disabledPairs_(),
+      checkParameterized_(false)
     {
       using model::COLLISION;
       typedef hpp::model::Device::CollisionPairs_t JointPairs_t;

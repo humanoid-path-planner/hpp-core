@@ -26,6 +26,7 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/random-shortcut.hh>
+#include <hpp/core/path-projector.hh>
 
 namespace hpp {
   namespace core {
@@ -72,7 +73,7 @@ namespace hpp {
       PathVectorPtr_t tmpPath = path;
 
       // Maximal number of iterations without improvements
-      const std::size_t n = 5;
+      const std::size_t n = problem().getParameter<std::size_t>("PathOptimizersNumberOfLoops", 5);
       std::size_t projectionError = n;
       std::deque <value_type> length (n-1,
 				      numeric_limits <value_type>::infinity ());
@@ -106,13 +107,18 @@ namespace hpp {
 	straight [0] = steer (q0, q1);
 	straight [1] = steer (q1, q2);
 	straight [2] = steer (q2, q3);
-	for (unsigned i=0; i<3; ++i) {
+        PathPtr_t proj [3];
+        for (unsigned i=0; i<3; ++i) {
 	  PathPtr_t validPart;
 	  PathValidationReportPtr_t report;
           if (!straight [i]) valid[i] = false;
           else {
+            if (problem().pathProjector()) {
+              valid[i] = problem().pathProjector()->apply(straight[i], proj[i]);
+              if (!valid[i]) continue;
+            } else proj[i] = straight[i];
             valid [i] = problem ().pathValidation ()->validate
-              (straight [i], false, validPart, report);
+              (proj [i], false, validPart, report);
           }
 	}
 	// Replace valid parts
@@ -120,19 +126,19 @@ namespace hpp {
 				     path->outputDerivativeSize ());
         try {
           if (valid [0])
-            result->appendPath (straight [0]);
+            result->appendPath (proj [0]);
           else
             result->concatenate (*(tmpPath->extract
                   (make_pair <value_type,value_type> (t0, t1))->
                   as <PathVector> ()));
           if (valid [1])
-            result->appendPath (straight [1]);
+            result->appendPath (proj [1]);
           else
             result->concatenate (*(tmpPath->extract
                   (make_pair <value_type,value_type> (t1, t2))->
                   as <PathVector> ()));
           if (valid [2])
-            result->appendPath (straight [2]);
+            result->appendPath (proj [2]);
           else
             result->concatenate (*(tmpPath->extract
                   (make_pair <value_type, value_type> (t2, t3))->
@@ -146,7 +152,7 @@ namespace hpp {
         }
 	length.push_back (PathLength<>::run (result, problem ().distance ()));
 	length.pop_front ();
-	finished = (length [0] <= length [n-1]);
+	finished = (length [0] - length [n-1]) <= 1e-4 * length[n-1];
 	hppDout (info, "length = " << length [n-1]);
 	tmpPath = result;
       }

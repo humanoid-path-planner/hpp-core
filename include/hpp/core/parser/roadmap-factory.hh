@@ -37,28 +37,36 @@ namespace hpp {
       typedef hpp::util::parser::SequenceFactory<double> ConfigurationFactory;
       typedef hpp::util::parser::SequenceFactory<unsigned int> IdSequence;
 
+      /// Write roadmap to a text file.
       void writeRoadmap (std::ostream& o, const ProblemPtr_t& problem,
           const RoadmapPtr_t& roadmap);
 
-      /// Read a roadmap from a file.
+      /// Create a new roadmap from a file.
       RoadmapPtr_t readRoadmap (const std::string& filename,
           const ProblemPtr_t& problem);
+
+      /// Populate an existing roadmap from a file.
+      RoadmapPtr_t readRoadmap (const std::string& filename,
+          const RoadmapPtr_t& roadmap, const ProblemPtr_t& problem);
 
       class HPP_CORE_DLLAPI RoadmapFactory : public ObjectFactory {
         public:
           typedef ::hpp::util::parser::ObjectFactory Parent_t;
 
-          RoadmapFactory (const ProblemPtr_t& problem, ObjectFactory* parent,
-              const XMLElement* element);
+          /// Constructor using an already created Roadmap
+          RoadmapFactory (
+              const RoadmapPtr_t& roadmap, const ProblemPtr_t& problem,
+              ObjectFactory* parent, const XMLElement* element);
 
           RoadmapPtr_t roadmap () const {
             return roadmap_;
           }
 
-          static ObjectFactory* create (const ProblemPtr_t& p,
+          static ObjectFactory* create (
+              const RoadmapPtr_t& r, const ProblemPtr_t& p,
               ObjectFactory* parent, const XMLElement* el)
           {
-            return new RoadmapFactory (p, parent, el);
+            return new RoadmapFactory (r, p, parent, el);
           }
 
           virtual bool finishAttributes ();

@@ -21,7 +21,7 @@
 
 # include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
-# include <hpp/core/deprecated.hh>
+# include <hpp/core/relative-motion.hh>
 
 namespace hpp {
   namespace core {
@@ -66,6 +66,9 @@ namespace hpp {
 					    const CollisionObjectPtr_t&)
       {
       }
+
+      virtual void filterCollisionPairs (const RelativeMotion::matrix_type&) {}
+
     protected:
       PathValidation ()
       {

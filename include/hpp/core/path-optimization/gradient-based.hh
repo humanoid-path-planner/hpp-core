@@ -55,12 +55,32 @@ namespace hpp {
 	void initialize (const PathVectorPtr_t& path);
 
 	/// Convert a path into a vector
-	void pathToVector (const PathVectorPtr_t& path, vectorOut_t x) const;
+	void pathToVector (const PathVectorPtr_t& path, vectorOut_t x) const {
+	  size_type index = 0;
+	  for (std::size_t i=0; i < path->numberPaths () - 1; ++i) {
+	    const PathPtr_t& localPath = path->pathAtRank (i);
+	    value_type t1 = localPath->timeRange ().second;
+	    (*localPath) (x.segment (index, configSize_), t1);
+	    index += configSize_;
+	  }
+	  assert (index == x.size ());
+	}
 
 	/// Convert a vector into a path
-	void vectorToPath (vectorIn_t x, const PathVectorPtr_t& result) const;
-
-        bool applyConstraints (vectorOut_t x) const;
+	void vectorToPath (vectorIn_t x, const PathVectorPtr_t& result) const {
+	  Configuration_t q0 = initial_, q1;
+	  size_type index = 0;
+	  while (index < x.size ()) {
+	    q1 = x.segment (index, configSize_);
+	    PathPtr_t p = (*steeringMethod_) (q0, q1);
+	    result->appendPath (p);
+	    q0 = q1;
+	    index += configSize_;
+	  }
+	  q1 = end_;
+	  PathPtr_t p = (*steeringMethod_) (q0, q1);
+	  result->appendPath (p);
+	}
 
 	void initializeProblemConstraints ();
 	/// Compute value and Jacobian of the problem constraints
@@ -156,9 +176,8 @@ namespace hpp {
 	/// I_, H_ Identity matrix and cost Hessian respectively
 	/// Jf_  collision-constraints jacobian for now
 	/// J_ problem-constraints jacobian
-	/// V0_ orthogonal base of Jf_ null space
 	/// Aplusb = Jf^{+}*b (for affine constraints)
-	mutable matrix_t H_, Hinverse_, J_, V0_;
+	mutable matrix_t H_, Hinverse_, J_;
 	mutable matrix_t Hz_, gz_;
 	mutable vector_t stepNormal_;
 	mutable bool fullRank_;

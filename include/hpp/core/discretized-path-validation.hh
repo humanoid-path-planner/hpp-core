@@ -65,6 +65,8 @@ namespace hpp {
       virtual void removeObstacleFromJoint (const JointPtr_t& joint,
           const CollisionObjectPtr_t& obstacle);
 
+      virtual void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
+
     protected:
       DiscretizedPathValidation
   (const DevicePtr_t& robot, const value_type& stepSize);

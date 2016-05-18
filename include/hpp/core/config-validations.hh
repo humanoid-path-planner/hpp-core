@@ -58,6 +58,8 @@ namespace hpp {
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+
+      void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
     protected:
       ConfigValidations ();
     private:

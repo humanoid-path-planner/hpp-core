@@ -38,7 +38,6 @@
 #include <hpp/core/path-optimization/path-length.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/projection-error.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/position.hh>
 #include <hpp/constraints/relative-position.hh>
@@ -82,6 +81,8 @@ namespace hpp {
 				   *(problem.steeringMethod ()));
 	steeringMethod_ = HPP_DYNAMIC_PTR_CAST
 	  (SteeringMethodStraight, problem.steeringMethod ()->copy ());
+        // Unset the constraints.
+        steeringMethod_->constraints (ConstraintSetPtr_t());
       }
 
       void GradientBased::compressHessian (matrixIn_t normal, matrixOut_t small)
@@ -151,6 +152,7 @@ namespace hpp {
 	hppDout (info, "size of x = " << cost_->inputSize ());
 	numberDofs_ = cost_->inputDerivativeSize ();
 	stepNormal_.resize (numberDofs_);
+	stepNormal_.setZero ();
 	p_.resize (numberDofs_);
 	// Get problem constraints and locked degrees of freedom
 	initializeProblemConstraints ();
@@ -167,50 +169,6 @@ namespace hpp {
 	initial_ = path->initial ();
 	end_ = path->end ();
 	alpha_ = alphaInit_;
-      }
-
-      void GradientBased::pathToVector (const PathVectorPtr_t& path, vectorOut_t x) const
-      {
-        size_type index = 0;
-        for (std::size_t i=0; i < path->numberPaths () - 1; ++i) {
-          const PathPtr_t& localPath = path->pathAtRank (i);
-          value_type t1 = localPath->timeRange ().second;
-          if (!(*localPath) (x.segment (index, configSize_), t1))
-            throw projection_error ("GradientBased optimizer could not build"
-                " the initial vector");
-          index += configSize_;
-        }
-        assert (index == x.size ());
-      }
-
-      void GradientBased::vectorToPath (vectorIn_t x, const PathVectorPtr_t& result) const
-      {
-        Configuration_t q0 = initial_, q1;
-        size_type index = 0;
-        while (index < x.size ()) {
-          q1 = x.segment (index, configSize_);
-          PathPtr_t p = (*steeringMethod_) (q0, q1);
-          result->appendPath (p);
-          q0 = q1;
-          index += configSize_;
-        }
-        q1 = end_;
-        PathPtr_t p = (*steeringMethod_) (q0, q1);
-        result->appendPath (p);
-      }
-
-      bool GradientBased::applyConstraints (vectorOut_t x) const
-      {
-        ConstraintSetPtr_t constraints (problem ().constraints ());
-        if (!constraints) return true;
-        size_type index = 0;
-        bool success = true;
-        while (index < x.size ()) {
-          if (!constraints->apply (x.segment (index, configSize_)))
-            success = false;
-          index += configSize_;
-        }
-        return success;
       }
 
       vector_t GradientBased::computeIterate (vectorIn_t) const
@@ -238,6 +196,7 @@ namespace hpp {
 	  //         + 1/2 (p0 + V0 z)^T H (p0 + V0 z)
 	  // C (x) = (grad (x1) + p0^T H) V0 z  + 1/2 z^T V0^T H V0 z + C (x1)
 	  // z = - (V0^T H V0)^{-1} V0^T(grad (x1)^T + H p0)
+          hppDout (info, "J_\n" << J_);
 	  Jacobi_t svd (J_, Eigen::ComputeThinU | Eigen::ComputeFullV);
 	  size_type rank = svd.rank();
 	  hppDout (info, "J_ singular values = " <<
@@ -248,12 +207,17 @@ namespace hpp {
 	    p_.setZero ();
 	    return p_;
 	  }
-	  V0_ = svd.matrixV ().rightCols (numberDofs_-rank);
 	  hppDout (info, "rhs_ - value_ = " << rhs_ - value_);
 	  p0_ = svd.solve (rhs_ - value_);
-	  if (V0_.cols () != 0) {
-	    Hz_ = V0_.transpose () * H_ * V0_;
-	    gz_ = - V0_.transpose () * (rgrad_.transpose () + H_ * p0_);
+          const size_type nullity = numberDofs_ - rank; 
+	  if (nullity != 0) {
+            const Jacobi_t::MatrixVType& V = svd.matrixV();
+            // V0_ orthogonal base of Jf_ null space
+            // V0_ = svd.matrixV().rightCols (numberDofs_-rank);
+            // Hz_ = V0_.transpose () * H_ * V0_;
+            Hz_ = V.rightCols(nullity).transpose() * H_ * V.rightCols(nullity);
+            // gz_ = - V0_.transpose () * (rgrad_.transpose () + H_ * p0_);
+            gz_ = - V.rightCols(nullity).transpose() * (rgrad_.transpose () + H_ * p0_);
 	    Jacobi_t svd2 (Hz_, Eigen::ComputeThinU | Eigen::ComputeFullV);
 	    rank = svd2.rank ();
 	    hppDout (info, "Hz_ singular values = " <<
@@ -261,11 +225,12 @@ namespace hpp {
 	    hppDout (info, "rank(Hz_) = " << rank);
 	    vector_t z (svd2.solve (gz_));
 	    hppDout (info, "Hz_ * z - gz_=" << (Hz_ * z - gz_).transpose ());
-	    p_ = p0_ + V0_ * svd2.solve (gz_);
+	    // p_ = p0_ + V0_ * z;
+	    p_ = p0_ + V.rightCols(nullity) * z;
 	    hppDout (info, "constraint satisfaction: " <<
 		     (J_*p_ - (rhs_ - value_)).squaredNorm ());
 	    hppDout (info, "norm(grad*V0)? = " <<
-		     ((rgrad_ + (H_*p_).transpose ())*V0_).squaredNorm ());
+		     ((rgrad_ + (H_*p_).transpose ())*V.rightCols(nullity)).squaredNorm ());
 	  } else {
 	    p_ = p0_;
 	  }
@@ -309,7 +274,7 @@ namespace hpp {
 	Configuration_t qCollConstr, qCollConstr_old;
 	ConfigValidationsPtr_t configValtions (problem ().configValidations());
 	Reports_t reports;
-	bool noCollision;
+	bool noCollision = true; // Assume there is no collision
 	/* Create initial path */
 	vector_t x1; x1.resize (cost_->inputSize ());
 	rowvector_t grad; grad.resize (cost_->inputDerivativeSize ());
@@ -325,67 +290,74 @@ namespace hpp {
 
 	PathVectorPtr_t path0 (path);
 	CollisionConstraintsResults_t collisionConstraints;
-	if (!minimumReached) {
-	  do {
-            HPP_START_TIMECOUNTER(GBO_oneStep);
-            HPP_START_TIMECOUNTER(GBO_computeIterate);
-	    vector_t s = computeIterate (x0);
-            HPP_STOP_TIMECOUNTER(GBO_computeIterate);
-            HPP_DISPLAY_TIMECOUNTER(GBO_computeIterate);
-	    hppDout (info, "alpha_ = " << alpha_);
-	    value_type norm_s (s.norm ());
-	    minimumReached = (norm_s < epsilon_ || alpha_ == 1.);
-	    hppDout (info, "norm of s: " << norm_s);
-	    hppDout (info, "s: " << s.transpose ());
-	    if (norm_s == 0) {
-              HPP_STOP_TIMECOUNTER(GBO_oneStep);
-              return path0;
-            }
-	    integrate (x0, s, x1);
-	    hppDout (info, "x1=" << x1.transpose ());
-            if (!applyConstraints (x1)) {
-              alpha_ /= 2;
-              HPP_STOP_TIMECOUNTER(GBO_oneStep);
-              continue;
-            }
-	    PathVectorPtr_t path1 = PathVector::create (configSize_,
-							robotNumberDofs_);
-	    vectorToPath (x1, path1);
-	    bool isPathValid = validatePath (pathValidation, path1, reports);
-	    // if new path is in collision, we add some constraints
-	    if (!isPathValid) {
-	      if (alpha_ != 1.) {
-		for (Reports_t::const_iterator it = reports.begin ();
-		     it != reports.end (); ++it) {
-		  CollisionConstraintsResult ccr (robot_, path0, path1,
-						  *it, J_.rows (),
-						  robotNbNonLockedDofs_);
-		  // Compute J_
-		  addCollisionConstraint (ccr, path0);
-		  collisionConstraints.push_back (ccr);
-		  hppDout (info, "Number of collision constraints: "
-			   << collisionConstraints.size ());
-		  // When adding a new constraint, try first minimum under this
-		  // constraint. If this latter minimum is in collision,
-		  // re-initialize alpha_ to alphaInit_.
-		  alpha_ = 1.;
-		}
-	      } else {
-		alpha_ = alphaInit_;
-	      }
-	      noCollision = false;
-	    } else { // path valid
-	      rowvector_t rgrad0 (rgrad_);
-	      x0 = x1;
-	      path0 = path1;
-	      cost_->jacobian (grad, x0);
-	      compressVector (grad.transpose (), rgrad_.transpose ());
-	      noCollision = true;
-	    }
+        updateProblemConstraints (x0);
+        while (!(noCollision && minimumReached) && (!interrupt_)) {
+          HPP_START_TIMECOUNTER(GBO_oneStep);
+          HPP_START_TIMECOUNTER(GBO_computeIterate);
+          vector_t s = computeIterate (x0);
+          HPP_STOP_TIMECOUNTER(GBO_computeIterate);
+          HPP_DISPLAY_TIMECOUNTER(GBO_computeIterate);
+          hppDout (info, "alpha_ = " << alpha_);
+          value_type norm_s (s.norm ());
+          minimumReached = (norm_s < epsilon_ || alpha_ == 1.);
+          hppDout (info, "norm of s: " << norm_s);
+          hppDout (info, "s: " << s.transpose ());
+          if (norm_s == 0) {
             HPP_STOP_TIMECOUNTER(GBO_oneStep);
-            HPP_DISPLAY_TIMECOUNTER(GBO_oneStep);
-	  } while (!(noCollision && minimumReached) && (!interrupt_));
-	} // while (!minimumReached)
+            return path0;
+          }
+          integrate (x0, s, x1);
+          hppDout (info, "x1=" << x1.transpose ());
+          PathVectorPtr_t path1 = PathVector::create (configSize_,
+              robotNumberDofs_);
+          vectorToPath (x1, path1);
+          if (!solveConstraints (x1, path1, collisionConstraints)) {
+            hppDout (info, "solveConstraints failed");
+            alpha_ /= 2;
+            HPP_STOP_TIMECOUNTER(GBO_oneStep);
+            continue;
+          }
+          bool isPathValid = validatePath (pathValidation, path1, reports);
+          // if new path is in collision, we add some constraints
+          if (!isPathValid) {
+            if (alpha_ != 1.) {
+              for (Reports_t::const_iterator it = reports.begin ();
+                  it != reports.end (); ++it) {
+                CollisionConstraintsResult ccr (robot_, path0, path1,
+                    *it, J_.rows (),
+                    robotNbNonLockedDofs_);
+                ConstraintSetPtr_t constraints (problem ().constraints ());
+                if (constraints) {
+                  ConfigProjectorPtr_t configProjector =
+                    constraints->configProjector ();
+                  if (configProjector)
+                    ccr.add (configProjector->lockedJoints());
+                }
+                // Compute J_
+                addCollisionConstraint (ccr, path0);
+                collisionConstraints.push_back (ccr);
+                hppDout (info, "Number of collision constraints: "
+                    << collisionConstraints.size ());
+                // When adding a new constraint, try first minimum under this
+                // constraint. If this latter minimum is in collision,
+                // re-initialize alpha_ to alphaInit_.
+                alpha_ = 1.;
+              }
+            } else {
+              alpha_ = alphaInit_;
+            }
+            noCollision = false;
+          } else { // path valid
+            rowvector_t rgrad0 (rgrad_);
+            x0 = x1;
+            path0 = path1;
+            cost_->jacobian (grad, x0);
+            compressVector (grad.transpose (), rgrad_.transpose ());
+            noCollision = true;
+          }
+          HPP_STOP_TIMECOUNTER(GBO_oneStep);
+          HPP_DISPLAY_TIMECOUNTER(GBO_oneStep);
+        } // while (!(noCollision && minimumReached) && (!interrupt_))
 	return path0;
       }
 
@@ -422,7 +394,7 @@ namespace hpp {
 	size_type rows = 0;
 	if (configProjector) {
 	  // Apply problem constraints to each waypoint.
-	  size_type sizeConstraint = configProjector->rightHandSide ().size ();
+	  size_type sizeConstraint = configProjector->dimension ();
 	  rows = sizeConstraint * nbWaypoints_;
 	  rhs_.resize (rows); rhs_.setZero ();
 	}
@@ -446,7 +418,7 @@ namespace hpp {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
 	  // Apply problem constraints to each waypoint.
-	  size_type sizeConstraint = configProjector->rightHandSide ().size ();
+          size_type sizeConstraint = configProjector->dimension ();
 	  for (size_type i=0; i<nbWaypoints_; ++i) {
 	    configProjector->computeValueAndJacobian
 	      (x.segment (i*configSize_, configSize_),
@@ -476,7 +448,7 @@ namespace hpp {
 	if (problem ().constraints ()) {
 	  for (size_type i=0; i<nbWaypoints_; ++i) {
 	    if (!problem ().constraints ()->isSatisfied
-		(x.segment (i*robotNumberDofs_, robotNumberDofs_))) {
+		(x.segment (i*configSize_, configSize_))) {
 	      satisfied = false;
 	    }
 	  }

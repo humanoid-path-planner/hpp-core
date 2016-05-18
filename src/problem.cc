@@ -51,6 +51,8 @@ namespace hpp {
     {
       configValidations_->add (CollisionValidation::create (robot));
       configValidations_->add (JointBoundValidation::create (robot));
+
+      add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
     }
 
     // ======================================================================
@@ -131,6 +133,21 @@ namespace hpp {
       }
       if (configValidations_) {
 	configValidations_->removeObstacleFromJoint (joint, obstacle);
+      }
+    }
+    // ======================================================================
+
+    void Problem::filterCollisionPairs ()
+    {
+      RelativeMotion::matrix_type matrix = RelativeMotion::matrix (robot_);
+      RelativeMotion::fromConstraint (matrix, robot_, constraints_);
+      hppDout (info, "RelativeMotion matrix:\n" << matrix);
+
+      if (pathValidation_) {
+	pathValidation_->filterCollisionPairs (matrix);
+      }
+      if (configValidations_) {
+	configValidations_->filterCollisionPairs (matrix);
       }
     }
 

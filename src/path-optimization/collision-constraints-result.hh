@@ -240,6 +240,12 @@ namespace hpp {
 	  (*f_) (rhs.segment (rowInJacobian_, fSize_), q);
 	}
 
+        void add (const LockedJoints_t& lj) {
+            for (LockedJoints_t::const_iterator _lj = lj.begin ();
+                _lj != lj.end (); ++_lj)
+              configProjector_->add (*_lj);
+        }
+
       private:
 	void computeConstraint ()
 	{

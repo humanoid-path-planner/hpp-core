@@ -20,6 +20,7 @@
 # define HPP_CORE_CONFIG_VALIDATION_HH
 
 # include <hpp/core/validation-report.hh>
+# include <hpp/core/relative-motion.hh>
 # include <hpp/core/deprecated.hh>
 
 namespace hpp {
@@ -62,6 +63,18 @@ namespace hpp {
 					   const CollisionObjectPtr_t&)
       {
       }
+
+      /// \brief Filter collision pairs.
+      /// Remove pairs of object that cannot be in collision
+      /// when these constraints are statisfied.
+      /// This effectively disables collision detection between objects that
+      /// have no possible relative motion due to the constraints.
+      /// \todo Before disabling collision pair, check if there is a collision.
+      ///
+      /// \param square symmetric matrix of RelativeMotionType of size numberDof x numberDof
+      virtual void filterCollisionPairs (const RelativeMotion::matrix_type&)
+      {}
+
     protected:
       ConfigValidation ()
       {
