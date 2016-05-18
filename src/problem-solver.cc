@@ -76,7 +76,7 @@ namespace hpp {
     }
 
     ProblemSolver::ProblemSolver () :
-      constraints_ (), robot_ (), problem_ (), pathPlanner_ (),
+      constraints_ (), robot_ (), problem_ (NULL), pathPlanner_ (),
       roadmap_ (), paths_ (),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
       pathPlannerType_ ("DiffusingPlanner"),
@@ -392,6 +392,7 @@ namespace hpp {
 
     void ProblemSolver::createPathOptimizers ()
     {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
       if (pathOptimizers_.size () == 0) {
 	for (PathOptimizerTypes_t::const_iterator it =
 	       pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
@@ -405,6 +406,7 @@ namespace hpp {
 
     void ProblemSolver::initSteeringMethod ()
     {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
       SteeringMethodPtr_t sm (
           get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
           );
@@ -413,6 +415,7 @@ namespace hpp {
 
     void ProblemSolver::initPathProjector ()
     {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
       PathProjectorBuilder_t createProjector =
         get <PathProjectorBuilder_t> (pathProjectorType_);
       // Create a default steering method until we add a steering method
@@ -427,6 +430,8 @@ namespace hpp {
 
     void ProblemSolver::initProblem ()
     {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+
       // Set shooter
       problem_->configurationShooter
         (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
@@ -492,6 +497,8 @@ namespace hpp {
     (ConfigurationIn_t start, ConfigurationIn_t end, bool validate,
      std::size_t& pathId, std::string& report)
     {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+
       // Create steering method using factory
       SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
                              (steeringMethodType_) (problem_));
@@ -620,7 +627,6 @@ namespace hpp {
     {
       return collisionObstacles_;
     }
-
 
     const ObjectVector_t& ProblemSolver::distanceObstacles () const
     {
