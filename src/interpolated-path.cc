@@ -79,10 +79,10 @@ namespace hpp {
       InterpolatedPathPtr_t shPtr (ptr);
       ptr->init (shPtr);
 
-      const value_type dl = path->length () / (nbSamples + 1);
+      const value_type dl = path->length () / (value_type) (nbSamples + 1);
       Configuration_t q (device->configSize ());
       for (std::size_t iS = 0; iS < nbSamples; ++iS) {
-        const value_type u = dl * (iS + 1);
+        const value_type u = dl * (value_type) (iS + 1);
         if (!(*path) (q, u))
           throw projection_error ("could not build InterpolatedPath");
         ptr->insert (u, q);

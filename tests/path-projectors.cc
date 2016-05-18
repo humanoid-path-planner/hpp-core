@@ -116,10 +116,12 @@ void displayPaths (PathPtr_t path, PathPtr_t projection, DifferentiableFunctionP
   std::cerr << std::fixed << std::showpos << std::setprecision (4);
   const char* sep = "\t| ";
   for (std::size_t i = 0; i < 100; ++i) {
-    if (!(*path) (q, i * stepPath))
-      std::cerr << "Could not project path at " << i*stepPath << "\n";
-    if (!(*projection) (qq, i * stepProj))
-      std::cerr << "Could not project projection at " << i*stepProj << "\n";
+    if (!(*path) (q, (value_type)i * stepPath))
+      std::cerr << "Could not project path at " << (value_type)i*stepPath
+		<< "\n";
+    if (!(*projection) (qq, (value_type) i * stepProj))
+      std::cerr << "Could not project projection at "
+		<< (value_type) i*stepProj << "\n";
     (*func) (v1, q);
     (*func) (v2, qq);
     std::cerr << q.transpose () << sep << v1
