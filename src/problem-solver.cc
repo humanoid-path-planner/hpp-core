@@ -422,10 +422,11 @@ namespace hpp {
       // factory.
       // TODO: the steering method of a path projector should not have
       //       the problem constraints.
-      PathProjectorPtr_t pathProjector = createProjector
-	(problem_->distance (), problem_->steeringMethod (),
-	 pathProjectorTolerance_);
-      problem_->pathProjector (pathProjector);
+      PathProjectorPtr_t pathProjector_ =
+        createProjector (problem_->distance (), 
+            SteeringMethodStraight::create (problem_),
+            pathProjectorTolerance_);
+      problem_->pathProjector (pathProjector_);
     }
 
     void ProblemSolver::initProblem ()
