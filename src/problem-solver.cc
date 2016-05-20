@@ -505,6 +505,11 @@ namespace hpp {
                              (steeringMethodType_) (problem_));
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
+      if (!dp) {
+	report = "Steering method failed to build a path.";
+	pathId = -1;
+	return false;
+      }
       PathPtr_t validSection;
       PathValidationReportPtr_t r;
       bool PathValid = true;
