@@ -549,11 +549,13 @@ namespace hpp {
       value_type distance1, distance2;
       node1 = roadmap_->nearestNode(config1, distance1);
       node2 = roadmap_->nearestNode(config2, distance2);
-      if (distance1 < accuracy && distance2 < accuracy) {
-        roadmap_->addEdge(node1, node2, path);      
-        return true;
+      if (distance1 >= accuracy) {
+	throw std:runtime_error ("No node of the roadmap contains config1");
       }
-      return false;
+      if (distance2 >= accuracy) {
+	throw std:runtime_error ("No node of the roadmap contains config2");
+      }
+      roadmap_->addEdge(node1, node2, path);      
     }
 
     void ProblemSolver::interrupt ()

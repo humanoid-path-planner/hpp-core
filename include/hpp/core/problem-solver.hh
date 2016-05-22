@@ -472,8 +472,15 @@ namespace hpp {
       bool addConfigToRoadmap (const ConfigurationPtr_t& config);
 
       /// Add an edge between two roadmap nodes.
-      bool addEdgeToRoadmap (const ConfigurationPtr_t& config1,
-                             const ConfigurationPtr_t& config2, const PathPtr_t& path);
+      ///
+      /// \param config1 configuration of start node,
+      /// \param config2 configuration of destination node,
+      /// \param path path to store in the edge.
+      ///
+      /// Check that nodes containing config1 and config2 exist in the roadmap.
+      void addEdgeToRoadmap (const ConfigurationPtr_t& config1,
+			     const ConfigurationPtr_t& config2,
+			     const PathPtr_t& path);
 
       /// Interrupt path planning and path optimization
       void interrupt ();
