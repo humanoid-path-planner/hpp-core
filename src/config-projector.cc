@@ -764,7 +764,11 @@ namespace hpp {
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
 	   it != lockedJoints_.end (); ++it )
 	if (!(*it)->isSatisfied (config)) {
-	  hppDout (info, "locked joint not satisfied.");
+	  hppDout (info, "locked joint " << (*it)->jointName () << " value = "
+		   << config.segment ((*it)->rankInConfiguration (),
+				   (*it)->size ()).transpose ()
+		   << ", expected value = "
+		   << (*it)->rightHandSide ().transpose () << ".");
 	  return false;
 	}
       return true;
