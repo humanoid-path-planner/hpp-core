@@ -540,9 +540,9 @@ namespace hpp {
       return true;	
     }  
 
-    bool ProblemSolver::addEdgeToRoadmap (const ConfigurationPtr_t& config1, 
-                                           const ConfigurationPtr_t& config2,
-					   const PathPtr_t& path) 
+    void ProblemSolver::addEdgeToRoadmap (const ConfigurationPtr_t& config1,
+					  const ConfigurationPtr_t& config2,
+					  const PathPtr_t& path)
     {
       NodePtr_t node1, node2;
       value_type accuracy = 10e-6;
@@ -550,12 +550,12 @@ namespace hpp {
       node1 = roadmap_->nearestNode(config1, distance1);
       node2 = roadmap_->nearestNode(config2, distance2);
       if (distance1 >= accuracy) {
-	throw std:runtime_error ("No node of the roadmap contains config1");
+	throw std::runtime_error ("No node of the roadmap contains config1");
       }
       if (distance2 >= accuracy) {
-	throw std:runtime_error ("No node of the roadmap contains config2");
+	throw std::runtime_error ("No node of the roadmap contains config2");
       }
-      roadmap_->addEdge(node1, node2, path);      
+      roadmap_->addEdge(node1, node2, path);
     }
 
     void ProblemSolver::interrupt ()
