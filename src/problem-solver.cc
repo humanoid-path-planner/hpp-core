@@ -534,10 +534,9 @@ namespace hpp {
       return PathValid;
     }
 
-    bool ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
+    void ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
     {
       roadmap_->addNode(config);
-      return true;	
     }  
 
     void ProblemSolver::addEdgeToRoadmap (const ConfigurationPtr_t& config1,

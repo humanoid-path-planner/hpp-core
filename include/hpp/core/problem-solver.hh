@@ -469,7 +469,7 @@ namespace hpp {
 		       bool validate, std::size_t& pathId, std::string& report);
 
       /// Add random configuration into roadmap as new node.
-      bool addConfigToRoadmap (const ConfigurationPtr_t& config);
+      void addConfigToRoadmap (const ConfigurationPtr_t& config);
 
       /// Add an edge between two roadmap nodes.
       ///
