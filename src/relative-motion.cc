@@ -42,12 +42,6 @@ namespace hpp {
             && parent->numberDof() == 0) {}
         return parent;
       }
-
-      inline size_type index (const JointPtr_t j, const size_type& idIfNull)
-      {
-        if (j == NULL) return idIfNull;
-        else return j->rankInVelocity();
-      }
     }
 
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
@@ -92,8 +86,8 @@ namespace hpp {
         }
         bool cstRHS = (*it)->comparisonType()->constantRightHandSide();
 
-        const size_type i1 = index(j, N-1),
-                        i2 = index(getNonAnchorParent(j),N-1);
+        const size_type i1 = idx(j),
+                        i2 = idx(getNonAnchorParent(j));
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
 
@@ -107,8 +101,8 @@ namespace hpp {
             HPP_DYNAMIC_PTR_CAST(RelativeTransformation,
                 nc.functionPtr());
           if (!rt || rt->outputSize() != 6) continue;
-          const size_type i1 = index(rt->joint1(), N-1),
-                          i2 = index(rt->joint2(), N-1);
+          const size_type i1 = idx(rt->joint1()),
+                          i2 = idx(rt->joint2());
 
           bool cstRHS = nc.comparisonType()->constantRightHandSide();
           recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
