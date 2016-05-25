@@ -40,10 +40,13 @@ namespace hpp {
 	bool success = false;
 	PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path);
 	if (!pv) {
-	  StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
-	  if (!sp) throw std::invalid_argument
-		     ("Unknow inherited class of Path");
-	  success = applyToStraightPath (sp, proj);
+          if (!path->constraints()
+              || !path->constraints()->configProjector()) {
+            proj = path;
+            success = true;
+          } else {
+            success = project (path, proj);
+          }
 	} else {
 	  PathVectorPtr_t res = PathVector::create
 	    (pv->outputSize (), pv->outputDerivativeSize ());
@@ -70,12 +73,11 @@ namespace hpp {
 	return success;
       }
 
-      bool Progressive::applyToStraightPath (const StraightPathPtr_t& path,
-					     PathPtr_t& projection) const
+      bool Progressive::project (const PathPtr_t& path, PathPtr_t& proj) const
       {
         ConstraintSetPtr_t constraints = path->constraints ();
 	if (!constraints) {
-	  projection = path;
+	  proj = path;
 	  return true;
 	}
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
@@ -88,7 +90,7 @@ namespace hpp {
 	assert (constraints->isSatisfied (q1));
         if (!constraints->isSatisfied (q2)) return false;
         if (!cp) {
-          projection = path;
+          proj = path;
           return true;
         }
 
@@ -131,16 +133,16 @@ namespace hpp {
         switch (paths.size ()) {
           case 0:
             timeRange = path->timeRange();
-            projection = path->extract
+            proj = path->extract
 	      (std::make_pair (timeRange.first, timeRange.first));
             return false;
             break;
           case 1:
-            projection = paths.front ()->copy (constraints);
+            proj = paths.front ()->copy (constraints);
             break;
           default:
             InterpolatedPathPtr_t p = InterpolatedPath::create
-              (path->device (), q1, paths.back()->end(), totalLength,
+              (cp->robot (), q1, paths.back()->end(), totalLength,
                path->constraints ());
             value_type t = paths.front ()->length ();
             qi = paths.front()->end ();
@@ -153,28 +155,28 @@ namespace hpp {
               t += paths.front()->length ();
               paths.pop ();
             }
-            projection = p;
+            proj = p;
             break;
         }
-	if (d (projection->initial (), path->initial ()) != 0) {
-	  hppDout (error, "projection->initial () = "
-		   << projection->initial ().transpose ());
+	if (d (proj->initial (), path->initial ()) != 0) {
+	  hppDout (error, "proj->initial () = "
+		   << proj->initial ().transpose ());
 	  hppDout (error, "path->initial ()       = "
 		   << path->initial ().transpose ());
 	}
-        assert (d (projection->initial (), path->initial ()) == 0);
+        assert (d (proj->initial (), path->initial ()) == 0);
 	if (pathIsFullyProjected &&
-	    (d (projection->end (), path->end ()) != 0)) {
-	  hppDout (error, "projection->end () = "
-		   << projection->end ().transpose ());
+	    (d (proj->end (), path->end ()) != 0)) {
+	  hppDout (error, "proj->end () = "
+		   << proj->end ().transpose ());
 	  hppDout (error, "path->end ()       = " << path->end ().transpose ());
-	  hppDout (error, "d (projection->end (), path->end ()) = "
-		   << d (projection->end (), path->end ()));
-	  hppDout (error, "projection->end () - path->end () = "
-		   << (projection->end () - path->end ()).transpose ());
+	  hppDout (error, "d (proj->end (), path->end ()) = "
+		   << d (proj->end (), path->end ()));
+	  hppDout (error, "proj->end () - path->end () = "
+		   << (proj->end () - path->end ()).transpose ());
 	}
         assert (!pathIsFullyProjected ||
-		(d (projection->end (), path->end ()) == 0));
+		(d (proj->end (), path->end ()) == 0));
         return pathIsFullyProjected;
       }
     } // namespace pathProjector

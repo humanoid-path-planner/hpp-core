@@ -43,8 +43,7 @@ namespace hpp {
 		       const SteeringMethodPtr_t& steeringMethod,
 		       value_type step);
 
-	  bool applyToStraightPath (const StraightPathPtr_t& path,
-				    PathPtr_t& projection) const;
+	  bool project (const PathPtr_t& path, PathPtr_t& proj) const;
         private:
           value_type step_;
       };
