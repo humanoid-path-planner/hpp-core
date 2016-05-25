@@ -146,6 +146,17 @@ namespace hpp {
         nodes_.push_back (n);
       }
 
+      /// Give child class the opportunity to get the event
+      /// "An edge has been added to the roadmap"
+      /// \note you must always call the parent implementation first
+      /// \code
+      /// void YourRoadmap::push_edge(const EdgePtr_t e) {
+      ///   Roadmap::push_edge(e);
+      ///   // Your code here.
+      /// }
+      /// \endcode
+      virtual void addEdge (const EdgePtr_t& e);
+
       /// Node factory
       /// Reimplement the function if you want to create an instance of a
       /// child class of Node

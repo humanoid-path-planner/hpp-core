@@ -135,11 +135,11 @@ namespace hpp {
       EdgePtr_t edge = new Edge (from, to, path);
       if (!from->isOutNeighbor (to)) from->addOutEdge (edge);
       if (!to->isInNeighbor  (from)) to->addInEdge (edge);
-      edges_.push_back (edge);
+      addEdge(edge);
       edge = new Edge (to, from, path->reverse ());
       if (!from->isInNeighbor  (to)) from->addInEdge (edge);
       if (!to->isOutNeighbor (from)) to->addOutEdge (edge);
-      edges_.push_back (edge);
+      addEdge(edge);
     }
 
     NodePtr_t Roadmap::addNodeAndEdges (const NodePtr_t from,
@@ -200,12 +200,7 @@ namespace hpp {
       EdgePtr_t edge = new Edge (n1, n2, path);
       if (!n1->isOutNeighbor (n2)) n1->addOutEdge (edge);
       if (!n2->isInNeighbor  (n1)) n2->addInEdge (edge);
-      edges_.push_back (edge);
-
-      ConnectedComponentPtr_t cc1 = n1->connectedComponent ();
-      ConnectedComponentPtr_t cc2 = n2->connectedComponent ();
-
-      connect (cc1, cc2);
+      addEdge(edge);
       return edge;
     }
 
@@ -249,6 +244,16 @@ namespace hpp {
 	  assert (nb == 1);
 	}
       }
+    }
+
+    void Roadmap::addEdge (const EdgePtr_t& edge)
+    {
+      edges_.push_back (edge);
+
+      ConnectedComponentPtr_t cc1 = edge->from()->connectedComponent ();
+      ConnectedComponentPtr_t cc2 = edge->to  ()->connectedComponent ();
+
+      connect (cc1, cc2);
     }
 
     bool Roadmap::pathExists () const
