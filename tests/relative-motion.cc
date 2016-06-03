@@ -141,10 +141,10 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   RelativeMotion::matrix_type m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
-  BOOST_CHECK(m(1,2) == RelativeMotion::Parameterized); // lock a1
-  BOOST_CHECK(m(3,4) == RelativeMotion::Parameterized); // lock b1
-  BOOST_CHECK(m(4,5) == RelativeMotion::Parameterized); // lock b2
-  BOOST_CHECK(m(3,5) == RelativeMotion::Parameterized); // lock b1+b2
+  BOOST_CHECK(m(2,3) == RelativeMotion::Parameterized); // lock a1
+  BOOST_CHECK(m(4,5) == RelativeMotion::Parameterized); // lock b1
+  BOOST_CHECK(m(5,6) == RelativeMotion::Parameterized); // lock b2
+  BOOST_CHECK(m(4,6) == RelativeMotion::Parameterized); // lock b1+b2
 
   //std::cout << m << std::endl;
 
@@ -159,10 +159,10 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
-  BOOST_CHECK(m(2,5) == RelativeMotion::Constrained);   // lock rt
-  BOOST_CHECK(m(1,5) == RelativeMotion::Parameterized); // lock a1 + rt
-  BOOST_CHECK(m(3,2) == RelativeMotion::Parameterized); // lock b1+b2+rt
-  BOOST_CHECK(m(3,1) == RelativeMotion::Parameterized); // lock b1+b2+rt+a1
+  BOOST_CHECK(m(3,6) == RelativeMotion::Constrained);   // lock rt
+  BOOST_CHECK(m(2,6) == RelativeMotion::Parameterized); // lock a1 + rt
+  BOOST_CHECK(m(4,3) == RelativeMotion::Parameterized); // lock b1+b2+rt
+  BOOST_CHECK(m(4,2) == RelativeMotion::Parameterized); // lock b1+b2+rt+a1
 
   //std::cout << '\n' << m << std::endl;
 }

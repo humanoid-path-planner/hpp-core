@@ -134,8 +134,8 @@ namespace hpp {
       while (_colPair != collisionPairs_.end ()) {
         const JointPtr_t& j1 = _colPair->first ->joint(),
                           j2 = _colPair->second->joint();
-        i1 = (j1 == NULL) ? N - 1 : j1->rankInVelocity();
-        i2 = (j2 == NULL) ? N - 1 : j2->rankInVelocity();
+        i1 = RelativeMotion::idx(j1);
+        i2 = RelativeMotion::idx(j2);
         switch (matrix(i1, i2)) {
           case RelativeMotion::Parameterized:
               hppDout(info, "Parameterized collision pairs between "
