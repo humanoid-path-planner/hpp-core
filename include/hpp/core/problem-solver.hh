@@ -48,6 +48,8 @@ namespace hpp {
       ConfigurationShooterBuilder_t;
     typedef boost::function <SteeringMethodPtr_t (const ProblemPtr_t&) >
       SteeringMethodBuilder_t;
+    typedef std::vector<CollisionObjectPtr_t > AffordanceObjects_t;
+    typedef vector3_t AffordanceConfig_t;
 
     /// Set and solve a path planning problem
     ///
@@ -62,7 +64,9 @@ namespace hpp {
                              PathProjectorBuilder_t,
                              ConfigurationShooterBuilder_t,
                              NumericalConstraintPtr_t,
-                             SteeringMethodBuilder_t> >
+                             SteeringMethodBuilder_t,
+                             AffordanceObjects_t,
+                             AffordanceConfig_t > >
     {
     public:
 
