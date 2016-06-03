@@ -40,6 +40,21 @@ namespace hpp {
     {
     }
 
+    bool NumericalConstraint::isEqual (const Equation& other, bool swapAndTest)
+      const
+    {
+      try {
+	const NumericalConstraint& nc =
+	  dynamic_cast <const NumericalConstraint&> (other);
+	if (!Equation::isEqual (other, false)) return false;
+	if (function_ != nc.function_) return false;
+	if (swapAndTest) return nc.isEqual (*this, false);
+	return true;
+      } catch (const std::bad_cast& err) {
+	return false;
+      }
+    }
+
     NumericalConstraintPtr_t NumericalConstraint::create (
         const DifferentiableFunctionPtr_t& function, ComparisonTypePtr_t comp)
     {

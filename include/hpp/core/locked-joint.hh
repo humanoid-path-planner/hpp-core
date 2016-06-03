@@ -117,6 +117,10 @@ namespace hpp {
           vectorIn_t value);
       /// Copy constructor
       LockedJoint (const LockedJoint& other);
+      /// Test equality with other instance
+      /// \param other object to copy
+      /// \param swapAndTest whether we should also check other == this
+      virtual bool isEqual (const Equation& other, bool swapAndTest) const;
 
       void init (const LockedJointPtr_t& self);
 

@@ -210,5 +210,22 @@ namespace hpp {
       weak_ ()
     {
     }
+
+    bool LockedJoint::isEqual (const Equation& other, bool swapAndTest) const
+    {
+      try {
+	const LockedJoint& lj =
+	  dynamic_cast <const LockedJoint&> (other);
+	if (!Equation::isEqual (other, false)) return false;
+	if (jointName_ != lj.jointName_) return false;
+	if (rankInConfiguration_ != lj.rankInConfiguration_) return false;
+	if (rankInVelocity_ != lj.rankInVelocity_) return false;
+	if (numberDof_ != lj.numberDof_) return false;
+	if (swapAndTest) return lj.isEqual (*this, false);
+	return true;
+      } catch (const std::bad_cast& err) {
+	return false;
+      }
+    }
   } // namespace core
 } // namespace hpp

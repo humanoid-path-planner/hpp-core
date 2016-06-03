@@ -33,6 +33,11 @@ namespace hpp {
       public:
         /// Copy object and return shared pointer to copy
         virtual EquationPtr_t copy () const = 0;
+	/// Operator equality
+	bool operator== (const Equation& other) const
+	{
+	  return isEqual (other, true);
+	}
         /// Set the right hand side from a configuration
         ///
         /// in such a way that the configuration satisfies the numerical
@@ -72,7 +77,10 @@ namespace hpp {
         Equation (const ComparisonTypePtr_t& comp, vectorIn_t rhs);
 	//Copy constructor
 	Equation (const Equation& other);
-
+	/// Test equality with other instance
+	/// \param other object to copy
+	/// \param swapAndTest whether we should also check other == this
+	virtual bool isEqual (const Equation& other, bool swapAndTest) const;
 	// Store weak pointer to itself
 	void init (const EquationWkPtr_t& weak)
 	{
