@@ -35,6 +35,7 @@ namespace hpp {
 
       inline JointPtr_t getNonAnchorParent (const JointPtr_t j)
       {
+        if (j==NULL) return NULL;
         JointPtr_t parent = j;
         // Find the closest non-fixed parent in the kinematic chain
         while (
@@ -149,6 +150,12 @@ namespace hpp {
           symSet (matrix, i0, i3, t);
         }
       }
+    }
+
+    size_type RelativeMotion::idx(const JointPtr_t& joint)
+    {
+      JointPtr_t j = getNonAnchorParent(joint);
+      return (j == NULL ? 0 : j->rankInVelocity() + 1);
     }
   } // namespace core
 } // namespace hpp
