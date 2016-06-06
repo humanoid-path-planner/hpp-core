@@ -92,6 +92,11 @@ namespace hpp {
 	/// Copy constructor
 	NumericalConstraint (const NumericalConstraint& other);
 
+	/// Test equality with other instance
+	/// \param other object to copy
+	/// \param swapAndTest whether we should also check other == this
+	virtual bool isEqual (const Equation& other, bool swapAndTest) const;
+
 	// Store weak pointer to itself
 	void init (const NumericalConstraintWkPtr_t& weak)
 	{

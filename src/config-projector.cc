@@ -139,15 +139,32 @@ namespace hpp {
       svd_.setThreshold (SVD_THRESHOLD);
     }
 
-    void ConfigProjector::PriorityStack::add (
-        const NumericalConstraintPtr_t& nm, const SizeIntervals_t& passiveDofs)
+    bool ConfigProjector::PriorityStack::contains
+    (const NumericalConstraintPtr_t& numericalConstraint) const
     {
+      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
+	   it != functions_.end (); ++it) {
+	if (numericalConstraint == *it || *numericalConstraint == **it)
+	  return true;
+      }
+      return false;
+    }
+
+    bool ConfigProjector::PriorityStack::add
+    (const NumericalConstraintPtr_t& nm, const SizeIntervals_t& passiveDofs)
+    {
+      if (contains (nm)) {
+	hppDout (error, "Constraint " << nm->functionPtr ()->name ()
+		 << " already loaded." << std::endl);
+	return false;
+      }
       functions_.push_back (nm);
       passiveDofs_.push_back (passiveDofs);
       outputSize_ += nm->function().outputSize ();
       svd_ = SVD_t (outputSize_, cols_,
           Eigen::ComputeThinU | Eigen::ComputeThinV);
       svd_.setThreshold (SVD_THRESHOLD);
+      return true;
     }
 
     void ConfigProjector::PriorityStack::nbNonLockedDofs
@@ -160,10 +177,26 @@ namespace hpp {
       PK_.resize (cols_, cols_);
     }
 
-    void ConfigProjector::add (const NumericalConstraintPtr_t& nm,
-        const SizeIntervals_t& passiveDofs,
-        const std::size_t priority)
+    bool ConfigProjector::contains
+    (const NumericalConstraintPtr_t& numericalConstraint) const
     {
+      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
+	   it != functions_.end (); ++it) {
+	if (numericalConstraint == *it || *numericalConstraint == **it)
+	  return true;
+      }
+      return false;
+    }
+
+    bool ConfigProjector::add (const NumericalConstraintPtr_t& nm,
+			       const SizeIntervals_t& passiveDofs,
+			       const std::size_t priority)
+    {
+      if (contains (nm)) {
+	hppDout (error, "Constraint " << nm->functionPtr()->name ()
+		 << " already in " << this->name () << "." << std::endl);
+	return false;
+      }
       if (HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm)) {
 	explicitFunctions_.push_back (functions_.size ());
       }
@@ -192,6 +225,7 @@ namespace hpp {
       computeIntervals ();
       resize ();
       updateExplicitComputation ();
+      return true;
     }
 
     void ConfigProjector::computeIntervals ()

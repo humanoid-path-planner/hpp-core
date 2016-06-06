@@ -76,17 +76,25 @@ namespace hpp {
       /// return shared pointer to copy
       virtual ConstraintPtr_t copy () const;
 
+      /// Check that numerical constraint is in config projector
+      /// \param numericalConstraint numerical constraint
+      /// \return true if numerical constraint is already in config projector
+      ///         whatever the passive dofs are.
+      bool contains (const NumericalConstraintPtr_t& numericalConstraint) const;
+
       /// Add a numerical constraint
       /// \param numericalConstraint The numerical constraint.
       /// \param passiveDofs column indexes of the jacobian vector that will be
       ///        set to zero when solving.
       /// \param priority priority of the function. The last level might be
-      ///        optinal.
+      ///        optional.
+      /// \return false if numerical constraint had already been inserted.
+      ///
       /// \note The intervals are interpreted as a list of couple
       /// (index_start, length) and NOT as (index_start, index_end).
-      void add (const NumericalConstraintPtr_t& numericalConstraint,
-          const SizeIntervals_t& passiveDofs = SizeIntervals_t (0),
-          const std::size_t priority = 0);
+      bool add (const NumericalConstraintPtr_t& numericalConstraint,
+		const SizeIntervals_t& passiveDofs = SizeIntervals_t (0),
+		const std::size_t priority = 0);
 
       void lastIsOptional (bool optional)
       {
@@ -358,8 +366,14 @@ namespace hpp {
         matrix_t PK_;
         
         PriorityStack (std::size_t level, std::size_t cols);
-        void add (const NumericalConstraintPtr_t& numericalConstraint,
-            const SizeIntervals_t& passiveDofs);
+	/// Check that numerical constraint is in config projector
+	/// \param numericalConstraint numerical constraint
+	/// \return true if numerical constraint is already in priority stack
+	///         whatever the passive dofs are.
+	bool contains (const NumericalConstraintPtr_t& numericalConstraint)
+	  const;
+        bool add (const NumericalConstraintPtr_t& numericalConstraint,
+		  const SizeIntervals_t& passiveDofs);
         void nbNonLockedDofs (const std::size_t nbNonLockedDofs);
         void computeValueAndJacobian (ConfigurationIn_t cfg,
             const SizeIntervals_t& intervals,
