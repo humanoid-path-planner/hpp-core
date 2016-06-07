@@ -51,13 +51,15 @@ namespace hpp {
 
     BiRRTPlanner::BiRRTPlanner (const Problem& problem):
       PathPlanner (problem),
+      configurationShooter_ (problem.configurationShooter()),
       qProj_ (problem.robot ()->configSize ())
     {
     }
 
     BiRRTPlanner::BiRRTPlanner (const Problem& problem,
-					const RoadmapPtr_t& roadmap) :
+                                const RoadmapPtr_t& roadmap) :
       PathPlanner (problem, roadmap),
+      configurationShooter_ (problem.configurationShooter()),
       qProj_ (problem.robot ()->configSize ())
     {
     }
@@ -120,7 +122,7 @@ namespace hpp {
         bool pathValidFromStart(false);
         ConfigurationPtr_t q_new;
         // first try to connect to start component
-        ConfigurationPtr_t q_rand = problem().configurationShooter()->shoot ();
+        ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
         near = roadmap()->nearestNode (q_rand, startComponent_, distance);
         path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand);
         if (path)

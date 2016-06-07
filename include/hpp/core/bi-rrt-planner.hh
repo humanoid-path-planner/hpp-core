@@ -50,6 +50,7 @@ namespace hpp {
       void init (const BiRRTPlannerWkPtr_t& weak);
 
     private:
+      ConfigurationShooterPtr_t configurationShooter_;
       mutable Configuration_t qProj_;
       ConnectedComponentPtr_t startComponent_;
       std::vector<ConnectedComponentPtr_t> endComponents_;
