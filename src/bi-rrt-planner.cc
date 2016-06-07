@@ -57,7 +57,7 @@ namespace hpp {
     }
 
     BiRRTPlanner::BiRRTPlanner (const Problem& problem,
-					const RoadmapPtr_t& roadmap) :
+                                const RoadmapPtr_t& roadmap) :
       PathPlanner (problem, roadmap),
       configurationShooter_ (problem.configurationShooter()),
       qProj_ (problem.robot ()->configSize ())
