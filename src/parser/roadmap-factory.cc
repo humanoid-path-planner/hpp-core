@@ -18,6 +18,7 @@
 #include "hpp/core/parser/roadmap-factory.hh"
 
 #include <string>
+#include <boost/bind.hpp>
 
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>

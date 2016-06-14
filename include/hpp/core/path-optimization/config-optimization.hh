@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_CONFIG_OPTIMIZATION_HH
 # define HPP_CORE_PATH_OPTIMIZATION_CONFIG_OPTIMIZATION_HH
 
+# include <boost/function.hpp>
+
 # include <hpp/core/path-optimizer.hh>
 # include <hpp/core/path-vector.hh>
 

@@ -16,6 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <boost/bind.hpp>
+
 #include <hpp/util/debug.hh>
 #include <hpp/model/collision-object.hh>
 #include <hpp/constraints/differentiable-function.hh>
