@@ -127,7 +127,6 @@ namespace hpp {
     void CollisionValidation::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
       // Loop over collision pairs and remove disabled ones.
-      const size_type N = robot_->numberDof () + 1;
       CollisionPairs_t::iterator _colPair = collisionPairs_.begin ();
       size_type i1, i2;
       fcl::CollisionResult unused;
