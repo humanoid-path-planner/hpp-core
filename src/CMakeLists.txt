@@ -56,7 +56,9 @@ SET(${LIBRARY_NAME}_SOURCES
   path-planner.cc
   path-vector.cc
   reeds-shepp-path.cc
+  kinodynamic-path.cc
   steering-method/reeds-shepp.cc
+  steering-method/steering-kinodynamic.cc
   plan-and-optimize.cc
   problem.cc
   problem-solver.cc

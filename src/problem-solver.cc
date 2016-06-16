@@ -40,6 +40,7 @@
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/steering-kinodynamic.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
@@ -105,6 +106,7 @@ namespace hpp {
               (&SteeringMethodStraight::create), _1
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      add <SteeringMethodBuilder_t> ("Kynodynamic", steeringMethod::Kinodynamic::create);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
