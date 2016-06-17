@@ -156,8 +156,10 @@ namespace hpp {
         {
           typename _F<Element>::Map_t::const_iterator it
             = map<Element>().find (name);
-          if (it == map<Element>().end ())
-            throw std::runtime_error ("invalid key");
+          if (it == map<Element>().end ()) {
+            std::stringstream ss; ss << "Invalid key: " << name;
+            throw std::invalid_argument (ss.str());
+          }
           return it->second;
         }
 

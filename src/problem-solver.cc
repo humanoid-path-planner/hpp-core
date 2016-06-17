@@ -332,7 +332,11 @@ namespace hpp {
 	  (robot_, constraintName, errorThreshold_, maxIterations_);
 	constraints_->addConstraint (configProjector);
       }
-      configProjector->add (numericalConstraint (functionName),
+      if (!has <NumericalConstraintPtr_t> (functionName)) {
+        std::stringstream ss; ss << "Function " << functionName << " does not exists";
+        throw std::invalid_argument (ss.str());
+      }
+      configProjector->add (get<NumericalConstraintPtr_t> (functionName),
 			    SizeIntervals_t (0), priority);
     }
 
