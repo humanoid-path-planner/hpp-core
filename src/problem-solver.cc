@@ -108,7 +108,7 @@ namespace hpp {
               (&SteeringMethodStraight::create), _1
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
-      add <SteeringMethodBuilder_t> ("Kynodynamic", steeringMethod::Kinodynamic::create);
+      add <SteeringMethodBuilder_t> ("Kinodynamic", steeringMethod::Kinodynamic::create);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
