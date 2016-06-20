@@ -68,7 +68,23 @@ namespace hpp {
         virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
                                         ConfigurationIn_t q2) const;
         
+        /**
+         * @brief computeMinTime compute the minimum time required to go from state (p1,v1) to (p2,v2)
+         * @param p1 position at state 1
+         * @param p2 position at state 2
+         * @param v1 velocity at state 1
+         * @param v2 velocity at state 2 
+         * @param sigma signe of a1 (-aMax or +aMax), a1 = sigma*aMax, a2 = -sigma*aMax, vLim = sigma*vMax_
+         * @param t1 time of the first segment
+         * @param tv time of constant velocity segment (can be null)
+         * @param t2 time of the last segment
+         * @return T the minimal time
+         */
+        virtual double computeMinTime(double p1,double p2, double v1, double v2, int& sigma, double& t1, double& tv, double& t2);
         
+        int sgn(double val){
+          return ((0. < val ) - (val < 0.));
+        }
         
       protected:
         
@@ -86,7 +102,8 @@ namespace hpp {
         }
         
       private:
-        
+        double aMax_;
+        double vMax_;
         DeviceWkPtr_t device_;
         KinodynamicWkPtr_t weak_;
       }; // Kinodynamic
