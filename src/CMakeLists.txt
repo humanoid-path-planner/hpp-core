@@ -41,6 +41,7 @@ SET(${LIBRARY_NAME}_SOURCES
   explicit-numerical-constraint.cc
   extracted-path.hh
   joint-bound-validation.cc
+  torque-bound-validation.cc
   nearest-neighbor/basic.hh
   nearest-neighbor/basic.cc
   nearest-neighbor/k-d-tree.cc
