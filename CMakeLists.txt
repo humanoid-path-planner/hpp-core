@@ -84,6 +84,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/explicit-relative-transformation.hh
   include/hpp/core/fwd.hh
   include/hpp/core/joint-bound-validation.hh
+  include/hpp/core/torque-bound-validation.hh
   include/hpp/core/equation.hh
   include/hpp/core/path-validations.hh
   include/hpp/core/numerical-constraint.hh

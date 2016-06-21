@@ -83,6 +83,7 @@ path-validations.cc
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
   random-shortcut.cc
+  torque-bound-validation.cc
   reeds-shepp-path.cc
   relative-motion.cc  
   kinodynamic-path.cc
