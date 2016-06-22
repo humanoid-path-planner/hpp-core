@@ -135,7 +135,9 @@ namespace hpp {
                 q_new = ConfigurationPtr_t (new Configuration_t(validPath->end ()));
                 reachedNodeFromStart = roadmap()->addNodeAndEdges(near, q_new, validPath);
             }
+            else return;
         }
+        else return;
 
         // now try to connect to end components
         for (std::vector<ConnectedComponentPtr_t>::const_iterator itcc =
