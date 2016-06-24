@@ -78,7 +78,7 @@ namespace hpp {
 
       /// \}
 
-      Configuration_t operator () (const value_type& t) const
+      virtual Configuration_t operator () (const value_type& t) const
         HPP_CORE_DEPRECATED
       {
 	Configuration_t result (outputSize ());
@@ -89,7 +89,7 @@ namespace hpp {
 	return result;
       }
 
-      Configuration_t operator () (const value_type& t, bool& success) const
+      virtual Configuration_t operator () (const value_type& t, bool& success) const
       {
 	Configuration_t result (outputSize ());
 	success = impl_compute (result, t);
@@ -100,7 +100,7 @@ namespace hpp {
 	return result;
       }
 
-      bool operator () (ConfigurationOut_t result, const value_type& t)
+      virtual bool operator () (ConfigurationOut_t result, const value_type& t)
        const throw ()
       {
 	bool success = impl_compute (result, t);
