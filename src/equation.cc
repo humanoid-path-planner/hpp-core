@@ -67,7 +67,7 @@ namespace hpp {
     bool Equation::isEqual (const Equation& other, bool swapAndTest) const
     {
       if (comparison_ != other.comparison_) return false;
-      if (rhs_ != other.rhs_) return false;
+      if (rhs_.size() != other.rhs_.size() || rhs_ != other.rhs_) return false;
       if (swapAndTest)
 	return other.isEqual (*this, false);
       return true;
