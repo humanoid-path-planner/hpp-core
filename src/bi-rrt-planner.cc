@@ -118,7 +118,7 @@ namespace hpp {
         PathValidationPtr_t pathValidation (problem ().pathValidation ());
         value_type distance;
         NodePtr_t near, reachedNodeFromStart;
-        bool pathValidFromStart(false);
+        bool startComponentConnected(false), pathValidFromStart(false);
         ConfigurationPtr_t q_new;
         // first try to connect to start component
         ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
@@ -132,12 +132,11 @@ namespace hpp {
             value_type t_final = validPath->timeRange ().second;
             if (t_final != path->timeRange ().first)
             {
+                startComponentConnected = true;
                 q_new = ConfigurationPtr_t (new Configuration_t(validPath->end ()));
                 reachedNodeFromStart = roadmap()->addNodeAndEdges(near, q_new, validPath);
             }
-            else return;
         }
-        else return;
 
         // now try to connect to end components
         for (std::vector<ConnectedComponentPtr_t>::const_iterator itcc =
@@ -164,11 +163,14 @@ namespace hpp {
                         NodePtr_t newNode = roadmap()->addNode (q_newEnd);
                         roadmap()->addEdge(newNode, near, validPath);
                         // now try to connect both nodes
-                        path = (*(problem().steeringMethod())) (*q_new, *q_newEnd);
-                        if(path && pathValidation->validate (path, false, validPath, report))
+                        if(startComponentConnected)
                         {
-                            roadmap()->addEdge (reachedNodeFromStart, newNode, path);
-                            return;
+                            path = (*(problem().steeringMethod())) (*q_new, *q_newEnd);
+                            if(path && pathValidation->validate (path, false, validPath, report))
+                            {
+                                roadmap()->addEdge (reachedNodeFromStart, newNode, path);
+                                return;
+                            }
                         }
                     }
                 }
