@@ -35,6 +35,9 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/dof-extracted-path.hh>
+
+#define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
 using hpp::model::Device;
 using hpp::model::DevicePtr_t;
@@ -62,6 +65,31 @@ DevicePtr_t createRobot ()
   joint->upperBound (0, +4);
 
   robot->rootJoint (joint);
+  return robot;
+}
+
+DevicePtr_t createRobot2 ()
+{
+  DevicePtr_t robot = Device::create ("test");
+
+  const std::string& name = robot->name ();
+  fcl::Transform3f mat; mat.setIdentity ();
+  JointPtr_t joint, parentJoint;
+  std::string jointName = name + "_x";
+  // Translation along x
+  fcl::Matrix3f permutation;
+  for (int i = 0; i < 10; ++i) {
+    joint = objectFactory.createJointTranslation (mat);
+    joint->name (jointName + TOSTR(i));
+
+    joint->isBounded (0, 1);
+    joint->lowerBound (0, -4);
+    joint->upperBound (0, +4);
+    if (i == 0) robot->rootJoint (joint);
+    else parentJoint->addChildJoint (joint);
+    parentJoint = joint;
+  }
+
   return robot;
 }
 
@@ -116,4 +144,36 @@ BOOST_AUTO_TEST_CASE (extracted)
   p2 = p2->extract (Pair_t (0.25, 0));
   checkAt (p1, .75, p2, 0.0);
   checkAt (p1, 1.0, p2, .25);
+}
+
+BOOST_AUTO_TEST_CASE (dofExtracted)
+{
+  DevicePtr_t dev = createRobot2 (); // 10 translations
+  BOOST_REQUIRE (dev);
+  Problem problem (dev);
+
+  SizeIntervals_t intervals;
+  intervals.push_back(SizeInterval_t(0,3));
+  intervals.push_back(SizeInterval_t(6,3));
+
+  Configuration_t q1 (Configuration_t::Zero(dev->configSize()));
+  Configuration_t q2 (Configuration_t::Ones(dev->configSize()));
+  q2.tail<5>().setConstant(-1);
+
+  PathPtr_t p1 = (*problem.steeringMethod()) (q1, q2), p2;
+  p2 = DofExtractedPath::create(p1, intervals);
+
+  BOOST_CHECK(p2->outputSize() == 6);
+  Configuration_t q (p2->outputSize());
+  (*p2) (q, 0);
+  BOOST_CHECK(q.head<3>().isZero());
+  BOOST_CHECK(q.tail<3>().isZero());
+
+  (*p2) (q, p1->length());
+  BOOST_CHECK(q.head<3>().isApprox( Configuration_t::Ones(3)));
+  BOOST_CHECK(q.tail<3>().isApprox(-Configuration_t::Ones(3)));
+
+  (*p2) (q, p1->length() * 0.5);
+  BOOST_CHECK(q.head<3>().isApprox( Configuration_t::Ones(3) * 0.5));
+  BOOST_CHECK(q.tail<3>().isApprox(-Configuration_t::Ones(3) * 0.5));
 }
