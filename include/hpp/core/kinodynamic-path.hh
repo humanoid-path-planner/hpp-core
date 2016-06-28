@@ -204,6 +204,8 @@ namespace hpp {
       Configuration_t initial_;
       Configuration_t end_;
       KinodynamicPathWkPtr_t weak_;
+      Configuration_t t1_,tv_,t2_;
+      Configuration_t a1_,a2_; 
     }; // class KinodynamicPath
   } //   namespace core
 } // namespace hpp
