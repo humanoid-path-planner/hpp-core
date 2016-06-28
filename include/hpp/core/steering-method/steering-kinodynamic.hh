@@ -80,9 +80,25 @@ namespace hpp {
          * @param t2 time of the last segment
          * @return T the minimal time
          */
-        virtual double computeMinTime(double p1,double p2, double v1, double v2, int& sigma, double& t1, double& tv, double& t2);
+        double computeMinTime(double p1,double p2, double v1, double v2, int* sigma, double* t1, double* tv, double* t2) const;
         
-        int sgn(double val){
+        /**
+        * @brief fixedTimeTrajectory compute the minimum acceleration trajectory for desired time T
+        * @param T lenght of the trajectory
+        * @param p1 position at state 1
+        * @param p2 position at state 2
+        * @param v1 velocity at state 1
+        * @param v2 velocity at state 2 
+        * @param a1 acceleration during first phase
+        * @param a2 acceleration during second (or third) phase
+        * @param t1 time of the first segment
+        * @param tv time of constant velocity segment (can be null)
+        * @param t2 time of the last segment
+        * @return T the minimal time
+        */
+        virtual void fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *a2, double* t1, double* tv, double* t2) const;
+        
+        int sgn(double val) const{
           return ((0. < val ) - (val < 0.));
         }
         
