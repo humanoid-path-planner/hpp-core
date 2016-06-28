@@ -28,7 +28,7 @@ namespace hpp {
       localParam = param;
       bool finished = false;
 
-      while (res < paths_.size () - 1 && !finished) {
+      while (res + 1 < paths_.size () && !finished) {
 	if (localParam > paths_ [res]->length ()) {
 	  localParam -= paths_ [res]->length ();
 	  res ++;
