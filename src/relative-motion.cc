@@ -33,10 +33,10 @@ namespace hpp {
         m(i0,i1) = m(i1,i0) = t;
       }
 
-      inline JointPtr_t getNonAnchorParent (const JointPtr_t j)
+      inline JointConstPtr_t getNonAnchorParent (const JointConstPtr_t& j)
       {
         if (j==NULL) return NULL;
-        JointPtr_t parent = j;
+        JointConstPtr_t parent = j;
         // Find the closest non-fixed parent in the kinematic chain
         while (
             ((parent = parent->parentJoint()) != NULL) 
@@ -152,10 +152,14 @@ namespace hpp {
       }
     }
 
-    size_type RelativeMotion::idx(const JointPtr_t& joint)
+    size_type RelativeMotion::idx(const JointConstPtr_t& joint)
     {
-      JointPtr_t j = getNonAnchorParent(joint);
-      return (j == NULL ? 0 : j->rankInVelocity() + 1);
+      if (joint == NULL) return 0;
+      if (joint->numberDof() == 0) {
+        const JointConstPtr_t j = getNonAnchorParent(joint);
+        return (j == NULL ? 0 : j->rankInVelocity() + 1);
+      }
+      return joint->rankInVelocity() + 1;
     }
   } // namespace core
 } // namespace hpp
