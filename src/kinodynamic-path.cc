@@ -137,7 +137,36 @@ namespace hpp {
       Configuration_t q2 ((*this) (subInterval.second, success));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
-      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1_,t1_,tv_,t2_,vMax_,
+      Configuration_t t1(t1_);
+      Configuration_t t2(t2_);
+      Configuration_t tv(tv_);
+      double ti,tf;
+      for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
+        t1[i] = t1_[i] - subInterval.first;
+        if(t1[i] <= 0){
+          t1[i] = 0; 
+          ti = subInterval.first - t1_[i];
+          tv[i] = tv_[i] - ti;
+          if(tv[1] <= 0 ){
+            tv[i] = 0;
+            ti = ti - tv_[i]; 
+            t2[i] = t2_[i] - ti;
+          }
+        }
+        t2[i] = t2_[i] - subInterval.second;
+        if(t2[i] <= 0 ){
+          t2[i] = 0 ;
+          tf = subInterval.second - t2_[i];
+          tv[i] = tv_[i] - tf;
+          if(tv[i] <= 0){
+            tv[i] = 0;
+            tf = tf - tv_[i];
+            t1[i] = t1_[i] - tf;
+          }
+        }
+
+      }
+      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1_,t1,tv,t2,vMax_,
                                                   constraints ());
       return result;
     }
