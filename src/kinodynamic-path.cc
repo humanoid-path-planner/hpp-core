@@ -99,29 +99,30 @@ namespace hpp {
         size_type indexVel = id + configSize;
         
        // hppDout(notice," PATH For joint "<<(*itJoint)->name());
-        hppDout(notice,"PATH for joint :"<<device()->getJointAtConfigRank(id)->name());
-        
-        //if((*itJoint)->configSize() >= 1){
-        // 3 case (each segment of the trajectory) : 
-        if(t <= t1_[id]){
-          hppDout(info,"on  1° segment");
-          result[id] = 0.5*t*t*a1_[id] + t*initial_[indexVel] + initial_[id];
-          result[indexVel] = t*a1_[id] + initial_[indexVel];
-        }else if (t <= t1_[id] + tv_[id] ){
-          hppDout(info,"on  constant velocity segment");
-          result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*vMax_;
-          result[indexVel] = vMax_;
-        }else{
-          hppDout(info,"on  3° segment");
-          t2 = t - tv_[id] - t1_[id] ;
-          if(tv_[id] > 0 )
-            v2 = vMax_;
-          else
-            v2 = t1_[id]*a1_[id] + initial_[indexVel];
-          result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*vMax_
-              - 0.5*t2*t2*a1_[id] + t2*v2;
-          result[indexVel] = v2 - t2 * a1_[id];
-        }
+       // hppDout(notice,"PATH for joint :"<<device()->getJointAtConfigRank(id)->name());
+        if(device()->getJointAtConfigRank(id)->name() != "base_joint_SO3"){          
+          
+          //if((*itJoint)->configSize() >= 1){
+          // 3 case (each segment of the trajectory) : 
+          if(t <= t1_[id]){
+          //  hppDout(info,"on  1° segment");
+            result[id] = 0.5*t*t*a1_[id] + t*initial_[indexVel] + initial_[id];
+            result[indexVel] = t*a1_[id] + initial_[indexVel];
+          }else if (t <= t1_[id] + tv_[id] ){
+          //  hppDout(info,"on  constant velocity segment");
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*sgnf(a1_[id])*vMax_;
+            result[indexVel] = sgnf(a1_[id])*vMax_;
+          }else{
+          //  hppDout(info,"on  3° segment");
+            t2 = t - tv_[id] - t1_[id] ;
+            if(tv_[id] > 0 )
+              v2 = sgnf(a1_[id])*vMax_;
+            else
+              v2 = t1_[id]*a1_[id] + initial_[indexVel];
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*sgnf(a1_[id])*vMax_ - 0.5*t2*t2*a1_[id] + t2*v2;
+            result[indexVel] = v2 - t2 * a1_[id];
+          }
+        }// if not quaternion joint
       }// if joint config size > 1
       
       // }// for all joints
@@ -134,17 +135,20 @@ namespace hpp {
     {
       // Length is assumed to be proportional to interval range
       value_type l = fabs (subInterval.second - subInterval.first);
-      
+      hppDout(notice,"%% EXTRACT PATH :");      
       bool success;
       Configuration_t q1 ((*this) (subInterval.first, success));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
       Configuration_t q2 ((*this) (subInterval.second, success));
+      hppDout(info,"q1 = "<<model::displayConfig(q1));
+      hppDout(info,"q2 = "<<model::displayConfig(q2));      
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
       Configuration_t t1,t2,tv,a1;
       double ti,tf;      
       if(subInterval.first < subInterval.second){
+        hppDout(notice,"%% subinterval PATH");
         t1 = t1_;
         t2 = (t2_);
         tv = (tv_);
@@ -152,18 +156,11 @@ namespace hpp {
         ti = subInterval.first;
         tf = subInterval.second;
       }else{  // reversed path
-        t1 = (t2_);
-        t2 = (t1_);
-        tv = (tv_);
-        a1 = (a1_); 
-        for(int i = 0 ; i < a1.size(); i++){
-          a1[i] = - a1_[i];
-        }
-        tf = subInterval.first;
-        ti = subInterval.second;
+        hppDout(notice,"%% REVERSE PATH, not implemented yet !");
+        return PathPtr_t();
       }
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
-        t1[i] = t1_[i] - subInterval.first;
+        t1[i] = t1_[i] - ti;
         if(t1[i] <= 0){
           t1[i] = 0; 
           ti = ti - t1_[i];
@@ -174,7 +171,7 @@ namespace hpp {
             t2[i] = t2_[i] - ti;
           }
         }
-        t2[i] = t2_[i] - subInterval.second;
+        t2[i] = t2_[i] - tf;
         if(t2[i] <= 0 ){
           t2[i] = 0 ;
           tf = tf - t2_[i];
