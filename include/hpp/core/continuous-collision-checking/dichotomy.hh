@@ -69,6 +69,8 @@ namespace hpp {
       ///
       /// See <a href="continuous-collision-checking.pdf"> this document </a>
       /// for details.
+      ///
+      /// \todo Reimplement PathValidation::filterCollisionPairs
       class HPP_CORE_DLLAPI Dichotomy : public PathValidation
       {
       public:

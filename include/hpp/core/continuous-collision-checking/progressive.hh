@@ -103,6 +103,8 @@ namespace hpp {
 	virtual void removeObstacleFromJoint
 	  (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
 
+        void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
+
 	virtual ~Progressive ();
       protected:
 	/// Constructor
@@ -116,7 +118,8 @@ namespace hpp {
 				    PathValidationReportPtr_t& report);
 	DevicePtr_t robot_;
 	value_type tolerance_;
-	progressive::BodyPairCollisions_t bodyPairCollisions_;
+	progressive::BodyPairCollisions_t bodyPairCollisions_,
+          disabledBodyPairCollisions_;
         value_type stepSize_;
       }; // class Progressive
     } // namespace continuousCollisionChecking

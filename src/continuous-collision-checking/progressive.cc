@@ -230,6 +230,35 @@ namespace hpp {
 	}
       }
 
+      void Progressive::filterCollisionPairs
+      (const RelativeMotion::matrix_type& relMotion)
+      {
+        // Loop over collision pairs and remove disabled ones.
+        size_type ia, ib;
+        for (BodyPairCollisions_t::iterator _colPair = bodyPairCollisions_.begin ();
+            _colPair != bodyPairCollisions_.end (); ++_colPair) {
+          const JointConstPtr_t& ja = (*_colPair)->joint_a(),
+                                 jb = (*_colPair)->joint_b();
+          ia = RelativeMotion::idx(ja);
+          ib = RelativeMotion::idx(jb);
+          switch (relMotion(ia, ib)) {
+            case RelativeMotion::Parameterized:
+              hppDout(info, "Parameterized collision pairs treated as Constrained");
+            case RelativeMotion::Constrained:
+              hppDout(info, "Disabling collision between joint "
+                  << ja->name() << " and " << jb->name());
+              disabledBodyPairCollisions_.push_back (*_colPair);
+              _colPair = bodyPairCollisions_.erase (_colPair);
+              break;
+            case RelativeMotion::Unconstrained: ++_colPair; break;
+            default:
+               hppDout (warning, "RelativeMotionType not understood");
+               ++_colPair;
+               break;
+          }
+        }
+      }
+
       Progressive::~Progressive ()
       {
       }
