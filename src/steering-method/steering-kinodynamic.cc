@@ -105,10 +105,11 @@ namespace hpp {
         double a2 = -a1;
         double vLim = (*sigma) * vMax_;
         hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
-        
+        if(sigma == 0 )
+          return 0.;
         // test if two segment trajectory is valid :
         bool twoSegment = false;        
-        hppDout(info,"test 0 "<<((v2-v1)/a2));
+        hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
         double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value
         // solve quadratic equation
         const double a = a1;
@@ -161,6 +162,14 @@ namespace hpp {
         double v2_1 = v2-v1;
         double p2_1 = p2-p1;
         hppDout(info,"v12 = "<<v12<<"   ; v21 = "<<v2_1<<"   ; p21 = "<<p2_1);
+        
+        if(v2_1 == 0 && p2_1 == 0){
+          *a1 = 0;
+          *t1 = 0;
+          *tv = 0;
+          *t2 = 0;
+          return;
+        }
         double a2;
         double delta;
         delta = 4*T*T*(v12*v12+v2_1*v2_1) - 16*T*v12*p2_1 + 16*p2_1*p2_1;
