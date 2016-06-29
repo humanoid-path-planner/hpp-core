@@ -36,7 +36,7 @@ namespace hpp {
         size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
         // looking for Tmax
         hppDout(notice,"## Looking for Tmax :");
-        const JointVector_t& jv (problem_->robot()->getJointVector ());
+        /*const JointVector_t& jv (problem_->robot()->getJointVector ());
         for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
           size_type indexConfig = (*itJoint)->rankInConfiguration ();
           size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
@@ -47,7 +47,16 @@ namespace hpp {
               Tmax = T;
           }
           
-        }// for all joints
+        }// for all joints*/
+        
+        for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
+          size_type indexVel = indexConfig + configSize;
+          hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
+          T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
+          if(T > Tmax)
+            Tmax = T;
+          
+        }
         value_type length = Tmax;     
         // create array of times intervals and acceleration values: 
         Configuration_t a1_t(configSize);
@@ -56,7 +65,7 @@ namespace hpp {
         Configuration_t tv_t(configSize);
         
         // compute trajectory with fixed time T found 
-        for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
+        /*for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
           size_type indexConfig = (*itJoint)->rankInConfiguration ();
           size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
           hppDout(notice,"For joint "<<(*itJoint)->name());          
@@ -69,7 +78,17 @@ namespace hpp {
           }
           
         }// for all joints
-        
+        */
+        for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
+          size_type indexVel = indexConfig + configSize;
+          hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
+          fixedTimeTrajectory(Tmax,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
+          a1_t[indexConfig]=a1;
+          t1_t[indexConfig]=t1;
+          tv_t[indexConfig]=tv;
+          t2_t[indexConfig]=t2;  
+          
+        }
         
         KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t1_t,tv_t,t2_t,vMax_);        
         return path;
@@ -143,7 +162,7 @@ namespace hpp {
           hppDout(info,"test 2 "<<((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)));
           hppDout(info,"test 3 "<<((p2-p1)/vLim));
           
-              
+          
         }
         if(twoSegment){
           hppDout(notice,"Trajectory with 2 segments");
@@ -206,7 +225,7 @@ namespace hpp {
           *t2 = (v2-vLim)/(a2);
         }
         
-
+        
         hppDout(notice,"a1 = "<<*a1<<"  ;  a2 ="<<a2);
         hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
         
