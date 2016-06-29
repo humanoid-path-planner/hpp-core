@@ -76,25 +76,48 @@ namespace hpp {
     }
     
     bool KinodynamicPath::impl_compute (ConfigurationOut_t result,
-                                        value_type param) const
+                                        value_type t) const
     {
-      if (param == timeRange ().first || timeRange ().second == 0) {
+      assert (result.size() == device()->configSize());
+      
+      if (t == timeRange ().first || timeRange ().second == 0) {
         result = initial_;
         return true;
       }
-      if (param == timeRange ().second) {
+      if (t == timeRange ().second) {
         result = end_;
         return true;
       }
       
-      const JointVector_t& jv (problem_->robot()->getJointVector ());
+      size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();      
+      const JointVector_t& jv (device()->getJointVector ());
+      double v2,t2;
       for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
-        size_type indexConfig = (*itJoint)->rankInConfiguration ();
+        size_type id = (*itJoint)->rankInConfiguration ();
         size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
         hppDout(notice," PATH For joint "<<(*itJoint)->name());
         if((*itJoint)->configSize() >= 1){
-          
-        }
+          // 3 case (each segment of the trajectory) : 
+          if(t <= t1_[id]){
+            hppDout(info,"on  1° segment");
+            result[id] = 0.5*t*t*a1_[id] + t*initial_[indexVel] + initial_[id];
+            result[indexVel] = t*a1_[id] + initial_[indexVel];
+          }else if (t <= t1_[id] + tv_[id] ){
+            hppDout(info,"on  constant velocity segment");
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*vMax_;
+            result[indexVel] = vMax_;
+          }else{
+            hppDout(info,"on  3° segment");
+            t2 = t - tv_[id] - t1_[id] ;
+            if(tv_[id] > 0 )
+              v2 = vMax_;
+            else
+              v2 = t1_[id]*a1_[id] + initial_[indexVel];
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*vMax_
+                - 0.5*t2*t2*a1_[id] + t2*v2;
+            result[indexVel] = v2 - t2 * a1_[id];
+          }
+        }// if joint config size > 1
         
       }// for all joints
       
