@@ -52,9 +52,13 @@ namespace hpp {
         for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
-          T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
-          if(T > Tmax)
-            Tmax = T;
+          if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
+            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
+            if(T > Tmax)
+              Tmax = T;
+          }else{
+            hppDout(notice,"!! Steering method for quaternion not implemented yet.");
+          }
           
         }
         value_type length = Tmax;     
@@ -82,12 +86,19 @@ namespace hpp {
         for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
-          fixedTimeTrajectory(Tmax,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
-          a1_t[indexConfig]=a1;
-          t1_t[indexConfig]=t1;
-          tv_t[indexConfig]=tv;
-          t2_t[indexConfig]=t2;  
-          
+          if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
+            fixedTimeTrajectory(Tmax,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
+            a1_t[indexConfig]=a1;
+            t1_t[indexConfig]=t1;
+            tv_t[indexConfig]=tv;
+            t2_t[indexConfig]=t2;  
+          }else{
+            hppDout(notice,"!! Steering method for quaternion not implemented yet.");
+            a1_t[indexConfig]=0;
+            t1_t[indexConfig]=0;
+            tv_t[indexConfig]=0;
+            t2_t[indexConfig]=0;  
+          }
         }
         
         KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t1_t,tv_t,t2_t,vMax_);        
@@ -116,6 +127,7 @@ namespace hpp {
       }
       
       double Kinodynamic::computeMinTime(double p1, double p2, double v1, double v2, int *sigma, double *t1, double *tv, double *t2) const{
+        hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
         *sigma = sgn(p2-p1-deltaPacc);
@@ -124,8 +136,10 @@ namespace hpp {
         double a2 = -a1;
         double vLim = (*sigma) * vMax_;
         hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
-        if(sigma == 0 )
+        if(*sigma == 0 ){
+          hppDout(notice,"No movement in this joints, abort.");
           return 0.;
+        }
         // test if two segment trajectory is valid :
         bool twoSegment = false;        
         hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
@@ -176,6 +190,7 @@ namespace hpp {
       }
       
       void Kinodynamic::fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2) const{
+        hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
         double v12 = v1+v2;
         double v2_1 = v2-v1;
         double p2_1 = p2-p1;
