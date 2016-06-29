@@ -25,12 +25,12 @@ namespace hpp {
   namespace core {
     /// Result of the selection of some elements of an original path
     /// \note Decorator design pattern
-    class DofExtractedPath : public Path
+    class SubchainPath : public Path
     {
     public:
       typedef Path parent_t;
 
-      virtual ~DofExtractedPath () throw () {}
+      virtual ~SubchainPath () throw () {}
 
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const
@@ -47,30 +47,30 @@ namespace hpp {
 	return createCopy (weak_.lock (), constraints);
       }
 
-      static DofExtractedPathPtr_t
+      static SubchainPathPtr_t
       create (const PathPtr_t& original, const SizeIntervals_t& intervals)
       {
-	DofExtractedPath* ptr = new DofExtractedPath (original, intervals);
-	DofExtractedPathPtr_t shPtr (ptr);
+	SubchainPath* ptr = new SubchainPath (original, intervals);
+	SubchainPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
 
-      static DofExtractedPathPtr_t
-      createCopy (const DofExtractedPathPtr_t& path)
+      static SubchainPathPtr_t
+      createCopy (const SubchainPathPtr_t& path)
       {
-	DofExtractedPath* ptr = new DofExtractedPath (*path);
-	DofExtractedPathPtr_t shPtr (ptr);
+	SubchainPath* ptr = new SubchainPath (*path);
+	SubchainPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
 
-      static DofExtractedPathPtr_t
-      createCopy (const DofExtractedPathPtr_t& path,
+      static SubchainPathPtr_t
+      createCopy (const SubchainPathPtr_t& path,
 		  const ConstraintSetPtr_t& constraints)
       {
-	DofExtractedPath* ptr = new DofExtractedPath (*path, constraints);
-	DofExtractedPathPtr_t shPtr (ptr);
+	SubchainPath* ptr = new SubchainPath (*path, constraints);
+	SubchainPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
@@ -130,13 +130,13 @@ namespace hpp {
       /// \param subInterval definition interval of the extracted path
       /// \note If subInterval.first is bigger than subInterval.second, then,
       /// the path is reversed.
-      DofExtractedPath (const PathPtr_t& original, const SizeIntervals_t& intervals) :
+      SubchainPath (const PathPtr_t& original, const SizeIntervals_t& intervals) :
 	Path (original->timeRange(), intervalsToSize(intervals), outputSize ()),
 	original_ (original), intervals_ (intervals),
         q_ (Configuration_t::Zero(original->outputSize()))
       {}
 
-      DofExtractedPath (const DofExtractedPath& path) : Path (path),
+      SubchainPath (const SubchainPath& path) : Path (path),
 						  original_ (path.original_),
                                                   intervals_ (path.intervals_),
                                                   q_ (path.q_),
@@ -144,14 +144,14 @@ namespace hpp {
       {
       }
 
-      DofExtractedPath (const DofExtractedPath& path,
+      SubchainPath (const SubchainPath& path,
 		     const ConstraintSetPtr_t& constraints) :
 	Path (path, constraints), original_ (path.original_),
 	intervals_ (path.intervals_), weak_ ()
       {
       }
 
-      void init (DofExtractedPathPtr_t self)
+      void init (SubchainPathPtr_t self)
       {
 	parent_t::init (self);
 	weak_ = self;
@@ -161,7 +161,7 @@ namespace hpp {
       PathPtr_t original_;
       SizeIntervals_t intervals_;
       mutable Configuration_t q_;
-      DofExtractedPathWkPtr_t weak_;
+      SubchainPathWkPtr_t weak_;
 
       static size_type intervalsToSize(const SizeIntervals_t& ints)
       {

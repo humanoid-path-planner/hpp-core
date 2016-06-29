@@ -35,7 +35,7 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/straight-path.hh>
-#include <hpp/core/dof-extracted-path.hh>
+#include <hpp/core/subchain-path.hh>
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE (extracted)
   checkAt (p1, 1.0, p2, .25);
 }
 
-BOOST_AUTO_TEST_CASE (dofExtracted)
+BOOST_AUTO_TEST_CASE (subchain)
 {
   DevicePtr_t dev = createRobot2 (); // 10 translations
   BOOST_REQUIRE (dev);
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE (dofExtracted)
   q2.tail<5>().setConstant(-1);
 
   PathPtr_t p1 = (*problem.steeringMethod()) (q1, q2), p2;
-  p2 = DofExtractedPath::create(p1, intervals);
+  p2 = SubchainPath::create(p1, intervals);
 
   BOOST_CHECK(p2->outputSize() == 6);
   Configuration_t q (p2->outputSize());

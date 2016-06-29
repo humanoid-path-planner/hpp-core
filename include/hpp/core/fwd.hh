@@ -54,7 +54,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (LockedJoint);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
-    HPP_PREDEF_CLASS (DofExtractedPath);
+    HPP_PREDEF_CLASS (SubchainPath);
     HPP_PREDEF_CLASS (JointBoundValidation);
     struct JointBoundValidationReport;
     class Node;
@@ -147,7 +147,7 @@ namespace hpp {
     typedef boost::shared_ptr <ExplicitRelativeTransformation>
     ExplicitRelativeTransformationPtr_t;
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
-    typedef boost::shared_ptr <DofExtractedPath> DofExtractedPathPtr_t;
+    typedef boost::shared_ptr <SubchainPath> SubchainPathPtr_t;
     typedef model::JointJacobian_t JointJacobian_t;
     typedef model::Joint Joint;
     typedef model::JointConstPtr_t JointConstPtr_t;
