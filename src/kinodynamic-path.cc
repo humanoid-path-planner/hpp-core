@@ -137,15 +137,31 @@ namespace hpp {
       Configuration_t q2 ((*this) (subInterval.second, success));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
-      Configuration_t t1(t1_);
-      Configuration_t t2(t2_);
-      Configuration_t tv(tv_);
-      double ti,tf;
+      Configuration_t t1,t2,tv,a1;
+      double ti,tf;      
+      if(subInterval.first < subInterval.second){
+        t1 = t1_;
+        t2 = (t2_);
+        tv = (tv_);
+        a1 = (a1_);
+        ti = subInterval.first;
+        tf = subInterval.second;
+      }else{  // reversed path
+        t1 = (t2_);
+        t2 = (t1_);
+        tv = (tv_);
+        a1 = (a1_); 
+        for(int i = 0 ; i < a1.size(); i++){
+          a1[i] = - a1_[i];
+        }
+        tf = subInterval.first;
+        ti = subInterval.second;
+      }
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
         t1[i] = t1_[i] - subInterval.first;
         if(t1[i] <= 0){
           t1[i] = 0; 
-          ti = subInterval.first - t1_[i];
+          ti = ti - t1_[i];
           tv[i] = tv_[i] - ti;
           if(tv[1] <= 0 ){
             tv[i] = 0;
@@ -156,7 +172,7 @@ namespace hpp {
         t2[i] = t2_[i] - subInterval.second;
         if(t2[i] <= 0 ){
           t2[i] = 0 ;
-          tf = subInterval.second - t2_[i];
+          tf = tf - t2_[i];
           tv[i] = tv_[i] - tf;
           if(tv[i] <= 0){
             tv[i] = 0;
@@ -166,7 +182,7 @@ namespace hpp {
         }
 
       }
-      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1_,t1,tv,t2,vMax_,
+      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1,t1,tv,t2,vMax_,
                                                   constraints ());
       return result;
     }
