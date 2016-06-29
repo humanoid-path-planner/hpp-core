@@ -1,6 +1,5 @@
-//
-// Copyright (c) 2014 CNRS
-// Authors: Florent Lamiraux
+// Copyright (c) 2016, LAAS-CNRS
+// Authors: Pierre Fernbach (pierre.fernbach@laas.fr)
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -48,9 +47,9 @@ namespace hpp {
       static KinodynamicPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length)
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,double vMax)
       {
-        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length);
+        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vMax);
         KinodynamicPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
         ptr->checkPath ();
@@ -65,10 +64,10 @@ namespace hpp {
       static KinodynamicPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length,
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,double vMax,
                                           ConstraintSetPtr_t constraints)
       {
-        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,
+        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vMax,
                                                     constraints);
         KinodynamicPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
@@ -174,11 +173,11 @@ namespace hpp {
       }
       /// Constructor
       KinodynamicPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length);
+                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax);
       
       /// Constructor with constraints
       KinodynamicPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length,
+                       ConfigurationIn_t end, value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,double vMax,
                        ConstraintSetPtr_t constraints);
       
       /// Copy constructor
@@ -204,8 +203,9 @@ namespace hpp {
       Configuration_t initial_;
       Configuration_t end_;
       KinodynamicPathWkPtr_t weak_;
+      Configuration_t a1_;      
       Configuration_t t1_,tv_,t2_;
-      Configuration_t a1_,a2_; 
+      double vMax_;
     }; // class KinodynamicPath
   } //   namespace core
 } // namespace hpp

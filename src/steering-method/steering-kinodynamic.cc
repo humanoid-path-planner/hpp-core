@@ -1,5 +1,5 @@
-// Copyright (c) 2016, Joseph Mirabel
-// Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
+// Copyright (c) 2016, LAAS-CNRS
+// Authors: Pierre Fernbach (pierre.fernbach@laas.fr)
 //
 // This file is part of hpp-core.
 // hpp-core is free software: you can redistribute it
@@ -30,11 +30,48 @@ namespace hpp {
       {
         double Tmax = 0;
         double T = 0;
-        double t1,tv,t2;
+        double t1,tv,t2,a1;
         int sigma;
         
+        size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
+        // looking for Tmax
+        hppDout(notice,"## Looking for Tmax :");
+        const JointVector_t& jv (problem_->robot()->getJointVector ());
+        for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
+          size_type indexConfig = (*itJoint)->rankInConfiguration ();
+          size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
+          hppDout(notice,"For joint "<<(*itJoint)->name());
+          if((*itJoint)->configSize() >= 1){
+            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
+            if(T > Tmax)
+              Tmax = T;
+          }
+          
+        }// for all joints
+        value_type length = Tmax;     
+        // create array of times intervals and acceleration values: 
+        Configuration_t a1_t(configSize);
+        Configuration_t t1_t(configSize);
+        Configuration_t t2_t(configSize);
+        Configuration_t tv_t(configSize);
         
-        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length/* ... */);
+        // compute trajectory with fixed time T found 
+        for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
+          size_type indexConfig = (*itJoint)->rankInConfiguration ();
+          size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
+          hppDout(notice,"For joint "<<(*itJoint)->name());          
+          if((*itJoint)->configSize() >= 1){
+            fixedTimeTrajectory(Tmax,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
+            a1_t[indexConfig]=a1;
+            t1_t[indexConfig]=t1;
+            tv_t[indexConfig]=tv;
+            t2_t[indexConfig]=t2;     
+          }
+          
+        }// for all joints
+        
+        
+        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t1_t,tv_t,t2_t,vMax_);        
         return path;
       }
       
@@ -50,7 +87,7 @@ namespace hpp {
           hppDout(error,"Error : you need at least "<<problem.robot()->configSize() - problem.robot()->extraConfigSpace().dimension()<<" extra DOF");
         }
         aMax_ = 0.5;
-        vMax_ = 1;
+        vMax_ = 2;
       }
       
       /// Copy constructor
@@ -61,31 +98,36 @@ namespace hpp {
       
       double Kinodynamic::computeMinTime(double p1, double p2, double v1, double v2, int *sigma, double *t1, double *tv, double *t2) const{
         // compute the sign of each acceleration
-        double deltaPacc = 0.5*(v1-v2)*(fabs(v2-v1)/aMax_);
+        double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
         *sigma = sgn(p2-p1-deltaPacc);
+        hppDout(info,"sigma = "<<*sigma);
         double a1 = (*sigma)*aMax_;
         double a2 = -a1;
         double vLim = (*sigma) * vMax_;
+        hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
         
         // test if two segment trajectory is valid :
         bool twoSegment = false;        
-        double minT1 = std::max(0.,((v2-v1)/a2));  //lower bound for valid t1 value
+        hppDout(info,"test 0 "<<((v2-v1)/a2));
+        double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value
         // solve quadratic equation
-        double delta = 4*v1*v1 - 4*a1*(((v2*v2-v1*v1)/(2*a2)) - (p2-p1));
+        const double a = a1;
+        const double b = 2. * v1;
+        const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
+        const double delta = b*b - 4*a*c;
         if(delta < 0 )
           std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-        double x1 = (-2*v1 + sqrt(delta))/(2*a1);
-        double x2 = (-2*v1 - sqrt(delta))/(2*a1);
+        double x1 = (-b + sqrt(delta))/(2*a);
+        double x2 = (-b - sqrt(delta))/(2*a);
         double x = std::max(x1,x2);
+        hppDout(info,"t1 before vel limit = "<<x);
         if(x > minT1){
           twoSegment = true;
           *t1 = x;
-        }else{
-          *t1 = minT1;
         }
         
         if(twoSegment){ // check if max velocity is respected
-          if((v1+(*t1)*a1) > vLim)
+          if(std::abs(v1+(*t1)*a1) > vMax_)
             twoSegment = false;
         }
         
@@ -94,21 +136,34 @@ namespace hpp {
           *t2 = ((v2-v1)/a2) + (*t1);
         }else{// compute 3 segment trajectory, with constant velocity phase :
           *t1 = (vLim - v1)/a1;
-          *tv = (v1*v1+v2*v2-2*vLim*vLim)/(2*vLim*a1) + (p2-p1)/vLim ;
+          *tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ;
           *t2 = (v2-vLim)/a2;
+          hppDout(info,"test 1 "<<(v1*v1+v2*v2 - 2*vLim*vLim));
+          hppDout(info,"test 2 "<<((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)));
+          hppDout(info,"test 3 "<<((p2-p1)/vLim));
+          
+              
         }
-        
+        if(twoSegment){
+          hppDout(notice,"Trajectory with 2 segments");
+        }else{
+          hppDout(notice,"Trajectory with 3 segments");
+        }
+        hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
+        hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
         double T = (*t1)+(*tv)+(*t2);
+        hppDout(notice,"T = "<<T);
         return T;
       }
       
-      void Kinodynamic::fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *a2, double *t1, double *tv, double *t2) const{
+      void Kinodynamic::fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2) const{
         double v12 = v1+v2;
         double v2_1 = v2-v1;
         double p2_1 = p2-p1;
-        
+        hppDout(info,"v12 = "<<v12<<"   ; v21 = "<<v2_1<<"   ; p21 = "<<p2_1);
+        double a2;
         double delta;
-        delta = 4*T*T*(v12*v12*v2_1*v2_1)-16*T*v12*p2_1+16*p2_1*p2_1;
+        delta = 4*T*T*(v12*v12+v2_1*v2_1) - 16*T*v12*p2_1 + 16*p2_1*p2_1;
         if(delta < 0 )
           std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
         double b = 2*T*v12-4*p2_1;
@@ -116,28 +171,35 @@ namespace hpp {
         
         double x1= (-b-sqrt(delta))/a_2;
         double x2= (-b+sqrt(delta))/a_2;
-        if(fabs(x1)>fabs(x2)){
+        hppDout(info,"b = "<<b<<"   ;  2*a = "<<a_2);
+        hppDout(info,"delta = "<<delta<<"    ; x1 = "<<x1 << "   ;  x2 = "<<x2);
+        if(std::abs(x1)>std::abs(x2)){
           *a1 = x1;
         }else{
           *a1 = x2;
         }
-        *a2 = -(*a1);
+        a2 = -(*a1);
         
         *t1 = 0.5*((v2_1/(*a1))+T);
         double vLim = sgn((*a1))*vMax_;
-        if((v1+(*t1)*(*a1)) < vLim){  // two segment trajectory
+        if(std::abs(v1+(*t1)*(*a1)) <= vMax_){  // two segment trajectory
+          hppDout(notice,"Trajectory with 2 segments");
           *t2 = T - (*t1);
           *tv = 0.;
         }else{ // three segment trajectory
+          hppDout(notice,"Trajectory with 3 segments");
           // adjust acceleration :
           *a1 = ((vLim - v1)*(vLim - v1) + (vLim - v2)*(vLim - v2))/(2*(vLim*T- p2_1));
-          *a2 = -(*a1);
+          a2 = -(*a1);
           // compute new time intervals :
           *t1 = (vLim - v1)/(*a1);
           *tv = (v1*v1+v2*v2-2*vLim*vLim)/(2*vLim*(*a1)) + (p2-p1)/vLim ;
-          *t2 = (v2-vLim)/(*a2);
+          *t2 = (v2-vLim)/(a2);
         }
         
+
+        hppDout(notice,"a1 = "<<*a1<<"  ;  a2 ="<<a2);
+        hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
         
       }
       
