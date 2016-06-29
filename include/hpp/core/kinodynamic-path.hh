@@ -197,7 +197,13 @@ namespace hpp {
       
       virtual bool impl_compute (ConfigurationOut_t result,
                                  value_type t) const;
+      int sgn(double val) const{
+        return ((0. < val ) - (val < 0.));
+      }
       
+      double sgnf(double val) const{
+        return ((0. < val ) - (val < 0.));
+      }
     private:
       DevicePtr_t device_;
       Configuration_t initial_;
