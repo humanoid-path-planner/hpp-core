@@ -11,7 +11,7 @@
     \li hpp::core::Roadmap: stores a network of collision-free paths
     \li hpp::core::SteeringMethod: builds paths between configurations taking
     into account kinematic constraints.
-    \li hpp::core::Path: paths for a robot.
+    \li hpp::core::Path: Abstraction of \ref path for a robot.
 
     For clarity, classes are distributed into <a
     href="modules.html">modules</a>.

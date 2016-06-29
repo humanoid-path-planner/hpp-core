@@ -28,6 +28,10 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path Path
+    /// Path abstraction, implementation and decorators
+    /// \{
+
     /// Abstraction of paths: mapping from time to configuration space
     ///
     class HPP_CORE_DLLAPI Path
@@ -225,6 +229,7 @@ namespace hpp {
     {
       return path.print (os);
     }
+    /// \}
 
   } //   namespace core
 } // namespace hpp

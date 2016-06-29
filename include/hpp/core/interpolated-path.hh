@@ -24,7 +24,12 @@
 
 namespace hpp {
   namespace core {
-    /// Linear interpolation between two configurations
+    /// \addtogroup path
+    /// \{
+
+    /// Piecewise linear interpolation between two configurations
+    ///
+    /// This type of path is the return type of PathProjector algorithms.
     ///
     /// Degrees of freedom are interpolated depending on the type of
     /// \link hpp::model::Joint joint \endlink
@@ -198,6 +203,7 @@ namespace hpp {
       InterpolationPoints_t configs_;
       InterpolatedPathWkPtr_t weak_;
     }; // class InterpolatedPath
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_INTERPOLATED_PATH_HH

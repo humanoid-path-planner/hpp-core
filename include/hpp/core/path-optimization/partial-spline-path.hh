@@ -28,6 +28,9 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
+      /// \addtogroup path
+      /// \{
+
       /// Path for a robot partially defined by a cubic B-spline
       ///
       /// Some configuration variables specified at construction are 
@@ -36,6 +39,8 @@ namespace hpp {
       ///
       /// This enables users to perform numerical optimization on some joints
       /// only, keeping the trajectory of other joints constant.
+      ///
+      /// \todo Is this class used / useful ?
       class HPP_CORE_DLLAPI PartialSplinePath : public Path
       {
       public:
@@ -119,6 +124,7 @@ namespace hpp {
 	CubicBSplinePtr_t spline_;
 	PartialSplinePathWkPtr_t weak_;
       }; // class PartialSplinePath      
+      /// \}
     } // namespace pathOptimization
   } // namespace core
 } // namespace hpp

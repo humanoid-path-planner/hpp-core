@@ -23,8 +23,12 @@
 
 namespace hpp {
   namespace core {
-    /// Result of the selection of some elements of an original path
+    /// \addtogroup path
+    /// \{
+
+    /// Result of the selection of some configuration parameter of an original path
     /// \note Decorator design pattern
+    /// \todo the configuration parameter cannot be rearranged.
     class SubchainPath : public Path
     {
     public:
@@ -127,9 +131,7 @@ namespace hpp {
       /// Constructor
       ///
       /// \param original Path to extract,
-      /// \param subInterval definition interval of the extracted path
-      /// \note If subInterval.first is bigger than subInterval.second, then,
-      /// the path is reversed.
+      /// \param intervals of the configuration parameters to be extracted
       SubchainPath (const PathPtr_t& original, const SizeIntervals_t& intervals) :
 	Path (original->timeRange(), intervalsToSize(intervals), outputSize ()),
 	original_ (original), intervals_ (intervals),
@@ -171,7 +173,8 @@ namespace hpp {
           l += _rank->second;
         return l;
       }
-    };
+    }; // SubchainPath
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_DOF_EXTRACTED_PATH_HH

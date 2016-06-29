@@ -27,6 +27,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path
+    /// \{
+
     /// Car like motion
     ///
     /// Implement a Reeds and Shepp motion generation on the base joint.
@@ -36,12 +39,9 @@ namespace hpp {
     /// The following interpolation is made:
     ///   \li Reeds and Shepp interpolation for the base_joint_xy and
     ///       base_joint_rz
-    ///   \li If the joint group "reedsshepp_wheels" is present with
-    ///       Device::jointGroup and has 2 joints, then these joints are
-    ///       understood as the left and right wheel (in this order)
-    ///   \li If the joint group "reedsshepp_wheels" is present with
-    ///       Device::jointGroup and has 1 joint, then this joints is
-    ///       understood as the only wheel (as a motorcycle)
+    ///   \li If the wheel joints are passed using setWheelJoints,
+    ///       the configuration parameter of those joints are computed so that
+    ///       the wheel is aligned with the velocity.
     ///   \li linear interpolation for the other joints
     class HPP_CORE_DLLAPI ReedsSheppPath : public Path
     {
@@ -211,6 +211,7 @@ namespace hpp {
       value_type rho_;
       ReedsSheppPathWkPtr_t weak_;
     }; // class ReedsSheppPath
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_REEDS_SHEPP_PATH_HH

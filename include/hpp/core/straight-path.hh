@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path
+    /// \{
+
     /// Linear interpolation between two configurations
     ///
     /// Degrees of freedom are interpolated depending on the type of
@@ -210,6 +213,7 @@ namespace hpp {
       Configuration_t end_;
       StraightPathWkPtr_t weak_;
     }; // class StraightPath
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_STRAIGHT_PATH_HH
