@@ -196,7 +196,7 @@ namespace hpp {
 
       
       virtual bool impl_compute (ConfigurationOut_t result,
-                                 value_type param) const;
+                                 value_type t) const;
       
     private:
       DevicePtr_t device_;
