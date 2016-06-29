@@ -1,6 +1,5 @@
-//
-// Copyright (c) 2014 CNRS
-// Authors: Florent Lamiraux
+// Copyright (c) 2016, LAAS-CNRS
+// Authors: Pierre Fernbach (pierre.fernbach@laas.fr)
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -28,24 +27,32 @@ namespace hpp {
     KinodynamicPath::KinodynamicPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length) :
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax) :
       parent_t (interval_t (0, length), device->configSize (),
                 device->numberDof ()),
-      device_ (device), initial_ (init), end_ (end)
+      device_ (device), initial_ (init), end_ (end),a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
     {
       assert (device);
       assert (length >= 0);
       assert (!constraints ());
+      hppDout(notice,"Create kinodynamic path with values : ");
+      hppDout(notice,"a1 = "<<model::displayConfig(a1_));
+      hppDout(notice,"t1 = "<<model::displayConfig(t1_));
+      hppDout(notice,"tv = "<<model::displayConfig(tv_));
+      hppDout(notice,"t2 = "<<model::displayConfig(t2_));
+      hppDout(notice,"vMax = "<<vMax_);
+      
+      
     }
     
     KinodynamicPath::KinodynamicPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length,
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax,
                                       ConstraintSetPtr_t constraints) :
       parent_t (interval_t (0, length), device->configSize (),
                 device->numberDof (), constraints),
-      device_ (device), initial_ (init), end_ (end)
+      device_ (device), initial_ (init), end_ (end),a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
     {
       assert (device);
       assert (length >= 0);
@@ -79,11 +86,18 @@ namespace hpp {
         result = end_;
         return true;
       }
-      value_type u = param/timeRange ().second;
-      if (timeRange ().second == 0)
-        u = 0;
-     // model::interpolate (device_, initial_, end_, u, result);
-      // TODO
+      
+      const JointVector_t& jv (problem_->robot()->getJointVector ());
+      for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
+        size_type indexConfig = (*itJoint)->rankInConfiguration ();
+        size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
+        hppDout(notice," PATH For joint "<<(*itJoint)->name());
+        if((*itJoint)->configSize() >= 1){
+          
+        }
+        
+      }// for all joints
+      
       return true;
     }
     
@@ -100,7 +114,7 @@ namespace hpp {
       Configuration_t q2 ((*this) (subInterval.second, success));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
-      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,
+      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1_,t1_,tv_,t2_,vMax_,
                                                   constraints ());
       return result;
     }
