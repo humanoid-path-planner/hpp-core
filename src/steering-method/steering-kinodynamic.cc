@@ -130,13 +130,13 @@ namespace hpp {
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-        *sigma = sgn(p2-p1-deltaPacc);
+        *sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
         hppDout(info,"sigma = "<<*sigma);
         double a1 = (*sigma)*aMax_;
         double a2 = -a1;
         double vLim = (*sigma) * vMax_;
         hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
-        if(*sigma == 0 ){
+        if((p2-p1) == 0. && (v2-v1)==0. ){  
           hppDout(notice,"No movement in this joints, abort.");
           return 0.;
         }
