@@ -132,7 +132,7 @@ namespace hpp {
 
     ConfigProjector::PriorityStack::PriorityStack (std::size_t level,
         std::size_t cols) :
-      level_ (level), outputSize_ (0), cols_ (cols),
+      level_ (level), outputSize_ (0), cols_ (cols), maxRank_(0),
       svd_ (outputSize_,cols,Eigen::ComputeThinU | Eigen::ComputeThinV),
       PK_ (cols, cols)
     {
@@ -351,24 +351,28 @@ namespace hpp {
         case 0: // First
           // dq should be zero and projector should be identity
           svd_.compute (jacobian);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq = svd_.solve (error);
           break;
         case 2: // Last
           // No need to compute projector for next step.
           svd_.compute (jacobian * projector);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq.noalias() += svd_.solve (error - jacobian * dq);
           return true; // The return value is not important in this case.
           break;
         case 3: // First and last (one level only)
           svd_.compute (jacobian);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq = svd_.solve (error);
           return true; // The return value is not important in this case.
           break;
         default: /// General case
           svd_.compute (jacobian * projector);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq.noalias() += svd_.solve (error - jacobian * dq);
           break;
@@ -379,6 +383,26 @@ namespace hpp {
       return (jacobian * dq - error).isZero ();
     }
 
+    void ConfigProjector::PriorityStack::updateSigma ()
+    {
+      if (svd_.rank() > maxRank_) {
+        maxRank_ = svd_.rank();
+        hppDout (info, "Updating max rank to " << maxRank_);
+      }
+      if (maxRank_ == 0) sigma_ = 0;
+      else sigma_ = svd_.singularValues()[maxRank_ - 1];
+    }
+
+    void ConfigProjector::updateSigma ()
+    {
+      if (svd_.rank() > maxRank_) {
+        maxRank_ = svd_.rank();
+        hppDout (info, "Updating max rank to " << maxRank_);
+      }
+      if (maxRank_ == 0) sigma_ = 0;
+      else sigma_ = svd_.singularValues()[maxRank_ - 1];
+    }
+
     void ConfigProjector::computePrioritizedIncrement (vectorIn_t value,
         matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq)
     {
@@ -387,12 +411,14 @@ namespace hpp {
         matrix_t::Identity (nbNonLockedDofs_, nbNonLockedDofs_);
       std::size_t row = 0;
       dqSmall_.setZero ();
+      sigma_ = std::numeric_limits<value_type>::max();
       for (std::vector <PriorityStack>::iterator it = stack_.begin ();
           it != stack_.end (); ++it) {
         if (!it->computeIncrement (error.segment (row, it->outputSize_),
             reducedJacobian.middleRows (row, it->outputSize_),
             dqSmall_, projector))
           break;
+        sigma_ = std::min (sigma_, it->sigma_);
         row += it->outputSize_;
       }
       uncompressVector (dqSmall_, dq);
@@ -409,12 +435,14 @@ namespace hpp {
       dqSmall_.setZero ();
       std::vector <PriorityStack>::iterator end = stack_.begin ();
       std::advance (end, level);
+      sigma_ = std::numeric_limits<value_type>::max();
       for (std::vector <PriorityStack>::iterator it = stack_.begin ();
           it != end; ++it) {
         if (!it->computeIncrement (error.segment (row, it->outputSize_),
             reducedJacobian.middleRows (row, it->outputSize_),
             dqSmall_, projector))
           break;
+        sigma_ = std::min (sigma_, it->sigma_);
         row += it->outputSize_;
       }
       uncompressVector (dqSmall_, dq);
@@ -425,6 +453,7 @@ namespace hpp {
     {
       svd_.compute (reducedJacobian);
       dqSmall_ = svd_.solve(alpha * (rightHandSide_ - value));
+      updateSigma();
       uncompressVector (dqSmall_, dq);
     }
 
