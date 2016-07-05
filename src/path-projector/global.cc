@@ -24,6 +24,9 @@
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
 
+#include <hpp/core/steering-method.hh>
+#include <hpp/core/problem.hh>
+
 #include <limits>
 #include <queue>
 #include <stack>
@@ -37,11 +40,35 @@ namespace hpp {
         HPP_DEFINE_TIMECOUNTER (globalPathProjector_reinterpolate);
         HPP_DEFINE_TIMECOUNTER (globalPathProjector_createPath);
       }
+
+      GlobalPtr_t Global::create (const DistancePtr_t& distance,
+          const SteeringMethodPtr_t& steeringMethod, value_type step)
+      {
+        value_type hessianBound = -1;
+        value_type thr_min = 1e-3;
+        try {
+          hessianBound = steeringMethod->problem()->getParameter<value_type>
+            ("PathProjectionHessianBound", hessianBound);
+          thr_min = steeringMethod->problem()->getParameter<value_type>
+            ("PathProjectionMinimalDist", thr_min);
+          hppDout (info, "Hessian bound is " << hessianBound);
+          hppDout (info, "Min Dist is " << thr_min);
+        } catch (const boost::bad_any_cast& e) {
+          hppDout (error, "Could not cast parameter "
+              "PathProjectionHessianBound or PathProjectionMinimalDist "
+              "to value_type");
+        }
+        return GlobalPtr_t (new Global (distance, steeringMethod,
+              step, thr_min, hessianBound));
+      }
+
       Global::Global (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
-				value_type step) :
+				value_type step, value_type threshold,
+                                value_type hessianBound) :
         PathProjector (distance, steeringMethod), step_ (step),
-        alphaMin (0.2), alphaMax (0.95)
+        alphaMin (0.2), alphaMax (0.95), hessianBound_ (hessianBound),
+        thresholdMin_ (threshold)
       {}
 
       bool Global::impl_apply (const PathPtr_t& path,

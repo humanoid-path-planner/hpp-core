@@ -29,13 +29,13 @@ namespace hpp {
           typedef hpp::core::StraightPath StraightPath;
           typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
 
-          static GlobalPtr_t create
-	    (const DistancePtr_t& distance,
-	     const SteeringMethodPtr_t& steeringMethod, value_type step)
-          {
-            return GlobalPtr_t (new Global (distance, steeringMethod,
-						      step));
-          }
+          /// \todo The parameter "PathProjectionHessianBound" and
+          ///       "PathProjectionMinimalDist" are taken from the
+          /// SteeringMethod::problem(). So they are accessible from Python.
+          /// However, the former should be deduced from the path constraints.
+          /// The latter should be passed to the constructor as an argument.
+          static GlobalPtr_t create (const DistancePtr_t& distance,
+	     const SteeringMethodPtr_t& steeringMethod, value_type step);
 
         protected:
           bool impl_apply (const PathPtr_t& path,
@@ -43,12 +43,15 @@ namespace hpp {
 
           Global (const DistancePtr_t& distance,
 		       const SteeringMethodPtr_t& steeringMethod,
-		       value_type step);
+		       value_type step, value_type threshold, value_type hessianBound);
         private:
           value_type step_;
 
           const value_type alphaMin;
           const value_type alphaMax;
+          const value_type hessianBound_;
+          const value_type thresholdMin_;
+
 
           typedef std::list <Configuration_t,
                   Eigen::aligned_allocator <Configuration_t> > Configs_t;
