@@ -52,16 +52,27 @@ namespace hpp {
           const value_type hessianBound_;
           const value_type thresholdMin_;
 
+          struct Data {
+            Configuration_t q;
+            value_type length; // Length between this config and the previous one
+            value_type alpha;
+            value_type sigma;
+            bool projected;
+          };
 
           typedef std::list <Configuration_t,
                   Eigen::aligned_allocator <Configuration_t> > Configs_t;
           typedef std::list <value_type> Lengths_t;
           typedef std::list <value_type> Alphas_t;
           typedef std::vector <bool> Bools_t;
+          typedef std::list<Data> Datas_t;
 
           bool projectOneStep (ConfigProjector& p,
               Configs_t& q, Configs_t::iterator& last,
               Bools_t& b, Lengths_t& l, Alphas_t& alpha) const;
+
+          bool projectOneStep (ConfigProjector& p,
+              Datas_t& ds, const Datas_t::iterator& last) const;
 
           /// Returns the number of new points
           size_type reinterpolate (const DevicePtr_t& robot,
@@ -69,16 +80,38 @@ namespace hpp {
               Bools_t& b, Lengths_t& l, Alphas_t& alpha,
               const value_type& maxDist) const;
 
+          /// Returns the number of new points
+          size_type reinterpolate (const DevicePtr_t& robot,
+              ConfigProjector& p, Datas_t& q, Datas_t::iterator& last) const;
+
           bool createPath (const DevicePtr_t& robot,
               const ConstraintSetPtr_t& constraint,
               const Configs_t& q, const Configs_t::iterator& last,
               const Bools_t& b, const Lengths_t& l,
               PathPtr_t& result) const;
 
+          bool createPath (const DevicePtr_t& robot,
+              const ConstraintSetPtr_t& constraint,
+              const Datas_t& ds, const Datas_t::iterator& last,
+              PathPtr_t& result) const;
+
           bool project (const PathPtr_t& path, PathPtr_t& projection) const;
+
+          bool project2 (const PathPtr_t& path, PathPtr_t& projection) const;
 
           void initialConfigList (const PathPtr_t& path,
               Configs_t& cfgs) const;
+
+          void initialConfigList (const PathPtr_t& path,
+              ConfigProjector& p, Datas_t& cfgs) const;
+
+          void initData (Data& data, const Configuration_t& q,
+              ConfigProjector& p, bool computeSigma = false,
+              bool projected = false,
+              const Configuration_t& distTo = Configuration_t()) const;
+
+          mutable Configuration_t q_;
+          mutable vector_t dq_;
       };
     } // namespace pathProjector
   } // namespace core
