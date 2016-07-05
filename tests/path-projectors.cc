@@ -165,6 +165,26 @@ struct traits_circle {
                 q1 << 1, 0; q2 << c, sqrt(1 - c*c);
                 break;
               }
+      case 4: {
+                double c = -0.85;
+                q1 << 1, 0; q2 << c, sqrt(1 - c*c);
+                break;
+              }
+      case 5: {
+                double c = -0.8;
+                q1 << 1, 0; q2 << c, sqrt(1 - c*c);
+                break;
+              }
+      case 6: {
+                double c = -0.75;
+                q1 << 1, 0; q2 << c, sqrt(1 - c*c);
+                break;
+              }
+      case 7: {
+                double c = -0.7;
+                q1 << 1, 0; q2 << c, sqrt(1 - c*c);
+                break;
+              }
     }
   }
   static const int NB_CONFS;
@@ -186,7 +206,7 @@ struct traits_parabola {
   static const int NB_CONFS;
   static const char* _func;
 };
-const int traits_circle::NB_CONFS = 4;
+const int traits_circle::NB_CONFS = 8;
 const char* traits_circle::_func = "circle";
 const int traits_parabola::NB_CONFS = 2;
 const char* traits_parabola::_func = "parabola";
@@ -213,10 +233,10 @@ struct traits_global_parabola : traits_global, traits_parabola {};
 struct traits_progressive_circle : traits_progressive, traits_circle {};
 struct traits_progressive_parabola : traits_progressive, traits_parabola {};
 
-typedef boost::mpl::list <traits_global_circle,
-                          traits_progressive_circle,
-                          traits_global_parabola,
-                          traits_progressive_parabola
+typedef boost::mpl::list <  traits_global_circle
+                          , traits_progressive_circle
+                          , traits_global_parabola
+                          , traits_progressive_parabola
                           > test_types;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
