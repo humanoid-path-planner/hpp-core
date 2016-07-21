@@ -497,6 +497,15 @@ namespace hpp {
         return s;
       }
 
+      /// Erase a path.
+      void erasePath (std::size_t pathId)
+      {
+	PathVectors_t::iterator it = paths_.begin();
+	std::advance(it, pathId);
+
+	paths_.erase(it);
+      }
+
       /// Return vector of paths
       const PathVectors_t& paths () const
       {
