@@ -45,7 +45,7 @@ namespace hpp {
     }
 
     WeighedDistancePtr_t
-    WeighedDistance::create (const DevicePtr_t& robot,
+    WeighedDistance::createWithWeight (const DevicePtr_t& robot,
 			     const std::vector <value_type>& weights)
     {
       WeighedDistance* ptr = new WeighedDistance (robot, weights);
