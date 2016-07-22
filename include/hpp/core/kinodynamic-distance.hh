@@ -51,7 +51,7 @@ protected:
     virtual value_type impl_distance (ConfigurationIn_t q1,
                                       ConfigurationIn_t q2) const;
 
-    double computeMinTime(double p1, double p2, double v1, double v2, int *sigma, double *t1, double *tv, double *t2)const ;
+    double computeMinTime(double p1, double p2, double v1, double v2)const ;
 
 
 private:
