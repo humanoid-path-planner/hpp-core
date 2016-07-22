@@ -92,11 +92,14 @@ namespace hpp {
       size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();      
       // const JointVector_t& jv (device()->getJointVector ());
       double v2,t2;
+      size_type indexVel;
+      size_type indexAcc;
       for(int id = 0 ; id < configSize ; id++){
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
         // size_type id = (*itJoint)->rankInConfiguration ();
         // size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
-        size_type indexVel = id + configSize;
+        indexVel = id + configSize;
+        indexAcc = id + 2*configSize;
         
        // hppDout(notice," PATH For joint "<<(*itJoint)->name());
        // hppDout(notice,"PATH for joint :"<<device()->getJointAtConfigRank(id)->name());
@@ -108,10 +111,13 @@ namespace hpp {
           //  hppDout(info,"on  1° segment");
             result[id] = 0.5*t*t*a1_[id] + t*initial_[indexVel] + initial_[id];
             result[indexVel] = t*a1_[id] + initial_[indexVel];
+            result[indexAcc] = a1_[id];
           }else if (t <= t1_[id] + tv_[id] ){
           //  hppDout(info,"on  constant velocity segment");
             result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*sgnf(a1_[id])*vMax_;
             result[indexVel] = sgnf(a1_[id])*vMax_;
+            result[indexAcc] = 0.;
+
           }else{
           //  hppDout(info,"on  3° segment");
             t2 = t - tv_[id] - t1_[id] ;
@@ -121,6 +127,8 @@ namespace hpp {
               v2 = t1_[id]*a1_[id] + initial_[indexVel];
             result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*sgnf(a1_[id])*vMax_ - 0.5*t2*t2*a1_[id] + t2*v2;
             result[indexVel] = v2 - t2 * a1_[id];
+            result[indexAcc] = -a1_[id];
+
           }
         }// if not quaternion joint
       }// if joint config size > 1

@@ -112,9 +112,9 @@ namespace hpp {
       Kinodynamic::Kinodynamic (const Problem& problem) :
         SteeringMethod (problem), device_ (problem.robot ()), weak_ ()
       {
-        if((2*(problem.robot()->extraConfigSpace().dimension())) < problem.robot()->configSize()){
-          std::cout<<"Error : you need at least "<<problem.robot()->configSize()-problem.robot()->extraConfigSpace().dimension()<<" extra DOF"<<std::endl;
-          hppDout(error,"Error : you need at least "<<problem.robot()->configSize() - problem.robot()->extraConfigSpace().dimension()<<" extra DOF");
+        if((2*(problem->robot()->extraConfigSpace().dimension())) < 2*problem->robot()->configSize()){
+          std::cout<<"Error : you need at least "<<2*(problem->robot()->configSize()-problem->robot()->extraConfigSpace().dimension())<<" extra DOF"<<std::endl;
+          hppDout(error,"Error : you need at least "<<2*(problem->robot()->configSize() - problem->robot()->extraConfigSpace().dimension())<<" extra DOF");
         }
         aMax_ = 0.5;
         vMax_ = 2;

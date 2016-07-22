@@ -33,17 +33,15 @@ namespace hpp {
     class HPP_CORE_DLLAPI TorqueBoundValidationReport : public ValidationReport
     {
     public:
-      TorqueBoundValidationReport (const JointPtr_t& joint, size_type rank,
-				  value_type bound, value_type value) :
+      TorqueBoundValidationReport ( value_type bound, value_type value) :
 	ValidationReport (),
-	joint_ (joint), rank_ (rank),	bound_ (bound), value_ (value) 
+    bound_ (bound), value_ (value)
 	{
 	}
       /// Print report in a stream
       virtual std::ostream& print (std::ostream& os) const
       {
-	os << "Joint " << joint_->name () << ", rank: " << rank_
-	   << ",torque value out of range: " << value_ << " greater than"
+    os << "torque value out of range: " << value_ << " greater than "
 	   << bound_;
 	return os;
       }

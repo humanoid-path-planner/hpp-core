@@ -32,6 +32,7 @@
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
+#include <hpp/core/torque-bound-validation.hh>
 
 namespace hpp {
   namespace core {
@@ -79,7 +80,7 @@ namespace hpp {
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),
       collisionObstacles_ (), constraints_ (),
-      configurationShooter_(configurationShooter::Uniform::create (robot))
+      configurationShooter_(BasicConfigurationShooter::create (robot))
     {
       resetConfigValidations();
     }
