@@ -84,6 +84,7 @@ namespace hpp {
       pathPlannerType_ ("DiffusingPlanner"),
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
+      distanceType_("WeighedDistance"),
       steeringMethodType_ ("SteeringMethodStraight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
@@ -98,6 +99,7 @@ namespace hpp {
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
+      add <DistanceBuilder_t> ("WeighedDistance",WeighedDistance::create);
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
             static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
               (&SteeringMethodStraight::create), _1
@@ -126,6 +128,15 @@ namespace hpp {
     ProblemSolver::~ProblemSolver ()
     {
       if (problem_) delete problem_;
+    }
+
+    void ProblemSolver::distanceType (const std::string& type)
+    {
+      if (!has <DistanceBuilder_t> (type)) {
+    throw std::runtime_error (std::string ("No distance method with name ") +
+                  type);
+      }
+      distanceType_ = type;
     }
 
     void ProblemSolver::steeringMethodType (const std::string& type)
@@ -410,6 +421,16 @@ namespace hpp {
       }
     }
 
+    void ProblemSolver::initDistance ()
+    {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      DistancePtr_t dist (
+          get <DistanceBuilder_t> (distanceType_) (problem_->robot())
+          );
+      problem_->distance (dist);
+    }
+
+
     void ProblemSolver::initSteeringMethod ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -439,9 +460,14 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
+
       // Set shooter
       problem_->configurationShooter
         (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
+      // set distance
+      initDistance();
+      // build roadmap with new distance
+      resetRoadmap();
       // Set steeringMethod
       initSteeringMethod ();
       PathPlannerBuilder_t createPlanner =

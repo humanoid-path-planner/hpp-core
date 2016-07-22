@@ -46,6 +46,8 @@ namespace hpp {
       PathProjectorBuilder_t;
     typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
       ConfigurationShooterBuilder_t;
+  typedef boost::function <DistancePtr_t (const DevicePtr_t&) >
+    DistanceBuilder_t;
     typedef boost::function <SteeringMethodPtr_t (const ProblemPtr_t&) >
       SteeringMethodBuilder_t;
     typedef std::vector<CollisionObjectPtr_t > AffordanceObjects_t;
@@ -64,6 +66,7 @@ namespace hpp {
                              PathProjectorBuilder_t,
                              ConfigurationShooterBuilder_t,
                              NumericalConstraintPtr_t,
+                             DistanceBuilder_t,
                              SteeringMethodBuilder_t,
                              AffordanceObjects_t,
                              AffordanceConfig_t > >
@@ -120,10 +123,24 @@ namespace hpp {
       const std::string& pathPlannerType () const {
         return pathPlannerType_;
       }
+      /// Set distance type
+      void distanceType (const std::string& type);
+      const std::string& distanceType () const {
+        return distanceType_;
+      }
       /// Set steering method type
       void steeringMethodType (const std::string& type);
       const std::string& steeringMethodType () const {
         return steeringMethodType_;
+      }
+      /// Add a distance type
+      /// \param type name of the distance type
+      /// \param static method that creates a distance
+      /// with robot as input
+      void addDistanceType (const std::string& type,
+                   const DistanceBuilder_t& builder)
+      {
+    add <DistanceBuilder_t> (type, builder);
       }
       /// Add a SteeringMethod type
       /// \param type name of the SteeringMethod type
@@ -565,6 +582,11 @@ namespace hpp {
 	roadmap_ = roadmap;
       }
 
+      /// Initialize distance
+      ///
+      /// Set distance by calling the distance factory
+      void initDistance ();
+
       /// Initialize steering method
       ///
       /// Set steering method by calling the steering method factory
@@ -626,6 +648,8 @@ namespace hpp {
       ConstraintSetPtr_t goalConstraints_;
       /// Configuration shooter
       std::string configurationShooterType_;
+      /// Steering method
+      std::string distanceType_;
       /// Steering method
       std::string steeringMethodType_;
       /// Path optimizer

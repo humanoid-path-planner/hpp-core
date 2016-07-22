@@ -67,7 +67,7 @@ namespace hpp {
 	 JointVector_t jointVector = robot_->getJointVector ();
 	 if (!distance_) {
 	   // create a weighed distance with unit weighs.
-	   distance_ = WeighedDistance::create
+       distance_ = WeighedDistance::createWithWeight
 	     (robot_, std::vector <value_type> (jointVector.size (), 1.0));
 	 }
 	 size_type i=0;

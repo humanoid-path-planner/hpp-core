@@ -34,7 +34,7 @@ namespace hpp {
     public:
       static WeighedDistancePtr_t create (const DevicePtr_t& robot);
       static WeighedDistancePtr_t
-	create (const DevicePtr_t& robot,
+    createWithWeight (const DevicePtr_t& robot,
 		const std::vector <value_type>& weights);
       static WeighedDistancePtr_t createCopy
 	(const WeighedDistancePtr_t& distance);
