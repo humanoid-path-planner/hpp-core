@@ -33,6 +33,8 @@ namespace core {
 class HPP_CORE_DLLAPI KinodynamicDistance : public Distance {
 public:
     static KinodynamicDistancePtr_t create (const DevicePtr_t& robot);
+    static KinodynamicDistancePtr_t createFromProblem (const ProblemPtr_t& problem);
+
     static KinodynamicDistancePtr_t createCopy
     (const KinodynamicDistancePtr_t& distance);
     virtual DistancePtr_t clone () const;
