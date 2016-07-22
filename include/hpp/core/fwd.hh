@@ -45,6 +45,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (Constraint);
     HPP_PREDEF_CLASS (ConstraintSet);
     HPP_PREDEF_CLASS (DiffusingPlanner);
+    HPP_PREDEF_CLASS (DimtRRT);
     HPP_PREDEF_CLASS (Distance);
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
@@ -132,6 +133,7 @@ namespace hpp {
     typedef constraints::DifferentiableFunctionPtr_t
     DifferentiableFunctionPtr_t;
     typedef boost::shared_ptr <DiffusingPlanner> DiffusingPlannerPtr_t;
+    typedef boost::shared_ptr <DimtRRT> DimtRRTPtr_t;
     typedef boost::shared_ptr <DiscretizedCollisionChecking>
     DiscretizedCollisionCheckingPtr_t;
     typedef boost::shared_ptr <DiscretizedPathValidation>

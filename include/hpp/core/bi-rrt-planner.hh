@@ -48,12 +48,14 @@ namespace hpp {
       BiRRTPlanner (const Problem& problem);
       /// Store weak pointer to itself
       void init (const BiRRTPlannerWkPtr_t& weak);
+      PathPtr_t extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
+                      const ConfigurationPtr_t& target, bool reverse=false);
 
-    private:
       ConfigurationShooterPtr_t configurationShooter_;
-      mutable Configuration_t qProj_;
       ConnectedComponentPtr_t startComponent_;
       std::vector<ConnectedComponentPtr_t> endComponents_;
+    private:
+      mutable Configuration_t qProj_;
       BiRRTPlannerWkPtr_t weakPtr_;
     };
     /// \}

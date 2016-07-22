@@ -69,36 +69,34 @@ namespace hpp {
       weakPtr_ = weak;
     }
 
-    namespace
+    PathPtr_t BiRRTPlanner::extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
+                    const ConfigurationPtr_t& target, bool reverse)
     {
-        PathPtr_t extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
-                        const ConfigurationPtr_t& target, bool reverse=false)
+        const ConstraintSetPtr_t& constraints (sm->constraints ());
+        if (constraints)
         {
-            const ConstraintSetPtr_t& constraints (sm->constraints ());
-            if (constraints)
+            ConfigProjectorPtr_t configProjector (constraints->configProjector ());
+            if (configProjector)
             {
-                ConfigProjectorPtr_t configProjector (constraints->configProjector ());
-                if (configProjector)
-                {
-                    configProjector->projectOnKernel (*(near->configuration ()), *target,
-                            qProj_);
-                }
-                else
-                {
-                    qProj_ = *target;
-                }
-                if (constraints->apply (qProj_))
-                {
-                    return reverse ? (*sm) (qProj_, *(near->configuration ())) : (*sm) (*(near->configuration ()), qProj_);
-                }
-                else
-                {
-                    return PathPtr_t ();
-                }
+                configProjector->projectOnKernel (*(near->configuration ()), *target,
+                        qProj_);
             }
-            return reverse ? (*sm) (*target, *(near->configuration ())) : (*sm) (*(near->configuration ()), *target);
+            else
+            {
+                qProj_ = *target;
+            }
+            if (constraints->apply (qProj_))
+            {
+                return reverse ? (*sm) (qProj_, *(near->configuration ())) : (*sm) (*(near->configuration ()), qProj_);
+            }
+            else
+            {
+                return PathPtr_t ();
+            }
         }
+        return reverse ? (*sm) (*target, *(near->configuration ())) : (*sm) (*(near->configuration ()), *target);
     }
+
 
     /// One step of extension.
     void BiRRTPlanner::startSolve()
