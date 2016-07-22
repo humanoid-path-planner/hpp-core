@@ -158,12 +158,12 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
 
     size_type configSize = robot_->configSize() - robot_->extraConfigSpace().dimension ();
     // looking for Tmax
-    hppDout(notice,"distance :  Looking for Tmax :");
+    hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
 
 
     for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
         size_type indexVel = indexConfig + configSize;
-        hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
+        hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
         if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
             if(T > Tmax)
