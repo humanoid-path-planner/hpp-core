@@ -94,15 +94,16 @@ double sgnf(double val){
     return ((0. < val ) - (val < 0.));
 }
 
-double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, double v2, int *sigma, double *t1, double *tv, double *t2) const{
+double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, double v2) const{
     hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
     // compute the sign of each acceleration
     double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-    *sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
-    hppDout(info,"sigma = "<<*sigma);
-    double a1 = (*sigma)*aMax_;
+    double t1,t2,tv;
+    int sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
+    hppDout(info,"sigma = "<<sigma);
+    double a1 = (sigma)*aMax_;
     double a2 = -a1;
-    double vLim = (*sigma) * vMax_;
+    double vLim = (sigma) * vMax_;
     hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
     if((p2-p1) == 0. && (v2-v1)==0. ){
         hppDout(notice,"No movement in this joints, abort.");
@@ -125,20 +126,20 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
     hppDout(info,"t1 before vel limit = "<<x);
     if(x > minT1){
         twoSegment = true;
-        *t1 = x;
+        t1 = x;
     }
 
     if(twoSegment){ // check if max velocity is respected
-        if(std::abs(v1+(*t1)*a1) > vMax_)
+        if(std::abs(v1+(t1)*a1) > vMax_)
             twoSegment = false;
     }
     if(twoSegment){ // compute t2 for two segment trajectory
-        *tv = 0.;
-        *t2 = ((v2-v1)/a2) + (*t1);
+        tv = 0.;
+        t2 = ((v2-v1)/a2) + (t1);
     }else{// compute 3 segment trajectory, with constant velocity phase :
-        *t1 = (vLim - v1)/a1;
-        *tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ;
-        *t2 = (v2-vLim)/a2;
+        t1 = (vLim - v1)/a1;
+        tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ;
+        t2 = (v2-vLim)/a2;
         hppDout(info,"test 1 "<<(v1*v1+v2*v2 - 2*vLim*vLim));
         hppDout(info,"test 2 "<<((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)));
         hppDout(info,"test 3 "<<((p2-p1)/vLim));
@@ -151,8 +152,8 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
         hppDout(notice,"Trajectory with 3 segments");
     }
     hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
-    hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
-    double T = (*t1)+(*tv)+(*t2);
+    hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
+    double T = (t1)+(tv)+(t2);
     hppDout(notice,"T = "<<T);
     return T;
 }
@@ -162,8 +163,6 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
 {
     double Tmax = 0;
     double T = 0;
-    double t1,tv,t2;
-    int sigma;
 
     size_type configSize = robot_->configSize() - robot_->extraConfigSpace().dimension ();
     // looking for Tmax
@@ -174,7 +173,7 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
         size_type indexVel = indexConfig + configSize;
         hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
         if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
-            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
+            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel]);
             if(T > Tmax)
                 Tmax = T;
         }else{
