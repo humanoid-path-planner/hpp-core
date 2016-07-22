@@ -22,6 +22,7 @@
 #include <hpp/model/body.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/model/joint-configuration.hh>
 #include <hpp/model/children-iterator.hh>
 #include <Eigen/SVD>
@@ -33,6 +34,14 @@ namespace core {
 KinodynamicDistancePtr_t KinodynamicDistance::create (const DevicePtr_t& robot)
 {
     KinodynamicDistance* ptr = new KinodynamicDistance (robot);
+    KinodynamicDistancePtr_t shPtr (ptr);
+    ptr->init (shPtr);
+    return shPtr;
+}
+
+KinodynamicDistancePtr_t KinodynamicDistance::createFromProblem (const ProblemPtr_t& problem)
+{
+    KinodynamicDistance* ptr = new KinodynamicDistance (problem->robot());
     KinodynamicDistancePtr_t shPtr (ptr);
     ptr->init (shPtr);
     return shPtr;
@@ -158,12 +167,12 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
 
     size_type configSize = robot_->configSize() - robot_->extraConfigSpace().dimension ();
     // looking for Tmax
-    hppDout(notice,"distance :  Looking for Tmax :");
+    hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
 
 
     for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
         size_type indexVel = indexConfig + configSize;
-        hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
+        hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
         if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
             if(T > Tmax)

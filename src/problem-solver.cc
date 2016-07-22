@@ -43,6 +43,7 @@
 #include <hpp/core/steering-method/steering-kinodynamic.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
+#include <hpp/core/kinodynamic-distance.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
 
 namespace hpp {
@@ -101,12 +102,11 @@ namespace hpp {
       add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
-      add <DistanceBuilder_t> ("WeighedDistance",
-			       WeighedDistance::createFromProblem);
+      add <DistanceBuilder_t> ("WeighedDistance", WeighedDistance::createFromProblem);
+      add <DistanceBuilder_t> ("KinodynamicDistance",KinodynamicDistance::createFromProblem);
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
             static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
-              (&SteeringMethodStraight::create), _1
-            ));
+              (&SteeringMethodStraight::create), _1));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
       add <SteeringMethodBuilder_t> ("Kinodynamic", steeringMethod::Kinodynamic::create);
 
