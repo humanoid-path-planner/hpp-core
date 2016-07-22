@@ -35,6 +35,7 @@ SET(${LIBRARY_NAME}_SOURCES
   continuous-collision-checking/progressive.cc
   continuous-collision-checking/progressive/body-pair-collision.hh
   diffusing-planner.cc
+  dimt-rrt.cc
   discretized-collision-checking.cc
   discretized-path-validation.cc
   distance/reeds-shepp.cc
