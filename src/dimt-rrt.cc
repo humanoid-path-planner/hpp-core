@@ -30,6 +30,7 @@
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/kinodynamic-distance.hh>
 
 namespace hpp {
 namespace core {
@@ -66,8 +67,6 @@ void DimtRRT::init (const DimtRRTWkPtr_t& weak)
     BiRRTPlanner::init (weak);
     weakPtr_ = weak;
 }
-
-
 
 
 void DimtRRT::oneStep ()

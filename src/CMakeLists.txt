@@ -70,6 +70,7 @@ SET(${LIBRARY_NAME}_SOURCES
   interpolated-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
+  kinodynamic-distance.cc
   numerical-constraint.cc
   equation.cc
   locked-joint.cc

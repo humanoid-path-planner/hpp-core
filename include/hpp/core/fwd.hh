@@ -83,6 +83,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
+    HPP_PREDEF_CLASS (KinodynamicDistance);
     class KDTree;
 
     class ComparisonType;
@@ -223,6 +224,7 @@ namespace hpp {
     typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
     typedef boost::shared_ptr <ValidationReport> ValidationReportPtr_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
+    typedef boost::shared_ptr <KinodynamicDistance> KinodynamicDistancePtr_t;
     typedef std::map <std::string, NumericalConstraintPtr_t>
     NumericalConstraintMap_t;
     typedef std::map <std::string, ComparisonTypePtr_t>
