@@ -99,6 +99,7 @@ path-validations.cc
   straight-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
+  kinodynamic-distance.cc
   numerical-constraint.cc
   equation.cc
   locked-joint.cc
