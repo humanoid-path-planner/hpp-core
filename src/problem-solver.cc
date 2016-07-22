@@ -424,12 +424,10 @@ namespace hpp {
     void ProblemSolver::initDistance ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
-      if(distanceType_ != "WeighedDistance"){   // default distance, no need to change
-          DistancePtr_t dist (
-              get <DistanceBuilder_t> (distanceType_) (problem_->robot())
-              );
-          problem_->distance (dist);
-      }
+      DistancePtr_t dist (
+          get <DistanceBuilder_t> (distanceType_) (problem_->robot())
+          );
+      problem_->distance (dist);
     }
 
 
