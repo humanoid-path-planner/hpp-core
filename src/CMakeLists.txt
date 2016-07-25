@@ -43,36 +43,37 @@ SET(${LIBRARY_NAME}_SOURCES
 #  interpolated-path.cc
 #  joint-bound-validation.cc
 #  locked-joint.cc
-  nearest-neighbor/basic.hh #
-  nearest-neighbor/basic.cc #
-  nearest-neighbor/k-d-tree.cc #
-  nearest-neighbor/k-d-tree.hh #
-  numerical-constraint.cc # 
-  node.cc #
-  path.cc #
-  path-optimizer.cc #
-  path-optimization/collision-constraints-result.hh #
-  path-optimization/path-length.cc #
-  path-optimization/gradient-based.cc #
-  path-optimization/partial-shortcut.cc # 
-  path-optimization/config-optimization.cc# TODO joint->getParent
-  path-planner.cc #
-  path-vector.cc #
-  plan-and-optimize.cc #
-  problem.cc
-  problem-solver.cc
-  path-projector/progressive.cc
-  path-projector/dichotomy.cc
-  path-projector/global.cc
-  path-projector.cc
-  parser/roadmap-factory.cc
-  problem-target/goal-configurations.cc
-  problem-target/task-target.cc
+##########################"
+#  nearest-neighbor/basic.hh #
+#  nearest-neighbor/basic.cc #
+#  nearest-neighbor/k-d-tree.cc #
+#  nearest-neighbor/k-d-tree.hh #
+#  numerical-constraint.cc #
+#  node.cc #
+#  path.cc #
+#  path-optimizer.cc #
+#  path-optimization/collision-constraints-result.hh #
+#  path-optimization/path-length.cc #
+#  path-optimization/gradient-based.cc #
+#  path-optimization/partial-shortcut.cc #
+#  path-optimization/config-optimization.cc#
+#  path-planner.cc #
+#  path-vector.cc #
+#  plan-and-optimize.cc #
+#  problem.cc # TODO : addObstacle
+#  problem-solver.cc # TODO : addObstacle
+#  path-projector/progressive.cc #
+#  path-projector/dichotomy.cc #
+#  path-projector/global.cc #
+#  path-projector.cc #
+#  parser/roadmap-factory.cc #
+#  problem-target/goal-configurations.cc #
+#  problem-target/task-target.cc #
   reeds-shepp-path.cc
   relative-motion.cc
   random-shortcut.cc
   roadmap.cc
-  steering-method/reeds-shepp.cc
+  steering-method/reeds-shepp.cc # TODO access type of joint
   straight-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc

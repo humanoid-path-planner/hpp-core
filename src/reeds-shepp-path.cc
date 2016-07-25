@@ -19,7 +19,6 @@
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/joint-configuration.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/discretized-path-validation.hh>
@@ -597,7 +596,7 @@ namespace hpp {
         wheels_[rk].j = *_wheels;
         wheels_[rk].S = meanBounds(wheels_[rk].j, 0);
 
-        const vector3_t radius = zt.transform (wheels_[rk].j->currentTransformation().getTranslation());
+        const vector3_t radius = zt.act (wheels_[rk].j->currentTransformation().translation());
         const value_type left  = std::atan(radius[2] / (- radius[1] - rho_));
         const value_type right = std::atan(radius[2] / (- radius[1] + rho_));
 

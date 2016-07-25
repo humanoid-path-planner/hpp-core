@@ -54,7 +54,8 @@ namespace hpp {
       {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(0);
-        if (!dynamic_cast <pinocchio::JointTranslation <2>* > (xy_)) {
+        //TODO
+       /* if (!dynamic_cast <pinocchio::JointTranslation <2>* > (xy_)) {
           throw std::runtime_error ("root joint should be of type "
               "pinocchio::JointTranslation <2>");
         }
@@ -62,7 +63,8 @@ namespace hpp {
         if (!dynamic_cast <pinocchio::jointRotation::UnBounded*> (rz_)) {
           throw std::runtime_error ("second joint should be of type "
               "pinocchio::jointRotation::Unbounded");
-        }
+        }*/
+
 
         guessWheels();
         computeRadius();
@@ -89,8 +91,8 @@ namespace hpp {
       {
         // Compute wheel position in joint RZ
         const Transform3f zt (rz_->currentTransformation ());
-        const Transform3f wt (zt.inverseTimes (wheel->currentTransformation ()));
-        const vector3_t& wp (wt.getTranslation ());
+        const Transform3f wt (zt.actInv (wheel->currentTransformation ()));
+        const vector3_t& wp (wt.translation ());
 
         // Assume the non turning wheels are on the plane z = 0 of 
         // in joint rz.
