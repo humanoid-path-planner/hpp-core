@@ -138,7 +138,7 @@ namespace hpp {
     typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef boost::shared_ptr <DistanceBetweenObjects>
     DistanceBetweenObjectsPtr_t;
-    typedef pinocchio::DistanceResult DistanceResult;
+    typedef se3::DistanceResult DistanceResult;
     typedef pinocchio::DistanceResults_t DistanceResults_t;
     typedef Edge* EdgePtr_t;
     typedef std::list <Edge*> Edges_t;
@@ -152,6 +152,7 @@ namespace hpp {
     typedef pinocchio::Joint Joint;
     typedef pinocchio::JointConstPtr_t JointConstPtr_t;
     typedef pinocchio::JointPtr_t JointPtr_t;
+    typedef pinocchio::JointConstPtr_t JointConstPtr_t;
     typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
     typedef boost::shared_ptr <JointBoundValidationReport>
     JointBoundValidationReportPtr_t;
@@ -164,6 +165,8 @@ namespace hpp {
     typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
     typedef std::list <LockedJointPtr_t> LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
+    typedef pinocchio::matrix3_t matrix3_t;
+    typedef pinocchio::vector3_t vector3_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
     typedef pinocchio::size_type size_type;
