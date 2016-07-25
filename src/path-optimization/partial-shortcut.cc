@@ -81,8 +81,8 @@ namespace hpp {
         unpack (path, unpacked);
 
         /// Step 1: Generate a suitable vector of joints
-        JointVector_t straight_jv = generateJointVector (unpacked);
-        JointVector_t jv;
+        JointStdVector_t straight_jv = generateJointVector (unpacked);
+        JointStdVector_t jv;
 
         /// Step 2: First try to optimize each joint from beginning to end
         PathVectorPtr_t result = optimizeFullPath (unpacked, straight_jv, jv);
@@ -139,11 +139,11 @@ namespace hpp {
         return out;
       }
 
-      JointVector_t PartialShortcut::generateJointVector
+      JointStdVector_t PartialShortcut::generateJointVector
         (const PathVectorPtr_t& pv) const
       {
         const JointVector_t& rjv = problem().robot()->getJointVector ();
-        JointVector_t jv;
+        JointStdVector_t jv;
         ConfigProjectorPtr_t proj =
           pv->pathAtRank (0)->constraints ()->configProjector ();
         LockedJoints_t lj;
@@ -163,16 +163,15 @@ namespace hpp {
                 }
               }
             }
-            // if (!lock) jv.push_back (*it);
-            // TODO
+             if (!lock) jv.push_back (*it);
           }
         }
         return jv;
       }
 
       PathVectorPtr_t PartialShortcut::optimizeFullPath (
-          const PathVectorPtr_t& pv, const JointVector_t& jvIn,
-          JointVector_t& jvOut) const
+          const PathVectorPtr_t& pv, const JointStdVector_t& jvIn,
+          JointStdVector_t& jvOut) const
       {
         Configuration_t q0 = pv->initial ();
         Configuration_t q3 = pv->end ();
@@ -199,8 +198,7 @@ namespace hpp {
             }
           }
           if (!valid) {
-           // jvOut.push_back (joint);
-              // TODO
+            jvOut.push_back (joint);
             continue;
           }
           opted = straight;
@@ -212,7 +210,7 @@ namespace hpp {
       }
 
       PathVectorPtr_t PartialShortcut::optimizeRandom (
-          const PathVectorPtr_t& pv, const JointVector_t& jv) const
+          const PathVectorPtr_t& pv, const JointStdVector_t& jv) const
       {
         PathVectorPtr_t current = pv,
                         result = pv;

@@ -22,7 +22,7 @@
 # include <sstream>
 # include <hpp/pinocchio/device.hh>
 # include <hpp/pinocchio/joint.hh>
-//# include <hpp/pinocchio/joint-configuration.hh>
+# include <pinocchio/algorithm/joint-configuration.hpp>
 # include <hpp/core/configuration-shooter.hh>
 
 namespace hpp {
@@ -46,11 +46,12 @@ namespace hpp {
       {
 	JointVector_t jv = robot_->getJointVector ();
 	ConfigurationPtr_t config (new Configuration_t (robot_->configSize ()));
-	for (JointVector_t::const_iterator itJoint = jv.begin ();
+    /*for (JointVector_t::const_iterator itJoint = jv.begin ();
 	     itJoint != jv.end (); itJoint++) {
 	  std::size_t rank = (*itJoint)->rankInConfiguration ();
-	  (*itJoint)->configuration ()->uniformlySample (rank, *config);
-	}
+      (*itJoint)->jointModel().uniformlySample (rank, *config);
+    }*/
+    config = se3::randomConfiguration(robot_->model());
 	// Shoot extra configuration variables
 	size_type extraDim = robot_->extraConfigSpace ().dimension ();
 	size_type offset = robot_->configSize () - extraDim;

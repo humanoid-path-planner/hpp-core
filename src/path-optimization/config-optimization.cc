@@ -269,13 +269,10 @@ namespace hpp {
         // filter it
 
           //TODO
-      /*  if (joint->parentJoint () == NULL ||
-            (joint->parentJoint ()->parentJoint ()==NULL
-             && joint->parentJoint()->numberDof () == 0)
-           )
-          return true;*/
+        if (joint->parentJoint ())
+          return true;
         /// Filter joint name containing "base_joint..."
-        if (boost::algorithm::contains (joint->name (), "base_joint"))
+        if (boost::algorithm::contains (joint->name (), "root_joint"))
           return true;
         return false;
       }
