@@ -46,7 +46,7 @@ namespace hpp {
       validations_.push_back (configValidation);
     }
 
-    void ConfigValidations::addObstacle (const CollisionObjectPtr_t& object)
+    void ConfigValidations::addObstacle (const CollisionObjectConstPtr_t& object)
     {
       for (std::vector <ConfigValidationPtr_t>::iterator itVal =
 	     validations_.begin (); itVal != validations_.end (); ++itVal) {
