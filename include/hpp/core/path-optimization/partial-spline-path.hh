@@ -20,7 +20,7 @@
 # define HPP_CORE_PATH_OPTIMIZATION_PARTIAL_SPLINE_PATH_HH
 
 # include <roboptim/trajectory/fwd.hh>
-# include <hpp/model/device.hh>
+# include <hpp/pinocchio/device.hh>
 # include <hpp/core/path.hh>
 # include <hpp/core/path-vector.hh>
 # include <boost/make_shared.hpp>

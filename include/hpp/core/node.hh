@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_NODE_HH
 # define HPP_CORE_NODE_HH
 
-# include <hpp/model/fwd.hh>
+# include <hpp/pinocchio/fwd.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 

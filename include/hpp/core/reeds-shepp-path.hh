@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_REEDS_SHEPP_PATH_HH
 # define HPP_CORE_REEDS_SHEPP_PATH_HH
 
-# include <hpp/model/device.hh>
+# include <hpp/pinocchio/device.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
@@ -34,7 +34,7 @@ namespace hpp {
     ///
     /// Implement a Reeds and Shepp motion generation on the base joint.
     /// Degrees of freedom are interpolated depending on the type of
-    /// \link hpp::model::Joint joint \endlink
+    /// \link hpp::pinocchio::Joint joint \endlink
     /// they parameterize:
     /// The following interpolation is made:
     ///   \li Reeds and Shepp interpolation for the base_joint_xy and
@@ -55,7 +55,7 @@ namespace hpp {
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param rho The radius of a turn.
-      static ReedsSheppPathPtr_t create (const model::DevicePtr_t& device,
+      static ReedsSheppPathPtr_t create (const pinocchio::DevicePtr_t& device,
 				   ConfigurationIn_t init,
 				   ConfigurationIn_t end,
                                    value_type rho,

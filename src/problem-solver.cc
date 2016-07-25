@@ -19,7 +19,7 @@
 #include <boost/bind.hpp>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/collision-object.hh>
+#include <hpp/pinocchio/collision-object.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/bi-rrt-planner.hh>
 #include <hpp/core/problem-solver.hh>

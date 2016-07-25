@@ -18,7 +18,7 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/configuration.hh>
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/interpolated-path.hh>
@@ -172,7 +172,7 @@ namespace hpp {
             if (prevUpdated) {
 
               /// Detect large increase in size
-              hpp::model::difference (p.robot(), oldQ.col(iCol), oldQ.col(iNCol), qMinusQPrev);
+              hpp::pinocchio::difference (p.robot(), oldQ.col(iCol), oldQ.col(iNCol), qMinusQPrev);
               const vector_t deltaDQ = dq.col(iCol) - dq.col(iNCol);
               const value_type N2 = qMinusQPrev.squaredNorm();
               if (sqrt(N2) < Eigen::NumTraits<value_type>::dummy_precision ()) {
@@ -239,7 +239,7 @@ namespace hpp {
         for (Configs_t::iterator it = begin; it != last; ++it) {
           if (*itL > maxDist) {
             ++nbNewC;
-            hpp::model::interpolate (robot, *itCp, *it, 0.5, newQ);
+            hpp::pinocchio::interpolate (robot, *itCp, *it, 0.5, newQ);
             // FIXME: make sure the iterator are valid after insertion
             // Insert new respective elements
             it  = q.insert (it, newQ);

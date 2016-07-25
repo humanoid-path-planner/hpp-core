@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_PATH_VECTOR_HH
 # define HPP_CORE_PATH_VECTOR_HH
 
-# include <hpp/model/device.hh>
+# include <hpp/pinocchio/device.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/path.hh>
 

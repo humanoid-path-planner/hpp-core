@@ -21,17 +21,17 @@
 # define HPP_CORE_PATH_OPTIMIZATION_COLLISION_CONSTRAINTS_RESULT_HH
 
 # include <hpp/fcl/distance.h>
-# include <hpp/model/fcl-to-eigen.hh>
+# include <hpp/pinocchio/fcl-to-eigen.hh>
 # include <hpp/constraints/generic-transformation.hh>
 
 namespace hpp {
   namespace core {
-    using model::displayConfig;
+    using pinocchio::displayConfig;
     namespace pathOptimization {
       HPP_PREDEF_CLASS (CollisionConstraintsResult);
       HPP_PREDEF_CLASS (CollisionConstraint);
       typedef boost::shared_ptr <CollisionConstraint> CollisionConstraintPtr_t;
-      typedef model::Transform3f Transform3f;
+      typedef pinocchio::Transform3f Transform3f;
       namespace eigen {
 	typedef Eigen::Matrix <value_type, 3, 1> vector3_t;
       } // namespace eigen
@@ -92,7 +92,7 @@ namespace hpp {
 	   vector3_t x2_J1 (inverse (M1).transform (M2.transform (x2_J2)));
 	   hppDout (info, "x1 in J1 = " << x1_J1);
 	   hppDout (info, "x2 in J1 = " << x2_J1);
-	   eigen::vector3_t u; model::toEigen (x2_J1 - x1_J1, u);
+	   eigen::vector3_t u; pinocchio::toEigen (x2_J1 - x1_J1, u);
 	   DifferentiableFunctionPtr_t f = constraints::RelativePosition::create
 	     ("", robot_, joint1, joint2, x1_J1, x2_J2);
 	   matrix_t Jpos (f->outputSize (), f->inputDerivativeSize ());
@@ -109,7 +109,7 @@ namespace hpp {
 	   // position of x1 in global frame
 	   vector3_t x1_J2 (M1.transform (x1_J1));
 	   hppDout (info, "x1 in J2 = " << x1_J2);
-	   eigen::vector3_t u; model::toEigen (x1_J2 - x2_J2, u);
+	   eigen::vector3_t u; pinocchio::toEigen (x1_J2 - x2_J2, u);
 
 	   DifferentiableFunctionPtr_t f = constraints::Position::create
 	     ("", robot_, joint1, x1_J1, x2_J2);
@@ -123,7 +123,7 @@ namespace hpp {
        virtual void impl_compute (vectorOut_t result, vectorIn_t argument)
          const
        {
-         model::difference (robot_, argument, qFree_, difference_);
+         pinocchio::difference (robot_, argument, qFree_, difference_);
          result = J_ * difference_;
        }
        virtual void impl_jacobian (matrixOut_t jacobian, vectorIn_t) const

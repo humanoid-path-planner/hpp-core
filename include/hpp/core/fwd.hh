@@ -95,8 +95,8 @@ namespace hpp {
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
     typedef boost::shared_ptr <BiRRTPlanner> BiRRTPlannerPtr_t;
-    typedef hpp::model::Body Body;
-    typedef hpp::model::BodyPtr_t BodyPtr_t;
+    typedef hpp::pinocchio::Body Body;
+    typedef hpp::pinocchio::BodyPtr_t BodyPtr_t;
     typedef boost::shared_ptr <CollisionPathValidationReport>
     CollisionPathValidationReportPtr_t;
     typedef std::vector <CollisionPathValidationReport> 
@@ -104,11 +104,11 @@ namespace hpp {
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef boost::shared_ptr <CollisionValidationReport>
     CollisionValidationReportPtr_t;
-    typedef model::CollisionObjectPtr_t CollisionObjectPtr_t;
-    typedef model::Configuration_t Configuration_t;
-    typedef model::ConfigurationIn_t ConfigurationIn_t;
-    typedef model::ConfigurationOut_t ConfigurationOut_t;
-    typedef model::ConfigurationPtr_t ConfigurationPtr_t;
+    typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
+    typedef pinocchio::Configuration_t Configuration_t;
+    typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
+    typedef pinocchio::ConfigurationOut_t ConfigurationOut_t;
+    typedef pinocchio::ConfigurationPtr_t ConfigurationPtr_t;
     typedef std::vector <ConfigurationPtr_t> Configurations_t;
     typedef Configurations_t::iterator ConfigIterator_t;
     typedef Configurations_t::const_iterator ConfigConstIterator_t;
@@ -122,10 +122,10 @@ namespace hpp {
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef boost::shared_ptr <const ConstraintSet> ConstraintSetConstPtr_t;
     typedef std::deque <ConstraintPtr_t> Constraints_t;
-    typedef model::Device Device_t;
-    typedef model::DevicePtr_t DevicePtr_t;
-    typedef model::DeviceWkPtr_t DeviceWkPtr_t;
-    typedef model::CenterOfMassComputationPtr_t CenterOfMassComputationPtr_t;
+    typedef pinocchio::Device Device_t;
+    typedef pinocchio::DevicePtr_t DevicePtr_t;
+    typedef pinocchio::DeviceWkPtr_t DeviceWkPtr_t;
+    typedef pinocchio::CenterOfMassComputationPtr_t CenterOfMassComputationPtr_t;
     typedef std::deque <DevicePtr_t> Devices_t;
     typedef constraints::DifferentiableFunction DifferentiableFunction;
     typedef constraints::DifferentiableFunctionPtr_t
@@ -138,8 +138,8 @@ namespace hpp {
     typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef boost::shared_ptr <DistanceBetweenObjects>
     DistanceBetweenObjectsPtr_t;
-    typedef model::DistanceResult DistanceResult;
-    typedef model::DistanceResults_t DistanceResults_t;
+    typedef pinocchio::DistanceResult DistanceResult;
+    typedef pinocchio::DistanceResults_t DistanceResults_t;
     typedef Edge* EdgePtr_t;
     typedef std::list <Edge*> Edges_t;
     typedef boost::shared_ptr <ExplicitNumericalConstraint>
@@ -148,26 +148,26 @@ namespace hpp {
     ExplicitRelativeTransformationPtr_t;
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
     typedef boost::shared_ptr <SubchainPath> SubchainPathPtr_t;
-    typedef model::JointJacobian_t JointJacobian_t;
-    typedef model::Joint Joint;
-    typedef model::JointConstPtr_t JointConstPtr_t;
-    typedef model::JointPtr_t JointPtr_t;
+    typedef pinocchio::JointJacobian_t JointJacobian_t;
+    typedef pinocchio::Joint Joint;
+    typedef pinocchio::JointConstPtr_t JointConstPtr_t;
+    typedef pinocchio::JointPtr_t JointPtr_t;
     typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
     typedef boost::shared_ptr <JointBoundValidationReport>
     JointBoundValidationReportPtr_t;
-    typedef model::HalfJointJacobian_t HalfJointJacobian_t;
-    typedef model::JointVector_t JointVector_t;
+    typedef pinocchio::HalfJointJacobian_t HalfJointJacobian_t;
+    typedef pinocchio::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
     typedef boost::shared_ptr <LockedJoint> LockedJointPtr_t;
     typedef boost::shared_ptr <Equation> EquationPtr_t;
     typedef boost::shared_ptr <const LockedJoint> LockedJointConstPtr_t;
     typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
     typedef std::list <LockedJointPtr_t> LockedJoints_t;
-    typedef model::matrix_t matrix_t;
+    typedef pinocchio::matrix_t matrix_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
-    typedef model::size_type size_type;
-    typedef model::value_type value_type;
+    typedef pinocchio::size_type size_type;
+    typedef pinocchio::value_type value_type;
     typedef std::pair<value_type, value_type> interval_t;
     /// Interval of indices as (first index, number of indices)
     typedef std::pair<size_type, size_type> SizeInterval_t;
@@ -176,7 +176,7 @@ namespace hpp {
     typedef Node* NodePtr_t;
     typedef std::list <NodePtr_t> Nodes_t;
     typedef std::vector <NodePtr_t> NodeVector_t;
-    typedef model::ObjectVector_t ObjectVector_t;
+    typedef pinocchio::ObjectVector_t ObjectVector_t;
     typedef boost::shared_ptr <Path> PathPtr_t;
     typedef boost::shared_ptr <const Path> PathConstPtr_t;
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
@@ -203,12 +203,12 @@ namespace hpp {
     typedef std::vector <PathPtr_t> Paths_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
-    typedef model::Transform3f Transform3f;
-    typedef model::vector3_t vector3_t;
+    typedef pinocchio::Transform3f Transform3f;
+    typedef pinocchio::vector3_t vector3_t;
     typedef Eigen::Matrix<value_type, 2, 1> vector2_t;
-    typedef model::vector_t vector_t;
-    typedef model::vectorIn_t vectorIn_t;
-    typedef model::vectorOut_t vectorOut_t;
+    typedef pinocchio::vector_t vector_t;
+    typedef pinocchio::vectorIn_t vectorIn_t;
+    typedef pinocchio::vectorOut_t vectorOut_t;
     typedef Eigen::Matrix<value_type, 1, Eigen::Dynamic> rowvector_t;
     typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
     typedef boost::shared_ptr <ValidationReport> ValidationReportPtr_t;

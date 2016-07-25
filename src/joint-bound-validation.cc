@@ -17,14 +17,14 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <sstream>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
 #include <hpp/core/joint-bound-validation.hh>
 
 namespace hpp {
   namespace core {
-    typedef model::JointConfiguration* JointConfigurationPtr_t;
+    typedef pinocchio::JointConfiguration* JointConfigurationPtr_t;
     JointBoundValidationPtr_t JointBoundValidation::create
     (const DevicePtr_t& robot)
     {

@@ -21,9 +21,9 @@
 
 #include <Eigen/Core>
 
-#include <hpp/model/fwd.hh>
+#include <hpp/pinocchio/fwd.hh>
 #include <hpp/core/fwd.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/joint.hh>
 
 namespace hpp {
   namespace core {

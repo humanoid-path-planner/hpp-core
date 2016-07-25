@@ -18,11 +18,11 @@
 
 #include <limits>
 #include <hpp/util/debug.hh>
-#include <hpp/model/body.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
-#include <hpp/model/children-iterator.hh>
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
+#include <hpp/pinocchio/children-iterator.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <Eigen/SVD>
 
@@ -107,7 +107,7 @@ namespace hpp {
 	  std::size_t rank = (*it1)->rankInVelocity ();
 	  std::size_t ncol = (*it1)->numberDof ();
 	  matrix_t jointJacobian;
-	  for (hpp::model::ChildrenIterator it2 (*it1); !it2.end (); ++it2){
+	  for (hpp::pinocchio::ChildrenIterator it2 (*it1); !it2.end (); ++it2){
 	    //if ((*it2)->numberDof () != 0) { // allow anchors
 	    // Get only three first lines of Jacobian
 	    jointJacobian = (*it2)->jacobian ().block (0, rank, 3, ncol);

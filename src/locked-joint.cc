@@ -19,9 +19,9 @@
 #include <sstream>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 
 namespace hpp {
   namespace core {
@@ -180,7 +180,7 @@ namespace hpp {
     std::ostream& LockedJoint::print (std::ostream& os) const
     {
       os << "Locked joint " << jointName_
-	 << ", value = " << model::displayConfig (rightHandSide ())
+	 << ", value = " << pinocchio::displayConfig (rightHandSide ())
         << ": rank in configuration = " << rankInConfiguration_
         << ": rank in velocity = " << rankInVelocity_
         << std::endl;

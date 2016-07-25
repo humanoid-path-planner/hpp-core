@@ -18,11 +18,11 @@
 
 #include <hpp/fcl/distance.h>
 
-#include <hpp/model/collision-object.hh>
-#include <hpp/model/body.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/distance-result.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/distance-result.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/distance-between-objects.hh>
 
 namespace hpp {
@@ -30,7 +30,7 @@ namespace hpp {
     void DistanceBetweenObjects::addObstacle
     (const CollisionObjectPtr_t& object)
     {
-      using model::DISTANCE;
+      using pinocchio::DISTANCE;
       const JointVector_t& jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
 	   ++it) {

@@ -15,8 +15,8 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -122,7 +122,7 @@ namespace hpp {
       const value_type T = itA->first - itB->first;
       const value_type u = (param - itB->first) / T;
 
-      model::interpolate (device_, itB->second, itA->second, u, result);
+      pinocchio::interpolate (device_, itB->second, itA->second, u, result);
       return true;
     }
 

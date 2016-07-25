@@ -20,9 +20,9 @@
 # define HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 
 # include <sstream>
-# include <hpp/model/device.hh>
-# include <hpp/model/joint.hh>
-# include <hpp/model/joint-configuration.hh>
+# include <hpp/pinocchio/device.hh>
+# include <hpp/pinocchio/joint.hh>
+# include <hpp/pinocchio/joint-configuration.hh>
 # include <hpp/core/configuration-shooter.hh>
 
 namespace hpp {

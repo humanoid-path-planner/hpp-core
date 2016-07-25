@@ -16,8 +16,8 @@
 
 #include <hpp/core/relative-motion.hh>
 
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 

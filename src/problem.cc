@@ -21,7 +21,7 @@
 #include <iostream>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/config-validations.hh>

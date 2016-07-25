@@ -24,10 +24,10 @@
 
 # include <hpp/fcl/collision_data.h>
 # include <hpp/fcl/collision.h>
-# include <hpp/model/body.hh>
-# include <hpp/model/collision-object.hh>
-# include <hpp/model/joint.hh>
-# include <hpp/model/joint-configuration.hh>
+# include <hpp/pinocchio/body.hh>
+# include <hpp/pinocchio/collision-object.hh>
+# include <hpp/pinocchio/joint.hh>
+# include <hpp/pinocchio/joint-configuration.hh>
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/projection-error.hh>
@@ -40,20 +40,20 @@ namespace hpp {
       namespace dichotomy {
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
-	using model::JointPtr_t;
-	using model::JointTranslation;
-	using model::JointRotation;
-	using model::JointSO3;
-	using model::JointAnchor;
-	using model::JointTranslationPtr_t;
-	using model::JointRotationPtr_t;
-	using model::JointSO3Ptr_t;
-	using model::JointAnchorPtr_t;
-	using model::JointTranslationConstPtr_t;
-	using model::JointRotationConstPtr_t;
-	using model::JointSO3ConstPtr_t;
-	using model::JointAnchorConstPtr_t;
-	using model::Transform3f;
+	using pinocchio::JointPtr_t;
+	using pinocchio::JointTranslation;
+	using pinocchio::JointRotation;
+	using pinocchio::JointSO3;
+	using pinocchio::JointAnchor;
+	using pinocchio::JointTranslationPtr_t;
+	using pinocchio::JointRotationPtr_t;
+	using pinocchio::JointSO3Ptr_t;
+	using pinocchio::JointAnchorPtr_t;
+	using pinocchio::JointTranslationConstPtr_t;
+	using pinocchio::JointRotationConstPtr_t;
+	using pinocchio::JointSO3ConstPtr_t;
+	using pinocchio::JointAnchorConstPtr_t;
+	using pinocchio::Transform3f;
 
 	/// Multiplicative coefficients of linear and angular velocities
 	struct CoefficientVelocity
@@ -188,13 +188,13 @@ namespace hpp {
             if (!success) throw
               projection_error(std::string ("Unable to apply constraints in ") + __PRETTY_FUNCTION__);
 	    // Compute position of joint a in frame of common ancestor
-	    model::Transform3f Ma, tmp;
+	    pinocchio::Transform3f Ma, tmp;
         for (int i = (int)indexCommonAncestor_ - 1; i >= 0; --i) {
           joints_ [(std::size_t)i]->computePosition (q, Ma, tmp);
 	      Ma = tmp;
 	    }
 	    // Compute position of joint b in frame of common ancestor
-	    model::Transform3f Mb;
+	    pinocchio::Transform3f Mb;
 	    for (std::size_t i = indexCommonAncestor_ + 1; i < joints_.size ();
 		 ++i) {
 	      joints_ [i]->computePosition (q, Mb, tmp);
@@ -274,8 +274,8 @@ namespace hpp {
 	    BodyPtr_t body_b = joint_b_->linkedBody ();
 	    assert (body_a);
 	    assert (body_b);
-	    objects_a_ = body_a->innerObjects (model::COLLISION);
-	    objects_b_ = body_b->innerObjects (model::COLLISION);
+	    objects_a_ = body_a->innerObjects (pinocchio::COLLISION);
+	    objects_b_ = body_b->innerObjects (pinocchio::COLLISION);
 
 	    if (joint_b_->robot () != joint_a_->robot ()) {
 	      throw std::runtime_error
@@ -310,7 +310,7 @@ namespace hpp {
 	    assert (joint_a);
 	    BodyPtr_t body_a = joint_a_->linkedBody ();
 	    assert (body_a);
-	    objects_a_ = body_a->innerObjects (model::COLLISION);
+	    objects_a_ = body_a->innerObjects (pinocchio::COLLISION);
 	    for (ObjectVector_t::const_iterator it = objects_b.begin ();
 		 it != objects_b.end (); ++it) {
 	      assert (!(*it)->joint () ||

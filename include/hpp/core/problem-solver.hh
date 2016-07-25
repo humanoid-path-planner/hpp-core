@@ -21,7 +21,7 @@
 
 # include <stdexcept>
 
-# include <hpp/model/fwd.hh>
+# include <hpp/pinocchio/fwd.hh>
 # include <boost/function.hpp>
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/problem.hh>

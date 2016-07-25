@@ -21,9 +21,9 @@
 #include <hpp/util/debug.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/node.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/core/weighed-distance.hh>
 #include "../src/nearest-neighbor/k-d-tree.hh"
 
@@ -209,7 +209,7 @@ namespace hpp {
 	  ++i;
 	}
       }
-      const model::ExtraConfigSpace& ecs = robot_->extraConfigSpace ();
+      const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace ();
       for (size_type rank = 0; rank < ecs.dimension (); ++rank) {
 	upperBounds_[i] = ecs.upper (rank);
 	lowerBounds_[i] = ecs.lower (rank);

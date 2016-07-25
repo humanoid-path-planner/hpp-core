@@ -244,11 +244,11 @@ namespace hpp {
 	    ("tolerance should be positive for"
 	     " progressive continuous collision checking.");
 	}
-	typedef model::Device::CollisionPairs_t CollisionPairs_t;
+	typedef pinocchio::Device::CollisionPairs_t CollisionPairs_t;
 	// Build body pairs for collision checking
 	// First auto-collision
 	const CollisionPairs_t& colPairs = robot->collisionPairs
-	  (model::COLLISION);
+	  (pinocchio::COLLISION);
 	for (CollisionPairs_t::const_iterator itPair = colPairs.begin ();
 	     itPair != colPairs.end (); ++itPair) {
 	  bodyPairCollisions_.push_back (BodyPairCollision::create

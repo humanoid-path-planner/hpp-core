@@ -18,7 +18,7 @@
 
 #include <algorithm>
 #include <hpp/util/debug.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/node.hh>
@@ -28,7 +28,7 @@
 
 namespace hpp {
   namespace core {
-    using model::displayConfig;
+    using pinocchio::displayConfig;
 
     RoadmapPtr_t Roadmap::create (const DistancePtr_t& distance,
 				  const DevicePtr_t& robot)

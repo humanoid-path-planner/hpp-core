@@ -19,8 +19,8 @@
 #include <boost/assign.hpp>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
@@ -29,7 +29,7 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/nearest-neighbor.hh>
-#include <hpp/model/joint-configuration.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
 
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
@@ -37,12 +37,12 @@
 #define BOOST_TEST_MODULE roadmap-1
 #include <boost/test/included/unit_test.hpp>
 
-using hpp::model::Configuration_t;
+using hpp::pinocchio::Configuration_t;
 using hpp::core::ConfigurationPtr_t;
-using hpp::model::JointPtr_t;
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::JointTranslation;
+using hpp::pinocchio::JointPtr_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::JointTranslation;
 using hpp::core::Problem;
 using hpp::core::SteeringMethodStraight;
 using hpp::core::SteeringMethodStraightPtr_t;
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   // 3 -> 2
   addEdge (r, *sm, nodes, 3, 2);
 
-  hpp::model::value_type dist;
+  hpp::pinocchio::value_type dist;
   using hpp::core::Nodes_t;
   Nodes_t knearest = r->nearestNeighbor()->KnearestSearch
     (nodes[0]->configuration(), nodes[0]->connectedComponent (), 3, dist);

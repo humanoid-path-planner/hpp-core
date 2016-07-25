@@ -22,8 +22,8 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/pointer.hh>
 
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/constraints/configuration-constraint.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-vector.hh>

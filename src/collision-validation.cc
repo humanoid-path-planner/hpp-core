@@ -17,9 +17,9 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/fcl/collision.h>
-#include <hpp/model/body.hh>
-#include <hpp/model/collision-object.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/collision-validation-report.hh>
 #include <hpp/core/relative-motion.hh>
@@ -44,9 +44,9 @@ namespace hpp {
         return false;
       }
     }
-    using model::displayConfig;
+    using pinocchio::displayConfig;
 
-    typedef model::JointConfiguration* JointConfigurationPtr_t;
+    typedef pinocchio::JointConfiguration* JointConfigurationPtr_t;
     CollisionValidationPtr_t CollisionValidation::create
     (const DevicePtr_t& robot)
     {
@@ -78,7 +78,7 @@ namespace hpp {
 
     void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
     {
-      using model::COLLISION;
+      using pinocchio::COLLISION;
       const JointVector_t& jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
 	   ++it) {
@@ -97,7 +97,7 @@ namespace hpp {
     void CollisionValidation::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
     {
-      using model::COLLISION;
+      using pinocchio::COLLISION;
       BodyPtr_t body = joint->linkedBody ();
       if (body) {
 	const ObjectVector_t& bodyObjects = body->innerObjects (COLLISION);
@@ -169,9 +169,9 @@ namespace hpp {
       parameterizedPairs_(), disabledPairs_(),
       checkParameterized_(false)
     {
-      using model::COLLISION;
-      typedef hpp::model::Device::CollisionPairs_t JointPairs_t;
-      using model::ObjectVector_t;
+      using pinocchio::COLLISION;
+      typedef hpp::pinocchio::Device::CollisionPairs_t JointPairs_t;
+      using pinocchio::ObjectVector_t;
       const JointPairs_t& jointPairs (robot->collisionPairs (COLLISION));
       // build collision pairs for internal objects
       for (JointPairs_t::const_iterator it = jointPairs.begin ();

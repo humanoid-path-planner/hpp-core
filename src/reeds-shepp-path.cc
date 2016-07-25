@@ -17,10 +17,10 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/discretized-path-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
@@ -479,7 +479,7 @@ namespace hpp {
         setupPath(17, -t, .5*pi, -u, .5*pi, -v);
     }
 
-    ReedsSheppPathPtr_t ReedsSheppPath::create (const model::DevicePtr_t& device,
+    ReedsSheppPathPtr_t ReedsSheppPath::create (const pinocchio::DevicePtr_t& device,
 				    ConfigurationIn_t init,
 				    ConfigurationIn_t end,
 				    value_type rho,
@@ -639,7 +639,7 @@ namespace hpp {
       }
       // Does a linear interpolation on all the joints.
       const value_type u = (timeRange ().second == 0)?0:param/timeRange ().second;
-      model::interpolate (device_, initial_, end_, u, result);
+      pinocchio::interpolate (device_, initial_, end_, u, result);
 
       // Compute the position of the car.
       result.segment <2> (xyId_).setZero();

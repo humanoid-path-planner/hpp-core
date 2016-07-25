@@ -21,9 +21,9 @@
 // #include <cstdlib>
 // #include <hpp/util/assertion.hh>
 #include <hpp/util/debug.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-vector.hh>

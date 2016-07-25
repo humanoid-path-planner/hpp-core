@@ -25,10 +25,10 @@
 #include <Eigen/SVD>
 #include <Eigen/Dense>
 #include <hpp/util/debug.hh>
-#include <hpp/model/body.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/collision-object.hh>
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/collision-object.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/config-validations.hh>
@@ -49,7 +49,7 @@ namespace hpp {
         HPP_DEFINE_TIMECOUNTER(GBO_oneStep);
       }
 
-      using model::displayConfig;
+      using pinocchio::displayConfig;
       GradientBasedPtr_t GradientBased::create
       (const Problem& problem)
       {
@@ -364,7 +364,7 @@ namespace hpp {
 	// uncompress step
 	uncompressVector (step, stepNormal_);
 	while (indexConfig < x0.size ()) {
-	  model::integrate (robot_, x0.segment (indexConfig, configSize_),
+	  pinocchio::integrate (robot_, x0.segment (indexConfig, configSize_),
 			    stepNormal_.segment
 			    (indexVelocity, robotNumberDofs_),
 			    x1.segment (indexConfig, configSize_));
