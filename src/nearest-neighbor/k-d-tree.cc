@@ -22,7 +22,6 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/node.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/joint-configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/core/weighed-distance.hh>
 #include "../src/nearest-neighbor/k-d-tree.hh"

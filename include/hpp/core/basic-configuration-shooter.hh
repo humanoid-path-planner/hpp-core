@@ -22,7 +22,7 @@
 # include <sstream>
 # include <hpp/pinocchio/device.hh>
 # include <hpp/pinocchio/joint.hh>
-# include <hpp/pinocchio/joint-configuration.hh>
+//# include <hpp/pinocchio/joint-configuration.hh>
 # include <hpp/core/configuration-shooter.hh>
 
 namespace hpp {

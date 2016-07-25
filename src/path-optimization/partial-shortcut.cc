@@ -22,7 +22,6 @@
 // #include <hpp/util/assertion.hh>
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/joint-configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/path-validation.hh>
@@ -30,6 +29,7 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/locked-joint.hh>
+#include <hpp/pinocchio/configuration.hh>
 
 namespace hpp {
   namespace core {
@@ -93,7 +93,7 @@ namespace hpp {
       }
 
       PathVectorPtr_t PartialShortcut::generatePath (
-          PathVectorPtr_t path, const JointPtr_t joint,
+          PathVectorPtr_t path, JointConstPtr_t joint,
           const value_type t1, ConfigurationIn_t q1,
           const value_type t2, ConfigurationIn_t q2) const
       {
@@ -107,14 +107,17 @@ namespace hpp {
         PathPtr_t last;
 
         std::size_t rkCfg = joint->rankInConfiguration ();
+        std::size_t szCfg = joint->configSize();
         Configuration_t qi = q1;
+        Configuration_t qTmp(path->outputSize ());
         Configuration_t q_inter (path->outputSize ());
         value_type t = - lt1;
         for (std::size_t i = rkAtP1; i < rkAtP2; ++i) {
           t += path->pathAtRank (i)->timeRange().second;
           q_inter = path->pathAtRank (i)->end (),
-          joint->configuration()->interpolate ( q1, q2,
-              t / (t2-t1), rkCfg, q_inter);
+          qTmp = joint->jointModel().interpolate ( q1, q2,
+              t / (t2-t1));
+          q_inter.segment(rkCfg,szCfg) = qTmp.segment(rkCfg,szCfg);
           if (path->pathAtRank (i)->constraints ()) {
             if (!path->pathAtRank (i)->constraints ()->apply (q_inter)) {
               hppDout (warning, "PartialShortcut could not apply "
@@ -160,7 +163,8 @@ namespace hpp {
                 }
               }
             }
-            if (!lock) jv.push_back (*it);
+            // if (!lock) jv.push_back (*it);
+            // TODO
           }
         }
         return jv;
@@ -179,7 +183,7 @@ namespace hpp {
         /// First try to optimize each joint from beginning to end
         for (std::size_t iJ = 0; iJ < jvIn.size(); ++iJ) {
           t3 = opted->timeRange ().second;
-          JointPtr_t joint = jvIn[iJ];
+          JointConstPtr_t joint = jvIn.at(iJ);
 
           // Validate sub parts
           bool valid;
@@ -195,7 +199,8 @@ namespace hpp {
             }
           }
           if (!valid) {
-            jvOut.push_back (joint);
+           // jvOut.push_back (joint);
+              // TODO
             continue;
           }
           opted = straight;
@@ -228,7 +233,7 @@ namespace hpp {
         Configuration_t q1 (pv->outputSize ()), q2 (pv->outputSize ());
         while (nbFail < maxFailure) {
           iJ %= jv.size();
-          JointPtr_t joint = jv[iJ];
+          JointConstPtr_t joint = jv.at(iJ);
           ++iJ;
 
           t3 = current->timeRange ().second;
