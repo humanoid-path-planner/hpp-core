@@ -82,8 +82,11 @@ namespace hpp {
 
       /// Get the index for a given joint
       ///
-      /// \return 0 if joint is NULL, joint->rankInVelocity()+1 otherwise.
-      static size_type idx(const JointConstPtr_t& joint);
+      /// \return 0 if joint is NULL, joint->index() otherwise.
+      static inline size_type idx(const JointConstPtr_t& joint)
+      {
+        return (joint ? joint->index() : 0);
+      }
     };
   } // namespace core
 } // namespace hpp
