@@ -115,7 +115,7 @@ namespace hpp {
         const Configuration_t& q1 = path->initial ();
         const Configuration_t& q2 = path->end ();
         Configuration_t qtmp = q1;
-        vector_t dqtmp (cp->robot()->numberDof());
+        vector_t dqtmp (vector_t::Zero(cp->robot()->numberDof()));
         const size_t maxDichotomyTries = 10,
                      maxPathSplit =
 	  (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
@@ -133,7 +133,7 @@ namespace hpp {
         value_type curStep, curLength, totalLength = 0;
         size_t c = 0;
         const value_type& K = hessianBound_; // upper bound of Hessian
-        cp->oneStep (qtmp, dqtmp, 1);
+        if (withHessianBound_) cp->oneStep (qtmp, dqtmp, 1);
         value_type sigma = cp->sigma();
 
         value_type min = std::numeric_limits<value_type>::max(), max = 0;
