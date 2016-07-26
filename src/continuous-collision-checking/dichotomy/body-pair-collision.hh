@@ -27,8 +27,6 @@
 # include <hpp/pinocchio/body.hh>
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/pinocchio/joint.hh>
-//# include <hpp/pinocchio/joint-configuration.hh>
-
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/projection-error.hh>

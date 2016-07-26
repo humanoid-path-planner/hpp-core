@@ -26,16 +26,19 @@
 // because the original timers are already included by
 // the unit test framework
 // #include <boost/timer.hh>
+#include <hpp/model/device.hh>
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/core/problem.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/subchain-path.hh>
+
+#include "../tests/utils.hh"
+
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
@@ -45,9 +48,8 @@ using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
 
-hpp::pinocchio::ObjectFactory objectFactory;
 
-DevicePtr_t createRobot ()
+/*DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
 
@@ -66,9 +68,9 @@ DevicePtr_t createRobot ()
 
   robot->rootJoint (joint);
   return robot;
-}
+}*/
 
-DevicePtr_t createRobot2 ()
+/*DevicePtr_t createRobot2 ()
 {
   DevicePtr_t robot = Device::create ("test");
 
@@ -91,7 +93,7 @@ DevicePtr_t createRobot2 ()
   }
 
   return robot;
-}
+}*/
 
 typedef std::pair<value_type, value_type> Pair_t;
 
@@ -120,7 +122,7 @@ void checkAt(const PathPtr_t orig, value_type to,
 
 BOOST_AUTO_TEST_CASE (extracted)
 {
-  DevicePtr_t dev = createRobot ();
+  DevicePtr_t dev = hppPinocchio ();
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
@@ -148,7 +150,7 @@ BOOST_AUTO_TEST_CASE (extracted)
 
 BOOST_AUTO_TEST_CASE (subchain)
 {
-  DevicePtr_t dev = createRobot2 (); // 10 translations
+  DevicePtr_t dev = hppPinocchio (); // 10 translations
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 

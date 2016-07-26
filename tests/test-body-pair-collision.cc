@@ -22,12 +22,15 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include <hpp/pinocchio/object-factory.hh>
+#include <hpp/model/device.hh>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
 #include "../src/continuous-collision-checking/dichotomy/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
+#include "../tests/utils.hh"
+
 
 using std::numeric_limits;
 using hpp::pinocchio::BodyPtr_t;
@@ -43,8 +46,7 @@ using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollisionPtr_t;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
-hpp::pinocchio::ObjectFactory objectFactory;
-
+/*
 JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
 {
   const std::string& name = robot->name ();
@@ -264,7 +266,7 @@ DevicePtr_t createRobot ()
   joint->setLinkedBody (body);
 
   return robot;
-}
+}*/
 
 CollisionObjectPtr_t createObstacle ()
 {
@@ -276,7 +278,7 @@ CollisionObjectPtr_t createObstacle ()
 
 BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 {
-  DevicePtr_t robot = createRobot ();
+  DevicePtr_t robot = hppPinocchio();
   JointPtr_t joint_a = robot->getJointByBodyName ("LLEG_BODY5");
   JointPtr_t joint_b = robot->getJointByBodyName ("RLEG_BODY5");
 

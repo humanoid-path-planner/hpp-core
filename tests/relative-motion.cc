@@ -37,10 +37,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <hpp/model/device.hh>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 
@@ -49,6 +50,8 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/numerical-constraint.hh>
+#include "../tests/utils.hh"
+
 
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
@@ -58,8 +61,7 @@ using hpp::constraints::RelativeTransformation;
 
 using namespace hpp::core;
 
-hpp::pinocchio::ObjectFactory objectFactory;
-
+/*
 DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
@@ -107,7 +109,7 @@ DevicePtr_t createRobot ()
     parent = joint;
   }
   return robot;
-}
+}*/
 
 void lockJoint (ConfigProjectorPtr_t proj, DevicePtr_t dev, std::string name)
 {
@@ -130,7 +132,7 @@ struct Jidx {
 
 BOOST_AUTO_TEST_CASE (relativeMotion)
 {
-  DevicePtr_t dev = createRobot ();
+  DevicePtr_t dev = hppPinocchio();
   BOOST_REQUIRE (dev);
   Jidx jointid;
   jointid.dev = dev;

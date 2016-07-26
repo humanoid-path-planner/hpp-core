@@ -25,15 +25,19 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
+#include <hpp/model/device.hh>
+
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
+
+#include "../tests/utils.hh"
+
 
 using hpp::pinocchio::BodyPtr_t;
 using hpp::pinocchio::Body;
@@ -44,8 +48,6 @@ using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::Transform3f;
 using hpp::pinocchio::JointPtr_t;
-using hpp::pinocchio::JointTranslation;
-using hpp::pinocchio::ObjectFactory;
 using hpp::pinocchio::value_type;
 using fcl::Quaternion3f;
 using fcl::Box;
@@ -60,7 +62,7 @@ using hpp::core::pathOptimization::GradientBased;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
-DevicePtr_t createRobot ()
+/*DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("planar-robot");
   Transform3f position; position.setIdentity ();
@@ -81,11 +83,11 @@ DevicePtr_t createRobot ()
   body->addInnerObject (object, true, true);
 
   return robot;
-}
+}*/
 
 BOOST_AUTO_TEST_CASE (BFGS)
 {
-  DevicePtr_t robot = createRobot ();
+  DevicePtr_t robot = hppPinocchio ();
   Configuration_t q0 (robot->configSize ());
   Configuration_t q1 (robot->configSize ());
   Configuration_t q2 (robot->configSize ());

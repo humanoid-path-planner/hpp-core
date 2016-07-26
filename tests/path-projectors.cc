@@ -20,6 +20,7 @@
 #include <boost/mpl/list.hpp>
 
 #include <boost/shared_ptr.hpp>
+
 // Boost version 1.54
 // Cannot include boost CPU timers
 // #include <boost/timer/timer.hpp>
@@ -31,10 +32,11 @@
 #define HPP_ENABLE_BENCHMARK 1
 #include <hpp/util/timer.hh>
 
+#include <hpp/model/device.hh>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 
@@ -46,6 +48,8 @@
 
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/progressive.hh>
+#include "../tests/utils.hh"
+
 
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
@@ -53,18 +57,16 @@ using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
 
-hpp::pinocchio::ObjectFactory objectFactory;
-
+/*
 DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
 
   const std::string& name = robot->name ();
-  fcl::Transform3f mat; mat.setIdentity ();
+  Transform3f mat; mat.setIdentity ();
   JointPtr_t joint;
   std::string jointName = name + "_x";
   // Translation along x
-  fcl::Matrix3f permutation;
   joint = objectFactory.createJointTranslation2 (mat);
   joint->name (jointName);
 
@@ -77,7 +79,7 @@ DevicePtr_t createRobot ()
 
   robot->rootJoint (joint);
   return robot;
-}
+}*/
 
 ConstraintSetPtr_t createConstraints (DevicePtr_t r)
 {
@@ -221,7 +223,7 @@ typedef boost::mpl::list <traits_global_circle,
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 {
-  DevicePtr_t dev = createRobot ();
+  DevicePtr_t dev = hppPinocchio();
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 

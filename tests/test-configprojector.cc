@@ -18,13 +18,16 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <hpp/core/config-projector.hh>
+#include <hpp/model/device.hh>
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
+
+#include "../tests/utils.hh"
+
 
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
@@ -38,8 +41,7 @@ using hpp::constraints::vector3_t;
 
 using namespace hpp::core;
 
-hpp::pinocchio::ObjectFactory objectFactory;
-
+/*
 JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
 {
   const std::string& name = robot->name ();
@@ -262,25 +264,26 @@ DevicePtr_t createRobot ()
   joint->setLinkedBody (body);
 
   return robot;
-}
+}*/
 
 BOOST_AUTO_TEST_SUITE (config_projector)
 
 BOOST_AUTO_TEST_CASE (ref_zero)
 {
-  DevicePtr_t dev = createRobot ();
+  DevicePtr_t dev = hppPinocchio ();
   JointPtr_t xyz = dev->getJointByName ("test_z");
   matrix3_t rot; rot.setIdentity ();
   vector3_t zero; zero.setZero();
   ComparisonType::VectorOfTypes types (3, ComparisonType::Superior);
   BOOST_REQUIRE (dev);
   PositionPtr_t position =
-    Position::create ("Position", dev, xyz, zero);
+    Position::create ("Position", dev, xyz, Transform3f(rot,zero));
 
   types[1] = ComparisonType::Inferior;
   ComparisonTypesPtr_t ineq = ComparisonTypes::create (types);
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
+
   projector->add (NumericalConstraint::create (position, ineq));
   Configuration_t cfg(dev->configSize ());
   cfg.setZero ();
@@ -303,7 +306,7 @@ BOOST_AUTO_TEST_CASE (ref_zero)
 
 BOOST_AUTO_TEST_CASE (ref_not_zero)
 {
-  DevicePtr_t dev = createRobot ();
+  DevicePtr_t dev = hppPinocchio ();
   JointPtr_t xyz = dev->getJointByName ("test_z");
   matrix3_t rot; rot.setIdentity ();
   vector3_t zero; zero.setZero();
@@ -311,7 +314,7 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   ComparisonType::VectorOfTypes types (3, ComparisonType::Superior);
   BOOST_REQUIRE (dev);
   PositionPtr_t position =
-    Position::create ("Position", dev, xyz, zero, vector3_t (1,1,1));
+    Position::create ("Position", dev, xyz, Transform3f(rot,zero), Transform3f(rot,vector3_t (1,1,1)));
 
   ref[0] = 0; ref[1] = 0; ref[2] = 0;
   types[1] = ComparisonType::Inferior;
