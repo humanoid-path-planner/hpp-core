@@ -70,18 +70,14 @@ namespace hpp {
       {
         return checkParameterized_;
       }
-    public:
-      /// fcl low level request object used for collision checking.
-      /// modify this attribute to obtain more detailed validation
-      /// reports in a call to validate.
-      fcl::CollisionRequest collisionRequest_;
+
     protected:
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
     private:
       pinocchio::GeomDataPtr_t geomData_;
-      CollisionPairs_t parameterizedPairs_;
-      CollisionPairs_t disabledPairs_;
+      se3::GeometryData::CollisionPairsVector_t parameterizedPairs_;
+      se3::GeometryData::CollisionPairsVector_t disabledPairs_;
 
       bool checkParameterized_;
     }; // class ConfigValidation
