@@ -27,7 +27,8 @@
 # include <hpp/pinocchio/body.hh>
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/pinocchio/joint.hh>
-# include <hpp/pinocchio/joint-configuration.hh>
+//# include <hpp/pinocchio/joint-configuration.hh>
+
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/projection-error.hh>
@@ -41,18 +42,6 @@ namespace hpp {
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
 	using pinocchio::JointPtr_t;
-	using pinocchio::JointTranslation;
-	using pinocchio::JointRotation;
-	using pinocchio::JointSO3;
-	using pinocchio::JointAnchor;
-	using pinocchio::JointTranslationPtr_t;
-	using pinocchio::JointRotationPtr_t;
-	using pinocchio::JointSO3Ptr_t;
-	using pinocchio::JointAnchorPtr_t;
-	using pinocchio::JointTranslationConstPtr_t;
-	using pinocchio::JointRotationConstPtr_t;
-	using pinocchio::JointSO3ConstPtr_t;
-	using pinocchio::JointAnchorConstPtr_t;
 	using pinocchio::Transform3f;
 
 	/// Multiplicative coefficients of linear and angular velocities
@@ -84,7 +73,7 @@ namespace hpp {
 	  /// \param tolerance allowed penetration should be positive
 	  /// \pre objects_b should not be attached to a joint
 	  static BodyPairCollisionPtr_t create (const JointConstPtr_t& joint_a,
-						const ObjectVector_t& objects_b,
+						const std::vector<CollisionObjectPtr_t>& objects_b,
 						value_type tolerance)
 	  {
 	    BodyPairCollisionPtr_t shPtr (new BodyPairCollision
@@ -134,14 +123,14 @@ namespace hpp {
 	    objects_b_.push_back (object);
 	  }
 
-	  const ObjectVector_t& objects_b  () const
+	  const std::vector<CollisionObjectPtr_t>& objects_b  () const
 	  {
 	    return objects_b_;
 	  }
 
 	  bool removeObjectTo_b (const CollisionObjectPtr_t& object)
 	  {
-	    for (ObjectVector_t::iterator itObj = objects_b_.begin ();
+	    for (std::vector<CollisionObjectPtr_t>::iterator itObj = objects_b_.begin ();
 		 itObj != objects_b_.end (); ++itObj) {
 	      if (object->fcl () == (*itObj)->fcl ()) {
 		objects_b_.erase (itObj);
@@ -202,12 +191,12 @@ namespace hpp {
 	    }
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
-	    for (ObjectVector_t::const_iterator ita = objects_a_.begin ();
+	    for (std::vector<CollisionObjectPtr_t>::const_iterator ita = objects_a_.begin ();
 		 ita != objects_a_.end (); ++ita) {
 	      // Compute position of object a
 	      fcl::CollisionObject* object_a = (*ita)->fcl ().get ();
 	      object_a->setTransform (Ma * (*ita)->positionInJointFrame ());
-	      for (ObjectVector_t::const_iterator itb = objects_b_.begin ();
+	      for (std::vector<CollisionObjectPtr_t>::const_iterator itb = objects_b_.begin ();
 		   itb != objects_b_.end (); ++itb) {
 		// Compute position of object b
 		fcl::CollisionObject* object_b = (*itb)->fcl ().get ();
@@ -274,8 +263,8 @@ namespace hpp {
 	    BodyPtr_t body_b = joint_b_->linkedBody ();
 	    assert (body_a);
 	    assert (body_b);
-	    objects_a_ = body_a->innerObjects (pinocchio::COLLISION);
-	    objects_b_ = body_b->innerObjects (pinocchio::COLLISION);
+	    objects_a_ = body_a->innerObjects ();
+	    objects_b_ = body_b->innerObjects ();
 
 	    if (joint_b_->robot () != joint_a_->robot ()) {
 	      throw std::runtime_error
@@ -300,7 +289,7 @@ namespace hpp {
 	  /// \param tolerance allowed penetration should be positive
 	  /// \pre objects_b should not be attached to a joint
 	  BodyPairCollision (const JointConstPtr_t& joint_a,
-			     const ObjectVector_t& objects_b,
+			     const std::vector<CollisionObjectPtr_t>& objects_b,
 			     value_type tolerance) :
 	    joint_a_ (joint_a), joint_b_ (), objects_a_ (), objects_b_ (),
 	    joints_ (),
@@ -311,7 +300,7 @@ namespace hpp {
 	    BodyPtr_t body_a = joint_a_->linkedBody ();
 	    assert (body_a);
 	    objects_a_ = body_a->innerObjects (pinocchio::COLLISION);
-	    for (ObjectVector_t::const_iterator it = objects_b.begin ();
+	    for (std::vector<CollisionObjectPtr_t>::const_iterator it = objects_b.begin ();
 		 it != objects_b.end (); ++it) {
 	      assert (!(*it)->joint () ||
 		      (*it)->joint ()->robot () != joint_a_->robot ());
@@ -330,10 +319,47 @@ namespace hpp {
 	private:
 	  void computeSequenceOfJoints ()
 	  {
-	    JointConstPtr_t j1, j2, j, commonAncestor = 0x0;
-	    std::vector <JointConstPtr_t> aAncestors;
-	    std::deque <JointConstPtr_t> bAncestors;
-	    // Build vector of ancestors of joint_a.
+	    JointConstPtr_t j, jSave, commonAncestor = 0x0;
+	    std::vector <JointConstPtr_t> ancestors1;
+	    std::deque <JointConstPtr_t> ancestors2;
+	    // Build vector of ancestors of joint farther away from common ancestor.
+      pinocchio::Index minIdx, idx;
+      if (joint_a_->index () > joint_b_->index ()) {
+        idx = joint_a_->index ();
+        minIdx = joint_a_->index ();
+        j = joint_a_;
+        jSave = joint_b_;
+      } else {
+        idx = joint_b_->index ();
+        minIdx = joint_a_->index ();
+        j = joint_b_;
+        jSave = joint_a_;
+      }
+      while (idx != minIdx) {
+        if (idx > minIdx) {
+          //add jointIndex to list??
+          ancestors1.push_back (j);
+            // are inner objects the right choise here?
+          j = j->robot ()->geomModel ()->innerObjects[idx].parent;
+          idx = j->index ();
+        }
+      }
+      commonAncestor = j;
+      idx = minIxd;
+      j = jSave;
+      while (idx != commonAncestor->index ()) {
+        if (idx > minIdx) {
+          //add jointIndex to list??
+          ancestors.push_back (j);
+          // are inner objects the right choise here?
+          j = j->robot ()->geomModel ()->innerObjects[idx].parent;
+          idx = j->index ();
+      }
+
+      // after saving the two lists, find out which one is a ..?
+      //
+
+
 	    for (j = joint_a_; j; j = j->parentJoint ()) {
 	      aAncestors.push_back (j);
 	    }
@@ -347,7 +373,8 @@ namespace hpp {
 	      for (j2 = joint_b_; j2; j2 = j2 ? j2->parentJoint () : 0x0) {
 		if (j1 == j2) {
 		  commonAncestor = j1;
-		  j1 = 0x0; j2 = 0x0;
+		  j1 = JointConstPtr_t (new Joint ());
+      j2 = JointConstPtr_t (new Joint ());
 		}
 	      }
 	    }
@@ -423,8 +450,8 @@ namespace hpp {
 
 	  JointConstPtr_t joint_a_;
 	  JointConstPtr_t joint_b_;
-	  ObjectVector_t objects_a_;
-	  ObjectVector_t objects_b_;
+	  std::vector<CollisionObjectPtr_t> objects_a_;
+    std::vector<CollisionObjectPtr_t> objects_b_;
 	  std::vector <JointConstPtr_t> joints_;
 	  std::size_t indexCommonAncestor_;
 	  std::vector <CoefficientVelocity> coefficients_;
