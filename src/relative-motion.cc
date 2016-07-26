@@ -35,7 +35,7 @@ namespace hpp {
 
       inline JointConstPtr_t getNonAnchorParent (const JointConstPtr_t& j)
       {
-        if (j==NULL) return NULL;
+        if (j) return JointConstPtr_t();
         JointConstPtr_t parent = j;
         // Find the closest non-fixed parent in the kinematic chain
         while (

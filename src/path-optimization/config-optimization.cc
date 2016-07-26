@@ -261,19 +261,18 @@ namespace hpp {
         }
       }
 
-      bool ConfigOptimizationTraits::shouldFilter (const JointPtr_t joint,
+      bool ConfigOptimizationTraits::shouldFilter (JointConstPtr_t joint,
           const size_type /* iDof */)
       {
         // If joint if the root joint or if parent joint is the root joint and
         // root joint is an anchor joint,
         // filter it
-        if (joint->parentJoint () == NULL ||
-            (joint->parentJoint ()->parentJoint ()==NULL
-             && joint->parentJoint()->numberDof () == 0)
-           )
+
+          //TODO
+        if (joint->parentJoint ())
           return true;
         /// Filter joint name containing "base_joint..."
-        if (boost::algorithm::contains (joint->name (), "base_joint"))
+        if (boost::algorithm::contains (joint->name (), "root_joint"))
           return true;
         return false;
       }

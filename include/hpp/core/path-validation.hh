@@ -53,7 +53,7 @@ namespace hpp {
       /// \notice collision path validation need to know about obstacles. This
       /// virtual method does nothing for path validation methods that do not
       /// care about obstacles.
-      virtual void addObstacle (const CollisionObjectPtr_t&)
+      virtual void addObstacle (const CollisionObjectConstPtr_t&)
       {
       }
       /// Remove a collision pair between a joint and an obstacle

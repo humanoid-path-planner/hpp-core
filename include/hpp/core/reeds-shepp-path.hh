@@ -203,7 +203,7 @@ namespace hpp {
       struct Wheels_t {
         value_type L, R, S; // Left, Right and Straight turn
         JointPtr_t j;
-        Wheels_t () : j(NULL) {}
+        Wheels_t () : j() {}
       };
       std::vector<Wheels_t> wheels_;
       std::size_t typeId_;

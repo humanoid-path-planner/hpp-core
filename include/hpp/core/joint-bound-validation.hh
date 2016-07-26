@@ -26,7 +26,7 @@ namespace hpp {
   namespace core {
     /// \addtogroup validation
     /// \{
-
+/*
     /// Exception thrown when a configuration is not within the bounds
     class HPP_CORE_DLLAPI JointBoundException : public std::runtime_error
     {
@@ -50,8 +50,8 @@ namespace hpp {
       /// configuration value
       value_type value_;
     };
-
-    /// Exception thrown when a configuration is not within the bounds
+*/
+    /// report returned when a configuration is not within the bounds
     class HPP_CORE_DLLAPI JointBoundValidationReport : public ValidationReport
     {
     public:

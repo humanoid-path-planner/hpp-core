@@ -20,62 +20,63 @@
 SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
-  astar.hh
-  bi-rrt-planner.cc
-  collision-validation.cc
-  relative-motion.cc
-  config-projector.cc
-  comparison-type.cc
-  config-validations.cc
-  connected-component.cc
-  constraint.cc
-  constraint-set.cc
-  continuous-collision-checking/dichotomy.cc
-  continuous-collision-checking/dichotomy/body-pair-collision.hh
-  continuous-collision-checking/progressive.cc
-  continuous-collision-checking/progressive/body-pair-collision.hh
-  diffusing-planner.cc
-  discretized-collision-checking.cc
-  discretized-path-validation.cc
-  distance-between-objects.cc
-  explicit-numerical-constraint.cc
-  extracted-path.hh
-  joint-bound-validation.cc
-  nearest-neighbor/basic.hh
-  nearest-neighbor/basic.cc
-  nearest-neighbor/k-d-tree.cc
-  nearest-neighbor/k-d-tree.hh
-  node.cc
-  path.cc
-  path-optimizer.cc
-  path-optimization/collision-constraints-result.hh
-  path-optimization/path-length.cc
-  path-optimization/gradient-based.cc
-  path-optimization/partial-shortcut.cc
-  path-optimization/config-optimization.cc
-  path-planner.cc
-  path-vector.cc
+#  astar.hh
+#  bi-rrt-planner.cc
+#  collision-validation.cc
+#  config-projector.cc
+#  comparison-type.cc
+#  config-validations.cc
+#  connected-component.cc
+#  constraint.cc
+#  constraint-set.cc
+#  continuous-collision-checking/dichotomy.cc
+#  continuous-collision-checking/dichotomy/body-pair-collision.hh
+#  continuous-collision-checking/progressive.cc
+#  continuous-collision-checking/progressive/body-pair-collision.hh
+#  diffusing-planner.cc
+#  discretized-collision-checking.cc
+#  discretized-path-validation.cc
+#  distance-between-objects.cc
+#  explicit-numerical-constraint.cc
+#  extracted-path.hh
+#  equation.cc
+#  interpolated-path.cc
+#  joint-bound-validation.cc
+#  locked-joint.cc
+##########################"
+#  nearest-neighbor/basic.hh #
+#  nearest-neighbor/basic.cc #
+#  nearest-neighbor/k-d-tree.cc #
+#  nearest-neighbor/k-d-tree.hh #
+#  numerical-constraint.cc #
+#  node.cc #
+#  path.cc #
+#  path-optimizer.cc #
+#  path-optimization/collision-constraints-result.hh #
+#  path-optimization/path-length.cc #
+#  path-optimization/gradient-based.cc #
+#  path-optimization/partial-shortcut.cc #
+#  path-optimization/config-optimization.cc#
+#  path-planner.cc #
+#  path-vector.cc #
+#  plan-and-optimize.cc #
+#  problem.cc # TODO : addObstacle
+#  problem-solver.cc # TODO : addObstacle
+#  path-projector/progressive.cc #
+#  path-projector/dichotomy.cc #
+#  path-projector/global.cc #
+#  path-projector.cc #
+#  parser/roadmap-factory.cc #
+#  problem-target/goal-configurations.cc #
+#  problem-target/task-target.cc #
   reeds-shepp-path.cc
-  steering-method/reeds-shepp.cc
-  plan-and-optimize.cc
-  problem.cc
-  problem-solver.cc
+  relative-motion.cc
   random-shortcut.cc
   roadmap.cc
+  steering-method/reeds-shepp.cc # TODO access type of joint
   straight-path.cc
-  interpolated-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
-  numerical-constraint.cc
-  equation.cc
-  locked-joint.cc
-  path-projector/progressive.cc
-  path-projector/dichotomy.cc
-  path-projector/global.cc
-  path-projector.cc
-  parser/roadmap-factory.cc
-  problem-target/goal-configurations.cc
-  problem-target/task-target.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

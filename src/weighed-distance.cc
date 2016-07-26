@@ -21,8 +21,6 @@
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/joint-configuration.hh>
-#include <hpp/pinocchio/children-iterator.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <Eigen/SVD>
 
@@ -164,8 +162,7 @@ namespace hpp {
 	if ((*itJoint)->numberDof () != 0) {
 	  value_type length = weights_ [i];
 	  value_type distance =
-	    (*itJoint)->configuration ()->distance
-	    (q1, q2, (*itJoint)->rankInConfiguration ());
+        (*itJoint)->jointModel().distance(q1, q2);
 	  res += length * length * distance * distance;
 	  ++i;
 	}

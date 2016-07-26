@@ -105,6 +105,8 @@ namespace hpp {
     typedef boost::shared_ptr <CollisionValidationReport>
     CollisionValidationReportPtr_t;
     typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
+    typedef pinocchio::CollisionObjectConstPtr_t CollisionObjectConstPtr_t;
+
     typedef pinocchio::Configuration_t Configuration_t;
     typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
     typedef pinocchio::ConfigurationOut_t ConfigurationOut_t;
@@ -152,6 +154,7 @@ namespace hpp {
     typedef pinocchio::Joint Joint;
     typedef pinocchio::JointConstPtr_t JointConstPtr_t;
     typedef pinocchio::JointPtr_t JointPtr_t;
+    typedef pinocchio::JointConstPtr_t JointConstPtr_t;
     typedef boost::shared_ptr <JointBoundValidation> JointBoundValidationPtr_t;
     typedef boost::shared_ptr <JointBoundValidationReport>
     JointBoundValidationReportPtr_t;
@@ -164,6 +167,8 @@ namespace hpp {
     typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
     typedef std::list <LockedJointPtr_t> LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
+    typedef pinocchio::matrix3_t matrix3_t;
+    typedef pinocchio::vector3_t vector3_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
     typedef pinocchio::size_type size_type;

@@ -608,11 +608,11 @@ namespace hpp {
 			}
 
       if (collision){
-	collisionObstacles_.push_back (object);
+    //collisionObstacles_.push_back (object);//TODO
         resetRoadmap ();
       }
       if (distance)
-	distanceObstacles_.push_back (object);
+//	distanceObstacles_.push_back (object);//TODO
       if (problem ())
         problem ()->addObstacle (object);
       if (distanceBetweenObjects_) {

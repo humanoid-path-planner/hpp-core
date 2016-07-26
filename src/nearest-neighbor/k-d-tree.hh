@@ -22,7 +22,6 @@
 # include <hpp/core/distance.hh>
 # include <hpp/core/node.hh>
 # include <hpp/pinocchio/joint.hh>
-# include <hpp/pinocchio/joint-configuration.hh>
 # include <hpp/pinocchio/device.hh>
 # include <hpp/core/nearest-neighbor.hh>
 

@@ -20,6 +20,7 @@
 # define HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH
 
 # include <hpp/core/fwd.hh>
+#include <pinocchio/multibody/geometry.hpp>
 
 namespace hpp {
   namespace core {
