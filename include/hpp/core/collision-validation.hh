@@ -79,9 +79,9 @@ namespace hpp {
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
     private:
-      CollisionPairs_t collisionPairs_,
-                       parameterizedPairs_,
-                       disabledPairs_;
+      pinocchio::GeomDataPtr_t geomData_;
+      CollisionPairs_t parameterizedPairs_;
+      CollisionPairs_t disabledPairs_;
 
       bool checkParameterized_;
     }; // class ConfigValidation

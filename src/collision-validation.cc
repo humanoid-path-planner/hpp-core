@@ -30,8 +30,8 @@ namespace hpp {
       inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
           const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
         return fcl::collide (
-                    _colPair->first ->fcl ().get (),
-                    _colPair->second->fcl ().get (),
+                    _colPair->first ->fcl (),
+                    _colPair->second->fcl (),
                     req, res);
       }
 
@@ -61,7 +61,7 @@ namespace hpp {
       robot_->computeForwardKinematics ();
       fcl::CollisionResult collisionResult;
       CollisionPairs_t::const_iterator _col;
-      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+      if (collide (geomData_->collision_pairs, collisionRequest_, collisionResult, _col)
           ||
           ( checkParameterized_ &&
             collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
@@ -82,13 +82,13 @@ namespace hpp {
       const JointVector_t& jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
 	   ++it) {
-	JointPtr_t joint = *it;
+	JointPtr_t joint = JointPtr_t (new Joint(**it));
 	BodyPtr_t body = joint->linkedBody ();
 	if (body) {
-	  const ObjectVector_t& bodyObjects = body->innerObjects (COLLISION);
+	  const ObjectVector_t& bodyObjects = body->innerObjects ();
 	  for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	       itInner != bodyObjects.end (); ++itInner) {
-	    collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+	    geomData_->addCollisionPair (std::make_pair (*itInner, object));
 	  }
 	}
       }
@@ -100,13 +100,13 @@ namespace hpp {
       using pinocchio::COLLISION;
       BodyPtr_t body = joint->linkedBody ();
       if (body) {
-	const ObjectVector_t& bodyObjects = body->innerObjects (COLLISION);
+	const ObjectVector_t& bodyObjects = body->innerObjects ();
 	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	     itInner != bodyObjects.end (); ++itInner) {
-	  CollisionPair_t colPair (*itInner, obstacle);
-	  std::size_t before = collisionPairs_.size ();
-	  collisionPairs_.remove (colPair);
-	  std::size_t after = collisionPairs_.size ();
+	  CollisionPair_t colPair = std::make_pair (*itInner, obstacle);
+	  std::size_t before = geomData_->nCollisionPairs;
+	  geomData_->removeCollisionPair (colPair);
+	  std::size_t after = geomData_->nCollisionPairs;
 	  if (after == before) {
 	    std::ostringstream oss;
 	    oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
@@ -127,7 +127,7 @@ namespace hpp {
     void CollisionValidation::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
       // Loop over collision pairs and remove disabled ones.
-      CollisionPairs_t::iterator _colPair = collisionPairs_.begin ();
+      CollisionPairs_t::iterator _colPair = geomData_->collision_pairs.begin ();
       size_type i1, i2;
       fcl::CollisionResult unused;
       while (_colPair != collisionPairs_.end ()) {
@@ -141,7 +141,7 @@ namespace hpp {
                   << _colPair->first ->name() << " and "
                   << _colPair->second->name());
               parameterizedPairs_.push_back (*_colPair);
-              _colPair = collisionPairs_.erase (_colPair);
+              _colPair = geomData_->removeCollisionPair (_colPair);
               break;
           case RelativeMotion::Constrained:
               hppDout(info, "Disabling collision between "
@@ -149,10 +149,10 @@ namespace hpp {
                   << _colPair->second->name());
               if (collide (_colPair, collisionRequest_, unused) != 0) {
                 hppDout(warning, "Disabling collision detection between two "
-                    "body in collision.");
+                    "bodies in collision.");
               }
               disabledPairs_.push_back (*_colPair);
-              _colPair = collisionPairs_.erase (_colPair);
+              _colPair = geomData_->removeCollisionPair (_colPair);
               break;
           case RelativeMotion::Unconstrained: ++_colPair; break;
           default:
@@ -167,33 +167,9 @@ namespace hpp {
       collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
       robot_ (robot),
       parameterizedPairs_(), disabledPairs_(),
-      checkParameterized_(false)
-    {
-      using pinocchio::COLLISION;
-      typedef hpp::pinocchio::Device::CollisionPairs_t JointPairs_t;
-      using pinocchio::ObjectVector_t;
-      const JointPairs_t& jointPairs (robot->collisionPairs (COLLISION));
-      // build collision pairs for internal objects
-      for (JointPairs_t::const_iterator it = jointPairs.begin ();
-	   it != jointPairs.end (); ++it) {
-	JointPtr_t j1 = it->first;
-	JointPtr_t j2 = it->second;
-	BodyPtr_t body1 = j1->linkedBody ();
-	BodyPtr_t body2 = j2->linkedBody ();
-	if (body1 && body2) {
-	  ObjectVector_t objects1 = body1->innerObjects (COLLISION);
-	  ObjectVector_t objects2 = body2->innerObjects (COLLISION);
-	  // Loop over pairs of inner objects of the bodies
-	  for (ObjectVector_t::const_iterator it1 = objects1.begin ();
-	       it1 != objects1.end (); ++it1) {
-	    for (ObjectVector_t::const_iterator it2 = objects2.begin ();
-		 it2 != objects2.end (); ++it2) {
-	      collisionPairs_.push_back (CollisionPair_t (*it1, *it2));
-	    }
-	  }
-	}
+      checkParameterized_(false),
+      geomData_ (robot->geomData ())
+    {}
 
-      }
-    }
   } // namespace core
 } // namespace hpp
