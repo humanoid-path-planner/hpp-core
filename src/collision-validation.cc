@@ -70,8 +70,12 @@ namespace hpp {
        }
        if (collision) {
           CollisionValidationReportPtr_t report (new CollisionValidationReport);
-          report->object1 = robot_->geomModel ()->geometryObjects[_col->first].name;
-          report->object2 = robot_->geomModel ()->geometryObjects[_colPair->first].name;
+          report->object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
+                      robot_->geomModel ()->geometryObjects[_col->first].parent,
+                      _col->first));
+          report->object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
+                      robot_->geomModel ()->geometryObjects[_col->second].parent,
+                      _col->second));
           report->result = collisionResult;
           validationReport = report;
           return false;
@@ -99,7 +103,7 @@ namespace hpp {
     }
 
     void CollisionValidation::removeObstacleFromJoint
-    (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+    (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
       using pinocchio::COLLISION;
       BodyPtr_t body = joint->linkedBody ();
@@ -107,7 +111,9 @@ namespace hpp {
 	const ObjectVector_t& bodyObjects = body->innerObjects ();
 	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	     itInner != bodyObjects.end (); ++itInner) {
-	  CollisionPair_t colPair = std::make_pair (*itInner, obstacle);
+	  CollisionPair_t colPair;
+    colPair.first = (*itInner);
+    colPair.second = obstacle;
 	  std::size_t before = geomData_->nCollisionPairs;
 	  geomData_->removeCollisionPair (colPair.first->indexInModel (),
             colPair.second->indexInModel ());
