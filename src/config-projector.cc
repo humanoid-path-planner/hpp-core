@@ -36,8 +36,8 @@
 namespace hpp {
   namespace core {
     namespace {
-      HPP_DEFINE_TIMECOUNTER (projection);
-      HPP_DEFINE_TIMECOUNTER (optimize);
+      // HPP_DEFINE_TIMECOUNTER (projection);
+      // HPP_DEFINE_TIMECOUNTER (optimize);
     }
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
@@ -602,7 +602,7 @@ namespace hpp {
 	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
 			     functions_ [0])->solve (configuration);
       }
-      HPP_START_TIMECOUNTER (projection);
+      // HPP_START_TIMECOUNTER (projection);
       value_type alpha = .2;
       value_type alphaMax = .95;
       size_type errorDecreased = 3, iter = 0;
@@ -631,8 +631,8 @@ namespace hpp {
       } else {
         statistics_.addSuccess();
       }
-      HPP_STOP_TIMECOUNTER (projection);
-      HPP_DISPLAY_TIMECOUNTER (projection);
+      // HPP_STOP_TIMECOUNTER (projection);
+      // HPP_DISPLAY_TIMECOUNTER (projection);
       hppDout (info, "number of iterations: " << iter);
       if (squareNorm_ > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");
@@ -659,7 +659,7 @@ namespace hpp {
       if (!isSatisfied (configuration)) return false;
       if (maxIter == 0) maxIter = maxIterations_;
       hppDout (info, "before optimization: " << configuration.transpose ());
-      HPP_START_TIMECOUNTER (optimize);
+      // HPP_START_TIMECOUNTER (optimize);
       Configuration_t current = configuration;
       std::size_t iter = 0;
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
@@ -681,8 +681,8 @@ namespace hpp {
         configuration = current;
 	++iter;
       } while (iter < maxIter); // && squareNorm_ < squareErrorThreshold_
-      HPP_STOP_TIMECOUNTER (optimize);
-      HPP_DISPLAY_TIMECOUNTER (optimize);
+      // HPP_STOP_TIMECOUNTER (optimize);
+      // HPP_DISPLAY_TIMECOUNTER (optimize);
       hppDout (info, "number of iterations: " << iter);
       if (iter == 0) {
 	hppDout (info, "Optimization failed.");
