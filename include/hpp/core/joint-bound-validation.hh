@@ -55,7 +55,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI JointBoundValidationReport : public ValidationReport
     {
     public:
-      JointBoundValidationReport (const JointPtr_t& joint, size_type rank,
+      JointBoundValidationReport (const JointConstPtr_t& joint, size_type rank,
 				  value_type lowerBound, value_type upperBound,
 				  value_type value) :
 	ValidationReport (),
@@ -73,7 +73,7 @@ namespace hpp {
       }
 
       /// Joint the configuration value is out of bounds
-      JointPtr_t joint_;
+      JointConstPtr_t joint_;
       /// degree of freedom in the joint (usually 0)
       size_type rank_;
       /// lower bound

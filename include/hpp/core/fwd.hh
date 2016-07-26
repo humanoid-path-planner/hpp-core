@@ -228,7 +228,7 @@ namespace hpp {
     CenterOfMassComputationMap_t;
 
     // Collision pairs
-    typedef std::pair <CollisionObjectPtr_t, CollisionObjectPtr_t>
+    typedef std::pair <CollisionObjectConstPtr_t, CollisionObjectConstPtr_t>
     CollisionPair_t;
     typedef std::list <CollisionPair_t> CollisionPairs_t;
 
