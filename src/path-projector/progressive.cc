@@ -16,6 +16,8 @@
 
 #include "hpp/core/path-projector/progressive.hh"
 
+#include <hpp/util/timer.hh>
+
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
@@ -134,6 +136,8 @@ namespace hpp {
         cp->oneStep (qtmp, dqtmp, 1);
         value_type sigma = cp->sigma();
 
+        value_type min = std::numeric_limits<value_type>::max(), max = 0;
+
         while (true) {
           const value_type threshold = (withHessianBound_ ? sigma / K : step_);
           const value_type thr_min = thresholdMin_;
@@ -177,9 +181,19 @@ namespace hpp {
           PathPtr_t part = steer (qb, qi);
           paths.push (part);
           totalLength += part->length ();
+          min = std::min(min, part->length());
+          max = std::max(max, part->length());
           toSplit = steer (qi, q2);
           c++;
         }
+#if HPP_ENABLE_BENCHMARK
+        hppBenchmark("Interpolated path (progressive): "
+            << paths.size()
+            << ", [ " << min
+            <<   ", " << (paths.empty() ? 0 : totalLength / paths.size())
+            <<   ", " << max << "]"
+            );
+#endif
         switch (paths.size ()) {
           case 0:
             timeRange = path->timeRange();

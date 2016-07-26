@@ -449,6 +449,8 @@ namespace hpp {
       {
         /// Compute total length
         value_type length = 0;
+        value_type min = std::numeric_limits<value_type>::max(), max = 0;
+        size_type nbWaypoints = 0;
         Lengths_t::const_iterator itL   = (l.begin ());
         Bools_t  ::const_iterator itB   = (b.begin ());
         Configs_t::const_iterator itCl  = (q.begin ());
@@ -459,15 +461,34 @@ namespace hpp {
             break;
           }
           length += *itL;
+
+          ++nbWaypoints;
+          min = std::min(min, *itL);
+          max = std::max(max, *itL);
+
           ++itCl;
           ++itL;
         }
         if (fullyProjected) {
           length += *itL;
+
+          ++nbWaypoints;
+          min = std::min(min, *itL);
+          max = std::max(max, *itL);
+
           ++itCl;
           ++itL;
           assert (itL == l.end ());
         }
+        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
+#if HPP_ENABLE_BENCHMARK
+        hppBenchmark("Interpolated path (global - non hessian): "
+            << nbWaypoints
+            << ", [ " << min
+            <<   ", " << avg
+            <<   ", " << max << "]"
+            );
+#endif
 
         InterpolatedPathPtr_t out = InterpolatedPath::create
           (robot, q.front(), *itCl, length, constraint);
@@ -496,6 +517,8 @@ namespace hpp {
       {
         /// Compute total length
         value_type length = 0;
+        value_type min = std::numeric_limits<value_type>::max(), max = 0;
+        size_type nbWaypoints = 0;
         const Datas_t::const_iterator begin = ++(ds.begin ());
         Datas_t::const_iterator _dLast = ds.begin ();
         bool fullyProjected = (last == ds.end());
@@ -506,7 +529,20 @@ namespace hpp {
           }
           length += _d->length;
           ++_dLast;
+
+          ++nbWaypoints;
+          min = std::min(min, _d->length);
+          max = std::max(max, _d->length);
         }
+        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
+#if HPP_ENABLE_BENCHMARK
+        hppBenchmark("Interpolated path (global - with hessian): "
+            << nbWaypoints
+            << ", [ " << min
+            <<   ", " << avg
+            <<   ", " << max << "]"
+            );
+#endif
 
         InterpolatedPathPtr_t out = InterpolatedPath::create
           (robot, ds.front().q, _dLast->q, length, constraint);
