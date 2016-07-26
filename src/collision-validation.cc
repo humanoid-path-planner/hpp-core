@@ -111,9 +111,7 @@ namespace hpp {
 	const ObjectVector_t& bodyObjects = body->innerObjects ();
 	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	     itInner != bodyObjects.end (); ++itInner) {
-	  CollisionPair_t colPair;
-    colPair.first = (*itInner);
-    colPair.second = obstacle;
+	  CollisionPair_t colPair = std::make_pair(*itInner, obstacle);
 	  std::size_t before = geomData_->nCollisionPairs;
 	  geomData_->removeCollisionPair (colPair.first->indexInModel (),
             colPair.second->indexInModel ());

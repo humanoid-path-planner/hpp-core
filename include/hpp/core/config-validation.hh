@@ -49,7 +49,7 @@ namespace hpp {
       /// \notice collision configuration validation needs to know about
       /// obstacles. This virtual method does nothing for configuration
       /// validation methods that do not care about obstacles.
-      virtual void addObstacle (const CollisionObjectPtr_t&)
+      virtual void addObstacle (const CollisionObjectConstPtr_t&)
       {
       }
 
