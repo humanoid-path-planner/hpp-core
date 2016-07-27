@@ -264,12 +264,8 @@ namespace hpp {
       bool ConfigOptimizationTraits::shouldFilter (JointConstPtr_t joint,
           const size_type /* iDof */)
       {
-        // If joint if the root joint or if parent joint is the root joint and
-        // root joint is an anchor joint,
-        // filter it
-
-          //TODO
-        if (joint->parentJoint ())
+        // If joint is the root joint, filter it
+        if (!joint->parentJoint())
           return true;
         /// Filter joint name containing "base_joint..."
         if (boost::algorithm::contains (joint->name (), "root_joint"))
