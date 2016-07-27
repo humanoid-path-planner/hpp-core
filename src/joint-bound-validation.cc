@@ -51,6 +51,20 @@ namespace hpp {
 	  }
 	}
       }
+      const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace();
+      // Check the extra config space
+      // FIXME This was introduced at the same time as the integration of Pinocchio
+      size_type index = robot_->model().nq;
+      for (size_type i=0; i < ecs.dimension(); ++i) {
+        value_type lower = ecs.lower (i);
+        value_type upper = ecs.upper (i);
+        value_type value = config [index + i];
+        if (value < lower || upper < value) {
+          JointBoundValidationReportPtr_t report(new JointBoundValidationReport (JointPtr_t(), i, lower, upper, value));
+          validationReport = report;
+          return false;
+        }
+      }
       return true;
     }
 

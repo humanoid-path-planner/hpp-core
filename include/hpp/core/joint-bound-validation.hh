@@ -66,9 +66,15 @@ namespace hpp {
       /// Print report in a stream
       virtual std::ostream& print (std::ostream& os) const
       {
-	os << "Joint " << joint_->name () << ", rank: " << rank_
-	   << ", value out of range: " << value_ << " not in ["
-	   << lowerBound_ << ", " << upperBound_ << "]";
+        if (joint_) {
+          os << "Joint " << joint_->name () << ", rank: " << rank_
+            << ", value out of range: " << value_ << " not in ["
+            << lowerBound_ << ", " << upperBound_ << "]";
+        } else {
+          os << "Extra config space at rank: " << rank_
+             << ", value out of range: " << value_ << " not in ["
+             << lowerBound_ << ", " << upperBound_ << "]";
+        }
 	return os;
       }
 
