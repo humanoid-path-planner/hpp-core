@@ -182,6 +182,8 @@ namespace hpp {
     typedef std::list <NodePtr_t> Nodes_t;
     typedef std::vector <NodePtr_t> NodeVector_t;
     typedef pinocchio::ObjectVector_t ObjectVector_t;
+    typedef std::vector<CollisionObjectPtr_t> ObjectStdVector_t;
+
     typedef boost::shared_ptr <Path> PathPtr_t;
     typedef boost::shared_ptr <const Path> PathConstPtr_t;
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;

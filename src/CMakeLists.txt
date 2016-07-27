@@ -20,15 +20,17 @@
 SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
-#  astar.hh
-#  bi-rrt-planner.cc
-#  collision-validation.cc
-#  config-projector.cc
-#  comparison-type.cc
-#  config-validations.cc
-#  connected-component.cc
-#  constraint.cc
-#  constraint-set.cc
+  problem.cc # TODO : addObstacle
+  problem-solver.cc # TODO : addObstacle
+  astar.hh
+  bi-rrt-planner.cc
+  collision-validation.cc
+  config-projector.cc
+  comparison-type.cc
+  config-validations.cc
+  connected-component.cc
+  constraint.cc
+  constraint-set.cc
 #  continuous-collision-checking/dichotomy.cc
 #  continuous-collision-checking/dichotomy/body-pair-collision.hh
 #  continuous-collision-checking/progressive.cc
@@ -59,8 +61,6 @@ SET(${LIBRARY_NAME}_SOURCES
   path-planner.cc #
   path-vector.cc #
   plan-and-optimize.cc #
-  problem.cc # TODO : addObstacle
-  problem-solver.cc # TODO : addObstacle
   path-projector/progressive.cc #
   path-projector/dichotomy.cc #
   path-projector/global.cc #

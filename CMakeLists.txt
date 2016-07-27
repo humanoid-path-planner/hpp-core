@@ -124,7 +124,7 @@ ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-model-urdf >= 3")
 
 
-#ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-core library in pkg-config file.

@@ -608,11 +608,11 @@ namespace hpp {
 			}
 
       if (collision){
-    //collisionObstacles_.push_back (object);//TODO
+        collisionObstacles_.push_back (object);
         resetRoadmap ();
       }
       if (distance)
-//	distanceObstacles_.push_back (object);//TODO
+        distanceObstacles_.push_back (object);
       if (problem ())
         problem ()->addObstacle (object);
       if (distanceBetweenObjects_) {
@@ -648,13 +648,13 @@ namespace hpp {
     {
       std::list <std::string> res;
       if (collision) {
-	for (ObjectVector_t::const_iterator it = collisionObstacles_.begin ();
+    for (ObjectStdVector_t::const_iterator it = collisionObstacles_.begin ();
 	     it != collisionObstacles_.end (); ++it) {
 	  res.push_back ((*it)->name ());
 	}
       }
       if (distance) {
-	for (ObjectVector_t::const_iterator it = distanceObstacles_.begin ();
+    for (ObjectStdVector_t::const_iterator it = distanceObstacles_.begin ();
 	     it != distanceObstacles_.end (); ++it) {
 	  res.push_back ((*it)->name ());
 	}
@@ -662,12 +662,12 @@ namespace hpp {
       return res;
     }
 
-    const ObjectVector_t& ProblemSolver::collisionObstacles () const
+    const ObjectStdVector_t& ProblemSolver::collisionObstacles () const
     {
       return collisionObstacles_;
     }
 
-    const ObjectVector_t& ProblemSolver::distanceObstacles () const
+    const ObjectStdVector_t& ProblemSolver::distanceObstacles () const
     {
       return distanceObstacles_;
     }
