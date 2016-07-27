@@ -30,9 +30,8 @@ namespace hpp {
       {
         ReedsSheppPathPtr_t path =
           ReedsSheppPath::create (device_.lock (), q1, q2,
-              rho_ , xy_->rankInConfiguration(),
-              rz_->rankInConfiguration(), constraints ());
-        path->setWheelJoints (rz_, wheels_);
+              rho_ , xy_, rz_, constraints ());
+        path->setWheelJoints (turningJoint_, wheels_);
         return path;
       }
 
@@ -50,21 +49,24 @@ namespace hpp {
 
       ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
         SteeringMethod (problem), device_ (problem->robot ()),
-        rho_ (1.), weak_ ()
+        rho_ (1.), xy_ (0), rz_(2), weak_ ()
       {
         DevicePtr_t d (device_.lock());
-        xy_ = d->getJointAtConfigRank(0);
-        //TODO
-       /* if (!dynamic_cast <pinocchio::JointTranslation <2>* > (xy_)) {
+        std::string sn = d->rootJoint()->jointModel().shortname();
+        //TODO shortname() == se3::JointModelPlanar::classname();
+        if (sn == "planar") {
+          turningJoint_ = d->rootJoint();
+        } else if (sn == "translation" && d->rootJoint()->configSize() == 2) {
+          std::string sn2 = d->getJointAtConfigRank(2)->jointModel().shortname();
+          if (sn2 == "revoluteunbounded")
+            turningJoint_ = d->getJointAtConfigRank(2);
+          else
+            throw std::runtime_error ("root joint should be of type "
+                "se3::JointModelPlanar or JointModelTranslation + JointModelRevolute");
+        } else {
           throw std::runtime_error ("root joint should be of type "
-              "pinocchio::JointTranslation <2>");
+              "se3::JointModelPlanar or JointModelTranslation + JointModelRevolute");
         }
-        rz_ = d->getJointAtConfigRank(2);
-        if (!dynamic_cast <pinocchio::jointRotation::UnBounded*> (rz_)) {
-          throw std::runtime_error ("second joint should be of type "
-              "pinocchio::jointRotation::Unbounded");
-        }*/
-
 
         guessWheels();
         computeRadius();
@@ -75,7 +77,10 @@ namespace hpp {
           JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
         SteeringMethod (problem), device_ (problem->robot ()),
-        rho_ (turningRadius), xy_ (xyJoint), rz_ (rzJoint),
+        rho_ (turningRadius),
+        turningJoint_ (rzJoint),
+        xy_ (xyJoint->rankInConfiguration()),
+        rz_ (rzJoint->rankInConfiguration()),
         wheels_ (wheels), weak_ ()
       {
       }
@@ -90,7 +95,7 @@ namespace hpp {
       inline value_type ReedsShepp::computeAngle(const JointPtr_t wheel) const
       {
         // Compute wheel position in joint RZ
-        const Transform3f zt (rz_->currentTransformation ());
+        const Transform3f zt (turningJoint_->currentTransformation ());
         const Transform3f wt (zt.actInv (wheel->currentTransformation ()));
         const vector3_t& wp (wt.translation ());
 
@@ -106,8 +111,8 @@ namespace hpp {
       inline void ReedsShepp::guessWheels()
       {
         wheels_.clear();
-        for (std::size_t i = 0; i < rz_->numberChildJoints(); ++i) {
-          JointPtr_t j = rz_->childJoint(i);
+        for (std::size_t i = 0; i < turningJoint_->numberChildJoints(); ++i) {
+          JointPtr_t j = turningJoint_->childJoint(i);
           if (j->configSize() != 1) continue;
           if (!j->isBounded(0))     continue;
           if (j->name().find("wheel") == std::string::npos) continue;

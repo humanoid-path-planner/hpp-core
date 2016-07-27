@@ -134,7 +134,8 @@ namespace hpp {
           DeviceWkPtr_t device_;
           // distance between front and rear wheel axes.
           value_type rho_;
-          JointPtr_t xy_, rz_;
+          JointPtr_t turningJoint_;
+          size_type xy_, rz_;
           std::vector<JointPtr_t> wheels_;
           ReedsSheppWkPtr_t weak_;
       }; // ReedsShepp
