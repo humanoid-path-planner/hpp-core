@@ -22,6 +22,7 @@
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
+#include <pinocchio/multibody/geometry.hpp>
 
 #include "continuous-collision-checking/dichotomy/body-pair-collision.hh"
 
@@ -228,25 +229,24 @@ namespace hpp {
       (const CollisionObjectPtr_t& object)
       {
 	const JointVector_t& jv = robot_->getJointVector ();
-	for (JointVector_t::const_iterator itJoint = jv.begin ();
-	     itJoint != jv.end (); ++itJoint) {
-	  BodyPtr_t body = (*itJoint)->linkedBody ();
+	for (unsigned int idx = 0; idx < jv.size (); ++idx) {
+	  BodyPtr_t body = (jv.at(idx))->linkedBody ();
 	  bool foundPair = false;
 	  if (body) {
 	    for (BodyPairCollisions_t::iterator itPair =
 		   bodyPairCollisions_.begin ();
 		 itPair != bodyPairCollisions_.end (); ++itPair) {
-	      if (((*itPair)->joint_a () == *itJoint) &&
+	      if (((*itPair)->joint_a () == jv.at(idx)) &&
 		  (!(*itPair)->joint_b ())) {
 		(*itPair)->addObjectTo_b (object);
 		foundPair = true;
 	      }
 	    }
 	    if (!foundPair) {
-	      ObjectVector_t objects;
+	      std::vector<CollisionObjectPtr_t> objects;
 	      objects.push_back (object);
 	      bodyPairCollisions_.push_back
-		(BodyPairCollision::create (*itJoint, objects, tolerance_));
+		(BodyPairCollision::create (jv.at(idx), objects, tolerance_));
 	    }
 	  }
 	}
@@ -293,15 +293,20 @@ namespace hpp {
 	  throw std::runtime_error ("Dichotomy path validation method does not"
 				    "support penetration.");
 	}
-	typedef pinocchio::Device::CollisionPairs_t CollisionPairs_t;
 	// Build body pairs for collision checking
 	// First auto-collision
-	const CollisionPairs_t& colPairs = robot->collisionPairs
-	  (pinocchio::COLLISION);
-	for (CollisionPairs_t::const_iterator itPair = colPairs.begin ();
+	se3::GeometryData::CollisionPairsVector_t colPairs = robot->geomData ().collision_pairs;
+  CollisionObjectPtr_t object1, object2;
+	for (se3::GeometryData::CollisionPairsVector_t::const_iterator itPair = colPairs.begin ();
 	     itPair != colPairs.end (); ++itPair) {
+      object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
+              robot_->geomModel ().geometryObjects[itPair->first].parent,
+              itPair->first));
+      object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
+              robot_->geomModel ().geometryObjects[itPair->second].parent,
+              itPair->second));
 	  bodyPairCollisions_.push_back (BodyPairCollision::create
-					 (itPair->first, itPair->second,
+					 (object1->joint (), object2->joint (),
 					  tolerance_));
 	}
       }
