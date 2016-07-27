@@ -24,6 +24,9 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
+
+    typedef std::vector <JointConstPtr_t> JointStdVector_t;
+
       /// \addtogroup path_optimization
       /// \{
 
@@ -91,12 +94,11 @@ namespace hpp {
           PartialShortcut (const Problem& problem);
 
         private:
-          PathVectorPtr_t generatePath (
-              PathVectorPtr_t path, const JointPtr_t joint,
+          PathVectorPtr_t generatePath (PathVectorPtr_t path, JointConstPtr_t joint,
               const value_type t1, ConfigurationIn_t q1,
               const value_type t2, ConfigurationIn_t q2) const;
 
-          JointVector_t generateJointVector (const PathVectorPtr_t& pv) const;
+          JointStdVector_t generateJointVector(const PathVectorPtr_t& pv) const;
 
           /// try direct path on each joint in jvIn.
           /// \param jvIn contains the joints on which optimization should be
@@ -105,14 +107,14 @@ namespace hpp {
           ///        failed.
           /// \return the optimized path
           PathVectorPtr_t optimizeFullPath (const PathVectorPtr_t& pv,
-              const JointVector_t& jvIn, JointVector_t& jvOut) const;
+              const JointStdVector_t &jvIn, JointStdVector_t &jvOut) const;
 
           /// optimize each joint in jvIn.
           /// \param jvIn contains the joints on which optimization should be
           ///        tried
           /// \return the optimized path
           PathVectorPtr_t optimizeRandom (const PathVectorPtr_t& pv,
-              const JointVector_t& jv) const;
+              const JointStdVector_t &jv) const;
       }; // class RandomShortcut
       /// \}
 

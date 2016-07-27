@@ -27,10 +27,10 @@
 // the unit test framework
 // #include <boost/timer.hh>
 
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/object-factory.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/core/problem.hh>
 #include <hpp/core/path.hh>
@@ -39,13 +39,13 @@
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::JointPtr_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
 
-hpp::model::ObjectFactory objectFactory;
+hpp::pinocchio::ObjectFactory objectFactory;
 
 DevicePtr_t createRobot ()
 {

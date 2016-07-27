@@ -53,7 +53,7 @@ namespace hpp {
         static ConfigProjectorPtr_t getConfigProjector
           (const PathPtr_t& before, const PathPtr_t& after, bool& isReverse);
 
-        static bool shouldFilter (const JointPtr_t joint, const size_type iDof);
+        static bool shouldFilter (JointConstPtr_t joint, const size_type iDof);
       };
 
       class HPP_CORE_DLLAPI ConfigOptimization : public PathOptimizer
@@ -85,7 +85,7 @@ namespace hpp {
               ConfigProjectorPtr_t (const PathPtr_t&, const PathPtr_t&, bool&)
               > getConfigProjector;
 
-            boost::function <bool (const JointPtr_t, const size_type)>
+            boost::function <bool ( JointConstPtr_t, const size_type)>
               shouldFilter;
 
             Parameters ();

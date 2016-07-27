@@ -17,8 +17,8 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/connected-component.hh>
@@ -33,7 +33,7 @@
 
 namespace hpp {
   namespace core {
-    using model::displayConfig;
+    using pinocchio::displayConfig;
 
     VisibilityPrmPlannerPtr_t VisibilityPrmPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)

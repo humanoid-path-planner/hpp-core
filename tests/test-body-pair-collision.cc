@@ -22,28 +22,28 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include <hpp/model/object-factory.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/object-factory.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 
 #include "../src/continuous-collision-checking/dichotomy/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
 
 using std::numeric_limits;
-using hpp::model::BodyPtr_t;
-using hpp::model::CollisionObject;
-using hpp::model::CollisionObjectPtr_t;
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::JointPtr_t;
-using hpp::model::JointConstPtr_t;
-using hpp::model::ObjectVector_t;
+using hpp::pinocchio::BodyPtr_t;
+using hpp::pinocchio::CollisionObject;
+using hpp::pinocchio::CollisionObjectPtr_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::JointPtr_t;
+using hpp::pinocchio::JointConstPtr_t;
+using hpp::pinocchio::ObjectVector_t;
 using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollision;
 using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollisionPtr_t;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
-hpp::model::ObjectFactory objectFactory;
+hpp::pinocchio::ObjectFactory objectFactory;
 
 JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
 {

@@ -19,14 +19,14 @@
 #ifndef HPP_CORE_JOINT_BOUND_VALIDATION_HH
 # define HPP_CORE_JOINT_BOUND_VALIDATION_HH
 
-# include <hpp/model/joint.hh>
+# include <hpp/pinocchio/joint.hh>
 # include <hpp/core/config-validation.hh>
 
 namespace hpp {
   namespace core {
     /// \addtogroup validation
     /// \{
-
+/*
     /// Exception thrown when a configuration is not within the bounds
     class HPP_CORE_DLLAPI JointBoundException : public std::runtime_error
     {
@@ -50,12 +50,12 @@ namespace hpp {
       /// configuration value
       value_type value_;
     };
-
-    /// Exception thrown when a configuration is not within the bounds
+*/
+    /// report returned when a configuration is not within the bounds
     class HPP_CORE_DLLAPI JointBoundValidationReport : public ValidationReport
     {
     public:
-      JointBoundValidationReport (const JointPtr_t& joint, size_type rank,
+      JointBoundValidationReport (const JointConstPtr_t& joint, size_type rank,
 				  value_type lowerBound, value_type upperBound,
 				  value_type value) :
 	ValidationReport (),
@@ -73,7 +73,7 @@ namespace hpp {
       }
 
       /// Joint the configuration value is out of bounds
-      JointPtr_t joint_;
+      JointConstPtr_t joint_;
       /// degree of freedom in the joint (usually 0)
       size_type rank_;
       /// lower bound

@@ -21,7 +21,7 @@
 #include <iostream>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/config-validations.hh>
@@ -100,7 +100,8 @@ namespace hpp {
 
     void Problem::collisionObstacles (const ObjectVector_t& collisionObstacles)
     {
-      collisionObstacles_.clear ();
+     // collisionObstacles_.clear (); TODO :
+        collisionObstacles_ = collisionObstacles;
       // pass the local vector of collisions object to the problem
       for (ObjectVector_t::const_iterator itObj = collisionObstacles.begin();
 	   itObj != collisionObstacles.end(); ++itObj) {
@@ -110,10 +111,10 @@ namespace hpp {
 
     // ======================================================================
 
-    void Problem::addObstacle (const CollisionObjectPtr_t& object)
+    void Problem::addObstacle (const CollisionObjectConstPtr_t& object)
     {
       // Add object in local list
-      collisionObstacles_.push_back (object);
+      // collisionObstacles_.push_back (object); TODO
       // Add obstacle to path validation method
       if (pathValidation_) {
 	pathValidation_->addObstacle (object);

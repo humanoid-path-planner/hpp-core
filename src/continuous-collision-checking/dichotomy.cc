@@ -293,11 +293,11 @@ namespace hpp {
 	  throw std::runtime_error ("Dichotomy path validation method does not"
 				    "support penetration.");
 	}
-	typedef model::Device::CollisionPairs_t CollisionPairs_t;
+	typedef pinocchio::Device::CollisionPairs_t CollisionPairs_t;
 	// Build body pairs for collision checking
 	// First auto-collision
 	const CollisionPairs_t& colPairs = robot->collisionPairs
-	  (model::COLLISION);
+	  (pinocchio::COLLISION);
 	for (CollisionPairs_t::const_iterator itPair = colPairs.begin ();
 	     itPair != colPairs.end (); ++itPair) {
 	  bodyPairCollisions_.push_back (BodyPairCollision::create

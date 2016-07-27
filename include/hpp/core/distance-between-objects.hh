@@ -20,6 +20,7 @@
 # define HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH
 
 # include <hpp/core/fwd.hh>
+#include <pinocchio/multibody/geometry.hpp>
 
 namespace hpp {
   namespace core {
@@ -31,7 +32,7 @@ namespace hpp {
       /// Add an obstacle
       /// \param object obstacle to add
       /// Create distance computation pairs for each body of the robot
-      void addObstacle (const CollisionObjectPtr_t& object);
+      void addObstacle (const CollisionObjectConstPtr_t &object);
       /// Add a list of obstacles
       void obstacles (const ObjectVector_t& obstacles);
       /// Compute distances between pairs of objects stored in bodies

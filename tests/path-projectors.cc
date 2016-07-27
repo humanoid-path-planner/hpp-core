@@ -31,10 +31,10 @@
 #define HPP_ENABLE_BENCHMARK 1
 #include <hpp/util/timer.hh>
 
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/object-factory.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 
@@ -47,13 +47,13 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/progressive.hh>
 
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::JointPtr_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
 
-hpp::model::ObjectFactory objectFactory;
+hpp::pinocchio::ObjectFactory objectFactory;
 
 DevicePtr_t createRobot ()
 {

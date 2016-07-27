@@ -22,7 +22,7 @@
 
 # include <boost/any.hpp>
 
-# include <hpp/model/device.hh>
+# include <hpp/pinocchio/device.hh>
 # include <hpp/util/pointer.hh>
 
 # include <hpp/core/config.hh>
@@ -36,8 +36,8 @@ namespace hpp {
 
     /// Defines a path planning problem for one robot.
     /// A path planning problem is defined by
-    /// \li a robot: instance of class hpp::model::Device,
-    /// \li a set of obstacles: a list of hpp::model::CollisionObject,
+    /// \li a robot: instance of class hpp::pinocchio::Device,
+    /// \li a set of obstacles: a list of hpp::pinocchio::CollisionObject,
     /// \li initial and goal configurations,
     /// \li a SteeringMethod to handle the robot dynamics,
     /// Additional objects are stored in this object:
@@ -209,7 +209,7 @@ namespace hpp {
 
       /// Add obstacle to the list.
       /// \param object a new object.
-      void addObstacle (const CollisionObjectPtr_t& object);
+      void addObstacle (const CollisionObjectConstPtr_t &object);
       /// Remove a collision pair between a joint and an obstacle
       /// \param the joint that holds the inner objects,
       /// \param the obstacle to remove.

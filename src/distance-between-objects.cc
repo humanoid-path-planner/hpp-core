@@ -18,30 +18,29 @@
 
 #include <hpp/fcl/distance.h>
 
-#include <hpp/model/collision-object.hh>
-#include <hpp/model/body.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/distance-result.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <pinocchio/multibody/geometry.hpp>
 #include <hpp/core/distance-between-objects.hh>
 
 namespace hpp {
   namespace core {
     void DistanceBetweenObjects::addObstacle
-    (const CollisionObjectPtr_t& object)
+    (const CollisionObjectConstPtr_t &object)
     {
-      using model::DISTANCE;
+      using pinocchio::DISTANCE;
       const JointVector_t& jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
 	   ++it) {
-	JointPtr_t joint = *it;
+    JointConstPtr_t joint = *it;
 	BodyPtr_t body = joint->linkedBody ();
 	if (body) {
-	  const ObjectVector_t& bodyObjects = body->innerObjects (DISTANCE);
+      const ObjectVector_t& bodyObjects = body->innerObjects ();
 	  for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	       itInner != bodyObjects.end (); ++itInner) {
 	    collisionPairs_.push_back (CollisionPair_t (*itInner, object));
-	    distanceResults_.push_back (DistanceResult ());
 	  }
 	}
       }
@@ -57,18 +56,15 @@ namespace hpp {
 
     void DistanceBetweenObjects::computeDistances ()
     {
-      DistanceResults_t::size_type offset = 0;
       fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
       for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
 	   itCol != collisionPairs_.end (); ++itCol) {
-	distanceResults_ [offset].fcl.clear ();
-	const CollisionObjectPtr_t& obj1 = itCol->first;
-	const CollisionObjectPtr_t& obj2 = itCol->second;
-	fcl::distance (obj1->fcl ().get (), obj2->fcl ().get (),
-		       distanceRequest, distanceResults_ [offset].fcl);
-	distanceResults_ [offset].innerObject = obj1;
-	distanceResults_ [offset].outerObject = obj2;
-	++offset;
+    const CollisionObjectConstPtr_t& obj1 = itCol->first;
+    const CollisionObjectConstPtr_t& obj2 = itCol->second;
+    fcl::DistanceResult fclDistance;
+    fcl::distance (obj1->fcl (), obj2->fcl (),
+               distanceRequest, fclDistance);
+    distanceResults_.push_back(DistanceResult(fclDistance,obj1->indexInModel(),obj2->indexInModel()));
       }
     }
 

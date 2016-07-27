@@ -20,9 +20,9 @@
 #include <string>
 #include <boost/bind.hpp>
 
-#include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 
 #include "hpp/core/problem.hh"
 #include "hpp/core/steering-method.hh"

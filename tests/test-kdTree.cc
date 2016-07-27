@@ -24,9 +24,9 @@
 //#include <Eigen/Core>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/weighed-distance.hh>
@@ -34,7 +34,7 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/steering-method-straight.hh>
-#include <hpp/model/joint-configuration.hh>
+#include <hpp/pinocchio/joint-configuration.hh>
 #include "../src/nearest-neighbor/basic.hh"
 #include "../src/nearest-neighbor/k-d-tree.hh"
 
@@ -44,7 +44,7 @@
 
 using namespace hpp;
 using namespace core;
-using namespace model;
+using namespace pinocchio;
 using namespace std;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )

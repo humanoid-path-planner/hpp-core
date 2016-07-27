@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 # define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 
-# include <hpp/model/collision-object.hh>
+# include <hpp/pinocchio/collision-object.hh>
 # include <hpp/core/validation-report.hh>
 # include <hpp/fcl/collision_data.h>
 

@@ -31,7 +31,7 @@ namespace hpp {
     /// Linear interpolation between two configurations
     ///
     /// Degrees of freedom are interpolated depending on the type of
-    /// \link hpp::model::Joint joint \endlink
+    /// \link hpp::pinocchio::Joint joint \endlink
     /// they parameterize:
     ///   \li linear interpolation for translation joints, bounded rotation
     ///       joints, and translation part of freeflyer joints,

@@ -25,28 +25,28 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include <hpp/model/joint.hh>
-#include <hpp/model/collision-object.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/object-factory.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 
-using hpp::model::BodyPtr_t;
-using hpp::model::Body;
-using hpp::model::CollisionObject;
-using hpp::model::CollisionObjectPtr_t;
-using hpp::model::Configuration_t;
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::Transform3f;
-using hpp::model::JointPtr_t;
-using hpp::model::JointTranslation;
-using hpp::model::ObjectFactory;
-using hpp::model::value_type;
+using hpp::pinocchio::BodyPtr_t;
+using hpp::pinocchio::Body;
+using hpp::pinocchio::CollisionObject;
+using hpp::pinocchio::CollisionObjectPtr_t;
+using hpp::pinocchio::Configuration_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::Transform3f;
+using hpp::pinocchio::JointPtr_t;
+using hpp::pinocchio::JointTranslation;
+using hpp::pinocchio::ObjectFactory;
+using hpp::pinocchio::value_type;
 using fcl::Quaternion3f;
 using fcl::Box;
 using hpp::core::ConfigurationPtr_t;

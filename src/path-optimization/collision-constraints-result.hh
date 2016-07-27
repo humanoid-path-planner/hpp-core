@@ -21,17 +21,17 @@
 # define HPP_CORE_PATH_OPTIMIZATION_COLLISION_CONSTRAINTS_RESULT_HH
 
 # include <hpp/fcl/distance.h>
-# include <hpp/model/fcl-to-eigen.hh>
+//# include <hpp/pinocchio/fcl-to-eigen.hh>
 # include <hpp/constraints/generic-transformation.hh>
 
 namespace hpp {
   namespace core {
-    using model::displayConfig;
+    using pinocchio::displayConfig;
     namespace pathOptimization {
       HPP_PREDEF_CLASS (CollisionConstraintsResult);
       HPP_PREDEF_CLASS (CollisionConstraint);
       typedef boost::shared_ptr <CollisionConstraint> CollisionConstraintPtr_t;
-      typedef model::Transform3f Transform3f;
+      typedef pinocchio::Transform3f Transform3f;
       namespace eigen {
 	typedef Eigen::Matrix <value_type, 3, 1> vector3_t;
       } // namespace eigen
@@ -69,7 +69,7 @@ namespace hpp {
 	 fcl::CollisionResult result;
 	 fcl::CollisionRequest collisionRequest (1, true, false, 1, false, true,
 						 fcl::GST_INDEP);
-	 fcl::collide (object1->fcl ().get (), object2->fcl ().get (),
+     fcl::collide (object1->fcl (), object2->fcl (),
 		       collisionRequest, result);
 	 assert (result.numContacts () == 1);
 	 const vector3_t& contactPoint (result.getContact (0).pos);
@@ -81,38 +81,41 @@ namespace hpp {
 	   JointPtr_t joint2 = object2->joint ();
 	   Transform3f M2 (joint2->currentTransformation ());
 	   // Position of contact point in each object local frame
-	   vector3_t x1_J1 = inverse (M1).transform (contactPoint);
-	   vector3_t x2_J2 = inverse (M2).transform (contactPoint);
+       vector3_t x1_J1 = M1.actInv (contactPoint);
+       vector3_t x2_J2 = M2.actInv (contactPoint);
 	   // Compute contact points in configuration qFree
 	   robot_->currentConfiguration (qFree);
 	   robot_->computeForwardKinematics ();
 	   M2 = joint2->currentTransformation ();
 	   M1 = joint1->currentTransformation ();
 	   // Position of x2 in local frame of joint1
-	   vector3_t x2_J1 (inverse (M1).transform (M2.transform (x2_J2)));
+       vector3_t x2_J1 (M1.actInv (M2.act (x2_J2)));
 	   hppDout (info, "x1 in J1 = " << x1_J1);
 	   hppDout (info, "x2 in J1 = " << x2_J1);
-	   eigen::vector3_t u; model::toEigen (x2_J1 - x1_J1, u);
-	   DifferentiableFunctionPtr_t f = constraints::RelativePosition::create
-	     ("", robot_, joint1, joint2, x1_J1, x2_J2);
+       eigen::vector3_t u=x2_J1 - x1_J1;
+       matrix3_t rot;
+       rot.setIdentity();
+       DifferentiableFunctionPtr_t f = constraints::RelativePosition::create
+         ("", robot_, joint1, joint2, Transform3f(rot,x1_J1), Transform3f(rot,x2_J2));
 	   matrix_t Jpos (f->outputSize (), f->inputDerivativeSize ());
 	   f->jacobian (Jpos, qFree);
 	   J_ = u.transpose () * Jpos;
 	   assert (J_.rows () == 1);
 	 } else{ // object2 = fixed obstacle and has no joint
-	   vector3_t x1_J1 (inverse (M1).transform (contactPoint));
-	   vector3_t x2_J2 (contactPoint);
+       vector3_t x1_J1 (M1.actInv(contactPoint));
+       vector3_t x2_J2 (contactPoint);
 	   // Compute contact points in configuration qFree
 	   robot_->currentConfiguration (qFree);
 	   robot_->computeForwardKinematics ();
 	   Transform3f M1 (joint1->currentTransformation ());
 	   // position of x1 in global frame
-	   vector3_t x1_J2 (M1.transform (x1_J1));
+       vector3_t x1_J2 (M1.act (x1_J1));
 	   hppDout (info, "x1 in J2 = " << x1_J2);
-	   eigen::vector3_t u; model::toEigen (x1_J2 - x2_J2, u);
-
+       eigen::vector3_t u=x1_J2 - x2_J2;
+       matrix3_t rot;
+       rot.setIdentity();
 	   DifferentiableFunctionPtr_t f = constraints::Position::create
-	     ("", robot_, joint1, x1_J1, x2_J2);
+         ("", robot_, joint1, Transform3f(rot,x1_J1), Transform3f(rot,x2_J2));
 	   matrix_t Jpos (f->outputSize (), f->inputDerivativeSize ());
 	   f->jacobian (Jpos, qFree);
 	   J_ = u.transpose () * Jpos;
@@ -123,7 +126,7 @@ namespace hpp {
        virtual void impl_compute (vectorOut_t result, vectorIn_t argument)
          const
        {
-         model::difference (robot_, argument, qFree_, difference_);
+         pinocchio::difference (robot_, argument, qFree_, difference_);
          result = J_ * difference_;
        }
        virtual void impl_jacobian (matrixOut_t jacobian, vectorIn_t) const

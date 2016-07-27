@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>

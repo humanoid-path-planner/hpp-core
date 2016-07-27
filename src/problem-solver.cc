@@ -19,7 +19,7 @@
 #include <boost/bind.hpp>
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/collision-object.hh>
+#include <hpp/pinocchio/collision-object.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/bi-rrt-planner.hh>
 #include <hpp/core/problem-solver.hh>
@@ -608,11 +608,11 @@ namespace hpp {
 			}
 
       if (collision){
-	collisionObstacles_.push_back (object);
+    //collisionObstacles_.push_back (object);//TODO
         resetRoadmap ();
       }
       if (distance)
-	distanceObstacles_.push_back (object);
+//	distanceObstacles_.push_back (object);//TODO
       if (problem ())
         problem ()->addObstacle (object);
       if (distanceBetweenObjects_) {

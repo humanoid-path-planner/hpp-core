@@ -17,14 +17,13 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <sstream>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/joint-configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/joint-bound-validation.hh>
 
 namespace hpp {
   namespace core {
-    typedef model::JointConfiguration* JointConfigurationPtr_t;
+    typedef pinocchio::JointConfiguration* JointConfigurationPtr_t;
     JointBoundValidationPtr_t JointBoundValidation::create
     (const DevicePtr_t& robot)
     {
@@ -39,16 +38,13 @@ namespace hpp {
       for (JointVector_t::const_iterator itJoint = jv.begin ();
 	   itJoint != jv.end (); ++itJoint) {
 	size_type index = (*itJoint)->rankInConfiguration ();
-	JointConfigurationPtr_t jc = (*itJoint)->configuration ();
 	for (size_type i=0; i < (*itJoint)->configSize (); ++i) {
-	  if (jc->isBounded (i)) {
-	    value_type lower = jc->lowerBound (i);
-	    value_type upper = jc->upperBound (i);
+      if ((*itJoint)->isBounded (i)) {
+        value_type lower = (*itJoint)->lowerBound (i);
+        value_type upper = (*itJoint)->upperBound (i);
 	    value_type value = config [index + i];
 	    if (value < lower || upper < value) {
-	      JointBoundValidationReportPtr_t report
-		(new JointBoundValidationReport (*itJoint, i, lower, upper,
-						 value));
+          JointBoundValidationReportPtr_t report(new JointBoundValidationReport (*itJoint, i, lower, upper, value));
 	      validationReport = report;
 	      return false;
 	    }
