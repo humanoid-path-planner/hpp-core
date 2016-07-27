@@ -16,13 +16,18 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/weighed-distance.hh>
+
 #include <limits>
+
+#include <Eigen/SVD>
+
+#include <pinocchio/algorithm/jacobian.hpp>
+
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/core/weighed-distance.hh>
-#include <Eigen/SVD>
 
 namespace hpp {
   namespace core {
@@ -88,6 +93,9 @@ namespace hpp {
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
       robot_ (robot), weights_ ()
     {
+      typedef Eigen::Matrix<value_type, 3, Eigen::Dynamic> BlockType;
+      typedef Eigen::JacobiSVD<BlockType> SVD_t;
+
       // Store computation flag
       Device_t::Computation_t flag = robot->computationFlag ();
       Device_t::Computation_t newflag = static_cast <Device_t::Computation_t>
@@ -96,38 +104,39 @@ namespace hpp {
       robot->computeForwardKinematics ();
       robot->controlComputation (flag);
       value_type minLength = std::numeric_limits <value_type>::infinity ();
-      matrix_t jacobian; jacobian.resize (3, robot->numberDof ());
+
+      JointJacobian_t jacobian(3, robot->numberDof());
       const JointVector_t jointVector (robot->getJointVector ());
-      for (JointVector_t::const_iterator it1 = jointVector.begin ();
-	   it1 != jointVector.end (); ++it1) {
-	if ((*it1)->numberDof () != 0) {
+      const se3::Model& model = robot->model();
+      const se3::Data& data = robot->model();
+      for (se3::JointIndex i = 1; i < model.joints.size(); ++i)
+      {
 	  value_type length = 0;
-	  std::size_t rank = (*it1)->rankInVelocity ();
-	  std::size_t ncol = (*it1)->numberDof ();
-	  matrix_t jointJacobian;
-	  for (hpp::pinocchio::ChildrenIterator it2 (*it1); !it2.end (); ++it2){
-	    //if ((*it2)->numberDof () != 0) { // allow anchors
+	  std::size_t rank = model.joints[i].idx_v();
+	  std::size_t ncol = model.joints[i].nv();
+          BlockType block;
+          for (se3::JointIndex j = i; j <= (se3::JointIndex)data.lastChild[i]; ++j)
+          {
 	    // Get only three first lines of Jacobian
-	    jointJacobian = (*it2)->jacobian ().block (0, rank, 3, ncol);
-	    Eigen::JacobiSVD <matrix_t> svd (jointJacobian);
+            se3::getJacobian<true>(model, data, j, jacobian);
+            block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(0, rank, 3, ncol);
+	    SVD_t svd (block);
 	    if (length < svd.singularValues () [0]) {
 	      length = svd.singularValues () [0];
 	    }
-	    if (BodyPtr_t body = (*it2)->linkedBody ()) {
-	      value_type radius = body->radius ();
-	      jointJacobian = (*it2)->jacobian ().block (3, rank, 3, ncol);
-	      Eigen::JacobiSVD <matrix_t> svd (jointJacobian);
-	      if (length < radius*svd.singularValues () [0]) {
-		length = radius*svd.singularValues () [0];
-	      }
-	    }
+            Body body (robot, j);
+            value_type radius = body.radius();
+            block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(3, rank, 3, ncol);
+            svd.compute(block);
+            if (length < radius*svd.singularValues () [0]) {
+              length = radius*svd.singularValues () [0];
+            }
 	  }
 	  if (minLength > length && length > 0) minLength = length;
 	  weights_.push_back (length);
-	}
-	for (std::size_t i=0; i < weights_.size (); ++i) {
-	  if (weights_ [i] == 0) {
-	    weights_ [i] = minLength;
+	for (std::size_t k=0; k < weights_.size (); ++k) {
+	  if (weights_ [k] == 0) {
+	    weights_ [k] = minLength;
 	  }
 	}
       }
