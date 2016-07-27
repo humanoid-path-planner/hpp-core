@@ -68,14 +68,14 @@ SET(${LIBRARY_NAME}_SOURCES
   parser/roadmap-factory.cc #
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
-  reeds-shepp-path.cc # TODO : access type of joint (planar + rot z)
+  reeds-shepp-path.cc # TODO : update check of joint types
   relative-motion.cc #
   random-shortcut.cc #
   roadmap.cc #
   steering-method/reeds-shepp.cc #
   straight-path.cc #
   visibility-prm-planner.cc #
-  weighed-distance.cc # TODO children iterator
+  weighed-distance.cc #
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
