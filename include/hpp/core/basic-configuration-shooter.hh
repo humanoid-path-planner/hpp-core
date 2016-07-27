@@ -51,7 +51,7 @@ namespace hpp {
 	  std::size_t rank = (*itJoint)->rankInConfiguration ();
       (*itJoint)->jointModel().uniformlySample (rank, *config);
     }*/
-    config = se3::randomConfiguration(*robot_->model());
+    config = se3::randomConfiguration(robot_->model());
 	// Shoot extra configuration variables
 	size_type extraDim = robot_->extraConfigSpace ().dimension ();
 	size_type offset = robot_->configSize () - extraDim;
