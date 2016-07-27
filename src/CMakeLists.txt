@@ -36,13 +36,13 @@ SET(${LIBRARY_NAME}_SOURCES
   diffusing-planner.cc # 
   discretized-collision-checking.cc # 
   discretized-path-validation.cc # 
-  distance-between-objects.cc #
+  distance-between-objects.cc # TODO switch to GeomData (copy from Device::geomData_, empty the collision pair list and add them as you did)
   explicit-numerical-constraint.cc #
   extracted-path.hh #
   equation.cc #
   interpolated-path.cc #
   joint-bound-validation.cc # see TODO in file
-  locked-joint.cc #
+  locked-joint.cc # TODO Partial locked joints may be double checked later
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
   nearest-neighbor/k-d-tree.cc #
@@ -51,7 +51,7 @@ SET(${LIBRARY_NAME}_SOURCES
   node.cc #
   path.cc #
   path-optimizer.cc #
-  path-optimization/collision-constraints-result.hh #
+  path-optimization/collision-constraints-result.hh # eigen::vector3_t => vector3_t
   path-optimization/path-length.cc #
   path-optimization/gradient-based.cc #
   path-optimization/partial-shortcut.cc #
@@ -65,11 +65,11 @@ SET(${LIBRARY_NAME}_SOURCES
   path-projector/dichotomy.cc #
   path-projector/global.cc #
   path-projector.cc #
-  parser/roadmap-factory.cc #
+  parser/roadmap-factory.cc # TODO has to be revised as, so far, the XML parser is not available.
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
   reeds-shepp-path.cc # TODO : update check of joint types
-  relative-motion.cc #
+  relative-motion.cc # TODO getNonAnchorParent can probably be removed.
   random-shortcut.cc #
   roadmap.cc #
   steering-method/reeds-shepp.cc #
