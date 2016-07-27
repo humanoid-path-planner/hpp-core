@@ -37,19 +37,18 @@ namespace hpp {
       const JointVector_t jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator itJoint = jv.begin ();
 	   itJoint != jv.end (); ++itJoint) {
-	size_type index = (*itJoint)->rankInConfiguration ();
-	for (size_type i=0; i < (*itJoint)->configSize (); ++i) {
-      if ((*itJoint)->isBounded (i)) {
-        value_type lower = (*itJoint)->lowerBound (i);
-        value_type upper = (*itJoint)->upperBound (i);
-	    value_type value = config [index + i];
-	    if (value < lower || upper < value) {
-          JointBoundValidationReportPtr_t report(new JointBoundValidationReport (*itJoint, i, lower, upper, value));
-	      validationReport = report;
-	      return false;
-	    }
-	  }
-	}
+        size_type index = (*itJoint)->rankInConfiguration ();
+        for (size_type i=0; i < (*itJoint)->configSize (); ++i) {
+          // To be checked but joints are now always bounded (with infinite bounds when not bounded).
+          value_type lower = (*itJoint)->lowerBound (i);
+          value_type upper = (*itJoint)->upperBound (i);
+          value_type value = config [index + i];
+          if (value < lower || upper < value) {
+            JointBoundValidationReportPtr_t report(new JointBoundValidationReport (*itJoint, i, lower, upper, value));
+            validationReport = report;
+            return false;
+          }
+        }
       }
       const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace();
       // Check the extra config space

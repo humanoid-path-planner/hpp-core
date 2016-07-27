@@ -41,7 +41,7 @@ SET(${LIBRARY_NAME}_SOURCES
   extracted-path.hh #
   equation.cc #
   interpolated-path.cc #
-  joint-bound-validation.cc #
+  joint-bound-validation.cc # see TODO in file
   locked-joint.cc #
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
