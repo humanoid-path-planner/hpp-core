@@ -71,10 +71,10 @@ namespace hpp {
        if (collision) {
           CollisionValidationReportPtr_t report (new CollisionValidationReport);
           report->object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-                      robot_->geomModel ()->geometryObjects[_col->first].parent,
+                      robot_->geomModel ().geometryObjects[_col->first].parent,
                       _col->first));
           report->object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-                      robot_->geomModel ()->geometryObjects[_col->second].parent,
+                      robot_->geomModel ().geometryObjects[_col->second].parent,
                       _col->second));
           report->result = collisionResult;
           validationReport = report;
@@ -140,13 +140,13 @@ namespace hpp {
       se3::GeometryObject::JointIndex i1, i2;
       fcl::CollisionResult res;
       while (_colPair != geomData_->collision_pairs.end ()) {
-        i1 = robot_->geomModel ()->geometryObjects[_colPair->first].parent;
-        i2 = robot_->geomModel ()->geometryObjects[_colPair->second].parent;
+        i1 = robot_->geomModel ().geometryObjects[_colPair->first].parent;
+        i2 = robot_->geomModel ().geometryObjects[_colPair->second].parent;
         switch (matrix(i1, i2)) {
           case RelativeMotion::Parameterized:
               hppDout(info, "Parameterized collision pairs between "
-                  << robot_->geomModel ()->getGeometryName(_colPair->first) << " and "
-                  << robot_->geomModel ()->getGeometryName(_colPair->second));
+                  << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
+                  << robot_->geomModel ().getGeometryName(_colPair->second));
               parameterizedPairs_.push_back (*_colPair);
               geomData_->removeCollisionPair (_colPair->first,
                       _colPair->second);
@@ -154,8 +154,8 @@ namespace hpp {
               break;
           case RelativeMotion::Constrained:
               hppDout(info, "Disabling collision between "
-                  << robot_->geomModel ()->getGeometryName(_colPair->first) << " and "
-                  << robot_->geomModel ()->getGeometryName(_colPair->second));
+                  << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
+                  << robot_->geomModel ().getGeometryName(_colPair->second));
               res = geomData_->computeCollision (_colPair->first, _colPair->second).fcl_collision_result;
               if (res.isCollision ()) {
                 hppDout(warning, "Disabling collision detection between two "
