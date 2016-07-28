@@ -71,18 +71,18 @@ DevicePtr_t createRobot ()
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
   JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position(-4);
-  JointModelPX::ConfigVector_t upper_position(4);
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
 
   JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
 
   JointModelPY::TangentVector_t max_effortY = JointModelPY::TangentVector_t::Constant(JointModelPY::NV,std::numeric_limits<double>::max());
   JointModelPY::TangentVector_t max_velocityY = JointModelPY::TangentVector_t::Constant(JointModelPY::NV,std::numeric_limits<double>::max());
-  JointModelPY::ConfigVector_t lower_positionY(-4);
-  JointModelPY::ConfigVector_t upper_positionY(4);
+  JointModelPY::ConfigVector_t lower_positionY = JointModelPY::ConfigVector_t::Constant(-4);
+  JointModelPY::ConfigVector_t upper_positionY = JointModelPY::ConfigVector_t::Constant(4);
   std::string jointNameY = name + "_y";
 
-  robot->model().addJoint(idX,JointModelRY(), mat,jointNameY,max_effortY,max_velocityY,lower_positionY,upper_positionY);
+  robot->model().addJoint(idX,JointModelPY(), mat,jointNameY,max_effortY,max_velocityY,lower_positionY,upper_positionY);
 
 
   return robot;

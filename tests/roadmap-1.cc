@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
   JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position(-3);
-  JointModelPX::ConfigVector_t upper_position(3);
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
 
   JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
   robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
@@ -328,10 +328,10 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   const std::string& name = robot->name ();
   Transform3f mat; mat.setIdentity ();
 
-  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::ConfigVector_t lower_position(-3);
-  JointModelRX::ConfigVector_t upper_position(3);
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
 
 
   JointIndex idJoint = robot->model().addJoint(0,::se3::JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);

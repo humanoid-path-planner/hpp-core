@@ -73,7 +73,7 @@ namespace hpp {
 	  /// \param tolerance allowed penetration should be positive
 	  /// \pre objects_b should not be attached to a joint
 	  static BodyPairCollisionPtr_t create (const JointConstPtr_t& joint_a,
-						const std::vector<CollisionObjectPtr_t>& objects_b,
+            const std::vector<CollisionObjectPtr_t>& objects_b,
 						value_type tolerance)
 	  {
 	    BodyPairCollisionPtr_t shPtr (new BodyPairCollision

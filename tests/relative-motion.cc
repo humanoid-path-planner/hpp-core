@@ -77,8 +77,8 @@ DevicePtr_t createRobot ()
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
   JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position(-4);
-  JointModelPX::ConfigVector_t upper_position(4);
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
 
   JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
 

@@ -100,8 +100,8 @@ DevicePtr_t createRobot2 ()
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
   JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position(-4);
-  JointModelPX::ConfigVector_t upper_position(4);
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
   JointIndex idJoint = 0;
 
   for(int i = 0 ; i < 10 ; ++i){
