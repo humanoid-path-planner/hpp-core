@@ -34,7 +34,7 @@ namespace hpp {
       /// Create distance computation pairs for each body of the robot
       void addObstacle (const CollisionObjectConstPtr_t &object);
       /// Add a list of obstacles
-      void obstacles (const ObjectVector_t& obstacles);
+      void obstacles (const ObjectStdVector_t &obstacles);
       /// Compute distances between pairs of objects stored in bodies
       void computeDistances ();
       /// Get result of distance computations

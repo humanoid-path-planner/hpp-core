@@ -15,11 +15,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
 
-SET(BOOST_COMPONENTS system timer unit_test_framework)
-SEARCH_FOR_BOOST()
+
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
+
+# Make Boost.Test generates the main function in test cases.
+ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
+
+# Specify the tests data files directory.
+ADD_DEFINITIONS(-DTEST_DIRECTORY="${CMAKE_SOURCE_DIR}/tests/data")
+
+
 
 # Make Boost.Test generates the main function in test cases.
 #ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
@@ -42,7 +49,8 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-util)
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model)
-
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model-urdf)
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-pinocchio)
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}
     ${Boost_LIBRARIES} hpp-core
@@ -53,10 +61,10 @@ ENDMACRO(ADD_TESTCASE)
 ADD_TESTCASE (test-kdTree FALSE)
 ADD_TESTCASE (roadmap-1 FALSE)
 ADD_TESTCASE (test-intervals FALSE)
-ADD_TESTCASE (test-body-pair-collision FALSE)
+#ADD_TESTCASE (test-body-pair-collision FALSE)
 ADD_TESTCASE (test-gradient-based FALSE)
 ADD_TESTCASE (test-configprojector FALSE)
-ADD_TESTCASE (path-projectors FALSE)
+ADD_TESTCASE (path-projectors FALSE) # link error
 ADD_TESTCASE (containers FALSE)
 ADD_TESTCASE (paths FALSE)
 ADD_TESTCASE (relative-motion FALSE)

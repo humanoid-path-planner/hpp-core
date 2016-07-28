@@ -26,16 +26,21 @@
 // because the original timers are already included by
 // the unit test framework
 // #include <boost/timer.hh>
+#include <hpp/model/device.hh>
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/object-factory.hh>
 
 #include <hpp/core/problem.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/subchain-path.hh>
+#include <pinocchio/multibody/joint/joint-variant.hpp>
+
+
+#include "../tests/utils.hh"
+
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
@@ -44,12 +49,29 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
-
-hpp::pinocchio::ObjectFactory objectFactory;
+using ::se3::JointModelRX;
+using ::se3::JointModelRY;
+using ::se3::JointIndex;
 
 DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+  std::string jointName = name + "_x";
+
+  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::ConfigVector_t lower_position(-4);
+  JointModelRX::ConfigVector_t upper_position(4);
+
+  robot->model().addJoint(0,::se3::JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+
+  return robot;
+
+
+
+  /* DevicePtr_t robot = Device::create ("test");
 
   const std::string& name = robot->name ();
   fcl::Transform3f mat; mat.setIdentity ();
@@ -65,12 +87,28 @@ DevicePtr_t createRobot ()
   joint->upperBound (0, +4);
 
   robot->rootJoint (joint);
-  return robot;
+  return robot;*/
 }
 
 DevicePtr_t createRobot2 ()
 {
   DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+  std::string jointName = name + "_x";
+
+  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::ConfigVector_t lower_position(-4);
+  JointModelRX::ConfigVector_t upper_position(4);
+  JointIndex idJoint = 0;
+
+  for(int i = 0 ; i < 10 ; ++i){
+    idJoint = robot->model().addJoint(idJoint,::se3::JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+  }
+
+  return robot;
+  /*DevicePtr_t robot = Device::create ("test");
 
   const std::string& name = robot->name ();
   fcl::Transform3f mat; mat.setIdentity ();
@@ -90,7 +128,7 @@ DevicePtr_t createRobot2 ()
     parentJoint = joint;
   }
 
-  return robot;
+  return robot;*/
 }
 
 typedef std::pair<value_type, value_type> Pair_t;
@@ -120,7 +158,7 @@ void checkAt(const PathPtr_t orig, value_type to,
 
 BOOST_AUTO_TEST_CASE (extracted)
 {
-  DevicePtr_t dev = createRobot ();
+  DevicePtr_t dev = hppPinocchio ();
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
@@ -148,7 +186,7 @@ BOOST_AUTO_TEST_CASE (extracted)
 
 BOOST_AUTO_TEST_CASE (subchain)
 {
-  DevicePtr_t dev = createRobot2 (); // 10 translations
+  DevicePtr_t dev = hppPinocchio (); // 10 translations
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 

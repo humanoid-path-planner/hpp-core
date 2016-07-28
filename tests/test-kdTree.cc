@@ -24,6 +24,9 @@
 //#include <Eigen/Core>
 
 #include <hpp/util/debug.hh>
+
+#include <hpp/model/device.hh>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -34,13 +37,15 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/steering-method-straight.hh>
-#include <hpp/pinocchio/joint-configuration.hh>
 #include "../src/nearest-neighbor/basic.hh"
 #include "../src/nearest-neighbor/k-d-tree.hh"
 
 
 #define BOOST_TEST_MODULE kdTree
 #include <boost/test/included/unit_test.hpp>
+
+#include "../tests/utils.hh"
+
 
 using namespace hpp;
 using namespace core;
@@ -51,7 +56,7 @@ BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
 BOOST_AUTO_TEST_CASE (kdTree) {
   // Build Device
-  DevicePtr_t robot = Device::create("robot");
+ /* DevicePtr_t robot = Device::create("robot");
   JointPtr_t transJoint = new JointTranslation <3> (Transform3f());
   transJoint->isBounded (0, true);
   transJoint->lowerBound(0,-3.);
@@ -68,6 +73,8 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   robot->rootJoint(transJoint);
   transJoint->addChildJoint (so3Joint);
   so3Joint->addChildJoint (so2Joint);
+*/
+  DevicePtr_t robot = hppPinocchio();
 
   // Build Distance, nearestNeighbor, KDTree
   Problem problem (robot);

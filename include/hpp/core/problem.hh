@@ -209,7 +209,7 @@ namespace hpp {
 
       /// Add obstacle to the list.
       /// \param object a new object.
-      void addObstacle (const CollisionObjectConstPtr_t &object);
+      void addObstacle (const CollisionObjectPtr_t &object);
       /// Remove a collision pair between a joint and an obstacle
       /// \param the joint that holds the inner objects,
       /// \param the obstacle to remove.
@@ -236,9 +236,9 @@ namespace hpp {
       void filterCollisionPairs ();
 
       /// Vector of objects considered for collision detection
-      const ObjectVector_t& collisionObstacles () const;
+      const ObjectStdVector_t &collisionObstacles() const;
       /// Set the vector of objects considered for collision detection
-      void collisionObstacles (const ObjectVector_t& collisionObstacles);
+      void collisionObstacles (const ObjectStdVector_t &collisionObstacles);
       /// \}
 
       /// Get a parameter named name.
@@ -293,7 +293,7 @@ namespace hpp {
       /// Path projector
       PathProjectorPtr_t pathProjector_;
       /// List of obstacles
-      ObjectVector_t collisionObstacles_;
+      ObjectStdVector_t collisionObstacles_;
       /// Set of constraints applicable to the robot
       ConstraintSetPtr_t constraints_;
       /// Configuration shooter

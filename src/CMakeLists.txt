@@ -33,16 +33,16 @@ continuous-collision-checking/dichotomy.cc
 continuous-collision-checking/dichotomy/body-pair-collision.hh
 continuous-collision-checking/progressive.cc
 continuous-collision-checking/progressive/body-pair-collision.hh
-diffusing-planner.cc
-discretized-collision-checking.cc
-discretized-path-validation.cc
-distance-between-objects.cc
-explicit-numerical-constraint.cc
-extracted-path.hh
-equation.cc
-interpolated-path.cc
-joint-bound-validation.cc
-locked-joint.cc
+#diffusing-planner.cc
+#discretized-collision-checking.cc
+#discretized-path-validation.cc
+#distance-between-objects.cc
+#explicit-numerical-constraint.cc
+#extracted-path.hh
+#equation.cc
+#interpolated-path.cc
+#joint-bound-validation.cc
+#locked-joint.cc
 ##########################"
 #  nearest-neighbor/basic.hh #
 #  nearest-neighbor/basic.cc #
@@ -90,5 +90,6 @@ PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-util)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-statistics)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-constraints)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-model)
+
 
 INSTALL(TARGETS ${LIBRARY_NAME} DESTINATION lib)

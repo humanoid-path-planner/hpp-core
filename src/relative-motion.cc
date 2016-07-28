@@ -48,7 +48,7 @@ namespace hpp {
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
     {
       assert (dev);
-      const size_type N = dev->numberDof () + 1;
+      const size_type N = dev->model().joints.size();
       matrix_type matrix (N, N);
       matrix.setConstant (Unconstrained);
       matrix.diagonal().setConstant(Constrained);
@@ -64,7 +64,7 @@ namespace hpp {
       assert (robot);
       assert (c);
 
-      const size_type N = robot->numberDof () + 1;
+      const size_type N = robot->model().joints.size();
       if (matrix.rows() != N || matrix.cols() != N)
         throw std::invalid_argument ("Wrong RelativeMotion::matrix_type size");
 
@@ -150,16 +150,6 @@ namespace hpp {
           symSet (matrix, i0, i3, t);
         }
       }
-    }
-
-    size_type RelativeMotion::idx(const JointConstPtr_t& joint)
-    {
-      if (joint == NULL) return 0;
-      if (joint->numberDof() == 0) {
-        const JointConstPtr_t j = getNonAnchorParent(joint);
-        return (j == NULL ? 0 : j->rankInVelocity() + 1);
-      }
-      return joint->rankInVelocity() + 1;
     }
   } // namespace core
 } // namespace hpp

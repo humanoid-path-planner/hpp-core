@@ -121,9 +121,11 @@ ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-statistics")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
+ADD_REQUIRED_DEPENDENCY("hpp-model-urdf >= 3")
+
 
 ADD_SUBDIRECTORY(src)
-#ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-core library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")

@@ -109,15 +109,13 @@ namespace hpp {
         std::size_t rkCfg = joint->rankInConfiguration ();
         std::size_t szCfg = joint->configSize();
         Configuration_t qi = q1;
-        Configuration_t qTmp(path->outputSize ());
         Configuration_t q_inter (path->outputSize ());
         value_type t = - lt1;
         for (std::size_t i = rkAtP1; i < rkAtP2; ++i) {
           t += path->pathAtRank (i)->timeRange().second;
           q_inter = path->pathAtRank (i)->end (),
-          qTmp = joint->jointModel().interpolate ( q1, q2,
+          q_inter.segment(rkCfg,szCfg) = joint->jointModel().interpolate ( q1, q2,
               t / (t2-t1));
-          q_inter.segment(rkCfg,szCfg) = qTmp.segment(rkCfg,szCfg);
           if (path->pathAtRank (i)->constraints ()) {
             if (!path->pathAtRank (i)->constraints ()->apply (q_inter)) {
               hppDout (warning, "PartialShortcut could not apply "

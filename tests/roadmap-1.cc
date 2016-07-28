@@ -18,6 +18,8 @@
 
 #include <boost/assign.hpp>
 
+#include <hpp/model/device.hh>
+
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
@@ -29,20 +31,21 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/nearest-neighbor.hh>
-#include <hpp/pinocchio/joint-configuration.hh>
 
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
 
+
+
 #define BOOST_TEST_MODULE roadmap-1
 #include <boost/test/included/unit_test.hpp>
+#include "../tests/utils.hh"
 
 using hpp::pinocchio::Configuration_t;
 using hpp::core::ConfigurationPtr_t;
 using hpp::pinocchio::JointPtr_t;
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
-using hpp::pinocchio::JointTranslation;
 using hpp::core::Problem;
 using hpp::core::SteeringMethodStraight;
 using hpp::core::SteeringMethodStraightPtr_t;
@@ -64,7 +67,7 @@ void addEdge (const hpp::core::RoadmapPtr_t& r,
 
 BOOST_AUTO_TEST_CASE (Roadmap1) {
   // Build robot
-  DevicePtr_t robot = Device::create("robot");
+ /* DevicePtr_t robot = Device::create("robot");
   JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
   xJoint->isBounded(0,1);
   xJoint->lowerBound(0,-3.);
@@ -77,12 +80,13 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 
   robot->rootJoint (xJoint);
   xJoint->addChildJoint (yJoint);
-
+*/
+  DevicePtr_t robot = hppPinocchio();
   // Create steering method
   Problem p = Problem (robot);
   SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
   // create roadmap
-  hpp::core::DistancePtr_t distance (WeighedDistance::create
+  hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
   RoadmapPtr_t r = Roadmap::create (distance, robot);
 
@@ -288,8 +292,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 
 BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   // Build robot
-  DevicePtr_t robot = Device::create("robot");
-  JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
+  DevicePtr_t robot = hppPinocchio();
+  /*JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
   xJoint->isBounded(0,1);
   xJoint->lowerBound(0,-3.);
   xJoint->upperBound(0,3.);
@@ -300,13 +304,13 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   yJoint->upperBound(0,3.);
 
   robot->rootJoint (xJoint);
-  xJoint->addChildJoint (yJoint);
+  xJoint->addChildJoint (yJoint);*/
 
   // Create steering method
   Problem p (robot);
   SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
   // create roadmap
-  hpp::core::DistancePtr_t distance (WeighedDistance::create
+  hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
   RoadmapPtr_t r = Roadmap::create (distance, robot);
 

@@ -539,8 +539,8 @@ namespace hpp {
       ///        for this object.
       /// \param distance whether distance computation should be performed
       ///        for this object.
-      virtual void addObstacle (const CollisionObjectPtr_t& inObject, bool collision,
-			bool distance);
+      virtual void addObstacle (const CollisionObjectPtr_t &inObject, bool collision,
+            bool distance);
 
       /// Remove collision pair between a joint and an obstacle
       /// \param jointName name of the joint,
@@ -572,9 +572,9 @@ namespace hpp {
       /// \}
 
       /// Local vector of objects considered for collision detection
-      const ObjectVector_t& collisionObstacles () const;
+      const ObjectStdVector_t& collisionObstacles () const;
       /// Local vector of objects considered for distance computation
-      const ObjectVector_t& distanceObstacles () const;
+      const ObjectStdVector_t& distanceObstacles () const;
 
       /// Set the roadmap
       void roadmap (const RoadmapPtr_t& roadmap)
@@ -660,8 +660,8 @@ namespace hpp {
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
       /// Store obstacles until call to solve.
-      ObjectVector_t collisionObstacles_;
-      ObjectVector_t distanceObstacles_;
+      ObjectStdVector_t collisionObstacles_;
+      ObjectStdVector_t distanceObstacles_;
       /// Map of obstacles by names
       std::map <std::string, CollisionObjectPtr_t> obstacleMap_;
       // Tolerance for numerical constraint resolution

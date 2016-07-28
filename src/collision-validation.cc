@@ -176,7 +176,7 @@ namespace hpp {
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
       robot_ (robot),
-      geomData_ (robot->geomData ()),
+      geomData_ (robot->geomDataPtr()),
       parameterizedPairs_(), disabledPairs_(),
       checkParameterized_(false)
           {}

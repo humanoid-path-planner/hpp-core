@@ -46,9 +46,9 @@ namespace hpp {
       }
     }
 
-    void DistanceBetweenObjects::obstacles (const ObjectVector_t& obstacles)
+    void DistanceBetweenObjects::obstacles (const ObjectStdVector_t& obstacles)
     {
-      for (ObjectVector_t::const_iterator itObj = obstacles.begin ();
+      for (ObjectStdVector_t::const_iterator itObj = obstacles.begin ();
 	   itObj != obstacles.end (); ++itObj) {
 	addObstacle (*itObj);
       }
