@@ -62,7 +62,7 @@ ENDMACRO(ADD_TESTCASE)
 ADD_TESTCASE (roadmap-1 FALSE)
 #ADD_TESTCASE (test-intervals FALSE)
 #ADD_TESTCASE (test-body-pair-collision FALSE)
-#ADD_TESTCASE (test-gradient-based FALSE)
+ADD_TESTCASE (test-gradient-based FALSE)
 ADD_TESTCASE (test-configprojector FALSE)
 ADD_TESTCASE (path-projectors FALSE) # link error
 ADD_TESTCASE (containers FALSE)
