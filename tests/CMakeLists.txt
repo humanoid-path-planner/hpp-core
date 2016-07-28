@@ -58,13 +58,13 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
 ENDMACRO(ADD_TESTCASE)
 
-#ADD_TESTCASE (test-kdTree FALSE)
-#ADD_TESTCASE (roadmap-1 FALSE)
+ADD_TESTCASE (test-kdTree FALSE)
+ADD_TESTCASE (roadmap-1 FALSE)
 ADD_TESTCASE (test-intervals FALSE)
 #ADD_TESTCASE (test-body-pair-collision FALSE)
-#ADD_TESTCASE (test-gradient-based FALSE)
-#ADD_TESTCASE (test-configprojector FALSE)
-#ADD_TESTCASE (path-projectors FALSE) # link error
+ADD_TESTCASE (test-gradient-based FALSE)
+ADD_TESTCASE (test-configprojector FALSE)
+ADD_TESTCASE (path-projectors FALSE) # link error
 ADD_TESTCASE (containers FALSE)
-#ADD_TESTCASE (paths FALSE)
-#ADD_TESTCASE (relative-motion FALSE)
+ADD_TESTCASE (paths FALSE)
+ADD_TESTCASE (relative-motion FALSE)

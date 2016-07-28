@@ -20,8 +20,8 @@
 SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
-  problem.cc # TODO : addObstacle
-  problem-solver.cc # TODO : addObstacle
+  problem.cc #
+  problem-solver.cc #
   astar.hh
   bi-rrt-planner.cc
   collision-validation.cc
@@ -53,7 +53,7 @@ SET(${LIBRARY_NAME}_SOURCES
   node.cc #
   path.cc #
   path-optimizer.cc #
-  path-optimization/collision-constraints-result.hh # eigen::vector3_t => vector3_t
+  path-optimization/collision-constraints-result.hh # TODO eigen::vector3_t => vector3_t
   path-optimization/path-length.cc #
   path-optimization/gradient-based.cc #
   path-optimization/partial-shortcut.cc #

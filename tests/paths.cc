@@ -36,6 +36,8 @@
 #include <hpp/core/path.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/subchain-path.hh>
+#include <pinocchio/multibody/joint/joint-variant.hpp>
+
 
 #include "../tests/utils.hh"
 
@@ -47,11 +49,29 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
+using ::se3::JointModelRX;
+using ::se3::JointModelRY;
+using ::se3::JointIndex;
 
-
-/*DevicePtr_t createRobot ()
+DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+  std::string jointName = name + "_x";
+
+  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::ConfigVector_t lower_position(-4);
+  JointModelRX::ConfigVector_t upper_position(4);
+
+  robot->model().addJoint(0,::se3::JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+
+  return robot;
+
+
+
+  /* DevicePtr_t robot = Device::create ("test");
 
   const std::string& name = robot->name ();
   fcl::Transform3f mat; mat.setIdentity ();
@@ -67,12 +87,28 @@ using namespace hpp::core;
   joint->upperBound (0, +4);
 
   robot->rootJoint (joint);
-  return robot;
-}*/
+  return robot;*/
+}
 
-/*DevicePtr_t createRobot2 ()
+DevicePtr_t createRobot2 ()
 {
   DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+  std::string jointName = name + "_x";
+
+  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::ConfigVector_t lower_position(-4);
+  JointModelRX::ConfigVector_t upper_position(4);
+  JointIndex idJoint = 0;
+
+  for(int i = 0 ; i < 10 ; ++i){
+    idJoint = robot->model().addJoint(idJoint,::se3::JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+  }
+
+  return robot;
+  /*DevicePtr_t robot = Device::create ("test");
 
   const std::string& name = robot->name ();
   fcl::Transform3f mat; mat.setIdentity ();
@@ -92,8 +128,8 @@ using namespace hpp::core;
     parentJoint = joint;
   }
 
-  return robot;
-}*/
+  return robot;*/
+}
 
 typedef std::pair<value_type, value_type> Pair_t;
 

@@ -49,6 +49,7 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include "../tests/utils.hh"
+#include <pinocchio/multibody/joint/joint-variant.hpp>
 
 
 using hpp::pinocchio::Device;
@@ -56,16 +57,35 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
+using ::se3::JointModelRX;
+using ::se3::JointModelRY;
+using ::se3::JointIndex;
 
-/*
 DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
-
   const std::string& name = robot->name ();
   Transform3f mat; mat.setIdentity ();
-  JointPtr_t joint;
   std::string jointName = name + "_x";
+
+  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
+  JointModelRX::ConfigVector_t lower_position(-4);
+  JointModelRX::ConfigVector_t upper_position(4);
+
+  JointIndex idX = robot->model().addJoint(0,::se3::JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+
+  JointModelRY::TangentVector_t max_effortY = JointModelRY::TangentVector_t::Constant(JointModelRY::NV,std::numeric_limits<double>::max());
+  JointModelRY::TangentVector_t max_velocityY = JointModelRY::TangentVector_t::Constant(JointModelRY::NV,std::numeric_limits<double>::max());
+  JointModelRY::ConfigVector_t lower_positionY(-4);
+  JointModelRY::ConfigVector_t upper_positionY(4);
+  std::string jointNameY = name + "_y";
+
+  robot->model().addJoint(idX,::se3::JointModelRY(), mat,jointNameY,max_effortY,max_velocityY,lower_positionY,upper_positionY);
+
+
+  return robot;
+  /*
   // Translation along x
   joint = objectFactory.createJointTranslation2 (mat);
   joint->name (jointName);
@@ -79,7 +99,8 @@ DevicePtr_t createRobot ()
 
   robot->rootJoint (joint);
   return robot;
-}*/
+  */
+}
 
 ConstraintSetPtr_t createConstraints (DevicePtr_t r)
 {
@@ -223,7 +244,7 @@ typedef boost::mpl::list <traits_global_circle,
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 {
-  DevicePtr_t dev = hppPinocchio();
+  DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
