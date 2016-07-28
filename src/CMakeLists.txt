@@ -33,7 +33,6 @@ continuous-collision-checking/dichotomy.cc
 continuous-collision-checking/dichotomy/body-pair-collision.hh
 continuous-collision-checking/progressive.cc
 continuous-collision-checking/progressive/body-pair-collision.hh
-
 diffusing-planner.cc
 discretized-collision-checking.cc
 discretized-path-validation.cc

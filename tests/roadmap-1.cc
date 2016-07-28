@@ -34,6 +34,8 @@
 
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
+#include <pinocchio/multibody/joint/joint-variant.hpp>
+
 
 
 
@@ -53,6 +55,10 @@ using hpp::core::RoadmapPtr_t;
 using hpp::core::Roadmap;
 using hpp::core::NodePtr_t;
 using hpp::core::WeighedDistance;
+using ::se3::JointModelPX;
+using ::se3::JointModelPY;
+using ::se3::JointModelPZ;
+using ::se3::JointIndex;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
@@ -81,7 +87,19 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   robot->rootJoint (xJoint);
   xJoint->addChildJoint (yJoint);
 */
-  DevicePtr_t robot = hppPinocchio();
+  DevicePtr_t robot = Device::create("robot");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
+
+  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
+  robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
+
+
   // Create steering method
   Problem p = Problem (robot);
   SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
@@ -292,8 +310,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 
 BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   // Build robot
-  DevicePtr_t robot = hppPinocchio();
-  /*JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
+ /* DevicePtr_t robot = Device::create("robot");
+  JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
   xJoint->isBounded(0,1);
   xJoint->lowerBound(0,-3.);
   xJoint->upperBound(0,3.);
@@ -305,6 +323,21 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
 
   robot->rootJoint (xJoint);
   xJoint->addChildJoint (yJoint);*/
+
+  DevicePtr_t robot = Device::create("robot");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
+
+
+  JointIndex idJoint = robot->model().addJoint(0,::se3::JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
+  robot->model().addJoint(idJoint,::se3::JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
+
+
 
   // Create steering method
   Problem p (robot);

@@ -50,6 +50,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/numerical-constraint.hh>
+#include <pinocchio/multibody/joint/joint-variant.hpp>
 #include "../tests/utils.hh"
 
 
@@ -60,11 +61,39 @@ using hpp::pinocchio::JointPtr_t;
 using hpp::constraints::RelativeTransformation;
 
 using namespace hpp::core;
+using ::se3::JointModelPX;
+using ::se3::JointModelPY;
+using ::se3::JointModelPZ;
+using ::se3::JointIndex;
 
-/*
+
 DevicePtr_t createRobot ()
 {
+
   DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+  std::string jointName = name + "_x";
+
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
+
+  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+
+  std::string bname = "joint_a";
+  for (int i = 0; i < 2; ++i) {
+    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+  }
+  bname = "joint_b";
+  for (int i = 0; i < 3; ++i) {
+    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+  }
+
+
+  return robot;
+ /* DevicePtr_t robot = Device::create ("test");
 
   const std::string& name = robot->name ();
   fcl::Transform3f mat; mat.setIdentity ();
@@ -108,8 +137,8 @@ DevicePtr_t createRobot ()
     parent->addChildJoint (joint);
     parent = joint;
   }
-  return robot;
-}*/
+  return robot;*/
+}
 
 void lockJoint (ConfigProjectorPtr_t proj, DevicePtr_t dev, std::string name)
 {
@@ -132,7 +161,7 @@ struct Jidx {
 
 BOOST_AUTO_TEST_CASE (relativeMotion)
 {
-  DevicePtr_t dev = hppPinocchio();
+  DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
   Jidx jointid;
   jointid.dev = dev;

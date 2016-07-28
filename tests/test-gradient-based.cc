@@ -35,7 +35,9 @@
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
-
+#include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
+#include <pinocchio/multibody/geometry.hpp>
 #include "../tests/utils.hh"
 
 
@@ -60,10 +62,42 @@ using hpp::core::SteeringMethodStraight;
 using hpp::core::PathOptimizerPtr_t;
 using hpp::core::pathOptimization::GradientBased;
 
+
+using ::se3::JointModelPX;
+using ::se3::JointModelPY;
+using ::se3::JointModelPZ;
+using ::se3::JointModelRUBZ;
+using ::se3::JointIndex;
+
+
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
-/*DevicePtr_t createRobot ()
+DevicePtr_t createRobot ()
 {
+  DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+  std::string jointName = name + "_x";
+
+  JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat,jointName);
+
+  std::string jointNameY = name + "_y";
+
+  idX = robot->model().addJoint(idX,JointModelPY(), mat,jointNameY);
+
+  idX = robot->model().addJoint(idX,JointModelRUBZ(), mat,"rot_z");
+
+  fcl::Transform3f position; position.setIdentity ();
+
+  boost::shared_ptr <Box> box (new Box (1,2,1));
+  fcl::CollisionObject object(box, position);
+  robot->model().appendBodyToJoint(idX,::se3::Inertia::Identity());
+  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(idX,object,mat);
+  robot->geomModel().addInnerObject(idX,idObj);
+
+
+  return robot;
+  /*
   DevicePtr_t robot = Device::create ("planar-robot");
   Transform3f position; position.setIdentity ();
   ObjectFactory factory;
@@ -82,12 +116,12 @@ BOOST_AUTO_TEST_SUITE( test_hpp_core )
   joint->setLinkedBody (body);
   body->addInnerObject (object, true, true);
 
-  return robot;
-}*/
+  return robot;*/
+}
 
 BOOST_AUTO_TEST_CASE (BFGS)
 {
-  DevicePtr_t robot = hppPinocchio ();
+  DevicePtr_t robot = createRobot ();
   Configuration_t q0 (robot->configSize ());
   Configuration_t q1 (robot->configSize ());
   Configuration_t q2 (robot->configSize ());

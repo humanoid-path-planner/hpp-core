@@ -49,8 +49,9 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
-using ::se3::JointModelRX;
-using ::se3::JointModelRY;
+using ::se3::JointModelPX;
+using ::se3::JointModelPY;
+using ::se3::JointModelPZ;
 using ::se3::JointIndex;
 
 DevicePtr_t createRobot ()
@@ -60,12 +61,12 @@ DevicePtr_t createRobot ()
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
-  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::ConfigVector_t lower_position(-4);
-  JointModelRX::ConfigVector_t upper_position(4);
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position(-4);
+  JointModelPX::ConfigVector_t upper_position(4);
 
-  robot->model().addJoint(0,::se3::JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+  robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
 
   return robot;
 
@@ -97,14 +98,14 @@ DevicePtr_t createRobot2 ()
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
-  JointModelRX::TangentVector_t max_effort = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::TangentVector_t max_velocity = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::ConfigVector_t lower_position(-4);
-  JointModelRX::ConfigVector_t upper_position(4);
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
   JointIndex idJoint = 0;
 
   for(int i = 0 ; i < 10 ; ++i){
-    idJoint = robot->model().addJoint(idJoint,::se3::JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
   }
 
   return robot;
@@ -158,7 +159,7 @@ void checkAt(const PathPtr_t orig, value_type to,
 
 BOOST_AUTO_TEST_CASE (extracted)
 {
-  DevicePtr_t dev = hppPinocchio ();
+  DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
@@ -186,7 +187,7 @@ BOOST_AUTO_TEST_CASE (extracted)
 
 BOOST_AUTO_TEST_CASE (subchain)
 {
-  DevicePtr_t dev = hppPinocchio (); // 10 translations
+  DevicePtr_t dev = createRobot2(); // 10 translations
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
