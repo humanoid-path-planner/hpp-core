@@ -25,7 +25,7 @@
 #include <hpp/pinocchio/configuration.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
-
+#include <pinocchio/multibody/joint/joint-variant.hpp>
 #include "../tests/utils.hh"
 
 
@@ -40,6 +40,16 @@ using hpp::constraints::matrix3_t;
 using hpp::constraints::vector3_t;
 
 using namespace hpp::core;
+using ::se3::JointModelPX;
+using ::se3::JointModelPY;
+using ::se3::JointModelPZ;
+using ::se3::JointModelRUBX;
+using ::se3::JointModelFreeFlyer;
+using ::se3::JointModelSpherical;
+using ::se3::JointIndex;
+
+typedef Eigen::Matrix<value_type,3,1> Vector3;
+typedef Eigen::Matrix<value_type,3,3> Matrix3;
 
 /*
 JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
@@ -95,9 +105,38 @@ JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
   joint->name (jointName);
   parent->addChildJoint (joint);
   return joint;
+}*/
+
+DevicePtr_t createRobot (){
+
+  DevicePtr_t robot = Device::create ("test");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position(-4);
+  JointModelPX::ConfigVector_t upper_position(4);
+
+  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
+  idJoint = robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
+  idJoint = robot->model().addJoint(idJoint,JointModelPZ(), mat,name + "_z",max_effort,max_velocity,lower_position,upper_position);
+
+  JointIndex waist = robot->model().addJoint(idJoint,JointModelSpherical(), mat,name + "_SO3");
+
+  Transform3f pos;
+  Matrix3 orient;
+  // Right leg joint 0
+  orient (0,0) = 0; orient (0,1) = 0; orient (0,2) = -1;
+  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
+  orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
+  pos.rotation (orient);
+  pos.translation ( Vector3(0, -0.08, 0));
+
+  return robot;
 }
 
-DevicePtr_t createRobot ()
+/*DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
   JointPtr_t waist = createFreeflyerJoint (robot);
