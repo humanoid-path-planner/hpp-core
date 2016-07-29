@@ -246,9 +246,9 @@ namespace hpp {
 	}
 		// Build body pairs for collision checking
 	// First auto-collision
-	se3::GeometryData::CollisionPairsVector_t colPairs = robot->geomData ().collision_pairs;
+	se3::CollisionPairsVector_t colPairs = robot->geomModel ().collisionPairs;
   CollisionObjectPtr_t object1, object2;
-  for (se3::GeometryData::CollisionPairsVector_t::const_iterator itPair = colPairs.begin ();
+  for (se3::CollisionPairsVector_t::const_iterator itPair = colPairs.begin ();
 	     itPair != colPairs.end (); ++itPair) {
       object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
               robot_->geomModel ().geometryObjects[itPair->first].parent,

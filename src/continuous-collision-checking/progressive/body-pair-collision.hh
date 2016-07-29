@@ -595,9 +595,9 @@ namespace hpp {
 	      coefficients_ [i].joint_ = child;
 	      // Go through all known types of joints
 	    //  TODO: REPLACE THESE FUNCTIONS WITH NEW API
-      //  distance = child->maximalDistanceToParent ();
-	    //  coefficients_ [i].value_ = child->upperBoundLinearVelocity () +
-		  //  cumulativeLength * child->upperBoundAngularVelocity ();
+        distance = child->maximalDistanceToParent ();
+	      coefficients_ [i].value_ = child->upperBoundLinearVelocity () +
+		    cumulativeLength * child->upperBoundAngularVelocity ();
 	      cumulativeLength += distance;
 	      it = itNext; ++itNext; ++i;
 	    }

@@ -175,34 +175,37 @@ namespace hpp {
 	  bool validateInterval
 	  (const value_type& t, CollisionValidationReport& report)
 	  {
-      pinocchio::DeviceConstPtr_t robot =joint_a_->robot ();
+      pinocchio::DevicePtr_t robot =boost::const_pointer_cast<pinocchio::Device>(joint_a_->robot ());
 	    using std::numeric_limits;
 	    // Get configuration of robot corresponding to parameter
             bool success;
-	    Configuration_t q = (*path_) (t, success);
+            const pinocchio::Configuration_t q = (*path_) (t, success);
             if (!success) throw
               projection_error(std::string ("Unable to apply constraints in ") + __PRETTY_FUNCTION__);
 	    // Compute position of joint a in frame of common ancestor
-	    pinocchio::Transform3f Ma, tmp;
-      Ma.setIdentity (); tmp.setIdentity();
-      se3::JointData jData;
-      se3::GeometryModel::Index idx;
+	    pinocchio::Transform3f Ma;
+      Ma.setIdentity ();
+      const pinocchio::Configuration_t& qSave = robot->currentConfiguration ();
+      robot->currentConfiguration (q);
+      robot->computeForwardKinematics ();
         for (int i = (int)indexCommonAncestor_ - 1; i >= 0; --i) {
-          idx = joints_ [(std::size_t)i]->index ();
+          
+          // Old API:
           // joints_ [(std::size_t)i]->computePosition (q, Ma, tmp);
-          jData = robot->data ().joints[idx]; // should this data be retreived or an empty struct used?
-          robot->model ().joints[idx].calc (jData, q);
-	      Ma = jData.M ();
+          // Would this work..? :
+          // idx = joints_ [(std::size_t)i]->index ();
+          // jData = robot->data ().joints[idx];
+          // robot->model ().joints[idx].calc (jData, q);
+          // Ma = jData.M ();
+          // Current solution:
+	        Ma = joints_ [(std::size_t)i]->currentTransformation ();
 	    }
 	    // Compute position of joint b in frame of common ancestor
 	    pinocchio::Transform3f Mb;
       Mb.setIdentity ();
 	    for (std::size_t i = indexCommonAncestor_ + 1; i < joints_.size (); ++i) {
-        idx = joints_ [(std::size_t)i]->index ();
 	      // joints_ [i]->computePosition (q, Mb, tmp);
-	      jData = robot->data ().joints[idx];
-        robot->model ().joints[idx].calc (jData, q);
-        Mb = jData.M ();
+	      Ma = joints_ [(std::size_t)i]->currentTransformation ();
 	    }
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
@@ -223,6 +226,8 @@ namespace hpp {
                 false, true, fcl::GST_INDEP);
 		      fcl::CollisionResult result;
 		      fcl::collide (object_a, object_b, request, result);
+          // TODO: where should the configuration be set back to original?
+          robot->currentConfiguration (qSave);
 		      // Get result
 		      if (result.isCollision ()) {
 		        report.object1 = boost::const_pointer_cast<pinocchio::CollisionObject>(*ita);
@@ -432,9 +437,9 @@ namespace hpp {
 	      }
 	      coefficients_ [i].joint_ = child;
 	      // Go through all known types of joints
-	    //TODO: fix!!  distance = child->maximalDistanceToParent ();
-	    //TODO: fix!!   coefficients_ [i].value_ = child->upperBoundLinearVelocity () +
-	    //TODO: fix!! 	cumulativeLength * child->upperBoundAngularVelocity ();
+	      distance = child->maximalDistanceToParent ();
+	      coefficients_ [i].value_ = child->upperBoundLinearVelocity () +
+	     	cumulativeLength * child->upperBoundAngularVelocity ();
 	      cumulativeLength += distance;
 	      it = itNext; ++itNext; ++i;
 	    }
