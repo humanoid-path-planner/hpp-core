@@ -92,7 +92,7 @@ DevicePtr_t createRobot ()
   boost::shared_ptr <Box> box (new Box (1,2,1));
   fcl::CollisionObject object(box, position);
   robot->model().appendBodyToJoint(idX,::se3::Inertia::Identity());
-  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(idX,object,mat);
+  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(idX,object.collisionGeometry(),mat);
   robot->geomModel().addInnerObject(idX,idObj);
 
 

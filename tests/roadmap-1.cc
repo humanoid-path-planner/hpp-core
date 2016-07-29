@@ -23,6 +23,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
@@ -55,6 +56,7 @@ using hpp::core::RoadmapPtr_t;
 using hpp::core::Roadmap;
 using hpp::core::NodePtr_t;
 using hpp::core::WeighedDistance;
+using namespace hpp::core;
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
 using ::se3::JointModelPZ;

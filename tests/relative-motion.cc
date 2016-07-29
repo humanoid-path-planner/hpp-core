@@ -66,6 +66,8 @@ using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
 using ::se3::JointIndex;
 
+#define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
+
 
 DevicePtr_t createRobot ()
 {
