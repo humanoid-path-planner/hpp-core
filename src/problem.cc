@@ -114,7 +114,7 @@ namespace hpp {
     {
       // Add object in local list
       collisionObstacles_.push_back (object);
-      robot()->geomModel().addGeometryObject(0,*object->fcl(),object->getTransform(),object->name());
+      robot()->geomModel().addGeometryObject(0,object->fcl()->collisionGeometry(),object->getTransform(),object->name());
       // Add obstacle to path validation method
       if (pathValidation_) {
 	pathValidation_->addObstacle (object);
