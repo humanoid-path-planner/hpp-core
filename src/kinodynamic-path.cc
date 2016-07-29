@@ -162,7 +162,7 @@ namespace hpp {
         tv = (tv_);
         a1 = (a1_);
         ti = subInterval.first;
-        tf = subInterval.second;
+        tf = length() - subInterval.second;
       }else{  // reversed path
         hppDout(notice,"%% REVERSE PATH, not implemented yet !");
         return PathPtr_t();
