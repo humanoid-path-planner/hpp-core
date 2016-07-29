@@ -44,12 +44,12 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
       fcl::CollisionResult collisionResult;
-      se3::GeometryData::CollisionPairsVector_t::const_iterator _col;
+      se3::CollisionPairsVector_t::const_iterator _col;
       bool collision = false;
-      for (_col = geomData_->collision_pairs.begin ();
-              _col != geomData_->collision_pairs.end (); ++_col) {
-          collisionResult = (geomData_->computeCollision (_col->first,
-                  _col->second)).fcl_collision_result;
+      for (_col = robot_->geomModel().collisionPairs.begin ();
+              _col != robot_->geomModel().collisionPairs.end (); ++_col) {
+          collisionResult = (geomData_->computeCollision (se3::CollisionPair(_col->first,
+                  _col->second))).fcl_collision_result;
           if (collisionResult.isCollision ()){
               collision = true;
               break;
@@ -60,8 +60,8 @@ namespace hpp {
       if (!collision && checkParameterized_) {
           for (_col = parameterizedPairs_.begin ();
               _col != parameterizedPairs_.end (); ++_col) {
-              collisionResult = (geomData_->computeCollision (_col->first,
-                  _col->second)).fcl_collision_result;
+              collisionResult = (geomData_->computeCollision (se3::CollisionPair(_col->first,
+                  _col->second))).fcl_collision_result;
               if (collisionResult.isCollision ()){
                   collision = true;
                   break;
@@ -96,7 +96,7 @@ namespace hpp {
 	  for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	       itInner != bodyObjects.end (); ++itInner) {
         // TODO: check the objects are not in same joint
-      geomData_->addCollisionPair ((*itInner)->indexInModel (), object->indexInModel ());
+      robot_->geomModel().addCollisionPair (se3::CollisionPair((*itInner)->indexInModel (), object->indexInModel ()));
 	  }
 	}
       }
@@ -112,23 +112,23 @@ namespace hpp {
 	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
 	     itInner != bodyObjects.end (); ++itInner) {
 	  CollisionPair_t colPair = std::make_pair(*itInner, obstacle);
-	  std::size_t before = geomData_->nCollisionPairs;
-	  geomData_->removeCollisionPair (colPair.first->indexInModel (),
-            colPair.second->indexInModel ());
-	  std::size_t after = geomData_->nCollisionPairs;
-	  if (after == before) {
-	    std::ostringstream oss;
-	    oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
-		<< obstacle->name () <<
-	      "\" is not registered as obstacle for joint \"" << joint->name ()
-		<< "\".";
-	    throw std::runtime_error (oss.str ());
-	  } else if (before - after >= 2) {
-	    hppDout (error, "obstacle "<< obstacle->name () <<
-		     " was registered " << before - after
-		     << " times as obstacle for joint " << joint->name ()
-		     << ".");
-	  }
+    if (!robot_->geomModel().existCollisionPair(se3::CollisionPair(colPair.first->indexInModel (),
+                                                                  colPair.second->indexInModel ()))) {
+      std::ostringstream oss;
+      oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
+    << obstacle->name () <<
+        "\" is not registered as obstacle for joint \"" << joint->name ()
+    << "\".";
+      throw std::runtime_error (oss.str ());
+    } /*else if (before - after >= 2) {
+      hppDout (error, "obstacle "<< obstacle->name () <<
+         " was registered " << before - after
+         << " times as obstacle for joint " << joint->name ()
+         << ".");
+    }*/ // FIXME
+    se3::Index idCollisionPair= robot_->geomModel().findCollisionPair(se3::CollisionPair(colPair.first->indexInModel (),
+                                                                          colPair.second->indexInModel ()));
+    geomData_->deactivateCollisionPair(idCollisionPair);
 	}
       }
     }
@@ -136,33 +136,34 @@ namespace hpp {
     void CollisionValidation::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
       // Loop over collision pairs and remove disabled ones.
-      se3::GeometryData::CollisionPairsVector_t::iterator _colPair = geomData_->collision_pairs.begin ();
+      se3::CollisionPairsVector_t::iterator _colPair = robot_->geomModel().collisionPairs.begin ();
       se3::GeometryObject::JointIndex i1, i2;
       fcl::CollisionResult res;
-      while (_colPair != geomData_->collision_pairs.end ()) {
+      while (_colPair != robot_->geomModel().collisionPairs.end ()) {
         i1 = robot_->geomModel ().geometryObjects[_colPair->first].parent;
         i2 = robot_->geomModel ().geometryObjects[_colPair->second].parent;
+        se3::Index idCollisionPair= robot_->geomModel().findCollisionPair(se3::CollisionPair(_colPair->first,
+                                                                              _colPair->second));
         switch (matrix(i1, i2)) {
           case RelativeMotion::Parameterized:
               hppDout(info, "Parameterized collision pairs between "
                   << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
                   << robot_->geomModel ().getGeometryName(_colPair->second));
               parameterizedPairs_.push_back (*_colPair);
-              geomData_->removeCollisionPair (_colPair->first,
-                      _colPair->second);
+              geomData_->deactivateCollisionPair(idCollisionPair);
               // previously _colPair = deleteCollisionPair... How to compensate?
               break;
           case RelativeMotion::Constrained:
               hppDout(info, "Disabling collision between "
                   << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
                   << robot_->geomModel ().getGeometryName(_colPair->second));
-              res = geomData_->computeCollision (_colPair->first, _colPair->second).fcl_collision_result;
+              res = geomData_->computeCollision (se3::CollisionPair(_colPair->first, _colPair->second)).fcl_collision_result;
               if (res.isCollision ()) {
                 hppDout(warning, "Disabling collision detection between two "
                     "bodies in collision.");
               }
               disabledPairs_.push_back (*_colPair);
-              geomData_->removeCollisionPair (_colPair->first, _colPair->second);
+              geomData_->deactivateCollisionPair(idCollisionPair);
               // previously _colPair = deleteCollisionPair... How to compensate?
               break;
           case RelativeMotion::Unconstrained: ++_colPair; break;

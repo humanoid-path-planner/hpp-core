@@ -77,8 +77,8 @@ namespace hpp {
       DevicePtr_t robot_;
     private:
       pinocchio::GeomDataPtr_t geomData_;
-      se3::GeometryData::CollisionPairsVector_t parameterizedPairs_;
-      se3::GeometryData::CollisionPairsVector_t disabledPairs_;
+      se3::CollisionPairsVector_t parameterizedPairs_;
+      se3::CollisionPairsVector_t disabledPairs_;
 
       bool checkParameterized_;
     }; // class ConfigValidation
