@@ -265,7 +265,7 @@ namespace hpp {
           const size_type /* iDof */)
       {
         // If joint is the root joint, filter it
-        if (!joint->parentJoint())
+        if (joint == joint->robot ()->rootJoint ())
           return true;
         /// Filter joint name containing "base_joint..."
         if (boost::algorithm::contains (joint->name (), "root_joint"))

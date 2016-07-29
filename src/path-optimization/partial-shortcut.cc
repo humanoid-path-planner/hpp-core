@@ -98,6 +98,8 @@ namespace hpp {
           const value_type t2, ConfigurationIn_t q2) const
       {
         value_type lt1, lt2;
+        // TODO: correct API so thatn these casts are no longer necessary!!
+        JointPtr_t j = boost::const_pointer_cast<pinocchio::Joint>(joint);
         std::size_t rkAtP1 = path->rankAtParam (t1, lt1);
         std::size_t rkAtP2 = path->rankAtParam (t2, lt2);
         if (rkAtP2 == rkAtP1) return PathVectorPtr_t ();
@@ -106,15 +108,15 @@ namespace hpp {
             path->outputSize (), path->outputDerivativeSize ());
         PathPtr_t last;
 
-        std::size_t rkCfg = joint->rankInConfiguration ();
-        std::size_t szCfg = joint->configSize();
+        std::size_t rkCfg = j->rankInConfiguration ();
+        std::size_t szCfg = j->configSize();
         Configuration_t qi = q1;
         Configuration_t q_inter (path->outputSize ());
         value_type t = - lt1;
         for (std::size_t i = rkAtP1; i < rkAtP2; ++i) {
           t += path->pathAtRank (i)->timeRange().second;
           q_inter = path->pathAtRank (i)->end (),
-          q_inter.segment(rkCfg,szCfg) = joint->jointModel().interpolate ( q1, q2,
+          q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate_impl ( q1, q2,
               t / (t2-t1));
           if (path->pathAtRank (i)->constraints ()) {
             if (!path->pathAtRank (i)->constraints ()->apply (q_inter)) {
