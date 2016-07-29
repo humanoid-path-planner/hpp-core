@@ -27,6 +27,8 @@
 
 #include <hpp/constraints/generic-transformation.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+
 #include "../tests/utils.hh"
 
 
@@ -40,6 +42,7 @@ using hpp::constraints::PositionPtr_t;
 using hpp::constraints::matrix3_t;
 using hpp::constraints::vector3_t;
 
+using namespace hpp::pinocchio;
 using namespace hpp::core;
 using ::se3::JointModelRX;
 using ::se3::JointModelPX;
@@ -113,6 +116,10 @@ DevicePtr_t createRobot (){
 
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
@@ -254,6 +261,9 @@ DevicePtr_t createRobot (){
   idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_5",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
   robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY5");
 
+
+  robot->createData();
+  robot->createGeomData();
   return robot;
 }
 /*

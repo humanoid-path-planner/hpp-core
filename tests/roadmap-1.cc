@@ -36,6 +36,8 @@
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+
 
 
 
@@ -57,6 +59,8 @@ using hpp::core::Roadmap;
 using hpp::core::NodePtr_t;
 using hpp::core::WeighedDistance;
 using namespace hpp::core;
+using namespace hpp::pinocchio;
+
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
@@ -91,6 +95,10 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 */
   DevicePtr_t robot = Device::create("robot");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
@@ -101,6 +109,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
   robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
 
+  robot->createData();
+  robot->createGeomData();
 
   // Create steering method
   Problem p = Problem (robot);
@@ -328,6 +338,10 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
 
   DevicePtr_t robot = Device::create("robot");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
@@ -339,6 +353,8 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   JointIndex idJoint = robot->model().addJoint(0,::se3::JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
   robot->model().addJoint(idJoint,::se3::JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
 
+  robot->createData();
+  robot->createGeomData();
 
 
   // Create steering method

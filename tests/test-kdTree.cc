@@ -44,6 +44,7 @@
 #define BOOST_TEST_MODULE kdTree
 #include <boost/test/included/unit_test.hpp>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
 #include "../tests/utils.hh"
 
 
@@ -82,6 +83,10 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   so3Joint->addChildJoint (so2Joint);
 */
   DevicePtr_t robot = Device::create("robot");
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   const std::string& name = robot->name ();
   Transform3f mat; mat.setIdentity ();
 
@@ -96,6 +101,9 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   idJoint = robot->model().addJoint(idJoint,JointModelPZ(), mat,name + "_z",max_effort,max_velocity,lower_position,upper_position);
   idJoint = robot->model().addJoint(idJoint,JointModelSpherical(), mat,name + "_SO3");
   idJoint = robot->model().addJoint(idJoint,JointModelRUBZ(), mat,name + "_SO2");
+
+  robot->createData();
+  robot->createGeomData();
 
 
   // Build Distance, nearestNeighbor, KDTree

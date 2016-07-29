@@ -37,6 +37,8 @@
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/subchain-path.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+
 
 
 #include "../tests/utils.hh"
@@ -49,6 +51,8 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
+using namespace hpp::pinocchio;
+
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
@@ -58,6 +62,10 @@ DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
@@ -67,6 +75,10 @@ DevicePtr_t createRobot ()
   JointModelPX::ConfigVector_t upper_position(4);
 
   robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+
+
+  robot->createData();
+  robot->createGeomData();
 
   return robot;
 
@@ -95,6 +107,10 @@ DevicePtr_t createRobot2 ()
 {
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
@@ -108,6 +124,9 @@ DevicePtr_t createRobot2 ()
     idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
   }
 
+
+  robot->createData();
+  robot->createGeomData();
   return robot;
   /*DevicePtr_t robot = Device::create ("test");
 

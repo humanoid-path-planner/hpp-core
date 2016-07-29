@@ -39,7 +39,6 @@
 #include <hpp/pinocchio/configuration.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
-
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
@@ -50,6 +49,8 @@
 #include <hpp/core/path-projector/progressive.hh>
 #include "../tests/utils.hh"
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+
 
 
 using hpp::pinocchio::Device;
@@ -57,6 +58,8 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
+using namespace hpp::pinocchio;
+
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
@@ -66,6 +69,10 @@ DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
@@ -84,6 +91,8 @@ DevicePtr_t createRobot ()
 
   robot->model().addJoint(idX,JointModelPY(), mat,jointNameY,max_effortY,max_velocityY,lower_positionY,upper_positionY);
 
+  robot->createData();
+  robot->createGeomData();
 
   return robot;
   /*

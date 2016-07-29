@@ -38,6 +38,7 @@
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
 #include <pinocchio/multibody/geometry.hpp>
+
 #include "../tests/utils.hh"
 
 
@@ -62,6 +63,8 @@ using hpp::core::SteeringMethodStraight;
 using hpp::core::PathOptimizerPtr_t;
 using hpp::core::pathOptimization::GradientBased;
 
+using namespace hpp::core;
+using namespace hpp::pinocchio;
 
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
@@ -76,6 +79,10 @@ DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
@@ -96,6 +103,8 @@ DevicePtr_t createRobot ()
   robot->geomModel().addInnerObject(idX,idObj);
 
 
+  robot->createData();
+  robot->createGeomData();
   return robot;
   /*
   DevicePtr_t robot = Device::create ("planar-robot");

@@ -31,6 +31,8 @@
 #include <boost/test/included/unit_test.hpp>
 #include "../tests/utils.hh"
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+
 
 
 
@@ -45,6 +47,9 @@ using hpp::pinocchio::JointConstPtr_t;
 using hpp::pinocchio::ObjectVector_t;
 using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollision;
 using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollisionPtr_t;
+
+using namespace hpp::core;
+using namespace hpp::pinocchio;
 
 using ::se3::JointModelRX;
 using ::se3::JointModelPX;
@@ -63,6 +68,10 @@ DevicePtr_t createRobot (){
 
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
@@ -204,6 +213,9 @@ DevicePtr_t createRobot (){
   idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_5",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
   robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY5");
 
+
+  robot->createData();
+  robot->createGeomData();
   return robot;
 }
 

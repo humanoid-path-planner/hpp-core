@@ -51,6 +51,8 @@
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/numerical-constraint.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
+#include <pinocchio/multibody/geometry.hpp>
+
 #include "../tests/utils.hh"
 
 
@@ -61,6 +63,8 @@ using hpp::pinocchio::JointPtr_t;
 using hpp::constraints::RelativeTransformation;
 
 using namespace hpp::core;
+using namespace hpp::pinocchio;
+
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
@@ -74,6 +78,10 @@ DevicePtr_t createRobot ()
 
   DevicePtr_t robot = Device::create ("test");
   const std::string& name = robot->name ();
+  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  robot->model(m);
+  robot->geomModel(gm);
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 
@@ -94,6 +102,8 @@ DevicePtr_t createRobot ()
   }
 
 
+  robot->createData();
+  robot->createGeomData();
   return robot;
  /* DevicePtr_t robot = Device::create ("test");
 
