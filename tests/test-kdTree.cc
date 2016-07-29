@@ -43,7 +43,7 @@
 
 #define BOOST_TEST_MODULE kdTree
 #include <boost/test/included/unit_test.hpp>
-
+#include <pinocchio/multibody/joint/joint-variant.hpp>
 #include "../tests/utils.hh"
 
 
@@ -51,6 +51,13 @@ using namespace hpp;
 using namespace core;
 using namespace pinocchio;
 using namespace std;
+using ::se3::JointModelPX;
+using ::se3::JointModelPY;
+using ::se3::JointModelPZ;
+using ::se3::JointIndex;
+using ::se3::JointModelSpherical;
+using ::se3::JointModelRUBZ;
+
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
@@ -74,7 +81,22 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   transJoint->addChildJoint (so3Joint);
   so3Joint->addChildJoint (so2Joint);
 */
-  DevicePtr_t robot = hppPinocchio();
+  DevicePtr_t robot = Device::create("robot");
+  const std::string& name = robot->name ();
+  Transform3f mat; mat.setIdentity ();
+
+  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
+  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3.);
+  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3.);
+
+
+  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
+  idJoint = robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
+  idJoint = robot->model().addJoint(idJoint,JointModelPZ(), mat,name + "_z",max_effort,max_velocity,lower_position,upper_position);
+  idJoint = robot->model().addJoint(idJoint,JointModelSpherical(), mat,name + "_SO3");
+  idJoint = robot->model().addJoint(idJoint,JointModelRUBZ(), mat,name + "_SO2");
+
 
   // Build Distance, nearestNeighbor, KDTree
   Problem problem (robot);
