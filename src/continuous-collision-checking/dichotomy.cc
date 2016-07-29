@@ -228,7 +228,7 @@ namespace hpp {
       void Dichotomy::addObstacle
       (const CollisionObjectPtr_t& object)
       {
-	const JointVector_t& jv = robot_->getJointVector ();
+	pinocchio::JointVector_t& jv = robot_->getJointVector ();
 	for (unsigned int idx = 0; idx < jv.size (); ++idx) {
 	  BodyPtr_t body = (jv.at(idx))->linkedBody ();
 	  bool foundPair = false;
