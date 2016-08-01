@@ -71,22 +71,19 @@ namespace hpp {
       double q1 = config[0];
       double q2 = config[1];
       double v1 = config[2];
-      double v2 = v1 + config[3];
+      double v2 = config[3] + config[2];
       double a1 = config[4];
-      double a2 = a1 + v1*v2 + config[5];
+      double a2 = config[5] + config[4];
+      double mll = m2*l1*l2;
 
+      T1 = (m1+m2)*l1*l1*a1 + mll*a2*cos(q2) + mll*v2*v2*sin(q2) + (m1+m2)*l1*g*sin(q1) + m2*g*l2*sin(q1+q2);
+      T2 = mll*a1*cos(q2) + mll*a2 - mll*v1*v1*sin(q2) + l2*m2*g*sin(q1+q2);
 
-      double x2 = -l1*sin(q1) - l2*sin(q1+q2);
-      double z2 = -l1*cos(q1) - l2*cos(q1+q2);
-      double l = sqrt(x2*x2+z2*z2);
-      double theta = acos(-z2/l);
+      double value = T1;
+
     //  std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
 
-      T1 = m1*l1*sin(q1)*a1 + v1*v1*m1*l1*sin(q1) - l1*m1*g*sin(q1);
-      T2 = m2*l2*sin(q2)*a2 + v2*v2*m2*l2*sin(q2) - l2*m2*g*sin(q1+q2);
-
-      double value = T1 + (m2*l*sin(theta)*a2 + v2*v2*m2*l*sin(theta) - l*m2*g*sin(theta));
-     // std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
+      //std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
       if (std::fabs(value) > bound) {
         TorqueBoundValidationReportPtr_t report
             (new TorqueBoundValidationReport (bound,std::fabs(value)));
