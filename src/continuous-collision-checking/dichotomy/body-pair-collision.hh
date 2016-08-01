@@ -30,6 +30,7 @@
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/projection-error.hh>
+#include <pinocchio/multibody/geometry.hpp>
 # include "continuous-collision-checking/intervals.hh"
 
 

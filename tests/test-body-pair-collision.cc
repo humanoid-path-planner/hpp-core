@@ -24,14 +24,13 @@
 
 #include <hpp/model/device.hh>
 
-#include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+# include <hpp/pinocchio/device.hh>
 
 #include "../src/continuous-collision-checking/dichotomy/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
 #include "../tests/utils.hh"
 #include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/multibody/geometry.hpp>
 
 
 
@@ -91,13 +90,13 @@ DevicePtr_t createRobot (){
   JointModelRX::ConfigVector_t upper_positionRot = JointModelRX::ConfigVector_t::Constant(M_PI);
 
   Transform3f pos;
-  Matrix3 orient;
+  fcl::Matrix3f orient;
   // Right leg joint 0
   orient (0,0) = 0; orient (0,1) = 0; orient (0,2) = -1;
   orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
   orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
   pos.rotation (orient);
-  pos.translation ( Vector3(0, -0.08, 0));
+  pos.translation ( fcl::Vec3f(0, -0.08, 0));
 
   JointIndex idLeg = robot->model().addJoint(waist,JointModelRX(), pos,"RLEG_0",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
   robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY0");
@@ -158,7 +157,7 @@ DevicePtr_t createRobot (){
   orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
   orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
   pos.rotation (orient);
-  pos.translation ( Vector3(0, -0.08, 0));
+  pos.translation ( fcl::Vec3f(0, -0.08, 0));
 
   idLeg = robot->model().addJoint(waist,JointModelRX(), pos,"LLEG_0",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
   robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY0");
@@ -443,13 +442,7 @@ DevicePtr_t createRobot ()
   return robot;
 }*/
 
-CollisionObjectPtr_t createObstacle ()
-{
-  fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
-  CollisionObjectPtr_t obstacle = CollisionObject::create
-    (box, fcl::Transform3f (), "box");
-  return obstacle;
-}
+
 
 BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 {
@@ -459,7 +452,7 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 
   BodyPairCollisionPtr_t bpc = BodyPairCollision::create
     (joint_a, joint_b, 0.001);
-  for (std::vector <JointConstPtr_t>::const_iterator it =
+  for (std::vector <JointPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
       std::cout << (*it)->name ();
@@ -470,10 +463,13 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
   }
   std::cout << std::endl;
 
-  ObjectVector_t obstacles;
-  obstacles.push_back (createObstacle ());
+  ObjectStdVector_t obstacles;
+  fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
+  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(0,box,Transform3f ());
+  CollisionObjectPtr_t collObj (new hpp::pinocchio::CollisionObject(robot,idObj));
+  obstacles.push_back (collObj);
   bpc = BodyPairCollision::create (joint_a, obstacles, 0.001);
-  for (std::vector <JointConstPtr_t>::const_iterator it =
+  for (std::vector <JointPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
       std::cout << (*it)->name ();
@@ -487,7 +483,7 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
   joint_a = robot->getJointByBodyName ("LLEG_BODY5");
   joint_b = robot->getJointByBodyName ("LLEG_BODY1");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
-  for (std::vector <JointConstPtr_t>::const_iterator it =
+  for (std::vector <JointPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
       std::cout << (*it)->name ();
@@ -501,7 +497,7 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
   joint_a = robot->getJointByBodyName ("LLEG_BODY1");
   joint_b = robot->getJointByBodyName ("LLEG_BODY5");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
-  for (std::vector <JointConstPtr_t>::const_iterator it =
+  for (std::vector <JointPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
       std::cout << (*it)->name ();
