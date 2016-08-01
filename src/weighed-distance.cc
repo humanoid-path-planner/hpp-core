@@ -105,7 +105,7 @@ namespace hpp {
       robot->controlComputation (flag);
       value_type minLength = std::numeric_limits <value_type>::infinity ();
 
-      JointJacobian_t jacobian(3, robot->numberDof());
+      JointJacobian_t jacobian(6, robot->numberDof());
       const JointVector_t jointVector (robot->getJointVector ());
       const se3::Model& model = robot->model();
       const se3::Data& data = robot->model();
