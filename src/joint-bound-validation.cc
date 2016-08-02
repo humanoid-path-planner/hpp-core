@@ -16,10 +16,14 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/joint-bound-validation.hh>
+
 #include <sstream>
+
+#include <pinocchio/multibody/model.hpp>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/core/joint-bound-validation.hh>
 
 namespace hpp {
   namespace core {

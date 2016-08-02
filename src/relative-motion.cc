@@ -16,6 +16,8 @@
 
 #include <hpp/core/relative-motion.hh>
 
+#include <pinocchio/multibody/model.hpp>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 

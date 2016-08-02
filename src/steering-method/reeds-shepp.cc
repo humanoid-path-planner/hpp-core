@@ -14,13 +14,15 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-# include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/reeds-shepp.hh>
 
-# include <hpp/pinocchio/device.hh>
-# include <hpp/pinocchio/joint.hh>
+#include <pinocchio/multibody/joint/joint.hpp>
 
-# include <hpp/core/problem.hh>
-# include <hpp/core/reeds-shepp-path.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+
+#include <hpp/core/problem.hh>
+#include <hpp/core/reeds-shepp-path.hh>
 
 namespace hpp {
   namespace core {
