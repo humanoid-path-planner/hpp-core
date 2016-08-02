@@ -60,14 +60,14 @@ namespace hpp {
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
       parent_t (path), device_ (path.device_), initial_ (path.initial_),
-      end_ (path.end_)
+      end_ (path.end_),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
     {
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints), device_ (path.device_),
-      initial_ (path.initial_), end_ (path.end_)
+      initial_ (path.initial_), end_ (path.end_),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
     {
       assert (constraints->apply (initial_));
       assert (constraints->apply (end_));

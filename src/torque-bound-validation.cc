@@ -79,6 +79,7 @@ namespace hpp {
       T1 = (m1+m2)*l1*l1*a1 + mll*a2*cos(q2) + mll*v2*v2*sin(q2) + (m1+m2)*l1*g*sin(q1) + m2*g*l2*sin(q1+q2);
       T2 = mll*a1*cos(q2) + mll*a2 - mll*v1*v1*sin(q2) + l2*m2*g*sin(q1+q2);
 
+
       double value = T1;
 
     //  std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
