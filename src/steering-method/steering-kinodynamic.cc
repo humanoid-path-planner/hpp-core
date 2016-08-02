@@ -25,35 +25,51 @@
 namespace hpp {
   namespace core {
     namespace steeringMethod {
+
+
+      bool belong(double t, interval_t interval){
+        return ((t>interval.first) && (t< interval.second));
+      }
+
+      double computeMaxRequiredTime(double Tmax, std::vector<interval_t> infIntervals){
+        double T;
+        bool inInterval = true;
+        double minUpperBound = Tmax;
+
+        while(inInterval){
+          T = minUpperBound;
+          minUpperBound = std::numeric_limits<value_type>::infinity();
+          inInterval = false;
+          for(size_t i = 0 ; i < infIntervals.size() ; ++i){
+            if(belong(T,infIntervals[i]))
+              inInterval = true;
+            if((infIntervals[i].second < minUpperBound) && (infIntervals[i].second > T))
+              minUpperBound = infIntervals[i].second;
+          }
+        }
+
+        return T;
+      }
+
       PathPtr_t Kinodynamic::impl_compute (ConfigurationIn_t q1,
                                            ConfigurationIn_t q2) const
       {
         double Tmax = 0;
         double T = 0;
         double t1,tv,t2,a1;
-        int sigma;
-        
+        interval_t infeasibleInterval;
+        std::vector<interval_t> infIntervalsVector;
         size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
         // looking for Tmax
         hppDout(notice,"## Looking for Tmax :");
-        /*const JointVector_t& jv (problem_->robot()->getJointVector ());
-        for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
-          size_type indexConfig = (*itJoint)->rankInConfiguration ();
-          size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
-          hppDout(notice,"For joint "<<(*itJoint)->name());
-          if((*itJoint)->configSize() >= 1){
-            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
-            if(T > Tmax)
-              Tmax = T;
-          }
-          
-        }// for all joints*/
-        
+
+        // for all joints
         for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
-            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&sigma,&t1,&tv,&t2);
+            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&infeasibleInterval);
+            infIntervalsVector.push_back(infeasibleInterval);
             if(T > Tmax)
               Tmax = T;
           }else{
@@ -61,7 +77,8 @@ namespace hpp {
           }
           
         }
-        value_type length = Tmax;     
+
+        value_type length = computeMaxRequiredTime(Tmax,infIntervalsVector);
         // create array of times intervals and acceleration values: 
         Configuration_t a1_t(configSize);
         Configuration_t t1_t(configSize);
@@ -112,12 +129,12 @@ namespace hpp {
       Kinodynamic::Kinodynamic (const Problem& problem) :
         SteeringMethod (problem), device_ (problem.robot ()), weak_ ()
       {
-        if((2*(problem->robot()->extraConfigSpace().dimension())) < 2*problem->robot()->configSize()){
+        if(((problem->robot()->extraConfigSpace().dimension())) < (2*(problem->robot()->configSize()) - problem->robot()->extraConfigSpace().dimension())){
           std::cout<<"Error : you need at least "<<2*(problem->robot()->configSize()-problem->robot()->extraConfigSpace().dimension())<<" extra DOF"<<std::endl;
           hppDout(error,"Error : you need at least "<<2*(problem->robot()->configSize() - problem->robot()->extraConfigSpace().dimension())<<" extra DOF");
         }
-        aMax_ = 0.5;
-        vMax_ = 2;
+        aMax_ = 3;
+        vMax_ = 5;
       }
       
       /// Copy constructor
@@ -126,15 +143,21 @@ namespace hpp {
       {
       }
       
-      double Kinodynamic::computeMinTime(double p1, double p2, double v1, double v2, int *sigma, double *t1, double *tv, double *t2) const{
+      double Kinodynamic::computeMinTime(double p1, double p2, double v1, double v2,interval_t *infInterval) const{
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
+        double t1,t2,tv;
+        int sigma;
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-        *sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
-        hppDout(info,"sigma = "<<*sigma);
-        double a1 = (*sigma)*aMax_;
+        sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
+        hppDout(info,"sigma = "<<sigma);
+        if(sigma == 0){ // ??? FIXME
+          sigma = sgn(p2-p1);
+          hppDout(info,"sigma Bis= "<<sigma);
+        }
+        double a1 = (sigma)*aMax_;
         double a2 = -a1;
-        double vLim = (*sigma) * vMax_;
+        double vLim = (sigma) * vMax_;
         hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
         if((p2-p1) == 0. && (v2-v1)==0. ){  
           hppDout(notice,"No movement in this joints, abort.");
@@ -143,40 +166,34 @@ namespace hpp {
         // test if two segment trajectory is valid :
         bool twoSegment = false;        
         hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
-        double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value
-        // solve quadratic equation
+        double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
+        // solve quadratic equation (cf eq 13 article)
         const double a = a1;
         const double b = 2. * v1;
         const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
         const double delta = b*b - 4*a*c;
         if(delta < 0 )
           std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-        double x1 = (-b + sqrt(delta))/(2*a);
-        double x2 = (-b - sqrt(delta))/(2*a);
-        double x = std::max(x1,x2);
+        const double x1 = (-b + sqrt(delta))/(2*a);
+        const double x2 = (-b - sqrt(delta))/(2*a);
+        const double x = std::max(x1,x2);
         hppDout(info,"t1 before vel limit = "<<x);
         if(x > minT1){
           twoSegment = true;
-          *t1 = x;
-        }
-        
+          t1 = x;
+        } 
         if(twoSegment){ // check if max velocity is respected
-          if(std::abs(v1+(*t1)*a1) > vMax_)
+          if(std::abs(v1+(t1)*a1) > vMax_)
             twoSegment = false;
         }
         
         if(twoSegment){ // compute t2 for two segment trajectory
-          *tv = 0.;
-          *t2 = ((v2-v1)/a2) + (*t1);
+          tv = 0.;
+          t2 = ((v2-v1)/a2) + (t1);// eq 14
         }else{// compute 3 segment trajectory, with constant velocity phase :
-          *t1 = (vLim - v1)/a1;
-          *tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ;
-          *t2 = (v2-vLim)/a2;
-          hppDout(info,"test 1 "<<(v1*v1+v2*v2 - 2*vLim*vLim));
-          hppDout(info,"test 2 "<<((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)));
-          hppDout(info,"test 3 "<<((p2-p1)/vLim));
-          
-          
+          t1 = (vLim - v1)/a1;  //eq 15
+          tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ; //eq 16
+          t2 = (v2-vLim)/a2;  //eq 17
         }
         if(twoSegment){
           hppDout(notice,"Trajectory with 2 segments");
@@ -184,9 +201,53 @@ namespace hpp {
           hppDout(notice,"Trajectory with 3 segments");
         }
         hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
-        hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
-        double T = (*t1)+(*tv)+(*t2);
+        hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
+        double T = (t1)+(tv)+(t2);
         hppDout(notice,"T = "<<T);
+
+        // Compute infeasible interval :
+
+        if(((p1<p2) && (v1>v2)) || ((p1>p2) && (v1<v2))){ // "region I", infeasible interval exist
+          a1 = a2;
+          a2 = -a2;
+          vLim = -vLim;
+          // solve eq 13 just new a1/a2 :
+          const double ai = a1;
+          const double bi = 2. * v1;
+          const double ci = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
+          const double deltai = bi*bi - 4*ai*ci;
+          if(deltai < 0 )
+            std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
+          const double x1i = (-bi + sqrt(deltai))/(2*ai);
+          const double x2i = (-bi - sqrt(deltai))/(2*ai);
+          const double xi = std::max(x1i,x2i);
+          // min bound of infeasible interval is given by lesser solution
+          t1 = std::min(x1i,x2i);
+          infInterval->first = ((v2-v1)/a2) + (t1); // eq 14
+          //check if greater solution violate velocity limits :
+          minT1 = -minT1;
+          if(xi > minT1){
+            twoSegment = true;
+            t1 = xi;
+          }
+          if(twoSegment){ // check if max velocity is respected
+            if(std::abs(v1+(t1)*a1) > vMax_)
+              twoSegment = false;
+          }
+          if(twoSegment){ // compute t2 for two segment trajectory
+            tv = 0.;
+            t2 = ((v2-v1)/a2) + (t1);// eq 14
+          }else{// compute 3 segment trajectory, with constant velocity phase :
+            t1 = (vLim - v1)/a1;  //eq 15
+            tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ; //eq 16
+            t2 = (v2-vLim)/a2;  //eq 17
+          }
+          infInterval->second = t2;
+        }else{
+          infInterval->first=std::numeric_limits<value_type>::infinity();
+          infInterval->second=0;
+        }
+
         return T;
       }
       
@@ -245,6 +306,8 @@ namespace hpp {
         hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
         
       }
+
+
       
       
     } // namespace steeringMethod

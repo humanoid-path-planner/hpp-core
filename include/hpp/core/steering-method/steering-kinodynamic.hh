@@ -73,13 +73,10 @@ namespace hpp {
          * @param p2 position at state 2
          * @param v1 velocity at state 1
          * @param v2 velocity at state 2 
-         * @param sigma signe of a1 (-aMax or +aMax), a1 = sigma*aMax, a2 = -sigma*aMax, vLim = sigma*vMax_
-         * @param t1 time of the first segment
-         * @param tv time of constant velocity segment (can be null)
-         * @param t2 time of the last segment
+         * @param infInterval : infeasible interval
          * @return T the minimal time
          */
-        double computeMinTime(double p1,double p2, double v1, double v2, int* sigma, double* t1, double* tv, double* t2) const;
+        double computeMinTime(double p1,double p2, double v1, double v2,interval_t *infInterval) const;
         
         /**
         * @brief fixedTimeTrajectory compute the minimum acceleration trajectory for desired time T

@@ -17,8 +17,9 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <sstream>
-#include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint.hh>
+#include <hpp/model/device.hh>
+#include <hpp/model/joint.hh>
+#include <hpp/model/joint-configuration.hh>
 #include <hpp/core/torque-bound-validation.hh>
 
 namespace hpp {
@@ -28,12 +29,81 @@ namespace hpp {
     (const DevicePtr_t& robot)
     {
       TorqueBoundValidation* ptr = new TorqueBoundValidation (robot);
+      std::cout<<"Create torque validation"<<std::endl;
       return TorqueBoundValidationPtr_t (ptr);
     }
     
+
+
+    // !!! specific implementation for double pendulum with hardcoded torque bounds and mass
     bool TorqueBoundValidation::validate
     (const Configuration_t& config, ValidationReportPtr_t& validationReport)
     {
+      const JointVector_t jv = robot_->getJointVector ();
+      /*for (JointVector_t::const_iterator itJoint = jv.begin ();
+           itJoint != jv.end (); ++itJoint) {
+        size_type index = (*itJoint)->rankInConfiguration ();
+        JointConfigurationPtr_t jc = (*itJoint)->configuration ();
+        for (size_type i=0; i < (*itJoint)->configSize (); ++i) {
+          if (jc->isBounded (i)) { // TODO change condition, need to add method in class Joint
+            value_type value,bound;            
+            bound = 15;
+            // TODO : compute value = torque of this joint
+
+
+            if (value > bound) {
+              TorqueBoundValidationReportPtr_t report
+                  (new TorqueBoundValidationReport (*itJoint, i, bound,value));
+              validationReport = report;
+              return false;
+            }
+          }
+        }
+      }
+      return true;*/
+      double m1 = 1.;
+      double m2 = 1.;
+      double bound = 3.9;
+      double l1 = 0.4;
+      double l2 = 0.4;
+      double lc1 = 0.2;
+      double lc2 = 0.2;
+      double g = 9.81;
+      double T1,T2;
+      double q1 = config[0];
+      double q2 = config[1];
+      double v1 = config[2];
+      double v2 = config[3];
+      double a1 = config[4];
+      double a2 = config[5];
+
+      //coefs :
+      double d11,d12,d21,d22,c121,c211,c221,c112,g1,g2;
+      d11 = m1*lc1*lc1 + m2*(l1*l1 + lc2*lc2 + 2*l1*lc2*cos(q2));
+      d12 = d21 = m2*(lc2*lc2 + l1*lc2*cos(q2));
+      d22 = m2*lc2*lc2;
+
+      c121 = c211 = c221 = -m2*l1*lc2/**sin(q2)*/;
+      c112 = -c221;
+
+      g1 = (m1*lc1 + m2*l1)*g*sin(q1) + m2*lc2*g*sin(q1+q2);
+      g2 = m2*lc2*g*sin(q1+q2);
+
+      T1 = d11*a1 + d12*a2 + c121*v1*v2 + c211*v2*v1 + c221*v2*v2 + g1;
+      T2 = d21*a1 + d22*a2 + c112*v1*v1 + g2;
+
+
+      double value = T1;
+
+    //  std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
+
+      std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
+      if (std::fabs(value) > bound) {
+        TorqueBoundValidationReportPtr_t report
+            (new TorqueBoundValidationReport (bound,std::fabs(value)));
+        validationReport = report;
+        return false;
+      }
       return true;
     }
     
