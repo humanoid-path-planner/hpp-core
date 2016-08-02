@@ -61,30 +61,43 @@ namespace hpp {
         }
       }
       return true;*/
-      double m1 = 8.;
-      double m2 = 8.;
-      double bound = 13;
-      double l1 = 0.2;
-      double l2 = 0.2;
+      double m1 = 1.;
+      double m2 = 1.;
+      double bound = 3.9;
+      double l1 = 0.4;
+      double l2 = 0.4;
+      double lc1 = 0.2;
+      double lc2 = 0.2;
       double g = 9.81;
       double T1,T2;
       double q1 = config[0];
       double q2 = config[1];
       double v1 = config[2];
-      double v2 = config[3] + config[2];
+      double v2 = config[3];
       double a1 = config[4];
-      double a2 = config[5] + config[4];
-      double mll = m2*l1*l2;
+      double a2 = config[5];
 
-      T1 = (m1+m2)*l1*l1*a1 + mll*a2*cos(q2) + mll*v2*v2*sin(q2) + (m1+m2)*l1*g*sin(q1) + m2*g*l2*sin(q1+q2);
-      T2 = mll*a1*cos(q2) + mll*a2 - mll*v1*v1*sin(q2) + l2*m2*g*sin(q1+q2);
+      //coefs :
+      double d11,d12,d21,d22,c121,c211,c221,c112,g1,g2;
+      d11 = m1*lc1*lc1 + m2*(l1*l1 + lc2*lc2 + 2*l1*lc2*cos(q2));
+      d12 = d21 = m2*(lc2*lc2 + l1*lc2*cos(q2));
+      d22 = m2*lc2*lc2;
+
+      c121 = c211 = c221 = -m2*l1*lc2/**sin(q2)*/;
+      c112 = -c221;
+
+      g1 = (m1*lc1 + m2*l1)*g*sin(q1) + m2*lc2*g*sin(q1+q2);
+      g2 = m2*lc2*g*sin(q1+q2);
+
+      T1 = d11*a1 + d12*a2 + c121*v1*v2 + c211*v2*v1 + c221*v2*v2 + g1;
+      T2 = d21*a1 + d22*a2 + c112*v1*v1 + g2;
 
 
       double value = T1;
 
     //  std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
 
-      //std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
+      std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
       if (std::fabs(value) > bound) {
         TorqueBoundValidationReportPtr_t report
             (new TorqueBoundValidationReport (bound,std::fabs(value)));
