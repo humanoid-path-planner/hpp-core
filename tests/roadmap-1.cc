@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   Problem p = Problem (robot);
   SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
   // create roadmap
-  hpp::core::DistancePtr_t distance (WeighedDistance::create
+  hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
   RoadmapPtr_t r = Roadmap::create (distance, robot);
 
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   Problem p (robot);
   SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
   // create roadmap
-  hpp::core::DistancePtr_t distance (WeighedDistance::create
+  hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
   RoadmapPtr_t r = Roadmap::create (distance, robot);
 
