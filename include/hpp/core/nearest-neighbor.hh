@@ -29,10 +29,21 @@ namespace hpp {
     public:
       virtual void clear () = 0;
       virtual void addNode (const NodePtr_t& node) = 0;
+
+      /**
+       * @brief search Return the closest node of the given configuration
+       * @param configuration
+       * @param connectedComponent
+       * @param distance
+       * @param reverse if true, compute distance from given configuration to nodes in roadmap,
+       *  if false from nodes in roadmap to given configuration
+       * @return
+       */
       virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
 			       const ConnectedComponentPtr_t&
 				connectedComponent,
-			       value_type& distance) = 0;
+             value_type& distance,bool reverse = false) = 0;
+
 
       virtual NodePtr_t search (const NodePtr_t& node,
 			       const ConnectedComponentPtr_t&

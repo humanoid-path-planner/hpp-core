@@ -48,17 +48,21 @@ namespace hpp {
 
       /// Get nearest node to a configuration in the roadmap.
       /// \param configuration configuration
+      /// \param reverse if true, compute distance from given configuration to nodes in roadmap,
+      /// if false from nodes in roadmap to given configuration
       /// \retval distance to the nearest node.
       NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
-			     value_type& minDistance);
+           value_type& minDistance, bool reverse = false);
 
       /// Get nearest node to a configuration in a connected component.
       /// \param configuration configuration
       /// \param connectedComponent the connected component
+      /// \param reverse if true, compute distance from given configuration to nodes in roadmap,
+      /// if false from nodes in roadmap to given configuration
       /// \retval distance to the nearest node.
       NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
 			     const ConnectedComponentPtr_t& connectedComponent,
-			     value_type& minDistance);
+           value_type& minDistance, bool reverse = false);
 
       /// Add a node and two edges
       /// \param from node from which the edge starts,

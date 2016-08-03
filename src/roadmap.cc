@@ -153,7 +153,7 @@ namespace hpp {
 
     NodePtr_t
     Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
-			  value_type& minDistance)
+        value_type& minDistance, bool reverse)
     {
       NodePtr_t closest = 0x0;
       minDistance = std::numeric_limits<value_type>::infinity ();
@@ -162,7 +162,7 @@ namespace hpp {
 	   itcc != connectedComponents_.end (); ++itcc) {
 	value_type distance;
 	NodePtr_t node;
-	node = nearestNeighbor_->search(configuration, *itcc, distance);
+  node = nearestNeighbor_->search(configuration, *itcc, distance,reverse);
 	if (distance < minDistance) {
 	  minDistance = distance;
 	  closest = node;
@@ -173,13 +173,13 @@ namespace hpp {
 
     NodePtr_t
     Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
-			  const ConnectedComponentPtr_t& connectedComponent,
-			  value_type& minDistance)
+        const ConnectedComponentPtr_t& connectedComponent,
+        value_type& minDistance, bool reverse)
     {
       assert (connectedComponent);
       assert (connectedComponent->nodes ().size () != 0);
       NodePtr_t closest =
-	nearestNeighbor_->search(configuration, connectedComponent, minDistance);
+  nearestNeighbor_->search(configuration, connectedComponent, minDistance,reverse);
       return closest;
     }
     
