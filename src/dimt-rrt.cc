@@ -102,7 +102,7 @@ void DimtRRT::oneStep ()
        endComponents_.begin ();
      itcc != endComponents_.end (); ++itcc)
     {
-        near = roadmap()->nearestNode (q_rand, *itcc, distance);
+        near = roadmap()->nearestNode (q_rand, *itcc, distance,true);
         path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand, true);
         if (path)
         {
