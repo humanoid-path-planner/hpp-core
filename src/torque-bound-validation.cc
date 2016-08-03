@@ -63,7 +63,7 @@ namespace hpp {
       return true;*/
       double m1 = 1.;
       double m2 = 1.;
-      double bound = 3.9;
+      double bound = 3.7;
       double l1 = 0.4;
       double l2 = 0.4;
       double lc1 = 0.2;
@@ -83,7 +83,7 @@ namespace hpp {
       d12 = d21 = m2*(lc2*lc2 + l1*lc2*cos(q2));
       d22 = m2*lc2*lc2;
 
-      c121 = c211 = c221 = -m2*l1*lc2/**sin(q2)*/;
+      c121 = c211 = c221 = -m2*l1*lc2*sin(q2);
       c112 = -c221;
 
       g1 = (m1*lc1 + m2*l1)*g*sin(q1) + m2*lc2*g*sin(q1+q2);
