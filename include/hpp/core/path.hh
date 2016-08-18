@@ -213,7 +213,7 @@ namespace hpp {
       }
 
       /// Should be called by child classes after having init.
-      void checkPath () const;
+      virtual void checkPath () const;
     private:
       /// Size of the configuration space
       size_type outputSize_;
