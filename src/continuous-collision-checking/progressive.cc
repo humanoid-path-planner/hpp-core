@@ -251,10 +251,10 @@ namespace hpp {
   for (se3::CollisionPairsVector_t::const_iterator itPair = colPairs.begin ();
 	     itPair != colPairs.end (); ++itPair) {
       object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-              robot_->geomModel ().geometryObjects[itPair->first].parent,
+              robot_->geomModel ().geometryObjects[itPair->first].parentJoint,
               itPair->first));
       object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-              robot_->geomModel ().geometryObjects[itPair->second].parent,
+              robot_->geomModel ().geometryObjects[itPair->second].parentJoint,
               itPair->second));
 	  bodyPairCollisions_.push_back (BodyPairCollision::create
 					 (object1->joint (), object2->joint (),

@@ -71,6 +71,7 @@ using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
 using ::se3::JointModelRUBZ;
 using ::se3::JointIndex;
+using ::se3::FrameIndex;
 
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
@@ -98,8 +99,9 @@ DevicePtr_t createRobot ()
 
   boost::shared_ptr <Box> box (new Box (1,2,1));
   fcl::CollisionObject object(box, position);
-  robot->model().appendBodyToJoint(idX,::se3::Inertia::Identity());
-  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(idX,object.collisionGeometry(),mat);
+  robot->model().appendBodyToJoint(idX,::se3::Inertia::Identity(), se3::SE3::Identity(), "body");
+  FrameIndex bodyId = robot->model().getFrameId("body");
+  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(robot->model(),bodyId,object.collisionGeometry(),mat);
   robot->geomModel().addInnerObject(idX,idObj);
 
 

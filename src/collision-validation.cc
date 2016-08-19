@@ -71,10 +71,10 @@ namespace hpp {
        if (collision) {
           CollisionValidationReportPtr_t report (new CollisionValidationReport);
           report->object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-                      robot_->geomModel ().geometryObjects[_col->first].parent,
+                      robot_->geomModel ().geometryObjects[_col->first].parentJoint,
                       _col->first));
           report->object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-                      robot_->geomModel ().geometryObjects[_col->second].parent,
+                      robot_->geomModel ().geometryObjects[_col->second].parentJoint,
                       _col->second));
           report->result = collisionResult;
           validationReport = report;
@@ -137,21 +137,21 @@ namespace hpp {
     {
       // Loop over collision pairs and remove disabled ones.
       se3::CollisionPairsVector_t::iterator _colPair = robot_->geomModel().collisionPairs.begin ();
-      se3::GeometryObject::JointIndex i1, i2;
+      se3::JointIndex j1, j2;
       fcl::CollisionResult res;
       while (_colPair != robot_->geomModel().collisionPairs.end ()) {
-        i1 = robot_->geomModel ().geometryObjects[_colPair->first].parent;
-        i2 = robot_->geomModel ().geometryObjects[_colPair->second].parent;
+        j1 = robot_->geomModel ().geometryObjects[_colPair->first ].parentJoint;
+        j2 = robot_->geomModel ().geometryObjects[_colPair->second].parentJoint;
         se3::Index idCollisionPair= robot_->geomModel().findCollisionPair(se3::CollisionPair(_colPair->first,
                                                                               _colPair->second));
-        switch (matrix(i1, i2)) {
+        switch (matrix(j1, j2)) {
           case RelativeMotion::Parameterized:
               hppDout(info, "Parameterized collision pairs between "
                   << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
                   << robot_->geomModel ().getGeometryName(_colPair->second));
               parameterizedPairs_.push_back (*_colPair);
               geomData_->deactivateCollisionPair(idCollisionPair);
-              // previously _colPair = deleteCollisionPair... How to compensate?
+              // FIXME previously _colPair = deleteCollisionPair... How to compensate?
               break;
           case RelativeMotion::Constrained:
               hppDout(info, "Disabling collision between "
@@ -164,7 +164,7 @@ namespace hpp {
               }
               disabledPairs_.push_back (*_colPair);
               geomData_->deactivateCollisionPair(idCollisionPair);
-              // previously _colPair = deleteCollisionPair... How to compensate?
+              // FIXME previously _colPair = deleteCollisionPair... How to compensate?
               break;
           case RelativeMotion::Unconstrained: ++_colPair; break;
           default:

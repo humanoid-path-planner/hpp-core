@@ -465,7 +465,10 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 
   ObjectStdVector_t obstacles;
   fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
-  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(0,box,Transform3f ());
+  // FIXME this is a bit ugly.
+  robot->model().addFrame(se3::Frame("base_link",0,Transform3f (),se3::BODY));
+  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject
+    (robot->model(), robot->model().nFrames - 1,box,Transform3f ());
   CollisionObjectPtr_t collObj (new hpp::pinocchio::CollisionObject(robot,idObj));
   obstacles.push_back (collObj);
   bpc = BodyPairCollision::create (joint_a, obstacles, 0.001);
