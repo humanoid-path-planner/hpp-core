@@ -101,17 +101,15 @@ namespace hpp {
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
         const NumericalConstraint& nc = **_ncs;
-        if (nc.comparisonType()->constantRightHandSide()) {
-          RelativeTransformationPtr_t rt =
-            HPP_DYNAMIC_PTR_CAST(RelativeTransformation,
-                nc.functionPtr());
-          if (!rt || rt->outputSize() != 6) continue;
-          const size_type i1 = idx(rt->joint1()),
-                          i2 = idx(rt->joint2());
+        RelativeTransformationPtr_t rt =
+          HPP_DYNAMIC_PTR_CAST(RelativeTransformation,
+              nc.functionPtr());
+        if (!rt || rt->outputSize() != 6) continue;
+        const size_type i1 = idx(rt->joint1()),
+                        i2 = idx(rt->joint2());
 
-          bool cstRHS = nc.comparisonType()->constantRightHandSide();
-          recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
-        }
+        bool cstRHS = nc.comparisonType()->constantRightHandSide();
+        recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
     }
 
