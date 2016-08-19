@@ -16,21 +16,47 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/collision-validation.hh>
+
 #include <hpp/fcl/collision.h>
+
+#include <pinocchio/multibody/geometry.hpp>
+
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <pinocchio/multibody/geometry.hpp>
-#include <hpp/core/collision-validation.hh>
-#include <hpp/core/collision-validation-report.hh>
+
 #include <hpp/core/relative-motion.hh>
+#include <hpp/core/collision-validation-report.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
+          const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
+        return fcl::collide (
+                    _colPair->first ->fcl (),
+                    _colPair->second->fcl (),
+                    req, res);
+      }
 
-    using pinocchio::displayConfig;
+      inline bool collide (const CollisionPairs_t& pairs,
+         const fcl::CollisionRequest& req, fcl::CollisionResult& res,
+         CollisionPairs_t::const_iterator& _col) {
+        for (_col = pairs.begin (); _col != pairs.end (); ++_col)
+          if (collide (_col, req, res) != 0)
+            return true;
+        return false;
+      }
 
-    typedef pinocchio::JointConfiguration* JointConfigurationPtr_t;
+      inline CollisionPair_t makeCollisionPair (const DevicePtr_t& d, const se3::CollisionPair& p)
+      {
+        CollisionObjectConstPtr_t o1 (new pinocchio::CollisionObject(d, p.first));
+        CollisionObjectConstPtr_t o2 (new pinocchio::CollisionObject(d, p.second));
+        return CollisionPair_t (o1, o2);
+      }
+    }
+
     CollisionValidationPtr_t CollisionValidation::create
     (const DevicePtr_t& robot)
     {
@@ -39,132 +65,104 @@ namespace hpp {
     }
 
     bool CollisionValidation::validate (const Configuration_t& config,
-					ValidationReportPtr_t& validationReport)
+                                        ValidationReportPtr_t& validationReport)
     {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
+      robot_->updateGeometryPlacements ();
+
       fcl::CollisionResult collisionResult;
-      se3::CollisionPairsVector_t::const_iterator _col;
-      bool collision = false;
-      for (_col = robot_->geomModel().collisionPairs.begin ();
-              _col != robot_->geomModel().collisionPairs.end (); ++_col) {
-          collisionResult = (geomData_->computeCollision (se3::CollisionPair(_col->first,
-                  _col->second))).fcl_collision_result;
-          if (collisionResult.isCollision ()){
-              collision = true;
-              break;
-          }
-      } 
-      // if no collision found and parameterised objects should be checked,
-      // go through them looking for collisions
-      if (!collision && checkParameterized_) {
-          for (_col = parameterizedPairs_.begin ();
-              _col != parameterizedPairs_.end (); ++_col) {
-              collisionResult = (geomData_->computeCollision (se3::CollisionPair(_col->first,
-                  _col->second))).fcl_collision_result;
-              if (collisionResult.isCollision ()){
-                  collision = true;
-                  break;
-              }
-          }
-       }
-       if (collision) {
-          CollisionValidationReportPtr_t report (new CollisionValidationReport);
-          report->object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-                      robot_->geomModel ().geometryObjects[_col->first].parentJoint,
-                      _col->first));
-          report->object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-                      robot_->geomModel ().geometryObjects[_col->second].parentJoint,
-                      _col->second));
-          report->result = collisionResult;
-          validationReport = report;
-          return false;
+      CollisionPairs_t::const_iterator _col;
+      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+          ||
+          ( checkParameterized_ &&
+            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+          )) {
+        CollisionValidationReportPtr_t report (new CollisionValidationReport);
+        report->object1 = _col->first;
+        report->object2 = _col->second;
+        report->result = collisionResult;
+        validationReport = report;
+        return false;
       }
       return true;
     }
 
     void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
     {
-      using pinocchio::COLLISION;
       const JointVector_t& jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
-	   ++it) {
-	JointPtr_t joint = JointPtr_t (new Joint(**it));
-	BodyPtr_t body = joint->linkedBody ();
-	if (body) {
-	  const ObjectVector_t& bodyObjects = body->innerObjects ();
-	  for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-	       itInner != bodyObjects.end (); ++itInner) {
-        // TODO: check the objects are not in same joint
-      robot_->geomModel().addCollisionPair (se3::CollisionPair((*itInner)->indexInModel (), object->indexInModel ()));
-	  }
-	}
+          ++it) {
+        JointPtr_t joint = JointPtr_t (new Joint(**it));
+        BodyPtr_t body = joint->linkedBody ();
+        if (body) {
+          const ObjectVector_t& bodyObjects = body->innerObjects ();
+          for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
+              itInner != bodyObjects.end (); ++itInner) {
+            // TODO: check the objects are not in same joint
+            collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+          }
+        }
       }
     }
 
     void CollisionValidation::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
-      using pinocchio::COLLISION;
       BodyPtr_t body = joint->linkedBody ();
       if (body) {
-	const ObjectVector_t& bodyObjects = body->innerObjects ();
-	for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-	     itInner != bodyObjects.end (); ++itInner) {
-	  CollisionPair_t colPair = std::make_pair(*itInner, obstacle);
-    if (!robot_->geomModel().existCollisionPair(se3::CollisionPair(colPair.first->indexInModel (),
-                                                                  colPair.second->indexInModel ()))) {
-      std::ostringstream oss;
-      oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
-    << obstacle->name () <<
-        "\" is not registered as obstacle for joint \"" << joint->name ()
-    << "\".";
-      throw std::runtime_error (oss.str ());
-    } /*else if (before - after >= 2) {
-      hppDout (error, "obstacle "<< obstacle->name () <<
-         " was registered " << before - after
-         << " times as obstacle for joint " << joint->name ()
-         << ".");
-    }*/ // FIXME
-    se3::Index idCollisionPair= robot_->geomModel().findCollisionPair(se3::CollisionPair(colPair.first->indexInModel (),
-                                                                          colPair.second->indexInModel ()));
-    geomData_->deactivateCollisionPair(idCollisionPair);
-	}
+        const ObjectVector_t& bodyObjects = body->innerObjects ();
+        for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
+            itInner != bodyObjects.end (); ++itInner) {
+          CollisionPair_t colPair (*itInner, obstacle);
+          std::size_t before = collisionPairs_.size ();
+          collisionPairs_.remove (colPair);
+          std::size_t after = collisionPairs_.size ();
+          if (after == before) {
+            std::ostringstream oss;
+            oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
+                << obstacle->name () <<
+                "\" is not registered as obstacle for joint \"" << joint->name ()
+                << "\".";
+            throw std::runtime_error (oss.str ());
+          } else if (before - after >= 2) {
+            hppDout (error, "obstacle "<< obstacle->name () <<
+                     " was registered " << before - after
+                     << " times as obstacle for joint " << joint->name ()
+                     << ".");
+          }
+        }
       }
     }
 
     void CollisionValidation::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
       // Loop over collision pairs and remove disabled ones.
-      se3::CollisionPairsVector_t::iterator _colPair = robot_->geomModel().collisionPairs.begin ();
+      CollisionPairs_t::iterator _colPair = collisionPairs_.begin ();
       se3::JointIndex j1, j2;
-      fcl::CollisionResult res;
-      while (_colPair != robot_->geomModel().collisionPairs.end ()) {
-        j1 = robot_->geomModel ().geometryObjects[_colPair->first ].parentJoint;
-        j2 = robot_->geomModel ().geometryObjects[_colPair->second].parentJoint;
-        se3::Index idCollisionPair= robot_->geomModel().findCollisionPair(se3::CollisionPair(_colPair->first,
-                                                                              _colPair->second));
+      fcl::CollisionResult unused;
+      while (_colPair != collisionPairs_.end ()) {
+        j1 = _colPair->first ->jointIndex();
+        j2 = _colPair->second->jointIndex();
+
         switch (matrix(j1, j2)) {
           case RelativeMotion::Parameterized:
               hppDout(info, "Parameterized collision pairs between "
-                  << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
-                  << robot_->geomModel ().getGeometryName(_colPair->second));
+                  << _colPair->first ->name() << " and "
+                  << _colPair->second->name());
               parameterizedPairs_.push_back (*_colPair);
-              geomData_->deactivateCollisionPair(idCollisionPair);
-              // FIXME previously _colPair = deleteCollisionPair... How to compensate?
+              _colPair = collisionPairs_.erase (_colPair);
               break;
           case RelativeMotion::Constrained:
               hppDout(info, "Disabling collision between "
-                  << robot_->geomModel ().getGeometryName(_colPair->first) << " and "
-                  << robot_->geomModel ().getGeometryName(_colPair->second));
-              res = geomData_->computeCollision (se3::CollisionPair(_colPair->first, _colPair->second)).fcl_collision_result;
-              if (res.isCollision ()) {
+                  << _colPair->first ->name() << " and "
+                  << _colPair->second->name());
+              if (collide (_colPair, collisionRequest_, unused) != 0) {
                 hppDout(warning, "Disabling collision detection between two "
-                    "bodies in collision.");
+                    "body in collision.");
               }
               disabledPairs_.push_back (*_colPair);
-              geomData_->deactivateCollisionPair(idCollisionPair);
-              // FIXME previously _colPair = deleteCollisionPair... How to compensate?
+              _colPair = collisionPairs_.erase (_colPair);
               break;
           case RelativeMotion::Unconstrained: ++_colPair; break;
           default:
@@ -176,11 +174,20 @@ namespace hpp {
     }
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
+      collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
       robot_ (robot),
-      geomData_ (robot->geomDataPtr()),
       parameterizedPairs_(), disabledPairs_(),
       checkParameterized_(false)
-          {}
+    {
+      const se3::GeometryModel& model = robot->geomModel();
+      const se3::GeometryData & data  = robot->geomData();
+
+      for (std::size_t i = 0; i < model.collisionPairs.size(); ++i)
+        if (data.activeCollisionPairs[i])
+          collisionPairs_.push_back(
+              makeCollisionPair(robot, model.collisionPairs[i])
+              );
+    }
 
   } // namespace core
 } // namespace hpp

@@ -22,7 +22,6 @@
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/config-validation.hh>
 # include <hpp/fcl/collision_data.h>
-#include <pinocchio/multibody/geometry.hpp>
 
 namespace hpp {
   namespace core {
@@ -72,13 +71,17 @@ namespace hpp {
         return checkParameterized_;
       }
 
+      /// fcl low level request object used for collision checking.
+      /// modify this attribute to obtain more detailed validation
+      /// reports in a call to validate.
+      fcl::CollisionRequest collisionRequest_;
     protected:
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
     private:
-      pinocchio::GeomDataPtr_t geomData_;
-      se3::CollisionPairsVector_t parameterizedPairs_;
-      se3::CollisionPairsVector_t disabledPairs_;
+      CollisionPairs_t collisionPairs_,
+                       parameterizedPairs_,
+                       disabledPairs_;
 
       bool checkParameterized_;
     }; // class ConfigValidation
