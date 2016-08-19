@@ -20,7 +20,6 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/comparison-type.hh>
 
 namespace hpp {
   namespace core {

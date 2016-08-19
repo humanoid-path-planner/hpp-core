@@ -17,7 +17,6 @@
 #define BOOST_TEST_MODULE ConfigProjector 
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/core/config-projector.hh>
 #include <hpp/model/device.hh>
 
 #include <hpp/pinocchio/device.hh>
@@ -28,6 +27,10 @@
 #include <hpp/constraints/generic-transformation.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
+
+#include <hpp/core/config-projector.hh>
+#include <hpp/core/comparison-type.hh>
+#include <hpp/core/numerical-constraint.hh>
 
 #include "../tests/utils.hh"
 

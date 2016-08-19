@@ -1,3 +1,5 @@
+#include <hpp/model/device.hh>
+
 #include <hpp/pinocchio/hpp-model/conversions.hh>
 #include <hpp/pinocchio/hpp-model/model-loader.hh>
 

@@ -18,6 +18,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
+
 #include <hpp/util/debug.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/node.hh>

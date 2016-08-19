@@ -17,7 +17,6 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/discretized-collision-checking.hh>
-#include <hpp/core/discretized-path-validation.hh>
 #include <hpp/core/collision-validation.hh>
 
 namespace hpp {

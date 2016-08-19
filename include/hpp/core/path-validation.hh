@@ -19,8 +19,8 @@
 #ifndef HPP_CORE_PATH_VALIDATION_HH
 # define HPP_CORE_PATH_VALIDATION_HH
 
-# include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
+# include <hpp/core/config.hh>
 # include <hpp/core/relative-motion.hh>
 
 namespace hpp {

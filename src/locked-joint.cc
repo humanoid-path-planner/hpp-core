@@ -23,6 +23,8 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
+#include <hpp/core/comparison-type.hh>
+
 namespace hpp {
   namespace core {
     namespace {

@@ -16,10 +16,14 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/path-optimization/path-length.hh>
+
 #include <Eigen/LU>
 #include <hpp/util/debug.hh>
+
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/core/path-optimization/path-length.hh>
+
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/weighed-distance.hh>

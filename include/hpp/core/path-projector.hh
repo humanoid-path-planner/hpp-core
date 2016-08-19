@@ -17,11 +17,8 @@
 #ifndef HPP_CORE_PATHPROJECTOR_HH
 # define HPP_CORE_PATHPROJECTOR_HH
 
-# include "hpp/core/config.hh"
-# include "hpp/core/fwd.hh"
-
-# include <hpp/core/path.hh>
-# include <hpp/core/straight-path.hh>
+# include <hpp/core/config.hh>
+# include <hpp/core/fwd.hh>
 
 namespace hpp {
   namespace core {

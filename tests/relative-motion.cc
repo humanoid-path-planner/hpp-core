@@ -37,8 +37,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <hpp/model/device.hh>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -178,8 +176,8 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   Jidx jointid;
   jointid.dev = dev;
 
-  JointPtr_t ja1 = dev->getJointByName ("joint_a1"),
-             jb2 = dev->getJointByName ("joint_b2");
+  JointConstPtr_t ja1 = dev->getJointByName ("joint_a1"),
+                  jb2 = dev->getJointByName ("joint_b2");
 
   ConfigProjectorPtr_t proj = ConfigProjector::create (dev, "test", 1e-3, 10);
   ConstraintSetPtr_t constraints = ConstraintSet::create (dev, "test");

@@ -41,6 +41,7 @@
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/interpolated-path.hh>

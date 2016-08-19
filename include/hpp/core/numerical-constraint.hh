@@ -19,6 +19,7 @@
 # define HPP_CORE_NUMERICALCONSTRAINT_HH
 
 # include <hpp/core/equation.hh>
+# include <hpp/core/comparison-type.hh> // ComparisonType::createDefault()
 
 namespace hpp {
   namespace core {

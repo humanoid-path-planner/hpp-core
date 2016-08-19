@@ -19,7 +19,6 @@
 #ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PROGRESSIVE_HH
 # define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PROGRESSIVE_HH
 
-# include <hpp/core/collision-path-validation-report.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {

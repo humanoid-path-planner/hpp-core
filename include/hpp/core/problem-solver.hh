@@ -20,15 +20,15 @@
 # define HPP_CORE_PROBLEM_SOLVER_HH
 
 # include <stdexcept>
+# include <boost/function.hpp>
 
 # include <hpp/pinocchio/fwd.hh>
-# include <boost/function.hpp>
-# include <hpp/core/deprecated.hh>
-# include <hpp/core/problem.hh>
+
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/config-projector.hh>
+# include <hpp/core/deprecated.hh>
 # include <hpp/core/container.hh>
+# include <hpp/core/comparison-type.hh> // ComparisonType::VectorOfTypes
 
 namespace hpp {
   namespace core {
@@ -362,33 +362,14 @@ namespace hpp {
       /// Set the comparison types of a constraint.
       /// \param name name of the differentiable function.
       void comparisonType (const std::string& name,
-			   const ComparisonType::VectorOfTypes types)
-      {
-        if (!has <NumericalConstraintPtr_t> (name))
-          throw std::logic_error (std::string ("Numerical constraint ") +
-				  name + std::string (" not defined."));
-        ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
-        get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
-      }
+			   const ComparisonType::VectorOfTypes types);
 
       /// Set the comparison type of a constraint
       /// \param name name of the differentiable function.
       void comparisonType (const std::string& name,
-			   const ComparisonTypePtr_t eq)
-      {
-        if (!has <NumericalConstraintPtr_t> (name))
-          throw std::logic_error (std::string ("Numerical constraint ") +
-				  name + std::string (" not defined."));
-        get<NumericalConstraintPtr_t> (name)->comparisonType (eq);
-      }
+			   const ComparisonTypePtr_t eq);
 
-      ComparisonTypePtr_t comparisonType (const std::string& name) const
-      {
-        if (!has <NumericalConstraintPtr_t> (name))
-          throw std::logic_error (std::string ("Numerical constraint ") +
-				  name + std::string (" not defined."));
-        return get<NumericalConstraintPtr_t> (name)->comparisonType ();
-      }
+      ComparisonTypePtr_t comparisonType (const std::string& name) const;
 
       /// Get constraint with given name
       NumericalConstraintPtr_t numericalConstraint (const std::string& name)
@@ -412,13 +393,7 @@ namespace hpp {
 				    vector_t& value, matrix_t& jacobian) const;
 
       /// Set maximal number of iterations in config projector
-      void maxIterations (size_type iterations)
-      {
-	maxIterations_ = iterations;
-	if (constraints_ && constraints_->configProjector ()) {
-	  constraints_->configProjector ()->maxIterations (iterations);
-	}
-      }
+      void maxIterations (size_type iterations);
       /// Get maximal number of iterations in config projector
       size_type maxIterations () const
       {
@@ -426,13 +401,7 @@ namespace hpp {
       }
 
       /// Set error threshold in config projector
-      void errorThreshold (const value_type& threshold)
-      {
-	errorThreshold_ = threshold;
-	if (constraints_ && constraints_->configProjector ()) {
-	  constraints_->configProjector ()->errorThreshold (threshold);
-	}
-      }
+      void errorThreshold (const value_type& threshold);
       /// Get errorimal number of threshold in config projector
       value_type errorThreshold () const
       {
@@ -608,12 +577,7 @@ namespace hpp {
       ConstraintSetPtr_t constraints_;
 
       /// Set pointer to problem
-      void problem (ProblemPtr_t problem)
-      {
-        if (problem_)
-          delete problem_;
-	problem_ = problem;
-      }
+      void problem (ProblemPtr_t problem);
 
       /// Initialize the new problem
       /// \param problem is inserted in the ProblemSolver and initialized.

@@ -16,14 +16,16 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/distance-between-objects.hh>
+
 #include <hpp/fcl/distance.h>
+
+#include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <pinocchio/multibody/geometry.hpp>
-#include <hpp/core/distance-between-objects.hh>
 
 namespace hpp {
   namespace core {

@@ -213,13 +213,13 @@ namespace hpp {
 	    for (std::vector<CollisionObjectConstPtr_t>::const_iterator ita = objects_a_.begin ();
 		 ita != objects_a_.end (); ++ita) {
 	      // Compute position of object a
-        pinocchio::fclCollisionObjectPtr_t object_a = 
+        pinocchio::FclCollisionObjectPtr_t object_a =
         const_cast<fcl::CollisionObject*> ((*ita)->fcl ());
 	      object_a->setTransform (se3::toFclTransform3f(Ma * (*ita)->positionInJointFrame ()));
 	      for (std::vector<CollisionObjectConstPtr_t>::const_iterator itb = objects_b_.begin ();
 		            itb != objects_b_.end (); ++itb) {
 		      // Compute position of object b
-          pinocchio::fclCollisionObjectPtr_t object_b = 
+          pinocchio::FclCollisionObjectPtr_t object_b =
             const_cast<fcl::CollisionObject*> ((*itb)->fcl ());
 		      object_b->setTransform (se3::toFclTransform3f(Mb * (*itb)->positionInJointFrame ()));
 		      // Perform collision test

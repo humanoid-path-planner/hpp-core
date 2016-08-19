@@ -20,6 +20,7 @@
 #ifndef HPP_CORE_PROBLEM_HH
 # define HPP_CORE_PROBLEM_HH
 
+# include <stdexcept>
 # include <boost/any.hpp>
 
 # include <hpp/pinocchio/device.hh>

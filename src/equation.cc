@@ -16,6 +16,8 @@
 
 #include "hpp/core/equation.hh"
 
+#include <hpp/core/comparison-type.hh>
+
 namespace hpp {
   namespace core {
     void Equation::rightHandSide (vectorIn_t rhs)

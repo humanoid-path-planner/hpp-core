@@ -19,6 +19,7 @@
 
 # include <map>
 # include <list>
+# include <stdexcept>
 
 # include <boost/smart_ptr/shared_ptr.hpp>
 

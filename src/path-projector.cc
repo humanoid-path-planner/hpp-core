@@ -16,7 +16,6 @@
 
 #include "hpp/core/path-projector.hh"
 
-#include <hpp/util/pointer.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/steering-method.hh>

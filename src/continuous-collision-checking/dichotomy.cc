@@ -16,13 +16,14 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <deque>
-#include <hpp/util/debug.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
+
+#include <deque>
+#include <pinocchio/multibody/geometry.hpp>
+#include <hpp/util/debug.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
-#include <pinocchio/multibody/geometry.hpp>
 
 #include "continuous-collision-checking/dichotomy/body-pair-collision.hh"
 
@@ -287,28 +288,27 @@ namespace hpp {
 	robot_ (robot), tolerance_ (tolerance),
 	bodyPairCollisions_ ()
       {
-	// Tolerance should be equal to 0, otherwise end of valid
-	// sub-path might be in collision.
-	if (tolerance != 0) {
-	  throw std::runtime_error ("Dichotomy path validation method does not"
-				    "support penetration.");
-	}
-	// Build body pairs for collision checking
-	// First auto-collision
-	se3::CollisionPairsVector_t colPairs = robot->geomModel ().collisionPairs;
-  CollisionObjectPtr_t object1, object2;
-	for (se3::CollisionPairsVector_t::const_iterator itPair = colPairs.begin ();
-	     itPair != colPairs.end (); ++itPair) {
-      object1 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-              robot_->geomModel ().geometryObjects[itPair->first].parentJoint,
-              itPair->first));
-      object2 = CollisionObjectPtr_t (new pinocchio::CollisionObject (robot_,
-              robot_->geomModel ().geometryObjects[itPair->second].parentJoint,
-              itPair->second));
-	  bodyPairCollisions_.push_back (BodyPairCollision::create
-					 (object1->joint (), object2->joint (),
-					  tolerance_));
-	}
+        // Tolerance should be equal to 0, otherwise end of valid
+        // sub-path might be in collision.
+        if (tolerance != 0) {
+          throw std::runtime_error ("Dichotomy path validation method does not"
+              "support penetration.");
+        }
+        // Build body pairs for collision checking
+        // First auto-collision
+        // FIXME The pairs of joint are duplicated
+        const se3::GeometryModel& gmodel = robot->geomModel ();
+        JointPtr_t joint1, joint2;
+        for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
+        {
+          const se3::CollisionPair& cp = gmodel.collisionPairs[i];
+          joint1 = JointPtr_t(new Joint(robot_,
+                gmodel.geometryObjects[cp.first].parentJoint));
+          joint2 = JointPtr_t(new Joint(robot_,
+                gmodel.geometryObjects[cp.second].parentJoint));
+          bodyPairCollisions_.push_back (BodyPairCollision::create
+              (joint1, joint2, tolerance_));
+        }
       }
     } // namespace continuousCollisionChecking
   } // namespace core

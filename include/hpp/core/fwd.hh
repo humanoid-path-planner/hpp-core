@@ -106,8 +106,7 @@ namespace hpp {
     CollisionValidationReportPtr_t;
     typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef pinocchio::CollisionObjectConstPtr_t CollisionObjectConstPtr_t;
-    typedef pinocchio::fclCollisionObjectPtr_t fclCollisionObjectPtr_t;
-    typedef pinocchio::fclConstCollisionObjectPtr_t fclConstCollisionObjectPtr_t;
+    typedef pinocchio::FclCollisionObject FclCollisionObject;
 
     typedef pinocchio::Configuration_t Configuration_t;
     typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;

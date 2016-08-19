@@ -19,7 +19,6 @@
 #ifndef HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 # define HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 
-# include <hpp/core/path-validation-report.hh>
 # include <hpp/core/discretized-path-validation.hh>
 
 namespace hpp {

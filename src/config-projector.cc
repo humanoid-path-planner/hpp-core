@@ -16,19 +16,24 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/config-projector.hh>
+
 #include <limits>
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
+
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint.hh>
+
 #include <hpp/constraints/svd.hh>
 #include <hpp/constraints/macros.hh>
-#include <hpp/core/config-projector.hh>
-#include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/differentiable-function.hh>
+
+#include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
+#include <hpp/core/comparison-type.hh>
+#include <hpp/core/numerical-constraint.hh>
 
 // #define SVD_THRESHOLD Eigen::NumTraits<value_type>::dummy_precision()
 #define SVD_THRESHOLD 1e-8

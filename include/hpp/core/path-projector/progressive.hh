@@ -17,7 +17,7 @@
 #ifndef HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH
 # define HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH
 
-# include "hpp/core/path-projector.hh"
+# include <hpp/core/path-projector.hh>
 
 namespace hpp {
   namespace core {

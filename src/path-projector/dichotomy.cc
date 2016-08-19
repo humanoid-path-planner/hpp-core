@@ -16,11 +16,13 @@
 
 #include "hpp/core/path-projector/dichotomy.hh"
 
-#include <hpp/core/path-vector.hh>
-#include <hpp/core/config-projector.hh>
-
 #include <queue>
 #include <stack>
+#include <stdexcept>
+
+#include <hpp/core/path-vector.hh>
+#include <hpp/core/straight-path.hh>
+#include <hpp/core/config-projector.hh>
 
 namespace hpp {
   namespace core {

@@ -21,13 +21,11 @@
 
 # include <Eigen/SVD>
 
+# include <hpp/statistics/success-bin.hh>
+
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
-# include <hpp/core/comparison-type.hh>
-# include <hpp/core/numerical-constraint.hh>
-# include "hpp/core/deprecated.hh"
-
-# include <hpp/statistics/success-bin.hh>
+# include <hpp/core/deprecated.hh>
 
 namespace hpp {
   namespace core {

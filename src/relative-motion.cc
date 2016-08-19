@@ -25,6 +25,8 @@
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/comparison-type.hh>
+#include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/locked-joint.hh>
 
 namespace hpp {

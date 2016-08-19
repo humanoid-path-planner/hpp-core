@@ -16,33 +16,42 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/problem-solver.hh>
+
 #include <boost/bind.hpp>
 
+#include <pinocchio/multibody/fcl.hpp>
+
 #include <hpp/util/debug.hh>
+
 #include <hpp/pinocchio/collision-object.hh>
+
 #include <hpp/constraints/differentiable-function.hh>
+
+#include <hpp/core/basic-configuration-shooter.hh>
 #include <hpp/core/bi-rrt-planner.hh>
-#include <hpp/core/problem-solver.hh>
-#include <hpp/core/diffusing-planner.hh>
-#include <hpp/core/distance-between-objects.hh>
-#include <hpp/core/roadmap.hh>
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/diffusing-planner.hh>
+#include <hpp/core/distance-between-objects.hh>
+#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
+#include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/random-shortcut.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/basic-configuration-shooter.hh>
 
 namespace hpp {
   namespace core {
@@ -351,6 +360,33 @@ namespace hpp {
 			    SizeIntervals_t (0), priority);
     }
 
+    void ProblemSolver::comparisonType (const std::string& name,
+        const ComparisonType::VectorOfTypes types)
+    {
+      if (!has <NumericalConstraintPtr_t> (name))
+        throw std::logic_error (std::string ("Numerical constraint ") +
+            name + std::string (" not defined."));
+      ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
+      get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
+    }
+
+    void ProblemSolver::comparisonType (const std::string& name,
+        const ComparisonTypePtr_t eq)
+    {
+      if (!has <NumericalConstraintPtr_t> (name))
+        throw std::logic_error (std::string ("Numerical constraint ") +
+            name + std::string (" not defined."));
+      get<NumericalConstraintPtr_t> (name)->comparisonType (eq);
+    }
+
+    ComparisonTypePtr_t ProblemSolver::comparisonType (const std::string& name) const
+    {
+      if (!has <NumericalConstraintPtr_t> (name))
+        throw std::logic_error (std::string ("Numerical constraint ") +
+            name + std::string (" not defined."));
+      return get<NumericalConstraintPtr_t> (name)->comparisonType ();
+    }
+
     void ProblemSolver::computeValueAndJacobian
     (const Configuration_t& configuration, vector_t& value, matrix_t& jacobian)
       const
@@ -372,6 +408,22 @@ namespace hpp {
       jacobian.resize (rows, configProjector->numberNonLockedDof ());
       value.resize (rows);
       configProjector->computeValueAndJacobian (configuration, value, jacobian);
+    }
+
+    void ProblemSolver::maxIterations (size_type iterations)
+    {
+      maxIterations_ = iterations;
+      if (constraints_ && constraints_->configProjector ()) {
+        constraints_->configProjector ()->maxIterations (iterations);
+      }
+    }
+
+    void ProblemSolver::errorThreshold (const value_type& threshold)
+    {
+      errorThreshold_ = threshold;
+      if (constraints_ && constraints_->configProjector ()) {
+        constraints_->configProjector ()->errorThreshold (threshold);
+      }
     }
 
     void ProblemSolver::resetProblem ()
@@ -399,6 +451,14 @@ namespace hpp {
 	(new DistanceBetweenObjects (robot_));
       distanceBetweenObjects_->obstacles(distanceObstacles_);
     }
+
+    void ProblemSolver::problem (ProblemPtr_t problem)
+    {
+      if (problem_)
+        delete problem_;
+      problem_ = problem;
+    }
+
 
     void ProblemSolver::resetRoadmap ()
     {

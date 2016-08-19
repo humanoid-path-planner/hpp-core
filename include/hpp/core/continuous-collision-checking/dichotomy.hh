@@ -19,7 +19,8 @@
 #ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_DICHOTOMY_HH
 # define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_DICHOTOMY_HH
 
-# include <hpp/core/collision-path-validation-report.hh>
+# include <hpp/core/fwd.hh>
+# include <hpp/core/config.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {

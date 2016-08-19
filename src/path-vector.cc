@@ -18,6 +18,8 @@
 
 #include <hpp/core/path-vector.hh>
 
+#include <stdexcept>
+
 namespace hpp {
   namespace core {
 
