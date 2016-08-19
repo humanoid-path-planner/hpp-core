@@ -314,21 +314,6 @@ namespace hpp {
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
-      /// \param function left hand side of numerical constraint
-      ///
-      /// Numerical constraints are to be inserted in the ConfigProjector of
-      /// the constraint set.
-      void addNumericalConstraint (const std::string& name,
-				   const DifferentiableFunctionPtr_t&
-				   function) HPP_CORE_DEPRECATED
-      {
-	NumericalConstraintPtr_t constraint (NumericalConstraint::create
-					     (function));
-        add <NumericalConstraintPtr_t> (name, constraint);
-      }
-
-      /// Add a a numerical constraint in local map.
-      /// \param name name of the numerical constraint as stored in local map,
       /// \param constraint numerical constraint
       ///
       /// Numerical constraints are to be inserted in the ConfigProjector of
