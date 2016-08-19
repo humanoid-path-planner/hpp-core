@@ -108,7 +108,7 @@ namespace hpp {
       JointJacobian_t jacobian(6, robot->numberDof());
       const JointVector_t jointVector (robot->getJointVector ());
       const se3::Model& model = robot->model();
-      const se3::Data& data = robot->model();
+      const se3::Data& data = robot->data();
       for (se3::JointIndex i = 1; i < model.joints.size(); ++i)
       {
 	  value_type length = 0;
