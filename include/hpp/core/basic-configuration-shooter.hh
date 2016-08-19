@@ -20,9 +20,11 @@
 # define HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 
 # include <sstream>
-# include <hpp/pinocchio/device.hh>
-# include <hpp/pinocchio/joint.hh>
+
 # include <pinocchio/algorithm/joint-configuration.hpp>
+
+# include <hpp/pinocchio/device.hh>
+
 # include <hpp/core/configuration-shooter.hh>
 
 namespace hpp {
@@ -45,16 +47,13 @@ namespace hpp {
       virtual ConfigurationPtr_t shoot () const
       {
 	JointVector_t jv = robot_->getJointVector ();
-    Configuration_t config(robot_->configSize ());
-    /*for (JointVector_t::const_iterator itJoint = jv.begin ();
-	     itJoint != jv.end (); itJoint++) {
-	  std::size_t rank = (*itJoint)->rankInConfiguration ();
-      (*itJoint)->jointModel().uniformlySample (rank, *config);
-    }*/
-    config = se3::randomConfiguration(robot_->model());
-	// Shoot extra configuration variables
 	size_type extraDim = robot_->extraConfigSpace ().dimension ();
 	size_type offset = robot_->configSize () - extraDim;
+
+        Configuration_t config(robot_->configSize ());
+        config.head(offset) = se3::randomConfiguration(robot_->model());
+
+	// Shoot extra configuration variables
 	for (size_type i=0; i<extraDim; ++i) {
 	  value_type lower = robot_->extraConfigSpace ().lower (i);
 	  value_type upper = robot_->extraConfigSpace ().upper (i);
@@ -66,7 +65,7 @@ namespace hpp {
 	    oss << i << ". min = " <<lower<< ", max = " << upper << std::endl;
 	    throw std::runtime_error (oss.str ());
 	  }
-      config [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
+	  config [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
 	}
     return boost::make_shared<Configuration_t>(config);
       }
