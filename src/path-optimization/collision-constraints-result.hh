@@ -43,8 +43,8 @@ namespace hpp {
        virtual ~CollisionConstraint () {}
        static CollisionConstraintPtr_t create
        (const DevicePtr_t& robot, const Configuration_t& qFree,
-	const Configuration_t& qColl, const CollisionObjectPtr_t& object1,
-	const CollisionObjectPtr_t& object2)
+	const Configuration_t& qColl, const CollisionObjectConstPtr_t& object1,
+	const CollisionObjectConstPtr_t& object2)
        {
          CollisionConstraint* ptr = new CollisionConstraint
            (robot, qFree, qColl, object1, object2);
@@ -55,8 +55,8 @@ namespace hpp {
        CollisionConstraint (const DevicePtr_t& robot,
                             const Configuration_t& qFree,
                             const Configuration_t& qColl,
-			    const CollisionObjectPtr_t& object1,
-			    const CollisionObjectPtr_t& object2)
+			    const CollisionObjectConstPtr_t& object1,
+			    const CollisionObjectConstPtr_t& object2)
          : DifferentiableFunction (robot->configSize (), robot->numberDof (),
                                    1, ""), robot_ (robot), qFree_ (qFree),
            J_ (), difference_ ()
@@ -75,10 +75,11 @@ namespace hpp {
 	 const vector3_t& contactPoint (result.getContact (0).pos);
 	 hppDout (info, "contact point = " << contactPoint);
 
-	 JointPtr_t joint1 = object1->joint ();
+	 JointConstPtr_t joint1 = object1->joint ();
+         // FIXME this copy can probably be avoided.
 	 Transform3f M1 (joint1->currentTransformation ());
 	 if (object2->joint ()) { // object2 = body part
-	   JointPtr_t joint2 = object2->joint ();
+	   JointConstPtr_t joint2 = object2->joint ();
 	   Transform3f M2 (joint2->currentTransformation ());
 	   // Position of contact point in each object local frame
        vector3_t x1_J1 = M1.actInv (contactPoint);
@@ -257,8 +258,8 @@ namespace hpp {
 	DevicePtr_t robot_;
 	size_type robotNumberDofs_;
 	size_type nbNonLockedDofs_;
-	CollisionObjectPtr_t object1_;
-	CollisionObjectPtr_t object2_;
+	CollisionObjectConstPtr_t object1_;
+	CollisionObjectConstPtr_t object2_;
 	value_type posAlongLocalPath_; // posAlongLocalPath_ \in [0,1]
 	size_type localPathId_; // index in global path
 	ConfigProjectorPtr_t configProjector_;

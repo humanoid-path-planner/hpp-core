@@ -33,9 +33,9 @@ namespace hpp {
     struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport
     {
       /// First object in collision
-      CollisionObjectPtr_t object1;
+      CollisionObjectConstPtr_t object1;
       /// Second object in collision
-      CollisionObjectPtr_t object2;
+      CollisionObjectConstPtr_t object2;
       /// fcl collision results
       fcl::CollisionResult result;
       /// Write report in a stream
