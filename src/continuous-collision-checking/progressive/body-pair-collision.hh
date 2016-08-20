@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2014 CNRS
-// Authors: Florent Lamiraux
+// Copyright (c) 2014,2015,2016 CNRS
+// Authors: Florent Lamiraux, Joseph Mirabel
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -180,7 +180,7 @@ namespace hpp {
 	  }
 
 
-	  const std::vector <JointPtr_t>& joints () const
+	  const std::vector <se3::JointIndex>& joints () const
 	  {
 	    return joints_;
 	  }
@@ -502,104 +502,71 @@ namespace hpp {
 	  }
 
 	private:
+          typedef se3::JointIndex JointIndex;
+
 	  void computeSequenceOfJoints ()
-	  {
-	    JointPtr_t j, commonAncestor;
-	    std::vector <JointPtr_t> aAncestors;
-      aAncestors.clear ();
-	    std::deque <JointPtr_t> bAncestors;
-      bAncestors.clear ();
-      pinocchio::Joint::Index minIdx, idx;
-      pinocchio::DeviceConstPtr_t robot =joint_a_->robot ();
+          {
+            joints_.clear ();
 
-      if (joint_a_->index () > joint_b_->index ()) {
-        idx = joint_a_->index ();
-        minIdx = joint_a_->index ();
-        j = joint_a_;
-      } else {
-        idx = joint_b_->index ();
-        minIdx = joint_a_->index ();
-        j = joint_b_;
-      }
+            const se3::Model& model = joint_a_->robot ()->model();
+            const JointIndex id_a = joint_a_->index(),
+                             id_b = joint_b_->index();
+            JointIndex ia = id_a, ib = id_b;
 
-      while (idx > minIdx) {
-        idx = robot->model ().parents[idx];
-      }
+            std::vector<JointIndex> fromA, fromB;
+            while (ia != ib)
+            {
+              if (ia > ib) {
+                fromA.push_back(ia);
+                ia = model.parents[ia];
+              } else /* if (ia < ib) */ {
+                fromB.push_back(ib);
+                ib = model.parents[ib];
+              }
+            }
+            assert (ia == ib);
+            fromA.push_back(ia);
 
-      // TODO:: Check for possibility of not having a common ancestor???
-      commonAncestor = pinocchio::JointPtr_t (new pinocchio::Joint 
-              (boost::const_pointer_cast<pinocchio::Device>(robot), idx));
+            // Check joint vectors
+            if (fromB.empty()) assert (fromA.back() == id_b);
+            else               assert (model.parents[fromB.back()] == ia);
 
-      idx = joint_a_->index ();
-      j = joint_a_;
-      while (idx != commonAncestor->index ()) {
-          // only add to ancestors of joint_a_, not the joint itself
-          if (idx != joint_a_->index ()) {
-	          aAncestors.push_back (j);
+            // Build sequence
+            joints_ = fromA;
+            joints_.insert(joints_.end(), fromB.rbegin(), fromB.rend());
+            assert(joints_.size() > 1);
           }
-          idx = robot->model ().parents[idx];
-          j = pinocchio::JointPtr_t (new pinocchio::Joint 
-              (boost::const_pointer_cast<pinocchio::Device>(robot), idx));
-	    } // if joint_a_ is the root joint, it will have no ancestors
-        // and the vector is empty
-
-      idx = joint_b_->index ();
-      j = joint_b_;
-	    // Build vector of ancestors of joint_b in reverse order.
-	    while (idx != commonAncestor->index ()) {
-          if (idx != joint_b_->index ()) {
-	          bAncestors.push_front (j);
-          }
-          idx = robot->model ().parents[idx];
-          j = pinocchio::JointPtr_t (new pinocchio::Joint 
-              (boost::const_pointer_cast<pinocchio::Device>(robot), idx));
-      }
-
-	    // build sequence of joints
-	    joints_.clear ();
-      joints_.push_back (joint_a_);
-	    for (std::vector <JointPtr_t>::const_iterator it =
-		   aAncestors.begin (); it != aAncestors.end (); ++it) {
-	      joints_.push_back (*it);
-	    }
-	    joints_.push_back (commonAncestor);
-	    indexCommonAncestor_ = joints_.size () - 1;
-	    for (std::deque <JointPtr_t>::const_iterator it =
-		   bAncestors.begin (); it != bAncestors.end (); ++it) {
-		      joints_.push_back (*it);
-	    }
-      joints_.push_back (joint_b_);
-
-    }
 
 	  void computeCoefficients ()
 	  {
+            const se3::Model& model = joint_a_->robot ()->model();
+
 	    JointPtr_t child;
 	    assert (joints_.size () > 1);
-	    coefficients_.resize (joints_.size () - 1);
-      pinocchio::DeviceConstPtr_t robot =joint_a_->robot ();
+            coefficients_.resize (joints_.size () - 1);
+            pinocchio::DevicePtr_t robot =joint_a_->robot ();
 	    // Store r0 + sum of T_{i/i+1} in a variable
 	    value_type cumulativeLength = joint_a_->linkedBody ()->radius ();
 	    value_type distance;
-	    size_type i = 0;
-	    std::vector <JointPtr_t>::const_iterator it = joints_.begin ();
-	    std::vector <JointPtr_t>::const_iterator itNext = it + 1;
-	    while (itNext != joints_.end ()) {
-	      if (robot->model ().parents[(*it)->index ()] == (*itNext)->index ()) {
-		child = *it;
-	      } else if (robot->model ().parents[(*itNext)->index ()] == (*it)->index ()) {
-		child = *itNext;
-	      } else {
-		abort ();
-	      }
+            std::size_t i = 0;
+            std::size_t iNext = 1
+	    while (iNext != joints_.size()) {
+	      if (model.parents[joints_[i]] == joints_[iNext])
+                child = JointPtr_t (new Joint(robot, i));
+	      else if (model.parents[joints_[iNext]] == joints_[i])
+                child = JointPtr_t (new Joint(robot, iNext));
+	      else
+                abort ();
 	      coefficients_ [i].joint_ = child;
 	      // Go through all known types of joints
 	    //  TODO: REPLACE THESE FUNCTIONS WITH NEW API
-        distance = child->maximalDistanceToParent ();
-	      coefficients_ [i].value_ = child->upperBoundLinearVelocity () +
-		    cumulativeLength * child->upperBoundAngularVelocity ();
-	      cumulativeLength += distance;
-	      it = itNext; ++itNext; ++i;
+              distance = child->maximalDistanceToParent ();
+              coefficients_ [i].value_ =
+                child->upperBoundLinearVelocity () +
+                cumulativeLength * child->upperBoundAngularVelocity ();
+              cumulativeLength += distance;
+
+	      ++iNext; ++i;
 	    }
 	  }
 
@@ -607,7 +574,7 @@ namespace hpp {
 	  JointPtr_t joint_b_;
 	  std::vector<CollisionObjectConstPtr_t> objects_a_;
 	  std::vector<CollisionObjectConstPtr_t> objects_b_;
-	  std::vector <JointPtr_t> joints_;
+	  std::vector <JointIndex> joints_;
 	  std::size_t indexCommonAncestor_;
 	  CoefficientVelocities_t coefficients_;
           PathPtr_t path_;
