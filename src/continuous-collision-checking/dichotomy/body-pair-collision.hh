@@ -287,10 +287,10 @@ namespace hpp {
 	    assert (body_a);
 	    assert (body_b);
       // TODO:: optimise!!
-      for (unsigned int i = 0; i < body_a->innerObjects ().size (); ++i) {
+      for (std::size_t i = 0; i < body_a->innerObjects ().size (); ++i) {
 	    objects_a_.push_back (body_a->innerObjects ().at(i));
       }
-      for (unsigned int i = 0; i < body_b->innerObjects ().size (); ++i) {
+      for (std::size_t i = 0; i < body_b->innerObjects ().size (); ++i) {
 	    objects_b_.push_back (body_b->innerObjects ().at(i));
       }
 
