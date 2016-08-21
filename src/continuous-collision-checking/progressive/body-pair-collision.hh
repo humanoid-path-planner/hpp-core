@@ -549,12 +549,11 @@ namespace hpp {
 	    value_type cumulativeLength = joint_a_->linkedBody ()->radius ();
 	    value_type distance;
             std::size_t i = 0;
-            std::size_t iNext = 1
-	    while (iNext != joints_.size()) {
-	      if (model.parents[joints_[i]] == joints_[iNext])
-                child = JointPtr_t (new Joint(robot, i));
-	      else if (model.parents[joints_[iNext]] == joints_[i])
-                child = JointPtr_t (new Joint(robot, iNext));
+	    while (i + 1 < joints_.size()) {
+	      if (model.parents[joints_[i]] == joints_[i+1])
+                child = JointPtr_t (new Joint(robot, joints_[i]));
+	      else if (model.parents[joints_[i+1]] == joints_[i])
+                child = JointPtr_t (new Joint(robot, joints_[i+1]));
 	      else
                 abort ();
 	      coefficients_ [i].joint_ = child;
@@ -566,7 +565,7 @@ namespace hpp {
                 cumulativeLength * child->upperBoundAngularVelocity ();
               cumulativeLength += distance;
 
-	      ++iNext; ++i;
+	      ++i;
 	    }
 	  }
 
