@@ -21,8 +21,10 @@
 #include <boost/bind.hpp>
 
 #include <pinocchio/multibody/fcl.hpp>
+#include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/util/debug.hh>
+#include <hpp/util/exception-factory.hh>
 
 #include <hpp/pinocchio/collision-object.hh>
 
@@ -55,6 +57,12 @@
 
 namespace hpp {
   namespace core {
+    using pinocchio::GeomModel;
+    using pinocchio::GeomModelPtr_t;
+    using pinocchio::GeomData;
+    using pinocchio::GeomDataPtr_t;
+    using pinocchio::CollisionObject;
+
     // Struct that constructs an empty shared pointer to PathOptimizer.
     struct NoneOptimizer
     {
@@ -97,7 +105,8 @@ namespace hpp {
       steeringMethodType_ ("SteeringMethodStraight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
-      collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
+      collisionObstacles_ (), distanceObstacles_ (),
+      obstacleModel_ (new GeomModel()), obstacleData_ (new GeomData(*obstacleModel_)),
       errorThreshold_ (1e-4), maxIterations_ (20),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
@@ -661,11 +670,42 @@ namespace hpp {
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
-			if (obstacleMap_.find (object->name()) != obstacleMap_.end()) {
-					std::string errorMsg = "object with name " + object->name () +
-					" already added! Choose another name (prefix).";
-					throw std::runtime_error (errorMsg);
-			}
+      // FIXME propagate object->mesh_path ?
+      addObstacle(object->name(), *object->fcl(), collision, distance);
+    }
+
+    void ProblemSolver::addObstacle (const std::string& name,
+                                     /*const*/ FclCollisionObject &inObject,
+				     bool collision, bool distance)
+    {
+      if (obstacleModel_->existGeometryName(name)) {
+        std::string errorMsg = "object with name " + name +
+          " already added! Choose another name (prefix).";
+        throw std::runtime_error (errorMsg);
+      }
+
+      se3::GeomIndex id = obstacleModel_->addGeometryObject(se3::GeometryObject(
+            name, 0, 0,
+            inObject.collisionGeometry(),
+            se3::toPinocchioSE3(inObject.getTransform()),
+            ""));
+      // Update obstacleData_
+      // FIXME This should be done in Pinocchio
+      {
+        se3::GeometryModel& model = *obstacleModel_;
+        se3::GeometryData& data = *obstacleData_;
+        data.oMg.resize(model.ngeoms);
+        //data.activeCollisionPairs.resize(model.collisionPairs.size(), true)
+        //data.distance_results(model.collisionPairs.size())
+        //data.collision_results(model.collisionPairs.size())
+        //data.radius()
+        data.collisionObjects.push_back (fcl::CollisionObject(
+              model.geometryObjects[id].collision_geometry));
+        data.oMg[id] =  model.geometryObjects[id].placement;
+        data.collisionObjects[id].setTransform( se3::toFclTransform3f(data.oMg[id]) );
+      }
+      CollisionObjectPtr_t object (
+          new CollisionObject(obstacleModel_,obstacleData_,id));
 
       if (collision){
         collisionObstacles_.push_back (object);
@@ -678,7 +718,6 @@ namespace hpp {
       if (distanceBetweenObjects_) {
 	distanceBetweenObjects_->addObstacle (object);
       }
-      obstacleMap_ [object->name ()] = object;
     }
 
     void ProblemSolver::removeObstacleFromJoint
@@ -697,10 +736,14 @@ namespace hpp {
       problem()->filterCollisionPairs ();
     }
 
-    const CollisionObjectPtr_t& ProblemSolver::obstacle
-    (const std::string& name)
+    CollisionObjectPtr_t ProblemSolver::obstacle (const std::string& name) const
     {
-      return obstacleMap_ [name];
+      if (obstacleModel_->existGeometryName(name)) {
+        se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+        return CollisionObjectPtr_t (
+            new CollisionObject(obstacleModel_,obstacleData_,id));
+      }
+      HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
     }
 
     std::list <std::string> ProblemSolver::obstacleNames

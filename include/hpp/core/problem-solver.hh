@@ -496,6 +496,17 @@ namespace hpp {
       virtual void addObstacle (const CollisionObjectPtr_t &inObject, bool collision,
             bool distance);
 
+      /// Add obstacle to the list.
+      /// \param inObject a new object.
+      /// \param collision whether collision checking should be performed
+      ///        for this object.
+      /// \param distance whether distance computation should be performed
+      ///        for this object.
+      virtual void addObstacle (const std::string& name,
+          /*const*/ FclCollisionObject &inObject,
+          bool collision,
+          bool distance);
+
       /// Remove collision pair between a joint and an obstacle
       /// \param jointName name of the joint,
       /// \param obstacleName name of the obstacle
@@ -508,7 +519,8 @@ namespace hpp {
       void filterCollisionPairs ();
 
       /// Get obstacle by name
-      const CollisionObjectPtr_t& obstacle (const std::string& name);
+      /// Throws if obstacle does not exists.
+      CollisionObjectPtr_t obstacle (const std::string& name) const;
 
       /// Get list of obstacle names
       ///
@@ -609,10 +621,10 @@ namespace hpp {
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
       /// Store obstacles until call to solve.
-      ObjectStdVector_t collisionObstacles_;
-      ObjectStdVector_t distanceObstacles_;
-      /// Map of obstacles by names
-      std::map <std::string, CollisionObjectPtr_t> obstacleMap_;
+      ObjectStdVector_t collisionObstacles_; // FIXME should be removed?
+      ObjectStdVector_t distanceObstacles_;  // FIXME should be removed?
+      pinocchio::GeomModelPtr_t obstacleModel_;
+      pinocchio::GeomDataPtr_t  obstacleData_;
       // Tolerance for numerical constraint resolution
       value_type errorThreshold_;
       // Maximal number of iterations for numerical constraint resolution
