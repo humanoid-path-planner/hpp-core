@@ -153,12 +153,8 @@ namespace hpp {
 						const ConstObjectStdVector_t& objects_b,
 						value_type tolerance)
 	  {
-      std::vector<CollisionObjectConstPtr_t> obs;
-      for (unsigned int i = 0; i<objects_b.size (); ++i) { 
-          obs.push_back(boost::const_pointer_cast<const pinocchio::CollisionObject>(objects_b[i]));
-      }   
 	    BodyPairCollisionPtr_t shPtr (new BodyPairCollision
-					  (joint_a, obs, tolerance));
+					  (joint_a, objects_b, tolerance));
 	    return shPtr;
 	  }
 
@@ -204,14 +200,14 @@ namespace hpp {
 	    objects_b_.push_back (object);
 	  }
 
-	  const std::vector<CollisionObjectConstPtr_t>& objects_b  () const
+	  const ConstObjectStdVector_t& objects_b  () const
 	  {
 	    return objects_b_;
 	  }
 
 	  bool removeObjectTo_b (const CollisionObjectConstPtr_t& object)
 	  {
-	    for (std::vector<CollisionObjectConstPtr_t>::iterator itObj = objects_b_.begin ();
+	    for (ConstObjectStdVector_t::iterator itObj = objects_b_.begin ();
 		 itObj != objects_b_.end (); ++itObj) {
 	      if (object == *itObj) {
 		objects_b_.erase (itObj);
@@ -335,39 +331,37 @@ namespace hpp {
 	    using std::numeric_limits;
 	    value_type distanceLowerBound =
 	      numeric_limits <value_type>::infinity ();
-	    for (std::vector<CollisionObjectConstPtr_t>::const_iterator ita = objects_a_.begin ();
-		 ita != objects_a_.end (); ++ita) {
-	      // Compute position of object a
-        pinocchio::FclCollisionObjectPtr_t object_a =
-          const_cast<fcl::CollisionObject*> ((*ita)->fcl ());
-	      for (std::vector<CollisionObjectConstPtr_t>::const_iterator itb = objects_b_.begin ();
-		   itb != objects_b_.end (); ++itb) {
-		// Compute position of object b
-    pinocchio::FclCollisionObjectPtr_t object_b =
-      const_cast<fcl::CollisionObject*> ((*itb)->fcl ()); 
-		// Perform collision test
-		fcl::CollisionRequest request (1, false, true, 1, false, true,
-					       fcl::GST_INDEP);
-		fcl::CollisionResult result;
-		fcl::collide (object_a, object_b, request, result);
-		// Get result
-		if (result.isCollision ()) {
-		  hppDout (info, "collision at " << t << " for pair ("
-			   << joint_a_->name () << "," << (*itb)->name ()
-			   << ")");
-		  report = CollisionValidationReportPtr_t
-		    (new CollisionValidationReport);
-		  report->object1 = boost::const_pointer_cast<pinocchio::CollisionObject>(*ita);
-		  report->object2 = boost::const_pointer_cast<pinocchio::CollisionObject>(*itb);
-		  report->result = result;
-		  return false;
-		}
-		if (result.distance_lower_bound < distanceLowerBound) {
-		  distanceLowerBound = result.distance_lower_bound;
-		}
-	      }
-	    }
-	    value_type halfLengthDist, halfLengthTol;
+	    for (ConstObjectStdVector_t::const_iterator ita = objects_a_.begin ();
+                ita != objects_a_.end (); ++ita) {
+              // Compute position of object a
+              pinocchio::FclConstCollisionObjectPtr_t object_a = (*ita)->fcl ();
+              for (ConstObjectStdVector_t::const_iterator itb = objects_b_.begin ();
+                  itb != objects_b_.end (); ++itb) {
+                // Compute position of object b
+                pinocchio::FclConstCollisionObjectPtr_t object_b = (*itb)->fcl ();
+                // Perform collision test
+                fcl::CollisionRequest request (1, false, true, 1, false, true,
+                    fcl::GST_INDEP);
+                fcl::CollisionResult result;
+                fcl::collide (object_a, object_b, request, result);
+                // Get result
+                if (result.isCollision ()) {
+                  hppDout (info, "collision at " << t << " for pair ("
+                      << joint_a_->name () << "," << (*itb)->name ()
+                      << ")");
+                  report = CollisionValidationReportPtr_t
+                    (new CollisionValidationReport);
+                  report->object1 = *ita;
+                  report->object2 = *itb;
+                  report->result = result;
+                  return false;
+                }
+                if (result.distance_lower_bound < distanceLowerBound) {
+                  distanceLowerBound = result.distance_lower_bound;
+                }
+              }
+            }
+            value_type halfLengthDist, halfLengthTol;
             /// \todo A finer bound could be computed when path is an
             ///       InterpolatedPath using the maximal velocity on each
             ///       subinterval
@@ -507,7 +501,7 @@ namespace hpp {
 
             const se3::Model& model = joint_a_->robot ()->model();
             const JointIndex id_a = joint_a_->index(),
-                             id_b = joint_b_->index();
+                             id_b = (joint_b_ ? joint_b_->index() : 0);
             JointIndex ia = id_a, ib = id_b;
 
             std::vector<JointIndex> fromA, fromB;
@@ -529,8 +523,8 @@ namespace hpp {
             else               assert (model.parents[fromB.back()] == ia);
 
             // Build sequence
-            joints_ = fromA;
-            joints_.insert(joints_.end(), fromB.rbegin(), fromB.rend());
+            joints_ = fromB;
+            joints_.insert(joints_.end(), fromA.rbegin(), fromA.rend());
             assert(joints_.size() > 1);
           }
 
