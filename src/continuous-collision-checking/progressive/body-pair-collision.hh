@@ -153,7 +153,7 @@ namespace hpp {
 	  /// \param tolerance allowed penetration should be positive
 	  /// \pre objects_b should not be attached to a joint
 	  static BodyPairCollisionPtr_t create (const JointPtr_t& joint_a,
-						const std::vector<CollisionObjectPtr_t>& objects_b,
+						const ConstObjectStdVector_t& objects_b,
 						value_type tolerance)
 	  {
       std::vector<CollisionObjectConstPtr_t> obs;
@@ -473,7 +473,7 @@ namespace hpp {
 	  /// \param tolerance allowed penetration should be positive
 	  /// \pre objects_b should not be attached to a joint
 	  BodyPairCollision (const JointPtr_t& joint_a,
-			     const std::vector<CollisionObjectConstPtr_t>& objects_b,
+			     const ConstObjectStdVector_t& objects_b,
 			     value_type tolerance) :
 	    joint_a_ (joint_a), joint_b_ (), objects_a_ (),
 	    objects_b_ (objects_b), joints_ (),
@@ -571,8 +571,8 @@ namespace hpp {
 
 	  JointPtr_t joint_a_;
 	  JointPtr_t joint_b_;
-	  std::vector<CollisionObjectConstPtr_t> objects_a_;
-	  std::vector<CollisionObjectConstPtr_t> objects_b_;
+	  ConstObjectStdVector_t objects_a_;
+	  ConstObjectStdVector_t objects_b_;
 	  std::vector <JointIndex> joints_;
 	  std::size_t indexCommonAncestor_;
 	  CoefficientVelocities_t coefficients_;

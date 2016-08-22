@@ -55,7 +55,7 @@ namespace hpp {
     }
 
     void ConfigValidations::removeObstacleFromJoint
-    (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+    (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
       for (std::vector <ConfigValidationPtr_t>::iterator itVal =
 	     validations_.begin (); itVal != validations_.end (); ++itVal) {

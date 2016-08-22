@@ -91,7 +91,7 @@ namespace hpp {
 	/// Add the object to each collision pair a body of which is the
 	/// environment.
 	/// care about obstacles.
-	virtual void addObstacle (const CollisionObjectPtr_t& object);
+	virtual void addObstacle (const CollisionObjectConstPtr_t& object);
 
 	/// Remove a collision pair between a joint and an obstacle
 	/// \param the joint that holds the inner objects,
@@ -100,7 +100,7 @@ namespace hpp {
 	/// obstacles. This virtual method does nothing for configuration
 	/// validation methods that do not care about obstacles.
 	virtual void removeObstacleFromJoint
-	  (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
+	  (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
 	virtual ~Progressive ();
       protected:

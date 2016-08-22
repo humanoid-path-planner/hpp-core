@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
   }
   std::cout << std::endl;
 
-  ObjectStdVector_t obstacles;
+  ConstObjectStdVector_t obstacles;
   fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
   // FIXME this is a bit ugly.
   robot->model().addFrame(se3::Frame("base_link",0,Transform3f (),se3::BODY));

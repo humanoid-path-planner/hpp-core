@@ -88,7 +88,7 @@ namespace hpp {
       return true;
     }
 
-    void CollisionValidation::addObstacle (const CollisionObjectPtr_t& object)
+    void CollisionValidation::addObstacle (const CollisionObjectConstPtr_t& object)
     {
       const JointVector_t& jv = robot_->getJointVector ();
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();

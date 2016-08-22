@@ -42,7 +42,7 @@ namespace hpp {
     }
 
     void DiscretizedPathValidation::addObstacle
-    (const CollisionObjectPtr_t& object)
+    (const CollisionObjectConstPtr_t& object)
     {
       configValidations_->addObstacle (object);
     }
@@ -116,7 +116,7 @@ namespace hpp {
     }
 
     void DiscretizedPathValidation::removeObstacleFromJoint
-    (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+    (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
       configValidations_->removeObstacleFromJoint (joint, obstacle);
     }

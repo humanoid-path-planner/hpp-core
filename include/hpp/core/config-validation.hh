@@ -60,7 +60,7 @@ namespace hpp {
       /// obstacles. This virtual method does nothing for configuration
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint(const JointPtr_t&,
-					   const CollisionObjectPtr_t&)
+					   const CollisionObjectConstPtr_t&)
       {
       }
 

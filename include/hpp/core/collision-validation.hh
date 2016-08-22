@@ -48,7 +48,7 @@ namespace hpp {
       /// Add an obstacle
       /// \param object obstacle added
       /// Store obstacle and build a collision pair with each body of the robot.
-      virtual void addObstacle (const CollisionObjectPtr_t& object);
+      virtual void addObstacle (const CollisionObjectConstPtr_t& object);
 
       /// Remove a collision pair between a joint and an obstacle
       /// \param the joint that holds the inner objects,

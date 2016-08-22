@@ -191,13 +191,13 @@ namespace hpp {
       }
 
       void Progressive::addObstacle
-      (const CollisionObjectPtr_t& object)
+      (const CollisionObjectConstPtr_t& object)
       {
 	pinocchio::JointVector_t& jv = robot_->getJointVector ();
 	for (unsigned int idx = 0; idx < jv.size (); ++idx) {
 	  BodyPtr_t body = (jv.at(idx))->linkedBody ();
 	  if (body) {
-	    std::vector<CollisionObjectPtr_t> objects;
+	    ConstObjectStdVector_t objects;
 	    objects.push_back (object);
 	    bodyPairCollisions_.push_back
 	      (BodyPairCollision::create (jv.at(idx), objects, tolerance_));
@@ -206,7 +206,7 @@ namespace hpp {
       }
 
       void Progressive::removeObstacleFromJoint
-      (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
+      (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
       {
 	bool removed = false;
 	for (BodyPairCollisions_t::iterator itPair =
