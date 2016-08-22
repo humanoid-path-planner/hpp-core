@@ -230,7 +230,7 @@ namespace hpp {
       (const CollisionObjectConstPtr_t& object)
       {
 	pinocchio::JointVector_t& jv = robot_->getJointVector ();
-	for (unsigned int idx = 0; idx < jv.size (); ++idx) {
+	for (size_type idx = 0; idx < jv.size (); ++idx) {
 	  BodyPtr_t body = (jv.at(idx))->linkedBody ();
 	  bool foundPair = false;
 	  if (body) {

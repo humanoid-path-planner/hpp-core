@@ -287,10 +287,10 @@ namespace hpp {
 	    assert (body_a);
 	    assert (body_b);
       // TODO:: optimise!!
-      for (std::size_t i = 0; i < body_a->innerObjects ().size (); ++i) {
+      for (size_type i = 0; i < body_a->innerObjects ().size (); ++i) {
 	    objects_a_.push_back (body_a->innerObjects ().at(i));
       }
-      for (std::size_t i = 0; i < body_b->innerObjects ().size (); ++i) {
+      for (size_type i = 0; i < body_b->innerObjects ().size (); ++i) {
 	    objects_b_.push_back (body_b->innerObjects ().at(i));
       }
 
@@ -327,7 +327,7 @@ namespace hpp {
 	    assert (joint_a);
 	    BodyPtr_t body_a = joint_a_->linkedBody ();
 	    assert (body_a);
-      for (unsigned int i = 0; i < body_a->innerObjects ().size (); ++i) {
+      for (size_type i = 0; i < body_a->innerObjects ().size (); ++i) {
 	        objects_a_.push_back (body_a->innerObjects ().at(i));
       }
 	    for (std::vector<CollisionObjectConstPtr_t>::const_iterator it = objects_b.begin ();
