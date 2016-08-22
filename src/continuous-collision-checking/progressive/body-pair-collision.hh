@@ -111,22 +111,19 @@ namespace hpp {
 	  /// \param path input path
 	  value_type computeMaximalVelocity (
               const value_type& t0, ConfigurationIn_t q0,
-              const value_type& t1, ConfigurationIn_t q1)
+              const value_type& t1, ConfigurationIn_t q1) const
 	  {
 	    const value_type T = t1 - t0;
             if (T == 0) return std::numeric_limits<value_type>::infinity();
 
 	    value_type maximalVelocity = 0;
-	    for (CoefficientVelocities_t::const_iterator itCoef =
-		   coefs_->begin (); itCoef != coefs_->end (); ++itCoef) {
-	      const JointPtr_t& joint = itCoef->joint_;
-	      const value_type& value = itCoef->value_;
-        maximalVelocity_ += value * joint->robot ()->model ().joints[
-            joint->index ()].distance_impl (q0, q1) / T;
-	      // Old API:
-        // maximalVelocity += value * joint->configuration ()->distance
-		    //(q0, q1, joint->rankInConfiguration ()) / T;
-	    }
+            for (CoefficientVelocities_t::const_iterator itCoef =
+                coefs_->begin (); itCoef != coefs_->end (); ++itCoef) {
+              const JointPtr_t& joint = itCoef->joint_;
+              const value_type& value = itCoef->value_;
+              maximalVelocity += value * joint->robot ()->model ().joints[
+                joint->index ()].distance (q0, q1) / T;
+            }
             return maximalVelocity;
 	  }
 
