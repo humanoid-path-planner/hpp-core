@@ -458,8 +458,10 @@ namespace hpp {
             else               assert (model.parents[fromB.back()] == ia);
 
             // Build sequence
-            joints_ = fromB;
-            joints_.insert(joints_.end(), fromA.rbegin(), fromA.rend());
+            joints_ = fromA;
+            joints_.insert(joints_.end(), fromB.rbegin(), fromB.rend());
+            assert(joints_.front() == id_a);
+            assert(joints_.back() == id_b);
             assert(joints_.size() > 1);
           }
 
