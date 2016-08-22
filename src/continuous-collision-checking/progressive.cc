@@ -52,7 +52,8 @@ namespace hpp {
 	tmin = std::numeric_limits <value_type>::infinity ();
 	value_type tmpMin;
 	robot_->currentConfiguration (config);
-	robot_->computeForwardKinematics ();
+	robot_->computeForwardKinematics();
+        robot_->updateGeometryPlacements();
 	for (BodyPairCollisions_t::iterator itPair =
 	       bodyPairCollisions_.begin ();
 	     itPair != bodyPairCollisions_.end (); ++itPair) {
