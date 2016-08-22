@@ -241,83 +241,6 @@ namespace hpp {
 	  /// \return true if the body pair is collision free for this parameter
 	  ///         value, false if the body pair is in collision.
 	  bool validateConfiguration (const value_type& t, value_type& tmin,
-				      CollisionValidationReport& report)
-	    HPP_CORE_DEPRECATED
-	  {
-	    if (valid_) {
-	      if (reverse_) {
-		tmin = path_->timeRange ().first;
-	      } else {
-		tmin = path_->timeRange ().second;
-	      }
-	      return true;
-	    }
-	    using std::numeric_limits;
-	    value_type distanceLowerBound =
-	      numeric_limits <value_type>::infinity ();
-	    for (std::vector<CollisionObjectConstPtr_t>::const_iterator ita = objects_a_.begin ();
-		 ita != objects_a_.end (); ++ita) {
-	      // Compute position of object a
-        pinocchio::FclCollisionObjectPtr_t object_a =
-          const_cast<fcl::CollisionObject*> ((*ita)->fcl ());
-	      for (std::vector<CollisionObjectConstPtr_t>::const_iterator itb = objects_b_.begin ();
-		   itb != objects_b_.end (); ++itb) {
-		// Compute position of object b
-    pinocchio::FclCollisionObjectPtr_t object_b =
-      const_cast<fcl::CollisionObject*> ((*itb)->fcl ());
-
-		// Perform collision test
-		fcl::CollisionRequest request (1, false, true, 1, false, true,
-					       fcl::GST_INDEP);
-		fcl::CollisionResult result;
-		fcl::collide (object_a, object_b, request, result);
-		// Get result
-		if (result.isCollision ()) {
-		  hppDout (info, "collision at " << t << " for pair ("
-			   << joint_a_->name () << "," << (*itb)->name ()
-			   << ")");
-		  report.object1 = boost::const_pointer_cast<pinocchio::CollisionObject>(*ita);
-		  report.object2 = boost::const_pointer_cast<pinocchio::CollisionObject>(*itb);
-		  return false;
-		}
-		if (result.distance_lower_bound < distanceLowerBound) {
-		  distanceLowerBound = result.distance_lower_bound;
-		}
-	      }
-	    }
-	    value_type halfLengthDist, halfLengthTol;
-	    if (distanceLowerBound ==
-		numeric_limits <value_type>::infinity ()) {
-	      halfLengthDist = numeric_limits <value_type>::infinity ();
-	      halfLengthTol = 0;
-	    } else {
-	      halfLengthDist = distanceLowerBound/pathVelocity_.maximalVelocity_;
-	      halfLengthTol = 2*tolerance_/pathVelocity_.maximalVelocity_;
-	    }
-	    assert (!isnan (halfLengthDist));
-	    assert (!isnan (halfLengthTol));
-	    if (reverse_) {
-	      tmin = t - (halfLengthDist + halfLengthTol);
-	      if (t - halfLengthDist <= path_->timeRange ().first) {
-		valid_ = true;
-	      }
-	    } else {
-	      tmin = t + halfLengthDist + halfLengthTol;
-	      if (t + halfLengthDist >= path_->timeRange ().second) {
-		valid_ = true;
-	      }
-	    }
-	    std::string joint2;
-	    if (joint_b_) joint2 = joint_b_->name ();
-	    else joint2 = (*objects_b_.begin ())->name ();
-	    return true;
-	  }
-
-	  /// Validate interval centered on a path parameter
-	  /// \param t parameter value in the path interval of definition
-	  /// \return true if the body pair is collision free for this parameter
-	  ///         value, false if the body pair is in collision.
-	  bool validateConfiguration (const value_type& t, value_type& tmin,
 				      CollisionValidationReportPtr_t& report)
 	  {
 	    if (valid_) {
@@ -386,9 +309,6 @@ namespace hpp {
 		valid_ = true;
 	      }
 	    }
-	    std::string joint2;
-	    if (joint_b_) joint2 = joint_b_->name ();
-	    else joint2 = (*objects_b_.begin ())->name ();
 	    return true;
 	  }
 
@@ -411,6 +331,21 @@ namespace hpp {
 	    oss << ")";
 	    return oss.str ();
 	  }
+
+          std::ostream& print (std::ostream& os) const
+          {
+            os << "Progressive BodyPairCollision: " << joint_a_->name()
+              << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
+            const se3::Model& model = joint_a_->robot ()->model();
+            for (std::size_t i = 0; i < joints_.size (); ++i) {
+              if (i > 0) std::cout << model.names[i] << ',';
+              else       std::cout << "World"        << ',';
+            }
+            std::cout << '\n';
+            for (std::size_t i = 0; i < coefficients_.size(); ++i)
+              os << coefficients_[i].value_ << ", ";
+            return os;
+          }
 
 	protected:
 	  /// Constructor of inter-body collision checking
