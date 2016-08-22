@@ -59,9 +59,19 @@ using ::se3::JointModelFreeFlyer;
 using ::se3::JointModelSpherical;
 using ::se3::JointIndex;
 
+void display(const se3::Model& model,
+    const std::vector<se3::JointIndex>& joints) {
+  std::vector <se3::JointIndex>::const_iterator it;
+  for (it = joints.begin (); it != joints.end (); ++it) {
+    if (*it > 0) std::cout << model.names[*it];
+    else         std::cout << "None";
+    std::cout << ", ";
+  }
+  std::cout << std::endl;
+}
+
+
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
-
-
 
 DevicePtr_t createRobot (){
 
@@ -447,69 +457,35 @@ DevicePtr_t createRobot ()
 BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 {
   DevicePtr_t robot = createRobot();
+  const se3::Model& model = robot->model();
   JointPtr_t joint_a = robot->getJointByBodyName ("LLEG_BODY5");
   JointPtr_t joint_b = robot->getJointByBodyName ("RLEG_BODY5");
 
   BodyPairCollisionPtr_t bpc = BodyPairCollision::create
     (joint_a, joint_b, 0.001);
-  for (std::vector <JointPtr_t>::const_iterator it =
-	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
-    if (*it) {
-      std::cout << (*it)->name ();
-    } else {
-      std::cout << "None";
-    }
-    std::cout << ", ";
-  }
-  std::cout << std::endl;
+  display(model, bpc->joints());
 
   ConstObjectStdVector_t obstacles;
   fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
   // FIXME this is a bit ugly.
-  robot->model().addFrame(se3::Frame("base_link",0,Transform3f (),se3::BODY));
+  //robot->model().addFrame(se3::Frame("base_link",0,Transform3f (),se3::BODY));
   ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject
-    (robot->model(), robot->model().nFrames - 1,box,Transform3f ());
-  CollisionObjectPtr_t collObj (new hpp::pinocchio::CollisionObject(robot,idObj));
+    (se3::GeometryObject("obstacle", 0, 0, box, Transform3f (), ""));
+  CollisionObjectPtr_t collObj (new hpp::pinocchio::CollisionObject(
+        robot->geomModelPtr(), robot->geomDataPtr(), idObj));
   obstacles.push_back (collObj);
   bpc = BodyPairCollision::create (joint_a, obstacles, 0.001);
-  for (std::vector <JointPtr_t>::const_iterator it =
-	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
-    if (*it) {
-      std::cout << (*it)->name ();
-    } else {
-      std::cout << "None";
-    }
-    std::cout << ", ";
-  }
-  std::cout << std::endl;
+  display(model, bpc->joints());
 
   joint_a = robot->getJointByBodyName ("LLEG_BODY5");
   joint_b = robot->getJointByBodyName ("LLEG_BODY1");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
-  for (std::vector <JointPtr_t>::const_iterator it =
-	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
-    if (*it) {
-      std::cout << (*it)->name ();
-    } else {
-      std::cout << "None";
-    }
-    std::cout << ", ";
-  }
-  std::cout << std::endl;
+  display(model, bpc->joints());
 
   joint_a = robot->getJointByBodyName ("LLEG_BODY1");
   joint_b = robot->getJointByBodyName ("LLEG_BODY5");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
-  for (std::vector <JointPtr_t>::const_iterator it =
-	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
-    if (*it) {
-      std::cout << (*it)->name ();
-    } else {
-      std::cout << "None";
-    }
-    std::cout << ", ";
-  }
-  std::cout << std::endl;
+  display(model, bpc->joints());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
