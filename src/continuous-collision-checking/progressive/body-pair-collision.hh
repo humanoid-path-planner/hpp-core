@@ -121,8 +121,7 @@ namespace hpp {
                 coefs_->begin (); itCoef != coefs_->end (); ++itCoef) {
               const JointPtr_t& joint = itCoef->joint_;
               const value_type& value = itCoef->value_;
-              maximalVelocity += value * joint->robot ()->model ().joints[
-                joint->index ()].distance (q0, q1) / T;
+              maximalVelocity += value * joint->jointModel().distance (q0, q1) / T;
             }
             return maximalVelocity;
 	  }
