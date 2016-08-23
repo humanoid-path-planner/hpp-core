@@ -171,11 +171,16 @@ namespace hpp {
         const double a = a1;
         const double b = 2. * v1;
         const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
-        const double delta = b*b - 4*a*c;
+       /* const double delta = b*b - 4*a*c;
         if(delta < 0 )
           std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-        const double x1 = (-b + sqrt(delta))/(2*a);
-        const double x2 = (-b - sqrt(delta))/(2*a);
+       */
+        const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+
+        /*const double x1 = (-b + sqrt(delta))/(2*a);
+        const double x2 = (-b - sqrt(delta))/(2*a);*/
+        const double x1 = q/a;
+        const double x2 = c/q;
         const double x = std::max(x1,x2);
         hppDout(info,"t1 before vel limit = "<<x);
         if(x > minT1){
@@ -207,7 +212,7 @@ namespace hpp {
 
         // Compute infeasible interval :
 
-        if(((p1<p2) && (v1>v2)) || ((p1>p2) && (v1<v2))){ // "region I", infeasible interval exist
+        if(((p1<p2) && (v1>=v2)) || ((p1>p2) && (v1<=v2))){ // "region I", infeasible interval exist
           a1 = a2;
           a2 = -a2;
           vLim = -vLim;
