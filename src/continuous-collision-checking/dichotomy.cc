@@ -30,6 +30,20 @@
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
+      namespace {
+        typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
+
+        struct JointIndexPairCompare_t {
+          bool operator() (const JointIndexPair_t& p0, const JointIndexPair_t& p1) const
+          {
+            if (p0.first < p1.first) return true;
+            if (p0.first > p1.first) return false;
+            return (p0.second < p1.second);
+          }
+        };
+
+        typedef std::set<JointIndexPair_t, JointIndexPairCompare_t> JointIndexPairSet_t;
+      }
 
       using dichotomy::BodyPairCollision;
       using dichotomy::BodyPairCollisionPtr_t;
@@ -300,16 +314,26 @@ namespace hpp {
         // FIXME The pairs of joint are duplicated
         const se3::GeometryModel& gmodel = robot->geomModel ();
         JointPtr_t joint1, joint2;
+        JointIndexPairSet_t jointPairs;
+        std::size_t duplicates = 0;
         for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
         {
           const se3::CollisionPair& cp = gmodel.collisionPairs[i];
-          joint1 = JointPtr_t(new Joint(robot_,
-                gmodel.geometryObjects[cp.first].parentJoint));
-          joint2 = JointPtr_t(new Joint(robot_,
-                gmodel.geometryObjects[cp.second].parentJoint));
-          bodyPairCollisions_.push_back (BodyPairCollision::create
-              (joint1, joint2, tolerance_));
+          JointIndexPair_t jp (
+              gmodel.geometryObjects[cp.first].parentJoint,
+              gmodel.geometryObjects[cp.second].parentJoint);
+          if (jointPairs.count(jp) == 0) {
+            jointPairs.insert(jp);
+            joint1 = JointPtr_t(new Joint(robot_, jp.first));
+            joint2 = JointPtr_t(new Joint(robot_, jp.second));
+            bodyPairCollisions_.push_back (BodyPairCollision::create
+                (joint1, joint2, tolerance_));
+            hppDout(info, *bodyPairCollisions_.back());
+          } else duplicates++;
         }
+        hppDout(info, "Dichotomy continuous collision checking: Inserted "
+            << jointPairs.size() << " and filtered " << duplicates <<
+            " duplicates." <<  std::endl);
       }
     } // namespace continuousCollisionChecking
   } // namespace core
