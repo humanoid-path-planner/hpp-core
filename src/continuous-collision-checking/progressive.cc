@@ -216,6 +216,7 @@ namespace hpp {
 	    objects.push_back (object);
 	    bodyPairCollisions_.push_back
 	      (BodyPairCollision::create (jv.at(idx), objects, tolerance_));
+            hppDout(info, *bodyPairCollisions_.back());
 	  }
 	}
       }
@@ -279,9 +280,12 @@ namespace hpp {
             joint2 = JointPtr_t(new Joint(robot_, jp.second));
             bodyPairCollisions_.push_back (BodyPairCollision::create
                 (joint1, joint2, tolerance_));
-            //bodyPairCollisions_.back()->print(std::cout) << std::endl;
+            hppDout(info, *bodyPairCollisions_.back());
           } else duplicates++;
 	}
+        hppDout(info, "Progressive continuous collision checking: Inserted "
+            << jointPairs.size() << " and filtered " << duplicates <<
+            " duplicates." <<  std::endl);
       }
     } // namespace continuousCollisionChecking
   } // namespace core

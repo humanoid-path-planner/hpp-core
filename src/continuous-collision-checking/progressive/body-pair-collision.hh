@@ -510,6 +510,11 @@ namespace hpp {
 	  bool valid_;
 	  bool reverse_;
 	}; // class BodyPairCollision
+
+        inline std::ostream& operator<< (std::ostream& os, const BodyPairCollision& b)
+        {
+          return b.print (os);
+        }
       } // namespace progressive
     } // namespace continuousCollisionChecking
   } // namespace core
