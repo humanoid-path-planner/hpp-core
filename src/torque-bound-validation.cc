@@ -63,7 +63,8 @@ namespace hpp {
       return true;*/
       double m1 = 1.;
       double m2 = 1.;
-      double bound = 3.7;
+      double bound1 = 10;
+      double bound2 = 0.2;
       double l1 = 0.4;
       double l2 = 0.4;
       double lc1 = 0.2;
@@ -97,10 +98,16 @@ namespace hpp {
 
     //  std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
 
-      std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
-      if (std::fabs(value) > bound) {
+      //std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<std::endl;
+      if (std::fabs(T1) > bound1) {
         TorqueBoundValidationReportPtr_t report
-            (new TorqueBoundValidationReport (bound,std::fabs(value)));
+            (new TorqueBoundValidationReport (bound1,std::fabs(T1)));
+        validationReport = report;
+        return false;
+      }
+      if (std::fabs(T2) > bound2) {
+        TorqueBoundValidationReportPtr_t report
+            (new TorqueBoundValidationReport (bound2,std::fabs(T2)));
         validationReport = report;
         return false;
       }
