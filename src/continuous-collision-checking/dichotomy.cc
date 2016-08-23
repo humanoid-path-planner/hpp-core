@@ -311,7 +311,9 @@ namespace hpp {
         }
         // Build body pairs for collision checking
         // First auto-collision
-        // FIXME The pairs of joint are duplicated
+        // FIXME Duplicated pairs of joints are checked for but there is no
+        // check for inverted duplicated pairs
+        // (a, b) != (b, a)
         const se3::GeometryModel& gmodel = robot->geomModel ();
         JointPtr_t joint1, joint2;
         JointIndexPairSet_t jointPairs;
