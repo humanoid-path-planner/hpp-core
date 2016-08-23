@@ -264,6 +264,21 @@ namespace hpp {
 	    return maximalVelocity_;
 	  }
 
+          std::ostream& print (std::ostream& os) const
+          {
+            os << "Dichotomy BodyPairCollision: " << joint_a_->name()
+              << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
+            const se3::Model& model = joint_a_->robot ()->model();
+            for (std::size_t i = 0; i < joints_.size (); ++i) {
+              if (i > 0) os << model.names[i] << ',';
+              else       os << "World"        << ',';
+            }
+            os << '\n';
+            for (std::size_t i = 0; i < coefficients_.size(); ++i)
+              os << coefficients_[i].value_ << ", ";
+            return os;
+          }
+
 	protected:
 	  /// Constructor of inter-body collision checking
 	  ///
@@ -452,6 +467,11 @@ namespace hpp {
 	  Intervals intervals_;
 	  value_type tolerance_;
 	}; // class BodyPairCollision
+
+        inline std::ostream& operator<< (std::ostream& os, const BodyPairCollision& b)
+        {
+          return b.print (os);
+        }
       } // namespace dichotomy
     } // namespace continuousCollisionChecking
   } // namespace core

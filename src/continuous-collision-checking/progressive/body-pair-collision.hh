@@ -337,10 +337,10 @@ namespace hpp {
               << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
             const se3::Model& model = joint_a_->robot ()->model();
             for (std::size_t i = 0; i < joints_.size (); ++i) {
-              if (i > 0) std::cout << model.names[i] << ',';
-              else       std::cout << "World"        << ',';
+              if (i > 0) os << model.names[i] << ',';
+              else       os << "World"        << ',';
             }
-            std::cout << '\n';
+            os << '\n';
             for (std::size_t i = 0; i < coefficients_.size(); ++i)
               os << coefficients_[i].value_ << ", ";
             return os;
