@@ -231,13 +231,14 @@ namespace hpp {
       {
 	pinocchio::JointVector_t& jv = robot_->getJointVector ();
 	for (size_type idx = 0; idx < jv.size (); ++idx) {
-	  BodyPtr_t body = (jv.at(idx))->linkedBody ();
+          JointPtr_t j = jv[idx];
+	  BodyPtr_t body = j->linkedBody ();
 	  bool foundPair = false;
 	  if (body) {
 	    for (BodyPairCollisions_t::iterator itPair =
 		   bodyPairCollisions_.begin ();
 		 itPair != bodyPairCollisions_.end (); ++itPair) {
-	      if (((*itPair)->joint_a () == jv.at(idx)) &&
+	      if (((*itPair)->joint_a () == j) &&
 		  (!(*itPair)->joint_b ())) {
 		(*itPair)->addObjectTo_b (object);
 		foundPair = true;
@@ -247,7 +248,7 @@ namespace hpp {
 	      ConstObjectStdVector_t objects;
 	      objects.push_back (object);
 	      bodyPairCollisions_.push_back
-		(BodyPairCollision::create (jv.at(idx), objects, tolerance_));
+		(BodyPairCollision::create (j, objects, tolerance_));
 	    }
 	  }
 	}
