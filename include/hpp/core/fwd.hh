@@ -21,6 +21,7 @@
 
 
 # include <vector>
+# include <map>
 # include <deque>
 # include <list>
 # include <set>
