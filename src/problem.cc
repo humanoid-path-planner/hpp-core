@@ -26,6 +26,7 @@
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/problem-target.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/discretized-collision-checking.hh>
@@ -80,7 +81,7 @@ namespace hpp {
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),
       collisionObstacles_ (), constraints_ (),
-      configurationShooter_(BasicConfigurationShooter::create (robot))
+      configurationShooter_(configurationShooter::Uniform::create (robot))
     {
       resetConfigValidations();
     }

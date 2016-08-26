@@ -72,6 +72,8 @@
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
+#include <hpp/core/kinodynamic-distance.hh>
+#include <hpp/core/dimt-rrt.hh>
 
 namespace hpp {
   namespace core {
@@ -191,6 +193,7 @@ namespace hpp {
       pathPlanners.add ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
+      pathPlanners.add ("dimtRRT", core::DimtRRT::createWithRoadmap);
 
       configurationShooters.add ("Uniform" , createFromRobot<configurationShooter::Uniform>);
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);
