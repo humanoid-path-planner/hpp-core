@@ -55,19 +55,18 @@ namespace hpp {
       {
         DevicePtr_t d (device_.lock());
         std::string sn = d->rootJoint()->jointModel().shortname();
-        //TODO shortname() == se3::JointModelPlanar::classname();
-        if (sn == "planar") {
+        if (sn == se3::JointModelPlanar::classname()) {
           turningJoint_ = d->rootJoint();
-        } else if (sn == "translation" && d->rootJoint()->configSize() == 2) {
-          std::string sn2 = d->getJointAtConfigRank(2)->jointModel().shortname();
-          if (sn2 == "revoluteunbounded")
-            turningJoint_ = d->getJointAtConfigRank(2);
-          else
-            throw std::runtime_error ("root joint should be of type "
-                "se3::JointModelPlanar or JointModelTranslation + JointModelRevolute");
+        // } else if (sn == se3::JointModelPlanar::classname() && d->rootJoint()->configSize() == 2) {
+          // std::string sn2 = d->getJointAtConfigRank(2)->jointModel().shortname();
+          // if (sn2 == "revoluteunbounded")
+            // turningJoint_ = d->getJointAtConfigRank(2);
+          // else
+            // throw std::runtime_error ("root joint should be of type "
+                // "se3::JointModelPlanar or JointModelTranslation + JointModelRevolute");
         } else {
           throw std::runtime_error ("root joint should be of type "
-              "se3::JointModelPlanar or JointModelTranslation + JointModelRevolute");
+              "se3::JointModelPlanar" /*" or JointModelTranslation + JointModelRevolute"*/);
         }
 
         guessWheels();
