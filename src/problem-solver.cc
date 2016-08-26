@@ -45,6 +45,7 @@
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/kinodynamic-distance.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/dimt-rrt.hh>
 
 namespace hpp {
   namespace core {
@@ -98,6 +99,8 @@ namespace hpp {
       add <PathPlannerBuilder_t> ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
       add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
       add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
+      add <PathPlannerBuilder_t> ("dimtRRT", DimtRRT::createWithRoadmap);
+
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
