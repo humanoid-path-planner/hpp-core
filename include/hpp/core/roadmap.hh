@@ -77,6 +77,20 @@ namespace hpp {
 				 const ConfigurationPtr_t& to,
 				 const PathPtr_t path);
 
+      /// Add a node and one edges
+      /// \param from node from which the edge starts,
+      /// \param to configuration to which the edge stops
+      /// \param path path between both configurations
+      /// \return node containing configuration <c>to</c>.
+      /// Add the oriented edge (from -> to)
+      /// \note this function simplifies the management of connected components
+      ///       since it adds the new node in the connected component of
+      ///       <c>from</c>.
+      NodePtr_t addNodeAndEdge (const NodePtr_t from,
+                 const ConfigurationPtr_t& to,
+                 const PathPtr_t path);
+
+
       /// Add a goal configuration
       /// \param config configuration
       /// If configuration is already in the roadmap, tag corresponding node

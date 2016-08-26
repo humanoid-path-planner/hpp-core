@@ -151,6 +151,15 @@ namespace hpp {
       return nodeTo;
     }
 
+    NodePtr_t Roadmap::addNodeAndEdge (const NodePtr_t from,
+                    const ConfigurationPtr_t& to,
+                    const PathPtr_t path)
+    {
+      NodePtr_t nodeTo = addNode (to, from->connectedComponent ());
+      addEdge (from, nodeTo, path);
+      return nodeTo;
+    }
+
     NodePtr_t
     Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
         value_type& minDistance, bool reverse)
