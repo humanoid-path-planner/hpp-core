@@ -29,6 +29,7 @@ namespace hpp {
     (const DevicePtr_t& robot)
     {
       TorqueBoundValidation* ptr = new TorqueBoundValidation (robot);
+      std::cout<<"Create torque validation"<<std::endl;
       return TorqueBoundValidationPtr_t (ptr);
     }
     
@@ -62,7 +63,7 @@ namespace hpp {
       return true;*/
       double m1 = 8.;
       double m2 = 8.;
-      double bound = 20;
+      double bound = 13;
       double l1 = 0.2;
       double l2 = 0.2;
       double g = 9.81;
@@ -79,13 +80,13 @@ namespace hpp {
       double z2 = -l1*cos(q1) - l2*cos(q1+q2);
       double l = sqrt(x2*x2+z2*z2);
       double theta = acos(-z2/l);
-      std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
+    //  std::cout<<"l = "<<l<<" ; theta = "<<theta<<std::endl;
 
       T1 = m1*l1*sin(q1)*a1 + v1*v1*m1*l1*sin(q1) - l1*m1*g*sin(q1);
       T2 = m2*l2*sin(q2)*a2 + v2*v2*m2*l2*sin(q2) - l2*m2*g*sin(q1+q2);
 
       double value = T1 + (m2*l*sin(theta)*a2 + v2*v2*m2*l*sin(theta) - l*m2*g*sin(theta));
-      std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
+     // std::cout<<"Torque validation, T1 = "<<T1<<"  ; T2 = "<<T2<<" ; T = "<<value<<std::endl;
       if (std::fabs(value) > bound) {
         TorqueBoundValidationReportPtr_t report
             (new TorqueBoundValidationReport (bound,std::fabs(value)));

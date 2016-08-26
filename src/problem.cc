@@ -52,9 +52,9 @@ namespace hpp {
       configValidations_->add (CollisionValidation::create (robot));
       configValidations_->add (JointBoundValidation::create (robot));
       configValidations_->add (TorqueBoundValidation::create (robot));
-      DiscretizedCollisionCheckingPtr_t pathValidation = DiscretizedCollisionChecking::create(robot, 0.05);
-      pathValidation->add(TorqueBoundValidation::create (robot));
-      pathValidation_=pathValidation;
+      DiscretizedCollisionCheckingPtr_t pathVal = DiscretizedCollisionChecking::create(robot, 0.05);
+      pathVal->add(TorqueBoundValidation::create (robot));
+      pathValidation(pathVal);
       add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
     }
 
