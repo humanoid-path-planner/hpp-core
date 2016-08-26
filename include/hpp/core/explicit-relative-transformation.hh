@@ -17,7 +17,6 @@
 #ifndef HPP_CORE_EXPLICIT_RELATIVE_TRANSFORM_HH
 # define HPP_CORE_EXPLICIT_RELATIVE_TRANSFORM_HH
 
-# include <hpp/fcl/math/transform.h>
 # include <hpp/constraints/generic-transformation.hh>
 # include <hpp/core/explicit-numerical-constraint.hh>
 
@@ -89,7 +88,6 @@ namespace hpp {
       /// \param configuration input and output configuration
       virtual void solve (ConfigurationOut_t configuration)
       {
-	using fcl::inverse;
 	robot_->currentConfiguration (configuration);
 	robot_->computeForwardKinematics ();
 	// J1 * M1/J1 = J2 * M2/J2
@@ -97,18 +95,16 @@ namespace hpp {
 	// J2 = J2_{parent} * T
 	// T = J2_{parent}^{-1} * J2
 	// T = J2_{parent}^{-1} * J1 * F1/J1 * F2/J2^{-1}
-	freeflyerPose_ =
-	  inverse (parentJoint_->currentTransformation ()) *
-	  relativeTransformation_->joint1 ()->currentTransformation () *
-	  relativeTransformation_->frame1InJoint1 () *
-	  inverse (relativeTransformation_->frame2InJoint2 ());
-	configuration [index_ + 0] = freeflyerPose_.getTranslation () [0];
-	configuration [index_ + 1] = freeflyerPose_.getTranslation () [1];
-	configuration [index_ + 2] = freeflyerPose_.getTranslation () [2];
-	configuration [index_ + 3] = freeflyerPose_.getQuatRotation () [0];
-	configuration [index_ + 4] = freeflyerPose_.getQuatRotation () [1];
-	configuration [index_ + 5] = freeflyerPose_.getQuatRotation () [2];
-	configuration [index_ + 6] = freeflyerPose_.getQuatRotation () [3];
+        freeflyerPose_ =
+          parentJoint_->currentTransformation ().inverse() *
+          relativeTransformation_->joint1 ()->currentTransformation () *
+          relativeTransformation_->frame1InJoint1 () *
+          relativeTransformation_->frame2InJoint2 ().inverse ();
+
+        typedef Transform3f::Quaternion_t Q_t;
+        typedef Eigen::Map<Q_t> QM_t;
+        configuration.segment<3>(index_) = freeflyerPose_.translation();
+        QM_t (configuration.segment<4>(index_+3).data()) = Q_t(freeflyerPose_.rotation ());
       }
 
     protected:
