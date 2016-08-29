@@ -96,10 +96,12 @@ namespace hpp {
 	// T = J2_{parent}^{-1} * J2
 	// T = J2_{parent}^{-1} * J1 * F1/J1 * F2/J2^{-1}
         freeflyerPose_ =
-          parentJoint_->currentTransformation ().inverse() *
           relativeTransformation_->joint1 ()->currentTransformation () *
           relativeTransformation_->frame1InJoint1 () *
           relativeTransformation_->frame2InJoint2 ().inverse ();
+
+        if (parentJoint_)
+          freeflyerPose_ = parentJoint_->currentTransformation ().actInv(freeflyerPose_);
 
         typedef Transform3f::Quaternion_t Q_t;
         typedef Eigen::Map<Q_t> QM_t;
@@ -120,10 +122,10 @@ namespace hpp {
 				      (true)(true)(true)(true)(true)),
 				     privOutputConf (joint2),
 				     privOutputVelocity (joint2)),
-	robot_ (robot), parentJoint_ (joint2->parentJoint ()->parentJoint ()),
+	robot_ (robot), parentJoint_ (joint2->parentJoint ()),
 	relativeTransformation_ (HPP_STATIC_PTR_CAST (RelativeTransformation,
 						      functionPtr ())),
-	index_ (joint2->parentJoint ()->rankInConfiguration ())
+	index_ (joint2->rankInConfiguration ())
 	{
 	}
 
@@ -146,13 +148,13 @@ namespace hpp {
       SizeIntervals_t privOutputConf (const JointPtr_t& joint) {
 	SizeIntervals_t result;
 	result.push_back (SizeInterval_t
-			  (joint->parentJoint ()->rankInConfiguration (), 7));
+			  (joint->rankInConfiguration (), 7));
 	return result;
       }
       SizeIntervals_t privOutputVelocity (const JointPtr_t& joint) {
 	SizeIntervals_t result;
 	result.push_back (SizeInterval_t
-			  (joint->parentJoint ()->rankInVelocity (), 6));
+			  (joint->rankInVelocity (), 6));
 	return result;
       }
       DevicePtr_t robot_;
