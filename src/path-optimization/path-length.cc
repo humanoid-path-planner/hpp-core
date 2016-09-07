@@ -18,6 +18,8 @@
 
 #include <hpp/core/path-optimization/path-length.hh>
 
+#include <stdexcept>
+
 #include <Eigen/LU>
 #include <hpp/util/debug.hh>
 

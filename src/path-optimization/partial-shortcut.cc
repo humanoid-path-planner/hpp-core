@@ -16,20 +16,19 @@
 
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 
-// #include <limits>
-// #include <deque>
-// #include <cstdlib>
-// #include <hpp/util/assertion.hh>
 #include <hpp/util/debug.hh>
+
+#include <pinocchio/multibody/joint/joint.hpp>
+
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/device.hh>
+
 #include <hpp/core/distance.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/locked-joint.hh>
-#include <hpp/pinocchio/configuration.hh>
 
 namespace hpp {
   namespace core {
@@ -116,7 +115,7 @@ namespace hpp {
         for (std::size_t i = rkAtP1; i < rkAtP2; ++i) {
           t += path->pathAtRank (i)->timeRange().second;
           q_inter = path->pathAtRank (i)->end (),
-          q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate_impl ( q1, q2,
+          q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate ( q1, q2,
               t / (t2-t1));
           if (path->pathAtRank (i)->constraints ()) {
             if (!path->pathAtRank (i)->constraints ()->apply (q_inter)) {

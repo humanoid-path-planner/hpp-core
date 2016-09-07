@@ -14,21 +14,23 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/util/debug.hh>
-#include "hpp/core/parser/roadmap-factory.hh"
+#include <hpp/core/parser/roadmap-factory.hh>
 
 #include <string>
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <hpp/util/debug.hh>
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
-#include "hpp/core/problem.hh"
-#include "hpp/core/steering-method.hh"
-#include "hpp/core/roadmap.hh"
-#include "hpp/core/node.hh"
-#include "hpp/core/edge.hh"
+#include <hpp/core/problem.hh>
+#include <hpp/core/steering-method.hh>
+#include <hpp/core/roadmap.hh>
+#include <hpp/core/node.hh>
+#include <hpp/core/edge.hh>
 
 namespace hpp {
   namespace core {

@@ -16,15 +16,22 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/reeds-shepp-path.hh>
+
+#include <boost/math/constants/constants.hpp>
+
 #include <hpp/util/debug.hh>
+
+#include <pinocchio/spatial/se3.hpp>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
+
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/discretized-path-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/projection-error.hh>
-#include <hpp/core/reeds-shepp-path.hh>
 
 namespace hpp {
   namespace core {

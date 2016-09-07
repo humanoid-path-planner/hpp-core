@@ -17,13 +17,18 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
+#include <stdexcept>
+
 #include <hpp/util/debug.hh>
+
 #include <hpp/pinocchio/configuration.hh>
+
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/roadmap.hh>
+
 #include <../src/nearest-neighbor/basic.hh>
 
 namespace hpp {

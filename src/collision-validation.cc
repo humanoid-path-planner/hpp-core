@@ -23,6 +23,7 @@
 #include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/configuration.hh>
 
