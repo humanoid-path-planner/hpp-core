@@ -22,15 +22,13 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include <hpp/model/device.hh>
-
 #include <hpp/pinocchio/joint.hh>
-# include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/simple-device.hh>
 
 #include "../src/continuous-collision-checking/dichotomy/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
 #include "../tests/utils.hh"
-#include <pinocchio/multibody/joint/joint-variant.hpp>
 
 
 
@@ -74,157 +72,7 @@ void display(const se3::Model& model,
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
 DevicePtr_t createRobot (){
-
-  DevicePtr_t robot = Device::create ("test");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->model(m);
-  robot->geomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position = JointModelPX::ConfigVector_t::Constant(-4.0);
-  JointModelPX::ConfigVector_t upper_position = JointModelPX::ConfigVector_t::Constant(4.0);
-
-  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
-  idJoint = robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
-  idJoint = robot->model().addJoint(idJoint,JointModelPZ(), mat,name + "_z",max_effort,max_velocity,lower_position,upper_position);
-
-  JointIndex waist = robot->model().addJoint(idJoint,JointModelSpherical(), mat,name + "_SO3");
-
-  JointModelRX::TangentVector_t max_effortRot = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::TangentVector_t max_velocityRot = JointModelRX::TangentVector_t::Constant(JointModelRX::NV,std::numeric_limits<double>::max());
-  JointModelRX::ConfigVector_t lower_positionRot = JointModelRX::ConfigVector_t::Constant(-M_PI);
-  JointModelRX::ConfigVector_t upper_positionRot = JointModelRX::ConfigVector_t::Constant(M_PI);
-
-  Transform3f pos;
-  fcl::Matrix3f orient;
-  // Right leg joint 0
-  orient (0,0) = 0; orient (0,1) = 0; orient (0,2) = -1;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
-  orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
-  pos.rotation (orient);
-  pos.translation ( fcl::Vec3f(0, -0.08, 0));
-
-  JointIndex idLeg = robot->model().addJoint(waist,JointModelRX(), pos,"RLEG_0",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY0");
-
-  // Right leg joint 1
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, 0));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"RLEG_1",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY1");
-
-  // Right leg joint 2
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, 0));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"RLEG_2",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY2");
-
-  // Right leg joint 3: knee
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, -0.35));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"RLEG_3",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY3");
-
-  // Right leg joint 4: ankle
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, -0.70));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"RLEG_4",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY4");
-
-  // Right leg joint 5: ankle
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, -0.70));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"RLEG_5",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"RLEG_BODY5");
-
-  // left leg
-  // left leg joint 0
-  orient (0,0) = 0; orient (0,1) = 0; orient (0,2) = -1;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
-  orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
-  pos.rotation (orient);
-  pos.translation ( fcl::Vec3f(0, -0.08, 0));
-
-  idLeg = robot->model().addJoint(waist,JointModelRX(), pos,"LLEG_0",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY0");
-
-  // left leg joint 1
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, 0));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_1",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY1");
-
-  // left leg joint 2
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, 0));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_2",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY2");
-
-  // left leg joint 3: knee
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, -0.35));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_3",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY3");
-
-  // left leg joint 4: ankle
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, -0.70));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_4",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY4");
-
-  // left leg joint 5: ankle
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.rotation (orient);
-  pos.translation (fcl::Vec3f (0, -0.08, -0.70));
-
-  idLeg = robot->model().addJoint(idLeg,JointModelRX(), pos,"LLEG_5",max_effortRot,max_velocityRot,lower_positionRot,upper_positionRot);
-  robot->model().appendBodyToJoint(idLeg,::se3::Inertia::Identity(),::se3::SE3::Identity(),"LLEG_BODY5");
-
-
-  robot->createData();
-  robot->createGeomData();
+  DevicePtr_t robot = hpp::pinocchio::humanoidSimple("test");
   return robot;
 }
 
@@ -458,8 +306,8 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 {
   DevicePtr_t robot = createRobot();
   const se3::Model& model = robot->model();
-  JointPtr_t joint_a = robot->getJointByBodyName ("LLEG_BODY5");
-  JointPtr_t joint_b = robot->getJointByBodyName ("RLEG_BODY5");
+  JointPtr_t joint_a = robot->getJointByBodyName ("lleg5_body");
+  JointPtr_t joint_b = robot->getJointByBodyName ("rleg5_body");
 
   BodyPairCollisionPtr_t bpc = BodyPairCollision::create
     (joint_a, joint_b, 0.001);
@@ -477,13 +325,13 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
   bpc = BodyPairCollision::create (joint_a, obstacles, 0.001);
   display(model, bpc->joints());
 
-  joint_a = robot->getJointByBodyName ("LLEG_BODY5");
-  joint_b = robot->getJointByBodyName ("LLEG_BODY1");
+  joint_a = robot->getJointByBodyName ("lleg5_body");
+  joint_b = robot->getJointByBodyName ("lleg1_body");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
   display(model, bpc->joints());
 
-  joint_a = robot->getJointByBodyName ("LLEG_BODY1");
-  joint_b = robot->getJointByBodyName ("LLEG_BODY5");
+  joint_a = robot->getJointByBodyName ("lleg1_body");
+  joint_b = robot->getJointByBodyName ("lleg5_body");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
   display(model, bpc->joints());
 }
