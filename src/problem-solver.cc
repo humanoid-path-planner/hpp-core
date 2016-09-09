@@ -57,11 +57,22 @@
 
 namespace hpp {
   namespace core {
+    using pinocchio::Model;
     using pinocchio::GeomModel;
     using pinocchio::GeomModelPtr_t;
     using pinocchio::GeomData;
     using pinocchio::GeomDataPtr_t;
     using pinocchio::CollisionObject;
+
+    namespace {
+      Model initObstacleModel () {
+        Model model;
+        model.addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
+        return model;
+      }
+
+      const Model obsModel = initObstacleModel();
+    }
 
     // Struct that constructs an empty shared pointer to PathOptimizer.
     struct NoneOptimizer
@@ -679,17 +690,16 @@ namespace hpp {
 				     bool collision, bool distance)
     {
       if (obstacleModel_->existGeometryName(name)) {
-        std::string errorMsg = "object with name " + name +
-          " already added! Choose another name (prefix).";
-        throw std::runtime_error (errorMsg);
+        HPP_THROW(std::runtime_error, "object with name " << name
+            << " already added! Choose another name (prefix).");
       }
 
       se3::GeomIndex id = obstacleModel_->addGeometryObject(se3::GeometryObject(
-            name, 0, 0,
+            name, obsModel.getFrameId("obstacle_frame", se3::BODY), 0,
             inObject.collisionGeometry(),
             se3::toPinocchioSE3(inObject.getTransform()),
             ""),
-          se3::Model());
+          obsModel);
       // Update obstacleData_
       // FIXME This should be done in Pinocchio
       {
