@@ -116,19 +116,23 @@ namespace hpp {
         for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
             itInner != bodyObjects.end (); ++itInner) {
           CollisionPair_t colPair (*itInner, obstacle);
-          std::size_t before = collisionPairs_.size ();
-          collisionPairs_.remove (colPair);
-          std::size_t after = collisionPairs_.size ();
-          if (after == before) {
+          std::size_t nbDelPairs = 0;
+          CollisionPairs_t::iterator _collisionPair (collisionPairs_.begin());
+          while ( (_collisionPair = std::find (_collisionPair, collisionPairs_.end(), colPair))
+              != collisionPairs_.end()) {
+            _collisionPair = collisionPairs_.erase (_collisionPair);
+            ++nbDelPairs;
+          }
+          if (nbDelPairs == 0) {
             std::ostringstream oss;
             oss << "CollisionValidation::removeObstacleFromJoint: obstacle \""
                 << obstacle->name () <<
                 "\" is not registered as obstacle for joint \"" << joint->name ()
                 << "\".";
             throw std::runtime_error (oss.str ());
-          } else if (before - after >= 2) {
+          } else if (nbDelPairs >= 2) {
             hppDout (error, "obstacle "<< obstacle->name () <<
-                     " was registered " << before - after
+                     " was registered " << nbDelPairs
                      << " times as obstacle for joint " << joint->name ()
                      << ".");
           }

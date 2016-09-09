@@ -234,7 +234,7 @@ namespace hpp {
     // Collision pairs
     typedef std::pair <CollisionObjectConstPtr_t, CollisionObjectConstPtr_t>
     CollisionPair_t;
-    typedef std::list <CollisionPair_t> CollisionPairs_t;
+    typedef std::vector <CollisionPair_t> CollisionPairs_t;
 
     namespace continuousCollisionChecking {
       HPP_PREDEF_CLASS (Dichotomy);
