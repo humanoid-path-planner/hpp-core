@@ -688,7 +688,8 @@ namespace hpp {
             name, 0, 0,
             inObject.collisionGeometry(),
             se3::toPinocchioSE3(inObject.getTransform()),
-            ""));
+            ""),
+          se3::Model());
       // Update obstacleData_
       // FIXME This should be done in Pinocchio
       {
@@ -700,7 +701,7 @@ namespace hpp {
         //data.collision_results(model.collisionPairs.size())
         //data.radius()
         data.collisionObjects.push_back (fcl::CollisionObject(
-              model.geometryObjects[id].collision_geometry));
+              model.geometryObjects[id].fcl));
         data.oMg[id] =  model.geometryObjects[id].placement;
         data.collisionObjects[id].setTransform( se3::toFclTransform3f(data.oMg[id]) );
       }

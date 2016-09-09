@@ -66,7 +66,7 @@ namespace hpp {
     fcl::DistanceResult fclDistance;
     fcl::distance (obj1->fcl (), obj2->fcl (),
                distanceRequest, fclDistance);
-    distanceResults_.push_back(DistanceResult(fclDistance,obj1->indexInModel(),obj2->indexInModel()));
+    distanceResults_.push_back(fclDistance);
       }
     }
 

@@ -102,9 +102,9 @@ DevicePtr_t createRobot ()
   robot->model().appendBodyToJoint(idX,::se3::Inertia::Identity(), se3::SE3::Identity());
   robot->model().addBodyFrame("body", idX, se3::SE3::Identity());
   FrameIndex bodyId = robot->model().getFrameId("body");
-  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject(robot->model(),bodyId,object.collisionGeometry(),mat);
-  robot->geomModel().addInnerObject(idX,idObj);
-
+  robot->geomModel().addGeometryObject(
+      se3::GeometryObject("obstacle", bodyId, idX, object.collisionGeometry(), mat, ""),
+      robot->model());
 
   robot->createData();
   robot->createGeomData();

@@ -142,7 +142,6 @@ namespace hpp {
     typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef boost::shared_ptr <DistanceBetweenObjects>
     DistanceBetweenObjectsPtr_t;
-    typedef se3::DistanceResult DistanceResult;
     typedef pinocchio::DistanceResults_t DistanceResults_t;
     typedef Edge* EdgePtr_t;
     typedef std::list <Edge*> Edges_t;
