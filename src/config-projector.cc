@@ -567,6 +567,7 @@ namespace hpp {
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
       hppDout (info, "before projection: " << configuration.transpose ());
+      assert (!configuration.hasNaN());
       computeLockedDofs (configuration);
       if (isSatisfiedNoLockedJoint (configuration)) return true;
       if (functions_.empty ()) return true;
@@ -615,6 +616,7 @@ namespace hpp {
 	return false;
       }
       hppDout (info, "After projection: " << configuration.transpose ());
+      assert (!configuration.hasNaN());
       return true;
     }
 
