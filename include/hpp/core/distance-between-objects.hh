@@ -36,6 +36,9 @@ namespace hpp {
       void obstacles (const ObjectStdVector_t &obstacles);
       /// Compute distances between pairs of objects stored in bodies
       void computeDistances ();
+      /// Get collision pairs
+      const CollisionPairs_t&
+	collisionPairs () const {return collisionPairs_;};
       /// Get result of distance computations
       const DistanceResults_t&
 	distanceResults () const {return distanceResults_;};
