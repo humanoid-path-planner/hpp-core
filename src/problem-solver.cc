@@ -32,6 +32,7 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
+#include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
@@ -40,6 +41,7 @@
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
@@ -105,6 +107,7 @@ namespace hpp {
               (&SteeringMethodStraight::create), _1
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      add <SteeringMethodBuilder_t> ("Hermite", steeringMethod::Hermite::create);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
@@ -119,10 +122,11 @@ namespace hpp {
       add <PathValidationBuilder_t> ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
 
       // Store path projector methods in map.
-      add <PathProjectorBuilder_t> ("None",        NonePathProjector::create);
-      add <PathProjectorBuilder_t> ("Progressive", pathProjector::Progressive::create);
-      add <PathProjectorBuilder_t> ("Dichotomy",   pathProjector::Dichotomy::create);
-      add <PathProjectorBuilder_t> ("Global",      pathProjector::Global::create);
+      add <PathProjectorBuilder_t> ("None",             NonePathProjector::create);
+      add <PathProjectorBuilder_t> ("Progressive",      pathProjector::Progressive::create);
+      add <PathProjectorBuilder_t> ("Dichotomy",        pathProjector::Dichotomy::create);
+      add <PathProjectorBuilder_t> ("Global",           pathProjector::Global::create);
+      add <PathProjectorBuilder_t> ("RecursiveHermite", pathProjector::RecursiveHermite::create);
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -449,9 +453,12 @@ namespace hpp {
       // factory.
       // TODO: the steering method of a path projector should not have
       //       the problem constraints.
+      steeringMethod::HermitePtr_t hermite = steeringMethod::Hermite::create(problem_);
+      hermite->constraints (problem_->constraints());
       PathProjectorPtr_t pathProjector_ =
         createProjector (problem_->distance (), 
-            SteeringMethodStraight::create (problem_),
+            // SteeringMethodStraight::create (problem_),
+            hermite,
             pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
     }

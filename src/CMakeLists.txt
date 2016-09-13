@@ -64,6 +64,7 @@ SET(${LIBRARY_NAME}_SOURCES
   roadmap.cc
   straight-path.cc
   interpolated-path.cc
+  hermite-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
   numerical-constraint.cc
@@ -72,6 +73,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-projector/progressive.cc
   path-projector/dichotomy.cc
   path-projector/global.cc
+  path-projector/recursive-hermite.cc
   path-projector.cc
   parser/roadmap-factory.cc
   problem-target/goal-configurations.cc

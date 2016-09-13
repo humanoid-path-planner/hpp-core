@@ -107,6 +107,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-projector/progressive.hh
   include/hpp/core/path-projector/dichotomy.hh
   include/hpp/core/path-projector/global.hh
+  include/hpp/core/path-projector/recursive-hermite.hh
   include/hpp/core/path-projector.hh
   include/hpp/core/nearest-neighbor.hh
   include/hpp/core/parser/roadmap-factory.hh
@@ -114,6 +115,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem-target/goal-configurations.hh
   include/hpp/core/problem-target/task-target.hh
   include/hpp/core/subchain-path.hh
+  include/hpp/core/hermite-path.hh
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
