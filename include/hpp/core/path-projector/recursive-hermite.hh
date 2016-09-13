@@ -30,26 +30,24 @@ namespace hpp {
       class HPP_CORE_DLLAPI RecursiveHermite : public PathProjector
       {
         public:
-        typedef hpp::core::HermitePath HermitePath;
-        typedef hpp::core::HermitePathPtr_t HermitePathPtr_t;
+          typedef hpp::core::HermitePath HermitePath;
+          typedef hpp::core::HermitePathPtr_t HermitePathPtr_t;
 
-          static RecursiveHermitePtr_t create
-	    (const DistancePtr_t& distance,
-	     const SteeringMethodPtr_t& steeringMethod, value_type step)
-          {
-            return RecursiveHermitePtr_t (new RecursiveHermite (distance, steeringMethod,
-						      step));
-          }
+          static RecursiveHermitePtr_t create (const DistancePtr_t& distance,
+              const SteeringMethodPtr_t& steeringMethod, value_type step);
+
+          static RecursiveHermitePtr_t create (const ProblemPtr_t& problem,
+              const value_type& step);
 
         protected:
           bool impl_apply (const PathPtr_t& path,
-			   PathPtr_t& projection) const;
+              PathPtr_t& projection) const;
 
           RecursiveHermite (const DistancePtr_t& distance,
-		       const SteeringMethodPtr_t& steeringMethod,
-		       value_type M);
+              const SteeringMethodPtr_t& steeringMethod,
+              value_type M);
 
-	  bool project (const PathPtr_t& path, PathPtr_t& proj) const;
+          bool project (const PathPtr_t& path, PathPtr_t& proj) const;
 
         private:
           bool recurse (const HermitePathPtr_t& path, PathVectorPtr_t& proj, const value_type& thr) const;

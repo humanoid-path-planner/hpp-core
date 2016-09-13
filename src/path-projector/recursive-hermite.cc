@@ -31,6 +31,19 @@ namespace hpp {
       namespace {
       }
 
+      RecursiveHermitePtr_t RecursiveHermite::create (const DistancePtr_t& distance,
+          const SteeringMethodPtr_t& steeringMethod, value_type step)
+      {
+        return RecursiveHermitePtr_t (new RecursiveHermite
+            (distance, steeringMethod, step));
+      }
+
+      RecursiveHermitePtr_t RecursiveHermite::create (
+          const ProblemPtr_t& problem, const value_type& step)
+      {
+        return create (problem->distance(), problem->steeringMethod(), step);
+      }
+
       RecursiveHermite::RecursiveHermite (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
 				value_type M) :

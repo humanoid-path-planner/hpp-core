@@ -25,6 +25,7 @@
 // TODO used to access parameters of the problem. We should not do this here.
 //      See todo of pathProjector::Global::create
 #include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/problem.hh>
 
 #include <limits>
@@ -55,13 +56,38 @@ namespace hpp {
               step, thr_min, hessianBound));
       }
 
+      ProgressivePtr_t Progressive::create (const ProblemPtr_t& problem,
+          const value_type& step)
+      {
+        value_type hessianBound = -1;
+        value_type thr_min = 1e-3;
+        try {
+          hessianBound = problem->getParameter<value_type>
+            ("PathProjectionHessianBound", hessianBound);
+          thr_min = problem->getParameter<value_type>
+            ("PathProjectionMinimalDist", thr_min);
+          hppDout (info, "Hessian bound is " << hessianBound);
+          hppDout (info, "Min Dist is " << thr_min);
+        } catch (const boost::bad_any_cast& e) {
+          hppDout (error, "Could not cast parameter "
+              "PathProjectionHessianBound or PathProjectionMinimalDist "
+              "to value_type");
+        }
+        return ProgressivePtr_t (new Progressive (problem->distance(),
+              problem->steeringMethod(),
+              step, thr_min, hessianBound));
+      }
+
       Progressive::Progressive (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
 				value_type step, value_type thresholdMin, value_type hessianBound) :
         PathProjector (distance, steeringMethod), step_ (step),
         thresholdMin_ (thresholdMin),
         hessianBound_ (hessianBound), withHessianBound_ (hessianBound > 0)
-      {}
+      {
+        // TODO Only SteeringMethodStraight has been tested so far.
+        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::SteeringMethodStraight, steeringMethod));
+      }
 
       bool Progressive::impl_apply (const PathPtr_t& path,
 				    PathPtr_t& proj) const

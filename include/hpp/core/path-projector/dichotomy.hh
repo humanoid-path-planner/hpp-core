@@ -18,6 +18,9 @@
 # define HPP_CORE_PATHPROJECTOR_DICHOTOMY_HH
 
 # include "hpp/core/path-projector.hh"
+
+# include "hpp/core/problem.hh"
+
 namespace hpp {
   namespace core {
     namespace pathProjector {
@@ -33,6 +36,13 @@ namespace hpp {
           {
             return DichotomyPtr_t (new Dichotomy (distance, steeringMethod,
 						  maxPathLength));
+          }
+
+          static DichotomyPtr_t create
+	    (const ProblemPtr_t& problem,
+	     value_type maxPathLength)
+          {
+            return create (problem->distance(), problem->steeringMethod(), maxPathLength);
           }
 
         protected:

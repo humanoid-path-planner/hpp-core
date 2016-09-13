@@ -25,6 +25,7 @@
 #include <hpp/core/config-projector.hh>
 
 #include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/problem.hh>
 
 #include <limits>
@@ -62,6 +63,28 @@ namespace hpp {
               step, thr_min, hessianBound));
       }
 
+      GlobalPtr_t Global::create (const ProblemPtr_t& problem,
+          const value_type& step)
+      {
+        value_type hessianBound = -1;
+        value_type thr_min = 1e-3;
+        try {
+          hessianBound = problem->getParameter<value_type>
+            ("PathProjectionHessianBound", hessianBound);
+          thr_min = problem->getParameter<value_type>
+            ("PathProjectionMinimalDist", thr_min);
+          hppDout (info, "Hessian bound is " << hessianBound);
+          hppDout (info, "Min Dist is " << thr_min);
+        } catch (const boost::bad_any_cast& e) {
+          hppDout (error, "Could not cast parameter "
+              "PathProjectionHessianBound or PathProjectionMinimalDist "
+              "to value_type");
+        }
+        return GlobalPtr_t (new Global (problem->distance(),
+              problem->steeringMethod(),
+              step, thr_min, hessianBound));
+      }
+
       Global::Global (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
 				value_type step, value_type threshold,
@@ -69,7 +92,10 @@ namespace hpp {
         PathProjector (distance, steeringMethod), step_ (step),
         alphaMin (0.2), alphaMax (0.95), hessianBound_ (hessianBound),
         thresholdMin_ (threshold)
-      {}
+      {
+        // TODO Only SteeringMethodStraight has been tested so far.
+        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::SteeringMethodStraight, steeringMethod));
+      }
 
       bool Global::impl_apply (const PathPtr_t& path,
 				    PathPtr_t& proj) const

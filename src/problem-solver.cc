@@ -60,12 +60,19 @@ namespace hpp {
     // Struct that constructs an empty shared pointer to PathProjector.
     struct NonePathProjector
     {
-      static PathProjectorPtr_t create (const DistancePtr_t&,
-					const SteeringMethodPtr_t&, value_type)
+      static PathProjectorPtr_t create (const ProblemPtr_t&,
+					const value_type&)
       {
 	return PathProjectorPtr_t ();
       }
     }; // struct NonePathProjector
+
+    template <typename Derived> struct Factory {
+      static boost::shared_ptr<Derived> create (const ProblemPtr_t& problem) { return Derived::create (problem); }
+    };
+    template <typename Derived> struct FactoryPP {
+      static boost::shared_ptr<Derived> create (const ProblemPtr_t& problem, const value_type& value) { return Derived::create (problem, value); }
+    };
 
     ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
     ProblemSolverPtr_t ProblemSolver::create ()
@@ -102,10 +109,7 @@ namespace hpp {
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
       add <DistanceBuilder_t> ("WeighedDistance",WeighedDistance::create);
-      add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
-            static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
-              (&SteeringMethodStraight::create), _1
-            ));
+      add <SteeringMethodBuilder_t> ("SteeringMethodStraight", Factory<SteeringMethodStraight>::create);
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
       add <SteeringMethodBuilder_t> ("Hermite", steeringMethod::Hermite::create);
 
@@ -123,10 +127,10 @@ namespace hpp {
 
       // Store path projector methods in map.
       add <PathProjectorBuilder_t> ("None",             NonePathProjector::create);
-      add <PathProjectorBuilder_t> ("Progressive",      pathProjector::Progressive::create);
-      add <PathProjectorBuilder_t> ("Dichotomy",        pathProjector::Dichotomy::create);
-      add <PathProjectorBuilder_t> ("Global",           pathProjector::Global::create);
-      add <PathProjectorBuilder_t> ("RecursiveHermite", pathProjector::RecursiveHermite::create);
+      add <PathProjectorBuilder_t> ("Progressive",      FactoryPP<pathProjector::Progressive>::create);
+      add <PathProjectorBuilder_t> ("Dichotomy",        FactoryPP<pathProjector::Dichotomy>::create);
+      add <PathProjectorBuilder_t> ("Global",           FactoryPP<pathProjector::Global>::create);
+      add <PathProjectorBuilder_t> ("RecursiveHermite", FactoryPP<pathProjector::RecursiveHermite>::create);
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -434,7 +438,6 @@ namespace hpp {
       problem_->distance (dist);
     }
 
-
     void ProblemSolver::initSteeringMethod ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -449,17 +452,13 @@ namespace hpp {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       PathProjectorBuilder_t createProjector =
         get <PathProjectorBuilder_t> (pathProjectorType_);
-      // Create a default steering method until we add a steering method
-      // factory.
-      // TODO: the steering method of a path projector should not have
-      //       the problem constraints.
-      steeringMethod::HermitePtr_t hermite = steeringMethod::Hermite::create(problem_);
-      hermite->constraints (problem_->constraints());
+      // The PathProjector will store a copy of the current steering method.
+      // This means:
+      // - when constraints are relevant, they should have been added before.
+      //   TODO The path projector should update the constraint according to the path they project.
+      // - the steering method type must match the path projector type.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), 
-            // SteeringMethodStraight::create (problem_),
-            hermite,
-            pathProjectorTolerance_);
+        createProjector (problem_, pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
     }
 
