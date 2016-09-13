@@ -55,6 +55,11 @@ namespace hpp {
       /// Copy instance and return shared pointer
       virtual SteeringMethodPtr_t copy () const = 0;
 
+      const ProblemPtr_t& problem() const
+      {
+        return problem_;
+      }
+
       /// \name Constraints applicable to the robot.
       /// These constraints are not automatically taken into
       /// account. Child class can use it if they need.

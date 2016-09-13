@@ -17,12 +17,17 @@
 #include "hpp/core/path-projector.hh"
 
 #include <hpp/util/pointer.hh>
+#include <hpp/util/timer.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/steering-method.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      HPP_DEFINE_TIMECOUNTER (PathProjection);
+    }
+
     PathProjector::PathProjector (const DistancePtr_t& distance,
 				  const SteeringMethodPtr_t& steeringMethod,
 				  bool keepSteeringMethodConstraints) :
@@ -36,7 +41,10 @@ namespace hpp {
     }
 
     PathProjector::~PathProjector ()
-    {}
+    {
+      HPP_DISPLAY_TIMECOUNTER (PathProjection);
+      HPP_RESET_TIMECOUNTER (PathProjection);
+    }
 
     value_type PathProjector::d (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
@@ -55,7 +63,10 @@ namespace hpp {
     bool PathProjector::apply (const PathPtr_t& path,
 			       PathPtr_t& proj) const
     {
-      return impl_apply (path, proj);
+      HPP_START_TIMECOUNTER (PathProjection);
+      bool ret = impl_apply (path, proj);
+      HPP_STOP_TIMECOUNTER (PathProjection);
+      return ret;
     }
   } // namespace core
 } // namespace hpp

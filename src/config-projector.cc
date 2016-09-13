@@ -36,8 +36,8 @@
 namespace hpp {
   namespace core {
     namespace {
-      HPP_DEFINE_TIMECOUNTER (projection);
-      HPP_DEFINE_TIMECOUNTER (optimize);
+      // HPP_DEFINE_TIMECOUNTER (projection);
+      // HPP_DEFINE_TIMECOUNTER (optimize);
     }
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
@@ -134,7 +134,7 @@ namespace hpp {
 
     ConfigProjector::PriorityStack::PriorityStack (std::size_t level,
         std::size_t cols) :
-      level_ (level), outputSize_ (0), cols_ (cols),
+      level_ (level), outputSize_ (0), cols_ (cols), maxRank_(0),
       svd_ (outputSize_,cols,Eigen::ComputeThinU | Eigen::ComputeThinV),
       PK_ (cols, cols)
     {
@@ -353,24 +353,28 @@ namespace hpp {
         case 0: // First
           // dq should be zero and projector should be identity
           svd_.compute (jacobian);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq = svd_.solve (error);
           break;
         case 2: // Last
           // No need to compute projector for next step.
           svd_.compute (jacobian * projector);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq.noalias() += svd_.solve (error - jacobian * dq);
           return true; // The return value is not important in this case.
           break;
         case 3: // First and last (one level only)
           svd_.compute (jacobian);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq = svd_.solve (error);
           return true; // The return value is not important in this case.
           break;
         default: /// General case
           svd_.compute (jacobian * projector);
+          updateSigma();
           HPP_DEBUG_SVDCHECK (svd_);
           dq.noalias() += svd_.solve (error - jacobian * dq);
           break;
@@ -381,6 +385,26 @@ namespace hpp {
       return (jacobian * dq - error).isZero ();
     }
 
+    void ConfigProjector::PriorityStack::updateSigma ()
+    {
+      if (svd_.rank() > maxRank_) {
+        maxRank_ = svd_.rank();
+        hppDout (info, "Updating max rank to " << maxRank_);
+      }
+      if (maxRank_ == 0) sigma_ = 0;
+      else sigma_ = svd_.singularValues()[maxRank_ - 1];
+    }
+
+    void ConfigProjector::updateSigma ()
+    {
+      if (svd_.rank() > maxRank_) {
+        maxRank_ = svd_.rank();
+        hppDout (info, "Updating max rank to " << maxRank_);
+      }
+      if (maxRank_ == 0) sigma_ = 0;
+      else sigma_ = svd_.singularValues()[maxRank_ - 1];
+    }
+
     void ConfigProjector::computePrioritizedIncrement (vectorIn_t value,
         matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq)
     {
@@ -389,12 +413,14 @@ namespace hpp {
         matrix_t::Identity (nbNonLockedDofs_, nbNonLockedDofs_);
       std::size_t row = 0;
       dqSmall_.setZero ();
+      sigma_ = std::numeric_limits<value_type>::max();
       for (std::vector <PriorityStack>::iterator it = stack_.begin ();
           it != stack_.end (); ++it) {
         if (!it->computeIncrement (error.segment (row, it->outputSize_),
             reducedJacobian.middleRows (row, it->outputSize_),
             dqSmall_, projector))
           break;
+        sigma_ = std::min (sigma_, it->sigma_);
         row += it->outputSize_;
       }
       uncompressVector (dqSmall_, dq);
@@ -411,12 +437,14 @@ namespace hpp {
       dqSmall_.setZero ();
       std::vector <PriorityStack>::iterator end = stack_.begin ();
       std::advance (end, level);
+      sigma_ = std::numeric_limits<value_type>::max();
       for (std::vector <PriorityStack>::iterator it = stack_.begin ();
           it != end; ++it) {
         if (!it->computeIncrement (error.segment (row, it->outputSize_),
             reducedJacobian.middleRows (row, it->outputSize_),
             dqSmall_, projector))
           break;
+        sigma_ = std::min (sigma_, it->sigma_);
         row += it->outputSize_;
       }
       uncompressVector (dqSmall_, dq);
@@ -427,6 +455,7 @@ namespace hpp {
     {
       svd_.compute (reducedJacobian);
       dqSmall_ = svd_.solve(alpha * (rightHandSide_ - value));
+      updateSigma();
       uncompressVector (dqSmall_, dq);
     }
 
@@ -575,7 +604,7 @@ namespace hpp {
 	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
 			     functions_ [0])->solve (configuration);
       }
-      HPP_START_TIMECOUNTER (projection);
+      // HPP_START_TIMECOUNTER (projection);
       value_type alpha = .2;
       value_type alphaMax = .95;
       size_type errorDecreased = 3, iter = 0;
@@ -604,8 +633,8 @@ namespace hpp {
       } else {
         statistics_.addSuccess();
       }
-      HPP_STOP_TIMECOUNTER (projection);
-      HPP_DISPLAY_TIMECOUNTER (projection);
+      // HPP_STOP_TIMECOUNTER (projection);
+      // HPP_DISPLAY_TIMECOUNTER (projection);
       hppDout (info, "number of iterations: " << iter);
       if (squareNorm_ > squareErrorThreshold_) {
 	hppDout (info, "Projection failed.");
@@ -632,7 +661,7 @@ namespace hpp {
       if (!isSatisfied (configuration)) return false;
       if (maxIter == 0) maxIter = maxIterations_;
       hppDout (info, "before optimization: " << configuration.transpose ());
-      HPP_START_TIMECOUNTER (optimize);
+      // HPP_START_TIMECOUNTER (optimize);
       Configuration_t current = configuration;
       std::size_t iter = 0;
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
@@ -654,8 +683,8 @@ namespace hpp {
         configuration = current;
 	++iter;
       } while (iter < maxIter); // && squareNorm_ < squareErrorThreshold_
-      HPP_STOP_TIMECOUNTER (optimize);
-      HPP_DISPLAY_TIMECOUNTER (optimize);
+      // HPP_STOP_TIMECOUNTER (optimize);
+      // HPP_DISPLAY_TIMECOUNTER (optimize);
       hppDout (info, "number of iterations: " << iter);
       if (iter == 0) {
 	hppDout (info, "Optimization failed.");

@@ -53,6 +53,8 @@ namespace hpp {
       configValidations_->add (JointBoundValidation::create (robot));
 
       add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
+      add<boost::any>("PathProjectionHessianBound", (value_type)-1);
+      add<boost::any>("PathProjectionMinimalDist", (value_type)1e-3);
     }
 
     // ======================================================================

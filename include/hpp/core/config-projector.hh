@@ -260,6 +260,11 @@ namespace hpp {
         return squareNorm_;
       }
 
+      value_type sigma() const
+      {
+        return sigma_;
+      }
+
       /// \name Right hand side of equalities - inequalities
       /// @{
 
@@ -360,9 +365,11 @@ namespace hpp {
       struct PriorityStack {
         std::size_t level_; // 0, 1, 2 or 3.
         std::size_t outputSize_, cols_;
+        size_type maxRank_;
         NumericalConstraints_t functions_;
         IntervalsContainer_t passiveDofs_;
         mutable SVD_t svd_;
+        mutable value_type sigma_;
         matrix_t PK_;
         
         PriorityStack (std::size_t level, std::size_t cols);
@@ -381,6 +388,7 @@ namespace hpp {
         /// Return false if it is not possible solve this constraints.
         bool computeIncrement (vectorIn_t value, matrixIn_t jacobian,
             vectorOut_t dq, matrixOut_t projector);
+        void updateSigma();
       };
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
@@ -389,9 +397,11 @@ namespace hpp {
       void resize ();
       void computeIntervals ();
       inline void computeError ();
+      void updateSigma();
       DevicePtr_t robot_;
       std::vector <PriorityStack> stack_;
       NumericalConstraints_t functions_;
+      size_type maxRank_;
       std::vector <std::size_t> explicitFunctions_;
       IntervalsContainer_t passiveDofs_;
       LockedJoints_t lockedJoints_;
@@ -406,6 +416,7 @@ namespace hpp {
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;
       mutable SVD_t svd_;
+      mutable value_type sigma_;
       mutable matrix_t reducedProjector_;
       mutable vector_t toMinusFrom_;
       mutable vector_t toMinusFromSmall_;

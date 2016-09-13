@@ -25,15 +25,12 @@ namespace hpp {
       class HPP_CORE_DLLAPI Progressive : public PathProjector
       {
         public:
-        typedef hpp::core::StraightPath StraightPath;
-        typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
-          static ProgressivePtr_t create
-	    (const DistancePtr_t& distance,
-	     const SteeringMethodPtr_t& steeringMethod, value_type step)
-          {
-            return ProgressivePtr_t (new Progressive (distance, steeringMethod,
-						      step));
-          }
+          typedef hpp::core::StraightPath StraightPath;
+          typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
+
+          /// \todo See todo of pathProjector::Global::create
+          static ProgressivePtr_t create (const DistancePtr_t& distance,
+             const SteeringMethodPtr_t& steeringMethod, value_type step);
 
         protected:
           bool impl_apply (const PathPtr_t& path,
@@ -41,11 +38,15 @@ namespace hpp {
 
           Progressive (const DistancePtr_t& distance,
 		       const SteeringMethodPtr_t& steeringMethod,
-		       value_type step);
+		       value_type step, value_type threshold, value_type hessianBound);
 
 	  bool project (const PathPtr_t& path, PathPtr_t& proj) const;
+
         private:
           value_type step_;
+          const value_type thresholdMin_;
+          const value_type hessianBound_;
+          const bool withHessianBound_;
       };
     } // namespace pathProjector
   } // namespace core
