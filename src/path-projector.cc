@@ -47,7 +47,8 @@ namespace hpp {
 				    ConfigurationIn_t q2) const
     {
       PathPtr_t result ((*steeringMethod_) (q1, q2));
-      assert (!result->constraints ());
+      // In the case of hermite path, we want the paths to be constrained.
+      // assert (!result->constraints ());
       return result;
     }
 
