@@ -154,6 +154,7 @@ namespace hpp {
 				  type);
       }
       steeringMethodType_ = type;
+      if (problem_) initSteeringMethod();
     }
 
     void ProblemSolver::pathPlannerType (const std::string& type)
