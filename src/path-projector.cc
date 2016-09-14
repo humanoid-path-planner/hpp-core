@@ -31,7 +31,8 @@ namespace hpp {
     PathProjector::PathProjector (const DistancePtr_t& distance,
 				  const SteeringMethodPtr_t& steeringMethod,
 				  bool keepSteeringMethodConstraints) :
-      distance_ (distance), steeringMethod_ (steeringMethod->copy ())
+      steeringMethod_ (steeringMethod->copy ()),
+      distance_ (distance)
     {
       assert (distance_ != NULL);
       assert (steeringMethod_ != NULL);
