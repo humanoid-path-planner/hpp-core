@@ -47,7 +47,7 @@ namespace hpp {
       RecursiveHermite::RecursiveHermite (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
 				value_type M) :
-        PathProjector (distance, steeringMethod, true), M_ (M)
+        PathProjector (distance, steeringMethod, false), M_ (M)
       {
         assert (HPP_DYNAMIC_PTR_CAST(hpp::core::steeringMethod::Hermite, steeringMethod));
       }
@@ -108,6 +108,8 @@ namespace hpp {
           return true;
         }
 
+        steeringMethod_->constraints(constraints);
+
         const value_type thr = 2 * cp->errorThreshold() / M_;
 
         HermitePathPtr_t p = HPP_DYNAMIC_PTR_CAST (HermitePath, path);
@@ -154,7 +156,8 @@ namespace hpp {
           }
           const Configuration_t q0 = path->initial ();
           const Configuration_t q2 = path->end ();
-          // I do not know why we have to divide the velocities by two.
+          // Velocities must be divided by two because each half is rescale
+          // from [0, 0.5] to [0, 1]
           const vector_t vHalf = path->velocity (t) / 2;
 
           HermitePathPtr_t left = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (q0, q1));
