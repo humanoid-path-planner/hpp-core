@@ -43,9 +43,14 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/interpolated-path.hh>
+#include <hpp/core/hermite-path.hh>
+
+#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/hermite.hh>
 
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/progressive.hh>
+#include <hpp/core/path-projector/recursive-hermite.hh>
 
 using hpp::model::Device;
 using hpp::model::DevicePtr_t;
@@ -256,29 +261,44 @@ const char* traits_parabola::_func = "parabola";
 struct traits_progressive {
   typedef pathProjector::Progressive Proj_t;
   typedef pathProjector::ProgressivePtr_t ProjPtr_t;
+  typedef SteeringMethodStraight SM_t;
   static const value_type projection_step;
   static const char* _proj;
 };
 struct traits_global {
   typedef pathProjector::Global Proj_t;
   typedef pathProjector::GlobalPtr_t ProjPtr_t;
+  typedef SteeringMethodStraight SM_t;
+  static const value_type projection_step;
+  static const char* _proj;
+};
+struct traits_hermite {
+  typedef pathProjector::RecursiveHermite Proj_t;
+  typedef pathProjector::RecursiveHermitePtr_t ProjPtr_t;
+  typedef steeringMethod::Hermite SM_t;
   static const value_type projection_step;
   static const char* _proj;
 };
 const value_type traits_progressive::projection_step = 0.1;
-const value_type traits_global::projection_step = 0.1;
+const value_type traits_global     ::projection_step = 0.1;
+const value_type traits_hermite    ::projection_step = 2;
 const char* traits_progressive::_proj = "progressive";
-const char* traits_global::_proj = "global";
+const char* traits_global     ::_proj = "global";
+const char* traits_hermite    ::_proj = "hermite";
 
-struct traits_global_circle : traits_global, traits_circle {};
-struct traits_global_parabola : traits_global, traits_parabola {};
-struct traits_progressive_circle : traits_progressive, traits_circle {};
+struct traits_global_circle        : traits_global     , traits_circle   {};
+struct traits_global_parabola      : traits_global     , traits_parabola {};
+struct traits_progressive_circle   : traits_progressive, traits_circle   {};
 struct traits_progressive_parabola : traits_progressive, traits_parabola {};
+struct traits_hermite_circle       : traits_hermite    , traits_circle   {};
+struct traits_hermite_parabola     : traits_hermite    , traits_parabola {};
 
 typedef boost::mpl::list <  traits_global_circle
                           , traits_progressive_circle
+                          , traits_hermite_circle
                           , traits_global_parabola
                           , traits_progressive_parabola
+                          , traits_hermite_parabola
                           > test_types;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
@@ -290,6 +310,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
   ConstraintSetPtr_t c = createConstraints (dev);
   DifferentiableFunctionPtr_t func = traits::func (dev);
   c->configProjector ()->add (NumericalConstraint::create (func));
+  problem.steeringMethod(traits::SM_t::create (&problem));
   problem.steeringMethod ()->constraints (c);
 
   for (int c = 0; c < 2; ++c) {
@@ -299,8 +320,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
       problem.add<boost::any> ("PathProjectionHessianBound", traits::K);
 
     typename traits::ProjPtr_t projector =
-      traits::Proj_t::create (problem.distance(), problem.steeringMethod(),
-          traits::projection_step);
+      traits::Proj_t::create (&problem, traits::projection_step);
 
     std::cout << "========================================\n";
 
