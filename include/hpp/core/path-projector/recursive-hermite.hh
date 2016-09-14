@@ -45,13 +45,13 @@ namespace hpp {
 
           RecursiveHermite (const DistancePtr_t& distance,
               const SteeringMethodPtr_t& steeringMethod,
-              value_type M);
+              const value_type& M, const value_type& beta);
 
           bool project (const PathPtr_t& path, PathPtr_t& proj) const;
 
         private:
           bool recurse (const HermitePathPtr_t& path, PathVectorPtr_t& proj, const value_type& thr) const;
-          value_type M_;
+          value_type M_, beta_;
       };
     } // namespace pathProjector
   } // namespace core

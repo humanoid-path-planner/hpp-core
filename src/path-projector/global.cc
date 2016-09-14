@@ -66,23 +66,7 @@ namespace hpp {
       GlobalPtr_t Global::create (const ProblemPtr_t& problem,
           const value_type& step)
       {
-        value_type hessianBound = -1;
-        value_type thr_min = 1e-3;
-        try {
-          hessianBound = problem->getParameter<value_type>
-            ("PathProjectionHessianBound", hessianBound);
-          thr_min = problem->getParameter<value_type>
-            ("PathProjectionMinimalDist", thr_min);
-          hppDout (info, "Hessian bound is " << hessianBound);
-          hppDout (info, "Min Dist is " << thr_min);
-        } catch (const boost::bad_any_cast& e) {
-          hppDout (error, "Could not cast parameter "
-              "PathProjectionHessianBound or PathProjectionMinimalDist "
-              "to value_type");
-        }
-        return GlobalPtr_t (new Global (problem->distance(),
-              problem->steeringMethod(),
-              step, thr_min, hessianBound));
+        return create (problem->distance(), problem->steeringMethod(), step);
       }
 
       Global::Global (const DistancePtr_t& distance,
@@ -506,8 +490,8 @@ namespace hpp {
           ++itL;
           assert (itL == l.end ());
         }
-        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
 #if HPP_ENABLE_BENCHMARK
+        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
         hppBenchmark("Interpolated path (global - non hessian): "
             << nbWaypoints
             << ", [ " << min
@@ -560,8 +544,8 @@ namespace hpp {
           min = std::min(min, _d->length);
           max = std::max(max, _d->length);
         }
-        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
 #if HPP_ENABLE_BENCHMARK
+        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
         hppBenchmark("Interpolated path (global - with hessian): "
             << nbWaypoints
             << ", [ " << min

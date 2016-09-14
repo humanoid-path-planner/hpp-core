@@ -28,14 +28,20 @@
 namespace hpp {
   namespace core {
     namespace pathProjector {
-      namespace {
-      }
-
       RecursiveHermitePtr_t RecursiveHermite::create (const DistancePtr_t& distance,
           const SteeringMethodPtr_t& steeringMethod, value_type step)
       {
+        value_type beta = 0.9;
+        try {
+          beta = steeringMethod->problem()->getParameter<value_type>
+            ("PathProjectionRecursiveHermiteBeta", beta);
+          hppDout (info, "beta is " << beta);
+        } catch (const boost::bad_any_cast& e) {
+          hppDout (error, "Could not cast parameter "
+              "PathProjectionRecursiveHermiteBeta to value_type");
+        }
         return RecursiveHermitePtr_t (new RecursiveHermite
-            (distance, steeringMethod, step));
+            (distance, steeringMethod, step, beta));
       }
 
       RecursiveHermitePtr_t RecursiveHermite::create (
@@ -46,9 +52,13 @@ namespace hpp {
 
       RecursiveHermite::RecursiveHermite (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
-				value_type M) :
-        PathProjector (distance, steeringMethod, false), M_ (M)
+				const value_type& M, const value_type& beta) :
+        PathProjector (distance, steeringMethod, false), M_ (M),
+        beta_ (beta)
       {
+        // beta should be between 0.5 and 1.
+        if (beta_ < 0.5 || 1 < beta_)
+          throw std::invalid_argument ("Beta should be between 0.5 and 1");
         assert (HPP_DYNAMIC_PTR_CAST(hpp::core::steeringMethod::Hermite, steeringMethod));
       }
 
@@ -142,18 +152,17 @@ namespace hpp {
         return false;
       }
 
-      bool RecursiveHermite::recurse (const HermitePathPtr_t& path, PathVectorPtr_t& proj, const value_type& thr) const
+      bool RecursiveHermite::recurse (const HermitePathPtr_t& path, PathVectorPtr_t& proj,
+          const value_type& acceptThr) const
       {
-        if (path->hermiteLength() < thr) {
+        if (path->hermiteLength() < acceptThr) {
           proj->appendPath (path);
           return true;
         } else {
           const value_type t = 0.5; //path->timeRange().first + path->length() / 2;
           bool success;
           const Configuration_t q1((*path) (t, success));
-          if (!success) {
-            return false;
-          }
+          if (!success) return false;
           const Configuration_t q0 = path->initial ();
           const Configuration_t q2 = path->end ();
           // Velocities must be divided by two because each half is rescale
@@ -170,12 +179,18 @@ namespace hpp {
           right->v1 (path->v1() / 2);
           right->computeHermiteLength();
 
-          const value_type beta = 0.8; // should be between 0.5 and 1.
-          // // This is the inverse of the condition in the RSS paper. Is there a typo in the paper ?
-          // if (std::max (left->hermiteLength(), right->hermiteLength()) > beta * path->hermiteLength()) return false;
-          // if (std::max (left->hermiteLength(), right->hermiteLength()) <= beta * path->hermiteLength()) return false;
-          if (!recurse (left, proj, thr)) return false;
-          if (!recurse (right, proj, thr)) return false;
+          const value_type stopThr = beta_ * path->hermiteLength();
+          bool lStop = ( left ->hermiteLength() > stopThr );
+          bool rStop = ( right->hermiteLength() > stopThr );
+          bool stop = rStop || lStop;
+          // This is the inverse of the condition in the RSS paper. Is there a typo in the paper ?
+          // if (std::max (left->hermiteLength(), right->hermiteLength()) > beta * path->hermiteLength()) {
+          if (stop) {
+            hppDout (info, "RHP stopped: " << path->hermiteLength() << " -> " <<
+                left->hermiteLength() << " / " << right->hermiteLength());
+          }
+          if (lStop || !recurse (left , proj, acceptThr)) return false;
+          if ( stop || !recurse (right, proj, acceptThr)) return false;
 
           return true;
         }
