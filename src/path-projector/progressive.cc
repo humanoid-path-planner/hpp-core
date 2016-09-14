@@ -177,7 +177,7 @@ namespace hpp {
               curLength = d (qb, qi);
             curStep /= 2;
             dicC++;
-          } while (curLength > step_ || curLength < 1e-3);
+          } while (curLength > threshold || curLength < 1e-3);
           if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
 	  assert (curLength == d (qb, qi));
 
