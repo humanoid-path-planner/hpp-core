@@ -242,10 +242,11 @@ struct traits_parabola {
   }
   static void make_conf (ConfigurationOut_t q1, ConfigurationOut_t q2,
       const int index) {
-    switch (index) {
-      case 0: q1 <<  1,0; q2 << -1,0; break; // Should be really fast
-      case 1: q1 <<  1,0; q2 << -1,1; break; // Should be slower
-    }
+    q1 <<  1,0; q2 << -1,(value_type)(2*index) / (NB_CONFS - 1);
+    // switch (index) {
+      // case 0: q1 <<  1,0; q2 << -1,0; break; // Should be really fast
+      // case 1: q1 <<  1,0; q2 << -1,1; break; // Should be slower
+    // }
   }
   static const int NB_CONFS;
   static const value_type K;
@@ -254,7 +255,7 @@ struct traits_parabola {
 const int traits_circle::NB_CONFS = 8;
 const value_type traits_circle::K = 2.001;
 const char* traits_circle::_func = "circle";
-const int traits_parabola::NB_CONFS = 2;
+const int traits_parabola::NB_CONFS = 8;
 const value_type traits_parabola::K = 2 * sqrt(2);
 const char* traits_parabola::_func = "parabola";
 
