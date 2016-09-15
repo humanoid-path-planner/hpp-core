@@ -59,6 +59,7 @@ namespace hpp {
             Configuration_t q;
             value_type length; // Length between this config and the previous one
             value_type alpha;
+            std::size_t Niter;
             value_type sigma;
             bool projected;
           };

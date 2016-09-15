@@ -194,6 +194,14 @@ namespace hpp {
         reinterpolate (p.robot(), p, datas, last);
         if (datas.size() == 2) { // Shorter than step_
           proj = path;
+#if HPP_ENABLE_BENCHMARK
+        hppBenchmark("Interpolated path (global - with hessian): "
+            << 0
+            << ", [ " << 0
+            <<   ", " << 0
+            <<   ", " << 0 << "]"
+            );
+#endif
           return true;
         }
         assert ((datas.back().q - path->end ()).isZero ());
@@ -334,6 +342,7 @@ namespace hpp {
             _d->projected = p.oneStep (_d->q, dq_, _d->alpha);
             _d->alpha = alphaMax - 0.8 * (alphaMax - _d->alpha);
             _d->sigma = p.sigma();
+            ++_d->Niter;
             allAreSatisfied = allAreSatisfied && _d->projected;
             curUpdated = true;
           }
@@ -415,10 +424,11 @@ namespace hpp {
         size_type nbNewC = 0;
         Data newD;
         newD.q.resize(robot->configSize ());
+        const std::size_t maxIter = p.maxIterations ();
         const value_type K = hessianBound_, dist_min = thresholdMin_,
               sigma_min = dist_min * K;
         for (Datas_t::iterator _d = begin; _d != last; ++_d) {
-          if (_dPrev->sigma < sigma_min) {
+          if (_dPrev->sigma < sigma_min || _dPrev->Niter >= maxIter) {
             hppDout (info, "Rejected sigma " << _d->sigma);
             last = _dPrev;
             break;
@@ -644,6 +654,7 @@ namespace hpp {
         }
         data.projected = projected;
         data.alpha = alphaMin;
+        data.Niter = 0;
         if (qLength.size() == q.size())
           data.length = d(qLength, q);
         else
