@@ -16,6 +16,8 @@
 
 #include "hpp/core/path-projector/recursive-hermite.hh"
 
+#include <hpp/util/timer.hh>
+
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/hermite-path.hh>
 #include <hpp/core/config-projector.hh>
@@ -133,7 +135,25 @@ namespace hpp {
         }
         PathVectorPtr_t res = PathVector::create (path->outputSize(),
                                                   path->outputDerivativeSize());
-        if (recurse (p, res, thr)) {
+        bool success = recurse (p, res, thr);
+#if HPP_ENABLE_BENCHMARK
+        value_type min = std::numeric_limits<value_type>::max(), max = 0, totalLength = 0;
+        const size_t nbPaths = res->numberPaths();
+        for (std::size_t i = 0; i < nbPaths; ++i) {
+          PathPtr_t curP = res->pathAtRank(i);
+          const value_type l = d(curP->initial(), curP->end());
+          if (l < min) min = l;
+          else if (l > max) max = l;
+          totalLength += l;
+        }
+        hppBenchmark("Hermite path: "
+            << nbPaths
+            << ", [ " << min
+            <<   ", " << (nbPaths == 0 ? 0 : totalLength / nbPaths)
+            <<   ", " << max << "]"
+            );
+#endif
+        if (success) {
           proj = res;
           return true;
         }
