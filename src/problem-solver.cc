@@ -55,6 +55,8 @@
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 
+#include <bounding-box.hh>
+
 namespace hpp {
   namespace core {
     using pinocchio::Model;
@@ -786,5 +788,15 @@ namespace hpp {
       return distanceObstacles_;
     }
 
+    void ProblemSolver::setJointBoundsFromObstaclesBoundingBox (
+        const std::string& jointName,
+        const value_type& extend) const
+    {
+      if (!robot_) throw std::logic_error ("You must provide a robot first");
+      JointPtr_t j = robot_->getJointByName(jointName);
+      fcl::AABB aabb = computeBoundingBox(*obstacleData_);
+      aabb.expand(fcl::Vec3f(extend, extend, extend));
+      SetJointBoundFromAABB::run(j->jointModel(), SetJointBoundFromAABB::ArgsType (aabb, robot_->model())); 
+    }
   } //   namespace core
 } // namespace hpp

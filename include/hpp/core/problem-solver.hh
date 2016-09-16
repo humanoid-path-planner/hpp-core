@@ -535,6 +535,12 @@ namespace hpp {
       {
 	return distanceBetweenObjects_;
       }
+
+      /// Set the bounds of the joint from obstacle.
+      /// \param jointName
+      /// \param extend the obstacle bounding box is extended by this value.
+      void setJointBoundsFromObstaclesBoundingBox (const std::string& jointName,
+          const value_type& extend = 0) const;
       /// \}
 
       /// Local vector of objects considered for collision detection
