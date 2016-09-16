@@ -78,26 +78,16 @@ namespace hpp {
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const
       {
-	if (reversed_) {
-	  param = timeRange ().first + timeRange ().second - param ;
-	  return original_->impl_compute (result, param);
-	} else {
-	  return original_->impl_compute (result, param);
-	}
+        param = tInOriginalPath (param);
+        return original_->impl_compute (result, param);
       }
 
       virtual PathPtr_t extract (const interval_t& subInterval) const
         throw (projection_error)
       {
 	ExtractedPathPtr_t path = createCopy (weak_.lock ());
-	value_type tmin, tmax;
-        if (this->reversed_) {
-	  tmin = timeRange ().first + timeRange ().second - subInterval.first;
-	  tmax = timeRange ().first + timeRange ().second - subInterval.second;
-        } else {
-	  tmin = subInterval.first;
-	  tmax = subInterval.second;
-        }
+	value_type tmin = tInOriginalPath (subInterval.first),
+                   tmax = tInOriginalPath (subInterval.second);
 	path->reversed_ = tmin > tmax;
 	if (path->reversed_) std::swap (tmin, tmax);
 	// path->reversed_ = ((this->reversed_) && (!reversed)) ||
@@ -112,8 +102,7 @@ namespace hpp {
       inline Configuration_t initial () const
       {
 	bool success;
-        return (*original_)(timeRange_.first +
-              reversed_?timeRange_.second:0,
+        return (*original_)(reversed_?timeRange_.second:timeRange_.first,
               success);
       }
 
@@ -121,8 +110,7 @@ namespace hpp {
       inline Configuration_t end () const
       {
 	bool success;
-        return (*original_)(timeRange_.first +
-              reversed_?0:timeRange_.second,
+        return (*original_)(reversed_?timeRange_.first:timeRange_.second,
               success);
       }
 
@@ -181,6 +169,13 @@ namespace hpp {
       }
 
     private:
+      inline value_type tInOriginalPath (const value_type& t) const
+      {
+        assert (timeRange_.first <= t && t <= timeRange_.second);
+        if (!reversed_) return t;
+        return timeRange_.first + (timeRange_.second - t);
+      }
+
       PathPtr_t original_;
       bool reversed_;
       ExtractedPathWkPtr_t weak_;
