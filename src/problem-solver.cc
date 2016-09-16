@@ -794,7 +794,21 @@ namespace hpp {
     {
       if (!robot_) throw std::logic_error ("You must provide a robot first");
       JointPtr_t j = robot_->getJointByName(jointName);
-      fcl::AABB aabb = computeBoundingBox(*obstacleData_);
+      bool obsEmpty, robEmpty;
+      fcl::AABB aabbObs = computeBoundingBox<false>(*obstacleModel_   , *obstacleData_    , obsEmpty);
+      fcl::AABB aabbRob = computeBoundingBox<true>(robot_->geomModel(), robot_->geomData(), robEmpty);
+      fcl::AABB aabb;
+      if (obsEmpty && robEmpty)
+        throw std::runtime_error ("There are no obstacles "
+            "and the robot universe joint does not have any geometries");
+      if (obsEmpty) {
+        assert (!robEmpty);
+        aabb = aabbRob;
+      } else {
+        aabb = aabbObs;
+        if (!robEmpty)
+          aabb += aabbRob;
+      }
       aabb.expand(fcl::Vec3f(extend, extend, extend));
       SetJointBoundFromAABB::run(j->jointModel(), SetJointBoundFromAABB::ArgsType (aabb, robot_->model())); 
     }

@@ -25,7 +25,7 @@
 
 namespace hpp {
   namespace core {
-    // using pinocchio::GeomModel;
+    using pinocchio::GeomModel;
     using pinocchio::GeomData;
 
     namespace {
@@ -42,24 +42,30 @@ namespace hpp {
       }
     }
 
-    fcl::AABB computeBoundingBox (GeomData& data)
+    template <bool OnlyGeomAttachedToUniverse>
+    fcl::AABB computeBoundingBox (const GeomModel& model, GeomData& data, bool& empty)
     {
+      empty = true;
       if (data.collisionObjects.empty()) return fcl::AABB (fcl::Vec3f(0,0,0));
-      // Use AABB as a bounding sphere...
+      // Sadly, this use AABB as a bounding sphere...
       // data.collisionObjects[i].computeAABB();
       // aabb += data.collisionObjects[i].getAABB();
-      fcl::AABB aabb = transform(
-            data.collisionObjects[0].getTransform(),
-            data.collisionObjects[0].collisionGeometry()->aabb_local);
+      fcl::AABB aabb;
       for (std::size_t i = 1; i < data.collisionObjects.size(); ++i)
       {
-        aabb += transform (
-            data.collisionObjects[i].getTransform(),
-            data.collisionObjects[i].collisionGeometry()->aabb_local);
+        if (!OnlyGeomAttachedToUniverse || model.geometryObjects[i].parentJoint == 0) {
+          fcl::AABB cur = transform (
+              data.collisionObjects[i].getTransform(),
+              data.collisionObjects[i].collisionGeometry()->aabb_local);
+          if (empty) {
+            aabb = cur;
+            empty = false;
+          } else
+            aabb += cur;
+        }
       }
       return aabb;
     }
-
 
     struct SetJointBoundFromAABB : public se3::fusion::JointModelVisitor<SetJointBoundFromAABB>
     {
