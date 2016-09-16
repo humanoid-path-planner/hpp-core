@@ -176,10 +176,7 @@ namespace hpp {
 	  NodePtr_t newNode = r->addNode (q_new);
 	  nodeStatus_ [newNode] = false;
 	  r->addEdge (near, newNode, validPath);
-	  interval_t timeRange = validPath->timeRange ();
-	  r->addEdge (newNode, near, validPath->extract
-		      (interval_t (timeRange.second ,
-				   timeRange.first)));
+	  r->addEdge (newNode, near, validPath->reverse());
 	  hppDout(info, "connection between q1: " 
 		  << displayConfig (*(near->configuration ())) 
 		  << "and q2: " << displayConfig (*q_new));

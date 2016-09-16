@@ -113,7 +113,7 @@ namespace hpp {
         Configuration_t q_inter (path->outputSize ());
         value_type t = - lt1;
         for (std::size_t i = rkAtP1; i < rkAtP2; ++i) {
-          t += path->pathAtRank (i)->timeRange().second;
+          t += path->pathAtRank (i)->length();
           q_inter = path->pathAtRank (i)->end (),
           q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate ( q1, q2,
               t / (t2-t1));

@@ -84,7 +84,7 @@ namespace hpp {
 
       while (!finished && projectionError != 0) {
         t0 = tmpPath->timeRange ().first;
-        t3 = t0 + tmpPath->timeRange ().second;
+        t3 = tmpPath->timeRange ().second;
 	value_type u2 = t3 * rand ()/RAND_MAX;
 	value_type u1 = t3 * rand ()/RAND_MAX;
 	value_type t1, t2;

@@ -177,10 +177,7 @@ namespace hpp {
 	const PathPtr_t& validPath = itEdge-> get <2> ();
 	NodePtr_t newNode = roadmap ()->addNode (q_new);
 	roadmap ()->addEdge (near, newNode, validPath);
-	interval_t timeRange = validPath->timeRange ();
-	roadmap ()->addEdge (newNode, near, validPath->extract
-			     (interval_t (timeRange.second ,
-					  timeRange.first)));
+	roadmap ()->addEdge (newNode, near, validPath->reverse());
       }
 
       //
