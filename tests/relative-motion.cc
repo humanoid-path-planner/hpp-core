@@ -88,15 +88,15 @@ DevicePtr_t createRobot ()
   JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
   JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
 
-  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,jointName);
 
   std::string bname = "joint_a";
   for (int i = 0; i < 2; ++i) {
-    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,bname+TOSTR(i));
   }
   bname = "joint_b";
   for (int i = 0; i < 3; ++i) {
-    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,bname+TOSTR(i));
   }
 
 

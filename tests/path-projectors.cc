@@ -82,7 +82,7 @@ DevicePtr_t createRobot ()
   JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(JointModelPX::NQ,-4);
   JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(JointModelPX::NQ,4);
 
-  JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
+  JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,jointName);
 
   JointModelPY::TangentVector_t max_effortY = JointModelPY::TangentVector_t::Constant(JointModelPY::NV,std::numeric_limits<double>::max());
   JointModelPY::TangentVector_t max_velocityY = JointModelPY::TangentVector_t::Constant(JointModelPY::NV,std::numeric_limits<double>::max());
@@ -90,7 +90,7 @@ DevicePtr_t createRobot ()
   JointModelPY::ConfigVector_t upper_positionY = JointModelPY::ConfigVector_t::Constant(JointModelPY::NQ,4);
   std::string jointNameY = name + "_y";
 
-  robot->model().addJoint(idX,JointModelPY(), mat,jointNameY,max_effortY,max_velocityY,lower_positionY,upper_positionY);
+  robot->model().addJoint(idX,JointModelPY(), mat,max_effortY,max_velocityY,lower_positionY,upper_positionY,jointNameY);
 
   robot->createData();
   robot->createGeomData();

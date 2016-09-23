@@ -245,7 +245,7 @@ namespace hpp {
       {
 	pinocchio::JointVector_t& jv = robot_->getJointVector ();
 	for (size_type idx = 0; idx < jv.size (); ++idx) {
-          JointPtr_t j = jv[idx];
+          JointPtr_t j = jv[(int)idx];
 	  BodyPtr_t body = j->linkedBody ();
 	  bool foundPair = false;
 	  if (body) {

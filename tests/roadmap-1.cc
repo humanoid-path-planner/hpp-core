@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
   JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
 
-  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
-  robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
+  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,name + "_x");
+  robot->model().addJoint(idJoint,JointModelPY(), mat,max_effort,max_velocity,lower_position,upper_position,name + "_y");
 
   robot->createData();
   robot->createGeomData();
@@ -350,8 +350,8 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
 
 
-  JointIndex idJoint = robot->model().addJoint(0,::se3::JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
-  robot->model().addJoint(idJoint,::se3::JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
+  JointIndex idJoint = robot->model().addJoint(0,::se3::JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,name + "_x");
+  robot->model().addJoint(idJoint,::se3::JointModelPY(), mat,max_effort,max_velocity,lower_position,upper_position,name + "_y");
 
   robot->createData();
   robot->createGeomData();

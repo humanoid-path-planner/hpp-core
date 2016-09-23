@@ -16,6 +16,7 @@
 
 #include <hpp/core/steering-method/reeds-shepp.hh>
 
+#include <pinocchio/multibody/joint/joint-composite.hpp> // TODO remove me when pinocchio handles this.
 #include <pinocchio/multibody/joint/joint.hpp>
 
 #include <hpp/pinocchio/device.hh>
