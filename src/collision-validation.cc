@@ -35,6 +35,7 @@ namespace hpp {
     namespace {
       inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
           const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
+        res.clear();
         return fcl::collide (
                     _colPair->first ->fcl (),
                     _colPair->second->fcl (),
