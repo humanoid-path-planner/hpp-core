@@ -40,8 +40,6 @@ namespace hpp {
       static VisibilityPrmPlannerPtr_t create (const Problem& problem);
       /// One step of extension.
       virtual void oneStep ();
-      /// Set configuration shooter.
-      void configurationShooter (const ConfigurationShooterPtr_t& shooter);
     protected:
       /// Constructor
       VisibilityPrmPlanner (const Problem& problem, 
@@ -54,7 +52,6 @@ namespace hpp {
       typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
-      ConfigurationShooterPtr_t configurationShooter_;
       VisibilityPrmPlannerWkPtr_t weakPtr_;
       DelayedEdges_t delayedEdges_;
       std::map <NodePtr_t, bool> nodeStatus_; // true for guard node

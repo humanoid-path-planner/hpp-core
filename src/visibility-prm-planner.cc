@@ -50,15 +50,13 @@ namespace hpp {
     }
 
     VisibilityPrmPlanner::VisibilityPrmPlanner (const Problem& problem):
-      PathPlanner (problem),
-      configurationShooter_ (problem.configurationShooter())
+      PathPlanner (problem)
     {
     }
 
     VisibilityPrmPlanner::VisibilityPrmPlanner (const Problem& problem,
 						const RoadmapPtr_t& roadmap) :
-      PathPlanner (problem, roadmap),
-      configurationShooter_ (problem.configurationShooter())
+      PathPlanner (problem, roadmap)
     {
     }
 
@@ -125,6 +123,7 @@ namespace hpp {
     void VisibilityPrmPlanner::oneStep ()
     {
       DevicePtr_t robot (problem ().robot ());
+      ConfigurationShooterPtr_t configurationShooter (problem().configurationShooter());
       ConfigValidationsPtr_t configValidations (problem ().configValidations());
       RoadmapPtr_t r (roadmap ());
       ConfigurationPtr_t q_rand;
@@ -143,7 +142,7 @@ namespace hpp {
       // Shoot random config as long as not collision-free
       ValidationReportPtr_t report;
       do {
-	q_rand = configurationShooter_->shoot ();
+	q_rand = configurationShooter->shoot ();
 	q_rand = applyConstraints(q_init, q_rand);
 	robot->currentConfiguration (*q_rand);
 	robot->computeForwardKinematics ();
@@ -183,11 +182,6 @@ namespace hpp {
 	}
       }
       delayedEdges_.clear ();
-    }
-    void VisibilityPrmPlanner::configurationShooter 
-    (const ConfigurationShooterPtr_t& shooter)
-    {
-      configurationShooter_ = shooter;
     }
 
   } // namespace core
