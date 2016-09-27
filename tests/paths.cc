@@ -74,7 +74,7 @@ DevicePtr_t createRobot ()
   JointModelPX::ConfigVector_t lower_position(-4);
   JointModelPX::ConfigVector_t upper_position(4);
 
-  robot->model().addJoint(0,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,jointName);
+  robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
 
 
   robot->createData();
@@ -121,7 +121,7 @@ DevicePtr_t createRobot2 ()
   JointIndex idJoint = 0;
 
   for(int i = 0 ; i < 10 ; ++i){
-    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,max_effort,max_velocity,lower_position,upper_position,jointName + TOSTR(i));
+    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
   }
 
 

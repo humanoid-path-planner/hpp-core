@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
 
 
   JointIndex idJoint = 0;
-  idJoint = robot->model().addJoint(idJoint,JointModelTranslation(), mat,max_effort,max_velocity,lower_position,upper_position,name + "_xyz");
+  idJoint = robot->model().addJoint(idJoint,JointModelTranslation(), mat,name + "_xyz",max_effort,max_velocity,lower_position,upper_position);
   idJoint = robot->model().addJoint(idJoint,JointModelSpherical()  , mat,name + "_SO3");
   idJoint = robot->model().addJoint(idJoint,JointModelRUBZ()       , mat,name + "_SO2");
 

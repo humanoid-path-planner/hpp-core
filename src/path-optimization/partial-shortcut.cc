@@ -18,7 +18,6 @@
 
 #include <hpp/util/debug.hh>
 
-#include "pinocchio/multibody/joint/joint-composite.hpp" // TODO remove me when pinocchio handles this.
 #include <pinocchio/multibody/joint/joint.hpp>
 
 #include <hpp/pinocchio/joint.hh>
