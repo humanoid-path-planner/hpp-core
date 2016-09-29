@@ -37,15 +37,14 @@ namespace hpp {
         m(i0,i1) = m(i1,i0) = t;
       }
 
-      inline JointConstPtr_t getNonAnchorParent (const JointConstPtr_t& j)
+      template <typename T> bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
       {
-        if (!j) return JointConstPtr_t();
-        JointConstPtr_t parent = j;
-        // Find the closest non-fixed parent in the kinematic chain
-        while (
-            ((parent = parent->parentJoint()) != NULL) 
-            && parent->numberDof() == 0) {}
-        return parent;
+        typename T::Ptr_t t = HPP_DYNAMIC_PTR_CAST(T, f);
+        if (t) {
+          i1 = RelativeMotion::idx(t->joint1());
+          i2 = RelativeMotion::idx(t->joint2());
+        }
+        return true;
       }
     }
 
@@ -63,8 +62,8 @@ namespace hpp {
         const DevicePtr_t& robot,
         const ConstraintSetPtr_t& c)
     {
+      using constraints::Transformation;
       using constraints::RelativeTransformation;
-      using constraints::RelativeTransformationPtr_t;
       assert (robot);
       assert (c);
 
@@ -80,19 +79,19 @@ namespace hpp {
       const LockedJoints_t& lj = proj->lockedJoints ();
       for (LockedJoints_t::const_iterator it = lj.begin ();
           it != lj.end (); ++it) {
-        JointPtr_t j;
-        try {
+        const std::string& jointName = (*it)->jointName();
+        if (!model.existJointName(jointName)) {
           // Extra dofs and partial locked joints have a name that won't be
           // recognized by Device::getJointByName. So they can be filtered
           // this way.
-          j = robot->getJointByName ((*it)->jointName());
-        } catch (const std::runtime_error& e) {
-          hppDout (info, "Joint not found:" << e.what ());
+          hppDout (info, "Joint of locked joint not found: " << **it);
           continue;
         }
         bool cstRHS = (*it)->comparisonType()->constantRightHandSide();
 
-        const size_type i1 = idx(j),
+        // JointPtr_t j = robot->getJointByName ((*it)->jointName());
+        // const size_type i1 = idx(j),
+        const size_type i1 = model.getJointId(jointName),
                         i2 = model.parents[i1];
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
@@ -102,12 +101,11 @@ namespace hpp {
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
         const NumericalConstraint& nc = **_ncs;
-        RelativeTransformationPtr_t rt =
-          HPP_DYNAMIC_PTR_CAST(RelativeTransformation,
-              nc.functionPtr());
-        if (!rt || rt->outputSize() != 6) continue;
-        const size_type i1 = idx(rt->joint1()),
-                        i2 = idx(rt->joint2());
+        size_type i1, i2;
+
+        if (nc.functionPtr()->outputSize() != 6) continue;
+        if      (!is<RelativeTransformation> (nc.functionPtr(), i1, i2)) continue;
+        else if (!is<        Transformation> (nc.functionPtr(), i1, i2)) continue;
 
         bool cstRHS = nc.comparisonType()->constantRightHandSide();
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
