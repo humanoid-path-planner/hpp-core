@@ -68,6 +68,8 @@ using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
 using ::se3::JointIndex;
 
+bool verbose = false;
+
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
 
@@ -179,31 +181,46 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   JointConstPtr_t ja1 = dev->getJointByName ("joint_a1"),
                   jb2 = dev->getJointByName ("joint_b2");
 
+  RelativeMotion::matrix_type m;
+
   ConfigProjectorPtr_t proj = ConfigProjector::create (dev, "test", 1e-3, 10);
   ConstraintSetPtr_t constraints = ConstraintSet::create (dev, "test");
   constraints->addConstraint(proj);
 
-  // Lock some joints
-  lockJoint (proj, dev, "joint_b1");
-  lockJoint (proj, dev, "joint_b2");
-  lockJoint (proj, dev, "joint_a1");
-  // root, a0, a1, b0, b1, b2
-  // 0,    1,  2,  3,  4,  5
+  // root, x, a0, a1, b0, b1, b2
+  // 0,    1,  2,  3,  4,  5,  6
+  BOOST_CHECK(jointid("universe") == 0);
+  BOOST_CHECK(jointid("test_x")   == 1);
   BOOST_CHECK(jointid("joint_a0") == 2);
   BOOST_CHECK(jointid("joint_a1") == 3);
   BOOST_CHECK(jointid("joint_b0") == 4);
   BOOST_CHECK(jointid("joint_b1") == 5);
   BOOST_CHECK(jointid("joint_b2") == 6);
 
-  RelativeMotion::matrix_type m = RelativeMotion::matrix(dev);
+  // Lock some joints
+  lockJoint (proj, dev, "joint_b1");
+
+  m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
+
+  BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_b1")) == RelativeMotion::Parameterized); // lock b1
+
+  if (verbose) std::cout << '\n' << m << std::endl;
+
+  // Lock some joints
+  lockJoint (proj, dev, "joint_b2");
+  lockJoint (proj, dev, "joint_a1");
+
+  m = RelativeMotion::matrix(dev);
+  RelativeMotion::fromConstraint (m, dev, constraints);
+
   BOOST_CHECK(m(jointid("joint_a0"),jointid("joint_a1")) == RelativeMotion::Parameterized); // lock a1
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_b1")) == RelativeMotion::Parameterized); // lock b1
   BOOST_CHECK(m(jointid("joint_b1"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock b2
 
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock b1+b2
 
-  //std::cout << m << std::endl;
+  if (verbose) std::cout << '\n' << m << std::endl;
 
   // Add a relative transformation
   Configuration_t q = dev->neutralConfiguration();
@@ -221,6 +238,6 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a1")) == RelativeMotion::Parameterized); // lock b1+b2+rt
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a0")) == RelativeMotion::Parameterized); // lock b1+b2+rt+a1
 
-  //std::cout << '\n' << m << std::endl;
+  if (verbose) std::cout << '\n' << m << std::endl;
 }
 

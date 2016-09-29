@@ -39,7 +39,7 @@ namespace hpp {
 
       inline JointConstPtr_t getNonAnchorParent (const JointConstPtr_t& j)
       {
-        if (j) return JointConstPtr_t();
+        if (!j) return JointConstPtr_t();
         JointConstPtr_t parent = j;
         // Find the closest non-fixed parent in the kinematic chain
         while (
@@ -76,6 +76,7 @@ namespace hpp {
       if (!proj) return;
 
       // Loop over the LockedJoint
+      const pinocchio::Model& model = robot->model();
       const LockedJoints_t& lj = proj->lockedJoints ();
       for (LockedJoints_t::const_iterator it = lj.begin ();
           it != lj.end (); ++it) {
@@ -92,7 +93,7 @@ namespace hpp {
         bool cstRHS = (*it)->comparisonType()->constantRightHandSide();
 
         const size_type i1 = idx(j),
-                        i2 = idx(getNonAnchorParent(j));
+                        i2 = model.parents[i1];
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
 
