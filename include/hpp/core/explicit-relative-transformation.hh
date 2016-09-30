@@ -59,9 +59,9 @@ namespace hpp {
       /// \param frame1 position of a fixed frame in joint 1,
       /// \param frame2 position of a fixed frame in joint 2,
       static ExplicitRelativeTransformationPtr_t create
-	(const std::string& name, const DevicePtr_t& robot,
-	 const JointPtr_t& joint1, const JointPtr_t& joint2,
-	 const Transform3f& frame1, const Transform3f& frame2)
+	(const std::string& name      , const DevicePtr_t& robot,
+	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
+	 const Transform3f& frame1    , const Transform3f& frame2)
       {
 	ExplicitRelativeTransformation* ptr =
 	  new ExplicitRelativeTransformation (name, robot, joint1, joint2,
@@ -111,15 +111,13 @@ namespace hpp {
 
     protected:
       ExplicitRelativeTransformation
-	(const std::string& name, const DevicePtr_t& robot,
-	 const JointPtr_t& joint1, const JointPtr_t& joint2,
-	 const Transform3f& frame1, const Transform3f& frame2,
-	 std::vector <bool> mask = boost::assign::list_of (true)(true)(true)
-	 (true)(true)(true)) :
+	(const std::string& name      , const DevicePtr_t& robot,
+	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
+	 const Transform3f& frame1    , const Transform3f& frame2,
+	 std::vector <bool> mask = std::vector<bool>(6,true)) :
 	ExplicitNumericalConstraint (RelativeTransformation::create
 				     (name, robot, joint1, joint2, frame1,
-				      frame2, boost::assign::list_of (true)
-				      (true)(true)(true)(true)(true)),
+				      frame2, std::vector<bool>(6,true)),
 				     privOutputConf (joint2),
 				     privOutputVelocity (joint2)),
 	robot_ (robot), parentJoint_ (joint2->parentJoint ()),
@@ -145,13 +143,13 @@ namespace hpp {
 	  weak_ = weak;
 	}
     private:
-      SizeIntervals_t privOutputConf (const JointPtr_t& joint) {
+      SizeIntervals_t privOutputConf (const JointConstPtr_t& joint) {
 	SizeIntervals_t result;
 	result.push_back (SizeInterval_t
 			  (joint->rankInConfiguration (), 7));
 	return result;
       }
-      SizeIntervals_t privOutputVelocity (const JointPtr_t& joint) {
+      SizeIntervals_t privOutputVelocity (const JointConstPtr_t& joint) {
 	SizeIntervals_t result;
 	result.push_back (SizeInterval_t
 			  (joint->rankInVelocity (), 6));
@@ -159,7 +157,7 @@ namespace hpp {
       }
       DevicePtr_t robot_;
       // Parent of the R3 joint.
-      JointPtr_t parentJoint_;
+      JointConstPtr_t parentJoint_;
       RelativeTransformationPtr_t relativeTransformation_;
       // Rank in configuration of the freeflyer joint
       size_type index_;
