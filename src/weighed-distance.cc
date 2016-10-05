@@ -164,17 +164,11 @@ namespace hpp {
     {
       // Loop over robot joint and interpolate
       value_type res = 0;
-      std::size_t i=0;
-      const JointVector_t jointVector (robot_->getJointVector ());
-      for (JointVector_t::const_iterator itJoint = jointVector.begin ();
-	   itJoint != jointVector.end (); ++itJoint) {
-	if ((*itJoint)->numberDof () != 0) {
-	  value_type length = weights_ [i];
-	  value_type distance =
-        (*itJoint)->jointModel().distance(q1, q2);
-	  res += length * length * distance * distance;
-	  ++i;
-	}
+      const pinocchio::Model& model = robot_->model();
+      for (std::size_t i = 1; i < model.joints.size(); ++i) {
+        value_type length = weights_ [i];
+        value_type distance = model.joints[i].distance(q1, q2);
+        res += length * length * distance * distance;
       }
       res+=(q1 - q2).tail (robot_->extraConfigSpace ().dimension()).squaredNorm ();
       return sqrt (res);
