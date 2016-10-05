@@ -38,20 +38,21 @@ namespace hpp {
     bool JointBoundValidation::validate
     (const Configuration_t& config, ValidationReportPtr_t& validationReport)
     {
-      const JointVector_t jv = robot_->getJointVector ();
-      for (JointVector_t::const_iterator itJoint = jv.begin ();
-	   itJoint != jv.end (); ++itJoint) {
-        size_type index = (*itJoint)->rankInConfiguration ();
-        for (size_type i=0; i < (*itJoint)->configSize (); ++i) {
-          // To be checked but joints are now always bounded (with infinite bounds when not bounded).
-          value_type lower = (*itJoint)->lowerBound (i);
-          value_type upper = (*itJoint)->upperBound (i);
-          value_type value = config [index + i];
-          if (value < lower || upper < value) {
-            JointBoundValidationReportPtr_t report(new JointBoundValidationReport (*itJoint, i, lower, upper, value));
-            validationReport = report;
-            return false;
-          }
+      const pinocchio::Model& model = robot_->model();
+      // Check whether all config param are within boundaries.
+      for (std::size_t i = 0; i < (std::size_t)model.nq; ++i) {
+        if ( (model.upperPositionLimit[i] < config[i])
+          || (model.lowerPositionLimit[i] > config[i])) {
+          /// Find the joint at rank i
+          JointPtr_t joint = robot_->getJointAtConfigRank(i);
+          assert (i >= joint->rankInConfiguration());
+          const std::size_t j = i - joint->rankInConfiguration();
+
+          JointBoundValidationReportPtr_t report(new JointBoundValidationReport
+              (joint, j, model.lowerPositionLimit[i],
+               model.upperPositionLimit[i], config[i]));
+          validationReport = report;
+          return false;
         }
       }
       const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace();
