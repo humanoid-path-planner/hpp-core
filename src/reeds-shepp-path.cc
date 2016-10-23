@@ -68,12 +68,13 @@ namespace hpp {
         { RS_RIGHT, RS_LEFT, RS_STRAIGHT, RS_RIGHT, RS_LEFT }       // 17
       };
 
-      template <typename D1, typename D2> inline vector2_t rotate
-        (const Eigen::MatrixBase<D1>& U, const Eigen::MatrixBase<D2>& CS)
+      template <typename D1> inline vector2_t rotate
+        (const Eigen::MatrixBase<D1>& U, const value_type& theta)
         {
-          const D1& _U = U.derived(); const D2& _CS = CS.derived();
-          return (vector2_t() <<   _U.dot(_CS),
-                                 - _U(0)*_CS(1) + _U(1)*_CS(0)).finished();
+          const D1& _U = U.derived();
+          return (vector2_t() <<   _U(0)*cos (theta) + _U(1)*sin (theta),
+                                 - _U(0)*sin (theta) + _U(1)*cos (theta)).
+	    finished();
         }
     }
 
@@ -83,11 +84,6 @@ namespace hpp {
       if (v < -pi)     v += twopi;
       else if (v > pi) v -= twopi;
       return v;
-    }
-    inline value_type angle(const vector2_t& cs)
-    {
-      if (cs(1) < 0) return - std::acos (cs(0));
-      else           return   std::acos (cs(0));
     }
     inline void polar(const value_type& x, const value_type& y, value_type &r, value_type &theta)
     {
@@ -616,14 +612,11 @@ namespace hpp {
     void ReedsSheppPath::buildReedsShepp()
     {
       // rotate
-      vector2_t xy =
-        rotate(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_),
-          initial_.segment<2>(rzId_));
+      vector2_t xy = rotate
+	(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_), initial_ [rzId_]);
       xy /= rho_;
-      vector2_t csPhi =
-        rotate(end_.segment<2>(rzId_), initial_.segment<2>(rzId_));
-      value_type phi = atan2(csPhi(1), csPhi(0));
-
+      value_type phi = mod2pi (end_ (rzId_) + initial_ (rzId_));
+      vector2_t csPhi; csPhi << cos (phi), sin (phi);
       timeRange_.second = std::numeric_limits<value_type>::max();
       CSC  (xy, csPhi, phi);
       CCC  (xy, csPhi, phi);
@@ -649,8 +642,7 @@ namespace hpp {
 
       // Compute the position of the car.
       result.segment <2> (xyId_).setZero();
-      value_type t = param, v,
-                 phi = atan2(initial_(rzId_+1), initial_(rzId_));
+      value_type t = param, v, phi = initial_(rzId_);
 
       SegmentType lastType = RS_NOP;
       for (unsigned int i=0; i<5 && t>0; ++i)
@@ -688,8 +680,7 @@ namespace hpp {
       }
       result.segment <2> (xyId_) *= rho_;
       result.segment <2> (xyId_) += initial_.segment<2>(xyId_);
-      result(rzId_+0) = cos(phi);
-      result(rzId_+1) = sin(phi);
+      result(rzId_) = phi;
       switch(lastType)
       {
         case RS_LEFT:

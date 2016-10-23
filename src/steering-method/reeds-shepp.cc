@@ -75,13 +75,13 @@ namespace hpp {
 
       ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
           const value_type turningRadius,
-          JointPtr_t xyJoint, JointPtr_t rzJoint,
+          size_type xyRank, size_type rzRank,
           std::vector <JointPtr_t> wheels) :
         SteeringMethod (problem), device_ (problem->robot ()),
         rho_ (turningRadius),
-        turningJoint_ (rzJoint),
-        xy_ (xyJoint->rankInConfiguration()),
-        rz_ (rzJoint->rankInConfiguration()),
+        turningJoint_ (problem->robot ()->getJointAtConfigRank (rzRank)),
+        xy_ (xyRank),
+        rz_ (rzRank),
         wheels_ (wheels), weak_ ()
       {
       }
