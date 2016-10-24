@@ -93,12 +93,18 @@ namespace hpp {
         */
         virtual void fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double* t1, double* tv, double* t2) const;
         
-        int sgn(double val) const{
+
+        
+        inline double sgnenum(double val) const{
           return ((0. < val ) - (val < 0.));
         }
-        
-        double sgnf(double val) const{
-          return ((0. < val ) - (val < 0.));
+
+        inline int sgn(double d) const {
+          return d >= 0.0 ? 1 : -1;
+        }
+
+        inline double sgnf(double d) const {
+          return d >= 0.0 ? 1.0 : -1.0;
         }
         
       protected:

@@ -129,12 +129,12 @@ namespace hpp {
       Kinodynamic::Kinodynamic (const ProblemPtr_t& problem) :
         SteeringMethod (problem), device_ (problem->robot ()), weak_ ()
       {
-        if(((problem->robot()->extraConfigSpace().dimension())) < (2*(problem->robot()->configSize()) - problem->robot()->extraConfigSpace().dimension())){
+        if(((problem->robot()->extraConfigSpace().dimension())) < (2*((problem->robot()->configSize()) - problem->robot()->extraConfigSpace().dimension()))){
           std::cout<<"Error : you need at least "<<2*(problem->robot()->configSize()-problem->robot()->extraConfigSpace().dimension())<<" extra DOF"<<std::endl;
           hppDout(error,"Error : you need at least "<<2*(problem->robot()->configSize() - problem->robot()->extraConfigSpace().dimension())<<" extra DOF");
         }
-        aMax_ = 3;
-        vMax_ = 5;
+        aMax_ = 0.5;
+        vMax_ = 2;
       }
       
       /// Copy constructor
@@ -149,7 +149,7 @@ namespace hpp {
         double t1,t2,tv;
         int sigma;
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-        sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
+        sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
         hppDout(info,"sigma = "<<sigma);
         if(sigma == 0){ // ??? FIXME
           sigma = sgn(p2-p1);
@@ -165,31 +165,35 @@ namespace hpp {
         }
         // test if two segment trajectory is valid :
         bool twoSegment = false;        
-        hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
-        double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
+
         // solve quadratic equation (cf eq 13 article)
         const double a = a1;
         const double b = 2. * v1;
         const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
-       /* const double delta = b*b - 4*a*c;
-        if(delta < 0 )
-          std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-       */
-        const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
 
-        /*const double x1 = (-b + sqrt(delta))/(2*a);
-        const double x2 = (-b - sqrt(delta))/(2*a);*/
+        const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+        hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
         const double x1 = q/a;
         const double x2 = c/q;
         const double x = std::max(x1,x2);
+        hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
+        hppDout(info," x = "<<x);
         hppDout(info,"t1 before vel limit = "<<x);
-        if(x > minT1){
+
+        hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
+        double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
+
+
+        if(x >= minT1){
           twoSegment = true;
           t1 = x;
+          hppDout(info,"t1 >= minT1");
         } 
         if(twoSegment){ // check if max velocity is respected
-          if(std::abs(v1+(t1)*a1) > vMax_)
+          if(std::abs(v1+(t1)*a1) > vMax_){
             twoSegment = false;
+            hppDout(info,"Doesn't respect max velocity, need 3 segments");
+          }
         }
         if(twoSegment){ // compute t2 for two segment trajectory
           tv = 0.;
@@ -211,45 +215,64 @@ namespace hpp {
 
         // Compute infeasible interval :
 
-        if(((p1<p2) && (v1>=v2)) || ((p1>p2) && (v1<=v2))){ // "region I", infeasible interval exist
-          a1 = a2;
-          a2 = -a2;
-          vLim = -vLim;
-          // solve eq 13 just new a1/a2 :
-          const double ai = a1;
-          const double bi = 2. * v1;
-          const double ci = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
-          const double deltai = bi*bi - 4*ai*ci;
-          if(deltai < 0 )
-            std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-          const double x1i = (-bi + sqrt(deltai))/(2*ai);
-          const double x2i = (-bi - sqrt(deltai))/(2*ai);
-          const double xi = std::max(x1i,x2i);
-          // min bound of infeasible interval is given by lesser solution
-          t1 = std::min(x1i,x2i);
-          infInterval->first = ((v2-v1)/a2) + (t1); // eq 14
-          //check if greater solution violate velocity limits :
-          minT1 = -minT1;
-          if(xi > minT1){
-            twoSegment = true;
-            t1 = xi;
-          }
-          if(twoSegment){ // check if max velocity is respected
-            if(std::abs(v1+(t1)*a1) > vMax_)
-              twoSegment = false;
-          }
-          if(twoSegment){ // compute t2 for two segment trajectory
-            tv = 0.;
-            t2 = ((v2-v1)/a2) + (t1);// eq 14
-          }else{// compute 3 segment trajectory, with constant velocity phase :
-            t1 = (vLim - v1)/a1;  //eq 15
-            tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ; //eq 16
-            t2 = (v2-vLim)/a2;  //eq 17
-          }
-          infInterval->second = t2;
-        }else{
+        hppDout(info," !!! CHECKING INFEASIBLE INTERVALS : ");
+
+        if(v1 * v2 <= 0.0 || a1 * v1 < 0.0){
+          // If minimum-time solution goes through zero-velocity, there is no infeasible time interval, because we can stop and wait at zero-velocity
           infInterval->first=std::numeric_limits<value_type>::infinity();
           infInterval->second=0;
+          hppDout(info," ! go through v=0, no infeasible interval");
+        }
+        else{
+          double zeroTime1 = std::abs(v1) / aMax_;
+          double zeroTime2 = std::abs(v2) / aMax_;
+          double zeroDistance = zeroTime1 * v1 / 2.0 + zeroTime2 * v2 / 2.0;
+          if(std::abs(zeroDistance) < std::abs(p2-p1)) { // no infeasible interval
+            infInterval->first = std::numeric_limits<value_type>::infinity();
+            infInterval->second = 0;
+            hppDout(info," ! not region I");
+          }else{ // "region I", infeasible interval exist
+            hppDout(info," ! region I, infeasible interval exist");
+            a1 = a2;
+            a2 = -a2;
+            vLim = -vLim;
+            // solve eq 13 with new a1/a2 :
+            const double ai = a1;
+            const double bi = 2. * v1;
+            const double ci = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
+            const double deltai = bi*bi - 4.0*ai*ci;
+            if(deltai < 0 )
+              std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
+
+
+            const double x1i = (-bi + sqrt(deltai))/(2*ai);
+            const double x2i = (-bi - sqrt(deltai))/(2*ai);
+            const double xi = std::max(x1i,x2i);
+            hppDout(info,"quadratic equation solutions : "<<x1i<<" , "<<x2i);
+            // min bound of infeasible interval is given by lesser solution
+            t1 = std::min(x1i,x2i);
+            infInterval->first = (((v2-v1)/a2) + (t1)) + t1; // eq 14 (T = t2+t1)
+            //check if greater solution violate velocity limits :
+            minT1 = -minT1;
+            if(xi > minT1){
+              twoSegment = true;
+              t1 = xi;
+            }
+            if(twoSegment){ // check if max velocity is respected
+              if(std::abs(v1+(t1)*a1) > vMax_)
+                twoSegment = false;
+            }
+            if(twoSegment){ // compute t2 for two segment trajectory
+              tv = 0.;
+              t2 = ((v2-v1)/a2) + (t1);// eq 14
+            }else{// compute 3 segment trajectory, with constant velocity phase :
+              t1 = (vLim - v1)/a1;  //eq 15
+              tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ; //eq 16
+              t2 = (v2-vLim)/a2;  //eq 17
+            }
+            infInterval->second = t1+tv+t2;
+            hppDout(info,"! INFEASIBLE INTERVAL : ["<<infInterval->first<<" ; "<<infInterval->second<<" ]");
+          }
         }
 
         return T;
