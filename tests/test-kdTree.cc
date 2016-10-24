@@ -88,16 +88,52 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   const std::string& name = robot->name ();
   Transform3f mat; mat.setIdentity ();
 
-  JointModelTranslation::TangentVector_t max_effort    = JointModelTranslation::TangentVector_t::Constant(std::numeric_limits<double>::max());
-  JointModelTranslation::TangentVector_t max_velocity  = JointModelTranslation::TangentVector_t::Constant(std::numeric_limits<double>::max());
-  JointModelTranslation::ConfigVector_t lower_position = JointModelTranslation::ConfigVector_t::Constant(-3.);
-  JointModelTranslation::ConfigVector_t upper_position = JointModelTranslation::ConfigVector_t::Constant(3.);
+  JointModelTranslation::TangentVector_t max_effort_tr =
+    JointModelTranslation::TangentVector_t::Constant
+    (std::numeric_limits<double>::max());
+  JointModelTranslation::TangentVector_t max_velocity_tr =
+    JointModelTranslation::TangentVector_t::Constant
+    (std::numeric_limits<double>::max());
+  JointModelTranslation::ConfigVector_t lower_position_tr =
+    JointModelTranslation::ConfigVector_t::Constant(-3.);
+  JointModelTranslation::ConfigVector_t upper_position_tr =
+    JointModelTranslation::ConfigVector_t::Constant(3.);
 
+  JointModelSpherical::TangentVector_t max_effort_SO3 =
+    JointModelSpherical::TangentVector_t::Constant
+    (std::numeric_limits<double>::max());
+  JointModelSpherical::TangentVector_t max_velocity_SO3 =
+    JointModelSpherical::TangentVector_t::Constant
+    (std::numeric_limits<double>::max());
+  JointModelSpherical::ConfigVector_t lower_position_SO3 =
+    JointModelSpherical::ConfigVector_t::Constant(-1.01);
+  JointModelSpherical::ConfigVector_t upper_position_SO3 =
+    JointModelSpherical::ConfigVector_t::Constant(1.01);
+
+  JointModelRUBZ::TangentVector_t max_effort_SO2 =
+    JointModelRUBZ::TangentVector_t::Constant
+    (std::numeric_limits<double>::max());
+  JointModelRUBZ::TangentVector_t max_velocity_SO2 =
+    JointModelRUBZ::TangentVector_t::Constant
+    (std::numeric_limits<double>::max());
+  JointModelRUBZ::ConfigVector_t lower_position_SO2 =
+    JointModelRUBZ::ConfigVector_t::Constant(-1.01);
+  JointModelRUBZ::ConfigVector_t upper_position_SO2 =
+    JointModelRUBZ::ConfigVector_t::Constant(1.01);
 
   JointIndex idJoint = 0;
-  idJoint = robot->model().addJoint(idJoint,JointModelTranslation(), mat,name + "_xyz",max_effort,max_velocity,lower_position,upper_position);
-  idJoint = robot->model().addJoint(idJoint,JointModelSpherical()  , mat,name + "_SO3");
-  idJoint = robot->model().addJoint(idJoint,JointModelRUBZ()       , mat,name + "_SO2");
+  idJoint = robot->model().addJoint(idJoint,JointModelTranslation(),
+				    mat,name + "_xyz",max_effort_tr,
+				    max_velocity_tr,lower_position_tr,
+				    upper_position_tr);
+  idJoint = robot->model().addJoint(idJoint,JointModelSpherical(),mat,
+				    name + "_SO3",max_effort_SO3,
+				    max_velocity_SO3,lower_position_SO3,
+				    upper_position_SO3);
+  idJoint = robot->model().addJoint(idJoint,JointModelRUBZ(),mat,
+				    name + "_SO2",max_effort_SO2,
+				    max_velocity_SO2,lower_position_SO2,
+				    upper_position_SO2);
 
   robot->createData();
   robot->createGeomData();
@@ -146,13 +182,11 @@ BOOST_AUTO_TEST_CASE (kdTree) {
 				    rootNode [i]->connectedComponent (),
 				    minDistance2);
       BOOST_CHECK( node1 == node2 );
-      BOOST_CHECK( minDistance1 == minDistance2 );
+      BOOST_CHECK( fabs (minDistance1 - minDistance2) < 1e-15 );
       std::cout << displayConfig (*(node1->configuration ())) << std::endl;
-      std::cout << minDistance1 << std::endl;
+      std::cout << minDistance1 << "," << minDistance2 << ","
+		<< minDistance1 - minDistance2 << std::endl;
     }
   }
 }
 BOOST_AUTO_TEST_SUITE_END()
-
-
-
