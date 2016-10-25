@@ -77,76 +77,88 @@ void KinodynamicDistance::init (KinodynamicDistanceWkPtr_t self)
     weak_ = self;
 }
 
-int sgn(double val){
-    return ((0. < val ) - (val < 0.));
+inline double sgnenum(double val) {
+  return ((0. < val ) - (val < 0.));
 }
 
-double sgnf(double val){
-    return ((0. < val ) - (val < 0.));
+inline int sgn(double d)  {
+  return d >= 0.0 ? 1 : -1;
+}
+
+inline double sgnf(double d)  {
+  return d >= 0.0 ? 1.0 : -1.0;
 }
 
 double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, double v2) const{
-    hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
-    // compute the sign of each acceleration
-    double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-    double t1,t2,tv;
-    int sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0
-    hppDout(info,"sigma = "<<sigma);
-    double a1 = (sigma)*aMax_;
-    double a2 = -a1;
-    double vLim = (sigma) * vMax_;
-    hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
-    if((p2-p1) == 0. && (v2-v1)==0. ){
-        hppDout(notice,"No movement in this joints, abort.");
-        return 0.;
-    }
-    // test if two segment trajectory is valid :
-    bool twoSegment = false;
-    hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
-    double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value
-    // solve quadratic equation
-    const double a = a1;
-    const double b = 2. * v1;
-    const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
-    const double delta = b*b - 4*a*c;
-    if(delta < 0 )
-        std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-    double x1 = (-b + sqrt(delta))/(2*a);
-    double x2 = (-b - sqrt(delta))/(2*a);
-    double x = std::max(x1,x2);
-    hppDout(info,"t1 before vel limit = "<<x);
-    if(x > minT1){
-        twoSegment = true;
-        t1 = x;
-    }
+  hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
+  // compute the sign of each acceleration
+  double t1,t2,tv;
+  int sigma;
+  double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
+  sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
+  hppDout(info,"sigma = "<<sigma);
+  if(sigma == 0){ // ??? FIXME
+    sigma = sgn(p2-p1);
+    hppDout(info,"sigma Bis= "<<sigma);
+  }
+  double a1 = (sigma)*aMax_;
+  double a2 = -a1;
+  double vLim = (sigma) * vMax_;
+  hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
+  if((p2-p1) == 0. && (v2-v1)==0. ){
+    hppDout(notice,"No movement in this joints, abort.");
+    return 0.;
+  }
+  // test if two segment trajectory is valid :
+  bool twoSegment = false;
 
-    if(twoSegment){ // check if max velocity is respected
-        if(std::abs(v1+(t1)*a1) > vMax_)
-            twoSegment = false;
-    }
-    if(twoSegment){ // compute t2 for two segment trajectory
-        tv = 0.;
-        t2 = ((v2-v1)/a2) + (t1);
-    }else{// compute 3 segment trajectory, with constant velocity phase :
-        t1 = (vLim - v1)/a1;
-        tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ;
-        t2 = (v2-vLim)/a2;
-        hppDout(info,"test 1 "<<(v1*v1+v2*v2 - 2*vLim*vLim));
-        hppDout(info,"test 2 "<<((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)));
-        hppDout(info,"test 3 "<<((p2-p1)/vLim));
+  // solve quadratic equation (cf eq 13 article)
+  const double a = a1;
+  const double b = 2. * v1;
+  const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
+
+  const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+  hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
+  const double x1 = q/a;
+  const double x2 = c/q;
+  const double x = std::max(x1,x2);
+  hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
+  hppDout(info," x = "<<x);
+  hppDout(info,"t1 before vel limit = "<<x);
+
+  hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
+  double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
 
 
+  if(x >= minT1){
+    twoSegment = true;
+    t1 = x;
+    hppDout(info,"t1 >= minT1");
+  }
+  if(twoSegment){ // check if max velocity is respected
+    if(std::abs(v1+(t1)*a1) > vMax_){
+      twoSegment = false;
+      hppDout(info,"Doesn't respect max velocity, need 3 segments");
     }
-    if(twoSegment){
-        hppDout(notice,"Trajectory with 2 segments");
-    }else{
-        hppDout(notice,"Trajectory with 3 segments");
-    }
-    hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
-    hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
-    double T = (t1)+(tv)+(t2);
-    hppDout(notice,"T = "<<T);
-    return T;
+  }
+  if(twoSegment){ // compute t2 for two segment trajectory
+    tv = 0.;
+    t2 = ((v2-v1)/a2) + (t1);// eq 14
+  }else{// compute 3 segment trajectory, with constant velocity phase :
+    t1 = (vLim - v1)/a1;  //eq 15
+    tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ; //eq 16
+    t2 = (v2-vLim)/a2;  //eq 17
+  }
+  if(twoSegment){
+    hppDout(notice,"Trajectory with 2 segments");
+  }else{
+    hppDout(notice,"Trajectory with 3 segments");
+  }
+  hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
+  hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
+  double T = (t1)+(tv)+(t2);
+  hppDout(notice,"T = "<<T);
+  return T;
 }
 
 value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
@@ -160,7 +172,7 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
     hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
 
 
-    for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
+    for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){// FIX ME : only work with freeflyer
         size_type indexVel = indexConfig + configSize;
         hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
         if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
