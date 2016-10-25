@@ -64,7 +64,7 @@ namespace hpp {
       double m1 = 1.;
       double m2 = 1.;
       double bound1 = 10;
-      double bound2 = 10; // was 0.2
+      double bound2 = 1.4; // was 0.2
       double l1 = 0.4;
       double l2 = 0.4;
       double lc1 = 0.2;

@@ -209,8 +209,8 @@ namespace hpp {
       Configuration_t initial_;
       Configuration_t end_;
       KinodynamicPathWkPtr_t weak_;
-      Configuration_t a1_;      
-      Configuration_t t1_,tv_,t2_;
+      vector_t a1_;
+      vector_t t1_,tv_,t2_;
       double vMax_;
     }; // class KinodynamicPath
   } //   namespace core

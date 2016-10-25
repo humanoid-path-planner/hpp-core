@@ -131,9 +131,9 @@ namespace hpp {
 
           }
         }// if not quaternion joint
-      }// if joint config size > 1
+     // }// if joint config size > 1
       
-      // }// for all joints
+     }// for all joints
       
       return true;
     }
