@@ -644,7 +644,7 @@ namespace hpp {
 
       // Compute the position of the car.
       result.segment <2> (xyId_).setZero();
-      value_type t = param, v,
+      value_type t = param/rho_, v,
                  phi = atan2(initial_(rzId_+1), initial_(rzId_));
 
       SegmentType lastType = RS_NOP;
