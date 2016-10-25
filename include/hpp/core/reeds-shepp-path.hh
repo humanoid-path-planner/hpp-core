@@ -186,7 +186,7 @@ namespace hpp {
       {
         typeId_ = typeId;
         lengths_(0) = t; lengths_(1) = u; lengths_(2) = v; lengths_(3) = w; lengths_(4) = x;
-        timeRange_.second = timeRange_.first + lengths_.lpNorm<1> ();
+        timeRange_.second = timeRange_.first + rho_ * lengths_.lpNorm<1> ();
       }
 
       void CSC  (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
