@@ -519,7 +519,6 @@ namespace hpp {
     {
       parent_t::init (self);
       weak_ = self;
-      buildReedsShepp ();
     }
 
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
@@ -535,6 +534,7 @@ namespace hpp {
     {
       assert (device);
       assert (rho_ > 0);
+      buildReedsShepp ();
     }
 
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
@@ -550,6 +550,7 @@ namespace hpp {
     {
       assert (device);
       assert (rho_ > 0);
+      buildReedsShepp ();
     }
 
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
