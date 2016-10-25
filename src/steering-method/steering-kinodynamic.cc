@@ -64,7 +64,7 @@ namespace hpp {
         hppDout(notice,"## Looking for Tmax :");
 
         // for all joints
-        for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
+        for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){ // FIX ME : only work for freeflyer
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
@@ -80,10 +80,10 @@ namespace hpp {
 
         value_type length = computeMaxRequiredTime(Tmax,infIntervalsVector);
         // create array of times intervals and acceleration values: 
-        Configuration_t a1_t(configSize);
-        Configuration_t t1_t(configSize);
-        Configuration_t t2_t(configSize);
-        Configuration_t tv_t(configSize);
+        Configuration_t a1_t(3);
+        Configuration_t t1_t(3);
+        Configuration_t t2_t(3);
+        Configuration_t tv_t(3);
         
         // compute trajectory with fixed time T found 
         /*for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
@@ -100,7 +100,7 @@ namespace hpp {
           
         }// for all joints
         */
-        for(int indexConfig = 0 ; indexConfig < configSize ; indexConfig++){
+        for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
@@ -111,10 +111,10 @@ namespace hpp {
             t2_t[indexConfig]=t2;  
           }else{
             hppDout(notice,"!! Steering method for quaternion not implemented yet.");
-            a1_t[indexConfig]=0;
+           /* a1_t[indexConfig]=0;
             t1_t[indexConfig]=0;
             tv_t[indexConfig]=0;
-            t2_t[indexConfig]=0;  
+            t2_t[indexConfig]=0;  */
           }
         }
         
@@ -162,7 +162,7 @@ namespace hpp {
         double t1,t2,tv;
         int sigma;
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-        sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
+        sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
         hppDout(info,"sigma = "<<sigma);
         if(sigma == 0){ // ??? FIXME
           sigma = sgn(p2-p1);

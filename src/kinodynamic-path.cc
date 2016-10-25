@@ -94,12 +94,12 @@ namespace hpp {
       double v2,t2;
       size_type indexVel;
       size_type indexAcc;
-      for(int id = 0 ; id < configSize ; id++){
+      for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
         // size_type id = (*itJoint)->rankInConfiguration ();
         // size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
         indexVel = id + configSize;
-        indexAcc = id + 2*configSize;
+        indexAcc = id + configSize + 3;
         
        // hppDout(notice," PATH For joint "<<(*itJoint)->name());
        // hppDout(notice,"PATH for joint :"<<device()->getJointAtConfigRank(id)->name());
