@@ -133,8 +133,8 @@ namespace hpp {
           std::cout<<"Error : you need at least "<<2*(problem->robot()->configSize()-problem->robot()->extraConfigSpace().dimension())<<" extra DOF"<<std::endl;
           hppDout(error,"Error : you need at least "<<2*(problem->robot()->configSize() - problem->robot()->extraConfigSpace().dimension())<<" extra DOF");
         }
-        aMax_ = 0.5;
-        vMax_ = 2;
+        aMax_ = 3;
+        vMax_ = 5;
       }
       
       /// Copy constructor
