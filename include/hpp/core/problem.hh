@@ -45,7 +45,7 @@ namespace hpp {
     /// \li a set of methods to validate configurations. Default methods are
     /// collision checking and joint bound checking.
     class HPP_CORE_DLLAPI Problem :
-      public Containers < boost::mpl::vector < boost::any > >
+      public Containers < boost::mpl::vector<double > >
     {
     public:
       /// Create a path planning problem.
@@ -250,11 +250,10 @@ namespace hpp {
       ///        type.
       template <typename T> T getParameter
         (const std::string& name, const T& defaultValue) const
-        throw (boost::bad_any_cast)
       {
-        if (has<boost::any>(name)) {
-          const boost::any& val = get<boost::any>(name);
-          return boost::any_cast<T>(val);
+        if (has<double>(name)) {
+          const double& val = get<double>(name);
+          return val;
         }
         return defaultValue;
       }
