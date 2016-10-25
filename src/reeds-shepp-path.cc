@@ -615,7 +615,7 @@ namespace hpp {
       vector2_t xy = rotate
 	(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_), initial_ [rzId_]);
       xy /= rho_;
-      value_type phi = mod2pi (end_ (rzId_) + initial_ (rzId_));
+      value_type phi = mod2pi (end_ (rzId_) - initial_ (rzId_));
       vector2_t csPhi; csPhi << cos (phi), sin (phi);
       timeRange_.second = std::numeric_limits<value_type>::max();
       CSC  (xy, csPhi, phi);
