@@ -36,6 +36,7 @@ continuous-collision-checking/progressive/body-pair-collision.hh
 diffusing-planner.cc
 discretized-collision-checking.cc
 discretized-path-validation.cc
+distance/reeds-shepp.cc
 distance-between-objects.cc
 explicit-numerical-constraint.cc
 extracted-path.hh
