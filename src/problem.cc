@@ -52,7 +52,7 @@ namespace hpp {
       configValidations_->add (JointBoundValidation::create (robot));
       DiscretizedCollisionCheckingPtr_t pathVal = DiscretizedCollisionChecking::create(robot, 0.05);
       pathValidation(pathVal);
-      add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
+      add<double>("PathOptimizersNumberOfLoops", (std::size_t)5);
     }
 
     // ======================================================================
