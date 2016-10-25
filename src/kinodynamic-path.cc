@@ -153,7 +153,7 @@ namespace hpp {
       hppDout(info,"q2 = "<<model::displayConfig(q2));      
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
-      Configuration_t t1,t2,tv,a1;
+      Configuration_t t1,t2,tv,a1; // new timebounds
       double ti,tf;      
       if(subInterval.first < subInterval.second){
         hppDout(notice,"%% subinterval PATH");
@@ -191,7 +191,7 @@ namespace hpp {
           }
         }
         
-      }
+      } // for all joints
       PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1,t1,tv,t2,vMax_,
                                                   constraints ());
       return result;
