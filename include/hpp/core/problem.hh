@@ -272,7 +272,7 @@ namespace hpp {
       ///       \endcode
       ///       If there is an ambiguity on the type, it is recommended to
       ///       explicitely write it.
-      void setParameter (const std::string& name, const boost::any& value)
+      void setParameter (const std::string& name, const double &value)
         throw (std::invalid_argument);
 
     private :
