@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/weighed-distance.hh>
+#include <hpp/core/problem.hh>
 
 #include <limits>
 
@@ -42,6 +43,15 @@ namespace hpp {
     WeighedDistancePtr_t WeighedDistance::create (const DevicePtr_t& robot)
     {
       WeighedDistance* ptr = new WeighedDistance (robot);
+      WeighedDistancePtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
+
+    WeighedDistancePtr_t WeighedDistance::createFromProblem
+    (const ProblemPtr_t& problem)
+    {
+      WeighedDistance* ptr = new WeighedDistance (problem);
       WeighedDistancePtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
@@ -90,24 +100,23 @@ namespace hpp {
       }
     } 
 
-    WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
-      robot_ (robot), weights_ ()
+    void WeighedDistance::computeWeights ()
     {
       typedef Eigen::Matrix<value_type, 3, Eigen::Dynamic> BlockType;
       typedef Eigen::JacobiSVD<BlockType> SVD_t;
 
       // Store computation flag
-      Device_t::Computation_t flag = robot->computationFlag ();
+      Device_t::Computation_t flag = robot_->computationFlag ();
       Device_t::Computation_t newflag = static_cast <Device_t::Computation_t>
 	(flag | Device_t::JACOBIAN);
-      robot->controlComputation (newflag);
-      robot->computeForwardKinematics ();
-      robot->controlComputation (flag);
+      robot_->controlComputation (newflag);
+      robot_->computeForwardKinematics ();
+      robot_->controlComputation (flag);
       value_type minLength = std::numeric_limits <value_type>::infinity ();
 
-      JointJacobian_t jacobian(6, robot->numberDof());
-      const se3::Model& model = robot->model();
-      const se3::Data& data = robot->data();
+      JointJacobian_t jacobian(6, robot_->numberDof());
+      const se3::Model& model = robot_->model();
+      const se3::Data& data = robot_->data();
       for (se3::JointIndex i = 1; i < model.joints.size(); ++i)
       {
 	  value_type length = 0;
@@ -123,7 +132,7 @@ namespace hpp {
 	    if (length < svd.singularValues () [0]) {
 	      length = svd.singularValues () [0];
 	    }
-            Body body (robot, j);
+            Body body (robot_, j);
             value_type radius = body.radius();
             block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(3, rank, 3, ncol);
             svd.compute(block);
@@ -139,6 +148,18 @@ namespace hpp {
 	  }
 	}
       }
+    }
+
+    WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
+      robot_ (robot), weights_ ()
+    {
+      computeWeights ();
+    }
+
+    WeighedDistance::WeighedDistance (const ProblemPtr_t& problem) :
+      robot_ (problem->robot()), weights_ ()
+    {
+      computeWeights ();
     }
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot,
