@@ -32,7 +32,6 @@
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
-#include <hpp/core/torque-bound-validation.hh>
 
 namespace hpp {
   namespace core {
@@ -51,9 +50,7 @@ namespace hpp {
     {
       configValidations_->add (CollisionValidation::create (robot));
       configValidations_->add (JointBoundValidation::create (robot));
-      configValidations_->add (TorqueBoundValidation::create (robot));
       DiscretizedCollisionCheckingPtr_t pathVal = DiscretizedCollisionChecking::create(robot, 0.05);
-      pathVal->add(TorqueBoundValidation::create (robot));
       pathValidation(pathVal);
       add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
     }
@@ -201,18 +198,18 @@ namespace hpp {
 
     // ======================================================================
 
-    void Problem::setParameter (const std::string& name, const boost::any& value)
+    void Problem::setParameter (const std::string& name, const double& value)
       throw (std::invalid_argument)
     {
-      if (has<boost::any>(name)) {
+     /* if (has<boost::any>(name)) {
         const boost::any& val = get<boost::any>(name);
         if (value.type() != val.type()) {
           std::string ret = "Wrong boost::any type. Expects ";
           ret += val.type().name();
           throw std::invalid_argument (ret.c_str());
         }
-      }
-      add<boost::any> (name, value);
+      }*/
+      add<double> (name, value);
     }
 
     // ======================================================================
