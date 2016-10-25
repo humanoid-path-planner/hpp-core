@@ -19,7 +19,6 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/discretized-path-validation.hh>
 #include <hpp/core/collision-validation.hh>
-#include <hpp/core/torque-bound-validation.hh>
 
 namespace hpp {
   namespace core {
@@ -39,7 +38,6 @@ namespace hpp {
       DiscretizedPathValidation (robot, stepSize)
     {
       add (CollisionValidationPtr_t (CollisionValidation::create (robot)));
-      add(TorqueBoundValidationPtr_t(TorqueBoundValidation::create(robot)));
     }
 
   } // namespace core
