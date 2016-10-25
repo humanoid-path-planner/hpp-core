@@ -32,6 +32,8 @@ namespace hpp {
     /// Each degree of freedom is weighed by a positive value.
     class HPP_CORE_DLLAPI WeighedDistance : public Distance {
     public:
+      static WeighedDistancePtr_t createFromProblem
+	(const ProblemPtr_t& problem);
       static WeighedDistancePtr_t create (const DevicePtr_t& robot);
       static WeighedDistancePtr_t
     createWithWeight (const DevicePtr_t& robot,
@@ -57,6 +59,7 @@ namespace hpp {
 	return robot_;
       }
     protected:
+      WeighedDistance (const ProblemPtr_t& problem);
       WeighedDistance (const DevicePtr_t& robot);
       WeighedDistance (const DevicePtr_t& robot,
 		       const std::vector <value_type>& weights);
@@ -66,6 +69,7 @@ namespace hpp {
       virtual value_type impl_distance (ConfigurationIn_t q1,
 				    ConfigurationIn_t q2) const;
     private:
+      void computeWeights ();
       DevicePtr_t robot_;
       std::vector <value_type> weights_;
       WeighedDistanceWkPtr_t weak_;

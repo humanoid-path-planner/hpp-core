@@ -23,6 +23,7 @@
 #include <hpp/model/joint.hh>
 #include <hpp/model/joint-configuration.hh>
 #include <hpp/model/children-iterator.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <Eigen/SVD>
 
@@ -39,6 +40,15 @@ namespace hpp {
     WeighedDistancePtr_t WeighedDistance::create (const DevicePtr_t& robot)
     {
       WeighedDistance* ptr = new WeighedDistance (robot);
+      WeighedDistancePtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
+
+    WeighedDistancePtr_t WeighedDistance::createFromProblem
+    (const ProblemPtr_t& problem)
+    {
+      WeighedDistance* ptr = new WeighedDistance (problem);
       WeighedDistancePtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
@@ -75,7 +85,7 @@ namespace hpp {
 
     void WeighedDistance::setWeight (std::size_t rank, value_type weight )
     {
-      if ( rank < weights_.size() ) 
+      if ( rank < weights_.size() )
       {
 	weights_[rank] = weight;
       }
@@ -85,21 +95,20 @@ namespace hpp {
 	    << weights_.size () << ").";
 	throw std::runtime_error(oss.str ());
       }
-    } 
+    }
 
-    WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
-      robot_ (robot), weights_ ()
+    void WeighedDistance::computeWeights ()
     {
       // Store computation flag
-      Device_t::Computation_t flag = robot->computationFlag ();
+      Device_t::Computation_t flag = robot_->computationFlag ();
       Device_t::Computation_t newflag = static_cast <Device_t::Computation_t>
 	(flag | Device_t::JACOBIAN);
-      robot->controlComputation (newflag);
-      robot->computeForwardKinematics ();
-      robot->controlComputation (flag);
+      robot_->controlComputation (newflag);
+      robot_->computeForwardKinematics ();
+      robot_->controlComputation (flag);
       value_type minLength = std::numeric_limits <value_type>::infinity ();
-      matrix_t jacobian; jacobian.resize (3, robot->numberDof ());
-      const JointVector_t jointVector (robot->getJointVector ());
+      matrix_t jacobian; jacobian.resize (3, robot_->numberDof ());
+      const JointVector_t jointVector (robot_->getJointVector ());
       for (JointVector_t::const_iterator it1 = jointVector.begin ();
 	   it1 != jointVector.end (); ++it1) {
 	if ((*it1)->numberDof () != 0) {
@@ -133,6 +142,18 @@ namespace hpp {
 	  }
 	}
       }
+    }
+
+    WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
+      robot_ (robot), weights_ ()
+    {
+      computeWeights ();
+    }
+
+    WeighedDistance::WeighedDistance (const ProblemPtr_t& problem) :
+      robot_ (problem->robot()), weights_ ()
+    {
+      computeWeights ();
     }
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot,
