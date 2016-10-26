@@ -104,7 +104,7 @@ namespace hpp {
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
-            fixedTimeTrajectory(Tmax,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
+            fixedTimeTrajectory(length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
             a1_t[indexConfig]=a1;
             t1_t[indexConfig]=t1;
             tv_t[indexConfig]=tv;
