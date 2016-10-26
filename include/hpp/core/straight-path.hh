@@ -204,10 +204,11 @@ namespace hpp {
       PathPtr_t impl_extract (const interval_t& subInterval) const
         throw (projection_error);
 
-    private:
+    protected:
       DevicePtr_t device_;
       Configuration_t initial_;
       Configuration_t end_;
+    private:
       StraightPathWkPtr_t weak_;
     }; // class StraightPath
     /// \}

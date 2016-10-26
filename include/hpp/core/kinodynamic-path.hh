@@ -20,7 +20,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/path.hh>
+# include <hpp/core/straight-path.hh>
 
 namespace hpp {
   namespace core {
@@ -33,10 +33,10 @@ namespace hpp {
     ///       joints, and translation part of freeflyer joints,
     ///   \li angular interpolation for unbounded rotation joints,
     ///   \li constant angular velocity for SO(3) part of freeflyer joints.
-    class HPP_CORE_DLLAPI KinodynamicPath : public Path
+    class HPP_CORE_DLLAPI KinodynamicPath : public StraightPath
     {
     public:
-      typedef Path parent_t;
+      typedef StraightPath parent_t;
       /// Destructor
       virtual ~KinodynamicPath () throw () {}
       
@@ -205,9 +205,6 @@ namespace hpp {
         return ((0. < val ) - (val < 0.));
       }
     private:
-      DevicePtr_t device_;
-      Configuration_t initial_;
-      Configuration_t end_;
       KinodynamicPathWkPtr_t weak_;
       vector_t a1_;
       vector_t t1_,tv_,t2_;
