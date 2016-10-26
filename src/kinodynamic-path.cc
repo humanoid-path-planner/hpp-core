@@ -91,7 +91,13 @@ namespace hpp {
       double v2,t2;
       size_type indexVel;
       size_type indexAcc;
-      for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer
+      // straight path for all the joints, except the translations of the base :
+      value_type u = t/timeRange ().second;
+      if (timeRange ().second == 0)
+        u = 0;
+      model::interpolate (device_, initial_, end_, u, result);
+
+      for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
         // size_type id = (*itJoint)->rankInConfiguration ();
         // size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
@@ -128,6 +134,7 @@ namespace hpp {
 
           }
         }// if not quaternion joint
+
      // }// if joint config size > 1
       
      }// for all joints
