@@ -207,10 +207,11 @@ namespace hpp {
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;
 
-    private:
+    protected:
       DevicePtr_t device_;
       Configuration_t initial_;
       Configuration_t end_;
+    private:
       StraightPathWkPtr_t weak_;
     }; // class StraightPath
     /// \}

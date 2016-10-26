@@ -28,9 +28,8 @@ namespace hpp {
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
                                       value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax) :
-      parent_t (interval_t (0, length), device->configSize (),
-                device->numberDof ()),
-      device_ (device), initial_ (init), end_ (end),a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
+      parent_t (device,init,end,length),
+      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
     {
       assert (device);
       assert (length >= 0);
@@ -50,24 +49,22 @@ namespace hpp {
                                       ConfigurationIn_t end,
                                       value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax,
                                       ConstraintSetPtr_t constraints) :
-      parent_t (interval_t (0, length), device->configSize (),
-                device->numberDof (), constraints),
-      device_ (device), initial_ (init), end_ (end),a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
+      parent_t (device,init,end,length,constraints),
+      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
     {
       assert (device);
       assert (length >= 0);
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
-      parent_t (path), device_ (path.device_), initial_ (path.initial_),
-      end_ (path.end_),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
+      parent_t (path),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
     {
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path,
                                       const ConstraintSetPtr_t& constraints) :
-      parent_t (path, constraints), device_ (path.device_),
-      initial_ (path.initial_), end_ (path.end_),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
+      parent_t (path, constraints),
+      a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
     {
       assert (constraints->apply (initial_));
       assert (constraints->apply (end_));
