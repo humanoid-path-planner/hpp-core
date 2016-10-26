@@ -210,10 +210,11 @@ namespace hpp {
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;
 
-    private:
+    protected:
       DevicePtr_t device_;
       Configuration_t initial_;
       Configuration_t end_;
+    private:
       StraightPathWkPtr_t weak_;
     }; // class StraightPath
     /// \}
