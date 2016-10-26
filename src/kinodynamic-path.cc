@@ -152,7 +152,7 @@ namespace hpp {
           ("Failed to apply constraints in KinodynamicPath::extract");
       Configuration_t t1,t2,tv,a1; // new timebounds
       double ti,tf;      
-      if(subInterval.first < subInterval.second){
+      if(subInterval.first <= subInterval.second){
         hppDout(notice,"%% subinterval PATH");
         t1 = t1_;
         t2 = (t2_);

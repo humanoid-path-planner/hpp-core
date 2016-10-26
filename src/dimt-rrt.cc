@@ -107,7 +107,7 @@ void DimtRRT::oneStep ()
         if (path)
         {
             PathValidationReportPtr_t report;
-            if(pathValidation->validate (path, true, validPath, report) && pathValidFromStart)
+            if(pathValidation->validate (path, false, validPath, report) && pathValidFromStart)
             {
                 // we won, a path is found
                 roadmap()->addEdge(reachedNodeFromStart, near, validPath);
