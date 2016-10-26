@@ -249,6 +249,7 @@ namespace hpp {
 	      } else {
 		tmin = path_->timeRange ().second;
 	      }
+        hppDout(info,"tmin = "<<tmin);
 	      return true;
 	    }
 	    using std::numeric_limits;
@@ -312,6 +313,7 @@ namespace hpp {
 	    std::string joint2;
 	    if (joint_b_) joint2 = joint_b_->name ();
 	    else joint2 = (*objects_b_.begin ())->name ();
+      hppDout(info,"tmin = "<<tmin);
 	    return true;
 	  }
 
