@@ -24,6 +24,7 @@
 #include <hpp/model/joint.hh>
 #include <hpp/model/joint-configuration.hh>
 #include <hpp/model/children-iterator.hh>
+#include <hpp/model/configuration.hh>
 #include <Eigen/SVD>
 
 namespace hpp {
@@ -90,23 +91,23 @@ inline double sgnf(double d)  {
 }
 
 double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, double v2) const{
-  hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
+  //hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
   // compute the sign of each acceleration
   double t1,t2,tv;
   int sigma;
   double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
   sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
-  hppDout(info,"sigma = "<<sigma);
+  //hppDout(info,"sigma = "<<sigma);
   if(sigma == 0){ // ??? FIXME
     sigma = sgn(p2-p1);
-    hppDout(info,"sigma Bis= "<<sigma);
+    //hppDout(info,"sigma Bis= "<<sigma);
   }
   double a1 = (sigma)*aMax_;
   double a2 = -a1;
   double vLim = (sigma) * vMax_;
-  hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
+  //hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
   if((p2-p1) == 0. && (v2-v1)==0. ){
-    hppDout(notice,"No movement in this joints, abort.");
+    //hppDout(notice,"No movement in this joints, abort.");
     return 0.;
   }
   // test if two segment trajectory is valid :
@@ -118,27 +119,27 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
   const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
 
   const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
-  hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
+  //hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
   const double x1 = q/a;
   const double x2 = c/q;
   const double x = std::max(x1,x2);
-  hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
-  hppDout(info," x = "<<x);
-  hppDout(info,"t1 before vel limit = "<<x);
+  //hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
+  //hppDout(info," x = "<<x);
+  //hppDout(info,"t1 before vel limit = "<<x);
 
-  hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
+  //hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
   double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
 
 
   if(x >= minT1){
     twoSegment = true;
     t1 = x;
-    hppDout(info,"t1 >= minT1");
+    //hppDout(info,"t1 >= minT1");
   }
   if(twoSegment){ // check if max velocity is respected
     if(std::abs(v1+(t1)*a1) > vMax_){
       twoSegment = false;
-      hppDout(info,"Doesn't respect max velocity, need 3 segments");
+      //hppDout(info,"Doesn't respect max velocity, need 3 segments");
     }
   }
   if(twoSegment){ // compute t2 for two segment trajectory
@@ -150,14 +151,14 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
     t2 = (v2-vLim)/a2;  //eq 17
   }
   if(twoSegment){
-    hppDout(notice,"Trajectory with 2 segments");
+    //hppDout(notice,"Trajectory with 2 segments");
   }else{
-    hppDout(notice,"Trajectory with 3 segments");
+    //hppDout(notice,"Trajectory with 3 segments");
   }
-  hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
-  hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
+  //hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
+  //hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
   double T = (t1)+(tv)+(t2);
-  hppDout(notice,"T = "<<T);
+  //hppDout(notice,"T = "<<T);
   return T;
 }
 
@@ -169,22 +170,23 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
 
     size_type configSize = robot_->configSize() - robot_->extraConfigSpace().dimension ();
     // looking for Tmax
-    hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
-
+    //hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
+    hppDout(info,"Distance between : "<<model::displayConfig(q1));
+    hppDout(info,"and              : "<<model::displayConfig(q2));
 
     for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){// FIX ME : only work with freeflyer
         size_type indexVel = indexConfig + configSize;
-        hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
+        //hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
         if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel]);
             if(T > Tmax)
                 Tmax = T;
         }else{
-            hppDout(notice,"!! Kinodynamic distance for quaternion not implemented yet.");
+            //hppDout(notice,"!! Kinodynamic distance for quaternion not implemented yet.");
         }
 
     }
-
+    hppDout(info," is : "<<Tmax);
     return Tmax;
 }
 } //   namespace core
