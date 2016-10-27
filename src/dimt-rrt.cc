@@ -80,6 +80,7 @@ void DimtRRT::oneStep ()
     ConfigurationPtr_t q_new;
     // first try to connect to start component
     ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
+    hppDout(info,"Random configuration : "<<displayConfig(*q_rand));
     near = roadmap()->nearestNode (q_rand, startComponent_, distance);
     path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand);
     if (path)

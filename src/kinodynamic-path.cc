@@ -153,8 +153,16 @@ namespace hpp {
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
       Configuration_t q2 ((*this) (subInterval.second, success));
+      // set acceleration to 0 for initial and end config :
+      size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();
+      q1[configSize+3] = 0.0;
+      q1[configSize+4] = 0.0;
+      q1[configSize+5] = 0.0;
+      q2[configSize+3] = 0.0;
+      q2[configSize+4] = 0.0;
+      q2[configSize+5] = 0.0;
       hppDout(info,"q1 = "<<model::displayConfig(q1));
-      hppDout(info,"q2 = "<<model::displayConfig(q2));      
+      hppDout(info,"q2 = "<<model::displayConfig(q2));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
       Configuration_t t1,t2,tv,a1; // new timebounds
@@ -169,6 +177,7 @@ namespace hpp {
         tf = length() - subInterval.second;
       }else{  // reversed path
         hppDout(notice,"%% REVERSE PATH, not implemented yet !");
+        std::cout<<"ERROR, you shouldn't call reverse() on a kinodynamic path"<<std::endl;
         return PathPtr_t();
       }
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
