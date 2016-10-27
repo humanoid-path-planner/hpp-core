@@ -63,8 +63,20 @@ KinodynamicDistance::KinodynamicDistance (const DevicePtr_t& robot) :
         std::cout<<"Error : you need at least "<<robot_->configSize()-robot_->extraConfigSpace().dimension()<<" extra DOF"<<std::endl;
         hppDout(error,"Error : you need at least "<<robot_->configSize() - robot_->extraConfigSpace().dimension()<<" extra DOF");
     }
-    aMax_ = 0.5;
-    vMax_ = 2;
+    // get velocity and acceleration bounds from problem :
+    try {
+      aMax_ = problem_->get<double> (std::string("aMax"));
+    } catch (const std::exception& e) {
+      std::cout<<"Warning : no acceleration bounds set, use 1.0 as default"<<std::endl;
+      aMax_ = 1.;
+    }
+    try {
+      vMax_ = problem_->get<double> (std::string("vMax"));
+    } catch (const std::exception& e) {
+      std::cout<<"Warning : no velocity bounds set, use 1.0 as default"<<std::endl;
+      vMax_ = 1.;
+    }
+    hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<<" ; aMax = "<<aMax_);
 }
 
 
