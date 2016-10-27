@@ -113,7 +113,7 @@ void DimtRRT::oneStep ()
         if (path)
         {
             PathValidationReportPtr_t report;
-            pathValidFromEnd = pathValidation->validate (path, false, validPath, report);
+            pathValidFromEnd = pathValidation->validate (path, true, validPath, report);
             if(pathValidFromEnd && pathValidFromStart)
             {
                 // we won, a path is found
@@ -127,8 +127,7 @@ void DimtRRT::oneStep ()
                 if (t_final != path->timeRange ().first)
                 {
                     ConfigurationPtr_t q_newEnd = ConfigurationPtr_t (new Configuration_t(validPath->initial()));
-                    NodePtr_t newNode = roadmap()->addNode (q_newEnd);
-                    roadmap()->addEdge(newNode, near, validPath);
+                    NodePtr_t newNode = roadmap()->addNodeAndEdge(q_newEnd, near, validPath);
                     hppDout(info,"~~~~~~~~~~~~~~~~~~~~~~ New node added to end component : "<<displayConfig(*q_newEnd));
 
                     // now try to connect both nodes
