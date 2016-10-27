@@ -77,7 +77,7 @@ namespace hpp {
 				 const ConfigurationPtr_t& to,
 				 const PathPtr_t path);
 
-      /// Add a node and one edges
+      /// Add a node and one edge
       /// \param from node from which the edge starts,
       /// \param to configuration to which the edge stops
       /// \param path path between both configurations
@@ -89,6 +89,19 @@ namespace hpp {
       NodePtr_t addNodeAndEdge (const NodePtr_t from,
                  const ConfigurationPtr_t& to,
                  const PathPtr_t path);
+
+      /// Add a node and one edge
+      /// \param from configuration from which the edge starts,
+      /// \param to node to which the edge stops
+      /// \param path path between both configurations
+      /// \return node containing configuration <c>from</c>.
+      /// Add the oriented edge (from -> to)
+      /// \note this function simplifies the management of connected components
+      ///       since it adds the new node in the connected component of
+      ///       <c>to</c>.
+      NodePtr_t addNodeAndEdge (const ConfigurationPtr_t& from,
+                      const NodePtr_t to,
+                      const PathPtr_t path);
 
 
       /// Add a goal configuration
