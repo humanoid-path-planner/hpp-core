@@ -63,7 +63,7 @@ KinodynamicDistance::KinodynamicDistance (const DevicePtr_t& robot) :
         std::cout<<"Error : you need at least "<<robot_->configSize()-robot_->extraConfigSpace().dimension()<<" extra DOF"<<std::endl;
         hppDout(error,"Error : you need at least "<<robot_->configSize() - robot_->extraConfigSpace().dimension()<<" extra DOF");
     }
-    aMax_ = 0.5;
+    aMax_ = 1;
     vMax_ = 2;
 }
 
