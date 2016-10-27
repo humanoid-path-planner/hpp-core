@@ -71,11 +71,12 @@ void DimtRRT::init (const DimtRRTWkPtr_t& weak)
 
 void DimtRRT::oneStep ()
 {
+    hppDout(info,"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ new Step ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     PathPtr_t validPath, path;
     PathValidationPtr_t pathValidation (problem ().pathValidation ());
     value_type distance;
     NodePtr_t near, reachedNodeFromStart;
-    bool startComponentConnected(false), pathValidFromStart(false);
+    bool startComponentConnected(false), pathValidFromStart(false),pathValidFromEnd(false);
     ConfigurationPtr_t q_new;
     // first try to connect to start component
     ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
@@ -93,9 +94,13 @@ void DimtRRT::oneStep ()
                 startComponentConnected = true;
                 q_new = ConfigurationPtr_t (new Configuration_t(validPath->end ()));
                 reachedNodeFromStart = roadmap()->addNodeAndEdge(near, q_new, validPath);
+                hppDout(info,"~~~~~~~~~~~~~~~~~~~~ New node added to start component : "<<displayConfig(*q_new));
+
             }
         }
     }
+
+    hppDout(info,"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Try to connect end component ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
     // now try to connect to end components
     for (std::vector<ConnectedComponentPtr_t>::const_iterator itcc =
@@ -107,10 +112,12 @@ void DimtRRT::oneStep ()
         if (path)
         {
             PathValidationReportPtr_t report;
-            if(pathValidation->validate (path, false, validPath, report) && pathValidFromStart)
+            pathValidFromEnd = pathValidation->validate (path, false, validPath, report);
+            if(pathValidFromEnd && pathValidFromStart)
             {
                 // we won, a path is found
                 roadmap()->addEdge(reachedNodeFromStart, near, validPath);
+                hppDout(info,"~~~~~~~~~~~~~~~~~~~~ Start and goal component connected !!!!!! "<<displayConfig(*q_new));
                 return;
             }
             else if (validPath)
@@ -121,6 +128,8 @@ void DimtRRT::oneStep ()
                     ConfigurationPtr_t q_newEnd = ConfigurationPtr_t (new Configuration_t(validPath->initial()));
                     NodePtr_t newNode = roadmap()->addNode (q_newEnd);
                     roadmap()->addEdge(newNode, near, validPath);
+                    hppDout(info,"~~~~~~~~~~~~~~~~~~~~~~ New node added to end component : "<<displayConfig(*q_newEnd));
+
                     // now try to connect both nodes
                     if(startComponentConnected)
                     {
@@ -128,6 +137,7 @@ void DimtRRT::oneStep ()
                         if(path && pathValidation->validate (path, false, validPath, report))
                         {
                             roadmap()->addEdge (reachedNodeFromStart, newNode, path);
+                            hppDout(info,"~~~~~~~~ both new nodes connected together !!!!!! "<<displayConfig(*q_new));
                             return;
                         }
                     }

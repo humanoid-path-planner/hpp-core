@@ -18,6 +18,7 @@
 
 # include <hpp/model/device.hh>
 # include <hpp/model/joint.hh>
+# include <hpp/model/configuration.hh>
 # include <hpp/core/problem.hh>
 # include <hpp/core/weighed-distance.hh>
 # include <hpp/core/kinodynamic-path.hh>
@@ -62,6 +63,8 @@ namespace hpp {
         size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
         // looking for Tmax
         hppDout(notice,"## Looking for Tmax :");
+        hppDout(info,"between : "<<model::displayConfig(q1));
+        hppDout(info,"and     : "<<model::displayConfig(q2));
 
         // for all joints
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){ // FIX ME : only work for freeflyer
@@ -75,10 +78,11 @@ namespace hpp {
           }else{
             hppDout(notice,"!! Steering method for quaternion not implemented yet.");
           }
-          
         }
 
+
         value_type length = computeMaxRequiredTime(Tmax,infIntervalsVector);
+        hppDout(notice,"Tmax = "<<Tmax<<"  after infeasible interval : "<<length);
         // create array of times intervals and acceleration values: 
         Configuration_t a1_t(3);
         Configuration_t t1_t(3);
@@ -100,6 +104,7 @@ namespace hpp {
           
         }// for all joints
         */
+        hppDout(info,"compute fixed end-time trajectory for each joint : ");
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
