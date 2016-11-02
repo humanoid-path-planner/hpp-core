@@ -17,7 +17,6 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/model/device.hh>
-#include <hpp/model/configuration.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/kinodynamic-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -27,9 +26,9 @@ namespace hpp {
     KinodynamicPath::KinodynamicPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax) :
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
       parent_t (device,init,end,length),
-      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
+      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
       assert (device);
       assert (length >= 0);
@@ -39,7 +38,7 @@ namespace hpp {
       hppDout(notice,"t1 = "<<model::displayConfig(t1_));
       hppDout(notice,"tv = "<<model::displayConfig(tv_));
       hppDout(notice,"t2 = "<<model::displayConfig(t2_));
-      hppDout(notice,"vMax = "<<vMax_);
+      hppDout(notice,"vLim = "<<model::displayConfig(vLim_));
       
       
     }
@@ -47,24 +46,24 @@ namespace hpp {
     KinodynamicPath::KinodynamicPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax,
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
                                       ConstraintSetPtr_t constraints) :
       parent_t (device,init,end,length,constraints),
-      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vMax_(vMax)
+      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
       assert (device);
       assert (length >= 0);
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
-      parent_t (path),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
+      parent_t (path),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
     {
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints),
-      a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vMax_(path.vMax_)
+      a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
     {
       assert (constraints->apply (initial_));
       assert (constraints->apply (end_));
@@ -95,7 +94,13 @@ namespace hpp {
       value_type u = t/timeRange ().second;
       if (timeRange ().second == 0)
         u = 0;
-      model::interpolate (device_, initial_, end_, u, result);
+
+      //model::interpolate (device_, initial_, end_, u, result);
+      result[3] = 1.; // TODO : use interpolate, test only
+      result[4] = 0.;
+      result[5] = 0.;
+      result[6] = 0.;
+
 
       for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
@@ -115,20 +120,20 @@ namespace hpp {
             result[id] = 0.5*t*t*a1_[id] + t*initial_[indexVel] + initial_[id];
             result[indexVel] = t*a1_[id] + initial_[indexVel];
             result[indexAcc] = a1_[id];
-          }else if (t <= t1_[id] + tv_[id] ){
+          }else if (t <= (t1_[id] + tv_[id]) ){
           //  hppDout(info,"on  constant velocity segment");
-            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*sgnf(a1_[id])*vMax_;
-            result[indexVel] = sgnf(a1_[id])*vMax_;
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*vLim_[id];
+            result[indexVel] = vLim_[id];
             result[indexAcc] = 0.;
 
           }else{
           //  hppDout(info,"on  3° segment");
             t2 = t - tv_[id] - t1_[id] ;
             if(tv_[id] > 0 )
-              v2 = sgnf(a1_[id])*vMax_;
+              v2 = vLim_[id];
             else
               v2 = t1_[id]*a1_[id] + initial_[indexVel];
-            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*sgnf(a1_[id])*vMax_ - 0.5*t2*t2*a1_[id] + t2*v2;
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*vLim_[id] - 0.5*t2*t2*a1_[id] + t2*v2;
             result[indexVel] = v2 - t2 * a1_[id];
             result[indexAcc] = -a1_[id];
 
@@ -161,51 +166,67 @@ namespace hpp {
       q2[configSize+3] = 0.0;
       q2[configSize+4] = 0.0;
       q2[configSize+5] = 0.0;
+      hppDout(info,"from : ");
+      hppDout(info,"q1 = "<<model::displayConfig(initial_));
+      hppDout(info,"q2 = "<<model::displayConfig(end_));
+      hppDout(info,"to : ");
       hppDout(info,"q1 = "<<model::displayConfig(q1));
       hppDout(info,"q2 = "<<model::displayConfig(q2));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
-      Configuration_t t1,t2,tv,a1; // new timebounds
-      double ti,tf;      
-      if(subInterval.first <= subInterval.second){
-        hppDout(notice,"%% subinterval PATH");
-        t1 = t1_;
-        t2 = (t2_);
-        tv = (tv_);
-        a1 = (a1_);
-        ti = subInterval.first;
-        tf = length() - subInterval.second;
-      }else{  // reversed path
+
+      if(subInterval.first > subInterval.second){  // reversed path
         hppDout(notice,"%% REVERSE PATH, not implemented yet !");
         std::cout<<"ERROR, you shouldn't call reverse() on a kinodynamic path"<<std::endl;
         return PathPtr_t();
       }
+      double ti,tf,oldT2,oldT1,oldTv;
+      hppDout(notice,"%% subinterval PATH");
+      // new timebounds
+      Configuration_t t1(t1_);
+      Configuration_t t2(t2_);
+      Configuration_t tv(tv_);
+      Configuration_t a1(a1_);
+
+
+
+
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
+        ti = subInterval.first - timeRange_.first;
+        tf = timeRange_.second - subInterval.second;
         t1[i] = t1_[i] - ti;
         if(t1[i] <= 0){
           t1[i] = 0; 
           ti = ti - t1_[i];
           tv[i] = tv_[i] - ti;
-          if(tv[1] <= 0 ){
+          if(tv[i] <= 0 ){
             tv[i] = 0;
-            ti = ti - tv_[i]; 
+            ti = ti - tv_[i];
             t2[i] = t2_[i] - ti;
+            if(t2[i] <= 0)
+              t2[i] = 0;
           }
         }
-        t2[i] = t2_[i] - tf;
+        oldT1 = t1[i];
+        oldT2 = t2[i];
+        oldTv = tv[i];
+        t2[i] = oldT2 - tf;
         if(t2[i] <= 0 ){
           t2[i] = 0 ;
-          tf = tf - t2_[i];
-          tv[i] = tv_[i] - tf;
+          tf = tf - oldT2;
+          tv[i] = oldTv - tf;
           if(tv[i] <= 0){
             tv[i] = 0;
-            tf = tf - tv_[i];
-            t1[i] = t1_[i] - tf;
+            tf = tf - oldTv;
+            t1[i] = oldT1 - tf;
+            if(t1[i] <= 0 )
+              t1[i] = 0;
           }
         }
-        
+
+
       } // for all joints
-      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1,t1,tv,t2,vMax_,
+      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1,t1,tv,t2,vLim_,
                                                   constraints ());
       return result;
     }
