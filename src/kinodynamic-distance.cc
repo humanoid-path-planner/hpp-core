@@ -171,8 +171,8 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
     size_type configSize = robot_->configSize() - robot_->extraConfigSpace().dimension ();
     // looking for Tmax
     //hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
-    hppDout(info,"Distance between : "<<model::displayConfig(q1));
-    hppDout(info,"and              : "<<model::displayConfig(q2));
+   // hppDout(info,"Distance between : "<<model::displayConfig(q1));
+    //hppDout(info,"and              : "<<model::displayConfig(q2));
 
     for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){// FIX ME : only work with freeflyer
         size_type indexVel = indexConfig + configSize;
@@ -186,7 +186,7 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
         }
 
     }
-    hppDout(info," is : "<<Tmax);
+   // hppDout(info," is : "<<Tmax);
     return Tmax;
 }
 } //   namespace core

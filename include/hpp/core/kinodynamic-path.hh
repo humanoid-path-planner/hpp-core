@@ -21,6 +21,7 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/straight-path.hh>
+# include <hpp/model/configuration.hh>
 
 namespace hpp {
   namespace core {
@@ -47,9 +48,9 @@ namespace hpp {
       static KinodynamicPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,double vMax)
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim)
       {
-        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vMax);
+        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vLim);
         KinodynamicPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
         ptr->checkPath ();
@@ -64,10 +65,10 @@ namespace hpp {
       static KinodynamicPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,double vMax,
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
                                           ConstraintSetPtr_t constraints)
       {
-        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vMax,
+        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vLim,
                                                     constraints);
         KinodynamicPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
@@ -167,17 +168,17 @@ namespace hpp {
         os << "KinodynamicPath:" << std::endl;
         os << "interval: [ " << timeRange ().first << ", "
            << timeRange ().second << " ]" << std::endl;
-        os << "initial configuration: " << initial_.transpose () << std::endl;
-        os << "final configuration:   " << end_.transpose () << std::endl;
+        os << "initial configuration: " << model::displayConfig(initial_ )<< std::endl;
+        os << "final configuration:   " << model::displayConfig(end_) << std::endl;
         return os;
       }
       /// Constructor
       KinodynamicPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, double vMax);
+                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim);
       
       /// Constructor with constraints
       KinodynamicPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,double vMax,
+                       ConfigurationIn_t end, value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
                        ConstraintSetPtr_t constraints);
       
       /// Copy constructor
@@ -203,18 +204,23 @@ namespace hpp {
       virtual bool impl_compute (ConfigurationOut_t result,
                                  value_type t) const;
 
-      int sgn(double val) const{
+
+      inline double sgnenum(double val) const{
         return ((0. < val ) - (val < 0.));
       }
-      
-      double sgnf(double val) const{
-        return ((0. < val ) - (val < 0.));
+
+      inline int sgn(double d) const {
+        return d >= 0.0 ? 1 : -1;
       }
+
+      inline double sgnf(double d) const {
+        return d >= 0.0 ? 1.0 : -1.0;
+      }
+
     private:
       KinodynamicPathWkPtr_t weak_;
       vector_t a1_;
-      vector_t t1_,tv_,t2_;
-      double vMax_;
+      vector_t t1_,tv_,t2_,vLim_;
     }; // class KinodynamicPath
   } //   namespace core
 } // namespace hpp

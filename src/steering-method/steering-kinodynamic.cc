@@ -57,7 +57,7 @@ namespace hpp {
       {
         double Tmax = 0;
         double T = 0;
-        double t1,tv,t2,a1;
+        double t1,tv,t2,a1,vLim;
         interval_t infeasibleInterval;
         std::vector<interval_t> infIntervalsVector;
         size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
@@ -88,6 +88,8 @@ namespace hpp {
         Configuration_t t1_t(3);
         Configuration_t t2_t(3);
         Configuration_t tv_t(3);
+        Configuration_t vLim_t(3);
+
         
         // compute trajectory with fixed time T found 
         /*for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
@@ -109,11 +111,12 @@ namespace hpp {
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
-            fixedTimeTrajectory(length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2);
+            fixedTimeTrajectory(length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
             t1_t[indexConfig]=t1;
             tv_t[indexConfig]=tv;
             t2_t[indexConfig]=t2;  
+            vLim_t[indexConfig]=vLim;
           }else{
             hppDout(notice,"!! Steering method for quaternion not implemented yet.");
            /* a1_t[indexConfig]=0;
@@ -123,7 +126,7 @@ namespace hpp {
           }
         }
         
-        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t1_t,tv_t,t2_t,vMax_);        
+        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t1_t,tv_t,t2_t,vLim_t);
         return path;
       }
       
@@ -296,7 +299,7 @@ namespace hpp {
         return T;
       }
       
-      void Kinodynamic::fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2) const{
+      void Kinodynamic::fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2, double *vLim) const{
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
         double v12 = v1+v2;
         double v2_1 = v2-v1;
@@ -308,29 +311,25 @@ namespace hpp {
           *t1 = 0;
           *tv = 0;
           *t2 = 0;
+          *vLim = 0;
           return;
         }
-        double a2;
-        double delta;
-        delta = 4*T*T*(v12*v12+v2_1*v2_1) - 16*T*v12*p2_1 + 16*p2_1*p2_1;
-        if(delta < 0 )
-          std::cout<<"Error : determinant of quadratic function negative"<<std::endl;
-        double b = 2*T*v12-4*p2_1;
-        double a_2 = 2*T*T;
-        
-        double x1= (-b-sqrt(delta))/a_2;
-        double x2= (-b+sqrt(delta))/a_2;
-        hppDout(info,"b = "<<b<<"   ;  2*a = "<<a_2);
-        hppDout(info,"delta = "<<delta<<"    ; x1 = "<<x1 << "   ;  x2 = "<<x2);
-        if(std::abs(x1)>std::abs(x2)){
+
+        // quadratic equation (20)
+        double a = T*T;
+        double b = 2*T*(v12) - 4*p2_1;
+        double c = -(v2_1*v2_1);
+        const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+        const double x1 = q/a;
+        const double x2 = c/q;
+        if(fabs(x1) > fabs(x2))
           *a1 = x1;
-        }else{
+        else
           *a1 = x2;
-        }
-        a2 = -(*a1);
+        double a2 = -(*a1);
         
         *t1 = 0.5*((v2_1/(*a1))+T);
-        double vLim = sgn((*a1))*vMax_;
+        *vLim = sgn((*a1))*vMax_;
         if(std::abs(v1+(*t1)*(*a1)) <= vMax_){  // two segment trajectory
           hppDout(notice,"Trajectory with 2 segments");
           *t2 = T - (*t1);
@@ -338,12 +337,12 @@ namespace hpp {
         }else{ // three segment trajectory
           hppDout(notice,"Trajectory with 3 segments");
           // adjust acceleration :
-          *a1 = ((vLim - v1)*(vLim - v1) + (vLim - v2)*(vLim - v2))/(2*(vLim*T- p2_1));
+          *a1 = ((*vLim - v1)*(*vLim - v1) + (*vLim - v2)*(*vLim - v2))/(2*(*vLim*T- p2_1));
           a2 = -(*a1);
           // compute new time intervals :
-          *t1 = (vLim - v1)/(*a1);
-          *tv = (v1*v1+v2*v2-2*vLim*vLim)/(2*vLim*(*a1)) + (p2-p1)/vLim ;
-          *t2 = (v2-vLim)/(a2);
+          *t1 = (*vLim - v1)/(*a1);
+          *tv = (v1*v1+v2*v2-2*(*vLim)*(*vLim))/(2*(*vLim)*(*a1)) + (p2-p1)/(*vLim) ;
+          *t2 = (v2-*vLim)/(a2);
         }
         
         
