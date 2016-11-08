@@ -58,6 +58,8 @@ namespace hpp {
         double Tmax = 0;
         double T = 0;
         double t1,tv,t2,a1,vLim;
+        model::vector3_t dir(q2[0] - q1[0] ,q2[1] - q1[1] ,q2[2] - q1[2] );
+        hppDout(notice,"direction = "<<dir);
         interval_t infeasibleInterval;
         std::vector<interval_t> infIntervalsVector;
         size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
