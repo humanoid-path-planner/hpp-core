@@ -79,15 +79,16 @@ namespace hpp {
         double computeMinTime(double p1,double p2, double v1, double v2,interval_t *infInterval) const;
         
         /**
-        * @brief fixedTimeTrajectory compute the minimum acceleration trajectory for desired time T
+        * @brief fixedTimeTrajectory compute the minimum acceleration trajectory for desired time T (1 dimension)
         * @param T lenght of the trajectory
         * @param p1 position at state 1
         * @param p2 position at state 2
         * @param v1 velocity at state 1
-        * @param v2 velocity at state 2 
+        * @param v2 velocity at state 2
+        * output :
         * @param a1 acceleration during first phase
         * @param t1 time of the first segment
-        * @param tv time of constant velocity segment (can be null)
+        * @param tv time of constant velocity segment (can be = 0)
         * @param t2 time of the last segment
         * @return T the minimal time
         */

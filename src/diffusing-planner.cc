@@ -127,6 +127,7 @@ namespace hpp {
 
     void DiffusingPlanner::oneStep ()
     {
+      hppDout(notice,"###################### one step ########################");
       typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
