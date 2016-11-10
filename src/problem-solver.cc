@@ -46,6 +46,7 @@
 #include <hpp/core/kinodynamic-distance.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
 #include <hpp/core/dimt-rrt.hh>
+#include <hpp/core/random-shortcut-oriented.hh>
 
 namespace hpp {
   namespace core {
@@ -115,6 +116,7 @@ namespace hpp {
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
+      add <PathOptimizerBuilder_t> ("RandomShortcutOriented",     RandomShortcutOriented::create);
       add <PathOptimizerBuilder_t> ("GradientBased",      pathOptimization::GradientBased::create);
       add <PathOptimizerBuilder_t> ("PartialShortcut",    pathOptimization::PartialShortcut::create);
       add <PathOptimizerBuilder_t> ("ConfigOptimization", pathOptimization::ConfigOptimization::create);

@@ -104,6 +104,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
   include/hpp/core/random-shortcut.hh
+  include/hpp/core/random-shortcut-oriented.hh
   include/hpp/core/roadmap.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method-straight.hh

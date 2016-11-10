@@ -67,6 +67,7 @@ SET(${LIBRARY_NAME}_SOURCES
   problem.cc
   problem-solver.cc
   random-shortcut.cc
+  random-shortcut-oriented.cc
   roadmap.cc
   straight-path.cc
   interpolated-path.cc
