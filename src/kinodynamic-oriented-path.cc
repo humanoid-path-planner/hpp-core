@@ -42,6 +42,11 @@ namespace hpp {
     {
     }
 
+    KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicPath& path) :
+      parent_t (path)
+    {
+    }
+
     KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicOrientedPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints)
