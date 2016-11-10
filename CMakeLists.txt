@@ -94,6 +94,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-vector.hh
   include/hpp/core/reeds-shepp-path.hh
   include/hpp/core/kinodynamic-path.hh
+  include/hpp/core/kinodynamic-oriented-path.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
