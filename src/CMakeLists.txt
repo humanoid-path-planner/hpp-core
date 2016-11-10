@@ -88,6 +88,7 @@ path-validations.cc
   reeds-shepp-path.cc
   relative-motion.cc  
   kinodynamic-path.cc
+  kinodynamic-oriented-path.cc
   steering-method/steering-kinodynamic.cc
   roadmap.cc
   steering-method/reeds-shepp.cc # TODO access type of joint
@@ -97,6 +98,7 @@ path-validations.cc
   steering-method/snibud.cc
   steering-method/spline.cc
   straight-path.cc
+  interpolated-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
   kinodynamic-distance.cc

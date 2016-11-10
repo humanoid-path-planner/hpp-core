@@ -82,6 +82,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (DubinsPath);
     HPP_PREDEF_CLASS (ReedsSheppPath);
     HPP_PREDEF_CLASS (KinodynamicPath);    
+    HPP_PREDEF_CLASS (KinodynamicOrientedPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
@@ -212,6 +213,8 @@ namespace hpp {
     typedef boost::shared_ptr <const DubinsPath> DubinsPathConstPtr_t;
     typedef boost::shared_ptr <KinodynamicPath> KinodynamicPathPtr_t;
     typedef boost::shared_ptr <const KinodynamicPath> KinodynamicPathConstPtr_t;
+    typedef boost::shared_ptr <KinodynamicOrientedPath> KinodynamicOrientedPathPtr_t;
+    typedef boost::shared_ptr <const KinodynamicOrientedPath> KinodynamicOrientedPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
