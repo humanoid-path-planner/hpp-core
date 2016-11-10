@@ -96,11 +96,6 @@ namespace hpp {
         u = 0;
 
       model::interpolate (device_, initial_, end_, u, result);
-     /* result[3] = 1.; // TODO : use interpolate, test only
-      result[4] = 0.;
-      result[5] = 0.;
-      result[6] = 0.;*/
-
 
       for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
@@ -231,10 +226,6 @@ namespace hpp {
       return result;
     }
     
-    DevicePtr_t KinodynamicPath::device () const
-    {
-      return device_;
-    }
   } //   namespace core
 } // namespace hpp
 
