@@ -86,6 +86,15 @@ namespace hpp{
         return shPtr;
       }
 
+      static KinodynamicOrientedPathPtr_t createCopy (const KinodynamicPathPtr_t& path)
+      {
+        KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path);
+        KinodynamicOrientedPathPtr_t shPtr (ptr);
+        ptr->initCopy (shPtr);
+        ptr->checkPath ();
+        return shPtr;
+      }
+
       /// Create copy and return shared pointer
       /// \param path path to copy
       /// \param constraints the path is subject to
@@ -140,6 +149,10 @@ namespace hpp{
 
       /// Copy constructor
       KinodynamicOrientedPath (const KinodynamicOrientedPath& path);
+
+
+      /// Copy constructor
+      KinodynamicOrientedPath (const KinodynamicPath& path);
 
       /// Copy constructor with constraints
       KinodynamicOrientedPath (const KinodynamicOrientedPath& path,
