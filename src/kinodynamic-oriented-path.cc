@@ -61,11 +61,13 @@ namespace hpp {
       // FIX ME : assume first joint is freeflyer
       size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();
       Eigen::Vector3d v(result[configSize],result[configSize+1],result[configSize+2]);
-      Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),v);
-      result[3]=quat.w();
-      result[4]=quat.x();
-      result[5]=quat.y();
-      result[6]=quat.z();
+      if(v.norm() > 0){ // if velocity in the state
+        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),v);
+        result[3]=quat.w();
+        result[4]=quat.x();
+        result[5]=quat.y();
+        result[6]=quat.z();
+      }
 
       return true;
     }
