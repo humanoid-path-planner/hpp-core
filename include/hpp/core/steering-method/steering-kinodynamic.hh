@@ -28,6 +28,10 @@
 namespace hpp {
   namespace core {
     namespace steeringMethod {
+
+      typedef Eigen::Matrix <value_type, 3, 1>   Vector3;
+
+
       /// \addtogroup steering_method
       /// \{
       
@@ -107,6 +111,11 @@ namespace hpp {
         inline double sgnf(double d) const {
           return d >= 0.0 ? 1.0 : -1.0;
         }
+
+        void setAmax(Vector3 aMax){aMax_ = aMax;}
+
+        void setVmax(Vector3 vMax){vMax_ = vMax;}
+
         
       protected:
         
@@ -124,8 +133,8 @@ namespace hpp {
         }
         
       private:
-        double aMax_;
-        double vMax_;
+        Vector3 aMax_;
+        Vector3 vMax_;
         DeviceWkPtr_t device_;
         KinodynamicWkPtr_t weak_;
       }; // Kinodynamic
