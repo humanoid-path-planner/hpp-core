@@ -145,19 +145,19 @@ namespace hpp {
         }
 
         // get velocity and acceleration bounds from problem :
-        try {
-          aMax_ = problem_->get<double> (std::string("aMax"));
+       /* try {
+          aMax = problem_->get<double> (std::string("aMax"));
         } catch (const std::exception& e) {
           std::cout<<"Warning : no acceleration bounds set, use 1.0 as default"<<std::endl;
-          aMax_ = 1.;
+          aMax = 1.;
         }
         try {
-          vMax_ = problem_->get<double> (std::string("vMax"));
+          vMax = problem_->get<double> (std::string("vMax"));
         } catch (const std::exception& e) {
           std::cout<<"Warning : no velocity bounds set, use 1.0 as default"<<std::endl;
-          vMax_ = 1.;
+          vMax = 1.;
         }
-        hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<<" ; aMax = "<<aMax_);
+        hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<<" ; aMax = "<<aMax_);*/
       }
       
       /// Copy constructor
@@ -169,19 +169,21 @@ namespace hpp {
       double Kinodynamic::computeMinTime(double p1, double p2, double v1, double v2,interval_t *infInterval) const{
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
+        double aMax = aMax_.norm(); // FIX ME , only here for compilation of temporary version
+        double vMax = vMax_.norm();
         double t1,t2,tv;
         int sigma;
-        double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
+        double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
         sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
         hppDout(info,"sigma = "<<sigma);
         if(sigma == 0){ // ??? FIXME
           sigma = sgn(p2-p1);
           hppDout(info,"sigma Bis= "<<sigma);
         }
-        double a1 = (sigma)*aMax_;
+        double a1 = (sigma)*aMax;
         double a2 = -a1;
-        double vLim = (sigma) * vMax_;
-        hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
+        double vLim = (sigma) * vMax;
+        hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax);
         if((p2-p1) == 0. && (v2-v1)==0. ){  
           hppDout(notice,"No movement in this joints, abort.");
           return 0.;
@@ -213,7 +215,7 @@ namespace hpp {
           hppDout(info,"t1 >= minT1");
         } 
         if(twoSegment){ // check if max velocity is respected
-          if(std::abs(v1+(t1)*a1) > vMax_){
+          if(std::abs(v1+(t1)*a1) > vMax){
             twoSegment = false;
             hppDout(info,"Doesn't respect max velocity, need 3 segments");
           }
@@ -247,8 +249,8 @@ namespace hpp {
           hppDout(info," ! go through v=0, no infeasible interval");
         }
         else{
-          double zeroTime1 = std::abs(v1) / aMax_;
-          double zeroTime2 = std::abs(v2) / aMax_;
+          double zeroTime1 = std::abs(v1) / aMax;
+          double zeroTime2 = std::abs(v2) / aMax;
           double zeroDistance = zeroTime1 * v1 / 2.0 + zeroTime2 * v2 / 2.0;
           if(std::abs(zeroDistance) < std::abs(p2-p1)) { // no infeasible interval
             infInterval->first = std::numeric_limits<value_type>::infinity();
@@ -282,7 +284,7 @@ namespace hpp {
               t1 = xi;
             }
             if(twoSegment){ // check if max velocity is respected
-              if(std::abs(v1+(t1)*a1) > vMax_)
+              if(std::abs(v1+(t1)*a1) > vMax)
                 twoSegment = false;
             }
             if(twoSegment){ // compute t2 for two segment trajectory
@@ -306,6 +308,8 @@ namespace hpp {
         double v12 = v1+v2;
         double v2_1 = v2-v1;
         double p2_1 = p2-p1;
+        double aMax = aMax_.norm(); // FIX ME , only here for compilation of temporary version
+        double vMax = vMax_.norm();
         hppDout(info,"v12 = "<<v12<<"   ; v21 = "<<v2_1<<"   ; p21 = "<<p2_1);
         
         if(v2_1 == 0 && p2_1 == 0){
@@ -331,8 +335,8 @@ namespace hpp {
         double a2 = -(*a1);
         
         *t1 = 0.5*((v2_1/(*a1))+T);
-        *vLim = sgn((*a1))*vMax_;
-        if(std::abs(v1+(*t1)*(*a1)) <= vMax_){  // two segment trajectory
+        *vLim = sgn((*a1))*vMax;
+        if(std::abs(v1+(*t1)*(*a1)) <= vMax){  // two segment trajectory
           hppDout(notice,"Trajectory with 2 segments");
           *t2 = T - (*t1);
           *tv = 0.;
