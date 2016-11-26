@@ -146,10 +146,10 @@ namespace hpp {
       for (Constraints_t::iterator itConstraint = constraints_.begin ();
 	   itConstraint != constraints_.end (); ++itConstraint) {
 	if (!(*itConstraint)->isSatisfied (configuration, localError)) {
-	  error.conservativeResize (error.size () + localError.size ());
-	  error.tail (localError.size ()) = localError;
 	  result = false;
 	}
+	error.conservativeResize (error.size () + localError.size ());
+	error.tail (localError.size ()) = localError;
       }
       return result;
     }
