@@ -73,7 +73,7 @@ namespace hpp {
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
-            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&infeasibleInterval);
+            T = computeMinTime(indexConfig,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&infeasibleInterval);
             infIntervalsVector.push_back(infeasibleInterval);
             if(T > Tmax)
               Tmax = T;
@@ -113,7 +113,7 @@ namespace hpp {
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
-            fixedTimeTrajectory(length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2,&vLim);
+            fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
             t1_t[indexConfig]=t1;
             tv_t[indexConfig]=tv;
@@ -136,8 +136,8 @@ namespace hpp {
       
       
       
-      Kinodynamic::Kinodynamic (const Problem& problem) :
-        SteeringMethod (problem), device_ (problem.robot ()), weak_ ()
+      Kinodynamic::Kinodynamic (const ProblemPtr_t& problem) :
+        SteeringMethod (problem), aMax_(Vector3::Ones(3)),vMax_(Vector3::Ones(3)), device_ (problem->robot ()), weak_ ()
       {
         if(((problem->robot()->extraConfigSpace().dimension())) < (2*((problem->robot()->configSize()) - problem->robot()->extraConfigSpace().dimension()))){
           std::cout<<"Error : you need at least "<<2*(problem->robot()->configSize()-problem->robot()->extraConfigSpace().dimension())<<" extra DOF"<<std::endl;
@@ -158,19 +158,22 @@ namespace hpp {
           vMax = 1.;
         }
         hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<<" ; aMax = "<<aMax_);*/
+
+
       }
       
       /// Copy constructor
       Kinodynamic::Kinodynamic (const Kinodynamic& other) :
-        SteeringMethod (other), device_ (other.device_)
+        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_)
       {
       }
       
-      double Kinodynamic::computeMinTime(double p1, double p2, double v1, double v2,interval_t *infInterval) const{
+      double Kinodynamic::computeMinTime(int index, double p1, double p2, double v1, double v2, interval_t *infInterval) const{
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
-        double aMax = aMax_.norm(); // FIX ME , only here for compilation of temporary version
-        double vMax = vMax_.norm();
+        assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
+        double aMax = aMax_[index];
+        double vMax = vMax_[index];
         double t1,t2,tv;
         int sigma;
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
@@ -220,7 +223,6 @@ namespace hpp {
             hppDout(info,"Doesn't respect max velocity, need 3 segments");
           }
         }
-        
         if(twoSegment){ // compute t2 for two segment trajectory
           tv = 0.;
           t2 = ((v2-v1)/a2) + (t1);// eq 14
@@ -304,13 +306,13 @@ namespace hpp {
         return T;
       }
       
-      void Kinodynamic::fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2, double *vLim) const{
+      void Kinodynamic::fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2, double *vLim) const{
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
         double v12 = v1+v2;
         double v2_1 = v2-v1;
         double p2_1 = p2-p1;
-        double aMax = aMax_.norm(); // FIX ME , only here for compilation of temporary version
-        double vMax = vMax_.norm();
+        assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
+        double vMax = vMax_[index];
         hppDout(info,"v12 = "<<v12<<"   ; v21 = "<<v2_1<<"   ; p21 = "<<p2_1);
         
         if(v2_1 == 0 && p2_1 == 0){

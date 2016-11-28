@@ -80,7 +80,7 @@ namespace hpp {
          * @param infInterval : infeasible interval
          * @return T the minimal time
          */
-        double computeMinTime(double p1,double p2, double v1, double v2,interval_t *infInterval) const;
+        double computeMinTime(int index,double p1,double p2, double v1, double v2,interval_t *infInterval) const;
         
         /**
         * @brief fixedTimeTrajectory compute the minimum acceleration trajectory for desired time T (1 dimension)
@@ -96,7 +96,7 @@ namespace hpp {
         * @param t2 time of the last segment
         * @return T the minimal time
         */
-        virtual void fixedTimeTrajectory(double T, double p1, double p2, double v1, double v2, double *a1, double* t1, double* tv, double* t2,double *vLim) const;
+        virtual void fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1, double* t1, double* tv, double* t2,double *vLim) const;
         
 
         
