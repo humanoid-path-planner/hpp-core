@@ -185,8 +185,9 @@ namespace hpp {
       // Loop over robot joint and interpolate
       value_type res = 0;
       const pinocchio::Model& model = robot_->model();
+      assert (model.joints.size() <= weights_.size () + 1);
       for (std::size_t i = 1; i < model.joints.size(); ++i) {
-        value_type length = weights_ [i];
+        value_type length = weights_ [i-1];
         value_type distance = model.joints[i].distance(q1, q2);
         res += length * length * distance * distance;
       }
