@@ -127,6 +127,12 @@ namespace hpp {
       throw (projection_error);
       
 
+      vector_t getT1(){return t1_;}
+
+      vector_t getT2(){return t2_;}
+
+      vector_t getTv(){return tv_;}
+
       
     protected:
       /// Print path in a stream
