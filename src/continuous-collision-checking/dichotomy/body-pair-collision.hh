@@ -44,17 +44,6 @@ namespace hpp {
 	using pinocchio::JointPtr_t;
 	using pinocchio::Transform3f;
 
-	/// Multiplicative coefficients of linear and angular velocities
-	struct CoefficientVelocity
-	{
-	  CoefficientVelocity () : value_ (0)
-	  {
-	  }
-	  /// Joint the degrees of freedom of which the bounds correspond to.
-	  JointPtr_t joint_;
-	  value_type value_;
-	}; // struct CoefficientVelocity
-
 	/// Computation of collision-free sub-intervals of a path
 	///
 	/// This class aims at validating a path for the absence of collision
@@ -247,7 +236,8 @@ namespace hpp {
                 numeric_limits <value_type>::infinity ()) {
               halfLength = numeric_limits <value_type>::infinity ();
             } else {
-              halfLength = (tolerance_ + distanceLowerBound)/maximalVelocity_;
+              halfLength = (tolerance_ + distanceLowerBound)/
+		pathVelocity_.maximalVelocity_;
             }
             assert (!isnan (halfLength));
             intervals_.unionInterval
@@ -429,31 +419,6 @@ namespace hpp {
 
 	      ++i;
 	    }
-	  }
-
-	  /// Compute maximal velocity of points of body1 in the frame of body 2
-	  /// \param path input path
-	  void computeMaximalVelocity ()
-	  {
-            const se3::Model& model = joint_a_->robot ()->model();
-
-	    value_type t0 = path_->timeRange ().first;
-	    value_type t1 = path_->timeRange ().second;
-	    value_type T = t1 - t0;
-	    bool success;
-	    Configuration_t q1 = (*path_) (t0, success);
-	    Configuration_t q2 = (*path_) (t1, success);
-
-	    maximalVelocity_ = 0;
-	    for (std::vector <CoefficientVelocity>::const_iterator itCoef =
-		   coefficients_.begin (); itCoef != coefficients_.end ();
-		 ++itCoef) {
-              JointIndex jid = itCoef->joint_->index();
-	      const value_type& value = itCoef->value_;
-	      //maximalVelocity_ += value * joint->configuration ()->distance
-		    //(q1, q2, joint->rankInConfiguration ()) / T;
-              maximalVelocity_ += value * model.joints[jid].distance (q1, q2) / T;
-            }
 	  }
 
 	  JointPtr_t joint_a_;
