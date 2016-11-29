@@ -29,7 +29,7 @@ namespace hpp {
 	{
 	}
 	/// Joint the degrees of freedom of which the bounds correspond to.
-	JointConstPtr_t joint_;
+	JointPtr_t joint_;
 	value_type value_;
       }; // struct CoefficientVelocity
       typedef std::vector <CoefficientVelocity> CoefficientVelocities_t;
@@ -43,11 +43,9 @@ namespace hpp {
 	{
 	  StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
 	  if (sp) { init (sp); return; }
-	  InterpolatedPathPtr_t ip = HPP_DYNAMIC_PTR_CAST (InterpolatedPath,
-							   path);
+	  InterpolatedPathPtr_t ip = HPP_DYNAMIC_PTR_CAST (InterpolatedPath, path);
 	  if (ip) { init (ip); return; }
-	  throw std::logic_error ("Continuous collision checking: unknown type"
-				  " of paths");
+	  throw std::logic_error ("Unknown type of paths");
 	}
 
 	PathVelocity (CoefficientVelocities_t const* coefs) :
@@ -92,10 +90,9 @@ namespace hpp {
 
 	/// Compute maximal velocity of points of body1 in the frame of body 2
 	/// \param path input path
-	value_type computeMaximalVelocity (const value_type& t0,
-					   ConfigurationIn_t q0,
-					   const value_type& t1,
-					   ConfigurationIn_t q1)
+	value_type computeMaximalVelocity (
+					   const value_type& t0, ConfigurationIn_t q0,
+					   const value_type& t1, ConfigurationIn_t q1) const
 	{
 	  const value_type T = t1 - t0;
 	  if (T == 0) return std::numeric_limits<value_type>::infinity();
@@ -103,10 +100,9 @@ namespace hpp {
 	  value_type maximalVelocity = 0;
 	  for (CoefficientVelocities_t::const_iterator itCoef =
 		 coefs_->begin (); itCoef != coefs_->end (); ++itCoef) {
-	    const JointConstPtr_t& joint = itCoef->joint_;
+	    const JointPtr_t& joint = itCoef->joint_;
 	    const value_type& value = itCoef->value_;
-	    maximalVelocity += value * joint->configuration ()->distance
-	      (q0, q1, joint->rankInConfiguration ()) / T;
+	    maximalVelocity += value * joint->jointModel().distance (q0, q1) / T;
 	  }
 	  return maximalVelocity;
 	}

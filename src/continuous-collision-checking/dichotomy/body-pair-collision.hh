@@ -41,7 +41,7 @@ namespace hpp {
       namespace dichotomy {
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
-	using pinocchio::JointPtr_t;
+	using hpp::pinocchio::JointPtr_t;
 	using pinocchio::Transform3f;
 
 	/// Computation of collision-free sub-intervals of a path
@@ -313,6 +313,13 @@ namespace hpp {
 	    // Find sequence of joints
 	    computeSequenceOfJoints ();
 	    computeCoefficients ();
+	    hppDout (info, "Sequence of joints for joint " << joint_a_->name ()
+		     << " and joint " << joint_b->name ());
+	    for (std::vector <JointIndex>::const_iterator it =
+		   joints_.begin (); it != joints_.end (); ++it) {
+	      pinocchio::Joint joint (joint_a_->robot (), *it);
+	      hppDout (info, joint.name ());
+	    }
 	  }
 
 	  /// Constructor of collision checking with the environment
@@ -348,6 +355,13 @@ namespace hpp {
 	    // Find sequence of joints
 	    computeSequenceOfJoints ();
 	    computeCoefficients ();
+	    hppDout (info, "Sequence of joints for joint " << joint_a_->name ()
+		     << " and joint " << joint_b_->name ());
+	    for (std::vector <JointIndex>::const_iterator it =
+		   joints_.begin (); it != joints_.end (); ++it) {
+	      pinocchio::Joint joint (joint_a_->robot (), *it);
+	      hppDout (info, joint.name ());
+	    }
 	  }
 
 	private:
