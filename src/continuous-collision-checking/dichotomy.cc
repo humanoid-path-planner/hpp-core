@@ -122,8 +122,6 @@ namespace hpp {
 	    return true;
 	  }
 	}
-	StraightPathPtr_t straightPath = HPP_DYNAMIC_PTR_CAST
-	  (StraightPath, path);
 	// for each BodyPairCollision
 	//   - set path,
 	//   - compute valid interval at start (end if reverse)
@@ -133,7 +131,7 @@ namespace hpp {
 	  for (BodyPairCollisions_t::iterator itPair =
 		 bodyPairCollisions_.begin ();
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
-	    (*itPair)->path (straightPath);
+	    (*itPair)->path (path);
 	    // If collision at end point, return false
 	    if (!(*itPair)->validateInterval (t1, *collisionReport)) {
 	      report = CollisionPathValidationReportPtr_t
@@ -177,7 +175,7 @@ namespace hpp {
 	  for (BodyPairCollisions_t::iterator itPair =
 		 bodyPairCollisions_.begin ();
 	       itPair != bodyPairCollisions_.end (); ++itPair) {
-	    (*itPair)->path (straightPath);
+	    (*itPair)->path (path);
 	    // If collision at start point, return false
 	    bool valid = (*itPair)->validateInterval (t0, *collisionReport);
 	    if (!valid) {

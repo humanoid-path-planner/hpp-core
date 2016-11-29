@@ -29,10 +29,11 @@
 # include <hpp/model/joint.hh>
 # include <hpp/model/joint-configuration.hh>
 # include <hpp/core/collision-validation-report.hh>
+# include <hpp/core/interpolated-path.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/projection-error.hh>
 # include "continuous-collision-checking/intervals.hh"
-
+# include "continuous-collision-checking/path-velocity.hh"
 
 namespace hpp {
   namespace core {
@@ -54,17 +55,6 @@ namespace hpp {
 	using model::JointSO3ConstPtr_t;
 	using model::JointAnchorConstPtr_t;
 	using model::Transform3f;
-
-	/// Multiplicative coefficients of linear and angular velocities
-	struct CoefficientVelocity
-	{
-	  CoefficientVelocity () : value_ (0)
-	  {
-	  }
-	  /// Joint the degrees of freedom of which the bounds correspond to.
-	  JointConstPtr_t joint_;
-	  value_type value_;
-	}; // struct CoefficientVelocity
 
 	/// Computation of collision-free sub-intervals of a path
 	///
@@ -155,10 +145,10 @@ namespace hpp {
 	  /// \param path path to validate,
 	  /// Compute maximal velocity of point of body a in frame of body b
 	  /// along the path.
-	  void path (const StraightPathPtr_t& path)
+	  void path (const PathPtr_t& path)
 	  {
 	    path_ = path;
-	    computeMaximalVelocity ();
+            pathVelocity_ = PathVelocity (&coefficients_, path);
 	    intervals_.clear ();
 	  }
 
@@ -233,7 +223,8 @@ namespace hpp {
 		numeric_limits <value_type>::infinity ()) {
 	      halfLength = numeric_limits <value_type>::infinity ();
 	    } else {
-	      halfLength = (tolerance_ + distanceLowerBound)/maximalVelocity_;
+	      halfLength = (tolerance_ + distanceLowerBound)/
+		pathVelocity_.maximalVelocity_;
 	    }
 	    std::string joint2;
 	    if (joint_b_) joint2 = joint_b_->name ();
@@ -251,7 +242,7 @@ namespace hpp {
 
 	  value_type maximalVelocity () const
 	  {
-	    return maximalVelocity_;
+	    return pathVelocity_.maximalVelocity_;
 	  }
 
 	protected:
@@ -265,8 +256,8 @@ namespace hpp {
 			     value_type tolerance):
 	    joint_a_ (joint_a), joint_b_ (joint_b), objects_a_ (),
 	    objects_b_ (), joints_ (),
-	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
-	    tolerance_ (tolerance)
+	    indexCommonAncestor_ (0), coefficients_ (),
+	    pathVelocity_ (&coefficients_), tolerance_ (tolerance)
 	  {
 	    assert (joint_a);
 	    assert (joint_b);
@@ -303,8 +294,8 @@ namespace hpp {
 			     const ObjectVector_t& objects_b,
 			     value_type tolerance) :
 	    joint_a_ (joint_a), joint_b_ (), objects_a_ (), objects_b_ (),
-	    joints_ (),
-	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
+	    joints_ (), indexCommonAncestor_ (0), coefficients_ (),
+	    pathVelocity_ (&coefficients_),
 	    tolerance_ (tolerance)
 	  {
 	    assert (joint_a);
@@ -399,37 +390,15 @@ namespace hpp {
 	    }
 	  }
 
-	  /// Compute maximal velocity of points of body1 in the frame of body 2
-	  /// \param path input path
-	  void computeMaximalVelocity ()
-	  {
-	    value_type t0 = path_->timeRange ().first;
-	    value_type t1 = path_->timeRange ().second;
-	    value_type T = t1 - t0;
-	    bool success;
-	    Configuration_t q1 = (*path_) (t0, success);
-	    Configuration_t q2 = (*path_) (t1, success);
-
-	    maximalVelocity_ = 0;
-	    for (std::vector <CoefficientVelocity>::const_iterator itCoef =
-		   coefficients_.begin (); itCoef != coefficients_.end ();
-		 ++itCoef) {
-	      const JointConstPtr_t& joint = itCoef->joint_;
-	      const value_type& value = itCoef->value_;
-	      maximalVelocity_ += value * joint->configuration ()->distance
-		(q1, q2, joint->rankInConfiguration ()) / T;
-	    }
-	  }
-
 	  JointConstPtr_t joint_a_;
 	  JointConstPtr_t joint_b_;
 	  ObjectVector_t objects_a_;
 	  ObjectVector_t objects_b_;
 	  std::vector <JointConstPtr_t> joints_;
 	  std::size_t indexCommonAncestor_;
-	  std::vector <CoefficientVelocity> coefficients_;
-	  StraightPathPtr_t path_;
-	  value_type maximalVelocity_;
+	  CoefficientVelocities_t coefficients_;
+	  PathPtr_t path_;
+	  PathVelocity pathVelocity_;
 	  Intervals intervals_;
 	  value_type tolerance_;
 	}; // class BodyPairCollision
