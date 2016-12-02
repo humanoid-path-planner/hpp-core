@@ -282,58 +282,65 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 
   BodyPairCollisionPtr_t bpc = BodyPairCollision::create
     (joint_a, joint_b, 0.001);
+  std::ostringstream oss;
   for (std::vector <JointConstPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
-      std::cout << (*it)->name ();
+      oss << (*it)->name ();
     } else {
-      std::cout << "None";
+      oss << "None";
     }
-    std::cout << ", ";
+    oss << ", ";
   }
-  std::cout << std::endl;
+  BOOST_CHECK_EQUAL (oss.str (), "LLEG_5, LLEG_4, LLEG_3, LLEG_2, LLEG_1, LLEG_0, test_SO3, RLEG_0, RLEG_1, RLEG_2, RLEG_3, RLEG_4, RLEG_5, ");
 
+  oss.str ("");
+  oss.clear ();
   ObjectVector_t obstacles;
   obstacles.push_back (createObstacle ());
   bpc = BodyPairCollision::create (joint_a, obstacles, 0.001);
   for (std::vector <JointConstPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
-      std::cout << (*it)->name ();
+      oss << (*it)->name ();
     } else {
-      std::cout << "None";
+      oss << "None";
     }
-    std::cout << ", ";
+    oss << ", ";
   }
-  std::cout << std::endl;
+  BOOST_CHECK_EQUAL (oss.str (), "LLEG_5, LLEG_4, LLEG_3, LLEG_2, LLEG_1, LLEG_0, test_SO3, test_z, test_y, test_x, None, ");
 
+  oss.str ("");
+  oss.clear ();
   joint_a = robot->getJointByBodyName ("LLEG_BODY5");
   joint_b = robot->getJointByBodyName ("LLEG_BODY1");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
   for (std::vector <JointConstPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
-      std::cout << (*it)->name ();
+      oss << (*it)->name ();
     } else {
-      std::cout << "None";
+      oss << "None";
     }
-    std::cout << ", ";
+    oss << ", ";
   }
-  std::cout << std::endl;
+  BOOST_CHECK_EQUAL (oss.str (), "LLEG_5, LLEG_4, LLEG_3, LLEG_2, LLEG_1, ");
 
+  oss.str ("");
+  oss.clear ();
   joint_a = robot->getJointByBodyName ("LLEG_BODY1");
   joint_b = robot->getJointByBodyName ("LLEG_BODY5");
   bpc = BodyPairCollision::create (joint_a, joint_b, 0.001);
   for (std::vector <JointConstPtr_t>::const_iterator it =
 	 bpc->joints ().begin (); it != bpc->joints ().end (); ++it) {
     if (*it) {
-      std::cout << (*it)->name ();
+      oss << (*it)->name ();
     } else {
-      std::cout << "None";
+      oss << "None";
     }
-    std::cout << ", ";
+    oss << ", ";
   }
-  std::cout << std::endl;
+  BOOST_CHECK_EQUAL (oss.str (), "LLEG_1, LLEG_2, LLEG_3, LLEG_4, LLEG_5, ");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
