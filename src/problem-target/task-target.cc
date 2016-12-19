@@ -56,14 +56,14 @@ namespace hpp {
 
       void TaskTarget::initRoadmap ()
       {
-        planner_->roadmap()->resetGoalNodes ();
+        planner_.lock ()->roadmap()->resetGoalNodes ();
         std::size_t trials = 2;
         generateNewConfig (trials);
       }
 
       void TaskTarget::oneStep ()
       {
-        if (goals_.size () > planner_->roadmap()->nodes().size() / 10)
+        if (goals_.size () > planner_.lock ()->roadmap()->nodes().size() / 10)
           return;
         std::size_t trials = 1;
         generateNewConfig (trials);
@@ -83,7 +83,7 @@ namespace hpp {
       ConfigurationPtr_t TaskTarget::shootConfig ()
       {
         ConfigurationPtr_t q;
-        const RoadmapPtr_t& r = planner_->roadmap ();
+        const RoadmapPtr_t& r = planner_.lock ()->roadmap ();
         const NodeVector_t& initCCnodes =
           r->initNode()->connectedComponent()->nodes();
         if (initCCnodes.size() < indexInInitcc_) {
@@ -99,7 +99,7 @@ namespace hpp {
               ));
           indexInInitcc_++;
         } else {
-          q = planner_->problem().configurationShooter()->shoot ();
+          q = planner_.lock ()->problem().configurationShooter()->shoot ();
         }
         return q;
       }
@@ -112,12 +112,12 @@ namespace hpp {
       inline bool TaskTarget::impl_addGoalConfig (const ConfigurationPtr_t& config)
       {
         const ConfigValidationsPtr_t& confValidations =
-          planner_->problem().configValidations();
+          planner_.lock ()->problem().configValidations();
         ValidationReportPtr_t report;
         if (constraints_->apply (*config)) {
           if (confValidations->validate (*config, report)) {
             statistics_.addSuccess ();
-            planner_->roadmap()->addGoalNode (config);
+            planner_.lock ()->roadmap()->addGoalNode (config);
             goals_.push_back (config);
             return true;
           } else

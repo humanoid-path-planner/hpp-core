@@ -47,7 +47,7 @@ namespace hpp {
 
         ValidationReportPtr_t report;
         const ConfigValidationsPtr_t& confValidations =
-          planner_->problem().configValidations();
+          planner_.lock ()->problem().configValidations();
         for (Configurations_t::const_iterator it = goals_.begin ();
             it != goals_.end (); it++) {
           const ConfigurationPtr_t& goalConf (*it);
@@ -61,7 +61,7 @@ namespace hpp {
 
       void GoalConfigurations::initRoadmap ()
       {
-        const RoadmapPtr_t& r = planner_->roadmap();
+        const RoadmapPtr_t& r = planner_.lock ()->roadmap();
         r->resetGoalNodes ();
         for (Configurations_t::const_iterator itGoal = goals_.begin ();
             itGoal != goals_.end (); ++itGoal) {

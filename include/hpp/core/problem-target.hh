@@ -69,8 +69,8 @@ namespace hpp {
         weakPtr_ = weak;
       }
 
-      /// Reference to the problem
-      const PathPlannerPtr_t& planner_;
+      /// Reference to the planner for access to problem and roadmap
+      PathPlannerWkPtr_t planner_;
 
       /// Store weak pointer to itself
       ProblemTargetWkPtr_t weakPtr_;
