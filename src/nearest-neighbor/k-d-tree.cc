@@ -237,8 +237,8 @@ namespace hpp {
     }
 
     NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration,
-			      const ConnectedComponentPtr_t& connectedComponent,
-                              value_type& minDistance) {
+            const ConnectedComponentPtr_t& connectedComponent,
+                              value_type& minDistance, bool reverse) {
       // Test if the configuration is in the root box
       for ( std::size_t i=0 ; i<dim_ ; i++ ) {
 	if ( (*configuration)[i] < lowerBounds_[i] || (*configuration)[i]
@@ -261,7 +261,7 @@ namespace hpp {
     }
 
     NodePtr_t KDTree::search (const NodePtr_t& node,
-			      const ConnectedComponentPtr_t& connectedComponent,
+            const ConnectedComponentPtr_t& connectedComponent,
                               value_type& minDistance) {
       return search (node->configuration (), connectedComponent, minDistance);
     }
@@ -283,7 +283,7 @@ namespace hpp {
     void KDTree::search (value_type boxDistance, value_type& minDistance,
 			 const ConfigurationPtr_t& configuration,
 			 const ConnectedComponentPtr_t& connectedComponent,
-			 NodePtr_t& nearest) {
+       NodePtr_t& nearest,bool reverse) {
       if ( boxDistance < minDistance*minDistance
 	   && nodesMap_.count(connectedComponent) > 0 ) {
 	// minDistance^2 because boxDistance is a squared distance
@@ -292,8 +292,10 @@ namespace hpp {
 	  for (Nodes_t::iterator itNode =
 		 nodesMap_[connectedComponent].begin ();
 	       itNode != nodesMap_[connectedComponent].end (); ++itNode) {
-	    distance = (*distance_) (*configuration,
-				     *((*itNode)->configuration ()));
+      if(reverse)
+        distance = (*distance_) (*configuration,*((*itNode)->configuration ()));
+      else
+        distance = (*distance_) (*((*itNode)->configuration ()),*configuration);
 	    if (distance < minDistance) {
 	      minDistance = distance;
 	      nearest = (*itNode);

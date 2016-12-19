@@ -28,11 +28,12 @@
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/pinocchio/joint.hh>
 # include <hpp/core/collision-validation-report.hh>
+# include <hpp/core/interpolated-path.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/projection-error.hh>
 #include <pinocchio/multibody/geometry.hpp>
 # include "continuous-collision-checking/intervals.hh"
-
+# include "continuous-collision-checking/path-velocity.hh"
 
 namespace hpp {
   namespace core {
@@ -146,10 +147,10 @@ namespace hpp {
 	  /// \param path path to validate,
 	  /// Compute maximal velocity of point of body a in frame of body b
 	  /// along the path.
-	  void path (const StraightPathPtr_t& path)
+	  void path (const PathPtr_t& path)
 	  {
 	    path_ = path;
-	    computeMaximalVelocity ();
+            pathVelocity_ = PathVelocity (&coefficients_, path);
 	    intervals_.clear ();
 	  }
 
@@ -261,7 +262,7 @@ namespace hpp {
 
 	  value_type maximalVelocity () const
 	  {
-	    return maximalVelocity_;
+	    return pathVelocity_.maximalVelocity_;
 	  }
 
           std::ostream& print (std::ostream& os) const
@@ -290,8 +291,8 @@ namespace hpp {
 			     value_type tolerance):
 	    joint_a_ (joint_a), joint_b_ (joint_b), objects_a_ (),
 	    objects_b_ (), joints_ (),
-	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
-	    tolerance_ (tolerance)
+	    indexCommonAncestor_ (0), coefficients_ (),
+	    pathVelocity_ (&coefficients_), tolerance_ (tolerance)
 	  {
 	    assert (joint_a);
 	    assert (joint_b);
@@ -333,8 +334,8 @@ namespace hpp {
 			     const ConstObjectStdVector_t& objects_b,
 			     value_type tolerance) :
 	    joint_a_ (joint_a), joint_b_ (), objects_a_ (), objects_b_ (),
-	    joints_ (),
-	    indexCommonAncestor_ (0), coefficients_ (), maximalVelocity_ (0),
+	    joints_ (), indexCommonAncestor_ (0), coefficients_ (),
+	    pathVelocity_ (&coefficients_),
 	    tolerance_ (tolerance)
 	  {
 	    assert (joint_a);
@@ -461,9 +462,9 @@ namespace hpp {
           ConstObjectStdVector_t objects_b_;
 	  std::vector <JointIndex> joints_;
 	  std::size_t indexCommonAncestor_;
-	  std::vector <CoefficientVelocity> coefficients_;
-	  StraightPathPtr_t path_;
-	  value_type maximalVelocity_;
+	  CoefficientVelocities_t coefficients_;
+	  PathPtr_t path_;
+	  PathVelocity pathVelocity_;
 	  Intervals intervals_;
 	  value_type tolerance_;
 	}; // class BodyPairCollision

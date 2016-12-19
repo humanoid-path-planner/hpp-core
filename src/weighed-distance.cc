@@ -88,7 +88,7 @@ namespace hpp {
 
     void WeighedDistance::setWeight (std::size_t rank, value_type weight )
     {
-      if ( rank < weights_.size() ) 
+      if ( rank < weights_.size() )
       {
 	weights_[rank] = weight;
       }
@@ -98,7 +98,7 @@ namespace hpp {
 	    << weights_.size () << ").";
 	throw std::runtime_error(oss.str ());
       }
-    } 
+    }
 
     void WeighedDistance::computeWeights ()
     {

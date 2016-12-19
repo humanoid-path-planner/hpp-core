@@ -39,18 +39,21 @@ namespace hpp {
       }
 
       NodePtr_t Basic::search (const ConfigurationPtr_t& configuration,
-			       const ConnectedComponentPtr_t&
-				connectedComponent,
-			       value_type& distance)
+             const ConnectedComponentPtr_t&
+        connectedComponent,
+             value_type& distance, bool reverse)
       {
 	NodePtr_t result = NULL;
 	distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
+        value_type d;
 	for (NodeVector_t::const_iterator itNode =
 	       connectedComponent->nodes ().begin ();
 	     itNode != connectedComponent->nodes ().end (); ++itNode) {
-	  value_type d = dist (*(*itNode)->configuration (),
-				       *configuration);
+    if(reverse)
+      d = dist ( *configuration, *(*itNode)->configuration ());
+    else
+      d = dist ( *(*itNode)->configuration (), *configuration);
 	  if (d < distance) {
 	    distance = d;
 	    result = *itNode;
@@ -61,9 +64,9 @@ namespace hpp {
       }
 
       NodePtr_t Basic::search (const NodePtr_t& node,
-			       const ConnectedComponentPtr_t&
-				connectedComponent,
-			       value_type& distance)
+             const ConnectedComponentPtr_t&
+        connectedComponent,
+             value_type& distance)
       {
 	NodePtr_t result = NULL;
 	distance = std::numeric_limits <value_type>::infinity ();

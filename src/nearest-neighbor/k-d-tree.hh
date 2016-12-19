@@ -51,7 +51,7 @@ namespace hpp {
       virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
 			        const ConnectedComponentPtr_t&
 				connectedComponent,
-				value_type& minDistance);
+        value_type& minDistance, bool reverse = false);
 
       // search nearest node
       virtual NodePtr_t search (const NodePtr_t& configuration,
@@ -121,9 +121,9 @@ namespace hpp {
 
       // search nearest node
       void search(value_type boxDistance, value_type& minDistance,
-		  const ConfigurationPtr_t& configuration,
-		  const ConnectedComponentPtr_t& connectedComponent,
-		  NodePtr_t& nearest);
+      const ConfigurationPtr_t& configuration,
+      const ConnectedComponentPtr_t& connectedComponent,
+      NodePtr_t& nearest, bool reverse = false);
 
 
     }; // class KDTree

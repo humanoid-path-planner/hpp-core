@@ -738,7 +738,17 @@ namespace hpp {
 	throw std::runtime_error ("No robot defined.");
       }
       JointPtr_t joint = robot_->getJointByName (jointName);
+      if (!joint) {
+	std::ostringstream oss;
+	oss << "Robot has no joint with name " << jointName << ".";
+	throw std::runtime_error (oss.str ().c_str ());
+      }
       const CollisionObjectPtr_t& object = obstacle (obstacleName);
+      if (!object)  {
+	std::ostringstream oss;
+	oss << "No obstacle with with name " << obstacleName << ".";
+	throw std::runtime_error (oss.str ().c_str ());
+      }
       problem ()->removeObstacleFromJoint (joint, object);
     }
 

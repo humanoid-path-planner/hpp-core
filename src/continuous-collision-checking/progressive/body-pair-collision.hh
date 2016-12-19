@@ -31,13 +31,12 @@
 # include <hpp/core/interpolated-path.hh>
 # include <hpp/core/deprecated.hh>
 # include "continuous-collision-checking/intervals.hh"
-
+# include "continuous-collision-checking/path-velocity.hh"
 
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
       namespace progressive {
-	struct PathVelocity;
 	HPP_PREDEF_CLASS (BodyPairCollision);
 	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
 

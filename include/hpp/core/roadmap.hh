@@ -48,17 +48,21 @@ namespace hpp {
 
       /// Get nearest node to a configuration in the roadmap.
       /// \param configuration configuration
+      /// \param reverse if true, compute distance from given configuration to nodes in roadmap,
+      /// if false from nodes in roadmap to given configuration
       /// \retval distance to the nearest node.
       NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
-			     value_type& minDistance);
+           value_type& minDistance, bool reverse = false);
 
       /// Get nearest node to a configuration in a connected component.
       /// \param configuration configuration
       /// \param connectedComponent the connected component
+      /// \param reverse if true, compute distance from given configuration to nodes in roadmap,
+      /// if false from nodes in roadmap to given configuration
       /// \retval distance to the nearest node.
       NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
 			     const ConnectedComponentPtr_t& connectedComponent,
-			     value_type& minDistance);
+           value_type& minDistance, bool reverse = false);
 
       /// Add a node and two edges
       /// \param from node from which the edge starts,
@@ -72,6 +76,33 @@ namespace hpp {
       NodePtr_t addNodeAndEdges (const NodePtr_t from,
 				 const ConfigurationPtr_t& to,
 				 const PathPtr_t path);
+
+      /// Add a node and one edge
+      /// \param from node from which the edge starts,
+      /// \param to configuration to which the edge stops
+      /// \param path path between both configurations
+      /// \return node containing configuration <c>to</c>.
+      /// Add the oriented edge (from -> to)
+      /// \note this function simplifies the management of connected components
+      ///       since it adds the new node in the connected component of
+      ///       <c>from</c>.
+      NodePtr_t addNodeAndEdge (const NodePtr_t from,
+                 const ConfigurationPtr_t& to,
+                 const PathPtr_t path);
+
+      /// Add a node and one edge
+      /// \param from configuration from which the edge starts,
+      /// \param to node to which the edge stops
+      /// \param path path between both configurations
+      /// \return node containing configuration <c>from</c>.
+      /// Add the oriented edge (from -> to)
+      /// \note this function simplifies the management of connected components
+      ///       since it adds the new node in the connected component of
+      ///       <c>to</c>.
+      NodePtr_t addNodeAndEdge (const ConfigurationPtr_t& from,
+                      const NodePtr_t to,
+                      const PathPtr_t path);
+
 
       /// Add a goal configuration
       /// \param config configuration
