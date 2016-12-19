@@ -118,6 +118,7 @@ namespace hpp {
 	long int i = imax; // i should be a signed int otherwise the loop below
 	                   // fails.
 	do {
+	  // t1max >= t1min
 	  t1min = paths_ [i]->timeRange ().second;
 	  t1max = paths_ [i]->timeRange ().first;
 	  if (i == (long int) imax) {
@@ -126,6 +127,12 @@ namespace hpp {
 	  if (i == (long int) imin) {
 	    t1max = localtmin;
 	  }
+	  assert (t1max - paths_ [i]->timeRange ().first >
+		  -std::numeric_limits <float>::epsilon ());
+	  assert (t1min - paths_ [i]->timeRange ().second <
+		  std::numeric_limits <float>::epsilon ());
+	  t1min = std::max (t1min, paths_ [i]->timeRange ().first);
+	  t1max = std::min (t1max, paths_ [i]->timeRange ().second);
 	  path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
 	  --i;
 	} while (i >= (long int) imin);
@@ -138,6 +145,7 @@ namespace hpp {
 	value_type t1min, t1max;
 	std::size_t i = imin;
 	do {
+	  // t1max >= t1min
 	  t1min = paths_ [i]->timeRange ().first;
 	  t1max = paths_ [i]->timeRange ().second;
 	  if (i == imin) {
@@ -146,6 +154,13 @@ namespace hpp {
 	  if (i == imax) {
 	    t1max = localtmax;
 	  }
+	  // Check numerical precision
+	  assert (t1min - paths_ [i]->timeRange ().first >
+		  -std::numeric_limits <float>::epsilon ());
+	  assert (t1max - paths_ [i]->timeRange ().second <
+		  std::numeric_limits <float>::epsilon ());
+	  t1min = std::max (t1min, paths_ [i]->timeRange ().first);
+	  t1max = std::min (t1max, paths_ [i]->timeRange ().second);
 	  path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
 	  ++i;
 	} while (i <= imax);

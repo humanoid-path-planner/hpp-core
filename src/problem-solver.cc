@@ -98,8 +98,8 @@ namespace hpp {
       add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
 
       add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
-
-      add <DistanceBuilder_t> ("WeighedDistance",WeighedDistance::create);
+      add <DistanceBuilder_t> ("WeighedDistance",
+			       WeighedDistance::createFromProblem);
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
             static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
               (&SteeringMethodStraight::create), _1
@@ -425,7 +425,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       DistancePtr_t dist (
-          get <DistanceBuilder_t> (distanceType_) (problem_->robot())
+          get <DistanceBuilder_t> (distanceType_) (problem_)
           );
       problem_->distance (dist);
     }

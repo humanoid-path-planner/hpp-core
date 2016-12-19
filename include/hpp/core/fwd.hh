@@ -234,6 +234,11 @@ namespace hpp {
       typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
     } // namespace continuousCollisionChecking
 
+    namespace distance {
+      HPP_PREDEF_CLASS (ReedsShepp);
+      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+    } // namespace distance
+
     class NearestNeighbor;
     typedef NearestNeighbor* NearestNeighborPtr_t;
     namespace nearestNeighbor {
