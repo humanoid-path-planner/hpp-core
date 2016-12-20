@@ -51,6 +51,22 @@ namespace hpp {
       }
     };
 
+    PathPtr_t RandomShortcutOriented::steer (ConfigurationIn_t q1,
+        ConfigurationIn_t q2) const
+    {
+      PathPtr_t dp = (*problem().steeringMethod())(q1,q2);
+      if (dp) {
+        if((dp->initial() != q1)  || (dp->end() != q2)){
+          return PathPtr_t ();
+        }
+        if (!problem().pathProjector()) return dp;
+        PathPtr_t pp;
+        if (problem().pathProjector()->apply (dp, pp))
+          return pp;
+      }
+      return PathPtr_t ();
+    }
+
     RandomShortcutOrientedPtr_t
     RandomShortcutOriented::create (const Problem& problem)
     {
