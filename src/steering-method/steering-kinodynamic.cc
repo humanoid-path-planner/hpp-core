@@ -172,7 +172,7 @@ namespace hpp {
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
         assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
-        double aMax = aMax_[index];
+        double aMax = std::fabs(aMax_.norm());
         double vMax = vMax_[index];
         double t1,t2,tv;
         int sigma;
