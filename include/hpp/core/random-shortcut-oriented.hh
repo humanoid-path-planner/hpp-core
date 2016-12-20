@@ -44,6 +44,9 @@ namespace hpp {
       virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
     protected:
       RandomShortcutOriented (const Problem& problem);
+
+      PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+
     }; // class RandomShortcut
     /// \}
   } // namespace core
