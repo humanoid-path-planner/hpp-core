@@ -269,20 +269,20 @@ namespace hpp {
           result = PathVector::create (pv->outputSize (),
               pv->outputDerivativeSize ());
           if (valid [0])
-            result->concatenate (*straight [0]);
+            result->concatenate (straight [0]);
           else
-            result->concatenate (*(current->extract
+            result->concatenate ((current->extract
                   (std::make_pair (t0, t1))-> as <PathVector> ()));
           if (valid [1])
-            result->concatenate (*straight [1]);
+            result->concatenate (straight [1]);
           else
-            result->concatenate (*(current->extract
+            result->concatenate ((current->extract
                   (std::make_pair (t1, t2))-> as <PathVector> ()));
           if (valid [2])
-            result->concatenate (*straight [2]);
+            result->concatenate (straight [2]);
           else
-            result->concatenate (*(current->extract
-                  (std::make_pair (t2, t3))-> as <PathVector> ()));
+            result->concatenate
+	      (current->extract (std::make_pair (t2, t3))-> as <PathVector> ());
 
           newLength = pathLength (result, problem ().distance ());
           if (newLength >= length) {

@@ -80,6 +80,13 @@ namespace hpp {
       }
     }
 
+    void PathVector::concatenate (const PathVectorPtr_t& path)
+    {
+      for (std::size_t i=0; i<path->numberPaths (); ++i) {
+	appendPath (path->pathAtRank (i)->copy ());
+      }
+    }
+
     void PathVector::flatten (PathVectorPtr_t p) const
     {
       for (std::size_t i = 0; i < numberPaths (); ++i) {
