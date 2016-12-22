@@ -44,6 +44,10 @@ namespace hpp {
 	localParam = paths_ [res]->timeRange ().second;
       }
       localParam += paths_ [res]->timeRange ().first;
+      assert (localParam >= paths_ [res]->timeRange ().first -
+	      std::numeric_limits <float>::epsilon ());
+      assert (localParam <= paths_ [res]->timeRange ().second +
+	      std::numeric_limits <float>::epsilon ());
       return res;
     }
 

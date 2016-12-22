@@ -103,8 +103,10 @@ namespace hpp {
 	// path->reversed_ = ((this->reversed_) && (!reversed)) ||
 	  // ((!this->reversed_) && (reversed));
 	path->timeRange_ = std::make_pair (tmin, tmax);
-	assert (path->timeRange_.first >= timeRange ().first);
-	assert (path->timeRange_.second <= timeRange ().second);
+	assert (path->timeRange_.first >= timeRange ().first -
+		std::numeric_limits <float>::epsilon ());
+	assert (path->timeRange_.second <= timeRange ().second +
+		std::numeric_limits <float>::epsilon ());
 	return path;
       }
 
