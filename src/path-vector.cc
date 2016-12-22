@@ -42,8 +42,9 @@ namespace hpp {
 	  throw std::runtime_error ("localparam out of range.");
 	}
 	localParam = paths_ [res]->timeRange ().second;
+      } else {
+	localParam += paths_ [res]->timeRange ().first;
       }
-      localParam += paths_ [res]->timeRange ().first;
       assert (localParam >= paths_ [res]->timeRange ().first -
 	      std::numeric_limits <float>::epsilon ());
       assert (localParam <= paths_ [res]->timeRange ().second +
