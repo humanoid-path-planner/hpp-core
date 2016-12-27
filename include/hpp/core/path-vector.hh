@@ -47,19 +47,19 @@ namespace hpp {
       }
 
       /// Create instance and return shared pointer
-      static PathVectorPtr_t createCopy (const PathVector& original)
+      static PathVectorPtr_t createCopy (const PathVectorPtr_t& original)
       {
-	PathVector* ptr = new PathVector (original);
+	PathVector* ptr = new PathVector (*original);
 	PathVectorPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
 
       /// Create instance and return shared pointer
-      static PathVectorPtr_t createCopy (const PathVector& original,
+      static PathVectorPtr_t createCopy (const PathVectorPtr_t& original,
 					 const ConstraintSetPtr_t& constraints)
       {
-	PathVector* ptr = new PathVector (original, constraints);
+	PathVector* ptr = new PathVector (*original, constraints);
 	PathVectorPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -68,7 +68,7 @@ namespace hpp {
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const
       {
-	return createCopy (*this);
+	return createCopy (weak_.lock ());
       }
       
       /// Return a shared pointer to a copy of this with constraints
@@ -76,7 +76,7 @@ namespace hpp {
       /// \precond *this should not have constraints.
       virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
       {
-	return createCopy (*this, constraints);
+	return createCopy (weak_.lock (), constraints);
       }
       
       /// Destructor
@@ -110,7 +110,15 @@ namespace hpp {
       void appendPath (const PathPtr_t& path);
 
       /// Concatenate two vectors of path
-      void concatenate (const PathVector& path);
+      /// \deprecated use void method concatenate (const PathVectorPtr_t& path)
+      ///             instead.
+      void concatenate (const PathVector& path) HPP_CORE_DEPRECATED;
+
+      /// Concatenate two vectors of path
+      /// \param path path to append at the end of this one
+      ///
+      /// Each element of path is appended to this one.
+      void concatenate (const PathVectorPtr_t& path);
 
       /// Extraction of a sub-path
       /// \param subInterval interval of definition of the extract path

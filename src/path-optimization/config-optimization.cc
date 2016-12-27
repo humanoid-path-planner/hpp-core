@@ -116,7 +116,7 @@ namespace hpp {
               if (isValid (link)) {
                 opted = optedF;
                 opted->appendPath (link);
-                opted->concatenate (*optedB);
+                opted->concatenate (optedB);
                 /// OptedF is a valid optimization.
                 value_type optedLength = pathLength (opted, problem().distance());
                 if (optedLength < length) {

@@ -89,7 +89,9 @@ namespace hpp {
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
-      errorThreshold_ (1e-4), maxIterations_ (20),
+      errorThreshold_ (1e-4), maxIterProjection_ (20),
+      maxIterPathPlanning_ (std::numeric_limits
+			    <unsigned long int>::infinity ()),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -274,7 +276,7 @@ namespace hpp {
       ConfigProjectorPtr_t  configProjector = goalConstraints_->configProjector ();
       if (!configProjector) {
 	configProjector = ConfigProjector::create
-	  (robot_, "Goal ConfigProjector", errorThreshold_, maxIterations_);
+	  (robot_, "Goal ConfigProjector", errorThreshold_, maxIterProjection_);
 	goalConstraints_->addConstraint (configProjector);
       }
       configProjector->add (lj);
@@ -290,7 +292,7 @@ namespace hpp {
       ConfigProjectorPtr_t  configProjector = goalConstraints_->configProjector ();
       if (!configProjector) {
 	configProjector = ConfigProjector::create
-	  (robot_, constraintName, errorThreshold_, maxIterations_);
+	  (robot_, constraintName, errorThreshold_, maxIterProjection_);
 	goalConstraints_->addConstraint (configProjector);
       }
       configProjector->add (numericalConstraint (functionName),
@@ -318,7 +320,7 @@ namespace hpp {
       ConfigProjectorPtr_t  configProjector = constraints_->configProjector ();
       if (!configProjector) {
 	configProjector = ConfigProjector::create
-	  (robot_, "ConfigProjector", errorThreshold_, maxIterations_);
+	  (robot_, "ConfigProjector", errorThreshold_, maxIterProjection_);
 	constraints_->addConstraint (configProjector);
       }
       configProjector->add (lj);
@@ -340,7 +342,7 @@ namespace hpp {
       ConfigProjectorPtr_t  configProjector = constraints_->configProjector ();
       if (!configProjector) {
 	configProjector = ConfigProjector::create
-	  (robot_, constraintName, errorThreshold_, maxIterations_);
+	  (robot_, constraintName, errorThreshold_, maxIterProjection_);
 	constraints_->addConstraint (configProjector);
       }
       if (!has <NumericalConstraintPtr_t> (functionName)) {
@@ -473,6 +475,7 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner =
         get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
+      pathPlanner_->maxIterations (maxIterPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();
       /// create Path projector
       initPathProjector ();

@@ -60,6 +60,8 @@ namespace hpp {
       virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
       /// Interrupt path planning
       void interrupt ();
+      /// Set maximal number of iterations
+      void maxIterations (const unsigned long int& n);
       /// Find a path in the roadmap and transform it in trajectory
       PathVectorPtr_t computePath () const;
     protected:
@@ -79,6 +81,9 @@ namespace hpp {
       /// Pointer to the roadmap.
       const RoadmapPtr_t roadmap_;
       bool interrupt_;
+      /// Maximal number of iterations to solve a problem
+      /// reaching this bound raises an exception.
+      unsigned long int maxIterations_;
       /// Store weak pointer to itself
       PathPlannerWkPtr_t weakPtr_;
     }; // class PathPlanner
