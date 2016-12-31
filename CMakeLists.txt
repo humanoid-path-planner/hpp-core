@@ -46,6 +46,10 @@ IF (HPP_BENCHMARK)
 ENDIF()
 # Ask Doxygen to create a tree view in html documentation
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
+
+# Add a cache variable to allow not compiling and running tests
+set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
+
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/basic-configuration-shooter.hh
@@ -123,7 +127,14 @@ ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
 
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(tests)
+IF (RUN_TESTS)
+  SET(BOOST_COMPONENTS system timer unit_test_framework)
+  SEARCH_FOR_BOOST()
+  ADD_SUBDIRECTORY(tests)
+ELSE ()
+  SET(BOOST_COMPONENTS system)
+  SEARCH_FOR_BOOST()
+ENDIF ()
 
 # Add dependency toward hpp-core library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")

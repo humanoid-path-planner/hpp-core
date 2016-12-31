@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
 
-SET(BOOST_COMPONENTS system timer unit_test_framework)
-SEARCH_FOR_BOOST()
-
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
 
