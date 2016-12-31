@@ -14,6 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/lexical_cast.hpp>
 #include <hpp/util/debug.hh>
 #include "hpp/core/parser/roadmap-factory.hh"
 

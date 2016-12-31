@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/utility.hpp>
 #include <hpp/util/debug.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
