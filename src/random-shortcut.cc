@@ -128,21 +128,21 @@ namespace hpp {
           if (valid [0])
             result->appendPath (proj [0]);
           else
-            result->concatenate (*(tmpPath->extract
-                  (make_pair <value_type,value_type> (t0, t1))->
-                  as <PathVector> ()));
+            result->concatenate (tmpPath->extract
+				 (make_pair <value_type,value_type> (t0, t1))->
+				 as <PathVector> ());
           if (valid [1])
             result->appendPath (proj [1]);
           else
-            result->concatenate (*(tmpPath->extract
-                  (make_pair <value_type,value_type> (t1, t2))->
-                  as <PathVector> ()));
+            result->concatenate (tmpPath->extract
+				 (make_pair <value_type,value_type> (t1, t2))->
+				 as <PathVector> ());
           if (valid [2])
             result->appendPath (proj [2]);
           else
-            result->concatenate (*(tmpPath->extract
-                  (make_pair <value_type, value_type> (t2, t3))->
-                  as <PathVector> ()));
+            result->concatenate (tmpPath->extract
+				 (make_pair <value_type, value_type> (t2, t3))->
+				 as <PathVector> ());
         } catch (const projection_error& e) {
           hppDout (error, "Caught exception at with time " << t1 << " and " <<
               t2 << ": " << e.what ());
