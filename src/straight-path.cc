@@ -17,6 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
+#include <hpp/util/exception.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/core/config-projector.hh>
@@ -84,6 +85,24 @@ namespace hpp {
 	u = 0;
       model::interpolate (device_, initial_, end_, u, result);
       return true;
+    }
+
+    void StraightPath::impl_derivative (vectorOut_t result, const value_type&,
+					size_type order) const
+    {
+      result = vector_t (outputDerivativeSize ());
+      if (order > 1) {
+	result.setZero ();
+	return;
+      }
+      if (order == 1) {
+	model::difference (device_, end_, initial_, result);
+	result = (1/timeRange ().second) * result;
+	return;
+      }
+      std::ostringstream oss;
+      oss << "order of derivative (" << order << ") should be positive.";
+      HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
     }
 
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const

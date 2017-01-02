@@ -126,6 +126,31 @@ namespace hpp {
       return true;
     }
 
+    void InterpolatedPath::impl_derivative
+    (vectorOut_t result, const value_type& param, size_type order) const
+    {
+      assert (param >= timeRange().first);
+      if (param == timeRange ().first || timeRange ().second == 0) {
+	result.noalias () = initial();
+	return;
+      }
+      if (param >= timeRange ().second) {
+	result.noalias () = end();
+	return;
+      }
+      InterpolationPoints_t::const_iterator itA = configs_.lower_bound (param);
+      InterpolationPoints_t::const_iterator itB = itA; --itB;
+      const value_type T = itA->first - itB->first;
+      if (order > 1) {
+	result.setZero ();
+	return;
+      }
+      if (order == 1) {
+	model::difference (device_, itA->second, itB->second, result);
+	result = (1/T) * result;
+      }
+    }
+
     PathPtr_t InterpolatedPath::extract (const interval_t& subInterval) const
         throw (projection_error)
     {
