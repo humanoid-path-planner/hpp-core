@@ -18,6 +18,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <hpp/util/debug.hh>
+#include <hpp/util/exception.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 #include <hpp/model/joint-configuration.hh>
@@ -557,6 +558,7 @@ namespace hpp {
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
       parent_t (path), device_ (path.device_), initial_ (path.initial_),
       end_ (path.end_), xyId_ (path.xyId_), rzId_ (path.rzId_),
+      dxyId_ (path.dxyId_), drzId_ (path.drzId_),
       wheels_ (path.wheels_),
       typeId_ (path.typeId_), lengths_(path.lengths_), rho_ (path.rho_)
     {
@@ -611,6 +613,15 @@ namespace hpp {
 
     void ReedsSheppPath::buildReedsShepp()
     {
+      // Find rank of translation and rotation in velocity vectors
+      // Hypothesis: degrees of freedom all belong to a planar joint or
+      // xyId_ belong to a tranlation joint, rzId_ belongs to a SO2 joint.
+      JointPtr_t joint (device_->getJointAtConfigRank (xyId_));
+      size_type offset (xyId_ - joint->rankInConfiguration ());
+      dxyId_ = joint->rankInVelocity () + offset;
+      joint = device_->getJointAtConfigRank (rzId_);
+      offset = rzId_ - joint->rankInConfiguration ();
+      drzId_ = joint->rankInVelocity () + offset;
       // rotate
       vector2_t xy =
         rotate(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_),
@@ -631,7 +642,8 @@ namespace hpp {
     bool ReedsSheppPath::impl_compute (ConfigurationOut_t result,
 				 value_type param) const
     {
-      if (param <= timeRange ().first || timeRange ().second == 0) {
+      if (param <= timeRange ().first ||
+	  timeRange ().second == timeRange ().first) {
 	result = initial_;
 	return true;
       }
@@ -708,5 +720,94 @@ namespace hpp {
       }
       return true;
     }
+
+    void ReedsSheppPath::impl_derivative
+    (vectorOut_t result, const value_type& param, size_type order) const
+    {
+      value_type p (param);
+      if (order != 1) {
+	std::ostringstream oss;
+	oss << "derivative only implemented for order 1: got" << order;
+	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
+      }
+      if (p <= timeRange ().first ||
+	  timeRange ().second == timeRange ().first) {
+	p = timeRange ().first;
+      }
+      if (p >= timeRange ().second) {
+	p = timeRange ().second;
+      }
+      // Does a linear interpolation on all the joints.
+      if (order > 1) {
+	result.setZero ();
+      }
+      else if (order == 1) {
+	model::difference (device_, end_, initial_, result);
+	result = (1/timeRange ().second) * result;
+      } else {
+	std::ostringstream oss;
+	oss << "order of derivative (" << order << ") should be positive.";
+	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
+      }
+
+      // Compute the position of the car.
+      result.segment <2> (xyId_).setZero();
+      value_type t = p/rho_, v,
+                 phi = atan2(initial_(rzId_+1), initial_(rzId_));
+      value_type dPhi = sqrt (-1);
+      if (t == 0) t = std::numeric_limits <value_type>::epsilon ();
+      for (unsigned int i=0; i<5 && t>0; ++i)
+      {
+	value_type forward;
+        if (lengths_[i] < 0) {
+          v = std::max(-t, lengths_[i]);
+          t += v;
+	  forward = -1.;
+        } else {
+          v = std::min(t, lengths_[i]);
+          t -= v;
+	  forward = 1.;
+        }
+
+        switch(types[typeId_][i])
+        {
+          case RS_LEFT:
+	    // Fill velocity only for last segment
+	    if (t <= 0) {
+	      result(xyId_+0) = forward * cos (phi+v);
+	      result(xyId_+1) = forward * sin (phi+v);
+	      dPhi = forward;
+	    }
+            phi += v;
+            break;
+          case RS_RIGHT:
+	    // Fill velocity only for last segment
+	    if (t <= 0) {
+	      result(xyId_+0) = forward * cos (phi-v);
+	      result(xyId_+1) = forward * sin (phi-v);
+	      dPhi = -forward;
+	    }
+            phi -= v;
+            break;
+          case RS_STRAIGHT:
+	    // Fill velocity only for last segment
+	    if (t <= 0) {
+	      result(xyId_+0) = forward * cos(phi);
+	      result(xyId_+1) = forward * sin(phi);
+	      dPhi = 0;
+	    }
+            break;
+          case RS_NOP:
+            break;
+        }
+      }
+      assert (!isnan (dPhi));
+      result.segment <2> (dxyId_);
+      result(drzId_) = dPhi / rho_;
+      for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+	   _w != wheels_.end(); ++_w)
+	result(_w->j->rankInConfiguration()) = 0;
+    }
+
   } //   namespace hpp-core
 } // namespace hpp

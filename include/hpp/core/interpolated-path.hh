@@ -197,7 +197,9 @@ namespace hpp {
 
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;
-
+      /// Virtual implementation of derivative
+      virtual void impl_derivative (vectorOut_t result, const value_type& t,
+				    size_type order) const;
     private:
       DevicePtr_t device_;
       InterpolationPoints_t configs_;

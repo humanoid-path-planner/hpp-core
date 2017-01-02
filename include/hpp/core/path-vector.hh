@@ -189,6 +189,9 @@ namespace hpp {
 	weak_ = self;
       }
       virtual bool impl_compute (ConfigurationOut_t result, value_type t) const;
+      /// Virtual implementation of derivative
+      virtual void impl_derivative (vectorOut_t result, const value_type& t,
+				    size_type order) const;
 
     private:
       Paths_t paths_;
