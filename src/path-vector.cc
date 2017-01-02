@@ -114,6 +114,18 @@ namespace hpp {
       return (*subpath) (result, localParam);
     }
 
+    void PathVector::impl_derivative (vectorOut_t result, const value_type& t,
+				      size_type order) const
+    {
+      // Find direct path in vector corresponding to parameter.
+      size_t rank;
+      value_type localParam;
+      rank = rankAtParam (t, localParam);
+
+      PathPtr_t subpath = paths_ [rank];
+      subpath->impl_derivative (result, localParam, order);
+    }
+
     PathPtr_t PathVector::extract (const interval_t& subInterval) const
         throw (projection_error)
     {

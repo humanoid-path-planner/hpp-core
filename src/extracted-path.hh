@@ -86,6 +86,18 @@ namespace hpp {
 	}
       }
 
+      virtual void impl_derivative (vectorOut_t result, const value_type& t,
+				    size_type order) const
+      {
+	if (reversed_) {
+	  value_type param = (timeRange ().first + timeRange ().second - t);
+	  original_->impl_derivative (result, param, order);
+	  if (order % 2 == 1) result *= -1.;
+	} else {
+	  original_->impl_derivative (result, t, order);
+	}
+      }
+
       virtual PathPtr_t extract (const interval_t& subInterval) const
         throw (projection_error)
       {
