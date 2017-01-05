@@ -47,8 +47,8 @@ locked-joint.cc
 #########################"
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
-  nearest-neighbor/k-d-tree.cc #
-  nearest-neighbor/k-d-tree.hh #
+  # nearest-neighbor/k-d-tree.cc #
+  # nearest-neighbor/k-d-tree.hh #
   numerical-constraint.cc #
   node.cc #
   path.cc #
