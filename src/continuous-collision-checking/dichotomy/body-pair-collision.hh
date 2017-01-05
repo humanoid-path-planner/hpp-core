@@ -356,7 +356,7 @@ namespace hpp {
 	    computeSequenceOfJoints ();
 	    computeCoefficients ();
 	    hppDout (info, "Sequence of joints for joint " << joint_a_->name ()
-		     << " and joint " << joint_b_->name ());
+		     << " and objects.");
 	    for (std::vector <JointIndex>::const_iterator it =
 		   joints_.begin (); it != joints_.end (); ++it) {
 	      pinocchio::Joint joint (joint_a_->robot (), *it);
