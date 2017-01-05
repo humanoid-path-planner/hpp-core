@@ -698,7 +698,8 @@ namespace hpp {
             name, obsModel.getFrameId("obstacle_frame", se3::BODY), 0,
             inObject.collisionGeometry(),
             se3::toPinocchioSE3(inObject.getTransform()),
-            ""),
+            "",
+            vector3_t::Ones()),
           obsModel);
       // Update obstacleData_
       // FIXME This should be done in Pinocchio

@@ -103,7 +103,7 @@ DevicePtr_t createRobot ()
   robot->model().addBodyFrame("body", idX, se3::SE3::Identity());
   FrameIndex bodyId = robot->model().getFrameId("body");
   robot->geomModel().addGeometryObject(
-      se3::GeometryObject("obstacle", bodyId, idX, object.collisionGeometry(), mat, ""),
+      se3::GeometryObject("obstacle", bodyId, idX, object.collisionGeometry(), mat, "", hpp::pinocchio::vector3_t::Ones()),
       robot->model());
 
   robot->createData();
