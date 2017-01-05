@@ -17,21 +17,64 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/problem.hh>
 
 #include <limits>
 
 #include <Eigen/SVD>
 
+#include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/algorithm/jacobian.hpp>
 
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/liegroup.hh>
+
+#include <hpp/core/problem.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      struct SquaredDistanceStep : public se3::fusion::JointModelVisitor<SquaredDistanceStep>
+      {
+        typedef boost::fusion::vector<const Configuration_t &,
+                const Configuration_t &,
+                const value_type &,
+                value_type &> ArgsType;
+
+        JOINT_MODEL_VISITOR_INIT(SquaredDistanceStep);
+
+        template<typename JointModel>
+        static void algo(const se3::JointModelBase<JointModel> & jmodel,
+            const Configuration_t & q0,
+            const Configuration_t & q1,
+            const value_type & w,
+            value_type & distance)
+        {
+          distance = ::hpp::pinocchio::LieGroupTpl::template operation<JointModel>::type
+            ::squaredDistance(
+                jmodel.jointConfigSelector(q0),
+                jmodel.jointConfigSelector(q1),
+                w);
+        }
+
+      };
+
+      template <>
+      void SquaredDistanceStep::algo<se3::JointModelComposite>(
+          const se3::JointModelBase<se3::JointModelComposite> & jmodel,
+          const Configuration_t & q0,
+          const Configuration_t & q1,
+          const value_type & w,
+          value_type & distance)
+      {
+        se3::details::Dispatch<SquaredDistanceStep>::run(
+            jmodel.derived(),
+            ArgsType(q0, q1, w, distance));
+      }
+    }
+
     std::ostream& operator<< (std::ostream& os, const std::vector <value_type>& v)
     {
       for (std::size_t i=0; i<v.size (); ++i) {
@@ -182,14 +225,17 @@ namespace hpp {
     value_type WeighedDistance::impl_distance (ConfigurationIn_t q1,
 					       ConfigurationIn_t q2) const
     {
-      // Loop over robot joint and interpolate
-      value_type res = 0;
+      value_type res = 0, d;
+
       const pinocchio::Model& model = robot_->model();
       assert (model.joints.size() <= weights_.size () + 1);
-      for (std::size_t i = 1; i < model.joints.size(); ++i) {
+      // Loop over robot joint
+      for( se3::JointIndex i=1; i<(se3::JointIndex) model.njoints; ++i )
+      {
         value_type length = weights_ [i-1];
-        value_type distance = model.joints[i].distance(q1, q2);
-        res += length * length * distance * distance;
+        SquaredDistanceStep::ArgsType args(q1, q2, length * length, d);
+        SquaredDistanceStep::run(model.joints[i], args);
+        res += d;
       }
       res+=(q1 - q2).tail (robot_->extraConfigSpace ().dimension()).squaredNorm ();
       return sqrt (res);
