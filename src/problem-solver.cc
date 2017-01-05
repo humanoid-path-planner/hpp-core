@@ -540,14 +540,9 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
-
       // Set shooter
       problem_->configurationShooter
         (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
-      // set distance
-      initDistance();
-      // build roadmap with new distance
-      resetRoadmap();
       // Set steeringMethod
       initSteeringMethod ();
       PathPlannerBuilder_t createPlanner =
