@@ -16,12 +16,16 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/diffusing-planner.hh>
+
 #include <boost/tuple/tuple.hpp>
+
 #include <hpp/util/debug.hh>
+#include <hpp/util/timer.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
+
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/path.hh>
@@ -33,7 +37,15 @@
 
 namespace hpp {
   namespace core {
-    using pinocchio::displayConfig;
+    namespace {
+      using pinocchio::displayConfig;
+
+      HPP_DEFINE_TIMECOUNTER(oneStep);
+      HPP_DEFINE_TIMECOUNTER(extend);
+      HPP_DEFINE_TIMECOUNTER(tryConnect);
+      HPP_DEFINE_TIMECOUNTER(validatePath);
+      HPP_DEFINE_TIMECOUNTER(delayedEdges);
+    }
 
     DiffusingPlannerPtr_t DiffusingPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)
@@ -127,6 +139,8 @@ namespace hpp {
 
     void DiffusingPlanner::oneStep ()
     {
+      HPP_START_TIMECOUNTER(oneStep);
+
       typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
@@ -147,11 +161,15 @@ namespace hpp {
 	value_type distance;
 	NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
         nearestNeighbors.push_back (near);
+        HPP_START_TIMECOUNTER(extend);
 	path = extend (near, q_rand);
+        HPP_STOP_TIMECOUNTER(extend);
 	if (path) {
 	  PathValidationReportPtr_t report;
+          HPP_START_TIMECOUNTER(validatePath);
 	  bool pathValid = pathValidation->validate (path, false, validPath,
 						     report);
+          HPP_STOP_TIMECOUNTER(validatePath);
 	  // Insert new path to q_near in roadmap
 	  value_type t_final = validPath->timeRange ().second;
 	  if (t_final != path->timeRange ().first) {
@@ -170,6 +188,7 @@ namespace hpp {
 	}
       }
       // Insert delayed edges
+      HPP_START_TIMECOUNTER(delayedEdges);
       for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
 	   itEdge != delayedEdges.end (); ++itEdge) {
 	const NodePtr_t& near = itEdge-> get <0> ();
@@ -179,10 +198,12 @@ namespace hpp {
 	roadmap ()->addEdge (near, newNode, validPath);
 	roadmap ()->addEdge (newNode, near, validPath->reverse());
       }
+      HPP_STOP_TIMECOUNTER(delayedEdges);
 
       //
       // Second, try to connect new nodes together
       //
+      HPP_START_TIMECOUNTER(tryConnect);
       const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       for (Nodes_t::const_iterator itn1 = newNodes.begin ();
 	   itn1 != newNodes.end (); ++itn1) {
@@ -195,7 +216,9 @@ namespace hpp {
 	  path = (*sm) (*q1, *q2);
 	  PathValidationReportPtr_t report;
           if (!path) continue;
+          HPP_START_TIMECOUNTER(validatePath);
 	  bool valid = pathValidation->validate (path, false, validPath, report);
+          HPP_STOP_TIMECOUNTER(validatePath);
           if (valid) {
 	    roadmap ()->addEdge (*itn1, *itn2, path);
 	    roadmap ()->addEdge (*itn2, *itn1, path->reverse ());
@@ -216,7 +239,9 @@ namespace hpp {
 	  path = (*sm) (*q1, *q2);
           if (!path) continue;
 	  PathValidationReportPtr_t report;
+          HPP_START_TIMECOUNTER(validatePath);
 	  bool valid = pathValidation->validate (path, false, validPath, report);
+          HPP_STOP_TIMECOUNTER(validatePath);
           if (valid) {
 	    roadmap ()->addEdge (*itn1, *itn2, path);
 	    roadmap ()->addEdge (*itn2, *itn1, path->reverse ());
@@ -227,6 +252,15 @@ namespace hpp {
           }
 	}
       }
+      HPP_STOP_TIMECOUNTER(tryConnect);
+
+      HPP_STOP_TIMECOUNTER(oneStep);
+
+      HPP_DISPLAY_TIMECOUNTER(oneStep);
+      HPP_DISPLAY_TIMECOUNTER(extend);
+      HPP_DISPLAY_TIMECOUNTER(validatePath);
+      HPP_DISPLAY_TIMECOUNTER(delayedEdges);
+      HPP_DISPLAY_TIMECOUNTER(tryConnect);
     }
 
     void DiffusingPlanner::configurationShooter
