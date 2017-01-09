@@ -24,6 +24,7 @@
 
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/algorithm/jacobian.hpp>
+#include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/body.hh>
@@ -36,10 +37,105 @@
 namespace hpp {
   namespace core {
     namespace {
+      struct ComputeWeightStep : public se3::fusion::JointModelVisitor<ComputeWeightStep>
+      {
+        typedef boost::fusion::vector<const se3::Model &,
+                                      const se3::Data &,
+                                      const se3::GeometryData &,
+                                      value_type & > ArgsType;
+
+        JOINT_MODEL_VISITOR_INIT(ComputeWeightStep);
+
+        template<int N> static value_type largestSingularValue (const Eigen::Matrix<value_type, 3, N>& m)
+        {
+          typedef Eigen::Matrix<value_type, 3, N> M;
+          typedef Eigen::JacobiSVD<M> SVD_t;
+          SVD_t svd (m);
+          return svd.singularValues()[0];
+        }
+
+        template<typename JointModel>
+        static void algo(const se3::JointModelBase<JointModel> & jmodel,
+            const se3::Model & model,
+            const se3::Data & data,
+            const se3::GeometryData & geomData,
+            value_type & length)
+        {
+          typedef typename pinocchio::LieGroupTpl::template operation<JointModel>::type LGOp_t;
+          typedef Eigen::Matrix<value_type, 3, JointModel::NV>  Block_t;
+          typedef Eigen::Matrix<value_type, 3, LGOp_t::NR    > RBlock_t;
+          // typedef Eigen::JacobiSVD<RBlock_t> SVD_t;
+
+          if (LGOp_t::NR == 0) {
+            length = 1;
+            return;
+          }
+
+          // SVD_t svd(3, LGOp_t::NR);
+          const se3::JointIndex i = jmodel.id();
+          JointJacobian_t jacobian(6, data.J.cols());
+          Block_t  block;
+          RBlock_t rBlock;
+          value_type sigma;
+          for (se3::JointIndex j = i; j <= (se3::JointIndex)data.lastChild[i]; ++j)
+          {
+            // Get only three first lines of Jacobian
+            se3::getJacobian<true>(model, data, j, jacobian);
+            // block = data.oMi[j].rotation() * data.J.block<3, JointModel::NV>(0, jmodel.idx_v());
+            block = data.oMi[j].rotation() * jacobian.block<3, JointModel::NV>(0, jmodel.idx_v());
+
+            // se3::getJacobian<true>(model, data, j, jacobian);
+            // assert(     jacobian.block(0, jmodel.idx_v(), 3, jmodel.nv())
+                // .isApprox(data.J.block(0, jmodel.idx_v(), 3, jmodel.nv()))
+                // );
+
+            LGOp_t::getRotationSubJacobian(block, rBlock);
+            sigma = largestSingularValue<LGOp_t::NR>(rBlock);
+            // svd.compute(rBlock);
+            if (length < sigma) {
+              length = sigma;
+            }
+            const value_type & radius = geomData.radius[j];
+            // block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(3, rank, 3, ncol);
+            block = data.oMi[j].rotation() * data.J.block<3, JointModel::NV>(3, jmodel.idx_v());
+            block = data.oMi[j].rotation() * jacobian.block<3, JointModel::NV>(3, jmodel.idx_v());
+            LGOp_t::getRotationSubJacobian(block, rBlock);
+            sigma = largestSingularValue<LGOp_t::NR>(rBlock);
+            // svd.compute(rBlock);
+            if (length < radius*sigma) {
+              length = radius*sigma;
+            }
+          }
+        }
+      };
+
+      template <> void ComputeWeightStep::algo<se3::JointModelComposite>(
+          const se3::JointModelBase<se3::JointModelComposite> & jmodel,
+          const se3::Model & model,
+          const se3::Data & data,
+          const se3::GeometryData & geomData,
+          value_type & length)
+      {
+        assert(false);
+        // se3::details::Dispatch<SquaredDistanceStep>::run(
+            // jmodel.derived(),
+            // ArgsType(q0, q1, w, distance));
+      }
+
+      template<> value_type ComputeWeightStep::largestSingularValue<0>(const Eigen::Matrix<value_type, 3, 0>&)
+      {
+        return 0;
+      }
+
+      template<> value_type ComputeWeightStep::largestSingularValue<1>(const Eigen::Matrix<value_type, 3, 1>& m)
+      {
+        return m.norm();
+      }
+
       struct SquaredDistanceStep : public se3::fusion::JointModelVisitor<SquaredDistanceStep>
       {
-        typedef boost::fusion::vector<const Configuration_t &,
-                const Configuration_t &,
+        typedef boost::fusion::vector<ConfigurationIn_t &,
+                ConfigurationIn_t &,
                 const value_type &,
                 value_type &> ArgsType;
 
@@ -47,8 +143,8 @@ namespace hpp {
 
         template<typename JointModel>
         static void algo(const se3::JointModelBase<JointModel> & jmodel,
-            const Configuration_t & q0,
-            const Configuration_t & q1,
+            ConfigurationIn_t q0,
+            ConfigurationIn_t q1,
             const value_type & w,
             value_type & distance)
         {
@@ -64,8 +160,8 @@ namespace hpp {
       template <>
       void SquaredDistanceStep::algo<se3::JointModelComposite>(
           const se3::JointModelBase<se3::JointModelComposite> & jmodel,
-          const Configuration_t & q0,
-          const Configuration_t & q1,
+          ConfigurationIn_t q0,
+          ConfigurationIn_t q1,
           const value_type & w,
           value_type & distance)
       {
@@ -160,29 +256,12 @@ namespace hpp {
       JointJacobian_t jacobian(6, robot_->numberDof());
       const se3::Model& model = robot_->model();
       const se3::Data& data = robot_->data();
+      const se3::GeometryData& geomData = robot_->geomData();
       for (se3::JointIndex i = 1; i < model.joints.size(); ++i)
       {
 	  value_type length = 0;
-	  std::size_t rank = model.joints[i].idx_v();
-	  std::size_t ncol = model.joints[i].nv();
-          BlockType block;
-          for (se3::JointIndex j = i; j <= (se3::JointIndex)data.lastChild[i]; ++j)
-          {
-	    // Get only three first lines of Jacobian
-            se3::getJacobian<true>(model, data, j, jacobian);
-            block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(0, rank, 3, ncol);
-	    SVD_t svd (block);
-	    if (length < svd.singularValues () [0]) {
-	      length = svd.singularValues () [0];
-	    }
-            Body body (robot_, j);
-            value_type radius = body.radius();
-            block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(3, rank, 3, ncol);
-            svd.compute(block);
-            if (length < radius*svd.singularValues () [0]) {
-              length = radius*svd.singularValues () [0];
-            }
-	  }
+          ComputeWeightStep::run(model.joints[i],
+              ComputeWeightStep::ArgsType(model, data, geomData, length));
 	  if (minLength > length && length > 0) minLength = length;
 	  weights_.push_back (length);
 	for (std::size_t k=0; k < weights_.size (); ++k) {
@@ -191,6 +270,7 @@ namespace hpp {
 	  }
 	}
       }
+      hppDout(info, "The weights are " << Eigen::Map<vector_t>(weights_.data(), weights_.size()).transpose());
     }
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
@@ -229,6 +309,7 @@ namespace hpp {
 
       const pinocchio::Model& model = robot_->model();
       assert (model.joints.size() <= weights_.size () + 1);
+      // Configuration_t qq1 (q1), qq2 (q2);
       // Loop over robot joint
       for( se3::JointIndex i=1; i<(se3::JointIndex) model.njoints; ++i )
       {
