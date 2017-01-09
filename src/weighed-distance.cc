@@ -54,6 +54,34 @@ namespace hpp {
           return svd.singularValues()[0];
         }
 
+        template<typename JointModel, int NR> static void getRotationSubJacobian (
+            const se3::JointModelBase<JointModel> & jmodel,
+            const se3::Data & data,
+            const Eigen::Matrix<value_type, 6, Eigen::Dynamic>& J,
+            const se3::JointIndex& j,
+            Eigen::Matrix<value_type, 6, NR>& rBlock)
+        {
+          typedef typename pinocchio::LieGroupTpl::template operation<JointModel>::type LGOp_t;
+          typedef Eigen::Matrix<value_type, 6, JointModel::NV>  Block_t;
+          Block_t block;
+          // Linear part
+          block.template topRows   <3>() = data.oMi[j].rotation() * J.block<3, JointModel::NV>(0, jmodel.idx_v());
+          // Angular part
+          block.template bottomRows<3>() = data.oMi[j].rotation() * J.block<3, JointModel::NV>(3, jmodel.idx_v());
+
+          LGOp_t::getRotationSubJacobian(block, rBlock);
+        }
+
+        template<int NR> static value_type computeWeight (
+            const Eigen::Matrix<value_type, 6, NR>& rBlock,
+            const value_type& r)
+        {
+          value_type linear_sigma  = largestSingularValue<NR>(rBlock.template topRows<3>());
+          value_type angular_sigma = largestSingularValue<NR>(rBlock.template bottomRows<3>());
+
+          return std::max(linear_sigma, r * angular_sigma);
+        }
+
         template<typename JointModel>
         static void algo(const se3::JointModelBase<JointModel> & jmodel,
             const se3::Model & model,
@@ -62,49 +90,25 @@ namespace hpp {
             value_type & length)
         {
           typedef typename pinocchio::LieGroupTpl::template operation<JointModel>::type LGOp_t;
-          typedef Eigen::Matrix<value_type, 3, JointModel::NV>  Block_t;
-          typedef Eigen::Matrix<value_type, 3, LGOp_t::NR    > RBlock_t;
-          // typedef Eigen::JacobiSVD<RBlock_t> SVD_t;
+          typedef Eigen::Matrix<value_type, 6, LGOp_t::NR    > RBlock_t;
 
           if (LGOp_t::NR == 0) {
             length = 1;
             return;
           }
 
-          // SVD_t svd(3, LGOp_t::NR);
           const se3::JointIndex i = jmodel.id();
           JointJacobian_t jacobian(6, data.J.cols());
-          Block_t  block;
           RBlock_t rBlock;
           value_type sigma;
           for (se3::JointIndex j = i; j <= (se3::JointIndex)data.lastChild[i]; ++j)
           {
-            // Get only three first lines of Jacobian
             se3::getJacobian<true>(model, data, j, jacobian);
-            // block = data.oMi[j].rotation() * data.J.block<3, JointModel::NV>(0, jmodel.idx_v());
-            block = data.oMi[j].rotation() * jacobian.block<3, JointModel::NV>(0, jmodel.idx_v());
-
-            // se3::getJacobian<true>(model, data, j, jacobian);
-            // assert(     jacobian.block(0, jmodel.idx_v(), 3, jmodel.nv())
-                // .isApprox(data.J.block(0, jmodel.idx_v(), 3, jmodel.nv()))
-                // );
-
-            LGOp_t::getRotationSubJacobian(block, rBlock);
-            sigma = largestSingularValue<LGOp_t::NR>(rBlock);
-            // svd.compute(rBlock);
-            if (length < sigma) {
-              length = sigma;
-            }
-            const value_type & radius = geomData.radius[j];
-            // block = data.oMi[j].rotation() * jacobian.block<3, Eigen::Dynamic>(3, rank, 3, ncol);
-            block = data.oMi[j].rotation() * data.J.block<3, JointModel::NV>(3, jmodel.idx_v());
-            block = data.oMi[j].rotation() * jacobian.block<3, JointModel::NV>(3, jmodel.idx_v());
-            LGOp_t::getRotationSubJacobian(block, rBlock);
-            sigma = largestSingularValue<LGOp_t::NR>(rBlock);
-            // svd.compute(rBlock);
-            if (length < radius*sigma) {
-              length = radius*sigma;
-            }
+            getRotationSubJacobian(jmodel, data, jacobian, j, rBlock);
+            const value_type radius = geomData.radius[j]
+              + (data.oMi[j].translation() - data.oMi[i].translation()).squaredNorm();
+            sigma = computeWeight(rBlock, radius);
+            if (length < sigma) length = sigma;
           }
         }
       };
@@ -116,10 +120,14 @@ namespace hpp {
           const se3::GeometryData & geomData,
           value_type & length)
       {
-        assert(false);
-        // se3::details::Dispatch<SquaredDistanceStep>::run(
-            // jmodel.derived(),
-            // ArgsType(q0, q1, w, distance));
+        hppDout(warning, "The weights for JointModelComposite are not correct."
+            " There should be one weight per subjoint.");
+        length = 0;
+        value_type tmp = 0;
+        for (size_t i = 0; i < jmodel.derived().joints.size(); ++i) {
+          ComputeWeightStep::run(jmodel.derived().joints[i], ArgsType(model, data, geomData, tmp));
+          length += tmp;
+        }
       }
 
       template<> value_type ComputeWeightStep::largestSingularValue<0>(const Eigen::Matrix<value_type, 3, 0>&)
