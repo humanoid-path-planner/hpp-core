@@ -42,6 +42,14 @@ namespace hpp {
 	return shPtr;
       }
 
+      /// Validate interval centered on a path parameter
+      /// \param config Configuration at abscissa tmin on the path.
+      /// \param tmin parameter value in the path interval of definition
+      /// \retval tmin lower bound of valid interval if reverve is true,
+      ///              upper bound of valid interval if reverse is false.
+      ///              other bound of valid interval is input tmin.
+      /// \return true if the configuration is collision free for this parameter
+      ///         value, false otherwise.
       bool Progressive::validateConfiguration
       (const Configuration_t& config, bool reverse, value_type& tmin,
        PathValidationReportPtr_t& report)
