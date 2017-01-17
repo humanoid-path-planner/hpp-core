@@ -19,20 +19,11 @@
 #ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_DICHOTOMY_HH
 # define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_DICHOTOMY_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
-# include <hpp/core/path-validation.hh>
+# include <hpp/core/continuous-collision-checking.hh>
 
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
-      namespace dichotomy {
-	HPP_PREDEF_CLASS (BodyPairCollision);
-	typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
-	typedef std::list <BodyPairCollisionPtr_t> BodyPairCollisions_t;
-      }
-      using dichotomy::BodyPairCollisions_t;
-
       /// \addtogroup validation
       /// \{
 
@@ -59,9 +50,8 @@ namespace hpp {
       /// Collision pairs between bodies of the robot are initialized at
       /// construction of the instance.
       ///
-      /// Method Dichotomy::addObstacle adds an obstacle in the environment.
-      /// This obstacle is added to the pair corresponding to each joint with
-      /// the environment.
+      /// Method Progressive::addObstacle adds an obstacle in the environment.
+      /// For each joint, a new pair is created with the new obstacle.
       ///
       /// Validation of pairs along straight interpolations is based on the
       /// computation of an upper-bound of the relative velocity of objects
@@ -70,7 +60,7 @@ namespace hpp {
       ///
       /// See <a href="continuous-collision-checking.pdf"> this document </a>
       /// for details.
-      class HPP_CORE_DLLAPI Dichotomy : public PathValidation
+      class HPP_CORE_DLLAPI Dichotomy : public ContinuousCollisionChecking
       {
       public:
 	/// Create instance and return shared pointer
@@ -79,46 +69,16 @@ namespace hpp {
 	static DichotomyPtr_t
 	  create (const DevicePtr_t& robot, const value_type& tolerance);
 
-	/// Compute the largest valid interval starting from the path beginning
-	///
-	/// \param path the path to check for validity,
-	/// \param reverse if true check from the end,
-	/// \retval the extracted valid part of the path, pointer to path if
-	///         path is valid.
-	/// \retval report information about the validation process. A report
-	///         is allocated if the path is not valid.
-	/// \return whether the whole path is valid.
-	virtual bool validate (const PathPtr_t& path, bool reverse,
-			       PathPtr_t& validPart,
-			       PathValidationReportPtr_t& report);
-
-	/// Add an obstacle
-	/// \param object obstacle added
-	/// Add the object to each collision pair a body of which is the
-	/// environment.
-	/// care about obstacles.
-	virtual void addObstacle (const CollisionObjectConstPtr_t& object);
-
-	/// Remove a collision pair between a joint and an obstacle
-	/// \param the joint that holds the inner objects,
-	/// \param the obstacle to remove.
-	/// \notice collision configuration validation needs to know about
-	/// obstacles. This virtual method does nothing for configuration
-	/// validation methods that do not care about obstacles.
-	virtual void removeObstacleFromJoint
-	  (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
-
 	virtual ~Dichotomy ();
       protected:
 	/// Constructor
 	/// \param robot the robot for which collision checking is performed,
 	/// \param tolerance maximal penetration allowed.
-	Dichotomy (const DevicePtr_t& robot,
-		   const value_type& tolerance);
+	Dichotomy (const DevicePtr_t& robot, const value_type& tolerance);
       private:
-	DevicePtr_t robot_;
-	value_type tolerance_;
-	dichotomy::BodyPairCollisions_t bodyPairCollisions_;
+	virtual bool validateStraightPath (const PathPtr_t& path, bool reverse,
+					   PathPtr_t& validPart,
+					   PathValidationReportPtr_t& report);
       }; // class Dichotomy
     } // namespace continuousCollisionChecking
     /// \}

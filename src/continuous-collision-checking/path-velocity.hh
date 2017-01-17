@@ -16,8 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
-# define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
+#ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH
+# define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH
 
 namespace hpp {
   namespace core {
@@ -116,4 +116,4 @@ namespace hpp {
 } // namespace hpp
 
 
-#endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
+#endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH

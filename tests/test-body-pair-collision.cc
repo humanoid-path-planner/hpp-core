@@ -26,7 +26,7 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/simple-device.hh>
 
-#include "../src/continuous-collision-checking/dichotomy/body-pair-collision.hh"
+#include "../src/continuous-collision-checking/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
 #include "../tests/utils.hh"
 
@@ -42,8 +42,8 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 using hpp::pinocchio::JointConstPtr_t;
 using hpp::pinocchio::ObjectVector_t;
-using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollision;
-using hpp::core::continuousCollisionChecking::dichotomy::BodyPairCollisionPtr_t;
+using hpp::core::continuousCollisionChecking::BodyPairCollision;
+using hpp::core::continuousCollisionChecking::BodyPairCollisionPtr_t;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;

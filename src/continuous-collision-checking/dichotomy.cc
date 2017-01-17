@@ -25,64 +25,12 @@
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
 
-#include "continuous-collision-checking/dichotomy/body-pair-collision.hh"
+#include "continuous-collision-checking/body-pair-collision.hh"
 
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
-      namespace {
-        typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
 
-        struct JointIndexPairCompare_t {
-          bool operator() (const JointIndexPair_t& p0, const JointIndexPair_t& p1) const
-          {
-            if (p0.first < p1.first) return true;
-            if (p0.first > p1.first) return false;
-            return (p0.second < p1.second);
-          }
-        };
-
-        typedef std::set<JointIndexPair_t, JointIndexPairCompare_t> JointIndexPairSet_t;
-      }
-
-      using dichotomy::BodyPairCollision;
-      using dichotomy::BodyPairCollisionPtr_t;
-      using dichotomy::BodyPairCollisions_t;
-
-      bool compareBodyPairCol (const BodyPairCollisionPtr_t& bodyPair1,
-			       const BodyPairCollisionPtr_t& bodyPair2)
-      {
-	assert (!bodyPair1->validSubset ().list ().empty ());
-	assert (!bodyPair2->validSubset ().list ().empty ());
-	return bodyPair1->validSubset ().list ().begin ()->second <
-	  bodyPair2->validSubset ().list ().begin ()->second;
-      }
-
-      bool compareReverseBodyPairCol (const BodyPairCollisionPtr_t& bodyPair1,
-				      const BodyPairCollisionPtr_t& bodyPair2)
-      {
-	assert (!bodyPair1->validSubset ().list ().empty ());
-	assert (!bodyPair2->validSubset ().list ().empty ());
-	return bodyPair1->validSubset ().list ().rbegin ()->first >
-	  bodyPair2->validSubset ().list ().rbegin ()->first;
-      }
-
-      // Partially sort a list where only the first element is not sorted
-      template <typename Compare>
-      void partialSort (BodyPairCollisions_t& list, Compare comp)
-      {
-	BodyPairCollisions_t::iterator it1 = list.begin ();
-	if (it1 == list.end ()) return;
-	BodyPairCollisions_t::iterator it2 = it1; ++it2;
-	while (it2 != list.end ()) {
-	  if (comp (*it2, *it1))
-	    std::iter_swap (it1, it2);
-	  else
-	    return;
-	  it1 = it2;
-	  ++it2;
-	}
-      }
       DichotomyPtr_t
       Dichotomy::create (const DevicePtr_t& robot, const value_type& tolerance)
       {
@@ -92,248 +40,27 @@ namespace hpp {
 	return shPtr;
       }
 
-      bool Dichotomy::validate (const PathPtr_t& path, bool reverse,
-				PathPtr_t& validPart,
-				PathValidationReportPtr_t& report)
-      {
-	CollisionValidationReportPtr_t collisionReport
-	  (new CollisionValidationReport);
-	if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path)) {
-	  PathVectorPtr_t validPathVector = PathVector::create
-	    (path->outputSize (), path->outputDerivativeSize ());
-	  validPart = validPathVector;
-	  PathPtr_t localValidPart;
-	  if (reverse) {
-	    value_type param = path->length ();
-	    std::deque <PathPtr_t> paths;
-	    for (std::size_t i=pv->numberPaths () + 1; i != 0 ; --i) {
-	      PathPtr_t localPath (pv->pathAtRank (i-1));
-	      if (validate (localPath, reverse, localValidPart, report)) {
-		paths.push_front (localPath->copy ());
-		param -= localPath->length ();
-	      } else {
-		report->parameter += param - localPath->length ();
-		paths.push_front (localValidPart->copy ());
-		for (std::deque <PathPtr_t>::const_iterator it = paths.begin ();
-		     it != paths.end (); ++it) {
-		  validPathVector->appendPath (*it);
-		}
-		return false;
-	      }
-	    }
-	    return true;
-	  } else {
-	    value_type param = 0;
-	    for (std::size_t i=0; i < pv->numberPaths (); ++i) {
-	      PathPtr_t localPath (pv->pathAtRank (i));
-	      if (validate (localPath, reverse, localValidPart, report)) {
-		validPathVector->appendPath (localPath->copy ());
-		param += localPath->length ();
-	      } else {
-		report->parameter += param;
-		validPathVector->appendPath (localValidPart->copy ());
-		return false;
-	      }
-	    }
-	    return true;
-	  }
-	}
-	// for each BodyPairCollision
-	//   - set path,
-	//   - compute valid interval at start (end if reverse)
-	value_type t0 = path->timeRange ().first;
-	value_type t1 = path->timeRange ().second;
-	if (reverse) {
-	  for (BodyPairCollisions_t::iterator itPair =
-		 bodyPairCollisions_.begin ();
-	       itPair != bodyPairCollisions_.end (); ++itPair) {
-	    (*itPair)->path (path);
-	    // If collision at end point, return false
-	    if (!(*itPair)->validateInterval (t1, *collisionReport)) {
-	      report = CollisionPathValidationReportPtr_t
-		(new CollisionPathValidationReport (t1, collisionReport));
-	      validPart = path->extract (interval_t (t1, t1));
-	      return false;
-	    }
-	    assert ((*itPair)->validSubset ().contains (t1));
-	  }
-	  // Sort collision pairs
-	  bodyPairCollisions_.sort (compareReverseBodyPairCol);
-
-	  BodyPairCollisionPtr_t first = *(bodyPairCollisions_.begin ());
-	  while (!first->validSubset ().contains (t0, true)) {
-	    // find middle of first non valid interval
-	    const std::list <interval_t>& intervals =
-	      first->validSubset ().list ();
-	    std::list <interval_t>::const_reverse_iterator lastInterval =
-	      intervals.rbegin ();
-	    std::list <interval_t>::const_reverse_iterator beforeLastInterval =
-	      lastInterval; ++beforeLastInterval;
-	    value_type upper = lastInterval->first;
-	    value_type lower;
-	    if (beforeLastInterval != intervals.rend ()) {
-	      lower = beforeLastInterval->second;
-	    } else {
-	      lower = t0;
-	    }
-	    value_type middle = .5 * (lower + upper);
-	    if (first->validateInterval (middle, *collisionReport)) {
-	      partialSort (bodyPairCollisions_, compareReverseBodyPairCol);
-	    } else {
-	      report = CollisionPathValidationReportPtr_t
-		(new CollisionPathValidationReport (middle, collisionReport));
-	      validPart = path->extract (interval_t (upper, t1));
-	      return false;
-	    }
-	    first = *(bodyPairCollisions_.begin ());
-	  }
-	} else {
-	  for (BodyPairCollisions_t::iterator itPair =
-		 bodyPairCollisions_.begin ();
-	       itPair != bodyPairCollisions_.end (); ++itPair) {
-	    (*itPair)->path (path);
-	    // If collision at start point, return false
-	    bool valid = (*itPair)->validateInterval (t0, *collisionReport);
-	    if (!valid) {
-	      report = CollisionPathValidationReportPtr_t
-		(new CollisionPathValidationReport (t0, collisionReport));
-	      validPart = path->extract (interval_t (t0, t0));
-	      hppDout (error, "Initial position in collision.");
-	      return false;
-	    }
-	    assert ((*itPair)->validSubset ().contains (t0));
-	  }
-	  // Sort collision pairs
-	  bodyPairCollisions_.sort (compareBodyPairCol);
-	  BodyPairCollisionPtr_t first = *(bodyPairCollisions_.begin ());
-	  while (!first->validSubset ().contains (t1)) {
-	    // find middle of first non valid interval
-	    const std::list <interval_t>& intervals =
-	      first->validSubset ().list ();
-	    std::list <interval_t>::const_iterator firstInterval =
-	      intervals.begin ();
-	    std::list <interval_t>::const_iterator secondInterval =
-	      firstInterval;
-	    ++secondInterval;
-	    value_type lower = firstInterval->second;
-	    value_type upper;
-	    if (secondInterval != intervals.end ()) {
-	      upper = secondInterval->first;
-	    } else {
-	      upper = t1;
-	    }
-	    value_type middle = .5 * (lower + upper);
-	    if (first->validateInterval (middle, *collisionReport)) {
-	      partialSort (bodyPairCollisions_, compareBodyPairCol);
-	    } else {
-	      report = CollisionPathValidationReportPtr_t
-		(new CollisionPathValidationReport (middle, collisionReport));
-	      validPart = path->extract (interval_t (t0, lower));
-	      return false;
-	    }
-	    first = *(bodyPairCollisions_.begin ());
-	  }
-	}
-	validPart = path;
-	return true;
-      }
-
-      void Dichotomy::addObstacle
-      (const CollisionObjectConstPtr_t& object)
-      {
-	pinocchio::JointVector_t& jv = robot_->getJointVector ();
-	for (size_type idx = 0; idx < jv.size (); ++idx) {
-          JointPtr_t j = jv[(int)idx];
-	  BodyPtr_t body = j->linkedBody ();
-	  bool foundPair = false;
-	  if (body) {
-	    for (BodyPairCollisions_t::iterator itPair =
-		   bodyPairCollisions_.begin ();
-		 itPair != bodyPairCollisions_.end (); ++itPair) {
-	      if (((*itPair)->joint_a () == j) &&
-		  (!(*itPair)->joint_b ())) {
-		(*itPair)->addObjectTo_b (object);
-		foundPair = true;
-	      }
-	    }
-	    if (!foundPair) {
-	      ConstObjectStdVector_t objects;
-	      objects.push_back (object);
-	      bodyPairCollisions_.push_back
-		(BodyPairCollision::create (j, objects, tolerance_));
-	    }
-	  }
-	}
-      }
-
-      void Dichotomy::removeObstacleFromJoint
-      (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
-      {
-	bool removed = false;
-	for (BodyPairCollisions_t::iterator itPair =
-	       bodyPairCollisions_.begin ();
-	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
-	    if ((*itPair)->removeObjectTo_b (obstacle)) {
-	      removed = true;
-	      if ((*itPair)->objects_b ().empty ()) {
-		bodyPairCollisions_.erase (itPair);
-	      }
-	    }
-	  }
-	}
-	if (!removed) {
-	  std::ostringstream oss;
-	  oss << "Dichotomy::removeObstacleFromJoint: obstacle \""
-	      << obstacle->name () <<
-	    "\" is not registered as obstacle for joint \"" << joint->name ()
-	      << "\".";
-	  throw std::runtime_error (oss.str ());
-	}
-      }
-
       Dichotomy::~Dichotomy ()
       {
       }
 
+      bool Dichotomy::validateStraightPath
+      (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+       PathValidationReportPtr_t& report)
+      {
+	return false;
+      }
+
       Dichotomy::Dichotomy
       (const DevicePtr_t& robot, const value_type& tolerance) :
-	robot_ (robot), tolerance_ (tolerance),
-	bodyPairCollisions_ ()
+	ContinuousCollisionChecking (robot, tolerance)
       {
         // Tolerance should be equal to 0, otherwise end of valid
         // sub-path might be in collision.
         if (tolerance != 0) {
           throw std::runtime_error ("Dichotomy path validation method does not"
-              "support penetration.");
+				    "support penetration.");
         }
-        // Build body pairs for collision checking
-        // First auto-collision
-        // FIXME Duplicated pairs of joints are checked for but there is no
-        // check for inverted duplicated pairs
-        // (a, b) != (b, a)
-        const se3::GeometryModel& gmodel = robot->geomModel ();
-        JointPtr_t joint1, joint2;
-        JointIndexPairSet_t jointPairs;
-        std::size_t duplicates = 0;
-        for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
-        {
-          const se3::CollisionPair& cp = gmodel.collisionPairs[i];
-          JointIndexPair_t jp (
-              gmodel.geometryObjects[cp.first].parentJoint,
-              gmodel.geometryObjects[cp.second].parentJoint);
-          if (jointPairs.count(jp) == 0) {
-            jointPairs.insert(jp);
-            joint1 = JointPtr_t(new Joint(robot_, jp.first));
-            joint2 = JointPtr_t(new Joint(robot_, jp.second));
-            bodyPairCollisions_.push_back (BodyPairCollision::create
-                (joint2, joint1, tolerance_));
-            hppDout(info, *bodyPairCollisions_.back());
-          } else duplicates++;
-        }
-        hppDout(info, "Dichotomy continuous collision checking: Inserted "
-            << jointPairs.size() << " and filtered " << duplicates <<
-            " duplicates." <<  std::endl);
       }
     } // namespace continuousCollisionChecking
   } // namespace core
