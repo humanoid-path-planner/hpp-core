@@ -146,6 +146,9 @@ namespace hpp {
 
 	  /// Validate interval centered on a path parameter
 	  /// \param t parameter value in the path interval of definition
+	  /// \retval tmin lower bound of valid interval if reverve_ is true,
+          ///              upper bound of valid interval if reverse_ is false.
+          ///              other bound of valid interval is t.
 	  /// \return true if the body pair is collision free for this parameter
 	  ///         value, false if the body pair is in collision.
 	  bool validateConfiguration (const value_type& t, value_type& tmin,
