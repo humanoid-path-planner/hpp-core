@@ -25,6 +25,7 @@
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method-straight.hh>
 
@@ -81,18 +82,18 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
     bool res2 (progressive->validate  (path, false, validPart, report2));
     bool res3 (dichotomy->validate  (path, false, validPart, report3));
 
-    if (res1) {
-      BOOST_CHECK (res2);
-      if (!res2) {
-	hppDout (error, "Progressive failed for q1=" << q1->transpose ()
-		 << ", q2=" << q2->transpose ());
-	hppDout (error, report2);
+    if (!res1) {
+      BOOST_CHECK (!res2);
+      if (res2) {
+	hppDout (error, "Progressive failed to detect collision for q1="
+		 << q1->transpose () << ", q2=" << q2->transpose ());
+	hppDout (error, *report1);
       }
-      BOOST_CHECK (res3);
-      if (!res3) {
-	hppDout (error, "Dichotomy failed for q1=" << q1->transpose ()
-		 << ", q2=" << q2->transpose ());
-	hppDout (error, report3);
+      BOOST_CHECK (!res3);
+      if (res3) {
+	hppDout (error, "Dichotomy failed to detect collision for q1="
+		 << q1->transpose () << ", q2=" << q2->transpose ());
+	hppDout (error, *report1);
       }
     }
   }
