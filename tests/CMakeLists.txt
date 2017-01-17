@@ -68,3 +68,4 @@ ADD_TESTCASE (path-projectors FALSE) # link error
 ADD_TESTCASE (containers FALSE)
 ADD_TESTCASE (paths FALSE)
 ADD_TESTCASE (relative-motion FALSE)
+ADD_TESTCASE (test-continuous-collision-checking FALSE)
