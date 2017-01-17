@@ -39,6 +39,7 @@ MACRO(ADD_TESTCASE NAME GENERATED)
 
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-util)
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model)
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model-urdf)
 
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}
@@ -58,3 +59,4 @@ ADD_TESTCASE (containers FALSE)
 ADD_TESTCASE (paths FALSE)
 ADD_TESTCASE (relative-motion FALSE)
 ADD_TESTCASE (test-path-extraction FALSE)
+ADD_TESTCASE (test-continuous-collision-checking FALSE)
