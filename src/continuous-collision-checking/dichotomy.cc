@@ -327,7 +327,7 @@ namespace hpp {
             joint1 = JointPtr_t(new Joint(robot_, jp.first));
             joint2 = JointPtr_t(new Joint(robot_, jp.second));
             bodyPairCollisions_.push_back (BodyPairCollision::create
-                (joint1, joint2, tolerance_));
+                (joint2, joint1, tolerance_));
             hppDout(info, *bodyPairCollisions_.back());
           } else duplicates++;
         }
