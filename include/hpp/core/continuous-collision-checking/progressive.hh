@@ -113,6 +113,9 @@ namespace hpp {
 	bool validateConfiguration (const Configuration_t& config,
 				    bool reverse, value_type& tmin,
 				    PathValidationReportPtr_t& report);
+	bool validateStraightPath (const PathPtr_t& path, bool reverse,
+				   PathPtr_t& validPart,
+				   PathValidationReportPtr_t& report);
 	DevicePtr_t robot_;
 	value_type tolerance_;
 	progressive::BodyPairCollisions_t bodyPairCollisions_;

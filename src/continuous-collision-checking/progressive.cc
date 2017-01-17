@@ -142,6 +142,13 @@ namespace hpp {
 	    return true;
 	  }
 	}
+	return validateStraightPath (path, reverse, validPart, report);
+      }
+
+      bool Progressive::validateStraightPath
+      (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+       PathValidationReportPtr_t& report)
+      {
 	// for each BodyPairCollision
 	//   - set path,
 	//   - compute valid interval at start (end if reverse)
