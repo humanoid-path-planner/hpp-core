@@ -146,20 +146,17 @@ namespace hpp {
 
 	/// Validate interval centered on a path parameter
 	/// \param t parameter value in the path interval of definition
-	/// \retval tmin lower bound of valid interval if reverve_ is true,
-	///              upper bound of valid interval if reverse_ is false.
-	///              other bound of valid interval is t.
+	/// \retval interval interval over which pair is collision-free,
+	///                  not necessarily included in definition interval
 	/// \return true if the body pair is collision free for this parameter
 	///         value, false if the body pair is in collision.
-	bool validateConfiguration (const value_type& t, value_type& tmin,
+	/// \note object should be in the positions defined by the configuration
+	///       of parameter t on the path.
+	bool validateConfiguration (const value_type& t, interval_t& interval,
 				    CollisionValidationReportPtr_t& report)
 	{
 	  if (valid_) {
-	    if (reverse_) {
-	      tmin = path_->timeRange ().first;
-	    } else {
-	      tmin = path_->timeRange ().second;
-	    }
+	    interval = path_->timeRange ();
 	    return true;
 	  }
 	  using std::numeric_limits;
@@ -209,16 +206,11 @@ namespace hpp {
 	  }
 	  assert (!isnan (halfLengthDist));
 	  assert (!isnan (halfLengthTol));
-	  if (reverse_) {
-	    tmin = t - (halfLengthDist + halfLengthTol);
-	    if (t - halfLengthDist <= path_->timeRange ().first) {
-	      valid_ = true;
-	    }
-	  } else {
-	    tmin = t + halfLengthDist + halfLengthTol;
-	    if (t + halfLengthDist >= path_->timeRange ().second) {
-	      valid_ = true;
-	    }
+	  interval.first = t - (halfLengthDist + halfLengthTol);
+	  interval.second = t + (halfLengthDist + halfLengthTol);
+	  if ((interval.first <= path_->timeRange ().first) &&
+	      (interval.second >= path_->timeRange ().second)) {
+	    valid_ = true;
 	  }
 	  return true;
 	}

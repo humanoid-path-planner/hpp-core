@@ -22,6 +22,7 @@
 #include <hpp/pinocchio/urdf/util.hh>
 
 #include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/collision-validation.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/discretized-collision-checking.hh>
@@ -35,8 +36,10 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::urdf::loadRobotModel;
 
 using hpp::core::BasicConfigurationShooter;
+using hpp::core::CollisionValidation;
 using hpp::core::ConfigurationPtr_t;
 using hpp::core::ConfigurationShooterPtr_t;
+using hpp::core::ConfigValidationPtr_t;
 using hpp::core::continuousCollisionChecking::Dichotomy;
 using hpp::core::continuousCollisionChecking::Progressive;
 using hpp::core::DiscretizedCollisionChecking;
@@ -47,6 +50,7 @@ using hpp::core::Problem;
 using hpp::core::ProblemPtr_t;
 using hpp::core::SteeringMethodPtr_t;
 using hpp::core::SteeringMethodStraight;
+using hpp::core::ValidationReportPtr_t;
 
 BOOST_AUTO_TEST_SUITE (test_hpp_core)
 
@@ -58,7 +62,7 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
 
   // Create configuration shooter
   ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
-  
+
   // create steering method
   ProblemPtr_t problem (new Problem (robot));
   SteeringMethodPtr_t sm (SteeringMethodStraight::create (problem));
@@ -67,8 +71,10 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
   PathValidationPtr_t progressive (Progressive::create (robot, 0.05));
   PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
-				   (robot, 0.05));
-
+                                   (robot, 0.01));
+  // create configuration validation instance
+  ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
+  ValidationReportPtr_t collisionReport;
   //  create random paths and test them with different validation instances
   for (std::size_t i=0; i<1000; ++i) {
     ConfigurationPtr_t q1 (shooter->shoot ());
@@ -77,20 +83,52 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
     PathValidationReportPtr_t report2;
     PathPtr_t path ((*sm) (*q1, *q2));
     PathPtr_t validPart;
-    bool res1 (discretized->validate (path, false, validPart, report1));
-    bool res2 (progressive->validate  (path, false, validPart, report2));
+    if (configValidation->validate (*q1, collisionReport)) {
+      bool res1 (discretized->validate (path, false, validPart, report1));
+      bool res2 (progressive->validate  (path, false, validPart, report2));
 
-    if (!res1) {
-      BOOST_CHECK (!res2);
-      if (res2) {
-	hppDout (error, "Progressive failed to detect collision for q1="
-		 << q1->transpose () << ", q2=" << q2->transpose ());
-	hppDout (error, *report1);
+      if (!res1) {
+        BOOST_CHECK (!res2);
+        if (res2) {
+          hppDout (error, "Progressive failed to detect collision for q1="
+                   << q1->transpose () << ", q2=" << q2->transpose ());
+          hppDout (error, *report1);
+        }
+      }
+      if (res1) {
+        if (!res2) {
+          hppDout (info, "Progressive found a collision where discretized did "
+		     "not for q1 = " << q1->transpose () << ", q2 = "
+		   << q2->transpose ());
+          hppDout (info, *report2);
+        }
+      }
+    }
+    if (configValidation->validate (*q2, collisionReport)) {
+      bool res1 (discretized->validate (path, true, validPart, report1));
+      bool res2 (progressive->validate  (path, true, validPart, report2));
+
+      if (!res1) {
+        BOOST_CHECK (!res2);
+        if (res2) {
+          hppDout (error, "Progressive failed to detect collision for q1="
+                   << q1->transpose () << ", q2=" << q2->transpose ());
+          hppDout (error, *report1);
+        }
+      }
+      if (res1) {
+        if (!res2) {
+          hppDout (info, "Progressive found a collision where discretized did "
+		     "not for q1 = " << q1->transpose () << ", q2 = "
+		   << q2->transpose ());
+          hppDout (info, *report2);
+        }
       }
     }
   }
   // delete problem
   delete problem;
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -38,7 +38,7 @@ namespace hpp {
       /// \li a PathVector containing StraightPath or PathVector instances
       ///
       /// A path is valid if and only if each pair of objects to test is
-      /// collision-free along the whole interval of definition. 
+      /// collision-free along the whole interval of definition.
       ///
       /// Collision pairs between bodies of the robot are initialized at
       /// construction of the instance.
@@ -91,8 +91,19 @@ namespace hpp {
       /// \param tolerance maximal penetration allowed.
       ContinuousCollisionChecking (const DevicePtr_t& robot,
 				   const value_type& tolerance);
+
+      /// Validate interval centered on a path parameter
+      /// \param config Configuration at abscissa t on the path.
+      /// \param t parameter value in the path interval of definition
+      /// \retval interval interval over which the path is collision-free,
+      ///                  not necessarily included in definition interval
+      /// \return true if the body pair is collision free for this parameter
+      ///         value, false if the body pair is in collision.
+      /// \note object should be in the positions defined by the configuration
+      ///       of parameter t on the path.
       bool validateConfiguration (const Configuration_t& config,
-				  bool reverse, value_type& tmin,
+				  const value_type& t,
+				  interval_t& interval,
 				  PathValidationReportPtr_t& report);
       DevicePtr_t robot_;
       value_type tolerance_;

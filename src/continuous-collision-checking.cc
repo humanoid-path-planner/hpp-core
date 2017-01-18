@@ -57,12 +57,12 @@ namespace hpp {
     /// \return true if the configuration is collision free for this parameter
     ///         value, false otherwise.
     bool ContinuousCollisionChecking::validateConfiguration
-    (const Configuration_t& config, bool reverse, value_type& tmin,
-     PathValidationReportPtr_t& report)
+    (const Configuration_t& config, const value_type& t,
+     interval_t& interval, PathValidationReportPtr_t& report)
     {
-      value_type t = tmin;
-      tmin = std::numeric_limits <value_type>::infinity ();
-      value_type tmpMin;
+      interval.first = -std::numeric_limits <value_type>::infinity ();
+      interval.second = std::numeric_limits <value_type>::infinity ();
+      interval_t tmpInt;
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics();
       robot_->updateGeometryPlacements();
@@ -70,27 +70,26 @@ namespace hpp {
 	     bodyPairCollisions_.begin ();
 	   itPair != bodyPairCollisions_.end (); ++itPair) {
 	CollisionValidationReportPtr_t collisionReport;
-	if (!(*itPair)->validateConfiguration (t, tmpMin, collisionReport)) {
+	if (!(*itPair)->validateConfiguration (t, tmpInt, collisionReport)) {
 	  report = CollisionPathValidationReportPtr_t
 	    (new CollisionPathValidationReport);
 	  report->configurationReport = collisionReport;
 	  report->parameter = t;
 	  return false;
 	} else {
-	  if (reverse) {
-	    tmin = std::max (tmin, tmpMin);
-	  } else {
-	    tmin = std::min (tmin, tmpMin);
-	  }
+	  interval.first = std::max (interval.first, tmpInt.first);
+	  interval.second = std::min (interval.second, tmpInt.second);
+	  assert (interval.second > interval.first);
+	  assert (interval.first <= t);
+	  assert (t <= interval.second);
 	}
       }
-      hppDout (info, "tmin=" << tmin);
       return true;
     }
 
-    bool ContinuousCollisionChecking::validate (const PathPtr_t& path, bool reverse,
-						PathPtr_t& validPart,
-						PathValidationReportPtr_t& report)
+    bool ContinuousCollisionChecking::validate
+    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+     PathValidationReportPtr_t& report)
     {
       if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path)) {
 	PathVectorPtr_t validPathVector = PathVector::create

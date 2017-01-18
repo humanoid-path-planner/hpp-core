@@ -77,10 +77,13 @@ namespace hpp {
 	    bool success = (*path) (q, t);
 	    value_type tprev = t;
 	    PathValidationReportPtr_t pathReport;
-	    if (!success || !validateConfiguration (q, reverse, t, pathReport)) {
+	    interval_t interval;
+	    if (!success || !validateConfiguration (q, t, interval,
+						    pathReport)) {
 	      report = pathReport;
 	      valid = false;
 	    } else {
+	      t = interval.first;
 	      lastValidTime = tprev;
 	    }
 	    if (t <= tmin) {
@@ -107,10 +110,13 @@ namespace hpp {
 	    bool success = (*path) (q, t);
 	    value_type tprev = t;
 	    PathValidationReportPtr_t pathReport;
-	    if (!success || !validateConfiguration (q, reverse, t, pathReport)) {
+	    interval_t interval;
+	    if (!success || !validateConfiguration (q, t, interval,
+						    pathReport)) {
 	      report = pathReport;
 	      valid = false;
 	    } else {
+	      t = interval.second;
 	      lastValidTime = tprev;
 	    }
 	    if (t >= tmax) {
