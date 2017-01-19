@@ -81,16 +81,24 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
     ConfigurationPtr_t q2 (shooter->shoot ());
     PathValidationReportPtr_t report1;
     PathValidationReportPtr_t report2;
+    PathValidationReportPtr_t report3;
     PathPtr_t path ((*sm) (*q1, *q2));
     PathPtr_t validPart;
     if (configValidation->validate (*q1, collisionReport)) {
       bool res1 (discretized->validate (path, false, validPart, report1));
       bool res2 (progressive->validate  (path, false, validPart, report2));
+      bool res3 (dichotomy->validate (path, false, validPart, report3));
 
       if (!res1) {
         BOOST_CHECK (!res2);
+        BOOST_CHECK (!res3);
         if (res2) {
           hppDout (error, "Progressive failed to detect collision for q1="
+                   << q1->transpose () << ", q2=" << q2->transpose ());
+          hppDout (error, *report1);
+        }
+        if (res3) {
+          hppDout (error, "Dichotomy failed to detect collision for q1="
                    << q1->transpose () << ", q2=" << q2->transpose ());
           hppDout (error, *report1);
         }
@@ -101,17 +109,30 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
 		     "not for q1 = " << q1->transpose () << ", q2 = "
 		   << q2->transpose ());
           hppDout (info, *report2);
+        }
+        if (!res3) {
+          hppDout (info, "Dichotomy found a collision where discretized did "
+		     "not for q1 = " << q1->transpose () << ", q2 = "
+		   << q2->transpose ());
+          hppDout (info, *report3);
         }
       }
     }
     if (configValidation->validate (*q2, collisionReport)) {
       bool res1 (discretized->validate (path, true, validPart, report1));
       bool res2 (progressive->validate  (path, true, validPart, report2));
+      bool res3 (dichotomy->validate (path, true, validPart, report3));
 
       if (!res1) {
         BOOST_CHECK (!res2);
+        BOOST_CHECK (!res3);
         if (res2) {
           hppDout (error, "Progressive failed to detect collision for q1="
+                   << q1->transpose () << ", q2=" << q2->transpose ());
+          hppDout (error, *report1);
+        }
+        if (res3) {
+          hppDout (error, "Dichotomy failed to detect collision for q1="
                    << q1->transpose () << ", q2=" << q2->transpose ());
           hppDout (error, *report1);
         }
@@ -122,6 +143,12 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
 		     "not for q1 = " << q1->transpose () << ", q2 = "
 		   << q2->transpose ());
           hppDout (info, *report2);
+        }
+        if (!res3) {
+          hppDout (info, "Dichotomy found a collision where discretized did "
+		     "not for q1 = " << q1->transpose () << ", q2 = "
+		   << q2->transpose ());
+          hppDout (info, *report3);
         }
       }
     }
