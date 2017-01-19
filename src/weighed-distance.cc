@@ -142,9 +142,9 @@ namespace hpp {
 
       struct SquaredDistanceStep : public se3::fusion::JointModelVisitor<SquaredDistanceStep>
       {
-        typedef boost::fusion::vector<ConfigurationIn_t &,
-                ConfigurationIn_t &,
-                const value_type &,
+        typedef boost::fusion::vector<ConfigurationIn_t,
+                ConfigurationIn_t,
+                const value_type,
                 value_type &> ArgsType;
 
         JOINT_MODEL_VISITOR_INIT(SquaredDistanceStep);
@@ -321,8 +321,8 @@ namespace hpp {
       // Loop over robot joint
       for( se3::JointIndex i=1; i<(se3::JointIndex) model.njoints; ++i )
       {
-        value_type length = weights_ [i-1];
-        SquaredDistanceStep::ArgsType args(q1, q2, length * length, d);
+        value_type length = weights_ [i-1] * weights_ [i-1];
+        SquaredDistanceStep::ArgsType args(q1, q2, length, d);
         SquaredDistanceStep::run(model.joints[i], args);
         res += d;
       }
