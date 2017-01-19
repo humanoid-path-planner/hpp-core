@@ -177,9 +177,6 @@ namespace hpp {
 	      fcl::collide (object_a, object_b, request, result);
 	      // Get result
 	      if (result.isCollision ()) {
-		hppDout (info, "collision at " << t << " for pair ("
-			 << joint_a_->name () << "," << (*itb)->name ()
-			 << ")");
 		report = CollisionValidationReportPtr_t
 		  (new CollisionValidationReport);
 		report->object1 = *ita;

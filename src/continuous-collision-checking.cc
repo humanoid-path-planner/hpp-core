@@ -145,7 +145,6 @@ namespace hpp {
 	  objects.push_back (object);
 	  bodyPairCollisions_.push_back
 	    (BodyPairCollision::create (jv.at(idx), objects, tolerance_));
-	  hppDout(info, *bodyPairCollisions_.back());
 	}
       }
     }
@@ -204,7 +203,6 @@ namespace hpp {
             joint2 = JointPtr_t(new Joint(robot_, jp.second));
             bodyPairCollisions_.push_back (BodyPairCollision::create
 					   (joint2, joint1, tolerance_));
-            hppDout(info, *bodyPairCollisions_.back());
           } else duplicates++;
 	}
     }
