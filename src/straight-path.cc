@@ -16,11 +16,15 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/util/debug.hh>
-#include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/configuration.hh>
-#include <hpp/core/config-projector.hh>
 #include <hpp/core/straight-path.hh>
+
+#include <hpp/util/debug.hh>
+
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/liegroup.hh>
+#include <hpp/pinocchio/configuration.hh>
+
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/projection-error.hh>
 
 namespace hpp {
@@ -82,7 +86,7 @@ namespace hpp {
       value_type u = param/timeRange ().second;
       if (timeRange ().second == 0)
 	u = 0;
-      pinocchio::interpolate (device_, initial_, end_, u, result);
+      pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, initial_, end_, u, result);
       return true;
     }
 

@@ -19,6 +19,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/interpolated-path.hh>
@@ -239,7 +240,7 @@ namespace hpp {
         for (Configs_t::iterator it = begin; it != last; ++it) {
           if (*itL > maxDist) {
             ++nbNewC;
-            hpp::pinocchio::interpolate (robot, *itCp, *it, 0.5, newQ);
+            hpp::pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (robot, *itCp, *it, 0.5, newQ);
             // FIXME: make sure the iterator are valid after insertion
             // Insert new respective elements
             it  = q.insert (it, newQ);
