@@ -236,6 +236,9 @@ namespace hpp {
     CollisionPair_t;
     typedef std::vector <CollisionPair_t> CollisionPairs_t;
 
+    HPP_PREDEF_CLASS (ContinuousCollisionChecking);
+    typedef boost::shared_ptr <ContinuousCollisionChecking>
+    ContinuousCollisionCheckingPtr_t;
     namespace continuousCollisionChecking {
       HPP_PREDEF_CLASS (Dichotomy);
       typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;

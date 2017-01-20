@@ -25,7 +25,7 @@
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
 
-#include "continuous-collision-checking/progressive/body-pair-collision.hh"
+#include "continuous-collision-checking/body-pair-collision.hh"
 
 namespace hpp {
   namespace core {
@@ -45,103 +45,18 @@ namespace hpp {
         typedef std::set<JointIndexPair_t, JointIndexPairCompare_t> JointIndexPairSet_t;
       }
 
-      using progressive::BodyPairCollision;
-      using progressive::BodyPairCollisionPtr_t;
-      using progressive::BodyPairCollisions_t;
-
       ProgressivePtr_t Progressive::create (const DevicePtr_t& robot,
 					    const value_type& tolerance)
       {
-	Progressive* ptr =
-	  new Progressive (robot, tolerance);
+	Progressive* ptr = new Progressive (robot, tolerance);
 	ProgressivePtr_t shPtr (ptr);
 	return shPtr;
       }
 
-      /// Validate interval centered on a path parameter
-      /// \param config Configuration at abscissa tmin on the path.
-      /// \param tmin parameter value in the path interval of definition
-      /// \retval tmin lower bound of valid interval if reverve is true,
-      ///              upper bound of valid interval if reverse is false.
-      ///              other bound of valid interval is input tmin.
-      /// \return true if the configuration is collision free for this parameter
-      ///         value, false otherwise.
-      bool Progressive::validateConfiguration
-      (const Configuration_t& config, bool reverse, value_type& tmin,
+      bool Progressive::validateStraightPath
+      (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
-	value_type t = tmin;
-	tmin = std::numeric_limits <value_type>::infinity ();
-	value_type tmpMin;
-	robot_->currentConfiguration (config);
-	robot_->computeForwardKinematics();
-        robot_->updateGeometryPlacements();
-	for (BodyPairCollisions_t::iterator itPair =
-	       bodyPairCollisions_.begin ();
-	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  CollisionValidationReportPtr_t collisionReport;
-	  if (!(*itPair)->validateConfiguration (t, tmpMin, collisionReport)) {
-	    report = CollisionPathValidationReportPtr_t
-	      (new CollisionPathValidationReport);
-	    report->configurationReport = collisionReport;
-	    report->parameter = t;
-	    return false;
-	  } else {
-	    if (reverse) {
-	      tmin = std::max (tmin, tmpMin);
-	    } else {
-	      tmin = std::min (tmin, tmpMin);
-	    }
-	  }
-	}
-	hppDout (info, "tmin=" << tmin);
-	return true;
-      }
-
-      bool Progressive::validate (const PathPtr_t& path, bool reverse,
-				  PathPtr_t& validPart,
-				  PathValidationReportPtr_t& report)
-      {
-	if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path)) {
-	  PathVectorPtr_t validPathVector = PathVector::create
-	    (path->outputSize (), path->outputDerivativeSize ());
-	  validPart = validPathVector;
-	  PathPtr_t localValidPart;
-	  if (reverse) {
-	    value_type param = path->length ();
-	    std::deque <PathPtr_t> paths;
-	    for (std::size_t i=pv->numberPaths () + 1; i != 0 ; --i) {
-	      PathPtr_t localPath (pv->pathAtRank (i-1));
-	      if (validate (localPath, reverse, localValidPart, report)) {
-		paths.push_front (localPath->copy ());
-		param -= localPath->length ();
-	      } else {
-		report->parameter += param - localPath->length ();
-		paths.push_front (localValidPart->copy ());
-		for (std::deque <PathPtr_t>::const_iterator it = paths.begin ();
-		     it != paths.end (); ++it) {
-		  validPathVector->appendPath (*it);
-		}
-		return false;
-	      }
-	    }
-	    return true;
-	  } else {
-	    value_type param = 0;
-	    for (std::size_t i=0; i < pv->numberPaths (); ++i) {
-	      PathPtr_t localPath (pv->pathAtRank (i));
-	      if (validate (localPath, reverse, localValidPart, report)) {
-		validPathVector->appendPath (localPath->copy ());
-		param += localPath->length ();
-	      } else {
-		report->parameter += param;
-		validPathVector->appendPath (localValidPart->copy ());
-		return false;
-	      }
-	    }
-	    return true;
-	  }
-	}
 	// for each BodyPairCollision
 	//   - set path,
 	//   - compute valid interval at start (end if reverse)
@@ -162,10 +77,13 @@ namespace hpp {
 	    bool success = (*path) (q, t);
 	    value_type tprev = t;
 	    PathValidationReportPtr_t pathReport;
-	    if (!success || !validateConfiguration (q, reverse, t, pathReport)) {
+	    interval_t interval;
+	    if (!success || !validateConfiguration (q, t, interval,
+						    pathReport)) {
 	      report = pathReport;
 	      valid = false;
 	    } else {
+	      t = interval.first;
 	      lastValidTime = tprev;
 	    }
 	    if (t <= tmin) {
@@ -192,10 +110,13 @@ namespace hpp {
 	    bool success = (*path) (q, t);
 	    value_type tprev = t;
 	    PathValidationReportPtr_t pathReport;
-	    if (!success || !validateConfiguration (q, reverse, t, pathReport)) {
+	    interval_t interval;
+	    if (!success || !validateConfiguration (q, t, interval,
+						    pathReport)) {
 	      report = pathReport;
 	      valid = false;
 	    } else {
+	      t = interval.second;
 	      lastValidTime = tprev;
 	    }
 	    if (t >= tmax) {
@@ -213,87 +134,19 @@ namespace hpp {
 	}
       }
 
-      void Progressive::addObstacle
-      (const CollisionObjectConstPtr_t& object)
-      {
-	pinocchio::JointVector_t& jv = robot_->getJointVector ();
-	for (size_type idx = 0; idx < jv.size (); ++idx) {
-	  BodyPtr_t body = (jv.at(idx))->linkedBody ();
-	  if (body) {
-	    ConstObjectStdVector_t objects;
-	    objects.push_back (object);
-	    bodyPairCollisions_.push_back
-	      (BodyPairCollision::create (jv.at(idx), objects, tolerance_));
-            hppDout(info, *bodyPairCollisions_.back());
-	  }
-	}
-      }
-
-      void Progressive::removeObstacleFromJoint
-      (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
-      {
-	bool removed = false;
-	for (BodyPairCollisions_t::iterator itPair =
-	       bodyPairCollisions_.begin ();
-	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
-	    if ((*itPair)->removeObjectTo_b (obstacle)) {
-	      removed = true;
-	      if ((*itPair)->objects_b ().empty ()) {
-		bodyPairCollisions_.erase (itPair);
-	      }
-	    }
-	  }
-	}
-	if (!removed) {
-	  std::ostringstream oss;
-	  oss << "Progressive::removeObstacleFromJoint: obstacle \""
-	      << obstacle->name () <<
-	    "\" is not registered as obstacle for joint \"" << joint->name ()
-	      << "\".";
-	  throw std::runtime_error (oss.str ());
-	}
-      }
-
       Progressive::~Progressive ()
       {
       }
 
       Progressive::Progressive
       (const DevicePtr_t& robot, const value_type& tolerance) :
-	robot_ (robot), tolerance_ (tolerance),
-	bodyPairCollisions_ ()
+	ContinuousCollisionChecking (robot, tolerance)
       {
 	if (tolerance <= 0) {
 	  throw std::runtime_error
 	    ("tolerance should be positive for"
 	     " progressive continuous collision checking.");
 	}
-        // Build body pairs for collision checking
-        // First auto-collision
-        // FIXME The pairs of joint are duplicated
-        const se3::GeometryModel& gmodel = robot->geomModel ();
-        JointPtr_t joint1, joint2;
-        JointIndexPairSet_t jointPairs;
-        std::size_t duplicates = 0;
-        for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
-        {
-          const se3::CollisionPair& cp = gmodel.collisionPairs[i];
-          JointIndexPair_t jp (
-              gmodel.geometryObjects[cp.first].parentJoint,
-              gmodel.geometryObjects[cp.second].parentJoint);
-          if (jointPairs.count(jp) == 0) {
-            jointPairs.insert(jp);
-            joint1 = JointPtr_t(new Joint(robot_, jp.first));
-            joint2 = JointPtr_t(new Joint(robot_, jp.second));
-            bodyPairCollisions_.push_back (BodyPairCollision::create
-                (joint1, joint2, tolerance_));
-            hppDout(info, *bodyPairCollisions_.back());
-          } else duplicates++;
-	}
-        hppDout(info, "Progressive continuous collision checking: Inserted "
-            << jointPairs.size() << " and filtered " << duplicates <<
-            " duplicates." <<  std::endl);
       }
     } // namespace continuousCollisionChecking
   } // namespace core
