@@ -69,9 +69,9 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
 
   // create path validation objects
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
-  PathValidationPtr_t progressive (Progressive::create (robot, 0.05));
+  PathValidationPtr_t progressive (Progressive::create (robot, 0.01));
   PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
-                                   (robot, 0.01));
+                                   (robot, 0.05));
   // create configuration validation instance
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
   ValidationReportPtr_t collisionReport;

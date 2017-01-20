@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH
 # define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH
 
+# include <pinocchio/multibody/geometry.hpp>
+
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
