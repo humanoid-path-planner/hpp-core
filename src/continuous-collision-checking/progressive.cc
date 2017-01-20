@@ -55,7 +55,11 @@ namespace hpp {
        PathValidationReportPtr_t& report)
       {
 	value_type t = tmin;
-	tmin = std::numeric_limits <value_type>::infinity ();
+	if (reverse) {
+	  tmin = -std::numeric_limits <value_type>::infinity ();
+	} else {
+	  tmin = std::numeric_limits <value_type>::infinity ();
+	}
 	value_type tmpMin;
 	robot_->currentConfiguration (config);
 	robot_->computeForwardKinematics ();
