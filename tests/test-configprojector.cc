@@ -315,6 +315,10 @@ BOOST_AUTO_TEST_CASE (ref_zero)
     ConfigProjector::create (dev, "test", 1e-4, 20);
 
   projector->add (NumericalConstraint::create (position, ineq));
+  // Constraints are
+  // q [0] > 0
+  // q [1] < 0
+  // q [2] > 0
   Configuration_t cfg(dev->neutralConfiguration ());
 
   vector_t invert(3);
