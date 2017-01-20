@@ -88,12 +88,15 @@ DevicePtr_t createRobot ()
   std::string jointName = name + "_x";
 
   JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat,jointName);
+  robot->model().addJointFrame(idX);
 
   std::string jointNameY = name + "_y";
 
   idX = robot->model().addJoint(idX,JointModelPY(), mat,jointNameY);
+  robot->model().addJointFrame(idX);
 
   idX = robot->model().addJoint(idX,JointModelRUBZ(), mat,"rot_z");
+  robot->model().addJointFrame(idX);
 
   fcl::Transform3f position; position.setIdentity ();
 
