@@ -117,6 +117,13 @@ JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
 
 DevicePtr_t createRobot (){
   DevicePtr_t robot = hpp::pinocchio::humanoidSimple("test");
+  const value_type l = 2;
+  robot->rootJoint()->lowerBound(0, -l);
+  robot->rootJoint()->lowerBound(1, -l);
+  robot->rootJoint()->lowerBound(2, -l);
+  robot->rootJoint()->upperBound(0,  l);
+  robot->rootJoint()->upperBound(1,  l);
+  robot->rootJoint()->upperBound(2,  l);
   return robot;
 }
 /*
@@ -308,9 +315,7 @@ BOOST_AUTO_TEST_CASE (ref_zero)
     ConfigProjector::create (dev, "test", 1e-4, 20);
 
   projector->add (NumericalConstraint::create (position, ineq));
-  Configuration_t cfg(dev->configSize ());
-  cfg.setZero ();
-  cfg [3] = 1; // Normalize quaternion
+  Configuration_t cfg(dev->neutralConfiguration ());
 
   vector_t invert(3);
   invert[0] =  1;
@@ -345,9 +350,7 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
   projector->add (NumericalConstraint::create (position, ineq));
-  Configuration_t cfg(dev->configSize ());
-  cfg.setZero ();
-  cfg [3] = 1; // Normalize quaternion
+  Configuration_t cfg(dev->neutralConfiguration ());
 
   ref[0] = 2; 
   ref[1] = 0; 
