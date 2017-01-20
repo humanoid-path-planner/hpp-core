@@ -95,8 +95,14 @@ DevicePtr_t createRobot ()
   idX = robot->model().addJoint(idX,JointModelPY(), mat,jointNameY);
   robot->model().addJointFrame(idX);
 
+  robot->model().upperPositionLimit.setConstant( 2);
+  robot->model().lowerPositionLimit.setConstant(-2);
+
   idX = robot->model().addJoint(idX,JointModelRUBZ(), mat,"rot_z");
   robot->model().addJointFrame(idX);
+
+  robot->model().upperPositionLimit.tail<2>().setConstant( 1.01);
+  robot->model().lowerPositionLimit.tail<2>().setConstant(-1.01);
 
   fcl::Transform3f position; position.setIdentity ();
 
