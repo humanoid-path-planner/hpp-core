@@ -21,21 +21,18 @@
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/fcl/math/transform.h>
 
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method-straight.hh>
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
-using hpp::model::ConfigurationOut_t;
-using hpp::model::Configuration_t;
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::JointPtr_t;
-using hpp::model::JointConstPtr_t;
+using hpp::pinocchio::ConfigurationOut_t;
+using hpp::pinocchio::Configuration_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::JointPtr_t;
+using hpp::pinocchio::JointConstPtr_t;
 
 using hpp::core::ConfigurationPtr_t;
 using hpp::core::ConstraintSetPtr_t;

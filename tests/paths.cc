@@ -26,8 +26,6 @@
 // because the original timers are already included by
 // the unit test framework
 // #include <boost/timer.hh>
-#include <hpp/model/device.hh>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -38,11 +36,6 @@
 #include <hpp/core/subchain-path.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
-
-
-
-#include "../tests/utils.hh"
-
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 

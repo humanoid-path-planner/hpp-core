@@ -45,8 +45,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/geometry.hpp>
-#include "../tests/utils.hh"
-
 
 using namespace hpp;
 using namespace core;

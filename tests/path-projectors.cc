@@ -32,8 +32,6 @@
 #define HPP_ENABLE_BENCHMARK 1
 #include <hpp/util/timer.hh>
 
-#include <hpp/model/device.hh>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -48,7 +46,6 @@
 
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/progressive.hh>
-#include "../tests/utils.hh"
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 

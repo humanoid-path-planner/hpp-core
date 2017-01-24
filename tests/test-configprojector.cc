@@ -32,9 +32,6 @@
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
 
-#include "../tests/utils.hh"
-
-
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;

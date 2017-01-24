@@ -28,10 +28,6 @@
 
 #include "../src/continuous-collision-checking/body-pair-collision.hh"
 #include <boost/test/included/unit_test.hpp>
-#include "../tests/utils.hh"
-
-
-
 
 using std::numeric_limits;
 using hpp::pinocchio::BodyPtr_t;

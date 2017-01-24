@@ -14,11 +14,15 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/util/debug.hh>
-#include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/configuration.hh>
-#include <hpp/core/config-projector.hh>
 #include <hpp/core/interpolated-path.hh>
+
+#include <hpp/util/debug.hh>
+
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/liegroup.hh>
+#include <hpp/pinocchio/configuration.hh>
+
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/projection-error.hh>
 
 namespace hpp {
@@ -122,7 +126,7 @@ namespace hpp {
       const value_type T = itA->first - itB->first;
       const value_type u = (param - itB->first) / T;
 
-      pinocchio::interpolate (device_, itB->second, itA->second, u, result);
+      pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, itB->second, itA->second, u, result);
       return true;
     }
 
@@ -154,7 +158,8 @@ namespace hpp {
 	return;
       }
       if (order == 1) {
-	model::difference (device_, itA->second, itB->second, result);
+	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	  (device_, itA->second, itB->second, result);
 	result = (1/T) * result;
       }
     }

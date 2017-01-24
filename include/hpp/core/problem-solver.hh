@@ -26,8 +26,10 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
+# include <hpp/core/config-projector.hh>
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/container.hh>
+# include <hpp/core/constraint-set.hh>
 # include <hpp/core/comparison-type.hh> // ComparisonType::VectorOfTypes
 
 namespace hpp {

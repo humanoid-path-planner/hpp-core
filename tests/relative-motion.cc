@@ -52,9 +52,6 @@
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 
-#include "../tests/utils.hh"
-
-
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;

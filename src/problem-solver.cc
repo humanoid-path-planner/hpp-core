@@ -433,14 +433,6 @@ namespace hpp {
       configProjector->computeValueAndJacobian (configuration, value, jacobian);
     }
 
-    void ProblemSolver::maxIterations (size_type iterations)
-    {
-      maxIterations_ = iterations;
-      if (constraints_ && constraints_->configProjector ()) {
-        constraints_->configProjector ()->maxIterations (iterations);
-      }
-    }
-
     void ProblemSolver::errorThreshold (const value_type& threshold)
     {
       errorThreshold_ = threshold;

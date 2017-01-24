@@ -19,9 +19,11 @@
 #include <hpp/util/debug.hh>
 
 #include <pinocchio/multibody/joint/joint.hpp>
+#include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/core/distance.hh>
 #include <hpp/core/path-validation.hh>
@@ -114,9 +116,13 @@ namespace hpp {
         value_type t = - lt1;
         for (std::size_t i = rkAtP1; i < rkAtP2; ++i) {
           t += path->pathAtRank (i)->length();
-          q_inter = path->pathAtRank (i)->end (),
-          q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate ( q1, q2,
-              t / (t2-t1));
+          q_inter = path->pathAtRank (i)->end ();
+          // q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate ( q1, q2,
+              // t / (t2-t1));
+          typedef hpp::pinocchio::LieGroupTpl LG_t;
+          typedef se3::InterpolateStep<LG_t> IS_t;
+          value_type u = t / (t2-t1);
+          IS_t::run (j->jointModel(), IS_t::ArgsType (q1, q2, u, q_inter));
           if (path->pathAtRank (i)->constraints ()) {
             if (!path->pathAtRank (i)->constraints ()->apply (q_inter)) {
               hppDout (warning, "PartialShortcut could not apply "

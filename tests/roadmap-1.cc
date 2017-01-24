@@ -18,8 +18,6 @@
 
 #include <boost/assign.hpp>
 
-#include <hpp/model/device.hh>
-
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
@@ -44,7 +42,6 @@
 
 #define BOOST_TEST_MODULE roadmap-1
 #include <boost/test/included/unit_test.hpp>
-#include "../tests/utils.hh"
 
 using hpp::pinocchio::Configuration_t;
 using hpp::core::ConfigurationPtr_t;

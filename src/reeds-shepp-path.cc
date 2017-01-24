@@ -26,6 +26,7 @@
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
 
 #include <hpp/core/config-projector.hh>
@@ -650,7 +651,7 @@ namespace hpp {
       }
       // Does a linear interpolation on all the joints.
       const value_type u = (timeRange ().second == 0)?0:param/timeRange ().second;
-      pinocchio::interpolate (device_, initial_, end_, u, result);
+      pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, initial_, end_, u, result);
 
       // Compute the position of the car.
       result.segment <2> (xyId_).setZero();
@@ -737,7 +738,8 @@ namespace hpp {
 	result.setZero ();
       }
       else if (order == 1) {
-	model::difference (device_, end_, initial_, result);
+	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	  (device_, end_, initial_, result);
 	result = (1/timeRange ().second) * result;
       } else {
 	std::ostringstream oss;

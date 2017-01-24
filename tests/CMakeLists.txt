@@ -3,7 +3,7 @@
 # Author: Mathieu Geisert
 #
 # This file is part of hpp-core
-# hpp-model-urdf is free software: you can redistribute it and/or modify
+# hpp-core is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -46,8 +46,6 @@ MACRO(ADD_TESTCASE NAME GENERATED)
   ADD_TEST(${NAME} ${RUNTIME_OUTPUT_DIRECTORY}/${NAME})
 
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-util)
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model)
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-model-urdf)
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-pinocchio)
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}

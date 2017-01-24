@@ -25,8 +25,6 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include <hpp/model/device.hh>
-
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
@@ -38,9 +36,6 @@
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
 #include <pinocchio/multibody/geometry.hpp>
-
-#include "../tests/utils.hh"
-
 
 using hpp::pinocchio::BodyPtr_t;
 using hpp::pinocchio::Body;
