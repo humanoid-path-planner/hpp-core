@@ -38,14 +38,15 @@ namespace hpp {
       problem_ (problem), roadmap_ (Roadmap::create (problem.distance (),
 						     problem.robot())),
       interrupt_ (false),
-      maxIterations_ (std::numeric_limits <unsigned long int>::infinity ())
+      maxIterations_ (std::numeric_limits <unsigned long int>::max ())
     {
     }
 
     PathPlanner::PathPlanner (const Problem& problem,
 			      const RoadmapPtr_t& roadmap) :
       problem_ (problem), roadmap_ (roadmap),
-      interrupt_ (false)
+      interrupt_ (false),
+      maxIterations_ (std::numeric_limits <unsigned long int>::max ())
     {
     }
 

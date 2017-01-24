@@ -121,7 +121,7 @@ namespace hpp {
       (new GeomData(*obstacleModel_)),
       errorThreshold_ (1e-4), maxIterProjection_ (20),
       maxIterPathPlanning_ (std::numeric_limits
-			    <unsigned long int>::infinity ()),
+			    <unsigned long int>::max ()),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
