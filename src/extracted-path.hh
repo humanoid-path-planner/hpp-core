@@ -82,6 +82,18 @@ namespace hpp {
         return original_->impl_compute (result, param);
       }
 
+      virtual void impl_derivative (vectorOut_t result, const value_type& t,
+				    size_type order) const
+      {
+	if (reversed_) {
+	  value_type param = (timeRange ().first + timeRange ().second - t);
+	  original_->impl_derivative (result, param, order);
+	  if (order % 2 == 1) result *= -1.;
+	} else {
+	  original_->impl_derivative (result, t, order);
+	}
+      }
+
       virtual PathPtr_t extract (const interval_t& subInterval) const
         throw (projection_error)
       {
@@ -93,8 +105,10 @@ namespace hpp {
 	// path->reversed_ = ((this->reversed_) && (!reversed)) ||
 	  // ((!this->reversed_) && (reversed));
 	path->timeRange_ = std::make_pair (tmin, tmax);
-	assert (path->timeRange_.first >= timeRange ().first);
-	assert (path->timeRange_.second <= timeRange ().second);
+	assert (path->timeRange_.first >= timeRange ().first -
+		std::numeric_limits <float>::epsilon ());
+	assert (path->timeRange_.second <= timeRange ().second +
+		std::numeric_limits <float>::epsilon ());
 	return path;
       }
 

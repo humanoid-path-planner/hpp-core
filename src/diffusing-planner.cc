@@ -19,7 +19,6 @@
 #include <hpp/core/diffusing-planner.hh>
 
 #include <boost/tuple/tuple.hpp>
-
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 #include <hpp/pinocchio/configuration.hh>

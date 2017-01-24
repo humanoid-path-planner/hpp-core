@@ -48,7 +48,7 @@ namespace hpp {
     // Copy constructor
     Path::Path (const Path& path) :
       timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
-      constraints_ ()
+      outputDerivativeSize_ (path.outputDerivativeSize_), constraints_ ()
     {
       if (path.constraints_) {
 	constraints_ = HPP_STATIC_PTR_CAST (ConstraintSet,
@@ -58,6 +58,7 @@ namespace hpp {
 
     Path::Path (const Path& path, const ConstraintSetPtr_t& constraints) :
       timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
+      outputDerivativeSize_ (path.outputDerivativeSize_),
       constraints_ (constraints)
     {
       assert (!path.constraints_);

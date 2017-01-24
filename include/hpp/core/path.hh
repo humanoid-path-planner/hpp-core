@@ -20,6 +20,7 @@
 # define HPP_CORE_PATH_HH
 
 # include <boost/concept_check.hpp>
+# include <hpp/util/exception.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint-set.hh>
@@ -118,11 +119,34 @@ namespace hpp {
         return impl_compute (result, t);
       }
 
+      /// Get derivative with respect to parameter at given parameter
+      /// \param t value of the parameter in the definition interval,
+      /// \param order order of the derivative
+      /// \retval result derivative. Should be allocated and of correct size.
+      /// \warning the method is not implemented in this class and throws if
+      ///          called without being implemented in the derived class.
+      /// \note unless otherwise stated, this method is not compatible with
+      ///       constraints. The derivative of the non-constrained path will
+      ///       be computed.
+      void derivative (vectorOut_t result, const value_type& t, size_type order)
+	const
+      {
+	impl_derivative (result, t, order);
+      }
+
       /// \brief Function evaluation without applying constraints
       ///
       /// \return true if everything went good.
       virtual bool impl_compute (ConfigurationOut_t configuration,
 				 value_type t) const = 0;
+
+      /// Virtual implementation of derivative
+      virtual void impl_derivative (vectorOut_t, const value_type&,
+				    size_type) const
+      {
+	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
+      }
+
       /// \name Constraints
       /// \{
 

@@ -19,6 +19,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/util/exception.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -84,6 +85,27 @@ namespace hpp {
 	u = 0;
       pinocchio::interpolate (device_, initial_, end_, u, result);
       return true;
+    }
+
+    void StraightPath::impl_derivative (vectorOut_t result, const value_type&,
+					size_type order) const
+    {
+      if (order > 1) {
+	result.setZero ();
+	return;
+      }
+      if (order == 1) {
+	if (timeRange ().first == timeRange ().second) {
+	  result.setZero ();
+	  return;
+	}
+	model::difference (device_, end_, initial_, result);
+	result = (1/timeRange ().second) * result;
+	return;
+      }
+      std::ostringstream oss;
+      oss << "order of derivative (" << order << ") should be positive.";
+      HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
     }
 
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const

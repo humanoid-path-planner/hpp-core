@@ -44,8 +44,13 @@ namespace hpp {
 	  throw std::runtime_error ("localparam out of range.");
 	}
 	localParam = paths_ [res]->timeRange ().second;
+      } else {
+	localParam += paths_ [res]->timeRange ().first;
       }
-      localParam += paths_ [res]->timeRange ().first;
+      assert (localParam >= paths_ [res]->timeRange ().first -
+	      std::numeric_limits <float>::epsilon ());
+      assert (localParam <= paths_ [res]->timeRange ().second +
+	      std::numeric_limits <float>::epsilon ());
       return res;
     }
 
@@ -82,6 +87,13 @@ namespace hpp {
       }
     }
 
+    void PathVector::concatenate (const PathVectorPtr_t& path)
+    {
+      for (std::size_t i=0; i<path->numberPaths (); ++i) {
+	appendPath (path->pathAtRank (i)->copy ());
+      }
+    }
+
     void PathVector::flatten (PathVectorPtr_t p) const
     {
       for (std::size_t i = 0; i < numberPaths (); ++i) {
@@ -102,6 +114,18 @@ namespace hpp {
 
       PathPtr_t subpath = paths_ [rank];
       return (*subpath) (result, localParam);
+    }
+
+    void PathVector::impl_derivative (vectorOut_t result, const value_type& t,
+				      size_type order) const
+    {
+      // Find direct path in vector corresponding to parameter.
+      size_t rank;
+      value_type localParam;
+      rank = rankAtParam (t, localParam);
+
+      PathPtr_t subpath = paths_ [rank];
+      subpath->impl_derivative (result, localParam, order);
     }
 
     PathPtr_t PathVector::extract (const interval_t& subInterval) const

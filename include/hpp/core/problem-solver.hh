@@ -387,11 +387,31 @@ namespace hpp {
 				    vector_t& value, matrix_t& jacobian) const;
 
       /// Set maximal number of iterations in config projector
-      void maxIterations (size_type iterations);
-      /// Get maximal number of iterations in config projector
-      size_type maxIterations () const
+      void maxIterProjection (size_type iterations)
       {
-	return maxIterations_;
+	maxIterProjection_ = iterations;
+	if (constraints_ && constraints_->configProjector ()) {
+	  constraints_->configProjector ()->maxIterations (iterations);
+	}
+      }
+      /// Get maximal number of iterations in config projector
+      size_type maxIterProjection () const
+      {
+	return maxIterProjection_;
+      }
+
+      /// Set maximal number of iterations in config projector
+      void maxIterPathPlanning (size_type iterations)
+      {
+	maxIterPathPlanning_ = iterations;
+	if (constraints_ && constraints_->configProjector ()) {
+	  constraints_->configProjector ()->maxIterations (iterations);
+	}
+      }
+      /// Get maximal number of iterations in config projector
+      size_type maxIterPathPlanning () const
+      {
+	return maxIterPathPlanning_;
       }
 
       /// Set error threshold in config projector
@@ -637,7 +657,9 @@ namespace hpp {
       // Tolerance for numerical constraint resolution
       value_type errorThreshold_;
       // Maximal number of iterations for numerical constraint resolution
-      size_type maxIterations_;
+      size_type maxIterProjection_;
+      /// Maximal number of iterations for path planner
+      unsigned long int maxIterPathPlanning_;
       /// Map of passive dofs
       SizeIntervalsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation

@@ -238,7 +238,7 @@ namespace hpp {
 
     NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration,
             const ConnectedComponentPtr_t& connectedComponent,
-                              value_type& minDistance, bool reverse) {
+                              value_type& minDistance, bool) {
       // Test if the configuration is in the root box
       for ( std::size_t i=0 ; i<dim_ ; i++ ) {
 	if ( (*configuration)[i] < lowerBounds_[i] || (*configuration)[i]

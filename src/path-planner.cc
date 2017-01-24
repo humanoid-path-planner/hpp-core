@@ -37,7 +37,8 @@ namespace hpp {
     PathPlanner::PathPlanner (const Problem& problem) :
       problem_ (problem), roadmap_ (Roadmap::create (problem.distance (),
 						     problem.robot())),
-      interrupt_ (false)
+      interrupt_ (false),
+      maxIterations_ (std::numeric_limits <unsigned long int>::infinity ())
     {
     }
 
@@ -75,6 +76,7 @@ namespace hpp {
     {
       interrupt_ = false;
       bool solved = false;
+      unsigned long int nIter (0);
       startSolve ();
       tryDirectPath ();
       solved = roadmap()->pathExists ();
@@ -83,9 +85,15 @@ namespace hpp {
       }
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
+	std::ostringstream oss;
+	if (nIter >= maxIterations_) {
+	  oss << "Maximal number of iterations reached: " << maxIterations_;
+	  throw std::runtime_error (oss.str ().c_str ());
+	}
         problem_.target ()->oneStep ();
 	oneStep ();
-       solved = roadmap()->pathExists ();
+	++nIter;
+	solved = roadmap()->pathExists ();
 	if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
@@ -95,6 +103,11 @@ namespace hpp {
     void PathPlanner::interrupt ()
     {
       interrupt_ = true;
+    }
+
+    void PathPlanner::maxIterations (const unsigned long int& n)
+    {
+      maxIterations_ = n;
     }
 
     PathVectorPtr_t PathPlanner::computePath () const

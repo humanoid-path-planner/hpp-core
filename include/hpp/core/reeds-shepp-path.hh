@@ -174,6 +174,9 @@ namespace hpp {
 
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;
+      /// Virtual implementation of derivative
+      virtual void impl_derivative (vectorOut_t result, const value_type& t,
+				    size_type order) const;
 
     private:
       typedef Eigen::Matrix<value_type, 5, 1> Lengths_t;
@@ -200,6 +203,7 @@ namespace hpp {
       Configuration_t initial_;
       Configuration_t end_;
       const size_type xyId_,rzId_;
+      size_type dxyId_,drzId_;
       struct Wheels_t {
         value_type L, R, S; // Left, Right and Straight turn
         JointPtr_t j;

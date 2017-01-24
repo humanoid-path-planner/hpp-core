@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
 
-
-
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
 
@@ -68,4 +66,5 @@ ADD_TESTCASE (path-projectors FALSE) # link error
 ADD_TESTCASE (containers FALSE)
 ADD_TESTCASE (paths FALSE)
 ADD_TESTCASE (relative-motion FALSE)
+ADD_TESTCASE (test-path-extraction FALSE)
 ADD_TESTCASE (test-continuous-collision-checking FALSE)
