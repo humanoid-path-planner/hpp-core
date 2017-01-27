@@ -803,7 +803,7 @@ namespace hpp {
       result(drzId_) = dPhi / rho_;
       for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
 	   _w != wheels_.end(); ++_w)
-	result(_w->j->rankInConfiguration()) = 0;
+	result(_w->j->rankInVelocity ()) = 0;
     }
 
   } //   namespace hpp-core
