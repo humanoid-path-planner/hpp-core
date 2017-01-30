@@ -97,6 +97,7 @@ namespace hpp {
         u = 0;
 
       model::interpolate (device_, initial_, end_, u, result);
+      //hppDout(notice,"path : initial = "<<model::displayConfig(initial_));
 
       for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
@@ -116,7 +117,7 @@ namespace hpp {
             result[indexVel] = initial_[indexVel];
             result[indexAcc] = 0;
           }
-          if(t <= (t0_[id] + t1_[id])){
+          else if(t <= (t0_[id] + t1_[id])){
             //  hppDout(info,"on  1° segment");
             t1 = t - t0_[id];
             result[id] = 0.5*t1*t1*a1_[id] + t1*initial_[indexVel] + initial_[id] + t0_[id]*initial_[indexVel];
