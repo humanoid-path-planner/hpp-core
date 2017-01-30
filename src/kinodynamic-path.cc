@@ -26,15 +26,16 @@ namespace hpp {
     KinodynamicPath::KinodynamicPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
+                                      value_type length, ConfigurationIn_t a1,ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
       parent_t (device,init,end,length),
-      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
+      a1_(a1),t0_(t0),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
       assert (device);
       assert (length >= 0);
       assert (!constraints ());
       hppDout(notice,"Create kinodynamic path with values : ");
       hppDout(notice,"a1 = "<<model::displayConfig(a1_));
+      hppDout(notice,"t0 = "<<model::displayConfig(t0_));
       hppDout(notice,"t1 = "<<model::displayConfig(t1_));
       hppDout(notice,"tv = "<<model::displayConfig(tv_));
       hppDout(notice,"t2 = "<<model::displayConfig(t2_));
@@ -46,24 +47,24 @@ namespace hpp {
     KinodynamicPath::KinodynamicPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
                                       ConstraintSetPtr_t constraints) :
       parent_t (device,init,end,length,constraints),
-      a1_(a1),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
+      a1_(a1),t0_(t0),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
       assert (device);
       assert (length >= 0);
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
-      parent_t (path),a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
+      parent_t (path),a1_(path.a1_),t0_(path.t0_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
     {
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints),
-      a1_(path.a1_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
+      a1_(path.a1_),t0_(path.t0_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
     {
       assert (constraints->apply (initial_));
       assert (constraints->apply (end_));
@@ -87,7 +88,7 @@ namespace hpp {
       
       size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();      
       // const JointVector_t& jv (device()->getJointVector ());
-      double v2,t2;
+      double v2,t2,t1,tv;
       size_type indexVel;
       size_type indexAcc;
       // straight path for all the joints, except the translations of the base :
@@ -110,25 +111,32 @@ namespace hpp {
           
           //if((*itJoint)->configSize() >= 1){
           // 3 case (each segment of the trajectory) : 
-          if(t <= t1_[id]){
-          //  hppDout(info,"on  1° segment");
-            result[id] = 0.5*t*t*a1_[id] + t*initial_[indexVel] + initial_[id];
-            result[indexVel] = t*a1_[id] + initial_[indexVel];
+          if(t <= t0_[id]){
+            result[id] = initial_[id] + t*initial_[indexVel];
+            result[indexVel] = initial_[indexVel];
+            result[indexAcc] = 0;
+          }
+          if(t <= (t0_[id] + t1_[id])){
+            //  hppDout(info,"on  1° segment");
+            t1 = t - t0_[id];
+            result[id] = 0.5*t1*t1*a1_[id] + t1*initial_[indexVel] + initial_[id] + t0_[id]*initial_[indexVel];
+            result[indexVel] = t1*a1_[id] + initial_[indexVel];
             result[indexAcc] = a1_[id];
-          }else if (t <= (t1_[id] + tv_[id]) ){
-          //  hppDout(info,"on  constant velocity segment");
-            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + (t-t1_[id])*vLim_[id];
+          }else if (t <= (t0_[id] + t1_[id] + tv_[id]) ){
+            //  hppDout(info,"on  constant velocity segment");
+            tv = t - t0_[id] - t1_[id];
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + t0_[id]*initial_[indexVel] + (tv)*vLim_[id];
             result[indexVel] = vLim_[id];
             result[indexAcc] = 0.;
 
           }else{
           //  hppDout(info,"on  3° segment");
-            t2 = t - tv_[id] - t1_[id] ;
+            t2 = t - tv_[id] - t1_[id] - t0_[id];
             if(tv_[id] > 0 )
               v2 = vLim_[id];
             else
               v2 = t1_[id]*a1_[id] + initial_[indexVel];
-            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + tv_[id]*vLim_[id] - 0.5*t2*t2*a1_[id] + t2*v2;
+            result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + t0_[id]*initial_[indexVel] + tv_[id]*vLim_[id] - 0.5*t2*t2*a1_[id] + t2*v2;
             result[indexVel] = v2 - t2 * a1_[id];
             result[indexAcc] = -a1_[id];
 
@@ -175,9 +183,10 @@ namespace hpp {
         std::cout<<"ERROR, you shouldn't call reverse() on a kinodynamic path"<<std::endl;
         return PathPtr_t();
       }
-      double ti,tf,oldT2,oldT1,oldTv;
+      double ti,tf,oldT0,oldT2,oldT1,oldTv;
       hppDout(notice,"%% subinterval PATH");
       // new timebounds
+      Configuration_t t0(t0_);
       Configuration_t t1(t1_);
       Configuration_t t2(t2_);
       Configuration_t tv(tv_);
@@ -189,19 +198,25 @@ namespace hpp {
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
         ti = subInterval.first - timeRange_.first;
         tf = timeRange_.second - subInterval.second;
-        t1[i] = t1_[i] - ti;
-        if(t1[i] <= 0){
-          t1[i] = 0; 
-          ti = ti - t1_[i];
-          tv[i] = tv_[i] - ti;
-          if(tv[i] <= 0 ){
-            tv[i] = 0;
-            ti = ti - tv_[i];
-            t2[i] = t2_[i] - ti;
-            if(t2[i] <= 0)
-              t2[i] = 0;
+        t0[i] = t0_[i] - ti;
+        if(t0[i] <= 0){
+          t0[i] = 0;
+          ti = ti - t0_[i];
+          t1[i] = t1_[i] - ti;
+          if(t1[i] <= 0){
+            t1[i] = 0;
+            ti = ti - t1_[i];
+            tv[i] = tv_[i] - ti;
+            if(tv[i] <= 0 ){
+              tv[i] = 0;
+              ti = ti - tv_[i];
+              t2[i] = t2_[i] - ti;
+              if(t2[i] <= 0)
+                t2[i] = 0;
+            }
           }
         }
+        oldT0 = t0[i];
         oldT1 = t1[i];
         oldT2 = t2[i];
         oldTv = tv[i];
@@ -214,14 +229,17 @@ namespace hpp {
             tv[i] = 0;
             tf = tf - oldTv;
             t1[i] = oldT1 - tf;
-            if(t1[i] <= 0 )
+            if(t1[i] <= 0 ){
               t1[i] = 0;
+              tf = tf - oldT1;
+              t0[i] = oldT0 - tf;
+            }
           }
         }
 
 
       } // for all joints
-      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1,t1,tv,t2,vLim_,
+      PathPtr_t result = KinodynamicPath::create (device_, q1, q2, l,a1,t0,t1,tv,t2,vLim_,
                                                   constraints ());
       return result;
     }
