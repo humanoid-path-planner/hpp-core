@@ -57,7 +57,7 @@ namespace hpp {
       {
         double Tmax = 0;
         double T = 0;
-        double t1,tv,t2,a1,vLim;
+        double t0,t1,tv,t2,a1,vLim;
         model::vector3_t dir(q2[0] - q1[0] ,q2[1] - q1[1] ,q2[2] - q1[2] );
         hppDout(notice,"direction = "<<dir);
         interval_t infeasibleInterval;
@@ -114,9 +114,9 @@ namespace hpp {
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
-            fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2,&vLim);
+            fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t0,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
-            t0_t[indexConfig] = 0.; // TODO
+            t0_t[indexConfig]=t0;
             t1_t[indexConfig]=t1;
             tv_t[indexConfig]=tv;
             t2_t[indexConfig]=t2;  
@@ -309,7 +309,7 @@ namespace hpp {
         return T;
       }
       
-      void Kinodynamic::fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1, double *t1, double *tv, double *t2, double *vLim) const{
+      void Kinodynamic::fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1,double *t0, double *t1, double *tv, double *t2, double *vLim) const{
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
         double v12 = v1+v2;
         double v2_1 = v2-v1;
@@ -320,11 +320,83 @@ namespace hpp {
         
         if(v2_1 == 0 && p2_1 == 0){
           *a1 = 0;
+          *t0 = 0;
           *t1 = 0;
           *tv = 0;
           *t2 = 0;
           *vLim = 0;
           return;
+        }
+
+        if(index == 2){ // FIXME : axis z ?
+          //TODO TEST A SUPPRIMER
+          hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
+          assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
+          double aMax =std::fabs(aMax_[index]);
+          double vMax = vMax_[index];
+          int sigma;
+          double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
+          sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
+          if(sigma == 0){ // ??? FIXME
+            sigma = sgn(p2-p1);
+          }
+          *a1 = (sigma)*aMax;
+          double a2 = -*a1;
+          (*vLim) = (sigma) * vMax;
+          hppDout(info,"Vlim = "<<(*vLim)<<"   ;  aMax = "<<aMax);
+          // test if two segment trajectory is valid :
+          bool twoSegment = false;
+
+          // solve quadratic equation (cf eq 13 article)
+          const double a = *a1;
+          const double b = 2. * v1;
+          const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
+
+          const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+          hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
+          const double x1 = q/a;
+          const double x2 = c/q;
+          const double x = std::max(x1,x2);
+          hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
+          hppDout(info," x = "<<x);
+          hppDout(info,"t1 before vel limit = "<<x);
+
+          hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
+          double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
+
+
+          if(x >= minT1){
+            twoSegment = true;
+            *t1 = x;
+            hppDout(info,"t1 >= minT1");
+          }
+          if(twoSegment){ // check if max velocity is respected
+            if(std::abs(v1+(*t1)*(*a1)) > vMax){
+              twoSegment = false;
+              hppDout(info,"Doesn't respect max velocity, need 3 segments");
+            }
+          }
+          if(twoSegment){ // compute t2 for two segment trajectory
+            *tv = 0.;
+            *t2 = ((v2-v1)/a2) + (*t1);// eq 14
+          }else{// compute 3 segment trajectory, with constant velocity phase :
+            *t1 = ((*vLim) - v1)/(*a1);  //eq 15
+            *tv = ((v1*v1+v2*v2 - 2*(*vLim)*(*vLim))/(2*(*vLim)*(*a1))) + (p2-p1)/(*vLim) ; //eq 16
+            *t2 = (v2-(*vLim))/a2;  //eq 17
+          }
+          if(twoSegment){
+            hppDout(notice,"Trajectory with 2 segments");
+          }else{
+            hppDout(notice,"Trajectory with 3 segments");
+          }
+          hppDout(notice,"a1 = "<<(*a1)<<"  ;  a2 ="<<a2);
+          *t0 = T - *t1 - *tv - *t2;
+          hppDout(notice,"t0 = "<<*t0);
+          hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
+          hppDout(notice,"T = "<<T);
+          return;
+        }else{
+          *t0 = 0.;
         }
 
         // quadratic equation (20)
