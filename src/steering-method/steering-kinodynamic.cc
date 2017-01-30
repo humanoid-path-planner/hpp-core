@@ -87,6 +87,7 @@ namespace hpp {
         hppDout(notice,"Tmax = "<<Tmax<<"  after infeasible interval : "<<length);
         // create array of times intervals and acceleration values: 
         Configuration_t a1_t(3);
+        Configuration_t t0_t(3);
         Configuration_t t1_t(3);
         Configuration_t t2_t(3);
         Configuration_t tv_t(3);
@@ -115,6 +116,7 @@ namespace hpp {
           if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
             fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
+            t0_t[indexConfig] = 0.; // TODO
             t1_t[indexConfig]=t1;
             tv_t[indexConfig]=tv;
             t2_t[indexConfig]=t2;  
@@ -128,7 +130,7 @@ namespace hpp {
           }
         }
         
-        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t1_t,tv_t,t2_t,vLim_t);
+        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t0_t,t1_t,tv_t,t2_t,vLim_t);
         return path;
       }
       

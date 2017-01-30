@@ -22,17 +22,17 @@ namespace hpp {
     KinodynamicOrientedPath::KinodynamicOrientedPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
-      parent_t (device,init,end,length,a1,t1,tv,t2,vLim)
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
+      parent_t (device,init,end,length,a1,t0,t1,tv,t2,vLim)
     {
     }
 
     KinodynamicOrientedPath::KinodynamicOrientedPath (const DevicePtr_t& device,
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0,ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
                                       ConstraintSetPtr_t constraints) :
-      parent_t (device,init,end,length,a1,t1,tv,t2,vLim,constraints)
+      parent_t (device,init,end,length,a1,t0,t1,tv,t2,vLim,constraints)
 
     {
     }
