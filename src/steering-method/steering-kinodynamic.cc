@@ -145,19 +145,19 @@ namespace hpp {
         }
 
         // get velocity and acceleration bounds from problem :
-       /* try {
-          aMax = problem_->get<double> (std::string("aMax"));
+        try {
+          aMaxFixed_ = problem_->get<double> (std::string("aMax"));
         } catch (const std::exception& e) {
-          std::cout<<"Warning : no acceleration bounds set, use 1.0 as default"<<std::endl;
-          aMax = 1.;
+          std::cout<<"Warning : no acceleration bounds set, use 10.0 as default"<<std::endl;
+          aMaxFixed_ = 10.;
         }
         try {
-          vMax = problem_->get<double> (std::string("vMax"));
+          vMax_ *= problem_->get<double> (std::string("vMax"));
         } catch (const std::exception& e) {
           std::cout<<"Warning : no velocity bounds set, use 1.0 as default"<<std::endl;
-          vMax = 1.;
         }
-        hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<<" ; aMax = "<<aMax_);*/
+        std::cout<<"here"<<std::endl;
+        hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_);
 
 
       }
@@ -172,7 +172,8 @@ namespace hpp {
         hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);        
         // compute the sign of each acceleration
         assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
-        double aMax = std::fabs(aMax_.norm());
+        double aMax =std::fabs(aMax_[index]);
+        hppDout(notice,"amax used in computeMinTime("<<index<<") = "<<aMax);
         double vMax = vMax_[index];
         double t1,t2,tv;
         int sigma;

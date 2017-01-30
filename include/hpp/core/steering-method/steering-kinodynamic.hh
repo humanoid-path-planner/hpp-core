@@ -131,10 +131,12 @@ namespace hpp {
           core::SteeringMethod::init (weak);
           weak_ = weak;
         }
-        
-      private:
+
         Vector3 aMax_;
         Vector3 vMax_;
+        double aMaxFixed_;
+
+      private:
         DeviceWkPtr_t device_;
         KinodynamicWkPtr_t weak_;
       }; // Kinodynamic
