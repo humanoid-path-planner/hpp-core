@@ -181,6 +181,7 @@ namespace hpp {
         int sigma;
         double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
         sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
+        hppDout(notice,"deltaPacc = "<<deltaPacc);
         hppDout(info,"sigma = "<<sigma);
         if(sigma == 0){ // ??? FIXME
           sigma = sgn(p2-p1);
@@ -328,7 +329,7 @@ namespace hpp {
           return;
         }
 
-        if(index == 2){ // FIXME : axis z ?
+        if(index == 2 && v1 == 0){ // FIXME : axis z ?
           //TODO TEST A SUPPRIMER
           hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
           assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
