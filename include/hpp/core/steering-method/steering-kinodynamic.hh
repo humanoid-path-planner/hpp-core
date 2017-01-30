@@ -96,7 +96,7 @@ namespace hpp {
         * @param t2 time of the last segment
         * @return T the minimal time
         */
-        virtual void fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1, double* t1, double* tv, double* t2,double *vLim) const;
+        virtual void fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1,double *t0, double* t1, double* tv, double* t2,double *vLim) const;
         
 
         
