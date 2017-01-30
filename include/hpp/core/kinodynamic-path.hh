@@ -48,9 +48,9 @@ namespace hpp {
       static KinodynamicPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim)
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim)
       {
-        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vLim);
+        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t0,t1,tv,t2,vLim);
         KinodynamicPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
         ptr->checkPath ();
@@ -65,10 +65,10 @@ namespace hpp {
       static KinodynamicPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
                                           ConstraintSetPtr_t constraints)
       {
-        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t1,tv,t2,vLim,
+        KinodynamicPath* ptr = new KinodynamicPath (device, init, end, length,a1,t0,t1,tv,t2,vLim,
                                                     constraints);
         KinodynamicPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
@@ -126,6 +126,7 @@ namespace hpp {
       virtual PathPtr_t extract (const interval_t& subInterval) const
       throw (projection_error);
       
+      vector_t getT0(){return t0_;}
 
       vector_t getT1(){return t1_;}
 
@@ -147,11 +148,11 @@ namespace hpp {
       }
       /// Constructor
       KinodynamicPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim);
+                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim);
       
       /// Constructor with constraints
       KinodynamicPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length,ConfigurationIn_t a1,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
+                       ConfigurationIn_t end, value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0, ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
                        ConstraintSetPtr_t constraints);
       
       /// Copy constructor
@@ -193,7 +194,7 @@ namespace hpp {
     private:
       KinodynamicPathWkPtr_t weak_;
       vector_t a1_;
-      vector_t t1_,tv_,t2_,vLim_;
+      vector_t t0_,t1_,tv_,t2_,vLim_;
     }; // class KinodynamicPath
   } //   namespace core
 } // namespace hpp
