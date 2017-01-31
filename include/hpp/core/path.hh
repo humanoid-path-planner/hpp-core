@@ -152,7 +152,7 @@ namespace hpp {
       }
 
       /// Get length of definition interval
-      value_type length () const
+      virtual value_type length () const
       {
 	return timeRange_.second - timeRange_.first;
       }

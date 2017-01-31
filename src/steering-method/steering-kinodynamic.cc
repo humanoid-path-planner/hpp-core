@@ -330,7 +330,6 @@ namespace hpp {
         }
 
         if(index == 2 && v1 == 0){ // FIXME : axis z ?
-          //TODO TEST A SUPPRIMER
           hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
           assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
           double aMax =std::fabs(aMax_[index]);
