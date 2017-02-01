@@ -22,6 +22,8 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 
+#include <pinocchio/multibody/liegroup/liegroup.hpp>
+
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 
@@ -591,7 +593,7 @@ namespace hpp {
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
         computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
-	pinocchio::integrate (robot_, configuration, dq_, configuration);
+	pinocchio::integrate<true, se3::LieGroupTpl> (robot_, configuration, dq_, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
 	alpha = alphaMax - .8*(alphaMax - alpha);
@@ -625,7 +627,7 @@ namespace hpp {
     {
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
       computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq);
-      pinocchio::integrate (robot_, configuration, dq, configuration);
+      pinocchio::integrate<true, se3::LieGroupTpl> (robot_, configuration, dq, configuration);
       return isSatisfied (configuration);
     }
 
@@ -643,14 +645,14 @@ namespace hpp {
       computeValueAndJacobian (configuration, value_, reducedJacobian_);
       do {
         computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
-	pinocchio::integrate (robot_, configuration, dq_, current);
+	pinocchio::integrate<true, se3::LieGroupTpl> (robot_, configuration, dq_, current);
         computeValueAndJacobian (current, value_, reducedJacobian_);
         computeError ();
         if (squareNorm_ >= squareErrorThreshold_) {
           /// Ignore last level
           computePrioritizedIncrement (value_, reducedJacobian_, 1, dq_,
               stack_.size() - 1);
-          pinocchio::integrate (robot_, current, dq_, current);
+          pinocchio::integrate<true, se3::LieGroupTpl> (robot_, current, dq_, current);
           computeValueAndJacobian (current, value_, reducedJacobian_);
           computeError ();
           if (squareNorm_ >= squareErrorThreshold_) break;
@@ -698,9 +700,9 @@ namespace hpp {
         result = to;
         return;
       }
-      pinocchio::difference (robot_, to, from, toMinusFrom_);
+      pinocchio::difference<se3::LieGroupTpl> (robot_, to, from, toMinusFrom_);
       projectVectorOnKernel (from, toMinusFrom_, projMinusFrom_);
-      pinocchio::integrate (robot_, from, projMinusFrom_, result);
+      pinocchio::integrate<true, se3::LieGroupTpl> (robot_, from, projMinusFrom_, result);
     }
 
     void ConfigProjector::computeLockedDofs (ConfigurationOut_t configuration)

@@ -21,7 +21,9 @@
 # define HPP_CORE_PATH_OPTIMIZATION_COLLISION_CONSTRAINTS_RESULT_HH
 
 # include <hpp/fcl/distance.h>
-//# include <hpp/pinocchio/fcl-to-eigen.hh>
+
+# include <pinocchio/multibody/liegroup/liegroup.hpp>
+
 # include <hpp/constraints/generic-transformation.hh>
 
 namespace hpp {
@@ -127,7 +129,7 @@ namespace hpp {
        virtual void impl_compute (vectorOut_t result, vectorIn_t argument)
          const
        {
-         pinocchio::difference (robot_, argument, qFree_, difference_);
+         pinocchio::difference<se3::LieGroupTpl> (robot_, argument, qFree_, difference_);
          result = J_ * difference_;
        }
        virtual void impl_jacobian (matrixOut_t jacobian, vectorIn_t) const
