@@ -161,12 +161,19 @@ namespace hpp {
         std::cout<<"here"<<std::endl;
         hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_);
 
+        try {
+          tryJump_ = (bool)problem_->get<double> (std::string("tryJump"));
+        } catch (const std::exception& e) {
+          tryJump_=false;
+        }
+        hppDout(notice,"tryJump in steering method = "<<tryJump_);
+
 
       }
       
       /// Copy constructor
       Kinodynamic::Kinodynamic (const Kinodynamic& other) :
-        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_)
+        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_),tryJump_(other.tryJump_)
       {
       }
       
@@ -329,75 +336,80 @@ namespace hpp {
           return;
         }
 
-        if(index == 2 && v1 == 0){ // FIXME : axis z ?
-          hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
-          assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
-          double aMax =std::fabs(aMax_[index]);
-          double vMax = vMax_[index];
-          int sigma;
-          double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
-          sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
-          if(sigma == 0){ // ??? FIXME
-            sigma = sgn(p2-p1);
-          }
-          *a1 = (sigma)*aMax;
-          double a2 = -*a1;
-          (*vLim) = (sigma) * vMax;
-          hppDout(info,"Vlim = "<<(*vLim)<<"   ;  aMax = "<<aMax);
-          // test if two segment trajectory is valid :
-          bool twoSegment = false;
-
-          // solve quadratic equation (cf eq 13 article)
-          const double a = *a1;
-          const double b = 2. * v1;
-          const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
-
-          const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
-          hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
-          const double x1 = q/a;
-          const double x2 = c/q;
-          const double x = std::max(x1,x2);
-          hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
-          hppDout(info," x = "<<x);
-          hppDout(info,"t1 before vel limit = "<<x);
-
-          hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
-          double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
-
-
-          if(x >= minT1){
-            twoSegment = true;
-            *t1 = x;
-            hppDout(info,"t1 >= minT1");
-          }
-          if(twoSegment){ // check if max velocity is respected
-            if(std::abs(v1+(*t1)*(*a1)) > vMax){
-              twoSegment = false;
-              hppDout(info,"Doesn't respect max velocity, need 3 segments");
+        if(tryJump_){
+          if(index == 2 && v1 == 0){ // FIXME : axis z ?
+            hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
+            assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
+            double aMax =std::fabs(aMax_[index]);
+            double vMax = vMax_[index];
+            int sigma;
+            double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
+            sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
+            if(sigma == 0){ // ??? FIXME
+              sigma = sgn(p2-p1);
             }
-          }
-          if(twoSegment){ // compute t2 for two segment trajectory
-            *tv = 0.;
-            *t2 = ((v2-v1)/a2) + (*t1);// eq 14
-          }else{// compute 3 segment trajectory, with constant velocity phase :
-            *t1 = ((*vLim) - v1)/(*a1);  //eq 15
-            *tv = ((v1*v1+v2*v2 - 2*(*vLim)*(*vLim))/(2*(*vLim)*(*a1))) + (p2-p1)/(*vLim) ; //eq 16
-            *t2 = (v2-(*vLim))/a2;  //eq 17
-          }
-          if(twoSegment){
-            hppDout(notice,"Trajectory with 2 segments");
+            *a1 = (sigma)*aMax;
+            double a2 = -*a1;
+            (*vLim) = (sigma) * vMax;
+            hppDout(info,"Vlim = "<<(*vLim)<<"   ;  aMax = "<<aMax);
+            // test if two segment trajectory is valid :
+            bool twoSegment = false;
+
+            // solve quadratic equation (cf eq 13 article)
+            const double a = *a1;
+            const double b = 2. * v1;
+            const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
+
+            const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+            hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
+            const double x1 = q/a;
+            const double x2 = c/q;
+            const double x = std::max(x1,x2);
+            hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
+            hppDout(info," x = "<<x);
+            hppDout(info,"t1 before vel limit = "<<x);
+
+            hppDout(info,"inf bound on t1 (from t2 > 0) "<<-((v2-v1)/a2));
+            double minT1 = std::max(0.,-((v2-v1)/a2));  //lower bound for valid t1 value (cf eq 14)
+
+
+            if(x >= minT1){
+              twoSegment = true;
+              *t1 = x;
+              hppDout(info,"t1 >= minT1");
+            }
+            if(twoSegment){ // check if max velocity is respected
+              if(std::abs(v1+(*t1)*(*a1)) > vMax){
+                twoSegment = false;
+                hppDout(info,"Doesn't respect max velocity, need 3 segments");
+              }
+            }
+            if(twoSegment){ // compute t2 for two segment trajectory
+              *tv = 0.;
+              *t2 = ((v2-v1)/a2) + (*t1);// eq 14
+            }else{// compute 3 segment trajectory, with constant velocity phase :
+              *t1 = ((*vLim) - v1)/(*a1);  //eq 15
+              *tv = ((v1*v1+v2*v2 - 2*(*vLim)*(*vLim))/(2*(*vLim)*(*a1))) + (p2-p1)/(*vLim) ; //eq 16
+              *t2 = (v2-(*vLim))/a2;  //eq 17
+            }
+            if(twoSegment){
+              hppDout(notice,"Trajectory with 2 segments");
+            }else{
+              hppDout(notice,"Trajectory with 3 segments");
+            }
+            hppDout(notice,"a1 = "<<(*a1)<<"  ;  a2 ="<<a2);
+            *t0 = T - *t1 - *tv - *t2;
+            hppDout(notice,"t0 = "<<*t0);
+            hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
+            hppDout(notice,"T = "<<T);
+            return;
           }else{
-            hppDout(notice,"Trajectory with 3 segments");
+            *t0 = 0.;
           }
-          hppDout(notice,"a1 = "<<(*a1)<<"  ;  a2 ="<<a2);
-          *t0 = T - *t1 - *tv - *t2;
-          hppDout(notice,"t0 = "<<*t0);
-          hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
-          hppDout(notice,"T = "<<T);
-          return;
-        }else{
-          *t0 = 0.;
         }
+        *t0 = 0.;
+
+
 
         // quadratic equation (20)
         double a = T*T;
