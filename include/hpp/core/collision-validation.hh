@@ -70,6 +70,11 @@ namespace hpp {
       {
         return checkParameterized_;
       }
+
+      /// Rearrange the collisions pairs of all configValidation in a random manner
+      /// \brief randomnizeCollisionPairs
+      ///
+      virtual void randomnizeCollisionPairs();
     public:
       /// fcl low level request object used for collision checking.
       /// modify this attribute to obtain more detailed validation
