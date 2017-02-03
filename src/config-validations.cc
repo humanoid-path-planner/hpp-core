@@ -54,6 +54,14 @@ namespace hpp {
       }
     }
 
+    void ConfigValidations::randomnizeCollisionPairs(){
+      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
+           validations_.begin (); itVal != validations_.end (); ++itVal) {
+        (*itVal)->randomnizeCollisionPairs();
+      }
+    }
+
+
     void ConfigValidations::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle)
     {
