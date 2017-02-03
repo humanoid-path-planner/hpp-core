@@ -122,10 +122,10 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/subchain-path.hh
   )
 
-ADD_REQUIRED_DEPENDENCY("hpp-pinocchio")
+ADD_REQUIRED_DEPENDENCY("hpp-pinocchio >= 4")
 ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
-ADD_REQUIRED_DEPENDENCY("hpp-statistics")
-ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3")
+ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
+ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
 
 ADD_SUBDIRECTORY(src)
 IF (RUN_TESTS)
