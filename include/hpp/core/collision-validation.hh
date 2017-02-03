@@ -71,6 +71,11 @@ namespace hpp {
         return checkParameterized_;
       }
 
+      /// Rearrange the collisions pairs of all configValidation in a random manner
+      /// \brief randomnizeCollisionPairs
+      ///
+      virtual void randomnizeCollisionPairs();
+    public:
       /// fcl low level request object used for collision checking.
       /// modify this attribute to obtain more detailed validation
       /// reports in a call to validate.
@@ -78,11 +83,11 @@ namespace hpp {
     protected:
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
+    private:
       CollisionPairs_t collisionPairs_,
                        parameterizedPairs_,
                        disabledPairs_;
 
-    private:
       bool checkParameterized_;
     }; // class ConfigValidation
     /// \}

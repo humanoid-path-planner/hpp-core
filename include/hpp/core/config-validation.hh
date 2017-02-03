@@ -75,6 +75,11 @@ namespace hpp {
       virtual void filterCollisionPairs (const RelativeMotion::matrix_type&)
       {}
 
+      /// Rearrange the collisions pairs of all configValidation in a random manner
+      /// \brief randomnizeCollisionPairs
+      ///
+      virtual void randomnizeCollisionPairs(){}
+
       virtual ~ConfigValidation () {};
 
     protected:
