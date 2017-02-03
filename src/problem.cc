@@ -189,7 +189,7 @@ namespace hpp {
       ValidationReportPtr_t report;
       if (!configValidations_->validate (*initConf_, report)) {
 	std::ostringstream oss;
-	oss << *report;
+  oss <<"init config invalid : "<< *report;
 	throw std::runtime_error (oss.str ());
       }
 

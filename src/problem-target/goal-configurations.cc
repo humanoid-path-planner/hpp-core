@@ -53,7 +53,7 @@ namespace hpp {
           const ConfigurationPtr_t& goalConf (*it);
           if (!confValidations->validate (*goalConf, report)) {
             std::ostringstream oss;
-            oss << *report;
+            oss <<"goal configuration invalid : "<< *report;
             throw std::runtime_error (oss.str ());
           }
         }
