@@ -86,7 +86,7 @@ namespace hpp {
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
 	std::ostringstream oss;
-	if (nIter >= maxIterations_) {
+    if (maxIterations_ !=  std::numeric_limits <unsigned long int>::infinity () && nIter >= maxIterations_) {
 	  oss << "Maximal number of iterations reached: " << maxIterations_;
 	  throw std::runtime_error (oss.str ().c_str ());
 	}
