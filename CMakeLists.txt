@@ -48,7 +48,7 @@ ENDIF()
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
 
 # Add a cache variable to allow not compiling and running tests
-set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
+set (RUN_TESTS FALSE CACHE BOOL "compile and run unit tests")
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
