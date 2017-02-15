@@ -22,6 +22,7 @@
 # include <hpp/core/problem.hh>
 # include <hpp/core/weighed-distance.hh>
 # include <hpp/core/kinodynamic-path.hh>
+# include <hpp/core/kinodynamic-oriented-path.hh>
 
 namespace hpp {
   namespace core {
@@ -131,7 +132,9 @@ namespace hpp {
         }
         
         KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t0_t,t1_t,tv_t,t2_t,vLim_t);
-        return path;
+        //return path;
+        KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::createCopy(path);
+        return orientedPath;
       }
       
       
@@ -423,7 +426,7 @@ namespace hpp {
         else
           *a1 = x2;
         double a2 = -(*a1);
-        
+
         *t1 = 0.5*((v2_1/(*a1))+T);
         *vLim = sgn((*a1))*vMax;
         if(std::abs(v1+(*t1)*(*a1)) <= vMax){  // two segment trajectory
