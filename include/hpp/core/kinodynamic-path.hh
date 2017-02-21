@@ -134,6 +134,8 @@ namespace hpp {
 
       vector_t getTv(){return tv_;}
 
+      vector_t getA1(){return a1_;}
+
       
     protected:
       /// Print path in a stream
