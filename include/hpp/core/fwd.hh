@@ -75,6 +75,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (SteeringMethodStraight);
     HPP_PREDEF_CLASS (StraightPath);
     HPP_PREDEF_CLASS (InterpolatedPath);
+    HPP_PREDEF_CLASS (DubinsPath);
     HPP_PREDEF_CLASS (ReedsSheppPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
@@ -195,6 +196,8 @@ namespace hpp {
     typedef boost::shared_ptr <const StraightPath> StraightPathConstPtr_t;
     typedef boost::shared_ptr <ReedsSheppPath> ReedsSheppPathPtr_t;
     typedef boost::shared_ptr <const ReedsSheppPath> ReedsSheppPathConstPtr_t;
+    typedef boost::shared_ptr <DubinsPath> DubinsPathPtr_t;
+    typedef boost::shared_ptr <const DubinsPath> DubinsPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
@@ -278,6 +281,8 @@ namespace hpp {
       typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
       HPP_PREDEF_CLASS (ReedsShepp);
       typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+      HPP_PREDEF_CLASS (Dubins);
+      typedef boost::shared_ptr <Dubins> DubinsPtr_t;
     } // namespace steeringMethod
 
     namespace problemTarget {

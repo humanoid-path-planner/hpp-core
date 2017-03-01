@@ -39,6 +39,9 @@ SET(${LIBRARY_NAME}_SOURCES
   discretized-path-validation.cc
   distance/reeds-shepp.cc
   distance-between-objects.cc
+  dubins.hh
+  dubins.cc
+  dubins-path.cc
   explicit-numerical-constraint.cc
   extracted-path.hh
   joint-bound-validation.cc
@@ -57,6 +60,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-planner.cc
   path-vector.cc
   reeds-shepp-path.cc
+  steering-method/dubins.cc
   steering-method/reeds-shepp.cc
   plan-and-optimize.cc
   problem.cc

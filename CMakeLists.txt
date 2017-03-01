@@ -76,6 +76,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/distance/reeds-shepp.hh
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
+  include/hpp/core/dubins-path.hh
   include/hpp/core/edge.hh
   include/hpp/core/explicit-numerical-constraint.hh
   include/hpp/core/explicit-relative-transformation.hh
@@ -103,6 +104,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/roadmap.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method-straight.hh
+  include/hpp/core/steering-method/dubins.hh
   include/hpp/core/steering-method/reeds-shepp.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/interpolated-path.hh

@@ -25,6 +25,7 @@
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
+#include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
@@ -107,6 +108,7 @@ namespace hpp {
               (&SteeringMethodStraight::create), _1
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      add <SteeringMethodBuilder_t> ("Dubins", steeringMethod::Dubins::createWithGuess);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
