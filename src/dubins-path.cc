@@ -216,6 +216,15 @@ namespace hpp {
         qi_ [i] = q0 [i];
       }
       dubins_init_normalised( alpha, beta, d);
+      // Find rank of translation and rotation in velocity vectors
+      // Hypothesis: degrees of freedom all belong to a planar joint or
+      // xyId_ belong to a tranlation joint, rzId_ belongs to a SO2 joint.
+      JointPtr_t joint (device_->getJointAtConfigRank (xyId_));
+      size_type offset (xyId_ - joint->rankInConfiguration ());
+      dxyId_ = joint->rankInVelocity () + offset;
+      joint = device_->getJointAtConfigRank (rzId_);
+      offset = rzId_ - joint->rankInConfiguration ();
+      drzId_ = joint->rankInVelocity () + offset;
     }
 
     void dubins_segment( double t, vector3_t qi, vector3_t& qt, int type)
@@ -236,6 +245,28 @@ namespace hpp {
         qt[0] = qi[0] + cos(qi[2]) * t;
         qt[1] = qi[1] + sin(qi[2]) * t;
         qt[2] = qi[2];
+      }
+    }
+
+    void dubins_segment_velocity (double t, vector3_t qi, vector3_t& v,
+				  int type)
+    {
+      assert( type == L_SEG || type == S_SEG || type == R_SEG );
+
+      if( type == L_SEG ) {
+        v [0] = cos (qi[2]+t);
+        v [1] = -sin(qi[2]+t);
+        v [2] = 1;
+      }
+      else if( type == R_SEG ) {
+        v [0] = cos (t - qi[2]);
+        v [1] = sin (qi[2] - t);
+        v [2] = -1;
+      }
+      else if( type == S_SEG ) {
+        v [0] = cos(qi[2]);
+        v [1] = sin(qi[2]);
+        v [2] = 0;
       }
     }
 
@@ -331,7 +362,99 @@ namespace hpp {
     void DubinsPath::impl_derivative (vectorOut_t result, const value_type& t,
 				      size_type order) const
     {
-    }
+      value_type p (t);
+      if (order != 1) {
+	std::ostringstream oss;
+	oss << "derivative only implemented for order 1: got" << order;
+	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
+      }
+      if (p <= timeRange ().first ||
+	  timeRange ().second == timeRange ().first) {
+	p = timeRange ().first;
+      }
+      if (p >= timeRange ().second) {
+	p = timeRange ().second;
+      }
+      // Does a linear interpolation on all the joints.
+      if (order > 1) {
+	result.setZero ();
+      }
+      else if (order == 1) {
+	model::difference (device_, end_, initial_, result);
+	result = (1/timeRange ().second) * result;
+      } else {
+	std::ostringstream oss;
+	oss << "order of derivative (" << order << ") should be positive.";
+	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
+      }
 
+      // Compute the velocity of the car.
+      result.segment <2> (xyId_).setZero();
+      // tprime is the normalised variant of the parameter
+      double tprime = t / rho_;
+
+      // The computation is done in five stages.
+      //
+      // 1. translate the components of the initial configuration to the origin
+      // 2. generate the target configuration
+      // 3. transform the target configuration
+      //      scale the target configuration
+      //      translate the target configration back to the original starting
+      //      point
+      //      normalise the target configurations angular component
+
+      // The translated initial configuration
+      vector3_t qi; qi << 0, 0, qi_ [2];
+
+      // Generate the target configuration
+      const int* types = DIRDATA [typeId_];
+      int type;
+      double p1 = lengths_ [0];
+      double p2 = lengths_ [1];
+      vector3_t q1; // end-of segment 1
+      vector3_t q2; // end-of segment 2
+      vector3_t q;
+      dubins_segment (p1,      qi,    q1, types[0] );
+      dubins_segment (p2,      q1,    q2, types[1] );
+      if( tprime < p1 ) {
+        dubins_segment_velocity (tprime, qi, q, types[0] );
+	type = types [0];
+      }
+      else if( tprime < (p1+p2) ) {
+        dubins_segment_velocity (tprime-p1, q1, q,  types[1] );
+	type = types [1];
+      }
+      else {
+        dubins_segment_velocity (tprime-p1-p2, q2, q,  types[2] );
+	type = types [2];
+      }
+
+      // scale the target configuration, translate back to the original starting
+      // point
+      result [dxyId_ + 0] = q[0] * rho_ + qi_ [0];
+      result [dxyId_ + 1] = q[1] * rho_ + qi_ [1];
+      result [drzId_] = q[2];
+
+      switch(type)
+      {
+        case L_SEG:
+          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+              _w != wheels_.end(); ++_w)
+            result(_w->j->rankInVelocity()) = 0;
+          break;
+        case R_SEG:
+          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+              _w != wheels_.end(); ++_w)
+            result(_w->j->rankInVelocity()) = 0;
+          break;
+        case S_SEG:
+          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
+              _w != wheels_.end(); ++_w)
+            result(_w->j->rankInVelocity()) = 0;
+          break;
+      default:
+	assert (false && "No type in Dubins path.");
+      }
+    }
   } //   namespace hpp-core
 } // namespace hpp
