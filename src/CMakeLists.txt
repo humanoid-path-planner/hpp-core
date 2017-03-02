@@ -60,6 +60,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-planner.cc
   path-vector.cc
   reeds-shepp-path.cc
+  steering-method/car-like.cc
   steering-method/dubins.cc
   steering-method/reeds-shepp.cc
   plan-and-optimize.cc

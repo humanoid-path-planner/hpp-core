@@ -36,82 +36,25 @@ namespace hpp {
         return path;
       }
 
-      void Dubins::computeRadius ()
-      {
-        rho_ = 1;
-        if (wheels_.empty()) return;
-        rho_ = 0;
-        for (std::vector<JointPtr_t>::const_iterator _wheels = wheels_.begin();
-            _wheels != wheels_.end(); ++_wheels) {
-          rho_ = std::max (rho_, computeAngle(*_wheels));
-        }
-        hppDout (info, "rho_ = " << rho_);
-      }
-
       Dubins::Dubins (const ProblemPtr_t& problem) :
-        SteeringMethod (problem), device_ (problem->robot ()),
-        rho_ (1.), weak_ ()
+        CarLike (problem), weak_ ()
       {
-        DevicePtr_t d (device_.lock());
-        xy_ = d->getJointAtConfigRank(0);
-        if (!dynamic_cast <model::JointTranslation <2>* > (xy_)) {
-          throw std::runtime_error ("root joint should be of type "
-              "model::JointTranslation <2>");
-        }
-        rz_ = d->getJointAtConfigRank(2);
-        if (!dynamic_cast <model::jointRotation::UnBounded*> (rz_)) {
-          throw std::runtime_error ("second joint should be of type "
-              "model::jointRotation::Unbounded");
-        }
-
-        guessWheels();
-        computeRadius();
       }
 
-      Dubins::Dubins (const ProblemPtr_t& problem,
+      Dubins::Dubins  (const ProblemPtr_t& problem,
           const value_type turningRadius,
           JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
-        SteeringMethod (problem), device_ (problem->robot ()),
-        rho_ (turningRadius), xy_ (xyJoint), rz_ (rzJoint),
-        wheels_ (wheels), weak_ ()
+	CarLike (problem, turningRadius, xyJoint, rzJoint, wheels)
       {
       }
 
       /// Copy constructor
-      Dubins::Dubins (const Dubins& other) :
-        SteeringMethod (other), device_ (other.device_),
-        rho_ (other.rho_)
+      Dubins::Dubins  (const Dubins& other) :
+        CarLike (other)
       {
       }
 
-      inline value_type Dubins::computeAngle(const JointPtr_t wheel) const
-      {
-        // Compute wheel position in joint RZ
-        const Transform3f zt (rz_->currentTransformation ());
-        const Transform3f wt (zt.inverseTimes (wheel->currentTransformation ()));
-        const vector3_t& wp (wt.getTranslation ());
-
-        // Assume the non turning wheels are on the plane z = 0 of 
-        // in joint rz.
-        const value_type alpha = (wheel->upperBound(0) - wheel->lowerBound(0)) / 2;
-        const value_type delta = std::abs(wp[1]);
-        const value_type beta = std::abs(wp[2]);
-
-        return delta + beta / std::tan(alpha);
-      }
-
-      inline void Dubins::guessWheels()
-      {
-        wheels_.clear();
-        for (std::size_t i = 0; i < rz_->numberChildJoints(); ++i) {
-          JointPtr_t j = rz_->childJoint(i);
-          if (j->configSize() != 1) continue;
-          if (!j->isBounded(0))     continue;
-          if (j->name().find("wheel") == std::string::npos) continue;
-          wheels_.push_back(j);
-        }
-      }
     } // namespace steeringMethod
   } // namespace core
 } // namespace hpp

@@ -279,10 +279,12 @@ namespace hpp {
     namespace steeringMethod {
       HPP_PREDEF_CLASS (Interpolated);
       typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
-      HPP_PREDEF_CLASS (ReedsShepp);
-      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+      HPP_PREDEF_CLASS (CarLike);
+      typedef boost::shared_ptr <CarLike> CarLikePtr_t;
       HPP_PREDEF_CLASS (Dubins);
       typedef boost::shared_ptr <Dubins> DubinsPtr_t;
+      HPP_PREDEF_CLASS (ReedsShepp);
+      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
     } // namespace steeringMethod
 
     namespace problemTarget {

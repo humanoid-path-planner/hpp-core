@@ -24,7 +24,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/steering-method.hh>
+# include <hpp/core/steering-method/car-like.hh>
 
 namespace hpp {
   namespace core {
@@ -34,7 +34,7 @@ namespace hpp {
 
       /// Steering method that creates ReedsSheppPath instances
       ///
-      class HPP_CORE_DLLAPI ReedsShepp : public SteeringMethod
+      class HPP_CORE_DLLAPI ReedsShepp : public CarLike
       {
         public:
           /// Create an instance
@@ -44,7 +44,7 @@ namespace hpp {
           ///   translation joint,
           /// - the 2 following parameters corresponds to the RZ unbounded
           ///   rotation joint.
-          /// Use ReedsShepp::setWheelJoints to set the wheel joints.
+          /// Use Carlike::setWheelJoints to set the wheel joints.
           static ReedsSheppPtr_t createWithGuess (const ProblemPtr_t& problem)
           {
             ReedsShepp* ptr = new ReedsShepp (problem);
@@ -88,24 +88,6 @@ namespace hpp {
           virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
               ConfigurationIn_t q2) const;
 
-          /// Set the wheels
-          /// \param computeRadius when true, the turning radius is computed
-          ///        from the position of the wheels.
-          void setWheelJoints (const std::vector<JointPtr_t> wheels)
-          {
-            wheels_ = wheels;
-          }
-
-          /// Compute the turning radius.
-          ///
-          /// The turning radius is the maximum of the turning radius of each
-          /// wheel. The turning radius of a wheel is the radius of the circle
-          /// defined by:
-          /// - its center is on the plane x = 0 in the frame of joint RZ,
-          /// - the origin of joint RZ is on the circle,
-          /// - the bounds of the joint wheel are saturated.
-          void computeRadius ();
-
         protected:
           /// Constructor
           ReedsShepp (const ProblemPtr_t& problem);
@@ -122,20 +104,11 @@ namespace hpp {
           /// Store weak pointer to itself
           void init (ReedsSheppWkPtr_t weak)
           {
-            core::SteeringMethod::init (weak);
+            CarLike::init (weak);
             weak_ = weak;
           }
 
         private:
-          value_type computeAngle(const JointPtr_t wheel) const;
-
-          void guessWheels();
-
-          DeviceWkPtr_t device_;
-          // distance between front and rear wheel axes.
-          value_type rho_;
-          JointPtr_t xy_, rz_;
-          std::vector<JointPtr_t> wheels_;
           ReedsSheppWkPtr_t weak_;
       }; // ReedsShepp
       /// \}
