@@ -109,6 +109,7 @@ namespace hpp {
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
       add <SteeringMethodBuilder_t> ("Dubins", steeringMethod::Dubins::createWithGuess);
+      add <SteeringMethodBuilder_t> ("Snibud", steeringMethod::Snibud::createWithGuess);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);

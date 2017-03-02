@@ -63,6 +63,7 @@ SET(${LIBRARY_NAME}_SOURCES
   steering-method/car-like.cc
   steering-method/dubins.cc
   steering-method/reeds-shepp.cc
+  steering-method/snibud.cc
   plan-and-optimize.cc
   problem.cc
   problem-solver.cc
