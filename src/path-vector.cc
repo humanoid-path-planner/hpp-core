@@ -146,7 +146,16 @@ namespace hpp {
 	  if (i == imax) {
 	    t1max = localtmax;
 	  }
-	  path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
+      std::cout << "path i " << paths_ [i]->length() << std::endl;
+      PathPtr_t pd = paths_ [i]->extract (make_pair (t1min, t1max));
+      if(pd)
+      {
+        path->appendPath (pd);
+      }
+      else
+      {
+          path->appendPath (paths_ [i]);
+      }
 	  ++i;
 	} while (i <= imax);
       }
