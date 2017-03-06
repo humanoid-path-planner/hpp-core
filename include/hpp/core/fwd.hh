@@ -285,6 +285,8 @@ namespace hpp {
       typedef boost::shared_ptr <Dubins> DubinsPtr_t;
       HPP_PREDEF_CLASS (ReedsShepp);
       typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+      HPP_PREDEF_CLASS (Snibud);
+      typedef boost::shared_ptr <Snibud> SnibudPtr_t;
     } // namespace steeringMethod
 
     namespace problemTarget {

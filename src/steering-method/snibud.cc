@@ -28,8 +28,8 @@ namespace hpp {
       PathPtr_t Snibud::impl_compute (ConfigurationIn_t q1,
           ConfigurationIn_t q2) const
       {
-        SnibudPathPtr_t path =
-          SnibudPath::create (device_.lock (), q2, q1,
+        DubinsPathPtr_t path =
+          DubinsPath::create (device_.lock (), q2, q1,
 			      rho_ , xy_->rankInConfiguration(),
 			      rz_->rankInConfiguration(), constraints ());
         path->setWheelJoints (rz_, wheels_);

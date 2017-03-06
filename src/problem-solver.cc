@@ -26,6 +26,7 @@
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/steering-method/dubins.hh>
+#include <hpp/core/steering-method/snibud.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
