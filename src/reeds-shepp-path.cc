@@ -734,8 +734,9 @@ namespace hpp {
 	  timeRange ().second == timeRange ().first) {
 	p = timeRange ().first;
       }
-      if (p >= timeRange ().second) {
-	p = timeRange ().second;
+      value_type precision (sqrt(std::numeric_limits <value_type>::epsilon ()));
+      if (p >= timeRange ().second - precision) {
+	p = timeRange ().second - precision;
       }
       // Does a linear interpolation on all the joints.
       if (order > 1) {
@@ -756,7 +757,9 @@ namespace hpp {
                  phi = atan2(initial_(rzId_+1), initial_(rzId_));
       value_type dPhi = sqrt (-1);
       if (t == 0) t = std::numeric_limits <value_type>::epsilon ();
-      for (unsigned int i=0; i<5 && t>0; ++i)
+      unsigned int i;
+      bool interrupt (false);
+      for (i=0; i<5 && t>0 && !interrupt; ++i)
       {
 	value_type forward;
         if (lengths_[i] < 0) {
@@ -773,7 +776,7 @@ namespace hpp {
         {
           case RS_LEFT:
 	    // Fill velocity only for last segment
-	    if (t <= 0) {
+	    if (t <= 1e-8) {
 	      result(xyId_+0) = forward * cos (phi+v);
 	      result(xyId_+1) = forward * sin (phi+v);
 	      dPhi = forward;
@@ -782,7 +785,7 @@ namespace hpp {
             break;
           case RS_RIGHT:
 	    // Fill velocity only for last segment
-	    if (t <= 0) {
+	    if (t <= 1e-8) {
 	      result(xyId_+0) = forward * cos (phi-v);
 	      result(xyId_+1) = forward * sin (phi-v);
 	      dPhi = -forward;
@@ -791,13 +794,17 @@ namespace hpp {
             break;
           case RS_STRAIGHT:
 	    // Fill velocity only for last segment
-	    if (t <= 0) {
+	    if (t <= 1e-8) {
 	      result(xyId_+0) = forward * cos(phi);
 	      result(xyId_+1) = forward * sin(phi);
 	      dPhi = 0;
 	    }
             break;
           case RS_NOP:
+	    assert (false && "Param out of bounds; RS_NOP");
+            break;
+	  default:
+	    assert (false && "Param out of bounds: default");
             break;
         }
       }
