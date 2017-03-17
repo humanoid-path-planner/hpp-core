@@ -125,17 +125,17 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/subchain-path.hh
   )
 
-ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
-ADD_REQUIRED_DEPENDENCY("hpp-statistics")
-ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3")
-ADD_REQUIRED_DEPENDENCY("hpp-model >= 3")
+ADD_REQUIRED_DEPENDENCY("hpp-util >= 3.2")
+ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
+ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3.2")
+ADD_REQUIRED_DEPENDENCY("hpp-model >= 3.2")
 
 ADD_SUBDIRECTORY(src)
 IF (RUN_TESTS)
   SET(BOOST_COMPONENTS system timer unit_test_framework)
   SEARCH_FOR_BOOST()
   ADD_SUBDIRECTORY(tests)
-  ADD_REQUIRED_DEPENDENCY("hpp-model-urdf >= 3")
+  ADD_REQUIRED_DEPENDENCY("hpp-model-urdf >= 3.1")
 ELSE ()
   SET(BOOST_COMPONENTS system)
   SEARCH_FOR_BOOST()
