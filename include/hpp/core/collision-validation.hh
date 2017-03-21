@@ -83,10 +83,11 @@ namespace hpp {
     protected:
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
-    private:
       CollisionPairs_t collisionPairs_,
                        parameterizedPairs_,
                        disabledPairs_;
+    private:
+
 
       bool checkParameterized_;
     }; // class ConfigValidation
