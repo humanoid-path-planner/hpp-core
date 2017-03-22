@@ -59,11 +59,6 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectPtr_t& obstacle);
 
-      /// Rearrange the collisions pairs of all configValidation in a random manner
-      /// \brief randomnizeCollisionPairs
-      ///
-      virtual void randomnizeCollisionPairs();
-
       void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
     protected:
       ConfigValidations ();
