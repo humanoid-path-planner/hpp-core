@@ -66,6 +66,11 @@ namespace hpp {
         checkParameterized_ = active;
       }
 
+      void computeAllContacts (bool computeAllContacts)
+      {
+        computeAllContacts_ = computeAllContacts;
+      }
+
       bool checkParameterized () const
       {
         return checkParameterized_;
@@ -85,6 +90,8 @@ namespace hpp {
 
 
       bool checkParameterized_;
+      bool computeAllContacts_;
+
     }; // class ConfigValidation
     /// \}
   } // namespace core
