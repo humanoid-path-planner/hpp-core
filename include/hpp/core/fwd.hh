@@ -37,6 +37,7 @@ namespace hpp {
     struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
     HPP_PREDEF_CLASS (CollisionValidationReport);
+    HPP_PREDEF_CLASS (AllCollisionsValidationReport);
     HPP_PREDEF_CLASS (ConfigurationShooter);
     HPP_PREDEF_CLASS (ConfigProjector);
     HPP_PREDEF_CLASS (ConfigValidation);

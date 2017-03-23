@@ -29,6 +29,7 @@
 
 #include <hpp/core/relative-motion.hh>
 #include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/relative-motion.hh>
 
 namespace hpp {
   namespace core {
@@ -58,7 +59,6 @@ namespace hpp {
         return CollisionPair_t (o1, o2);
       }
     }
-
     CollisionValidationPtr_t CollisionValidation::create
     (const DevicePtr_t& robot)
     {
@@ -75,19 +75,46 @@ namespace hpp {
 
       fcl::CollisionResult collisionResult;
       CollisionPairs_t::const_iterator _col;
-      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
-          ||
-          ( checkParameterized_ &&
-            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
-          )) {
-        CollisionValidationReportPtr_t report (new CollisionValidationReport);
-        report->object1 = _col->first;
-        report->object2 = _col->second;
-        report->result = collisionResult;
-        validationReport = report;
-        return false;
+      if(computeAllContacts_){
+        hppDout(notice,"collision validation, computeAllContacts, num of pairs : "<<collisionPairs_.size());
+        bool firstCollision(true);
+        AllCollisionsValidationReportPtr_t allReport;
+        for (CollisionPairs_t::const_iterator _col = collisionPairs_.begin (); _col != collisionPairs_.end (); ++_col){
+          fcl::CollisionResult collisionResult;
+          if (collide (_col, collisionRequest_, collisionResult) != 0){
+            hppDout(notice,"in collision :  "<<_col->first->name()<<" / "<<_col->second->name());
+            CollisionValidationReportPtr_t report (new CollisionValidationReport);
+            report->object1 = _col->first;
+            report->object2 = _col->second;
+            report->result = collisionResult;
+            if(firstCollision){
+              allReport = AllCollisionsValidationReportPtr_t(new AllCollisionsValidationReport);
+              allReport->object1 = _col->first;
+              allReport->object2 = _col->second;
+              allReport->result = collisionResult;
+              firstCollision = false;
+            }
+            allReport->collisionReports.push_back(report);
+          }
+        }
+        validationReport=allReport;
+        return firstCollision;
+      }else{
+        fcl::CollisionResult collisionResult;
+        if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+            ||
+            ( checkParameterized_ &&
+              collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+            )) {
+          CollisionValidationReportPtr_t report (new CollisionValidationReport);
+          report->object1 = _col->first;
+          report->object2 = _col->second;
+          report->result = collisionResult;
+          validationReport = report;
+          return false;
+        }
+        return true;
       }
-      return true;
     }
 
     void CollisionValidation::addObstacle (const CollisionObjectConstPtr_t& object)
@@ -183,7 +210,8 @@ namespace hpp {
       collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
       robot_ (robot),
       parameterizedPairs_(), disabledPairs_(),
-      checkParameterized_(false)
+      checkParameterized_(false),
+      computeAllContacts_(false)
     {
       const se3::GeometryModel& model = robot->geomModel();
       const se3::GeometryData & data  = robot->geomData();

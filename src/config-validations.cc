@@ -32,7 +32,7 @@ namespace hpp {
 				      ValidationReportPtr_t& validationReport)
     {
       for (std::vector <ConfigValidationPtr_t>::iterator
-	     it = validations_.begin (); it != validations_.end (); ++it) {
+       it = validations_.begin (); it != validations_.end (); ++it) {
 	if ((*it)->validate (config, validationReport)
 	    == false) {
 	  return false;
