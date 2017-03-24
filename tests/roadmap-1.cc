@@ -367,11 +367,11 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   Nodes_t knearest = r->nearestNeighbor()->KnearestSearch
     (nodes[0]->configuration(), nodes[0]->connectedComponent (), 3, dist);
   for (Nodes_t::const_iterator it = knearest.begin (); it != knearest.end(); ++it) {
-    BOOST_MESSAGE ("q = [" << (*it)->configuration()->transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), *(*it)->configuration()));
+    BOOST_TEST_MESSAGE ("q = [" << (*it)->configuration()->transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), *(*it)->configuration()));
   }
   for (std::vector<NodePtr_t>::const_iterator it = nodes.begin (); it != nodes.end(); ++it) {
     Configuration_t& q = *(*it)->configuration();
-    BOOST_MESSAGE ("[" << q.transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), q));
+    BOOST_TEST_MESSAGE ("[" << q.transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), q));
   }
 }
 BOOST_AUTO_TEST_SUITE_END()
