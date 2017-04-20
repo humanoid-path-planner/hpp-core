@@ -43,14 +43,13 @@ namespace hpp {
       distance_ (WeighedDistance::create (robot)),
       initConf_ (), target_ (),
       steeringMethod_ (SteeringMethodStraight::create (this)),
-      configValidations_ (ConfigValidations::create ()),
+      configValidations_ (),
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),
       collisionObstacles_ (), constraints_ (),
       configurationShooter_(BasicConfigurationShooter::create (robot))
     {
-      configValidations_->add (CollisionValidation::create (robot));
-      configValidations_->add (JointBoundValidation::create (robot));
+      resetConfigValidations();
 
       add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
     }
@@ -87,6 +86,15 @@ namespace hpp {
     void Problem::resetGoalConfigs ()
     {
       target_->resetGoalConfigs ();
+    }
+
+    // ======================================================================
+
+    void Problem::resetConfigValidations ()
+    {
+      configValidations_ = ConfigValidations::create ();
+      configValidations_->add ( CollisionValidation::create (robot_));
+      configValidations_->add (JointBoundValidation::create (robot_));
     }
 
     // ======================================================================
