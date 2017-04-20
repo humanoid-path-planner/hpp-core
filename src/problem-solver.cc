@@ -234,11 +234,17 @@ namespace hpp {
       pathValidationTolerance_ = tolerance;
       // If a robot is present, set path validation method
       if (robot_ && problem_) {
-	PathValidationPtr_t pathValidation =
-	  get <PathValidationBuilder_t> (pathValidationType_)
-	  (robot_, pathValidationTolerance_);
-	problem_->pathValidation (pathValidation);
+        initPathValidation();
       }
+    }
+
+    void ProblemSolver::initPathValidation ()
+    {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      PathValidationPtr_t pathValidation =
+        get <PathValidationBuilder_t> (pathValidationType_)
+        (robot_, pathValidationTolerance_);
+      problem_->pathValidation (pathValidation);
     }
 
     void ProblemSolver::pathProjectorType (const std::string& type,

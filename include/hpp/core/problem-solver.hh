@@ -594,6 +594,9 @@ namespace hpp {
       /// Set path projector by calling path projector factory
       void initPathProjector ();
 
+      /// Set path validation by calling path validation factory
+      void initPathValidation ();
+
     protected:
       /// Constructor
       ///
