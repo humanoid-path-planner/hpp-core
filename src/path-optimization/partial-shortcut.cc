@@ -109,8 +109,6 @@ namespace hpp {
             path->outputSize (), path->outputDerivativeSize ());
         PathPtr_t last;
 
-        std::size_t rkCfg = j->rankInConfiguration ();
-        std::size_t szCfg = j->configSize();
         Configuration_t qi = q1;
         Configuration_t q_inter (path->outputSize ());
         value_type t = - lt1;

@@ -215,7 +215,7 @@ namespace hpp {
       /// \param the joint that holds the inner objects,
       /// \param the obstacle to remove.
       void removeObstacleFromJoint (const JointPtr_t& joint,
-				    const CollisionObjectPtr_t& obstacle);
+				    const CollisionObjectConstPtr_t& obstacle);
 
       /// Build matrix of relative motions between joints
       ///

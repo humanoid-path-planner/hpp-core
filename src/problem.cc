@@ -126,7 +126,7 @@ namespace hpp {
     // ======================================================================
 
     void Problem::removeObstacleFromJoint (const JointPtr_t& joint,
-					   const CollisionObjectPtr_t& obstacle)
+					   const CollisionObjectConstPtr_t& obstacle)
     {
       if (pathValidation_) {
 	pathValidation_->removeObstacleFromJoint (joint, obstacle);
