@@ -24,10 +24,11 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/path-planner.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/configuration-shooter.hh>
+
+#include "../astar.hh"
 
 namespace hpp {
   namespace core {
@@ -37,9 +38,9 @@ namespace hpp {
         HPP_DEFINE_REASON_FAILURE (REASON_COLLISION, "Collision");
       }
 
-      TaskTargetPtr_t TaskTarget::create (const PathPlannerPtr_t& planner)
+      TaskTargetPtr_t TaskTarget::create (const ProblemPtr_t& problem)
       {
-        TaskTarget* tt = new TaskTarget (planner);
+        TaskTarget* tt = new TaskTarget (problem);
         TaskTargetPtr_t shPtr (tt);
         tt->init (shPtr);
         return shPtr;
@@ -54,19 +55,38 @@ namespace hpp {
         }
       }
 
-      void TaskTarget::initRoadmap ()
+      void TaskTarget::initRoadmap (const RoadmapPtr_t roadmap)
       {
-        planner_.lock ()->roadmap()->resetGoalNodes ();
+        roadmap_ = roadmap;
+        roadmap_->resetGoalNodes ();
         std::size_t trials = 2;
         generateNewConfig (trials);
       }
 
       void TaskTarget::oneStep ()
       {
-        if (goals_.size () > planner_.lock ()->roadmap()->nodes().size() / 10)
+        if (goals_.size () > roadmap_->nodes().size() / 10)
           return;
         std::size_t trials = 1;
         generateNewConfig (trials);
+      }
+
+      bool TaskTarget::reached () const
+      {
+        const ConnectedComponentPtr_t ccInit = roadmap_->initNode ()->connectedComponent ();
+        for (NodeVector_t::const_iterator itGoal = goalNodes_.begin ();
+            itGoal != goalNodes_.end (); ++itGoal) {
+          if (ccInit->canReach ((*itGoal)->connectedComponent ())) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      PathPtr_t TaskTarget::computePath() const
+      {
+        Astar astar (roadmap(), problem_.distance ());
+        return astar.solution ();
       }
 
       ConfigurationPtr_t TaskTarget::generateNewConfig (std::size_t& tries)
@@ -83,9 +103,8 @@ namespace hpp {
       ConfigurationPtr_t TaskTarget::shootConfig ()
       {
         ConfigurationPtr_t q;
-        const RoadmapPtr_t& r = planner_.lock ()->roadmap ();
         const NodeVector_t& initCCnodes =
-          r->initNode()->connectedComponent()->nodes();
+          roadmap_->initNode()->connectedComponent()->nodes();
         if (initCCnodes.size() < indexInInitcc_) {
           // The list of nodes must have changed.
           // Try again from initial configuration.
@@ -99,7 +118,7 @@ namespace hpp {
               ));
           indexInInitcc_++;
         } else {
-          q = planner_.lock ()->problem().configurationShooter()->shoot ();
+          q = problem_.lock ()->configurationShooter()->shoot ();
         }
         return q;
       }
@@ -112,13 +131,14 @@ namespace hpp {
       inline bool TaskTarget::impl_addGoalConfig (const ConfigurationPtr_t& config)
       {
         const ConfigValidationsPtr_t& confValidations =
-          planner_.lock ()->problem().configValidations();
+          problem_.lock ()->configValidations();
         ValidationReportPtr_t report;
         if (constraints_->apply (*config)) {
           if (confValidations->validate (*config, report)) {
             statistics_.addSuccess ();
-            planner_.lock ()->roadmap()->addGoalNode (config);
-            goals_.push_back (config);
+            goalCfgs_.push_back (config);
+            // TODO goalNodes_.push_back(roadmap_->addNode (*itGoal));
+            goalNodes_.push_back(roadmap_->addGoalNode (*itGoal));
             return true;
           } else
             statistics_.addFailure (REASON_COLLISION);

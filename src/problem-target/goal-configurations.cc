@@ -22,16 +22,17 @@
 
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/path-planner.hh>
 #include <hpp/core/config-validations.hh>
+
+#include "../astar.hh"
 
 namespace hpp {
   namespace core {
     namespace problemTarget {
       GoalConfigurationsPtr_t GoalConfigurations::create
-        (const PathPlannerPtr_t& planner)
+        (const ProblemPtr_t& problem);
       {
-        GoalConfigurations* gc = new GoalConfigurations (planner);
+        GoalConfigurations* gc = new GoalConfigurations (problem);
         GoalConfigurationsPtr_t shPtr (gc);
         gc->init (shPtr);
         return shPtr;
@@ -39,7 +40,7 @@ namespace hpp {
 
       void GoalConfigurations::check () const
       {
-        if (goals_.empty ()) {
+        if (goalCfgs_.empty ()) {
           std::string msg ("No goal configurations.");
           hppDout (error, msg);
           throw std::runtime_error (msg);
@@ -47,9 +48,9 @@ namespace hpp {
 
         ValidationReportPtr_t report;
         const ConfigValidationsPtr_t& confValidations =
-          planner_.lock ()->problem().configValidations();
-        for (Configurations_t::const_iterator it = goals_.begin ();
-            it != goals_.end (); it++) {
+          problem_.lock()->configValidations();
+        for (Configurations_t::const_iterator it = goalCfgs_.begin ();
+            it != goalCfgs_.end (); it++) {
           const ConfigurationPtr_t& goalConf (*it);
           if (!confValidations->validate (*goalConf, report)) {
             std::ostringstream oss;
@@ -59,14 +60,33 @@ namespace hpp {
         }
       }
 
-      void GoalConfigurations::initRoadmap ()
+      void GoalConfigurations::initRoadmap (const RoadmapPtr_t& roadmap)
       {
-        const RoadmapPtr_t& r = planner_.lock ()->roadmap();
-        r->resetGoalNodes ();
-        for (Configurations_t::const_iterator itGoal = goals_.begin ();
-            itGoal != goals_.end (); ++itGoal) {
-          r->addGoalNode (*itGoal);
+        roadmap_ = roadmap;
+        roadmap_->resetGoalNodes ();
+        for (Configurations_t::const_iterator itGoal = goalCfgs_.begin ();
+            itGoal != goalCfgs_.end (); ++itGoal) {
+          // TODO goalNodes_.push_back(roadmap_->addNode (*itGoal));
+          goalNodes_.push_back(roadmap_->addGoalNode (*itGoal));
         }
+      }
+
+      bool GoalConfigurations::reached () const
+      {
+        const ConnectedComponentPtr_t ccInit = roadmap_->initNode ()->connectedComponent ();
+        for (NodeVector_t::const_iterator itGoal = goalNodes_.begin ();
+            itGoal != goalNodes_.end (); ++itGoal) {
+          if (ccInit->canReach ((*itGoal)->connectedComponent ())) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      PathPtr_t GoalConfigurations::computePath() const
+      {
+        Astar astar (roadmap(), problem_.distance ());
+        return astar.solution ();
       }
     } // namespace problemTarget
   } // namespace core

@@ -21,6 +21,7 @@
 
 # include <limits>
 # include <hpp/core/fwd.hh>
+# include <hpp/core/config.hh>
 # include <hpp/core/distance.hh>
 # include <hpp/core/edge.hh>
 # include <hpp/core/node.hh>
@@ -28,7 +29,7 @@
 
 namespace hpp {
   namespace core {
-    class Astar
+    class HPP_CORE_LOCAL Astar
     {
       typedef std::list < NodePtr_t > Nodes_t;
       typedef std::list <EdgePtr_t> Edges_t;

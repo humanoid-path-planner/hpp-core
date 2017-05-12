@@ -29,7 +29,6 @@
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/steering-method.hh>
-#include "astar.hh"
 
 namespace hpp {
   namespace core {
@@ -70,7 +69,7 @@ namespace hpp {
       problem_.checkProblem ();
       // Tag init and goal configurations in the roadmap
       roadmap()->initNode (problem_.initConfig ());
-      problem_.target()->initRoadmap ();
+      problem_.target()->initRoadmap (roadmap());
     }
 
     PathVectorPtr_t PathPlanner::solve ()
@@ -80,7 +79,7 @@ namespace hpp {
       unsigned long int nIter (0);
       startSolve ();
       tryDirectPath ();
-      solved = roadmap()->pathExists ();
+      solved = problem_.target->reached ();
       if (solved ) {
 	hppDout (info, "tryDirectPath succeeded");
       }
@@ -91,10 +90,10 @@ namespace hpp {
 	  oss << "Maximal number of iterations reached: " << maxIterations_;
 	  throw std::runtime_error (oss.str ().c_str ());
 	}
-        problem_.target ()->oneStep ();
 	oneStep ();
+        problem_.target ()->oneStep ();
 	++nIter;
-	solved = roadmap()->pathExists ();
+        solved = problem_.target->reached ();
 	if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
@@ -113,8 +112,7 @@ namespace hpp {
 
     PathVectorPtr_t PathPlanner::computePath () const
     {
-      Astar astar (roadmap(), problem_.distance ());
-      return astar.solution ();
+      return problem_.target->computePath();
     }
 
     PathVectorPtr_t PathPlanner::finishSolve (const PathVectorPtr_t& path)

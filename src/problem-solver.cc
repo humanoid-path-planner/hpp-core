@@ -558,11 +558,11 @@ namespace hpp {
       problem_->initConfig (initConf_);
       ProblemTargetPtr_t target;
       if (goalConstraints_) {
-        problemTarget::TaskTargetPtr_t t = problemTarget::TaskTarget::create (pathPlanner_);
+        problemTarget::TaskTargetPtr_t t = problemTarget::TaskTarget::create (problem_);
         t->constraints (goalConstraints_);
         target = t;
       } else
-        target = problemTarget::GoalConfigurations::create (pathPlanner_);
+        target = problemTarget::GoalConfigurations::create (problem_);
       problem_->target (target);
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();

@@ -37,30 +37,28 @@ namespace hpp {
       virtual void check () const = 0;
 
       /// Called before starting the search.
-      virtual void initRoadmap () {}
-
-      /// Check whether the problem is solved.
-      // virtual bool reached () const;
+      virtual void initRoadmap (const RoadmapPtr_t& roadmap) = 0;
 
       /// Called after each iteration of the path planner.
-      virtual void oneStep () {}
+      virtual void oneStep () = 0
+
+      /// Check whether the problem is solved.
+      virtual bool reached () const = 0;
+
+      /// Returns the solution path found.
+      /// Should be called when reached() returns true.
+      PathPtr_t computePath() const = 0;
 
       virtual void addGoalConfig (const ConfigurationPtr_t& config) = 0;
 
-      const Configurations_t& goalConfigurations () const
-      {
-        return goals_;
-      }
+      const Configurations_t& goalConfigurations () const = 0;
 
-      void resetGoalConfigs ()
-      {
-        goals_.clear ();
-      }
+      virtual void resetGoalConfigs () = 0;
 
     protected:
       /// Constructor
-      ProblemTarget (const PathPlannerPtr_t& planner)
-        : planner_ (planner)
+      ProblemTarget (const ProblemPtr_t& problem)
+        : problem_ (problem)
       {}
 
       /// Store weak pointer to itself
@@ -70,12 +68,10 @@ namespace hpp {
       }
 
       /// Reference to the planner for access to problem and roadmap
-      PathPlannerWkPtr_t planner_;
+      ProblemWkPtr_t problem_;
 
       /// Store weak pointer to itself
       ProblemTargetWkPtr_t weakPtr_;
-
-      Configurations_t goals_;
 
     private:
     }; // class PathPlanner

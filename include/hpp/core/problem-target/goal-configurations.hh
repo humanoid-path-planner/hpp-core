@@ -36,24 +36,50 @@ namespace hpp {
       class HPP_CORE_DLLAPI GoalConfigurations : public ProblemTarget {
         public:
           static GoalConfigurationsPtr_t create
-            (const PathPlannerPtr_t& planner);
+            (const ProblemPtr_t& problem);
 
           /// Check if the problem target is well specified.
           void check () const;
 
           /// Add the goal configurations to the roadmap
-          void initRoadmap ();
+          void initRoadmap (const RoadmapPtr_t& roadmap);
+
+          /// Nothing to do
+          void oneStep () {};
+
+          /// Check if the initial configuration and one of the goal are
+          /// in the same connected component.
+          bool reached () const;
+
+          PathPtr_t computePath() const;
 
           void addGoalConfig (const ConfigurationPtr_t& config)
           {
-            goals_.push_back (config);
+            goalCfgs_.push_back (config);
+          }
+
+          const Configurations_t& goalConfigurations () const
+          {
+            return goalCfgs_;
+          }
+
+          void resetGoalConfigs ()
+          {
+            goalCfgs_.clear ();
+            // TODO goalNodes_.clear ();
           }
 
         protected:
           /// Constructor
-          GoalConfigurations (const PathPlannerPtr_t& planner)
-            : ProblemTarget (planner)
+          GoalConfigurations (const ProblemPtr_t& problem);
+            : ProblemTarget (problem)
           {}
+
+          Configurations_t goalCfgs_;
+
+          // Initialize for each call to solve.
+          RoadmapPtr_t roadmap_;
+          NodeVector_t goalNodes_;
       }; // class GoalConfigurations
       /// \}
     } // namespace problemTarget

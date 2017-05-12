@@ -41,16 +41,21 @@ namespace hpp {
       /// - DiffusingPlanner
       class HPP_CORE_DLLAPI TaskTarget : public ProblemTarget {
         public:
-          static TaskTargetPtr_t create (const PathPlannerPtr_t& planner);
+          static TaskTargetPtr_t create (const ProblemPtr_t& problem);
 
           /// Check if the problem target is well specified.
           void check () const;
 
           /// Try sampling one configuration and add it as goal.
-          void initRoadmap ();
+          void initRoadmap (const RoadmapPtr_t& roadmap);
 
           /// Try sampling one configuration and add it as goal.
           void oneStep ();
+
+          /// Check whether the problem is solved.
+          bool reached () const;
+
+          PathPtr_t computePath() const;
 
           void constraints (const ConstraintSetPtr_t& c)
           {
@@ -63,15 +68,20 @@ namespace hpp {
           /// \warning the input configuration is modified.
           void addGoalConfig (const ConfigurationPtr_t& config);
 
+          const Configurations_t& goalConfigurations () const
+          {
+            return goalCfgs_;
+          }
+
           void resetGoalConfig ()
           {
-            goals_.clear ();
+            goalCfgs_.clear ();
           }
 
         protected:
           /// Constructor
-          TaskTarget (const PathPlannerPtr_t& planner)
-            : ProblemTarget (planner)
+          TaskTarget (const ProblemPtr_t& problem)
+            : ProblemTarget (problem)
             , indexInInitcc_ (0)
             , statistics_ ("Task target")
           {}
@@ -86,6 +96,11 @@ namespace hpp {
           ConstraintSetPtr_t constraints_;
 
           std::size_t indexInInitcc_;
+
+          Configurations_t goalCfgs_;
+
+          RoadmapPtr_t roadmap_;
+          NodeVector_t goalNodes_;
 
           ::hpp::statistics::SuccessStatistics statistics_;
       }; // class TaskTarget
