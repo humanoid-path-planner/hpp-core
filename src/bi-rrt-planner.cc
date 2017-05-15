@@ -105,7 +105,7 @@ namespace hpp {
     {
         PathPlanner::startSolve();
         startComponent_ = roadmap()->initNode()->connectedComponent();
-        for(Nodes_t::const_iterator cit = roadmap()->goalNodes().begin();
+        for(NodeVector_t::const_iterator cit = roadmap()->goalNodes().begin();
             cit != roadmap()->goalNodes().end(); ++cit)
         {
             endComponents_.push_back((*cit)->connectedComponent());

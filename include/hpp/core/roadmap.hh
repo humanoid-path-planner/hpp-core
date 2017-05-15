@@ -108,7 +108,7 @@ namespace hpp {
       /// \param config configuration
       /// If configuration is already in the roadmap, tag corresponding node
       /// as goal node. Otherwise create a new node.
-      void addGoalNode (const ConfigurationPtr_t& config);
+      NodePtr_t addGoalNode (const ConfigurationPtr_t& config);
 
       void resetGoalNodes ()
       {
@@ -135,7 +135,7 @@ namespace hpp {
       {
 	return initNode_;
       }
-      const Nodes_t& goalNodes () const
+      const NodeVector_t& goalNodes () const
       {
 	return goalNodes_;
       }
@@ -230,7 +230,7 @@ namespace hpp {
       Nodes_t nodes_;
       Edges_t edges_;
       NodePtr_t initNode_;
-      Nodes_t goalNodes_;
+      NodeVector_t goalNodes_;
       NearestNeighborPtr_t nearestNeighbor_;
 
     }; // class Roadmap

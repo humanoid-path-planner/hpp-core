@@ -261,7 +261,7 @@ namespace hpp {
         }
         IdSequence* goalNodes = new IdSequence ("goal_nodes", this);
         IdSequence::OutType values;
-        for (core::Nodes_t::const_iterator it = roadmap_->goalNodes ().begin ();
+        for (NodeVector_t::const_iterator it = roadmap_->goalNodes ().begin ();
             it != roadmap_->goalNodes ().end(); ++it) {
           size_type id = getNodeIdFromRoadmap (*it);
           if (id >= 0) {

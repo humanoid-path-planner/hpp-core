@@ -87,7 +87,7 @@ namespace hpp {
 
       bool isGoal (const NodePtr_t node)
       {
-	for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
+	for (NodeVector_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
 	     itGoal != roadmap_->goalNodes ().end (); ++itGoal) {
 	  if (*itGoal == node) {
 	    return true;
@@ -142,7 +142,7 @@ namespace hpp {
       {
 	const ConfigurationPtr_t config = node->configuration ();
 	value_type res = std::numeric_limits <value_type>::infinity ();
-	for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
+	for (NodeVector_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
 	     itGoal != roadmap_->goalNodes ().end (); ++itGoal) {
 	  ConfigurationPtr_t goal = (*itGoal)->configuration ();
 	  value_type dist = (*distance_) (*config, *goal);

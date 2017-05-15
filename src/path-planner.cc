@@ -128,7 +128,7 @@ namespace hpp {
       PathProjectorPtr_t pathProjector (problem ().pathProjector ());
       PathPtr_t validPath, projPath, path;
       NodePtr_t initNode = roadmap ()->initNode();
-      for (Nodes_t::const_iterator itn = roadmap ()->goalNodes ().begin();
+      for (NodeVector_t::const_iterator itn = roadmap ()->goalNodes ().begin();
 	   itn != roadmap ()->goalNodes ().end (); ++itn) {
 	ConfigurationPtr_t q1 ((initNode)->configuration ());
 	ConfigurationPtr_t q2 ((*itn)->configuration ());
