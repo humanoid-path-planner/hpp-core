@@ -249,9 +249,6 @@ namespace hpp {
 
     void WeighedDistance::computeWeights ()
     {
-      typedef Eigen::Matrix<value_type, 3, Eigen::Dynamic> BlockType;
-      typedef Eigen::JacobiSVD<BlockType> SVD_t;
-
       // Store computation flag
       Device_t::Computation_t flag = robot_->computationFlag ();
       Device_t::Computation_t newflag = static_cast <Device_t::Computation_t>
