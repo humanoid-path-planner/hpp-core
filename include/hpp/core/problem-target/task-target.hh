@@ -19,12 +19,9 @@
 #ifndef HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
 # define HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
 
-# include <hpp/core/problem-target.hh>
-
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-
-# include <hpp/statistics/success-bin.hh>
+# include <hpp/core/problem-target.hh>
 
 namespace hpp {
   namespace core {

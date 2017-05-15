@@ -46,7 +46,7 @@
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
 #include <hpp/core/path-validation-report.hh>
-#include <hpp/core/problem-target/task-target.hh>
+// #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
@@ -111,6 +111,7 @@ namespace hpp {
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
       pathPlannerType_ ("DiffusingPlanner"),
       initConf_ (), goalConfigurations_ (),
+      target_ (problemTarget::GoalConfigurations::create(NULL)),
       configurationShooterType_ ("BasicConfigurationShooter"),
       distanceType_("WeighedDistance"),
       steeringMethodType_ ("SteeringMethodStraight"),
@@ -294,6 +295,12 @@ namespace hpp {
       goalConfigurations_.clear ();
     }
 
+    /* Setting goal constraint is disabled for now.
+     * To re-enable it :
+     * - add a function called setGoalConstraints that:
+     *   - takes all the NumericalConstraintPtr_t and LockedJointPtr_t
+     *   - creates a TaskTarget and fills it.
+     * - remove all the addGoalConstraint
     void ProblemSolver::addGoalConstraint (const ConstraintPtr_t& constraint)
     {
       if (!goalConstraints_) {
@@ -339,6 +346,7 @@ namespace hpp {
     {
       goalConstraints_.reset ();
     }
+    */
 
     void ProblemSolver::addConstraint (const ConstraintPtr_t& constraint)
     {
@@ -537,6 +545,13 @@ namespace hpp {
       problem_->pathProjector (pathProjector_);
     }
 
+    void ProblemSolver::initProblemTarget ()
+    {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      target_->problem(problem_);
+      problem_->target (target_);
+    }
+
     void ProblemSolver::initProblem ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -557,19 +572,12 @@ namespace hpp {
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
       problem_->resetGoalConfigs ();
-      ProblemTargetPtr_t target;
-      if (goalConstraints_) {
-        problemTarget::TaskTargetPtr_t t = problemTarget::TaskTarget::create (problem_);
-        t->constraints (goalConstraints_);
-        target = t;
-      } else
-        target = problemTarget::GoalConfigurations::create (problem_);
-      problem_->target (target);
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
 	   itConfig != goalConfigurations_.end (); ++itConfig) {
 	problem_->addGoalConfig (*itConfig);
       }
+      initProblemTarget();
     }
 
     bool ProblemSolver::prepareSolveStepByStep ()

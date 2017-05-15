@@ -43,6 +43,12 @@ namespace hpp {
       /// Should be called when reached() returns true.
       virtual PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const = 0;
 
+      /// Set the problem
+      void problem (const ProblemPtr_t& problem)
+      {
+        problem_ = problem;
+      }
+
     protected:
       /// Constructor
       ProblemTarget (const ProblemPtr_t& problem)

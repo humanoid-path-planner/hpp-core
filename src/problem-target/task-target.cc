@@ -18,26 +18,17 @@
 
 #include <stdexcept>
 
-#include <hpp/util/debug.hh>
-
 #include <hpp/core/node.hh>
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/config-validations.hh>
-#include <hpp/core/configuration-shooter.hh>
 
 #include "../astar.hh"
 
 namespace hpp {
   namespace core {
     namespace problemTarget {
-      namespace {
-        HPP_DEFINE_REASON_FAILURE (REASON_PROJECTION_FAILED, "Projection failed");
-        HPP_DEFINE_REASON_FAILURE (REASON_COLLISION, "Collision");
-      }
-
       TaskTargetPtr_t TaskTarget::create (const ProblemPtr_t& problem)
       {
         TaskTarget* tt = new TaskTarget (problem);
