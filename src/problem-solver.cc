@@ -556,6 +556,7 @@ namespace hpp {
       /// create Path optimizer
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
+      problem_->resetGoalConfigs ();
       ProblemTargetPtr_t target;
       if (goalConstraints_) {
         problemTarget::TaskTargetPtr_t t = problemTarget::TaskTarget::create (problem_);
@@ -567,7 +568,7 @@ namespace hpp {
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
 	   itConfig != goalConfigurations_.end (); ++itConfig) {
-	target->addGoalConfig (*itConfig);
+	problem_->addGoalConfig (*itConfig);
       }
     }
 

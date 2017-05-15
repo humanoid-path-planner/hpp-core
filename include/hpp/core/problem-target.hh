@@ -34,26 +34,14 @@ namespace hpp {
     class HPP_CORE_DLLAPI ProblemTarget {
     public:
       /// Check if the problem target is well specified.
-      virtual void check () const = 0;
-
-      /// Called before starting the search.
-      virtual void initRoadmap (const RoadmapPtr_t& roadmap) = 0;
-
-      /// Called after each iteration of the path planner.
-      virtual void oneStep () = 0
+      virtual void check (const RoadmapPtr_t& roadmap) const = 0;
 
       /// Check whether the problem is solved.
-      virtual bool reached () const = 0;
+      virtual bool reached (const RoadmapPtr_t& roadmap) const = 0;
 
       /// Returns the solution path found.
       /// Should be called when reached() returns true.
-      PathPtr_t computePath() const = 0;
-
-      virtual void addGoalConfig (const ConfigurationPtr_t& config) = 0;
-
-      const Configurations_t& goalConfigurations () const = 0;
-
-      virtual void resetGoalConfigs () = 0;
+      virtual PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const = 0;
 
     protected:
       /// Constructor
@@ -68,13 +56,13 @@ namespace hpp {
       }
 
       /// Reference to the planner for access to problem and roadmap
-      ProblemWkPtr_t problem_;
+      ProblemPtr_t problem_;
 
       /// Store weak pointer to itself
       ProblemTargetWkPtr_t weakPtr_;
 
     private:
-    }; // class PathPlanner
+    }; // class ProblemTarget
     /// \}
   } //   namespace core
 } // namespace hpp

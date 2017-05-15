@@ -41,7 +41,7 @@ namespace hpp {
     Problem::Problem (DevicePtr_t robot) :
       robot_ (robot),
       distance_ (WeighedDistance::create (robot)),
-      initConf_ (), target_ (),
+      initConf_ (), goalConfigurations_ (), target_ (),
       steeringMethod_ (SteeringMethodStraight::create (this)),
       configValidations_ (),
       pathValidation_ (DiscretizedCollisionChecking::create
@@ -71,21 +71,21 @@ namespace hpp {
 
     const Configurations_t& Problem::goalConfigs () const
     {
-      return target_->goalConfigurations ();
+      return goalConfigurations_;
     }
 
     // ======================================================================
 
     void Problem::addGoalConfig (const ConfigurationPtr_t& config)
     {
-      target_->addGoalConfig (config);
+      goalConfigurations_.push_back (config);
     }
 
     // ======================================================================
 
     void Problem::resetGoalConfigs ()
     {
-      target_->resetGoalConfigs ();
+      goalConfigurations_.clear ();
     }
 
     // ======================================================================
@@ -201,7 +201,15 @@ namespace hpp {
 	throw std::runtime_error (oss.str ());
       }
 
-      target_->check ();
+      for (ConfigConstIterator_t it = goalConfigurations_.begin ();
+	   it != goalConfigurations_.end (); it++) {
+	const ConfigurationPtr_t& goalConf (*it);
+	if (!configValidations_->validate (*goalConf, report)) {
+	  std::ostringstream oss;
+	  oss << *report;
+	  throw std::runtime_error (oss.str ());
+	}
+      }
     }
 
     // ======================================================================

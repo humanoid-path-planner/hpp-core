@@ -39,47 +39,19 @@ namespace hpp {
             (const ProblemPtr_t& problem);
 
           /// Check if the problem target is well specified.
-          void check () const;
-
-          /// Add the goal configurations to the roadmap
-          void initRoadmap (const RoadmapPtr_t& roadmap);
-
-          /// Nothing to do
-          void oneStep () {};
+          void check (const RoadmapPtr_t& roadmap) const;
 
           /// Check if the initial configuration and one of the goal are
           /// in the same connected component.
-          bool reached () const;
+          bool reached (const RoadmapPtr_t& roadmap) const;
 
-          PathPtr_t computePath() const;
-
-          void addGoalConfig (const ConfigurationPtr_t& config)
-          {
-            goalCfgs_.push_back (config);
-          }
-
-          const Configurations_t& goalConfigurations () const
-          {
-            return goalCfgs_;
-          }
-
-          void resetGoalConfigs ()
-          {
-            goalCfgs_.clear ();
-            // TODO goalNodes_.clear ();
-          }
+          PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
 
         protected:
           /// Constructor
-          GoalConfigurations (const ProblemPtr_t& problem);
+          GoalConfigurations (const ProblemPtr_t& problem)
             : ProblemTarget (problem)
           {}
-
-          Configurations_t goalCfgs_;
-
-          // Initialize for each call to solve.
-          RoadmapPtr_t roadmap_;
-          NodeVector_t goalNodes_;
       }; // class GoalConfigurations
       /// \}
     } // namespace problemTarget

@@ -44,65 +44,26 @@ namespace hpp {
           static TaskTargetPtr_t create (const ProblemPtr_t& problem);
 
           /// Check if the problem target is well specified.
-          void check () const;
-
-          /// Try sampling one configuration and add it as goal.
-          void initRoadmap (const RoadmapPtr_t& roadmap);
-
-          /// Try sampling one configuration and add it as goal.
-          void oneStep ();
+          void check (const RoadmapPtr_t& roadmap) const;
 
           /// Check whether the problem is solved.
-          bool reached () const;
+          bool reached (const RoadmapPtr_t& roadmap) const;
 
-          PathPtr_t computePath() const;
+          PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
 
           void constraints (const ConstraintSetPtr_t& c)
           {
             constraints_ = c;
-            indexInInitcc_ = 0;
-          }
-
-          /// Apply the constraints to the configuration and
-          /// add it to the goals.
-          /// \warning the input configuration is modified.
-          void addGoalConfig (const ConfigurationPtr_t& config);
-
-          const Configurations_t& goalConfigurations () const
-          {
-            return goalCfgs_;
-          }
-
-          void resetGoalConfig ()
-          {
-            goalCfgs_.clear ();
           }
 
         protected:
           /// Constructor
           TaskTarget (const ProblemPtr_t& problem)
             : ProblemTarget (problem)
-            , indexInInitcc_ (0)
-            , statistics_ ("Task target")
           {}
 
         private:
-          ConfigurationPtr_t generateNewConfig (std::size_t& tries);
-
-          ConfigurationPtr_t shootConfig ();
-
-          bool impl_addGoalConfig (const ConfigurationPtr_t& config);
-
           ConstraintSetPtr_t constraints_;
-
-          std::size_t indexInInitcc_;
-
-          Configurations_t goalCfgs_;
-
-          RoadmapPtr_t roadmap_;
-          NodeVector_t goalNodes_;
-
-          ::hpp::statistics::SuccessStatistics statistics_;
       }; // class TaskTarget
       /// \}
     } // namespace problemTarget

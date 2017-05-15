@@ -46,7 +46,7 @@ namespace hpp {
         return shPtr;
       }
 
-      void TaskTarget::check () const
+      void TaskTarget::check (const RoadmapPtr_t&) const
       {
         if (!constraints_) {
           std::string msg ("No constraints: task not specified.");
@@ -55,96 +55,16 @@ namespace hpp {
         }
       }
 
-      void TaskTarget::initRoadmap (const RoadmapPtr_t roadmap)
+      bool TaskTarget::reached (const RoadmapPtr_t& roadmap) const
       {
-        roadmap_ = roadmap;
-        roadmap_->resetGoalNodes ();
-        std::size_t trials = 2;
-        generateNewConfig (trials);
-      }
-
-      void TaskTarget::oneStep ()
-      {
-        if (goals_.size () > roadmap_->nodes().size() / 10)
-          return;
-        std::size_t trials = 1;
-        generateNewConfig (trials);
-      }
-
-      bool TaskTarget::reached () const
-      {
-        const ConnectedComponentPtr_t ccInit = roadmap_->initNode ()->connectedComponent ();
-        for (NodeVector_t::const_iterator itGoal = goalNodes_.begin ();
-            itGoal != goalNodes_.end (); ++itGoal) {
-          if (ccInit->canReach ((*itGoal)->connectedComponent ())) {
-            return true;
-          }
-        }
+        // TODO
         return false;
       }
 
-      PathPtr_t TaskTarget::computePath() const
+      PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const
       {
-        Astar astar (roadmap(), problem_.distance ());
+        Astar astar (roadmap, problem_->distance ());
         return astar.solution ();
-      }
-
-      ConfigurationPtr_t TaskTarget::generateNewConfig (std::size_t& tries)
-      {
-        ConfigurationPtr_t q;
-        while (tries > 0) {
-          tries--;
-          q = shootConfig ();
-          if (impl_addGoalConfig (q)) return q;
-        }
-        return ConfigurationPtr_t();
-      }
-
-      ConfigurationPtr_t TaskTarget::shootConfig ()
-      {
-        ConfigurationPtr_t q;
-        const NodeVector_t& initCCnodes =
-          roadmap_->initNode()->connectedComponent()->nodes();
-        if (initCCnodes.size() < indexInInitcc_) {
-          // The list of nodes must have changed.
-          // Try again from initial configuration.
-          indexInInitcc_ = 0;
-          hppDout (info, "Connected component of init node has been shrinked. "
-             "Reinititializing index.");
-        }
-        if (initCCnodes.size() > indexInInitcc_) {
-          q = ConfigurationPtr_t (new Configuration_t (
-                *(initCCnodes[indexInInitcc_]->configuration())
-              ));
-          indexInInitcc_++;
-        } else {
-          q = problem_.lock ()->configurationShooter()->shoot ();
-        }
-        return q;
-      }
-
-      void TaskTarget::addGoalConfig (const ConfigurationPtr_t& config)
-      {
-        impl_addGoalConfig (config);
-      }
-
-      inline bool TaskTarget::impl_addGoalConfig (const ConfigurationPtr_t& config)
-      {
-        const ConfigValidationsPtr_t& confValidations =
-          problem_.lock ()->configValidations();
-        ValidationReportPtr_t report;
-        if (constraints_->apply (*config)) {
-          if (confValidations->validate (*config, report)) {
-            statistics_.addSuccess ();
-            goalCfgs_.push_back (config);
-            // TODO goalNodes_.push_back(roadmap_->addNode (*itGoal));
-            goalNodes_.push_back(roadmap_->addGoalNode (*itGoal));
-            return true;
-          } else
-            statistics_.addFailure (REASON_COLLISION);
-        } else statistics_.addFailure (REASON_PROJECTION_FAILED);
-        statistics_.isLowRatio (true);
-        return false;
       }
     } // namespace problemTarget
   } // namespace core
