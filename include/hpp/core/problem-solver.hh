@@ -529,6 +529,10 @@ namespace hpp {
       virtual void addObstacle (const CollisionObjectPtr_t &inObject, bool collision,
             bool distance);
 
+      /// Remove obstacle from the list.
+      /// \param name name of the obstacle
+      virtual void removeObstacle (const std::string& name);
+
       /// Add obstacle to the list.
       /// \param inObject a new object.
       /// \param collision whether collision checking should be performed
@@ -545,6 +549,10 @@ namespace hpp {
       /// \param obstacleName name of the obstacle
       void removeObstacleFromJoint (const std::string& jointName,
 				    const std::string& obstacleName);
+
+      /// Extract from the obstacle the part that can collide with aabb
+      /// \warning the obstacle is removed if there are not possible collision.
+      void cutObstacle (const std::string& name, const fcl::AABB& aabb);
 
       /// Build matrix of relative motions between joints
       ///
