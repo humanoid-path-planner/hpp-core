@@ -152,7 +152,7 @@ namespace hpp {
       jointName_ ("partial_" + joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration () + index),
       rankInVelocity_ (joint->rankInVelocity () + index),
-      numberDof_ (joint->numberDof ())
+      numberDof_ (joint->numberDof () - index)
     {
       assert (joint->numberDof () == joint->configSize ());
       rightHandSide (value);
