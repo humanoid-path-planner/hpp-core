@@ -2,7 +2,7 @@ INPUT = @CMAKE_SOURCE_DIR@/include \
       @CMAKE_SOURCE_DIR@/doc \
       @CMAKE_SOURCE_DIR@/src/continuous-collision-checking/body-pair-collision.hh
 
-TAGFILES          = @HPP_PINOCCHIO_DOXYGENDOCDIR@/hpp-model.doxytag=@HPP_PINOCCHIO_DOXYGENDOCDIR@ \
+TAGFILES          = @HPP_PINOCCHIO_DOXYGENDOCDIR@/hpp-pinocchio.doxytag=@HPP_PINOCCHIO_DOXYGENDOCDIR@ \
 		  @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag=@HPP_CONSTRAINTS_DOXYGENDOCDIR@
 
 HIDE_FRIEND_COMPOUNDS  = YES
