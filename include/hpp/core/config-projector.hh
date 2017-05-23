@@ -198,6 +198,11 @@ namespace hpp {
 	return value_.size();
       }
 
+      bool explicitComputation () const
+      {
+        return explicitComputation_;
+      }
+
       /// Compress Velocity vector by removing locked degrees of freedom
       ///
       /// \param normal input velocity vector

@@ -539,6 +539,10 @@ namespace hpp {
 
     void ConfigProjector::updateExplicitComputation ()
     {
+      if (functions_.empty()) {
+        explicitComputation_ = true;
+        return;
+      }
       if ((functions_.size () != 1) || (explicitFunctions_.size () != 1)) {
 	explicitComputation_ = false;
 	return;
