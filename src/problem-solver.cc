@@ -314,6 +314,7 @@ namespace hpp {
 
     void ProblemSolver::addGoalConfig (const ConfigurationPtr_t& config)
     {
+      target_ = problemTarget::GoalConfigurations::create(NULL);
       goalConfigurations_.push_back (config);
     }
 
