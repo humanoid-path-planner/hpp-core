@@ -872,6 +872,34 @@ namespace hpp {
       return rightHandSide();
     }
 
+    void ConfigProjector::rightHandSideFromConfig (
+        const NumericalConstraintPtr_t& nm,
+        ConfigurationIn_t config)
+    {
+      size_type row = 0, nbRows = 0;
+      for (std::vector <PriorityStack>::iterator itPs = stack_.begin ();
+          itPs != stack_.end (); ++itPs) { 
+        for (NumericalConstraints_t::iterator it = itPs->functions_.begin ();
+            it != itPs->functions_.end (); ++it) {
+          NumericalConstraint& _nm = **it;
+          const DifferentiableFunction& f = _nm.function ();
+          nbRows = f.outputSize ();
+          if (nm == *it) {
+            _nm.rightHandSideFromConfig (config);
+            rightHandSide_.segment (row, _nm.rhsSize ()) = _nm.rightHandSide ();
+          }
+          row += nbRows;
+        }
+      }
+    }
+
+    void ConfigProjector::rightHandSideFromConfig (
+        const LockedJointPtr_t& lj,
+        ConfigurationIn_t config)
+    {
+      lj->rightHandSideFromConfig (config);
+    }
+
     void ConfigProjector::rightHandSide (const vector_t& small)
     {
       size_type row = 0, nbRows = 0, sRow = 0;

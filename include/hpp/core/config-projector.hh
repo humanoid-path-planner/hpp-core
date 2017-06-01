@@ -283,6 +283,14 @@ namespace hpp {
       /// to retrieve the leaf a configuration lies on.
       vector_t rightHandSideFromConfig (ConfigurationIn_t config);
 
+      /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
+      /// the specified NumericalConstraint
+      void rightHandSideFromConfig (const NumericalConstraintPtr_t& nm, ConfigurationIn_t config);
+
+      /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
+      /// the specified LockedJoint
+      void rightHandSideFromConfig (const LockedJointPtr_t& nm, ConfigurationIn_t config);
+
       /// Set the level set parameter.
       /// \param param the level set parameter.
       void rightHandSide (const vector_t& param);
@@ -290,13 +298,6 @@ namespace hpp {
       /// Get the level set parameter.
       /// \return the parameter.
       vector_t rightHandSide () const;
-
-      /// Regenerate the right hand side
-      /// from the numerical constraint right hand sides.
-      /// \note Class NumericalConstraint contains a cache for its own RHS.
-      /// Its value is simply copied in the ConfigProjector RHS. This allow a
-      /// finer control on the RHS.
-      void updateRightHandSide ();
 
       /// @}
 
