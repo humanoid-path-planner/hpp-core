@@ -189,6 +189,7 @@ namespace hpp {
       jacobian.bottomRows<3>() = inVel_.rview(tmpJac_);
       // jacobian.bottomRows<3>().setZero();
 
+      /*
       hppDout (info, "Computed jacobian " << jacobian);
 
       matrix_t other (6, rt_->inputDerivativeSize());
@@ -197,6 +198,7 @@ namespace hpp {
       hppDout (info, "Other jacobian " << other);
       hppDout (info, "Other jacobian viewed " << inVel_.rview(other).eval());
       hppDout (info, "Other jacobian - jacobian " << inVel_.rview(other).eval() - jacobian);
+      */
 
       // jacobian = inVel_.rview(other);
     }

@@ -246,7 +246,7 @@ namespace hpp {
      const SizeIntervals_t& outputConf,
      const SizeIntervals_t& outputVelocity) :
       NumericalConstraint (implicitFunction,
-			   ComparisonTypes::create(implicitFunction->outputSize(), ComparisonTypes::Equality)),
+			   ComparisonTypes::create(implicitFunction->outputSize(), ComparisonTypes::Default)),
       inputToOutput_ (explicitFunction),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),
@@ -263,7 +263,7 @@ namespace hpp {
      const SizeIntervals_t& outputVelocity) :
       NumericalConstraint (ImplicitFunction::create
 			   (robot, explicitFunction, outputConf, outputVelocity),
-			   ComparisonTypes::create(Eigen::BlockIndex<size_type>::cardinal(outputVelocity), ComparisonTypes::Equality)),
+			   ComparisonTypes::create(Eigen::BlockIndex<size_type>::cardinal(outputVelocity), ComparisonTypes::Default)),
       inputToOutput_ (explicitFunction),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),

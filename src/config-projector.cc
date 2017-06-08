@@ -129,7 +129,7 @@ namespace hpp {
       solver_.maxIterations(maxIterations);
       solver_.lastIsOptional(false);
       solver_.integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupTpl>, robot_, _1, _2, _3));
-      solver_.explicitSolver().difference (boost::bind(hpp::pinocchio::difference<hpp::pinocchio::LieGroupTpl>, robot, _1, _2, _3));
+      solver_.explicitSolver().difference (boost::bind(hpp::pinocchio::difference<se3::LieGroupTpl>, robot, _1, _2, _3));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
@@ -186,6 +186,11 @@ namespace hpp {
             Eigen::RowBlockIndexes(enm->outputConf()),
             Eigen::ColBlockIndexes(enm->inputVelocity()),
             Eigen::RowBlockIndexes(enm->outputVelocity()));
+        if (!addedAsExplicit) {
+          hppDout (info, "Could not treat " <<
+              enm->explicitFunction()->name() << " as an explicit function."
+              );
+        }
       }
 
       if (!addedAsExplicit) {
@@ -199,7 +204,7 @@ namespace hpp {
       }
 
       functions_.push_back (nm);
-      rhsReducedSize_ += nm->rhsSize ();
+      // rhsReducedSize_ += nm->rhsSize ();
       return true;
     }
 
@@ -351,11 +356,14 @@ namespace hpp {
 	}
       }
 
-      solver_.explicitSolver().add(lockedJoint->function(),
+      bool added = solver_.explicitSolver().add(lockedJoint->function(),
           Eigen::RowBlockIndexes(),
           Eigen::RowBlockIndexes(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
           Eigen::ColBlockIndexes(),
           Eigen::RowBlockIndexes(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())));
+      if (!added) {
+        hppDout (error, "Could not add LockedJoint " << lockedJoint->jointName_);
+      }
       solver_.explicitSolverHasChanged();
 
       lockedJoints_.push_back (lockedJoint);
@@ -465,7 +473,7 @@ namespace hpp {
 
     vector_t ConfigProjector::rightHandSide () const
     {
-      vector_t small(rhsReducedSize_);
+      vector_t small(solver_.rightHandSideSize() + rhsReducedSize_);
 
       vector_t rhsImplicit = solver_.rightHandSide();
 
