@@ -151,13 +151,15 @@ namespace hpp {
 
         // get velocity and acceleration bounds from problem :
         try {
-          aMaxFixed_ = problem_->get<double> (std::string("aMax"));
+          boost::any value = problem_->get<boost::any> (std::string("aMax"));
+          aMaxFixed_ = boost::any_cast<double>(value);
         } catch (const std::exception& e) {
           std::cout<<"Warning : no acceleration bounds set, use 10.0 as default"<<std::endl;
           aMaxFixed_ = 10.;
         }
         try {
-          vMax_ *= problem_->get<double> (std::string("vMax"));
+          boost::any value = problem_->get<boost::any> (std::string("vMax"));
+          vMax_ *= boost::any_cast<double>(value);
         } catch (const std::exception& e) {
           std::cout<<"Warning : no velocity bounds set, use 1.0 as default"<<std::endl;
         }
@@ -165,7 +167,8 @@ namespace hpp {
         hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_);
 
         try {
-          tryJump_ = (bool)problem_->get<double> (std::string("tryJump"));
+          boost::any value = problem_->get<boost::any> (std::string("tryJump"));
+          tryJump_ = boost::any_cast<bool>(value);
         } catch (const std::exception& e) {
           tryJump_=false;
         }
