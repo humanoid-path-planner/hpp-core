@@ -39,6 +39,7 @@ discretized-path-validation.cc
 distance/reeds-shepp.cc
 distance-between-objects.cc
 explicit-numerical-constraint.cc
+explicit-relative-transformation.cc
 extracted-path.hh
 equation.cc
 interpolated-path.cc
