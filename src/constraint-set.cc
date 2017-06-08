@@ -23,55 +23,6 @@
 
 namespace hpp {
   namespace core {
-    HPP_PREDEF_CLASS (ConfigProjectorTrivial);
-    typedef boost::shared_ptr <ConfigProjectorTrivial>
-    ConfigProjectorTrivialPtr_t;
-    class ConfigProjectorTrivial : public ConfigProjector
-    {
-    public:
-      static ConfigProjectorTrivialPtr_t create (const DevicePtr_t& robot)
-      {
-	ConfigProjectorTrivial* ptr = new ConfigProjectorTrivial (robot);
-	ConfigProjectorTrivialPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
-      }
-      ConfigProjectorTrivial (const DevicePtr_t& robot)
-	: ConfigProjector (robot, "trivial ConfigProjector", 0, 0)
-      {
-      }
-      // Do not copy, return shared pointer to this.
-      virtual ConstraintPtr_t copy () const
-      {
-	return weak_.lock ();
-      }
-      bool impl_compute (ConfigurationOut_t configuration)
-      {
-	computeLockedDofs (configuration);
-	return true;
-      }
-      void projectOnKernel (ConfigurationIn_t,
-          ConfigurationIn_t, ConfigurationOut_t)
-      {}
-      /// Check whether a configuration statisfies the constraint.
-      virtual bool isSatisfied (ConfigurationIn_t)
-      {
-	return true;
-      }
-      virtual bool isSatisfied (ConfigurationIn_t, vector_t& error)
-      {
-	error.resize (0);
-	return true;
-      }
-
-      void init (ConfigProjectorTrivialPtr_t weak)
-      {
-	ConfigProjector::init (weak);
-	weak_ = weak;
-      }
-      ConfigProjectorTrivialWkPtr_t weak_;
-    }; // class ConfigProjectorTrivial
-
     bool ConstraintSet::impl_compute (ConfigurationOut_t configuration)
     {
       for (Constraints_t::iterator itConstraint = constraints_.begin ();
@@ -90,7 +41,7 @@ namespace hpp {
 				  const std::string& name) :
       Constraint (name), constraints_ ()
     {
-      constraints_.push_back (ConfigProjectorTrivial::create (robot));
+      constraints_.push_back (ConfigProjector::create (robot, "Trivial", 0, 0));
       trivialOrNotConfigProjectorIt_ = constraints_.begin ();
       configProjectorIt_ = constraints_.end ();
     }
