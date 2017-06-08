@@ -29,6 +29,7 @@
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/constraints/svd.hh>
 #include <hpp/constraints/macros.hh>
@@ -128,6 +129,7 @@ namespace hpp {
       solver_.maxIterations(maxIterations);
       solver_.lastIsOptional(false);
       solver_.integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupTpl>, robot_, _1, _2, _3));
+      solver_.explicitSolver().difference (boost::bind(hpp::pinocchio::difference<hpp::pinocchio::LieGroupTpl>, robot, _1, _2, _3));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
