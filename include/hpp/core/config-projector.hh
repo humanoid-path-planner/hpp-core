@@ -177,18 +177,13 @@ namespace hpp {
       /// Get number of non-locked degrees of freedom
       size_type numberNonLockedDof () const
       {
-	return nbNonLockedDofs_;
+	return solver_.explicitSolver().inDers().nbIndexes();
       }
 
       /// Get constraint dimension
       size_type dimension () const
       {
 	return solver_.dimension();
-      }
-
-      bool explicitComputation () const
-      {
-        return explicitComputation_;
       }
 
       /// Compress Velocity vector by removing locked degrees of freedom
@@ -315,12 +310,6 @@ namespace hpp {
 	return functions_;
       }
 
-      /// Get the passive DOF of the ConfigProjector
-      IntervalsContainer_t passiveDofs () const
-      {
-	return passiveDofs_;
-      }
-
       LockedJoints_t lockedJoints () const {
         return lockedJoints_;
       }
@@ -349,24 +338,15 @@ namespace hpp {
     private:
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
-      void updateExplicitComputation ();
-      void resize ();
-      void computeIntervals ();
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
-      std::vector <std::size_t> explicitFunctions_;
-      IntervalsContainer_t passiveDofs_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
-      SizeIntervals_t intervals_;
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
       /// Jacobian without locked degrees of freedom
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
-      size_type nbNonLockedDofs_;
-      size_type nbLockedDofs_;
-      bool explicitComputation_;
 
       typedef constraints::HybridSolver HybridSolver;
       enum LineSearchType {

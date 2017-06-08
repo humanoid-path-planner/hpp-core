@@ -87,12 +87,6 @@ namespace hpp {
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
 
-    //using boost::fusion::result_of::at;
-    bool operator< (const LockedJointPtr_t& l1, const LockedJointPtr_t& l2)
-    {
-      return l1->rankInVelocity () < l2->rankInVelocity ();
-    }
-
     ConfigProjectorPtr_t ConfigProjector::create (const DevicePtr_t& robot,
 						  const std::string& name,
 						  value_type errorThreshold,
@@ -119,13 +113,10 @@ namespace hpp {
 				      value_type errorThreshold,
 				      size_type maxIterations) :
       Constraint (name), robot_ (robot), functions_ (),
-      passiveDofs_ (), lockedJoints_ (),
+      lockedJoints_ (),
       rhsReducedSize_ (0),
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
-      nbNonLockedDofs_ (robot_->numberDof ()),
-      nbLockedDofs_ (0),
-      explicitComputation_ (false),
       lineSearchType_ (Default),
       // lineSearchType_ (Backtracking),
       solver_ (robot->configSize(), robot->numberDof()),
@@ -142,14 +133,11 @@ namespace hpp {
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
       Constraint (cp), robot_ (cp.robot_),
       functions_ (cp.functions_),
-      passiveDofs_ (cp.passiveDofs_), lockedJoints_ (),
-      intervals_ (cp.intervals_),
+      lockedJoints_ (),
       rightHandSide_ (cp.rightHandSide_),
       rhsReducedSize_ (cp.rhsReducedSize_),
       toMinusFrom_ (cp.toMinusFrom_.size ()),
       projMinusFrom_ (cp.projMinusFrom_.size ()),
-      nbNonLockedDofs_ (cp.nbNonLockedDofs_), nbLockedDofs_ (cp.nbLockedDofs_),
-      explicitComputation_ (cp.explicitComputation_),
       lineSearchType_ (cp.lineSearchType_),
       solver_ (cp.solver_),
       weak_ (),
@@ -209,48 +197,8 @@ namespace hpp {
       }
 
       functions_.push_back (nm);
-      passiveDofs_.push_back (passiveDofs);
       rhsReducedSize_ += nm->rhsSize ();
-      // TODO: no need to recompute intervals.
-      computeIntervals ();
-      resize ();
-      updateExplicitComputation ();
       return true;
-    }
-
-    void ConfigProjector::computeIntervals ()
-    {
-      intervals_.clear ();
-      nbLockedDofs_ = 0;
-      std::pair < size_type, size_type > interval;
-      std::size_t latestIndex = 0;
-      size_type size;
-      lockedJoints_.sort ();
-      // temporarily add an element at the end of the list.
-      lockedJoints_.push_back (LockedJoint::create (robot_));
-      for (LockedJoints_t::const_iterator itLocked = lockedJoints_.begin ();
-	   itLocked != lockedJoints_.end (); ++itLocked) {
-    std::size_t index = (*itLocked)->rankInVelocity ();
-	nbLockedDofs_ += (*itLocked)->numberDof ();
-	hppDout (info, "number locked dof " << (*itLocked)->numberDof ());
-	size = (index - latestIndex);
-	if (size > 0) {
-	  interval.first = latestIndex;
-	  interval.second = size;
-	  intervals_.push_back (interval);
-	}
-    latestIndex = index + (*itLocked)->numberDof ();
-      }
-      // Remove temporary element.
-      lockedJoints_.pop_back ();
-    }
-
-    void ConfigProjector::resize ()
-    {
-      std::size_t sizeOutput = solver_.dimension();
-      nbNonLockedDofs_ = robot_->numberDof () - nbLockedDofs_;
-      rightHandSide_ = vector_t::Zero (sizeOutput);
-      projMinusFrom_.setZero ();
     }
 
     void ConfigProjector::computeValueAndJacobian
@@ -268,150 +216,43 @@ namespace hpp {
     void ConfigProjector::uncompressVector (vectorIn_t small,
 					    vectorOut_t normal) const
     {
-      assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
-      assert (normal.size () == robot_->numberDof ());
-      if (intervals_.empty ()) {
-	normal = small;
-	return;
-      }
-      size_type col = 0;
-      for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
-	   itInterval != intervals_.end (); ++itInterval) {
-	size_type col0 = itInterval->first;
-	size_type nbCols = itInterval->second;
-	normal.segment (col0, nbCols) = small.segment (col, nbCols);
-	col += itInterval->second;
-      }
+      solver_.explicitSolver().inDers().lviewTranspose(normal) = small;
     }
 
     void ConfigProjector::compressVector (vectorIn_t normal,
 					  vectorOut_t small) const
     {
-      assert (small.size () + nbLockedDofs_ == robot_->numberDof ());
-      assert (normal.size () == robot_->numberDof ());
-      if (intervals_.empty ()) {
-	small = normal;
-	return;
-      }
-      size_type col = 0;
-      for (SizeIntervals_t::const_iterator itInterval = intervals_.begin ();
-	   itInterval != intervals_.end (); ++itInterval) {
-	size_type col0 = itInterval->first;
-	size_type nbCols = itInterval->second;
-	small.segment (col, nbCols) = normal.segment (col0, nbCols);
-	col += itInterval->second;
-      }
+      small = solver_.explicitSolver().inDers().rviewTranspose(normal);
     }
 
     void ConfigProjector::compressMatrix (matrixIn_t normal,
 					  matrixOut_t small, bool rows) const
     {
-      if (intervals_.empty ()) {
-	small = normal;
-	return;
+      if (rows) {
+        typedef Eigen::MatrixBlockView<matrixIn_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
+        const Eigen::ColBlockIndexes& cols = solver_.explicitSolver().inDers();
+        small = View (normal, cols.nbIndexes(), cols.indexes(), cols.nbIndexes(), cols.indexes());
+      } else {
+        small = solver_.explicitSolver().inDers().rview(normal);
       }
-      size_type col = 0;
-      for (SizeIntervals_t::const_iterator itCol = intervals_.begin ();
-	   itCol != intervals_.end (); ++itCol) {
-	size_type col0 = itCol->first;
-	size_type nbCols = itCol->second;
-	if (rows) {
-	  size_type row = 0;
-	  for (SizeIntervals_t::const_iterator itRow = intervals_.begin ();
-	       itRow != intervals_.end (); ++itRow) {
-	    size_type row0 = itRow->first;
-	    size_type nbRows = itRow->second;
-	    small.block (row, col, nbRows, nbCols) =
-	      normal.block (row0, col0, nbRows, nbCols);
-	    row += nbRows;
-	  }
-	  assert (row == small.rows ());
-	} else {
-	  small.middleCols (col, nbCols) = normal.middleCols (col0, nbCols);
-	}
-	col += nbCols;
-      }
-      assert (col == small.cols ());
     }
 
     void ConfigProjector::uncompressMatrix (matrixIn_t small,
 					    matrixOut_t normal, bool rows) const
     {
-      if (intervals_.empty ()) {
-	normal = small;
-	return;
+      if (rows) {
+        typedef Eigen::MatrixBlockView<matrixOut_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
+        const Eigen::ColBlockIndexes& cols = solver_.explicitSolver().inDers();
+        View (normal, cols.nbIndexes(), cols.indexes(), cols.nbIndexes(), cols.indexes()) = small;
+      } else {
+        solver_.explicitSolver().inDers().lview(normal) = small;
       }
-      size_type col = 0;
-      for (SizeIntervals_t::const_iterator itCol = intervals_.begin ();
-	   itCol != intervals_.end (); ++itCol) {
-	size_type col0 = itCol->first;
-	size_type nbCols = itCol->second;
-	if (rows) {
-	  size_type row = 0;
-	  for (SizeIntervals_t::const_iterator itRow = intervals_.begin ();
-	       itRow != intervals_.end (); ++itRow) {
-	    size_type row0 = itRow->first;
-	    size_type nbRows = itRow->second;
-	    normal.block (row0, col0, nbRows, nbCols) =
-	      small.block (row, col, nbRows, nbCols);
-	    row += nbRows;
-	  }
-	  assert (row == small.rows ());
-	} else {
-	  normal.middleCols (col0, nbCols) = small.middleCols (col, nbCols);
-	}
-	col += nbCols;
-      }
-      assert (col == small.cols ());
-    }
-
-    void ConfigProjector::updateExplicitComputation ()
-    {
-      if (functions_.empty()) {
-        explicitComputation_ = true;
-        return;
-      }
-      if ((functions_.size () != 1) || (explicitFunctions_.size () != 1)) {
-	explicitComputation_ = false;
-	return;
-      }
-      HPP_STATIC_CAST_REF_CHECK (ExplicitNumericalConstraint,
-				 *(functions_ [0]));
-      const SizeIntervals_t& output =
-	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
-			     functions_ [0])->outputConf ();
-      for (LockedJoints_t::const_iterator itLocked = lockedJoints_.begin ();
-	   itLocked != lockedJoints_.end (); ++itLocked) {
-	size_type a = (size_type) (*itLocked)->rankInConfiguration ();
-	size_type b = (size_type) (*itLocked)->rankInConfiguration () +
-	  (*itLocked)->size () - 1;
-	for (SizeIntervals_t::const_iterator itOut = output.begin ();
-	     itOut != output.end (); ++itOut) {
-	  size_type c = itOut->first;
-	  size_type d = itOut->first + itOut->second - 1;
-	  if ((d >= a) && (b >= c)) {
-	    explicitComputation_ = false;
-	    return;
-	  }
-	}
-      }
-      explicitComputation_ = true;
     }
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
       hppDout (info, "before projection: " << configuration.transpose ());
       assert (!configuration.hasNaN());
-      /*
-      if (explicitComputation_) {
-	hppDout (info, "Explicit computation: " <<
-		 functions_ [0]->functionPtr ()->name ());
-	HPP_STATIC_CAST_REF_CHECK (ExplicitNumericalConstraint,
-				   *(functions_ [0]));
-	HPP_STATIC_PTR_CAST (ExplicitNumericalConstraint,
-			     functions_ [0])->solve (configuration);
-      }
-      */
       HPP_START_TIMECOUNTER (projection);
       HybridSolver::Status status = solverSolve (configuration);
       HPP_STOP_TIMECOUNTER (projection);
@@ -519,15 +360,9 @@ namespace hpp {
       hppDout (info, "add locked joint " << lockedJoint->jointName_
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
-      computeIntervals ();
       hppDout (info, "Intervals: ");
-      for (SizeIntervals_t::const_iterator it = intervals_.begin ();
-	   it != intervals_.end (); ++it) {
-	hppDout (info, "[" << it->first << "," << it->first + it->second - 1
-		 << "]");
-      }
-      resize ();
-      updateExplicitComputation ();
+      // TODO add printer to MatrixBlockIndexes
+      // hppDout (info, solver_.explicitSolver().outDers())
       if (!lockedJoint->comparisonType ()->constantRightHandSide ())
         rhsReducedSize_ += lockedJoint->rhsSize ();
     }
@@ -565,10 +400,8 @@ namespace hpp {
 	os << lj << std::endl;
       }
       os << "    Intervals: ";
-      for (SizeIntervals_t::const_iterator it=intervals_.begin ();
-	   it != intervals_.end (); ++it) {
-	os << "[" << it->first << "," << it->first + it->second - 1 << "], ";
-      }
+      // TODO add printer to MatrixBlockIndexes
+      // hppDout (info, solver_.explicitSolver().outDers())
       os << std::endl;
       return os;
     }
