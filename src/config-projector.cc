@@ -643,6 +643,7 @@ namespace hpp {
           /// Ignore last level
           computePrioritizedIncrement (value_, reducedJacobian_, 1, dq_,
               stack_.size() - 1);
+          hppDout(notice,"stack size : "<<stack_.size());
           model::integrate (robot_, current, dq_, current);
           computeValueAndJacobian (current, value_, reducedJacobian_);
           computeError ();
@@ -932,14 +933,20 @@ namespace hpp {
 
     void ConfigProjector::computeError ()
     {
+      hppDout(notice,"computeError : lastIsOptionnal :"<<lastIsOptional_);
       if (lastIsOptional_) {
         std::size_t rows = value_.size() - stack_.back ().outputSize_;
+        hppDout(notice,"rows : "<<rows);
         squareNorm_ = (
             value_.segment (0, rows) - rightHandSide_.segment (0, rows)
             ).squaredNorm ();
       } else {
+        hppDout(notice,"rows : "<<value_.size());
         squareNorm_ = (value_ - rightHandSide_).squaredNorm ();
       }
+      hppDout(notice,"norm : "<<squareNorm_);
+      hppDout(notice,"norm threshold: "<<squareErrorThreshold_);
+
     }
   } // namespace core
 } // namespace hpp
