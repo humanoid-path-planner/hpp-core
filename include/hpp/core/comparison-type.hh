@@ -39,7 +39,8 @@ namespace hpp {
           EqualToZero,
           Superior,
           Inferior,
-          DoubleInequality
+          DoubleInequality,
+          Default = EqualToZero
         };
         typedef std::vector <Type> VectorOfTypes;
 
@@ -153,10 +154,20 @@ namespace hpp {
         static ComparisonTypesPtr_t create
 	  (const std::vector <ComparisonType::Type> types);
 
+        static ComparisonTypesPtr_t create (std::size_t nb, const ComparisonType::Type& t)
+        {
+          return ComparisonTypes::create (std::vector<ComparisonType::Type>(nb, t));
+        }
+
         ComparisonTypePtr_t& at (const std::size_t index)
         {
           assert (index < inequalities_.size());
           return inequalities_[index];
+        }
+
+        std::size_t size () const
+        {
+          return inequalities_.size();
         }
 
       protected:
