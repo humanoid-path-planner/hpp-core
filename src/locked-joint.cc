@@ -177,6 +177,7 @@ namespace hpp {
     void LockedJoint::init (const LockedJointPtr_t& self)
     {
       weak_ = self;
+      function_.reset(new Function(self));
     }
 
     std::ostream& LockedJoint::print (std::ostream& os) const
