@@ -105,6 +105,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method-straight.hh
   include/hpp/core/steering-method/car-like.hh
+  include/hpp/core/steering-method/constant-curvature.hh
   include/hpp/core/steering-method/dubins.hh
   include/hpp/core/steering-method/reeds-shepp.hh
   include/hpp/core/steering-method/snibud.hh

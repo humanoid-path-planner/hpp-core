@@ -23,7 +23,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/path.hh>
+# include <hpp/core/path-vector.hh>
 
 namespace hpp {
   namespace core {
@@ -43,10 +43,10 @@ namespace hpp {
     ///       the configuration parameter of those joints are computed so that
     ///       the wheel is aligned with the velocity.
     ///   \li linear interpolation for the other joints
-    class HPP_CORE_DLLAPI ReedsSheppPath : public Path
+    class HPP_CORE_DLLAPI ReedsSheppPath : public PathVector
     {
     public:
-      typedef core::Path parent_t;
+      typedef core::PathVector parent_t;
 
       /// Destructor
       virtual ~ReedsSheppPath () throw () {}
@@ -79,7 +79,7 @@ namespace hpp {
       {
 	ReedsSheppPath* ptr = new ReedsSheppPath (*path);
 	ReedsSheppPathPtr_t shPtr (ptr);
-	ptr->initCopy (shPtr);
+	ptr->init (shPtr);
 	return shPtr;
       }
 
@@ -91,7 +91,7 @@ namespace hpp {
       {
 	ReedsSheppPath* ptr = new ReedsSheppPath (*path, constraints);
 	ReedsSheppPathPtr_t shPtr (ptr);
-	ptr->initCopy (shPtr);
+	ptr->init (shPtr);
 	return shPtr;
       }
 
@@ -137,15 +137,7 @@ namespace hpp {
 
     protected:
       /// Print path in a stream
-      virtual std::ostream& print (std::ostream &os) const
-      {
-	os << "ReedsSheppPath:" << std::endl;
-	os << "interval: [ " << timeRange ().first << ", "
-	   << timeRange ().second << " ]" << std::endl;
-	os << "initial configuration: " << initial_.transpose () << std::endl;
-	os << "final configuration:   " << end_.transpose () << std::endl;
-	return os;
-      }
+      virtual std::ostream& print (std::ostream &os) const;
       /// Constructor
       ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
                       ConfigurationIn_t end, value_type rho,
@@ -166,12 +158,6 @@ namespace hpp {
 
       void init (ReedsSheppPathPtr_t self);
 
-      void initCopy (ReedsSheppPathPtr_t self)
-      {
-	parent_t::initCopy (self);
-	weak_ = self;
-      }
-
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;
       /// Virtual implementation of derivative
@@ -184,13 +170,8 @@ namespace hpp {
       // Compute path
       void buildReedsShepp ();
       // Setup path
-      void setupPath (const std::size_t& typeId,
-          double t, double u=0., double v=0., double w=0., double x=0.)
-      {
-        typeId_ = typeId;
-        lengths_(0) = t; lengths_(1) = u; lengths_(2) = v; lengths_(3) = w; lengths_(4) = x;
-        timeRange_.second = timeRange_.first + rho_ * lengths_.lpNorm<1> ();
-      }
+      void setupPath (const std::size_t& typeId, double t, double u=0.,
+                      double v=0., double w=0., double x=0.);
 
       void CSC  (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
       void CCC  (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
@@ -204,14 +185,9 @@ namespace hpp {
       Configuration_t end_;
       const size_type xyId_,rzId_;
       size_type dxyId_,drzId_;
-      struct Wheels_t {
-        value_type L, R, S; // Left, Right and Straight turn
-        JointPtr_t j;
-        Wheels_t () : j(NULL) {}
-      };
-      std::vector<Wheels_t> wheels_;
       std::size_t typeId_;
       Lengths_t lengths_;
+      value_type currentLength_;
       value_type rho_;
       ReedsSheppPathWkPtr_t weak_;
     }; // class ReedsSheppPath

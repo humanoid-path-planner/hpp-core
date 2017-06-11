@@ -281,6 +281,8 @@ namespace hpp {
       typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
       HPP_PREDEF_CLASS (CarLike);
       typedef boost::shared_ptr <CarLike> CarLikePtr_t;
+      HPP_PREDEF_CLASS (ConstantCurvature);
+      typedef boost::shared_ptr <ConstantCurvature> ConstantCurvaturePtr_t;
       HPP_PREDEF_CLASS (Dubins);
       typedef boost::shared_ptr <Dubins> DubinsPtr_t;
       HPP_PREDEF_CLASS (ReedsShepp);

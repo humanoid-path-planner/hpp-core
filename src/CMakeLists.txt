@@ -61,6 +61,7 @@ SET(${LIBRARY_NAME}_SOURCES
   path-vector.cc
   reeds-shepp-path.cc
   steering-method/car-like.cc
+  steering-method/constant-curvature.cc
   steering-method/dubins.cc
   steering-method/reeds-shepp.cc
   steering-method/snibud.cc
