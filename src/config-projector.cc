@@ -147,8 +147,10 @@ namespace hpp {
     {
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
 	   it != cp.lockedJoints_.end (); ++it) {
-	lockedJoints_.push_back (HPP_STATIC_PTR_CAST (LockedJoint,
-						      (*it)->copy ()));
+        LockedJointPtr_t lj = HPP_STATIC_PTR_CAST (LockedJoint, (*it)->copy ());
+        if (!solver_.explicitSolver().replace((*it)->function(), lj->function()))
+          throw std::runtime_error("Could not replace lockedJoint function");
+	lockedJoints_.push_back (lj);
       }
     }
 
