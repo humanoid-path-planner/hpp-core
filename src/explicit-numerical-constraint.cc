@@ -288,6 +288,7 @@ namespace hpp {
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const ExplicitNumericalConstraint& other) :
       NumericalConstraint (other), inputToOutput_ (other.inputToOutput_),
+      inputConf_ (other.inputConf_), inputVelocity_ (other.inputVelocity_),
       outputConf_ (other.outputConf_), outputVelocity_ (other.outputVelocity_)
     {
     }
