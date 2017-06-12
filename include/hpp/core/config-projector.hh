@@ -279,6 +279,14 @@ namespace hpp {
       /// \param param the level set parameter.
       void rightHandSide (const vector_t& param);
 
+      /// Same as rightHandSide(vectorIn_t) but only for
+      /// the specified NumericalConstraint
+      void rightHandSide (const NumericalConstraintPtr_t& nm, vectorIn_t rhs);
+
+      /// Same as rightHandSide(vectorIn_t) but only for
+      /// the specified LockedJoint
+      void rightHandSide (const LockedJointPtr_t& nm, vectorIn_t rhs);
+
       /// Get the level set parameter.
       /// \return the parameter.
       vector_t rightHandSide () const;

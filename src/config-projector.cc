@@ -445,7 +445,9 @@ namespace hpp {
         const NumericalConstraintPtr_t& nm,
         ConfigurationIn_t config)
     {
-      solver_.rightHandSideFromInput (nm->functionPtr(), config);
+      if (!solver_.rightHandSideFromInput (nm->functionPtr(), config)) {
+        throw std::runtime_error ("Function was not found in the solver. This is probably because it is an explicit function and rhs is not supported for this type of function.");
+      }
     }
 
     void ConfigProjector::rightHandSideFromConfig (
@@ -471,6 +473,24 @@ namespace hpp {
         }
       }
       assert (row == small.size ());
+    }
+
+    void ConfigProjector::rightHandSide (
+        const NumericalConstraintPtr_t& nm,
+        vectorIn_t rhs)
+    {
+      if (!solver_.rightHandSide (nm->functionPtr(), rhs)) {
+        throw std::runtime_error ("Function was not found in the solver. This is probably because it is an explicit function and rhs is not supported for this type of function.");
+      }
+    }
+
+    void ConfigProjector::rightHandSide (
+        const LockedJointPtr_t& lj,
+        vectorIn_t rhs)
+    {
+      if (lj->comparisonType ()->constantRightHandSide ()) {
+        lj->rightHandSide (rhs);
+      }
     }
 
     vector_t ConfigProjector::rightHandSide () const
