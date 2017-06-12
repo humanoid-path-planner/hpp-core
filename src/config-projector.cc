@@ -201,7 +201,11 @@ namespace hpp {
         solver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
       } else {
         hppDout (info, "Numerical constraint added as explicit function: " <<
-            enm->explicitFunction()->name());
+            enm->explicitFunction()->name() << "with " <<
+            << "input conf " << Eigen::RowBlockIndexes(enm->inputConf())
+            << "input vel" << Eigen::RowBlockIndexes(enm->inputVelocity())
+            << "output conf " << Eigen::RowBlockIndexes(enm->outputConf())
+            << "output vel " << Eigen::RowBlockIndexes(enm->outputVelocity()));
         solver_.explicitSolverHasChanged();
       }
 
