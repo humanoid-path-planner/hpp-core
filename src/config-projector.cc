@@ -79,6 +79,8 @@ namespace hpp {
       squareErrorThreshold_ (errorThreshold * errorThreshold),
       maxIterations_ (maxIterations), rhsReducedSize_ (0),
       lastIsOptional_ (false),
+      alwaysOptimize_(false),
+      lastAsCost_(false),
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
       dq_ (robot->numberDof ()),
@@ -102,6 +104,8 @@ namespace hpp {
       rightHandSide_ (cp.rightHandSide_),
       rhsReducedSize_ (cp.rhsReducedSize_),
       lastIsOptional_ (cp.lastIsOptional_),
+      alwaysOptimize_ (cp.alwaysOptimize_),
+      lastAsCost_ (cp.lastAsCost_),
       value_ (cp.value_.size ()),
       reducedJacobian_ (cp.reducedJacobian_.rows (),
 			cp.reducedJacobian_.cols ()),
@@ -561,6 +565,8 @@ namespace hpp {
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
+      std::size_t level = stack_.size() - lastAsCost_;
+
       hppDout (info, "before projection: " << configuration.transpose ());
       computeLockedDofs (configuration);
       if (isSatisfiedNoLockedJoint (configuration)) return true;
@@ -584,7 +590,7 @@ namespace hpp {
       computeError ();
       while (squareNorm_ > squareErrorThreshold_ && errorDecreased &&
 	     iter < maxIterations_) {
-        computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_);
+        computePrioritizedIncrement (value_, reducedJacobian_, alpha, dq_,level);
 	model::integrate (robot_, configuration, dq_, configuration);
 	// Increase alpha towards alphaMax
 	computeValueAndJacobian (configuration, value_, reducedJacobian_);
@@ -610,6 +616,10 @@ namespace hpp {
 	return false;
       }
       hppDout (info, "After projection: " << configuration.transpose ());
+      if (alwaysOptimize_){
+        hppDout (info, "Projection successful, trying to optimize : ");
+        optimize(configuration);
+      }
       return true;
     }
 

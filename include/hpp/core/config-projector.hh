@@ -106,6 +106,29 @@ namespace hpp {
         return lastIsOptional_;
       }
 
+      /// If true, always run optimize() after a sucessful impl_compute() call
+      void alwaysOptimize (bool optimize)
+      {
+        alwaysOptimize_ = optimize;
+      }
+
+      bool alwaysOptimize () const
+      {
+        return alwaysOptimize_;
+      }
+
+      /// If true, ignore the last level of constraints during the projection
+      /// and only it during the optimization
+      void lastAsCost (bool ignore)
+      {
+        lastAsCost_ = ignore;
+      }
+
+      bool lastAsCost () const
+      {
+        return lastAsCost_;
+      }
+
       /// Optimize the configuration while respecting the constraints
       /// The input configuration must already satisfy the constraints.
       /// \return true if the configuration was optimized.
@@ -402,6 +425,8 @@ namespace hpp {
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
       bool lastIsOptional_;
+      bool alwaysOptimize_;
+      bool lastAsCost_;
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
       mutable matrix_t reducedJacobian_;
