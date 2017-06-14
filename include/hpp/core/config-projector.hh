@@ -98,12 +98,13 @@ namespace hpp {
 
       void lastIsOptional (bool optional)
       {
-        solver_.lastIsOptional(optional);
+        minimalSolver_.lastIsOptional(optional);
+        fullSolver_.lastIsOptional(optional);
       }
 
       bool lastIsOptional () const
       {
-        return solver_.lastIsOptional();
+        return minimalSolver_.lastIsOptional();
       }
 
       /// Optimize the configuration while respecting the constraints
@@ -177,13 +178,13 @@ namespace hpp {
       /// Get number of non-locked degrees of freedom
       size_type numberNonLockedDof () const
       {
-	return solver_.explicitSolver().inDers().nbIndexes();
+	return minimalSolver_.explicitSolver().inDers().nbIndexes();
       }
 
       /// Get constraint dimension
       size_type dimension () const
       {
-	return solver_.dimension();
+	return minimalSolver_.dimension();
       }
 
       /// Compress Velocity vector by removing locked degrees of freedom
@@ -222,29 +223,31 @@ namespace hpp {
       /// Set maximal number of iterations
       void maxIterations (size_type iterations)
       {
-        solver_.maxIterations(iterations);
+        minimalSolver_.maxIterations(iterations);
       }
       /// Get maximal number of iterations in config projector
       size_type maxIterations () const
       {
-	return solver_.maxIterations();
+	return minimalSolver_.maxIterations();
       }
 
       /// Set error threshold
       void errorThreshold (const value_type& threshold)
       {
-        solver_.errorThreshold(threshold);
-        solver_.inequalityThreshold(threshold);
+        minimalSolver_.errorThreshold(threshold);
+        minimalSolver_.inequalityThreshold(threshold);
+        fullSolver_.errorThreshold(threshold);
+        fullSolver_.inequalityThreshold(threshold);
       }
       /// Get errorimal number of threshold in config projector
       value_type errorThreshold () const
       {
-	return solver_.errorThreshold();
+	return minimalSolver_.errorThreshold();
       }
 
       value_type residualError() const
       {
-        return solver_.residualError();
+        return minimalSolver_.residualError();
       }
 
       /// \name Right hand side of equalities - inequalities
@@ -364,7 +367,7 @@ namespace hpp {
         Default = FixedSequence
       };
       LineSearchType lineSearchType_;
-      HybridSolver solver_;
+      HybridSolver minimalSolver_, fullSolver_;
 
       bool                 solverOneStep (ConfigurationOut_t config) const;
       HybridSolver::Status solverSolve   (ConfigurationOut_t config) const;
