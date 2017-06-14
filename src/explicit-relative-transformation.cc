@@ -102,8 +102,7 @@ namespace hpp {
       // T = J2_{parent}^{-1} * J1 * F1/J1 * F2/J2^{-1}
       freeflyerPose_ =
         implicit_->joint1 ()->currentTransformation () *
-        implicit_->frame1InJoint1 () *
-        implicit_->frame2InJoint2 ().inverse ();
+        F1inJ1_invF2inJ2_;
 
       if (parentJoint_)
         freeflyerPose_ = parentJoint_->currentTransformation ().actInv(freeflyerPose_);
@@ -114,13 +113,6 @@ namespace hpp {
       typedef Transform3f::Quaternion_t Q_t;
       result.head<3>() = freeflyerPose_.translation();
       result.tail<4>() = Q_t(freeflyerPose_.rotation()).coeffs();
-
-      vector_t other(6);
-      rt_->value (other, robot_->currentConfiguration());
-      Q_t qother (se3::exp3(other.tail<3>()));
-
-      hppDout (info, "Computed error " << result.transpose());
-      hppDout (info, "Computed other " << other.head<3>().transpose() << qother.coeffs().transpose());
     }
 
     void ExplicitRelativeTransformation::impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
@@ -179,11 +171,7 @@ namespace hpp {
         tmpJac_.noalias() = ( R2.transpose() * R2_parent ) * omega(J2_parent)
           - (R2.transpose() * R1) * omega(J1);
       } else {
-        // tmpJac_.noalias() = (- R2_inParentFrame.transpose() * R1) * omega(J1);
-        // tmpJac_.noalias() =
-          // ( R2_inParentFrame.transpose() * F1inJ1_invF2inJ2_.rotation().transpose() ) * omega(J1);
-        tmpJac_.noalias() =
-          ( R2.transpose() * R1 ) * omega(J1);
+        tmpJac_.noalias() = ( R2.transpose() * R1 ) * omega(J1);
       }
 
       jacobian.bottomRows<3>() = inVel_.rview(tmpJac_);

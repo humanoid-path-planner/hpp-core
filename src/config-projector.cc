@@ -200,8 +200,8 @@ namespace hpp {
         convertCompTypes(nm->comparisonType(), types);
         solver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
       } else {
-        hppDout (info, "Numerical constraint added as explicit function: " <<
-            enm->explicitFunction()->name() << "with " <<
+        hppDout (info, "Numerical constraint added as explicit function: "
+            << enm->explicitFunction()->name() << "with "
             << "input conf " << Eigen::RowBlockIndexes(enm->inputConf())
             << "input vel" << Eigen::RowBlockIndexes(enm->inputVelocity())
             << "output conf " << Eigen::RowBlockIndexes(enm->outputConf())
