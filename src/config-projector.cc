@@ -264,13 +264,10 @@ namespace hpp {
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
-      hppDout (info, "before projection: " << configuration.transpose ());
-      assert (!configuration.hasNaN());
       HPP_START_TIMECOUNTER (projection);
       HybridSolver::Status status = solverSolve (configuration);
       HPP_STOP_TIMECOUNTER (projection);
       HPP_DISPLAY_TIMECOUNTER (projection);
-      assert (!configuration.hasNaN());
       switch (status) {
         case HybridSolver::ERROR_INCREASED:
           statistics_.addFailure (REASON_ERROR_INCREASED);
