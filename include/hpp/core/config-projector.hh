@@ -106,15 +106,15 @@ namespace hpp {
         return lastIsOptional_;
       }
 
-      /// If true, always run optimize() after a sucessful impl_compute() call
-      void alwaysOptimize (bool optimize)
+      ///The number of iteration of optimize() after a sucessful projection, if 0 no opitimization are done
+      void numOptimize (size_type optimize)
       {
-        alwaysOptimize_ = optimize;
+        numOptimize_ = optimize;
       }
 
-      bool alwaysOptimize () const
+      size_type numOptimize () const
       {
-        return alwaysOptimize_;
+        return numOptimize_;
       }
 
       /// If true, ignore the last level of constraints during the projection
@@ -425,7 +425,7 @@ namespace hpp {
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
       bool lastIsOptional_;
-      bool alwaysOptimize_;
+      size_type numOptimize_;
       bool lastAsCost_;
       mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
