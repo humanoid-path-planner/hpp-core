@@ -61,6 +61,7 @@ locked-joint.cc
   path-optimization/config-optimization.cc#
   path-planner.cc #
   path-vector.cc #
+  path/spline.cc
   plan-and-optimize.cc #
   problem.cc # TODO : addObstacle
   problem-solver.cc # TODO : addObstacle

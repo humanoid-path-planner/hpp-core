@@ -18,11 +18,14 @@
 #ifndef HPP_CORE_PATH_SPLINE_HH
 # define HPP_CORE_PATH_SPLINE_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
 # include <hpp/core/path.hh>
 
+# include <hpp/pinocchio/device.hh>
+
 # include <hpp/constraints/matrix-view.hh>
+
+# include <hpp/core/fwd.hh>
+# include <hpp/core/config.hh>
 
 namespace hpp {
   namespace core {
@@ -31,48 +34,160 @@ namespace hpp {
       /// \{
 
       enum SplineType {
-        Canonical
+        SplineCanonical
       };
 
+      /// \cond
+      namespace internal {
+        template <int SplineType, int Degree> struct spline_basis_function;
+
+        /// Spline basis functions input set is [0, 1]
+        template <int Degree> struct spline_basis_function <SplineCanonical, Degree>
+        {
+          enum { NbCoeffs = Degree + 1 };
+          typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, 1> Coeffs_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, NbCoeffs> IntegralCoeffs_t;
+
+          static void eval (const value_type t, Coeffs_t& res);
+          static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
+          /// Integrate between 0 and 1
+          static void integral (const size_type order, IntegralCoeffs_t& res);
+        };
+      }
+      /// \endcond
+
       /// Base class for spline paths
-      template <SplineType type, int _Order>
+      template <int _SplineType, int _Order>
       class HPP_CORE_DLLAPI Spline : public Path
       {
         public:
-          enum { Order = _Order };
+          enum {
+            SplineType = _SplineType,
+            Order = _Order,
+            NbCoeffs = _Order + 1,
+            NbPowerOfT = 2 * NbCoeffs + 1
+          };
 
-          void velocity (vectorOut_t res, const value_type& t) const
-          {
-            assert (outputDerivativeSize() == res.size());
-            impl_velocity (res, t);
-          }
+          typedef internal::spline_basis_function<SplineType, Order> BasisFunction_t;
+          typedef Eigen::Matrix<value_type, NbPowerOfT, 1> PowersOfT_t;
+          typedef typename BasisFunction_t::Coeffs_t BasisFunctionVector_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic> ParameterMatrix_t;
+          typedef boost::shared_ptr<Spline> Ptr_t;
+          typedef boost::weak_ptr<Spline> WkPtr_t;
 
           size_type parameterSize () const
           {
             return parameterSize_;
           }
 
-          size_type parameterDerivativeSize () const
+          /** The partial derivative with respects to the parameters is of the form
+          /// \f{eqnarray*}{
+          /// \frac{\partial S}{\partial p_{k}} (q, p, t)    &=& B_k(t) \times I \\
+          /// \frac{\partial S}{\partial q_{base}} (q, p, t) &=& I
+          /// \f}
+          /// This method returns the coefficients \f$ (B_k(t))_{k} \f$
+          **/
+          void parameterDerivativeCoefficients (vectorOut_t res, const value_type& t) const
           {
-            return parameterDerivativeSize_;
-          }
-
-          size_type order () const
-          {
-            return order_;
-          }
-
-          void parameterDerivative (matrixOut_t res, const value_type& t) const
-          {
-            assert (outputDerivativeSize()   == res.rows());
-            assert (parameterDerivativeSize_ == res.cols());
+            assert (res.size() == NbCoeffs);
             impl_paramDerivative (res, t);
           }
 
           void parameterIntegrate (vectorIn_t dParam)
           {
-            assert (parameterDerivativeSize_ == dParam.size());
+            assert (dParam.size() == robot_->numberDof() + parameterSize_);
             impl_paramIntegrate (dParam);
+          }
+
+          value_type squaredNormIntegral (const size_type order)
+          {
+            typename BasisFunction_t::IntegralCoeffs_t Ic;
+            BasisFunction_t::integral (order, Ic);
+            for (size_type k = order; k < 2 * NbCoeffs - 1; ++k)
+              for (size_type i = order; i < std::min(k + 1, (size_type)NbCoeffs); ++i)
+                Ic(i, k - i) *= powersOfT_[k - 2 * order + 1];
+            // TODO parenthesis order ?
+            return (parameters_ * (parameters_.transpose() * Ic)).sum();
+          }
+
+          void squaredNormIntegralDerivative (const size_type order, vectorOut_t res)
+          {
+            typename BasisFunction_t::IntegralCoeffs_t Ic;
+            BasisFunction_t::integral (order, Ic);
+            for (size_type k = order; k < 2 * NbCoeffs - 1; ++k)
+              for (size_type i = order; i < std::min(k + 1, (size_type)NbCoeffs); ++i)
+                Ic(i, k - i) *= powersOfT_[k - 2 * order + 1];
+            matrix_t tmp (parameters_.transpose() * Ic);
+            res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
+          }
+
+          void basisFunctionDerivative (const size_type order, const value_type& t, BasisFunctionVector_t& res) const
+          {
+            // TODO: add a cache.
+            BasisFunction_t::derivative (order, t - timeRange().first, res);
+          }
+
+          Configuration_t initial () const
+          {
+            Configuration_t q (outputSize());
+            bool res = operator() (q, timeRange().first);
+            assert(res);
+            return q;
+          }
+
+          Configuration_t end () const
+          {
+            Configuration_t q (outputSize());
+            bool res = operator() (q, timeRange().first + timeRange().second);
+            assert(res);
+            return q;
+          }
+
+          const Configuration_t& base () const
+          {
+            return base_;
+          }
+
+          void base (const Configuration_t& q)
+          {
+            base_ = q;
+          }
+
+          /// Each row corresponds to a velocity of the robot.
+          const ParameterMatrix_t& parameters () const
+          {
+            return parameters_;
+          }
+
+          void parameters (const ParameterMatrix_t& m)
+          {
+            parameters_ = m;
+          }
+
+          PathPtr_t copy () const
+          {
+            Ptr_t other (new Spline (*this));
+            other->initCopy(other);
+            return other;
+          }
+
+          PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
+          {
+            Ptr_t other (new Spline (*this, constraints));
+            other->initCopy(other);
+            return other;
+          }
+
+          virtual ~Spline () throw () {}
+
+          static Ptr_t create (const DevicePtr_t& robot,
+              const interval_t& interval,
+              const ConstraintSetPtr_t& constraints)
+          {
+            Ptr_t shPtr (new Spline(robot, interval, constraints));
+            shPtr->init(shPtr);
+            return shPtr;
           }
 
         protected:
@@ -80,8 +195,15 @@ namespace hpp {
               const interval_t& interval,
               const ConstraintSetPtr_t& constraints)
             : Path (interval, robot->configSize(), robot->numberDof(), constraints),
-            robot_ (robot)
-          {}
+            parameterSize_ (robot->numberDof()),
+            robot_ (robot),
+            base_ (outputSize()),
+            parameters_ ((int)NbCoeffs, parameterSize_)
+          {
+            powersOfT_(0) = 1;
+            for (size_type i = 1; i < NbPowerOfT; ++i)
+              powersOfT_(i) = powersOfT_(i - 1) * interval.second;
+          }
 
           Spline (const Spline& path) : Path (path) {}
 
@@ -89,23 +211,32 @@ namespace hpp {
             : Path (path, constraints)
           {}
 
-          void init (const SplinePtr_t& self) { Path::init(self); weak_ = self; }
+          void init (const Ptr_t& self) { Path::init(self); weak_ = self; }
 
-          void initCopy (const SplinePtr_t& self) { Path::initCopy(self); weak_ = self; }
+          void initCopy (const Ptr_t& self) { Path::initCopy(self); weak_ = self; }
 
-          virtual void impl_velocity (vectorOut_t res, const value_type& t) const;
+          std::ostream& print (std::ostream &os) const;
 
-          virtual void impl_paramDerivative (vectorOut_t res, const value_type& t) const;
+          bool impl_compute (ConfigurationOut_t configuration, value_type t) const;
 
-          virtual void impl_paramIntegrate (vectorIn_t dParam);
+          void impl_derivative (vectorOut_t res, const value_type& t, size_type order) const;
 
-          virtual void impl_basisFunctionDerivative (const size_type order, const value_type& t, matrixOut_t res) const = 0;
+          void impl_paramDerivative (vectorOut_t res, const value_type& t) const;
 
-          size_type parameterSize_, parameterDerivativeSize_, order_;
+          void impl_paramIntegrate (vectorIn_t dParam);
+
+          size_type parameterSize_;
           DevicePtr_t robot_;
+          Configuration_t base_;
+          ParameterMatrix_t parameters_;
 
         private:
-          SplineWkPtr_t weak_;
+          void basisProductIntegralMatrix (typename BasisFunction_t::IntegralCoeffs_t& Ic) const;
+
+          WkPtr_t weak_;
+
+          mutable vector_t velocity_;
+          mutable PowersOfT_t powersOfT_;
       }; // class Spline
       /// \}
     } //   namespace path

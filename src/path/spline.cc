@@ -16,81 +16,115 @@
 
 # include <hpp/core/path/spline.hh>
 
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/liegroup.hh>
+
 namespace hpp {
   namespace core {
     namespace path {
-      template <int _Order>
-      class HPP_CORE_DLLAPI Spline : public Path
+      namespace internal {
+        template <int N>
+        inline Eigen::Matrix<size_type, N, 1> factorials ()
+        {
+          Eigen::Matrix<size_type, N, 1> ret;
+          ret (0) = 1;
+          for (size_type i = 1; i < N; ++i) ret(i) = ret(i-1) * i;
+          return ret;
+        }
+
+        template <int Degree>
+        void spline_basis_function<SplineCanonical, Degree>::eval (const value_type t, Coeffs_t& res)
+        {
+          res(0) = 1;
+          for (size_type i = 1; i < NbCoeffs; ++i) res(i) = res(i-1) * t;
+        }
+        template <int Degree>
+        void spline_basis_function<SplineCanonical, Degree>::derivative
+        (const size_type order, const value_type& t, Coeffs_t& res)
+        {
+          static Factorials_t factors = factorials<NbCoeffs>();
+          value_type powerOfT = 1;
+          res.head(order).setZero();
+          for (size_type i = order; i < NbCoeffs; ++i) {
+            res(i) = value_type(factors(i) / factors(i - order)) * powerOfT;
+            powerOfT *= t;
+          }
+        }
+        template <int Degree>
+        void spline_basis_function<SplineCanonical, Degree>::integral
+        (const size_type order, IntegralCoeffs_t& res)
+        {
+          static Factorials_t factors = factorials<NbCoeffs>();
+
+          // TODO the output matrix is symmetric
+          if (order > 0) {
+            res.topRows (order).setZero();
+            res.leftCols(order).setZero();
+          }
+
+          for (size_type i = order; i < NbCoeffs ; ++i) {
+            // TODO size_type + cache this values.
+            const size_type factor_i (factors(i) / factors(i - order));
+            for (size_type j = order; j < NbCoeffs; ++j) {
+              // TODO size_type + cache this values.
+              const size_type factor_j (factors(j) / factors(j - order));
+              const size_type power = i + j - 2*order + 1;
+              res(i, j) = value_type(factor_i * factor_j) / value_type(power);
+            }
+          }
+        }
+      }
+
+      template <int _SplineType, int _Order>
+      std::ostream& Spline<_SplineType, _Order>::print (std::ostream& os) const
       {
-        public:
-          enum { Order = _Order };
+        os << "Spline (type=" << SplineType << ", order=" << Order
+          << ")\nbase = " << base_.transpose()
+          << '\n' << parameters_ << std::endl;
+        return os;
+      }
 
-          void velocity (vectorOut_t res, const value_type& t) const
-          {
-            assert (outputDerivativeSize() == res.size());
-            impl_velocity (res, t);
-          }
+      template <int _SplineType, int _Order>
+      bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
+      {
+        BasisFunctionVector_t basisFunc;
+        basisFunctionDerivative(0, t, basisFunc);
+        velocity_.noalias() = parameters_.transpose() * basisFunc;
 
-          size_type parameterSize () const
-          {
-            return parameterSize_;
-          }
+        pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl> (robot_, base_, velocity_, res);
+        return true;
+      }
 
-          size_type parameterDerivativeSize () const
-          {
-            return parameterDerivativeSize_;
-          }
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::impl_derivative (vectorOut_t res, const value_type& t, size_type order) const
+      {
+        assert (order > 0);
+        BasisFunctionVector_t basisFunc;
+        basisFunctionDerivative(order, t, basisFunc);
+        res.noalias() = parameters_.transpose() * basisFunc;
+      }
 
-          size_type order () const
-          {
-            return order_;
-          }
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::impl_paramDerivative (vectorOut_t res, const value_type& t) const
+      {
+        BasisFunctionVector_t basisFunc;
+        basisFunctionDerivative(0, t, basisFunc);
+        res = basisFunc;
+      }
 
-          void parameterDerivative (matrixOut_t res, const value_type& t) const
-          {
-            assert (outputDerivativeSize()   == res.rows());
-            assert (parameterDerivativeSize_ == res.cols());
-            impl_paramDerivative (res, t);
-          }
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::impl_paramIntegrate (vectorIn_t dParam)
+      {
+        pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl>
+          (robot_, base_, dParam.head(robot_->numberDof()), base_);
 
-          void parameterIntegrate (vectorIn_t dParam)
-          {
-            assert (parameterDerivativeSize_ == dParam.size());
-            impl_paramIntegrate (dParam);
-          }
+        Eigen::Map<vector_t, Eigen::Aligned> (parameters_.data(), parameters_.size())
+          .noalias() += dParam;
+      }
 
-        protected:
-          Spline (const DevicePtr_t& robot,
-              const interval_t& interval,
-              const ConstraintSetPtr_t& constraints)
-            : Path (interval, robot->configSize(), robot->numberDof(), constraints),
-            robot_ (robot)
-          {}
-
-          Spline (const Spline& path) : Path (path) {}
-
-          Spline (const Spline& path, const ConstraintSetPtr_t& constraints)
-            : Path (path, constraints)
-          {}
-
-          void init (const SplinePtr_t& self) { Path::init(self); weak_ = self; }
-
-          void initCopy (const SplinePtr_t& self) { Path::initCopy(self); weak_ = self; }
-
-          virtual void impl_velocity (vectorOut_t res, const value_type& t) const;
-
-          virtual void impl_paramDerivative (vectorOut_t res, const value_type& t) const;
-
-          virtual void impl_paramIntegrate (vectorIn_t dParam);
-
-          virtual void impl_basisFunctionDerivative (const size_type order, const value_type& t, matrixOut_t res) const = 0;
-
-          size_type parameterSize_, parameterDerivativeSize_, order_;
-          DevicePtr_t robot_;
-
-        private:
-          SplineWkPtr_t weak_;
-      }; // class Spline
+      template class Spline<SplineCanonical, 1>; // equivalent to StraightPath
+      template class Spline<SplineCanonical, 2>;
+      template class Spline<SplineCanonical, 3>;
     } //   namespace path
   } //   namespace core
 } // namespace hpp
