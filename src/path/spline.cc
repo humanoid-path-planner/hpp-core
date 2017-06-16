@@ -33,13 +33,13 @@ namespace hpp {
         }
 
         template <int Degree>
-        void spline_basis_function<SplineCanonical, Degree>::eval (const value_type t, Coeffs_t& res)
+        void spline_basis_function<CanonicalPolynomeBasis, Degree>::eval (const value_type t, Coeffs_t& res)
         {
           res(0) = 1;
           for (size_type i = 1; i < NbCoeffs; ++i) res(i) = res(i-1) * t;
         }
         template <int Degree>
-        void spline_basis_function<SplineCanonical, Degree>::derivative
+        void spline_basis_function<CanonicalPolynomeBasis, Degree>::derivative
         (const size_type order, const value_type& t, Coeffs_t& res)
         {
           static Factorials_t factors = factorials<NbCoeffs>();
@@ -51,7 +51,7 @@ namespace hpp {
           }
         }
         template <int Degree>
-        void spline_basis_function<SplineCanonical, Degree>::integral
+        void spline_basis_function<CanonicalPolynomeBasis, Degree>::integral
         (const size_type order, IntegralCoeffs_t& res)
         {
           static Factorials_t factors = factorials<NbCoeffs>();
@@ -78,7 +78,7 @@ namespace hpp {
       template <int _SplineType, int _Order>
       std::ostream& Spline<_SplineType, _Order>::print (std::ostream& os) const
       {
-        os << "Spline (type=" << SplineType << ", order=" << Order
+        os << "Spline (type=" << PolynomeBasis << ", order=" << Order
           << ")\nbase = " << base_.transpose()
           << '\n' << parameters_ << std::endl;
         return os;
@@ -122,9 +122,9 @@ namespace hpp {
           .noalias() += dParam;
       }
 
-      template class Spline<SplineCanonical, 1>; // equivalent to StraightPath
-      template class Spline<SplineCanonical, 2>;
-      template class Spline<SplineCanonical, 3>;
+      template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
+      template class Spline<CanonicalPolynomeBasis, 2>;
+      template class Spline<CanonicalPolynomeBasis, 3>;
     } //   namespace path
   } //   namespace core
 } // namespace hpp

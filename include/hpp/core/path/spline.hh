@@ -33,8 +33,8 @@ namespace hpp {
       /// \addtogroup path
       /// \{
 
-      enum SplineType {
-        SplineCanonical
+      enum PolynomeBasisType {
+        CanonicalPolynomeBasis
       };
 
       /// \cond
@@ -42,7 +42,7 @@ namespace hpp {
         template <int SplineType, int Degree> struct spline_basis_function;
 
         /// Spline basis functions input set is [0, 1]
-        template <int Degree> struct spline_basis_function <SplineCanonical, Degree>
+        template <int Degree> struct spline_basis_function <CanonicalPolynomeBasis, Degree>
         {
           enum { NbCoeffs = Degree + 1 };
           typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
@@ -58,18 +58,18 @@ namespace hpp {
       /// \endcond
 
       /// Base class for spline paths
-      template <int _SplineType, int _Order>
+      template <int _PolynomeBasis, int _Order>
       class HPP_CORE_DLLAPI Spline : public Path
       {
         public:
           enum {
-            SplineType = _SplineType,
+            PolynomeBasis = _PolynomeBasis,
             Order = _Order,
             NbCoeffs = _Order + 1,
             NbPowerOfT = 2 * NbCoeffs + 1
           };
 
-          typedef internal::spline_basis_function<SplineType, Order> BasisFunction_t;
+          typedef internal::spline_basis_function<PolynomeBasis, Order> BasisFunction_t;
           typedef Eigen::Matrix<value_type, NbPowerOfT, 1> PowersOfT_t;
           typedef typename BasisFunction_t::Coeffs_t BasisFunctionVector_t;
           typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic> ParameterMatrix_t;
@@ -231,8 +231,6 @@ namespace hpp {
           ParameterMatrix_t parameters_;
 
         private:
-          void basisProductIntegralMatrix (typename BasisFunction_t::IntegralCoeffs_t& Ic) const;
-
           WkPtr_t weak_;
 
           mutable vector_t velocity_;

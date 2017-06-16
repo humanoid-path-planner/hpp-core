@@ -71,9 +71,9 @@ void checkAt(const PathPtr_t orig, value_type to,
       );
 }
 
-typedef path::Spline<path::SplineCanonical, 1> LinearSpline_t;
-typedef path::Spline<path::SplineCanonical, 2> QuadraticSpline_t;
-typedef path::Spline<path::SplineCanonical, 3> CubicSpline_t;
+typedef path::Spline<path::CanonicalPolynomeBasis, 1> LinearSpline_t;
+typedef path::Spline<path::CanonicalPolynomeBasis, 2> QuadraticSpline_t;
+typedef path::Spline<path::CanonicalPolynomeBasis, 3> CubicSpline_t;
 
 BOOST_AUTO_TEST_CASE (spline)
 {
