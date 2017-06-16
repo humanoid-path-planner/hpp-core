@@ -278,6 +278,16 @@ namespace hpp {
 	return sqrt (squareErrorThreshold_);
       }
 
+      /// Set min error threshold before stopping optimization
+      void minErrorThreshold (const value_type& threshold)
+      {
+  squareErrorMinThreshold_ = threshold * threshold;
+      }
+      value_type minErrorThreshold () const
+      {
+  return sqrt (squareErrorMinThreshold_);
+      }
+
       value_type residualError() const
       {
         return squareNorm_;
@@ -421,6 +431,7 @@ namespace hpp {
       /// Intervals of non locked degrees of freedom
       SizeIntervals_t intervals_;
       value_type squareErrorThreshold_;
+      value_type squareErrorMinThreshold_;
       size_type maxIterations_;
       vector_t rightHandSide_;
       size_type rhsReducedSize_;

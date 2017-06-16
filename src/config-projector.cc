@@ -77,6 +77,7 @@ namespace hpp {
       Constraint (name), robot_ (robot), functions_ (),
       passiveDofs_ (), lockedJoints_ (),
       squareErrorThreshold_ (errorThreshold * errorThreshold),
+      squareErrorMinThreshold_(1e-16),
       maxIterations_ (maxIterations), rhsReducedSize_ (0),
       lastIsOptional_ (false),
       numOptimize_(0),
@@ -100,6 +101,7 @@ namespace hpp {
       passiveDofs_ (cp.passiveDofs_), lockedJoints_ (),
       intervals_ (cp.intervals_),
       squareErrorThreshold_ (cp.squareErrorThreshold_),
+      squareErrorMinThreshold_ (cp.squareErrorMinThreshold_),
       maxIterations_ (cp.maxIterations_),
       rightHandSide_ (cp.rightHandSide_),
       rhsReducedSize_ (cp.rhsReducedSize_),
@@ -662,7 +664,7 @@ namespace hpp {
 	hppDout (info, "squareNorm = " << squareNorm_);
         configuration = current;
 	++iter;
-      } while (iter < maxIter); // && squareNorm_ < squareErrorThreshold_
+      } while (iter < maxIter && squareNorm_ > squareErrorMinThreshold_); // && squareNorm_ < squareErrorThreshold_
       HPP_STOP_TIMECOUNTER (optimize);
       HPP_DISPLAY_TIMECOUNTER (optimize);
       hppDout (info, "number of iterations: " << iter);
