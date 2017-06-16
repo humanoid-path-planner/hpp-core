@@ -136,6 +136,7 @@ namespace hpp {
         Vector3 vMax_;
         double aMaxFixed_;
         bool tryJump_;
+        bool orientedPath_;
 
       private:
         DeviceWkPtr_t device_;
