@@ -162,6 +162,7 @@ namespace hpp {
           std::cout<<"Warning : no acceleration bounds set, use 10.0 as default"<<std::endl;
           aMaxFixed_ = 10.;
         }
+        aMax_=Vector3::Ones(3)*aMaxFixed_;
         try {
           boost::any value = problem_->get<boost::any> (std::string("vMax"));
           vMax_ *= boost::any_cast<double>(value);
@@ -173,8 +174,9 @@ namespace hpp {
 
         try {
           boost::any value = problem_->get<boost::any> (std::string("tryJump"));
-          tryJump_ = boost::any_cast<bool>(value);
+          tryJump_ = bool(boost::any_cast<double>(value));
         } catch (const std::exception& e) {
+          hppDout(notice,"try jump not set, use false as default");
           tryJump_=false;
         }
         hppDout(notice,"tryJump in steering method = "<<tryJump_);
