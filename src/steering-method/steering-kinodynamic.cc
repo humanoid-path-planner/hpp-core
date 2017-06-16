@@ -131,10 +131,15 @@ namespace hpp {
           }
         }
         
-        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t0_t,t1_t,tv_t,t2_t,vLim_t);
-        return path;
-       // KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::createCopy(path);
-       // return orientedPath;
+
+       KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t0_t,t1_t,tv_t,t2_t,vLim_t);
+       if(orientedPath_){
+         KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::createCopy(path);
+         return orientedPath;
+       }else{
+         return path;
+       }
+
       }
       
       
@@ -173,13 +178,18 @@ namespace hpp {
           tryJump_=false;
         }
         hppDout(notice,"tryJump in steering method = "<<tryJump_);
-
-
+        try {
+          boost::any value = problem_->get<boost::any> (std::string("orientedPath"));
+          orientedPath_ = boost::any_cast<bool>(value);
+        } catch (const std::exception& e) {
+          orientedPath_ = false;
+        }
+        hppDout(notice,"oriented path : "<<orientedPath_);
       }
       
       /// Copy constructor
       Kinodynamic::Kinodynamic (const Kinodynamic& other) :
-        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_),tryJump_(other.tryJump_)
+        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_),tryJump_(other.tryJump_),orientedPath_(other.orientedPath_)
       {
       }
       
