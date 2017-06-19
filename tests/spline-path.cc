@@ -71,12 +71,10 @@ void checkAt(const PathPtr_t orig, value_type to,
       );
 }
 
-typedef path::Spline<path::CanonicalPolynomeBasis, 1> LinearSpline_t;
-typedef path::Spline<path::CanonicalPolynomeBasis, 2> QuadraticSpline_t;
-typedef path::Spline<path::CanonicalPolynomeBasis, 3> CubicSpline_t;
-
-BOOST_AUTO_TEST_CASE (spline)
+template <int SplineType> void compare_to_straight_path ()
 {
+  typedef path::Spline<SplineType, 1> path_t;
+
   DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
   Problem problem (dev);
@@ -89,13 +87,12 @@ BOOST_AUTO_TEST_CASE (spline)
   value_type length = sp->length();
 
   // Create linear spline
-  LinearSpline_t::Ptr_t ls = LinearSpline_t::create (dev, interval_t(0, length), ConstraintSetPtr_t());
+  typename path_t::Ptr_t ls = path_t::create (dev, interval_t(0, length), ConstraintSetPtr_t());
   ls->base (q1);
-  LinearSpline_t::ParameterMatrix_t ls_param = ls->parameters();
+  typename path_t::ParameterMatrix_t ls_param = ls->parameters();
   ls_param.row(0).setZero();
   vector_t v (dev->numberDof());
   difference<LieGroupTpl> (dev, q2, q1, v);
-  v /= length;
   ls_param.row(1) = v;
   ls->parameters(ls_param);
 
@@ -108,19 +105,35 @@ BOOST_AUTO_TEST_CASE (spline)
   for (size_type i = 0; i < N; ++i)
     checkAt (sp, value_type(i) * step, ls, value_type(i) * step);
 
-  // Check that the velocity is constant
+  // Check that the velocities are equals
   vector_t v1 (dev->numberDof());
+  vector_t v2 (dev->numberDof());
   for (size_type i = 0; i < N; ++i) {
     ls->derivative(v1, value_type(i) * step, 1);
-    BOOST_CHECK(v.isApprox(v1));
+    sp->derivative(v2, value_type(i) * step, 1);
+    BOOST_CHECK(v2.isApprox(v1));
   }
 
   // Check integral value
   BOOST_CHECK_EQUAL(ls->squaredNormIntegral(2), 0);
-  BOOST_CHECK_CLOSE(ls->squaredNormIntegral(1), v.squaredNorm() * length, 1e-12);
+  BOOST_CHECK_CLOSE(ls->squaredNormIntegral(1), v.squaredNorm() / length, 1e-12);
 
   vector_t derivative (dev->numberDof() * 2);
   ls->squaredNormIntegralDerivative(1, derivative);
-  BOOST_CHECK( derivative.head(dev->numberDof()).isZero());
-  BOOST_CHECK_CLOSE((derivative.tail(dev->numberDof()) - 2 * v * length).squaredNorm(), 0, 1e-12);
+  switch (SplineType) {
+    case path::CanonicalPolynomeBasis:
+      BOOST_CHECK( derivative.head(dev->numberDof()).isZero());
+      BOOST_CHECK_SMALL((derivative.tail(dev->numberDof()) - 2 * v / length).squaredNorm(), 1e-12);
+      break;
+    case path::BernsteinBasis:
+      BOOST_CHECK_SMALL((derivative.head(dev->numberDof()) + 2 * v / length).squaredNorm(), 1e-12);
+      BOOST_CHECK_SMALL((derivative.tail(dev->numberDof()) - 2 * v / length).squaredNorm(), 1e-12);
+      break;
+  } 
+}
+
+BOOST_AUTO_TEST_CASE (spline)
+{
+  compare_to_straight_path<path::CanonicalPolynomeBasis>();
+  compare_to_straight_path<path::BernsteinBasis>();
 }

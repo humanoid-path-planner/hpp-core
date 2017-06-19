@@ -92,32 +92,63 @@ namespace hpp {
         void spline_basis_function<BernsteinBasis, Degree>::derivative
         (const size_type k, const value_type& t, Coeffs_t& res)
         {
-          if (k > Degree) {
-            res.setZero();
-            return;
-          }
+          res.setZero();
+          if (k > Degree) return;
           static Factorials_t factors = factorials<NbCoeffs>();
           Coeffs_t powersOfT;
           powersOfT(0) = 1;
-          for (size_type i = 0; i < NbCoeffs; ++i) powersOfT(i) = powersOfT(i - 1) * t;
+          for (size_type i = 1; i < NbCoeffs; ++i) powersOfT(i) = powersOfT(i - 1) * t;
 
           for (size_type i = 0; i < NbCoeffs; ++i) {
-            res(i) = 0;
-            for (size_type p = 0; p <= std::min(i, k); ++p) {
+            for (size_type p = std::max((size_type)0, k + i - Degree); p <= std::min(i, k); ++p) {
               size_type ip = i - p;
-              res(i) += ( k - p % 2 == 0 ? 1 : -1 )
-                * binomial (k, p, factors)
+              res(i) += value_type (( (k - p) % 2 == 0 ? 1 : -1 )
+                * binomial (k, p, factors))
                 *   powersOfT(ip) * powersOfT(Degree - k - ip)
-                / ( factors  (ip) * factors  (Degree - k - ip) );
+                / value_type( factors  (ip) * factors  (Degree - k - ip) );
             }
           }
-          res *= factors(Degree);
+          res *= value_type(factors(Degree));
         }
         template <int Degree>
         void spline_basis_function<BernsteinBasis, Degree>::integral
-        (const size_type order, IntegralCoeffs_t& res)
+        (const size_type k, IntegralCoeffs_t& res)
         {
-          throw std::logic_error("Unimplemented");
+          res.setZero();
+          if (k > Degree) return;
+          static Eigen::Matrix<size_type, 2*NbCoeffs - 1, 1> factors = factorials<2*NbCoeffs-1>();
+
+          Factorials_t among_k, among_n_minus_k;
+          for (size_type i = 0; i <= k; ++i) among_k(i) = binomial(k, i, factors);
+          for (size_type i = 0; i <= Degree-k; ++i) among_n_minus_k(i) = binomial(Degree-k, i, factors);
+
+          for (size_type i = 0; i < NbCoeffs; ++i) {
+            size_type I_i_min = std::max((size_type)0, k + i - Degree);
+            size_type I_i_max = std::min(i, k);
+
+            for (size_type j = 0; j < NbCoeffs; ++j) {
+              size_type I_j_min = std::max((size_type)0, k + j - Degree);
+              size_type I_j_max = std::min(j, k);
+
+              for (size_type p = I_i_min; p <= I_i_max; ++p) {
+                for (size_type q = I_j_min; q <= I_j_max; ++q) {
+                  value_type alpha_0 =
+                    value_type (among_n_minus_k (i-p) * among_n_minus_k (j-q))
+                    / value_type(
+                        binomial(2*(Degree-k), i-p+j-q, factors)
+                        * (2*(Degree-k) + 1)
+                      );
+
+                  res(i,j) += value_type(
+                      ( (2*k - p - q) % 2 == 0 ? 1 : -1 )
+                      * among_k (p)
+                      * among_k (q))
+                    * alpha_0;
+                }
+              }
+            }
+          }
+          res *= value_type(factors(Degree) / factors(Degree - k));
         }
       }
 
@@ -134,7 +165,8 @@ namespace hpp {
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
       {
         BasisFunctionVector_t basisFunc;
-        basisFunctionDerivative(0, t, basisFunc);
+        const value_type u = (t - timeRange().first) / timeRange().second;
+        basisFunctionDerivative(0, u, basisFunc);
         velocity_.noalias() = parameters_.transpose() * basisFunc;
 
         pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl> (robot_, base_, velocity_, res);
@@ -146,15 +178,17 @@ namespace hpp {
       {
         assert (order > 0);
         BasisFunctionVector_t basisFunc;
-        basisFunctionDerivative(order, t, basisFunc);
-        res.noalias() = parameters_.transpose() * basisFunc;
+        const value_type u = (t - timeRange().first) / timeRange().second;
+        basisFunctionDerivative(order, u, basisFunc);
+        res.noalias() = parameters_.transpose() * basisFunc / powersOfT_(order);
       }
 
       template <int _SplineType, int _Order>
       void Spline<_SplineType, _Order>::impl_paramDerivative (vectorOut_t res, const value_type& t) const
       {
         BasisFunctionVector_t basisFunc;
-        basisFunctionDerivative(0, t, basisFunc);
+        const value_type u = (t - timeRange().first) / timeRange().second;
+        basisFunctionDerivative(0, u, basisFunc);
         res = basisFunc;
       }
 

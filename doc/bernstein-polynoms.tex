@@ -1,0 +1,93 @@
+\documentclass {article}
+
+\newcommand\reals{\mathbf{R}}
+\newcommand\bernstein[2]{b_{#1, #2}}
+\begin{document}
+
+\section{Polynom}
+
+$$
+P (t) = \sum_{i=0}^n P_i \times b_i(\frac{t - t_0}{T})
+$$
+
+where $t \in \left[ t_0, t_0 + T \right]$, $(b_i)$ is a basis of the polynoms
+of degree less or equal to $n$ and $(P_i)$ is a set of points.
+
+\paragraph{Derivative}
+
+$$
+P^{(k)} (t) = \sum_{i=0}^n \frac{P_i}{T^k} \times b_i^{(k)}(\frac{t - t_0}{T})
+$$
+
+\paragraph{Integral of derivatives}
+\begin{eqnarray*}
+\int_{t_{min}}^{t_{min} + T} {P^{(k)} (t)}^T . P^{(k)} (t) dt
+&=& \sum_{i,j} \frac{P_i^T P_j}{T^{2k}} \int_{t_{min}}^{t_{min} + T} b_i^{(k)}(\frac{t - t_0}{T}) b_j^{(k)}(\frac{t - t_0}{T}) dt \\
+&=& \sum_{i,j} \frac{P_i^T P_j}{T^{2k}} T \int_0^1 b_i^{(k)}(u) b_j^{(k)}(u) du \\
+&=& T^{1-2k} \sum_{i,j} P_i^T P_j \int_0^1 b_i^{(k)}(u) b_j^{(k)}(u) du \\
+\end{eqnarray*}
+
+\section{Definiton of some basis}
+
+We consider $u \in \left[ 0,1 \right]$.
+
+\subsection {Canonical polynom basis}
+
+$$
+b_i(u) = u^i
+$$
+
+Its $k$-th derivative is, for $k \le i$:
+$$
+b_i^{(k)} (u) = \frac{i!}{(i-k)!} u^{i-k}
+$$
+
+Finally,
+\begin{eqnarray*}
+\int_0^1 b_i^{(k)} (u) b_j^{(k)} (u) du
+&=& \frac{i!}{(i-k)!} \frac{j!}{(j-k)!} \int_0^1 u^{i+j-2k} du \\
+&=& \frac{i!}{(i-k)!} \frac{j!}{(j-k)!} \frac{1}{i+j-2k+1}
+\end{eqnarray*}
+
+\subsection {Bernstein polynoms}
+The $i$-th Bernstein polynom of degree $n$ is:
+$$
+\bernstein{i}{n} (u) = { n \choose i } u^i (1-u)^{n-i}
+$$
+
+Its $k$-th derivative is, for $k \le n$:
+\begin{eqnarray*}
+\bernstein{i}{n}^{(k)} (u) &=& n! \sum_{p = \max(0, k+i-n)}^{\min(k,i)} { k \choose p } (-1)^{k-p} \frac{u^{i-p} (1-u)^{n-k-(i-p)}}{(i-p)!(n-k-(i-p))!} \\
+&=& \frac{n!}{(n-k)!} \sum_{p = \max(0, k+i-n)}^{\min(k,i)} { k \choose p } (-1)^{k-p} \bernstein{i-p}{n-k}(u)
+\end{eqnarray*}
+
+\paragraph{Integral of product of derivatives}
+We seek to compute
+\begin{eqnarray*}
+  \alpha_{i,j,n}^{(k)} &:=& \int_0^1 \bernstein{i}{n}^{(k)}(u) \bernstein{j}{n}^{(k)} (u) dt \\
+& =& \left(\frac{n!}{(n-k)!}\right)^2 \sum_{p \in I(i,k,n), q \in I(j,k,n)} { k \choose p } { k \choose q } (-1)^{2k - (p+q)} \alpha_{i-p,j-q,n-k}^{(0)} \\
+\end{eqnarray*}
+
+with $I(i,k,n) = [ \max(0, k+i-n), \min(k,i) ]$
+
+% with:
+% $$
+% \beta_{i,j}^{n,k} = \int_0^1 \bernstein{i-p}{n-k}(u) \bernstein{j-q}{n-k} (u) dt \\
+% $$
+
+\paragraph{Calculation of $\alpha_{i,j,n}^{(0)}$}
+\begin{eqnarray*}
+  \alpha_{i,j,n}^{(0)}
+  &=& { n \choose i } { n \choose j } { 2n \choose i+j }^{-1} \int_0^1 \bernstein{i+j}{2n}(u) dt \\
+  &=& { n \choose i } { n \choose j } { 2n \choose i+j }^{-1} \frac{1}{2n + 1}
+\end{eqnarray*}
+
+% Thus:
+% \begin{eqnarray*}
+  % \alpha_{i,j,n}^{(k)}
+  % & =& \left(\frac{n!}{(n-k)!}\right)^2 \sum_{p \in I(i,k,n), q \in I(j,k,n)} (-1)^{2k - (p+q)}
+  % { k \choose p } { k \choose q } { n-k \choose i-p } { n-k \choose j-q } { 2(n-k) \choose i-p+j-q }^{-1} \frac{1}{2(n-k) + 1}
+  % \alpha_{i-p,j-q,n-k}^{(0)} \\
+% \end{eqnarray*}
+
+\end{document}

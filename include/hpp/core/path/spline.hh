@@ -117,28 +117,26 @@ namespace hpp {
           {
             typename BasisFunction_t::IntegralCoeffs_t Ic;
             BasisFunction_t::integral (order, Ic);
-            for (size_type k = order; k < 2 * NbCoeffs - 1; ++k)
-              for (size_type i = order; i < std::min(k + 1, (size_type)NbCoeffs); ++i)
-                Ic(i, k - i) *= powersOfT_[k - 2 * order + 1];
-            // TODO parenthesis order ?
-            return (parameters_ * (parameters_.transpose() * Ic)).sum();
+            if (order > 0) Ic /= powersOfT_[2 * order - 1];
+            else           Ic *= powersOfT_[1];
+            return (parameters_ * parameters_.transpose()).cwiseProduct(Ic).sum();
           }
 
           void squaredNormIntegralDerivative (const size_type order, vectorOut_t res)
           {
             typename BasisFunction_t::IntegralCoeffs_t Ic;
             BasisFunction_t::integral (order, Ic);
-            for (size_type k = order; k < 2 * NbCoeffs - 1; ++k)
-              for (size_type i = order; i < std::min(k + 1, (size_type)NbCoeffs); ++i)
-                Ic(i, k - i) *= powersOfT_[k - 2 * order + 1];
+            if (order > 0) Ic /= powersOfT_[2 * order - 1];
+            else           Ic *= powersOfT_[1];
             matrix_t tmp (parameters_.transpose() * Ic);
             res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
           }
 
-          void basisFunctionDerivative (const size_type order, const value_type& t, BasisFunctionVector_t& res) const
+          void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
           {
             // TODO: add a cache.
-            BasisFunction_t::derivative (order, t - timeRange().first, res);
+            assert (u >= 0 && u <= 1);
+            BasisFunction_t::derivative (order, u, res);
           }
 
           Configuration_t initial () const
