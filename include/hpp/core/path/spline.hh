@@ -34,7 +34,8 @@ namespace hpp {
       /// \{
 
       enum PolynomeBasisType {
-        CanonicalPolynomeBasis
+        CanonicalPolynomeBasis,
+        BernsteinBasis
       };
 
       /// \cond
@@ -43,6 +44,18 @@ namespace hpp {
 
         /// Spline basis functions input set is [0, 1]
         template <int Degree> struct spline_basis_function <CanonicalPolynomeBasis, Degree>
+        {
+          enum { NbCoeffs = Degree + 1 };
+          typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, 1> Coeffs_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, NbCoeffs> IntegralCoeffs_t;
+
+          static void eval (const value_type t, Coeffs_t& res);
+          static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
+          /// Integrate between 0 and 1
+          static void integral (const size_type order, IntegralCoeffs_t& res);
+        };
+        template <int Degree> struct spline_basis_function <BernsteinBasis, Degree>
         {
           enum { NbCoeffs = Degree + 1 };
           typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;

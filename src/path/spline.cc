@@ -31,6 +31,14 @@ namespace hpp {
           for (size_type i = 1; i < N; ++i) ret(i) = ret(i-1) * i;
           return ret;
         }
+        template <int N>
+        inline size_type binomial (size_type n, size_type k, const Eigen::Matrix<size_type, N, 1> factors)
+        {
+          assert (n >= k && k >= 0);
+          assert (n < N);
+          size_type denom = factors(k) * factors(n - k);
+          return factors (n) / denom;
+        }
 
         template <int Degree>
         void spline_basis_function<CanonicalPolynomeBasis, Degree>::eval (const value_type t, Coeffs_t& res)
@@ -72,6 +80,44 @@ namespace hpp {
               res(i, j) = value_type(factor_i * factor_j) / value_type(power);
             }
           }
+        }
+
+        template <int Degree>
+        void spline_basis_function<BernsteinBasis, Degree>::eval (const value_type t, Coeffs_t& res)
+        {
+          res(0) = 1;
+          for (size_type i = 1; i < NbCoeffs; ++i) res(i) = res(i-1) * t;
+        }
+        template <int Degree>
+        void spline_basis_function<BernsteinBasis, Degree>::derivative
+        (const size_type k, const value_type& t, Coeffs_t& res)
+        {
+          if (k > Degree) {
+            res.setZero();
+            return;
+          }
+          static Factorials_t factors = factorials<NbCoeffs>();
+          Coeffs_t powersOfT;
+          powersOfT(0) = 1;
+          for (size_type i = 0; i < NbCoeffs; ++i) powersOfT(i) = powersOfT(i - 1) * t;
+
+          for (size_type i = 0; i < NbCoeffs; ++i) {
+            res(i) = 0;
+            for (size_type p = 0; p <= std::min(i, k); ++p) {
+              size_type ip = i - p;
+              res(i) += ( k - p % 2 == 0 ? 1 : -1 )
+                * binomial (k, p, factors)
+                *   powersOfT(ip) * powersOfT(Degree - k - ip)
+                / ( factors  (ip) * factors  (Degree - k - ip) );
+            }
+          }
+          res *= factors(Degree);
+        }
+        template <int Degree>
+        void spline_basis_function<BernsteinBasis, Degree>::integral
+        (const size_type order, IntegralCoeffs_t& res)
+        {
+          throw std::logic_error("Unimplemented");
         }
       }
 
@@ -125,6 +171,9 @@ namespace hpp {
       template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
       template class Spline<CanonicalPolynomeBasis, 2>;
       template class Spline<CanonicalPolynomeBasis, 3>;
+      template class Spline<BernsteinBasis, 1>; // equivalent to StraightPath
+      template class Spline<BernsteinBasis, 2>;
+      template class Spline<BernsteinBasis, 3>;
     } //   namespace path
   } //   namespace core
 } // namespace hpp
