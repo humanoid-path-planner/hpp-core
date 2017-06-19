@@ -40,6 +40,20 @@ namespace hpp {
           return factors (n) / denom;
         }
 
+        /// Spline basis functions input set is [0, 1]
+        template <int Degree> struct spline_basis_function <CanonicalPolynomeBasis, Degree>
+        {
+          typedef sbf_traits<CanonicalPolynomeBasis, Degree> traits;
+          enum { NbCoeffs = traits::NbCoeffs };
+          typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
+          typedef typename traits::Coeffs_t Coeffs_t;
+          typedef typename traits::IntegralCoeffs_t IntegralCoeffs_t;
+
+          static void eval (const value_type t, Coeffs_t& res);
+          static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
+          /// Integrate between 0 and 1
+          static void integral (const size_type order, IntegralCoeffs_t& res);
+        };
         template <int Degree>
         void spline_basis_function<CanonicalPolynomeBasis, Degree>::eval (const value_type t, Coeffs_t& res)
         {
@@ -82,6 +96,18 @@ namespace hpp {
           }
         }
 
+        template <int Degree> struct spline_basis_function <BernsteinBasis, Degree>
+        {
+          enum { NbCoeffs = Degree + 1 };
+          typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, 1> Coeffs_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, NbCoeffs> IntegralCoeffs_t;
+
+          static void eval (const value_type t, Coeffs_t& res);
+          static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
+          /// Integrate between 0 and 1
+          static void integral (const size_type order, IntegralCoeffs_t& res);
+        };
         template <int Degree>
         void spline_basis_function<BernsteinBasis, Degree>::eval (const value_type t, Coeffs_t& res)
         {
@@ -162,6 +188,14 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
+      {
+        // TODO: add a cache.
+        assert (u >= 0 && u <= 1);
+        BasisFunction_t::derivative (order, u, res);
+      }
+
+      template <int _SplineType, int _Order>
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
       {
         BasisFunctionVector_t basisFunc;
@@ -201,6 +235,28 @@ namespace hpp {
         Eigen::Map<vector_t, Eigen::Aligned> (parameters_.data(), parameters_.size())
           .noalias() += dParam;
       }
+
+      template <int _SplineType, int _Order>
+      value_type Spline<_SplineType, _Order>::squaredNormIntegral (const size_type order)
+      {
+        typename sbf_traits::IntegralCoeffs_t Ic;
+        BasisFunction_t::integral (order, Ic);
+        if (order > 0) Ic /= powersOfT_[2 * order - 1];
+        else           Ic *= powersOfT_[1];
+        return (parameters_ * parameters_.transpose()).cwiseProduct(Ic).sum();
+      }
+
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::squaredNormIntegralDerivative (const size_type order, vectorOut_t res)
+      {
+        typename BasisFunction_t::IntegralCoeffs_t Ic;
+        BasisFunction_t::integral (order, Ic);
+        if (order > 0) Ic /= powersOfT_[2 * order - 1];
+        else           Ic *= powersOfT_[1];
+        matrix_t tmp (parameters_.transpose() * Ic);
+        res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
+      }
+
 
       template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
       template class Spline<CanonicalPolynomeBasis, 2>;

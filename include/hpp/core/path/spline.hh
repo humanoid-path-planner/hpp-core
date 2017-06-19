@@ -41,31 +41,10 @@ namespace hpp {
       /// \cond
       namespace internal {
         template <int SplineType, int Degree> struct spline_basis_function;
-
-        /// Spline basis functions input set is [0, 1]
-        template <int Degree> struct spline_basis_function <CanonicalPolynomeBasis, Degree>
-        {
+        template <int SplineType, int Degree> struct sbf_traits {
           enum { NbCoeffs = Degree + 1 };
-          typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
           typedef Eigen::Matrix<value_type, NbCoeffs, 1> Coeffs_t;
           typedef Eigen::Matrix<value_type, NbCoeffs, NbCoeffs> IntegralCoeffs_t;
-
-          static void eval (const value_type t, Coeffs_t& res);
-          static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
-          /// Integrate between 0 and 1
-          static void integral (const size_type order, IntegralCoeffs_t& res);
-        };
-        template <int Degree> struct spline_basis_function <BernsteinBasis, Degree>
-        {
-          enum { NbCoeffs = Degree + 1 };
-          typedef Eigen::Matrix<size_type, NbCoeffs, 1> Factorials_t;
-          typedef Eigen::Matrix<value_type, NbCoeffs, 1> Coeffs_t;
-          typedef Eigen::Matrix<value_type, NbCoeffs, NbCoeffs> IntegralCoeffs_t;
-
-          static void eval (const value_type t, Coeffs_t& res);
-          static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
-          /// Integrate between 0 and 1
-          static void integral (const size_type order, IntegralCoeffs_t& res);
         };
       }
       /// \endcond
@@ -82,9 +61,10 @@ namespace hpp {
             NbPowerOfT = 2 * NbCoeffs + 1
           };
 
+          typedef internal::sbf_traits<PolynomeBasis, Order> sbf_traits;
           typedef internal::spline_basis_function<PolynomeBasis, Order> BasisFunction_t;
           typedef Eigen::Matrix<value_type, NbPowerOfT, 1> PowersOfT_t;
-          typedef typename BasisFunction_t::Coeffs_t BasisFunctionVector_t;
+          typedef typename sbf_traits::Coeffs_t BasisFunctionVector_t;
           typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic> ParameterMatrix_t;
           typedef boost::shared_ptr<Spline> Ptr_t;
           typedef boost::weak_ptr<Spline> WkPtr_t;
@@ -113,31 +93,11 @@ namespace hpp {
             impl_paramIntegrate (dParam);
           }
 
-          value_type squaredNormIntegral (const size_type order)
-          {
-            typename BasisFunction_t::IntegralCoeffs_t Ic;
-            BasisFunction_t::integral (order, Ic);
-            if (order > 0) Ic /= powersOfT_[2 * order - 1];
-            else           Ic *= powersOfT_[1];
-            return (parameters_ * parameters_.transpose()).cwiseProduct(Ic).sum();
-          }
+          value_type squaredNormIntegral (const size_type order);
 
-          void squaredNormIntegralDerivative (const size_type order, vectorOut_t res)
-          {
-            typename BasisFunction_t::IntegralCoeffs_t Ic;
-            BasisFunction_t::integral (order, Ic);
-            if (order > 0) Ic /= powersOfT_[2 * order - 1];
-            else           Ic *= powersOfT_[1];
-            matrix_t tmp (parameters_.transpose() * Ic);
-            res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
-          }
+          void squaredNormIntegralDerivative (const size_type order, vectorOut_t res);
 
-          void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
-          {
-            // TODO: add a cache.
-            assert (u >= 0 && u <= 1);
-            BasisFunction_t::derivative (order, u, res);
-          }
+          void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const;
 
           Configuration_t initial () const
           {
