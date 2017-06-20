@@ -45,7 +45,7 @@ namespace hpp {
           /// - the 2 following parameters corresponds to the RZ unbounded
           ///   rotation joint.
           /// Use CarLike::setWheelJoints to set the wheel joints.
-          static DubinsPtr_t createWithGuess (const ProblemPtr_t& problem)
+          static DubinsPtr_t createWithGuess (const Problem& problem)
           {
             Dubins* ptr = new Dubins (problem);
             DubinsPtr_t shPtr (ptr);
@@ -56,7 +56,7 @@ namespace hpp {
           /// Create an instance
           ///
           /// This constructor does no assumption.
-          static DubinsPtr_t create (const ProblemPtr_t& problem,
+          static DubinsPtr_t create (const Problem& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
@@ -90,10 +90,10 @@ namespace hpp {
 
         protected:
           /// Constructor
-          Dubins (const ProblemPtr_t& problem);
+          Dubins (const Problem& problem);
 
           /// Constructor
-          Dubins (const ProblemPtr_t& problem,
+          Dubins (const Problem& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);

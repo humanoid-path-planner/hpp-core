@@ -61,10 +61,10 @@ namespace hpp {
 
         protected:
           /// Constructor
-          CarLike (const ProblemPtr_t& problem);
+          CarLike (const Problem& problem);
 
           /// Constructor
-          CarLike (const ProblemPtr_t& problem,
+          CarLike (const Problem& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);

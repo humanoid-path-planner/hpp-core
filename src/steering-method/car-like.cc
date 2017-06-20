@@ -22,8 +22,8 @@
 namespace hpp {
   namespace core {
     namespace steeringMethod {
-      CarLike::CarLike (const ProblemPtr_t& problem) :
-	SteeringMethod (problem), device_ (problem->robot ()), rho_ (1.)
+      CarLike::CarLike (const Problem& problem) :
+	SteeringMethod (problem), device_ (problem.robot ()), rho_ (1.)
       {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(0);
@@ -41,11 +41,11 @@ namespace hpp {
         computeRadius();
       }
 
-      CarLike::CarLike (const ProblemPtr_t& problem,
+      CarLike::CarLike (const Problem& problem,
 			const value_type turningRadius,
 			JointPtr_t xyJoint, JointPtr_t rzJoint,
 			std::vector <JointPtr_t> wheels) :
-        SteeringMethod (problem), device_ (problem->robot ()),
+        SteeringMethod (problem), device_ (problem.robot ()),
         rho_ (turningRadius), xy_ (xyJoint), rz_ (rzJoint),
         wheels_ (wheels), weak_ ()
       {

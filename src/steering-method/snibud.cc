@@ -37,12 +37,12 @@ namespace hpp {
         return path->reverse ();
       }
 
-      Snibud::Snibud (const ProblemPtr_t& problem) :
+      Snibud::Snibud (const Problem& problem) :
         CarLike (problem), weak_ ()
       {
       }
 
-      Snibud::Snibud  (const ProblemPtr_t& problem,
+      Snibud::Snibud  (const Problem& problem,
           const value_type turningRadius,
           JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
