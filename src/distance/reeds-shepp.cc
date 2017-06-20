@@ -28,14 +28,14 @@ namespace hpp {
 	return createCopy (weak_.lock ());
       }
 
-      ReedsSheppPtr_t ReedsShepp::create (const ProblemPtr_t& problem)
+      ReedsSheppPtr_t ReedsShepp::create (const Problem& problem)
       {
 	ReedsShepp* ptr (new ReedsShepp (problem));
 	ReedsSheppPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
-      ReedsSheppPtr_t ReedsShepp::create (const ProblemPtr_t& problem,
+      ReedsSheppPtr_t ReedsShepp::create (const Problem& problem,
 					const value_type& turningRadius,
 					size_type xyRank, size_type rzRank)
       {
@@ -54,12 +54,12 @@ namespace hpp {
 	return shPtr;
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
+      ReedsShepp::ReedsShepp (const Problem& problem) :
 	Distance (), sm_ (steeringMethod::ReedsShepp::createWithGuess (problem))
       {
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
+      ReedsShepp::ReedsShepp (const Problem& problem,
 			      const value_type& turningRadius,
 			      size_type xyRank, size_type rzRank) :
 	Distance (), sm_ (steeringMethod::ReedsShepp::create
