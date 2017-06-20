@@ -42,7 +42,7 @@ namespace hpp {
       robot_ (robot),
       distance_ (WeighedDistance::create (robot)),
       initConf_ (), goalConfigurations_ (), target_ (),
-      steeringMethod_ (SteeringMethodStraight::create (this)),
+      steeringMethod_ (SteeringMethodStraight::create (*this)),
       configValidations_ (),
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),

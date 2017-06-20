@@ -161,7 +161,7 @@ namespace hpp {
       add <DistanceBuilder_t> ("WeighedDistance",
 			       WeighedDistance::createFromProblem);
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight", boost::bind(
-            static_cast<SteeringMethodStraightPtr_t (*)(const ProblemPtr_t&)>
+            static_cast<SteeringMethodStraightPtr_t (*)(const Problem&)>
               (&SteeringMethodStraight::create), _1
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
@@ -542,7 +542,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       DistancePtr_t dist (
-          get <DistanceBuilder_t> (distanceType_) (problem_)
+          get <DistanceBuilder_t> (distanceType_) (*problem_)
           );
       problem_->distance (dist);
     }
@@ -552,7 +552,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       SteeringMethodPtr_t sm (
-          get <SteeringMethodBuilder_t> (steeringMethodType_) (problem_)
+          get <SteeringMethodBuilder_t> (steeringMethodType_) (*problem_)
           );
       problem_->steeringMethod (sm);
     }
@@ -568,7 +568,7 @@ namespace hpp {
       //       the problem constraints.
       PathProjectorPtr_t pathProjector_ =
         createProjector (problem_->distance (), 
-            SteeringMethodStraight::create (problem_),
+            SteeringMethodStraight::create (*problem_),
             pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
     }
@@ -648,7 +648,7 @@ namespace hpp {
 
       // Create steering method using factory
       SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
-                             (steeringMethodType_) (problem_));
+                             (steeringMethodType_) (*problem_));
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
       if (!dp) {

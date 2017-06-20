@@ -75,7 +75,7 @@ namespace hpp {
 
     protected:
       /// Constructor
-      SteeringMethod (ProblemPtr_t problem) :
+      SteeringMethod (const Problem& problem) :
         problem_ (problem), constraints_ (), weak_ ()
       {
       }
@@ -99,7 +99,7 @@ namespace hpp {
 	weak_ = weak;
       }
 
-      ProblemPtr_t problem_;
+      const Problem& problem_;
 
     private:
       /// Set of constraints to apply on the paths produced

@@ -38,20 +38,9 @@ namespace hpp {
     {
     public:
       /// Create instance and return shared pointer
-      static SteeringMethodStraightPtr_t create (const ProblemPtr_t& problem)
+      static SteeringMethodStraightPtr_t create (const Problem& problem)
       {
 	SteeringMethodStraight* ptr = new SteeringMethodStraight (problem);
-	SteeringMethodStraightPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
-      }
-      /// Create instance and return shared pointer
-      static SteeringMethodStraightPtr_t create
-	(const DevicePtr_t& device, const WeighedDistancePtr_t& distance)
-        HPP_CORE_DEPRECATED
-      {
-	SteeringMethodStraight* ptr = new SteeringMethodStraight (device,
-								  distance);
 	SteeringMethodStraightPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -75,7 +64,7 @@ namespace hpp {
       virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
 				      ConfigurationIn_t q2) const
       {
-        value_type length = (*problem_->distance()) (q1, q2);
+        value_type length = (*problem_.distance()) (q1, q2);
         ConstraintSetPtr_t c;
         if (constraints() && constraints()->configProjector ()) {
           c = HPP_STATIC_PTR_CAST (ConstraintSet, constraints()->copy ());
@@ -84,22 +73,15 @@ namespace hpp {
           c = constraints ();
         }
         PathPtr_t path = StraightPath::create
-          (problem_->robot(), q1, q2, length, c);
+          (problem_.robot(), q1, q2, length, c);
         return path;
       }
     protected:
       /// Constructor with robot
       /// Weighed distance is created from robot
-      SteeringMethodStraight (const ProblemPtr_t& problem) :
+      SteeringMethodStraight (const Problem& problem) :
 	SteeringMethod (problem), weak_ ()
       {
-      }
-      /// Constructor with weighed distance
-      SteeringMethodStraight (const DevicePtr_t& device,
-			      const WeighedDistancePtr_t& distance) :
-	SteeringMethod (new Problem (device)), weak_ ()
-      {
-        problem_->distance (distance);
       }
       /// Copy constructor
       SteeringMethodStraight (const SteeringMethodStraight& other) :
