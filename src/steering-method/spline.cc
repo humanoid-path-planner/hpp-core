@@ -39,7 +39,7 @@ namespace hpp {
 
         DefaultDerivatives_t defaultDer (DerMatrix_t::Zero(device_.lock()->numberDof(), NDerivativeConstraintPerSide));
         std::vector<int> orders (NDerivativeConstraintPerSide);
-        for (size_type i = 0; i < NDerivativeConstraintPerSide; ++i) orders[i] = i + 1;
+        for (std::size_t i = 0; i < NDerivativeConstraintPerSide; ++i) orders[i] = int(i + 1);
         return impl_compute (q1, orders, defaultDer, q2, orders, defaultDer);
       }
 
@@ -59,12 +59,17 @@ namespace hpp {
               ConfigurationIn_t q1, std::vector<int> order1,  const Eigen::MatrixBase<Derived>& derivatives1,
               ConfigurationIn_t q2, std::vector<int> order2,  const Eigen::MatrixBase<Derived>& derivatives2) const
       {
+        // Compute the decomposition
+        // typedef Eigen::Matrix<value_type, SplineOrder+1, SplineOrder+1> ConstraintMatrix_t;
+        typedef Eigen::Matrix<value_type, Eigen::Dynamic, SplineOrder+1, Eigen::RowMajor> ConstraintMatrix_t;
+        typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RhsMatrix_t;
+
         SplinePathPtr_t p = SplinePath::create
           (device_.lock(), interval_t (0, 1), constraints());
 
-        const size_type nbConstraints = 2 + derivatives1.size() + derivatives2.size();
+        const size_type nbConstraints = 2 + derivatives1.cols() + derivatives2.cols();
         ConstraintMatrix_t coeffs (nbConstraints, SplineOrder+1);
-        RhsMatrix_t rhs (SplineOrder + 1, device_.lock()->numberDof());
+        RhsMatrix_t rhs (nbConstraints, device_.lock()->numberDof());
 
         p->base(q1); // TODO use the center ?
 
@@ -73,30 +78,30 @@ namespace hpp {
         // depend on the inputs.
         p->basisFunctionDerivative(0, 0, coeffs.row(0));
         rhs.row(0).setZero();
-        for (size_type i = 0; i < order1.size(); ++i)
+        for (std::size_t i = 0; i < order1.size(); ++i)
           p->basisFunctionDerivative(order1[i], 0, coeffs.row(i+1));
-        rhs.rows(1, order1.size()) = derivatives1;
+        rhs.middleRows(1, order1.size()).transpose() = derivatives1;
 
         size_type row = 1 + order1.size();
         p->basisFunctionDerivative(0, 1, coeffs.row(row));
-        pinocchio::difference(device_.lock(), q2, q1, rhs.row (row));
+        pinocchio::difference(device_.lock(), q2, q1, rhs.row(row));
         ++row;
-        for (size_type i = 0; i < order2.size(); ++i)
+        for (std::size_t i = 0; i < order2.size(); ++i)
           p->basisFunctionDerivative(order2[i], 1, coeffs.row(i+row));
-        rhs.rows(row, order2.size()) = derivatives2;
+        rhs.middleRows(row, order2.size()).transpose() = derivatives2;
 
         // Solve the problem
         // coeffs * P = rhs
         typedef Eigen::JacobiSVD < ConstraintMatrix_t > SVD_t;
-        SVD_t svd (coeffs, Eigen::ComputeThinU | Eigen::ComputeThinV);
+        SVD_t svd (coeffs, Eigen::ComputeFullU | Eigen::ComputeFullV);
         p->parameters (svd.solve(rhs));
 
         return p;
       }
 
       template <int _PB, int _SO>
-      Spline<_PB, _SO>::Spline (const ProblemPtr_t& problem) :
-        SteeringMethod (problem), device_ (problem->robot ())
+      Spline<_PB, _SO>::Spline (const Problem& problem) :
+        SteeringMethod (problem), device_ (problem.robot ())
       {}
 
       /// Copy constructor

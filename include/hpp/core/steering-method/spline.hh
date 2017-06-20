@@ -48,7 +48,7 @@ namespace hpp {
           typedef boost::shared_ptr<Spline> Ptr_t;
           typedef boost::weak_ptr<Spline> WkPtr_t;
 
-          static Ptr_t create (const ProblemPtr_t& problem)
+          static Ptr_t create (const Problem& problem)
           {
             Spline* ptr = new Spline (problem);
             Ptr_t shPtr (ptr);
@@ -81,7 +81,7 @@ namespace hpp {
 
         protected:
           /// Constructor
-          Spline (const ProblemPtr_t& problem);
+          Spline (const Problem& problem);
 
           /// Copy constructor
           Spline (const Spline& other);
@@ -101,10 +101,6 @@ namespace hpp {
               ConfigurationIn_t q2, std::vector<int> order2,  const Eigen::MatrixBase<Derived>& derivatives2) const;
 
           DeviceWkPtr_t device_;
-          // Compute the decomposition
-          // typedef Eigen::Matrix<value_type, SplineOrder+1, SplineOrder+1> ConstraintMatrix_t;
-          typedef Eigen::Matrix<value_type, Eigen::Dynamic, SplineOrder+1> ConstraintMatrix_t;
-          typedef Eigen::Matrix<value_type, SplineOrder+1, Eigen::Dynamic> RhsMatrix_t;
           WkPtr_t weak_;
       }; // Spline
       /// \}

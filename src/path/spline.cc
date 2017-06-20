@@ -111,8 +111,7 @@ namespace hpp {
         template <int Degree>
         void spline_basis_function<BernsteinBasis, Degree>::eval (const value_type t, Coeffs_t& res)
         {
-          res(0) = 1;
-          for (size_type i = 1; i < NbCoeffs; ++i) res(i) = res(i-1) * t;
+          derivative(0, t, res);
         }
         template <int Degree>
         void spline_basis_function<BernsteinBasis, Degree>::derivative
@@ -121,16 +120,21 @@ namespace hpp {
           res.setZero();
           if (k > Degree) return;
           static Factorials_t factors = factorials<NbCoeffs>();
-          Coeffs_t powersOfT;
-          powersOfT(0) = 1;
-          for (size_type i = 1; i < NbCoeffs; ++i) powersOfT(i) = powersOfT(i - 1) * t;
+          Coeffs_t powersOfT, powersOfOneMinusT;
+          powersOfT        (0) = 1;
+          powersOfOneMinusT(0) = 1;
+          const value_type oneMinusT = 1 - t;
+          for (size_type i = 1; i < NbCoeffs; ++i) {
+            powersOfT        (i) = powersOfT        (i - 1) * t;
+            powersOfOneMinusT(i) = powersOfOneMinusT(i - 1) * oneMinusT;
+          }
 
           for (size_type i = 0; i < NbCoeffs; ++i) {
             for (size_type p = std::max((size_type)0, k + i - Degree); p <= std::min(i, k); ++p) {
               size_type ip = i - p;
               res(i) += value_type (( (k - p) % 2 == 0 ? 1 : -1 )
                 * binomial (k, p, factors))
-                *   powersOfT(ip) * powersOfT(Degree - k - ip)
+                *   powersOfT(ip) * powersOfOneMinusT(Degree - k - ip)
                 / value_type( factors  (ip) * factors  (Degree - k - ip) );
             }
           }

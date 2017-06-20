@@ -99,6 +99,14 @@ namespace hpp {
 
           static void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res);
 
+          static void basisFunctionDerivative (const size_type order, const value_type& u, vectorOut_t res)
+          {
+            assert (res.size() == NbCoeffs);
+            BasisFunctionVector_t tmp;
+            basisFunctionDerivative(order, u, tmp);
+            res = tmp;
+          }
+
           Configuration_t initial () const
           {
             Configuration_t q (outputSize());
