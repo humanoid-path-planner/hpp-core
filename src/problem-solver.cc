@@ -20,6 +20,8 @@
 
 #include <boost/bind.hpp>
 
+#include <hpp/fcl/collision_utility.h>
+
 #include <pinocchio/multibody/fcl.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 
@@ -46,7 +48,7 @@
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
 #include <hpp/core/path-validation-report.hh>
-#include <hpp/core/problem-target/task-target.hh>
+// #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
@@ -57,6 +59,8 @@
 
 namespace hpp {
   namespace core {
+    using pinocchio::GeomIndex;
+
     using pinocchio::Model;
     using pinocchio::GeomModel;
     using pinocchio::GeomModelPtr_t;
@@ -69,6 +73,29 @@ namespace hpp {
         Model model;
         model.addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
         return model;
+      }
+
+      template<typename Container> void remove(Container& vector, std::size_t pos)
+      {
+        assert (pos < vector.size());
+        typename Container::iterator it = vector.begin();
+        std::advance(it, pos);
+        vector.erase(it);
+      }
+
+      struct FindCollisionObject {
+        FindCollisionObject (const GeomIndex& i) : geomIdx_ (i) {}
+        bool operator() (const CollisionObjectPtr_t co) const {
+          return co->indexInModel() == geomIdx_;
+        }
+        GeomIndex geomIdx_;
+      };
+
+      void remove(ObjectStdVector_t& vector, const GeomIndex& i)
+      {
+        ObjectStdVector_t::iterator it =
+          std::find_if(vector.begin(), vector.end(), FindCollisionObject(i));
+        if (it != vector.end()) vector.erase(it);
       }
 
       const Model obsModel = initObstacleModel();
@@ -110,6 +137,7 @@ namespace hpp {
       roadmap_ (), paths_ (),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
       pathPlannerType_ ("DiffusingPlanner"),
+      target_ (problemTarget::GoalConfigurations::create(NULL)),
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
       distanceType_("WeighedDistance"),
@@ -286,6 +314,7 @@ namespace hpp {
 
     void ProblemSolver::addGoalConfig (const ConfigurationPtr_t& config)
     {
+      target_ = problemTarget::GoalConfigurations::create(NULL);
       goalConfigurations_.push_back (config);
     }
 
@@ -294,6 +323,12 @@ namespace hpp {
       goalConfigurations_.clear ();
     }
 
+    /* Setting goal constraint is disabled for now.
+     * To re-enable it :
+     * - add a function called setGoalConstraints that:
+     *   - takes all the NumericalConstraintPtr_t and LockedJointPtr_t
+     *   - creates a TaskTarget and fills it.
+     * - remove all the addGoalConstraint
     void ProblemSolver::addGoalConstraint (const ConstraintPtr_t& constraint)
     {
       if (!goalConstraints_) {
@@ -339,6 +374,7 @@ namespace hpp {
     {
       goalConstraints_.reset ();
     }
+    */
 
     void ProblemSolver::addConstraint (const ConstraintPtr_t& constraint)
     {
@@ -537,6 +573,13 @@ namespace hpp {
       problem_->pathProjector (pathProjector_);
     }
 
+    void ProblemSolver::initProblemTarget ()
+    {
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      target_->problem(problem_);
+      problem_->target (target_);
+    }
+
     void ProblemSolver::initProblem ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -556,19 +599,13 @@ namespace hpp {
       /// create Path optimizer
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
-      ProblemTargetPtr_t target;
-      if (goalConstraints_) {
-        problemTarget::TaskTargetPtr_t t = problemTarget::TaskTarget::create (pathPlanner_);
-        t->constraints (goalConstraints_);
-        target = t;
-      } else
-        target = problemTarget::GoalConfigurations::create (pathPlanner_);
-      problem_->target (target);
+      problem_->resetGoalConfigs ();
       for (Configurations_t::const_iterator itConfig =
 	     goalConfigurations_.begin ();
 	   itConfig != goalConfigurations_.end (); ++itConfig) {
-	target->addGoalConfig (*itConfig);
+	problem_->addGoalConfig (*itConfig);
       }
+      initProblemTarget();
     }
 
     bool ProblemSolver::prepareSolveStepByStep ()
@@ -726,6 +763,52 @@ namespace hpp {
         problem ()->addObstacle (object);
       if (distanceBetweenObjects_) {
 	distanceBetweenObjects_->addObstacle (object);
+      }
+    }
+
+    void ProblemSolver::removeObstacle (const std::string& name)
+    {
+      if (!obstacleModel_->existGeometryName(name)) {
+        HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
+      }
+      se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+
+      // Update obstacle model
+      remove(obstacleModel_->geometryObjects, id);
+      obstacleModel_->ngeoms--;
+      remove(obstacleData_->oMg, id);
+      remove(obstacleData_->collisionObjects, id);
+
+      remove(collisionObstacles_, id);
+      remove(distanceObstacles_, id);
+      resetProblem(); // resets problem_ and distanceBetweenObjects_
+      resetRoadmap();
+    }
+
+    void ProblemSolver::cutObstacle (const std::string& name,
+                                     const fcl::AABB& aabb)
+    {
+      if (!obstacleModel_->existGeometryName(name)) {
+        HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
+      }
+      se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+
+      fcl::CollisionObject& fclobj = obstacleData_->collisionObjects[id];
+      fclobj.computeAABB();
+      if (!fclobj.getAABB().overlap(aabb)) {
+        // No intersection. Geom should be removed.
+        removeObstacle(name);
+        return;
+      }
+      fcl::CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].fcl;
+      fcl::CollisionGeometryPtr_t newgeom (extract(fclgeom.get(), fclobj.getTransform(), aabb));
+      if (!newgeom) {
+        // No intersection. Geom should be removed.
+        removeObstacle(name);
+      } else {
+        obstacleModel_->geometryObjects[id].fcl = newgeom;
+        obstacleData_->collisionObjects[id] =
+          fcl::CollisionObject(newgeom, se3::toFclTransform3f(obstacleData_->oMg[id]));
       }
     }
 

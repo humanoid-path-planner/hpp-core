@@ -19,12 +19,9 @@
 #ifndef HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
 # define HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
 
-# include <hpp/core/problem-target.hh>
-
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-
-# include <hpp/statistics/success-bin.hh>
+# include <hpp/core/problem-target.hh>
 
 namespace hpp {
   namespace core {
@@ -41,53 +38,29 @@ namespace hpp {
       /// - DiffusingPlanner
       class HPP_CORE_DLLAPI TaskTarget : public ProblemTarget {
         public:
-          static TaskTargetPtr_t create (const PathPlannerPtr_t& planner);
+          static TaskTargetPtr_t create (const ProblemPtr_t& problem);
 
           /// Check if the problem target is well specified.
-          void check () const;
+          void check (const RoadmapPtr_t& roadmap) const;
 
-          /// Try sampling one configuration and add it as goal.
-          void initRoadmap ();
+          /// Check whether the problem is solved.
+          bool reached (const RoadmapPtr_t& roadmap) const;
 
-          /// Try sampling one configuration and add it as goal.
-          void oneStep ();
+          PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
 
           void constraints (const ConstraintSetPtr_t& c)
           {
             constraints_ = c;
-            indexInInitcc_ = 0;
-          }
-
-          /// Apply the constraints to the configuration and
-          /// add it to the goals.
-          /// \warning the input configuration is modified.
-          void addGoalConfig (const ConfigurationPtr_t& config);
-
-          void resetGoalConfig ()
-          {
-            goals_.clear ();
           }
 
         protected:
           /// Constructor
-          TaskTarget (const PathPlannerPtr_t& planner)
-            : ProblemTarget (planner)
-            , indexInInitcc_ (0)
-            , statistics_ ("Task target")
+          TaskTarget (const ProblemPtr_t& problem)
+            : ProblemTarget (problem)
           {}
 
         private:
-          ConfigurationPtr_t generateNewConfig (std::size_t& tries);
-
-          ConfigurationPtr_t shootConfig ();
-
-          bool impl_addGoalConfig (const ConfigurationPtr_t& config);
-
           ConstraintSetPtr_t constraints_;
-
-          std::size_t indexInInitcc_;
-
-          ::hpp::statistics::SuccessStatistics statistics_;
       }; // class TaskTarget
       /// \}
     } // namespace problemTarget

@@ -65,6 +65,8 @@ namespace hpp {
       ConfigurationPtr_t configuration () const;
       /// Print node in a stream
       std::ostream& print (std::ostream& os) const;
+
+      virtual ~Node () {};
     private:
       ConfigurationPtr_t configuration_;
       Edges_t outEdges_;

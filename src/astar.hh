@@ -21,6 +21,7 @@
 
 # include <limits>
 # include <hpp/core/fwd.hh>
+# include <hpp/core/config.hh>
 # include <hpp/core/distance.hh>
 # include <hpp/core/edge.hh>
 # include <hpp/core/node.hh>
@@ -28,7 +29,7 @@
 
 namespace hpp {
   namespace core {
-    class Astar
+    class HPP_CORE_LOCAL Astar
     {
       typedef std::list < NodePtr_t > Nodes_t;
       typedef std::list <EdgePtr_t> Edges_t;
@@ -86,7 +87,7 @@ namespace hpp {
 
       bool isGoal (const NodePtr_t node)
       {
-	for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
+	for (NodeVector_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
 	     itGoal != roadmap_->goalNodes ().end (); ++itGoal) {
 	  if (*itGoal == node) {
 	    return true;
@@ -141,7 +142,7 @@ namespace hpp {
       {
 	const ConfigurationPtr_t config = node->configuration ();
 	value_type res = std::numeric_limits <value_type>::infinity ();
-	for (Nodes_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
+	for (NodeVector_t::const_iterator itGoal = roadmap_->goalNodes ().begin ();
 	     itGoal != roadmap_->goalNodes ().end (); ++itGoal) {
 	  ConfigurationPtr_t goal = (*itGoal)->configuration ();
 	  value_type dist = (*distance_) (*config, *goal);

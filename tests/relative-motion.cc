@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   proj = ConfigProjector::create (dev, "test", 1e-3, 10);
   constraints = ConstraintSet::create (dev, "test");
   constraints->addConstraint(proj);
-  proj->add (ExplicitRelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2));
+  proj->add (ExplicitRelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2)->createNumericalConstraint());
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
 

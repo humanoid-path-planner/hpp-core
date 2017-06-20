@@ -23,6 +23,8 @@
 
 # include <hpp/statistics/success-bin.hh>
 
+# include <hpp/constraints/hybrid-solver.hh>
+
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 # include <hpp/core/deprecated.hh>
@@ -96,12 +98,13 @@ namespace hpp {
 
       void lastIsOptional (bool optional)
       {
-        lastIsOptional_ = optional;
+        minimalSolver_.lastIsOptional(optional);
+        fullSolver_.lastIsOptional(optional);
       }
 
       bool lastIsOptional () const
       {
-        return lastIsOptional_;
+        return minimalSolver_.lastIsOptional();
       }
 
       /// Optimize the configuration while respecting the constraints
@@ -164,20 +167,6 @@ namespace hpp {
       bool oneStep (ConfigurationOut_t config, vectorOut_t dq,
           const value_type& alpha);
 
-      /// Linearization of the system of equations
-      /// rhs - v_{i} = J (q_i) (dq_{i+1} - q_{i})
-      /// q_{i+1} - q_{i} = J(q_i)^{+} ( rhs - v_{i} )
-      /// dq = J(q_i)^{+} ( rhs - v_{i} )
-      void computeIncrement (vectorIn_t value, matrixIn_t reducedJacobian,
-          const value_type& alpha, vectorOut_t dq);
-
-      void computePrioritizedIncrement (vectorIn_t value,
-          matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq);
-
-      void computePrioritizedIncrement (vectorIn_t value,
-          matrixIn_t reducedJacobian, const value_type& alpha, vectorOut_t dq,
-          const std::size_t& level);
-
       /// \name Compression of locked degrees of freedom
       ///
       /// Degrees of freedom related to locked joint are not taken into
@@ -189,13 +178,13 @@ namespace hpp {
       /// Get number of non-locked degrees of freedom
       size_type numberNonLockedDof () const
       {
-	return nbNonLockedDofs_;
+	return minimalSolver_.explicitSolver().inDers().nbIndexes();
       }
 
       /// Get constraint dimension
       size_type dimension () const
       {
-	return value_.size();
+	return minimalSolver_.dimension();
       }
 
       /// Compress Velocity vector by removing locked degrees of freedom
@@ -234,28 +223,31 @@ namespace hpp {
       /// Set maximal number of iterations
       void maxIterations (size_type iterations)
       {
-	maxIterations_ = iterations;
+        minimalSolver_.maxIterations(iterations);
       }
       /// Get maximal number of iterations in config projector
       size_type maxIterations () const
       {
-	return maxIterations_;
+	return minimalSolver_.maxIterations();
       }
 
       /// Set error threshold
       void errorThreshold (const value_type& threshold)
       {
-	squareErrorThreshold_ = threshold * threshold;
+        minimalSolver_.errorThreshold(threshold);
+        minimalSolver_.inequalityThreshold(threshold);
+        fullSolver_.errorThreshold(threshold);
+        fullSolver_.inequalityThreshold(threshold);
       }
       /// Get errorimal number of threshold in config projector
       value_type errorThreshold () const
       {
-	return sqrt (squareErrorThreshold_);
+	return minimalSolver_.errorThreshold();
       }
 
       value_type residualError() const
       {
-        return squareNorm_;
+        return minimalSolver_.residualError();
       }
 
       /// \name Right hand side of equalities - inequalities
@@ -278,20 +270,29 @@ namespace hpp {
       /// to retrieve the leaf a configuration lies on.
       vector_t rightHandSideFromConfig (ConfigurationIn_t config);
 
+      /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
+      /// the specified NumericalConstraint
+      void rightHandSideFromConfig (const NumericalConstraintPtr_t& nm, ConfigurationIn_t config);
+
+      /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
+      /// the specified LockedJoint
+      void rightHandSideFromConfig (const LockedJointPtr_t& nm, ConfigurationIn_t config);
+
       /// Set the level set parameter.
       /// \param param the level set parameter.
       void rightHandSide (const vector_t& param);
 
+      /// Same as rightHandSide(vectorIn_t) but only for
+      /// the specified NumericalConstraint
+      void rightHandSide (const NumericalConstraintPtr_t& nm, vectorIn_t rhs);
+
+      /// Same as rightHandSide(vectorIn_t) but only for
+      /// the specified LockedJoint
+      void rightHandSide (const LockedJointPtr_t& nm, vectorIn_t rhs);
+
       /// Get the level set parameter.
       /// \return the parameter.
       vector_t rightHandSide () const;
-
-      /// Regenerate the right hand side
-      /// from the numerical constraint right hand sides.
-      /// \note Class NumericalConstraint contains a cache for its own RHS.
-      /// Its value is simply copied in the ConfigProjector RHS. This allow a
-      /// finer control on the RHS.
-      void updateRightHandSide ();
 
       /// @}
 
@@ -320,12 +321,6 @@ namespace hpp {
 	return functions_;
       }
 
-      /// Get the passive DOF of the ConfigProjector
-      IntervalsContainer_t passiveDofs () const
-      {
-	return passiveDofs_;
-      }
-
       LockedJoints_t lockedJoints () const {
         return lockedJoints_;
       }
@@ -350,73 +345,34 @@ namespace hpp {
       }
       /// Numerically solve constraint
       virtual bool impl_compute (ConfigurationOut_t configuration);
-      /// Set locked degrees of freedom to their locked values
-      void computeLockedDofs (ConfigurationOut_t configuration);
 
     private:
-      typedef Eigen::JacobiSVD <matrix_t> SVD_t;
-      struct PriorityStack {
-        std::size_t level_; // 0, 1, 2 or 3.
-        std::size_t outputSize_, cols_;
-        NumericalConstraints_t functions_;
-        IntervalsContainer_t passiveDofs_;
-        mutable SVD_t svd_;
-        matrix_t PK_;
-        
-        PriorityStack (std::size_t level, std::size_t cols);
-	/// Check that numerical constraint is in config projector
-	/// \param numericalConstraint numerical constraint
-	/// \return true if numerical constraint is already in priority stack
-	///         whatever the passive dofs are.
-	bool contains (const NumericalConstraintPtr_t& numericalConstraint)
-	  const;
-        bool add (const NumericalConstraintPtr_t& numericalConstraint,
-		  const SizeIntervals_t& passiveDofs);
-        void nbNonLockedDofs (const std::size_t nbNonLockedDofs);
-        void computeValueAndJacobian (ConfigurationIn_t cfg,
-            const SizeIntervals_t& intervals,
-            vectorOut_t value, matrixOut_t reducedJacobian);
-        /// Return false if it is not possible solve this constraints.
-        bool computeIncrement (vectorIn_t value, matrixIn_t jacobian,
-            vectorOut_t dq, matrixOut_t projector);
-      };
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
-      void updateExplicitComputation ();
-      bool isSatisfiedNoLockedJoint (ConfigurationIn_t config);
-      void resize ();
-      void computeIntervals ();
-      inline void computeError ();
       DevicePtr_t robot_;
-      std::vector <PriorityStack> stack_;
       NumericalConstraints_t functions_;
-      std::vector <std::size_t> explicitFunctions_;
-      IntervalsContainer_t passiveDofs_;
       LockedJoints_t lockedJoints_;
       /// Intervals of non locked degrees of freedom
-      SizeIntervals_t intervals_;
-      value_type squareErrorThreshold_;
-      size_type maxIterations_;
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
-      bool lastIsOptional_;
-      mutable vector_t value_;
       /// Jacobian without locked degrees of freedom
-      mutable matrix_t reducedJacobian_;
-      mutable SVD_t svd_;
-      mutable matrix_t reducedProjector_;
       mutable vector_t toMinusFrom_;
-      mutable vector_t toMinusFromSmall_;
       mutable vector_t projMinusFrom_;
-      mutable vector_t projMinusFromSmall_;
-      mutable vector_t dq_;
-      mutable vector_t dqSmall_;
-      size_type nbNonLockedDofs_;
-      size_type nbLockedDofs_;
-      value_type squareNorm_;
-      bool explicitComputation_;
-      ConfigProjectorWkPtr_t weak_;
 
+      typedef constraints::HybridSolver HybridSolver;
+      enum LineSearchType {
+        Backtracking,
+        ErrorNormBased,
+        FixedSequence,
+        Default = FixedSequence
+      };
+      LineSearchType lineSearchType_;
+      HybridSolver minimalSolver_, fullSolver_;
+
+      bool                 solverOneStep (ConfigurationOut_t config) const;
+      HybridSolver::Status solverSolve   (ConfigurationOut_t config) const;
+
+      ConfigProjectorWkPtr_t weak_;
       ::hpp::statistics::SuccessStatistics statistics_;
     }; // class ConfigProjector
     /// \}

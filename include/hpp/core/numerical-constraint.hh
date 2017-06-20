@@ -35,8 +35,12 @@ namespace hpp {
         virtual EquationPtr_t copy () const;
         /// Create a shared pointer to a new instance.
         /// \sa constructors
+        static NumericalConstraintPtr_t create (const DifferentiableFunctionPtr_t& function);
+
+        /// Create a shared pointer to a new instance.
+        /// \sa constructors
         static NumericalConstraintPtr_t create (const DifferentiableFunctionPtr_t& function,
-            ComparisonTypePtr_t comp = ComparisonType::createDefault());
+            ComparisonTypePtr_t comp);
 
         /// Create a shared pointer to a new instance.
         /// \sa constructors

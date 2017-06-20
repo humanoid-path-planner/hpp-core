@@ -16,6 +16,7 @@
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/matrix-view.hh>
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
 
@@ -191,12 +192,14 @@ namespace hpp {
     }; // class ImplicitFunction
 
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
-    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+     const SizeIntervals_t& inputConf,
+     const SizeIntervals_t& inputVelocity,
      const SizeIntervals_t& outputConf,
      const SizeIntervals_t& outputVelocity)
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
-	(robot, function, outputConf, outputVelocity);
+	(robot, explicitFunction, inputConf, inputVelocity, outputConf, outputVelocity);
       ExplicitNumericalConstraintPtr_t shPtr (ptr);
       ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
       ptr->init (wkPtr);
@@ -204,12 +207,15 @@ namespace hpp {
     }
 
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
-    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+    (const DifferentiableFunctionPtr_t& implicitFunction,
+     const DifferentiableFunctionPtr_t& explicitFunction,
+     const SizeIntervals_t& inputConf,
+     const SizeIntervals_t& inputVelocity,
      const SizeIntervals_t& outputConf,
-     const SizeIntervals_t& outputVelocity, vectorIn_t rhs)
+     const SizeIntervals_t& outputVelocity)
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
-	(robot, function, outputConf, outputVelocity, rhs);
+	(implicitFunction, explicitFunction, inputConf, inputVelocity, outputConf, outputVelocity);
       ExplicitNumericalConstraintPtr_t shPtr (ptr);
       ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
       ptr->init (wkPtr);
@@ -233,50 +239,58 @@ namespace hpp {
     }
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
-    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+    (const DifferentiableFunctionPtr_t& implicitFunction,
+     const DifferentiableFunctionPtr_t& explicitFunction,
+     const SizeIntervals_t& inputConf,
+     const SizeIntervals_t& inputVelocity,
      const SizeIntervals_t& outputConf,
      const SizeIntervals_t& outputVelocity) :
-      NumericalConstraint (ImplicitFunction::create
-			   (robot, function, outputConf, outputVelocity),
-			   Equality::create ()), outputConf_ (outputConf),
+      NumericalConstraint (implicitFunction,
+			   ComparisonTypes::create(implicitFunction->outputSize(), ComparisonTypes::Default)),
+      inputToOutput_ (explicitFunction),
+      inputConf_ (inputConf),
+      inputVelocity_ (inputVelocity),
+      outputConf_ (outputConf),
       outputVelocity_ (outputVelocity)
     {
     }
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
-    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+     const SizeIntervals_t& inputConf,
+     const SizeIntervals_t& inputVelocity,
      const SizeIntervals_t& outputConf,
-     const SizeIntervals_t& outputVelocity, vectorIn_t rhs) :
+     const SizeIntervals_t& outputVelocity) :
       NumericalConstraint (ImplicitFunction::create
-			   (robot, function, outputConf, outputVelocity),
-			   Equality::create (), rhs), outputConf_ (outputConf),
+			   (robot, explicitFunction, outputConf, outputVelocity),
+			   ComparisonTypes::create(Eigen::BlockIndex<size_type>::cardinal(outputVelocity), ComparisonTypes::Default)),
+      inputToOutput_ (explicitFunction),
+      inputConf_ (inputConf),
+      inputVelocity_ (inputVelocity),
+      outputConf_ (outputConf),
       outputVelocity_ (outputVelocity)
     {
     }
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const DifferentiableFunctionPtr_t& implicitConstraint,
+     const SizeIntervals_t& inputConf,
+     const SizeIntervals_t& inputVelocity,
      const SizeIntervals_t& outputConf,
      const SizeIntervals_t& outputVelocity) :
-      NumericalConstraint (implicitConstraint, EqualToZero::create ()),
-      outputConf_ (outputConf), outputVelocity_ (outputVelocity)
-    {
-    }
+      NumericalConstraint (implicitConstraint, ComparisonTypes::create(implicitConstraint->outputSize())),
+      inputConf_ (inputConf),
+      inputVelocity_ (inputVelocity),
+      outputConf_ (outputConf),
+      outputVelocity_ (outputVelocity)
+    {}
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const ExplicitNumericalConstraint& other) :
       NumericalConstraint (other), inputToOutput_ (other.inputToOutput_),
+      inputConf_ (other.inputConf_), inputVelocity_ (other.inputVelocity_),
       outputConf_ (other.outputConf_), outputVelocity_ (other.outputVelocity_)
     {
     }
-
-    void ExplicitNumericalConstraint::solve (ConfigurationOut_t configuration)
-    {
-      HPP_STATIC_CAST_REF_CHECK (ImplicitFunction, *(functionPtr ()));
-      HPP_STATIC_PTR_CAST (ImplicitFunction, functionPtr ())->solve
-	(configuration, rightHandSide ());
-    }
-
-
   } // namespace core
 } // namespace hpp

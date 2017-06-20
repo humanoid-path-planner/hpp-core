@@ -18,34 +18,26 @@
 
 #include <stdexcept>
 
-#include <hpp/util/debug.hh>
-
 #include <hpp/core/node.hh>
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/path-planner.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/config-validations.hh>
-#include <hpp/core/configuration-shooter.hh>
+
+#include "../astar.hh"
 
 namespace hpp {
   namespace core {
     namespace problemTarget {
-      namespace {
-        HPP_DEFINE_REASON_FAILURE (REASON_PROJECTION_FAILED, "Projection failed");
-        HPP_DEFINE_REASON_FAILURE (REASON_COLLISION, "Collision");
-      }
-
-      TaskTargetPtr_t TaskTarget::create (const PathPlannerPtr_t& planner)
+      TaskTargetPtr_t TaskTarget::create (const ProblemPtr_t& problem)
       {
-        TaskTarget* tt = new TaskTarget (planner);
+        TaskTarget* tt = new TaskTarget (problem);
         TaskTargetPtr_t shPtr (tt);
         tt->init (shPtr);
         return shPtr;
       }
 
-      void TaskTarget::check () const
+      void TaskTarget::check (const RoadmapPtr_t&) const
       {
         if (!constraints_) {
           std::string msg ("No constraints: task not specified.");
@@ -54,77 +46,16 @@ namespace hpp {
         }
       }
 
-      void TaskTarget::initRoadmap ()
+      bool TaskTarget::reached (const RoadmapPtr_t& roadmap) const
       {
-        planner_.lock ()->roadmap()->resetGoalNodes ();
-        std::size_t trials = 2;
-        generateNewConfig (trials);
-      }
-
-      void TaskTarget::oneStep ()
-      {
-        if (goals_.size () > planner_.lock ()->roadmap()->nodes().size() / 10)
-          return;
-        std::size_t trials = 1;
-        generateNewConfig (trials);
-      }
-
-      ConfigurationPtr_t TaskTarget::generateNewConfig (std::size_t& tries)
-      {
-        ConfigurationPtr_t q;
-        while (tries > 0) {
-          tries--;
-          q = shootConfig ();
-          if (impl_addGoalConfig (q)) return q;
-        }
-        return ConfigurationPtr_t();
-      }
-
-      ConfigurationPtr_t TaskTarget::shootConfig ()
-      {
-        ConfigurationPtr_t q;
-        const RoadmapPtr_t& r = planner_.lock ()->roadmap ();
-        const NodeVector_t& initCCnodes =
-          r->initNode()->connectedComponent()->nodes();
-        if (initCCnodes.size() < indexInInitcc_) {
-          // The list of nodes must have changed.
-          // Try again from initial configuration.
-          indexInInitcc_ = 0;
-          hppDout (info, "Connected component of init node has been shrinked. "
-             "Reinititializing index.");
-        }
-        if (initCCnodes.size() > indexInInitcc_) {
-          q = ConfigurationPtr_t (new Configuration_t (
-                *(initCCnodes[indexInInitcc_]->configuration())
-              ));
-          indexInInitcc_++;
-        } else {
-          q = planner_.lock ()->problem().configurationShooter()->shoot ();
-        }
-        return q;
-      }
-
-      void TaskTarget::addGoalConfig (const ConfigurationPtr_t& config)
-      {
-        impl_addGoalConfig (config);
-      }
-
-      inline bool TaskTarget::impl_addGoalConfig (const ConfigurationPtr_t& config)
-      {
-        const ConfigValidationsPtr_t& confValidations =
-          planner_.lock ()->problem().configValidations();
-        ValidationReportPtr_t report;
-        if (constraints_->apply (*config)) {
-          if (confValidations->validate (*config, report)) {
-            statistics_.addSuccess ();
-            planner_.lock ()->roadmap()->addGoalNode (config);
-            goals_.push_back (config);
-            return true;
-          } else
-            statistics_.addFailure (REASON_COLLISION);
-        } else statistics_.addFailure (REASON_PROJECTION_FAILED);
-        statistics_.isLowRatio (true);
+        // TODO
         return false;
+      }
+
+      PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const
+      {
+        Astar astar (roadmap, problem_->distance ());
+        return astar.solution ();
       }
     } // namespace problemTarget
   } // namespace core

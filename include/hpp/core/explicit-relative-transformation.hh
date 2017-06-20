@@ -17,7 +17,9 @@
 #ifndef HPP_CORE_EXPLICIT_RELATIVE_TRANSFORM_HH
 # define HPP_CORE_EXPLICIT_RELATIVE_TRANSFORM_HH
 
+# include <hpp/constraints/matrix-view.hh>
 # include <hpp/constraints/generic-transformation.hh>
+
 # include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {
@@ -41,14 +43,9 @@ namespace hpp {
     /// constraint is grouped with other constraints, the classical
     //  constraint::RelativeTransformation class is used.
     class HPP_CORE_DLLAPI ExplicitRelativeTransformation :
-      public ExplicitNumericalConstraint
+      public DifferentiableFunction
     {
     public:
-      /// Copy object and return shared pointer to copy
-      virtual EquationPtr_t copy () const
-      {
-	return createCopy (weak_.lock ());
-      }
       /// Return a shared pointer to a new instance
       ///
       /// \param name the name of the constraints,
@@ -61,108 +58,91 @@ namespace hpp {
       static ExplicitRelativeTransformationPtr_t create
 	(const std::string& name      , const DevicePtr_t& robot,
 	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
-	 const Transform3f& frame1    , const Transform3f& frame2)
+	 const Transform3f& frame1    , const Transform3f& frame2);
+
+      ExplicitNumericalConstraintPtr_t createNumericalConstraint ()
       {
-	ExplicitRelativeTransformation* ptr =
-	  new ExplicitRelativeTransformation (name, robot, joint1, joint2,
-					      frame1, frame2);
-	ExplicitRelativeTransformationPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
-      }
-
-      static ExplicitRelativeTransformationPtr_t createCopy
-	(const ExplicitRelativeTransformationPtr_t& other)
-      {
-	ExplicitRelativeTransformation* ptr = new ExplicitRelativeTransformation
-	  (*other);
-	ExplicitRelativeTransformationPtr_t shPtr (ptr);
-	ExplicitRelativeTransformationWkPtr_t wkPtr (shPtr);
-	ptr->init (wkPtr);
-	return shPtr;
-    }
-
-      /// Solve constraint
-      ///
-      /// Compute output with respect to input.
-      /// \param configuration input and output configuration
-      virtual void solve (ConfigurationOut_t configuration)
-      {
-	robot_->currentConfiguration (configuration);
-	robot_->computeForwardKinematics ();
-	// J1 * M1/J1 = J2 * M2/J2
-	// J2 = J1 * M1/J1 * M2/J2^{-1}
-	// J2 = J2_{parent} * T
-	// T = J2_{parent}^{-1} * J2
-	// T = J2_{parent}^{-1} * J1 * F1/J1 * F2/J2^{-1}
-        freeflyerPose_ =
-          relativeTransformation_->joint1 ()->currentTransformation () *
-          relativeTransformation_->frame1InJoint1 () *
-          relativeTransformation_->frame2InJoint2 ().inverse ();
-
-        if (parentJoint_)
-          freeflyerPose_ = parentJoint_->currentTransformation ().actInv(freeflyerPose_);
-
-        typedef Transform3f::Quaternion_t Q_t;
-        typedef Eigen::Map<Q_t> QM_t;
-        configuration.segment<3>(index_) = freeflyerPose_.translation();
-        QM_t (configuration.segment<4>(index_+3).data()) = Q_t(freeflyerPose_.rotation ());
+        return ExplicitNumericalConstraint::create (
+            implicit_,
+            weak_.lock(),
+            inConf_.indexes(),
+            inVel_.indexes(),
+            outConf_.indexes(),
+            outVel_.indexes());
       }
 
     protected:
-      ExplicitRelativeTransformation
-	(const std::string& name      , const DevicePtr_t& robot,
-	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
-	 const Transform3f& frame1    , const Transform3f& frame2,
-	 std::vector <bool> mask = std::vector<bool>(6,true)) :
-	ExplicitNumericalConstraint (RelativeTransformation::create
-				     (name, robot, joint1, joint2, frame1,
-				      frame2, std::vector<bool>(6,true)),
-				     privOutputConf (joint2),
-				     privOutputVelocity (joint2)),
-	robot_ (robot), parentJoint_ (joint2->parentJoint ()),
-	relativeTransformation_ (HPP_STATIC_PTR_CAST (RelativeTransformation,
-						      functionPtr ())),
-	index_ (joint2->rankInConfiguration ())
-	{
-	}
+      typedef Eigen::BlockIndex<size_type> BlockIndex;
+      typedef Eigen::RowBlockIndexes RowBlockIndexes;
+      typedef Eigen::ColBlockIndexes ColBlockIndexes;
+
+      ExplicitRelativeTransformation (
+          const std::string& name      , const DevicePtr_t& robot,
+          const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
+          const Transform3f& frame1    , const Transform3f& frame2,
+          const SizeIntervals_t inConf , const SizeIntervals_t outConf,
+          const SizeIntervals_t inVel  , const SizeIntervals_t outVel ,
+          std::vector <bool> /*mask*/ = std::vector<bool>(6,true))
+        : DifferentiableFunction (
+              BlockIndex::cardinal(inConf),  BlockIndex::cardinal(inVel),
+              BlockIndex::cardinal(outConf), BlockIndex::cardinal(outVel),
+              name),
+          robot_ (robot),
+          parentJoint_ (joint2->parentJoint ()),
+          implicit_ (RelativeTransformation::create (
+                name, robot, joint1, joint2, frame1, frame2, std::vector<bool>(6,true)
+                )),
+          rt_ (RelativeTransformation::create (
+                name, robot, joint2->parentJoint(), joint1,
+                (joint2->parentJoint() ? joint2->parentJoint()->positionInParentFrame() : Transform3f::Identity()),
+                frame1 * frame2.inverse(), std::vector<bool>(6,true))),
+          inConf_ (inConf),   inVel_  (inVel),
+          outConf_ (outConf), outVel_ (outVel),
+          F1inJ1_invF2inJ2_ (frame1 * frame2.inverse())
+      {
+      }
 
       ExplicitRelativeTransformation
 	(const ExplicitRelativeTransformation& other) :
-	ExplicitNumericalConstraint (other),
-	robot_ (other.robot_), parentJoint_ (other.parentJoint_),
-	relativeTransformation_ (other.relativeTransformation_),
-	index_ (other.index_)
+	DifferentiableFunction (other),
+	robot_ (other.robot_),
+        parentJoint_ (other.parentJoint_),
+	implicit_ (other.implicit_),
+        inConf_ (other.inConf_),   inVel_  (other.inVel_),
+        outConf_ (other.outConf_), outVel_ (other.outVel_),
+        F1inJ1_invF2inJ2_ (other.F1inJ1_invF2inJ2_)
 	{
 	}
 
       // Store weak pointer to itself
       void init (const ExplicitRelativeTransformationWkPtr_t& weak)
-	{
-	  ExplicitNumericalConstraint::init (weak);
-	  weak_ = weak;
-	}
+      {
+        weak_ = weak;
+      }
+
+      void impl_compute (vectorOut_t result, vectorIn_t argument) const;
+
+      void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const;
+
     private:
-      SizeIntervals_t privOutputConf (const JointConstPtr_t& joint) {
-	SizeIntervals_t result;
-	result.push_back (SizeInterval_t
-			  (joint->rankInConfiguration (), 7));
-	return result;
-      }
-      SizeIntervals_t privOutputVelocity (const JointConstPtr_t& joint) {
-	SizeIntervals_t result;
-	result.push_back (SizeInterval_t
-			  (joint->rankInVelocity (), 6));
-	return result;
-      }
+      void forwardKinematics (vectorIn_t arg) const;
+
       DevicePtr_t robot_;
       // Parent of the R3 joint.
       JointConstPtr_t parentJoint_;
-      RelativeTransformationPtr_t relativeTransformation_;
-      // Rank in configuration of the freeflyer joint
-      size_type index_;
-      mutable Transform3f freeflyerPose_;
+      RelativeTransformationPtr_t implicit_, rt_;
+      RowBlockIndexes inConf_;
+      ColBlockIndexes inVel_;
+      RowBlockIndexes outConf_ , outVel_;
+      Transform3f F1inJ1_invF2inJ2_;
+
       ExplicitRelativeTransformationWkPtr_t weak_;
+
+      // Tmp variables
+      mutable vector_t qsmall_, q_;
+      mutable Transform3f freeflyerPose_;
+      mutable matrix3_t cross1_, cross2_;
+      mutable matrix_t tmpJac_, J2_parent_minus_J1_;
     }; // class ExplicitRelativeTransformation
     /// \}
   } // namespace core

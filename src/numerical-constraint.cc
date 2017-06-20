@@ -56,6 +56,18 @@ namespace hpp {
     }
 
     NumericalConstraintPtr_t NumericalConstraint::create (
+        const DifferentiableFunctionPtr_t& function)
+    {
+      ComparisonTypePtr_t comp = ComparisonTypes::create (function->outputSize());
+
+      NumericalConstraint* ptr = new NumericalConstraint (function, comp);
+      NumericalConstraintPtr_t shPtr (ptr);
+      NumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
+    }
+
+    NumericalConstraintPtr_t NumericalConstraint::create (
         const DifferentiableFunctionPtr_t& function, ComparisonTypePtr_t comp)
     {
       NumericalConstraint* ptr = new NumericalConstraint (function, comp);

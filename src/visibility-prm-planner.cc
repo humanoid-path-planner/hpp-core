@@ -134,7 +134,7 @@ namespace hpp {
 
       /* Initialization of guard status */
       nodeStatus_ [r->initNode ()] = true; // init node is guard
-      for (Nodes_t::const_iterator itg = r->goalNodes ().begin();
+      for (NodeVector_t::const_iterator itg = r->goalNodes ().begin();
 	   itg != r->goalNodes ().end (); ++itg) {
 	nodeStatus_ [*itg] = true; // goal nodes are guards
       }

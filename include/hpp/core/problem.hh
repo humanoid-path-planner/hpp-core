@@ -86,14 +86,11 @@ namespace hpp {
         return target_;
       }
       /// Get number of goal configuration.
-      /// \deprecated use Problem::target
-      const Configurations_t& goalConfigs () const HPP_CORE_DEPRECATED;
+      const Configurations_t& goalConfigs () const;
       /// Add goal configuration.
-      /// \deprecated use Problem::target
-      void addGoalConfig (const ConfigurationPtr_t& config) HPP_CORE_DEPRECATED;
+      void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
-      /// \deprecated use Problem::target
-      void resetGoalConfigs () HPP_CORE_DEPRECATED;
+      void resetGoalConfigs ();
 
       /// \}
 
@@ -286,6 +283,8 @@ namespace hpp {
       DistancePtr_t distance_;
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
+      /// Shared pointer to goal configuration.
+      Configurations_t goalConfigurations_;
       /// Shared pointer to problem target
       ProblemTargetPtr_t target_;
       /// Steering method associated to the problem

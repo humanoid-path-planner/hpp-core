@@ -223,7 +223,7 @@ namespace hpp {
 
     ComparisonTypesPtr_t ComparisonTypes::create (size_t dim)
     {
-      return create (std::vector <ComparisonType::Type> (dim, ComparisonType::Superior));
+      return create (std::vector <ComparisonType::Type> (dim, ComparisonType::Default));
     }
 
     ComparisonTypesPtr_t ComparisonTypes::create (const std::vector <ComparisonType::Type> types)

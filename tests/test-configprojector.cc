@@ -28,6 +28,7 @@
 
 #include <hpp/constraints/generic-transformation.hh>
 
+#include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
@@ -294,6 +295,20 @@ DevicePtr_t createRobot ()
 }*/
 
 BOOST_AUTO_TEST_SUITE (config_projector)
+
+BOOST_AUTO_TEST_CASE (empty)
+{
+  DevicePtr_t dev = createRobot();
+
+  Configuration_t cfg(dev->neutralConfiguration ());
+  ConstraintSetPtr_t cs = ConstraintSet::create (dev, "empty");
+  BOOST_CHECK(cs->apply(cfg));
+
+  ConfigProjectorPtr_t projector =
+    ConfigProjector::create (dev, "test", 1e-4, 20);
+  cs->addConstraint (projector);
+  BOOST_CHECK (projector->apply (cfg));
+}
 
 BOOST_AUTO_TEST_CASE (ref_zero)
 {

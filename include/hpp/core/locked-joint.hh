@@ -18,6 +18,8 @@
 #ifndef HPP_CORE_LOCKED_JOINT_HH
 # define HPP_CORE_LOCKED_JOINT_HH
 
+# include <hpp/constraints/differentiable-function.hh>
+
 # include <hpp/core/equation.hh>
 
 namespace hpp {
@@ -93,6 +95,11 @@ namespace hpp {
       ///         input configuration and locked value.
       bool isSatisfied (ConfigurationIn_t config, vector_t& error);
 
+      DifferentiableFunctionPtr_t function() const
+      {
+        return function_;
+      }
+
       /// Return the joint name.
       const std::string& jointName () const {
         return jointName_;
@@ -125,6 +132,22 @@ namespace hpp {
       void init (const LockedJointPtr_t& self);
 
     private:
+      struct Function : constraints::DifferentiableFunction
+      {
+        LockedJointWkPtr_t lj_;
+
+        Function(const LockedJointPtr_t& lj)
+          : DifferentiableFunction(0, 0, lj->size(), lj->numberDof(), "LockedJoint " + lj->jointName()),
+          lj_ (lj)
+        {}
+
+        void impl_compute (vectorOut_t result, vectorIn_t ) const
+        {
+          result = lj_.lock()->value();
+        }
+
+        void impl_jacobian (matrixOut_t, vectorIn_t ) const {}
+      };
 
       std::string jointName_;
       size_type rankInConfiguration_;
@@ -132,6 +155,7 @@ namespace hpp {
       size_type numberDof_;
       /// Weak pointer to itself
       LockedJointWkPtr_t weak_;
+      boost::shared_ptr<Function> function_;
 
       friend class ConfigProjector;
       /// Create a fake locked dof for ConfigProjector
@@ -140,6 +164,7 @@ namespace hpp {
       /// Create a fake locked joint after last joint of robot
       LockedJoint (const DevicePtr_t& robot);
     }; // class LockedJoint
+
     /// \}
     inline std::ostream& operator<< (std::ostream& os, const LockedJoint& lj)
     {
@@ -147,5 +172,4 @@ namespace hpp {
     }
   } // namespace core
 } // namespace hpp
-
 #endif // HPP_CORE_LOCKED_JOINT_HH

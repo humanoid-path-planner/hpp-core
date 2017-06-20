@@ -206,10 +206,11 @@ namespace hpp {
       return closest;
     }
     
-    void Roadmap::addGoalNode (const ConfigurationPtr_t& config)
+    NodePtr_t Roadmap::addGoalNode (const ConfigurationPtr_t& config)
     {
       NodePtr_t node = addNode (config);
       goalNodes_.push_back (node);
+      return node;
     }
     
     const DistancePtr_t& Roadmap::distance () const
@@ -282,7 +283,7 @@ namespace hpp {
     bool Roadmap::pathExists () const
     {
       const ConnectedComponentPtr_t ccInit = initNode ()->connectedComponent ();
-      for (Nodes_t::const_iterator itGoal = goalNodes_.begin ();
+      for (NodeVector_t::const_iterator itGoal = goalNodes_.begin ();
 	   itGoal != goalNodes_.end (); ++itGoal) {
 	if (ccInit->canReach ((*itGoal)->connectedComponent ())) {
 	  return true;

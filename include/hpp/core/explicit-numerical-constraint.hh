@@ -109,7 +109,10 @@ namespace hpp {
       ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
       /// \note comparison type for this constraint is always equality
       static ExplicitNumericalConstraintPtr_t create
-	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+        (const DifferentiableFunctionPtr_t& implicitFunction,
+         const DifferentiableFunctionPtr_t& explicitFunction,
+	 const SizeIntervals_t& inputConf,
+	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity);
 
@@ -125,19 +128,20 @@ namespace hpp {
       /// \param rhs        right hand side.
       /// \note comparison type for this constraint is always equality
       static ExplicitNumericalConstraintPtr_t create
-	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+        (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+	 const SizeIntervals_t& inputConf,
+	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity, vectorIn_t rhs);
+	 const SizeIntervals_t& outputVelocity);
 
       /// Create a copy and return shared pointer
       static ExplicitNumericalConstraintPtr_t createCopy
 	(const ExplicitNumericalConstraintPtr_t& other);
 
-      /// Solve constraint
-      ///
-      /// Compute output with respect to input.
-      /// \param configuration input and output configuration
-      virtual void solve (ConfigurationOut_t configuration);
+      virtual DifferentiableFunctionPtr_t explicitFunction() const
+      {
+        return inputToOutput_;
+      }
 
       /// Get output configuration variables
       const SizeIntervals_t& outputConf () const
@@ -149,11 +153,21 @@ namespace hpp {
       {
 	return outputVelocity_;
       }
+      /// Get input configuration variables
+      const SizeIntervals_t& inputConf () const
+      {
+	return inputConf_;
+      }
+      /// Get input degrees of freedom
+      const SizeIntervals_t& inputVelocity () const
+      {
+	return inputVelocity_;
+      }
     protected:
       /// Constructor
       ///
-      /// \param robot Robot for which the constraint is defined.
-      /// \param function relation between input configuration variables and
+      /// \param implicitFunction the implicit formulation of the constraint,
+      /// \param explicitFunction relation between input configuration variables and
       ///          output configuration variables,
       /// \param outputConf set of integer intervals defining indices
       ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
@@ -161,14 +175,17 @@ namespace hpp {
       ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
       /// \note comparison type for this constraint is always equality
       ExplicitNumericalConstraint
-	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+	(const DifferentiableFunctionPtr_t& implicitFunction,
+         const DifferentiableFunctionPtr_t& explicitFormulation,
+	 const SizeIntervals_t& inputConf,
+	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity);
 
       /// Constructor
       ///
       /// \param robot Robot for which the constraint is defined.
-      /// \param function relation between input configuration variables and
+      /// \param explicitFunction relation between input configuration variables and
       ///        output configuration variables,
       /// \param outputConf set of integer intervals defining indices
       ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
@@ -177,9 +194,11 @@ namespace hpp {
       /// \param rhs        right hand side.
       /// \note comparison type for this constraint is always equality
       ExplicitNumericalConstraint
-	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+	 const SizeIntervals_t& inputConf,
+	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity, vectorIn_t rhs);
+	 const SizeIntervals_t& outputVelocity);
 
       /// Constructor
       ///
@@ -191,6 +210,8 @@ namespace hpp {
       /// appropriate.
       ExplicitNumericalConstraint
 	(const DifferentiableFunctionPtr_t& implicitConstraint,
+	 const SizeIntervals_t& inputConf,
+	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,
 	 const SizeIntervals_t& outputVelocity);
 
@@ -216,6 +237,8 @@ namespace hpp {
     private:
       // Relation between input and output configuration variables
       DifferentiableFunctionPtr_t inputToOutput_;
+      SizeIntervals_t inputConf_;
+      SizeIntervals_t inputVelocity_;
       SizeIntervals_t outputConf_;
       SizeIntervals_t outputVelocity_;
       ExplicitNumericalConstraintWkPtr_t weak_;

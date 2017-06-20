@@ -66,8 +66,6 @@ namespace hpp {
       parent_t (path, constraints), device_ (path.device_),
       initial_ (path.initial_), end_ (path.end_)
     {
-      assert (constraints->apply (initial_));
-      assert (constraints->apply (end_));
       assert (constraints->isSatisfied (initial_));
       assert (constraints->isSatisfied (end_));
     }
