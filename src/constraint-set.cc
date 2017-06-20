@@ -41,7 +41,7 @@ namespace hpp {
 				  const std::string& name) :
       Constraint (name), constraints_ ()
     {
-      constraints_.push_back (ConfigProjector::create (robot, "Trivial", 0, 0));
+      constraints_.push_back (ConfigProjector::create (robot, "Trivial", 1e-12, 0));
       trivialOrNotConfigProjectorIt_ = constraints_.begin ();
       configProjectorIt_ = constraints_.end ();
     }
