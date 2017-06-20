@@ -45,7 +45,7 @@ namespace hpp {
           /// - the 2 following parameters corresponds to the RZ unbounded
           ///   rotation joint.
           /// Use Carlike::setWheelJoints to set the wheel joints.
-          static ReedsSheppPtr_t createWithGuess (const ProblemPtr_t& problem)
+          static ReedsSheppPtr_t createWithGuess (const Problem& problem)
           {
             ReedsShepp* ptr = new ReedsShepp (problem);
             ReedsSheppPtr_t shPtr (ptr);
@@ -56,7 +56,7 @@ namespace hpp {
           /// Create an instance
           ///
           /// This constructor does no assumption.
-          static ReedsSheppPtr_t create (const ProblemPtr_t& problem,
+          static ReedsSheppPtr_t create (const Problem& problem,
               const value_type turningRadius,
               size_type xyRank, size_type rzRank,
               std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
@@ -90,10 +90,10 @@ namespace hpp {
 
         protected:
           /// Constructor
-          ReedsShepp (const ProblemPtr_t& problem);
+          ReedsShepp (const Problem& problem);
 
           /// Constructor
-          ReedsShepp (const ProblemPtr_t& problem,
+          ReedsShepp (const Problem& problem,
               const value_type turningRadius,
               size_type xyRank, size_type rzRank,
               std::vector <JointPtr_t> wheels);
