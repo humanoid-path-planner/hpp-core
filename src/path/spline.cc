@@ -188,7 +188,7 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
+      void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res)
       {
         // TODO: add a cache.
         assert (u >= 0 && u <= 1);
@@ -229,8 +229,8 @@ namespace hpp {
       template <int _SplineType, int _Order>
       void Spline<_SplineType, _Order>::impl_paramIntegrate (vectorIn_t dParam)
       {
-        pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl>
-          (robot_, base_, dParam.head(robot_->numberDof()), base_);
+        // pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl>
+          // (robot_, base_, dParam.head(robot_->numberDof()), base_);
 
         Eigen::Map<vector_t, Eigen::Aligned> (parameters_.data(), parameters_.size())
           .noalias() += dParam;

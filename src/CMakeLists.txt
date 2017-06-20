@@ -77,6 +77,7 @@ locked-joint.cc
  random-shortcut.cc
  roadmap.cc
  steering-method/reeds-shepp.cc # TODO access type of joint
+ steering-method/spline.cc
  straight-path.cc
  visibility-prm-planner.cc
  weighed-distance.cc

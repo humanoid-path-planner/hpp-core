@@ -97,7 +97,7 @@ namespace hpp {
 
           void squaredNormIntegralDerivative (const size_type order, vectorOut_t res);
 
-          void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const;
+          static void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res);
 
           Configuration_t initial () const
           {
