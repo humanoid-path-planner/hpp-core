@@ -28,7 +28,7 @@ namespace hpp {
 	return createCopy (weak_.lock ());
       }
 
-      ReedsSheppPtr_t ReedsShepp::create (const ProblemPtr_t& problem)
+      ReedsSheppPtr_t ReedsShepp::create (const Problem& problem)
       {
 	ReedsShepp* ptr (new ReedsShepp (problem));
 	ReedsSheppPtr_t shPtr (ptr);
@@ -36,7 +36,7 @@ namespace hpp {
 	return shPtr;
       }
       ReedsSheppPtr_t ReedsShepp::create
-      (const ProblemPtr_t& problem, const value_type& turningRadius,
+      (const Problem& problem, const value_type& turningRadius,
        JointPtr_t xyJoint, JointPtr_t rzJoint)
       {
 	ReedsShepp* ptr (new ReedsShepp (problem, turningRadius,
@@ -54,12 +54,12 @@ namespace hpp {
 	return shPtr;
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
+      ReedsShepp::ReedsShepp (const Problem& problem) :
 	Distance (), sm_ (steeringMethod::ReedsShepp::createWithGuess (problem))
       {
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
+      ReedsShepp::ReedsShepp (const Problem& problem,
 			      const value_type& turningRadius,
 			      JointPtr_t xyJoint, JointPtr_t rzJoint) :
 	Distance (), sm_ (steeringMethod::ReedsShepp::create

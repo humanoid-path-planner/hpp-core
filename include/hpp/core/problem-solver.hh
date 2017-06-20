@@ -46,9 +46,9 @@ namespace hpp {
       PathProjectorBuilder_t;
     typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
       ConfigurationShooterBuilder_t;
-  typedef boost::function <DistancePtr_t (const ProblemPtr_t&) >
+  typedef boost::function <DistancePtr_t (const Problem&) >
     DistanceBuilder_t;
-    typedef boost::function <SteeringMethodPtr_t (const ProblemPtr_t&) >
+    typedef boost::function <SteeringMethodPtr_t (const Problem&) >
       SteeringMethodBuilder_t;
     typedef std::vector<CollisionObjectPtr_t > AffordanceObjects_t;
     typedef vector3_t AffordanceConfig_t;

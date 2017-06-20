@@ -35,14 +35,14 @@ namespace hpp {
       {
       public:
 	virtual DistancePtr_t clone () const;
-	static ReedsSheppPtr_t create (const ProblemPtr_t& problem);
-	static ReedsSheppPtr_t create (const ProblemPtr_t& problem,
+	static ReedsSheppPtr_t create (const Problem& problem);
+	static ReedsSheppPtr_t create (const Problem& problem,
 				       const value_type& turningRadius,
 				       JointPtr_t xyJoint, JointPtr_t rzJoint);
 	static ReedsSheppPtr_t createCopy (const ReedsSheppPtr_t& distance);
       protected:
-	ReedsShepp (const ProblemPtr_t& problem);
-	ReedsShepp (const ProblemPtr_t& problem,
+	ReedsShepp (const Problem& problem);
+	ReedsShepp (const Problem& problem,
 		    const value_type& turningRadius,
 		    JointPtr_t xyJoint, JointPtr_t rzJoint);
 	ReedsShepp (const ReedsShepp& distance);

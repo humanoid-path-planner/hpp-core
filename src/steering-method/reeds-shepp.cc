@@ -36,12 +36,12 @@ namespace hpp {
         return path;
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
+      ReedsShepp::ReedsShepp (const Problem& problem) :
         CarLike (problem), weak_ ()
       {
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
+      ReedsShepp::ReedsShepp (const Problem& problem,
           const value_type turningRadius,
           JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
