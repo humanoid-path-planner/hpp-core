@@ -112,7 +112,7 @@ namespace hpp {
           
           //if((*itJoint)->configSize() >= 1){
           // 3 case (each segment of the trajectory) : 
-          if(t <= t0_[id]){
+          if(t <= t0_[id]){ // before first segment
             result[id] = initial_[id] + t*initial_[indexVel];
             result[indexVel] = initial_[indexVel];
             result[indexAcc] = 0;
@@ -130,7 +130,7 @@ namespace hpp {
             result[indexVel] = vLim_[id];
             result[indexAcc] = 0.;
 
-          }else{
+          }else if (t <= (t0_[id] + t1_[id] + tv_[id] +t2_[id]) ){
           //  hppDout(info,"on  3° segment");
             t2 = t - tv_[id] - t1_[id] - t0_[id];
             if(tv_[id] > 0 )
@@ -141,6 +141,10 @@ namespace hpp {
             result[indexVel] = v2 - t2 * a1_[id];
             result[indexAcc] = -a1_[id];
 
+          }else{ // after last segment
+            result[id] = end_[id];
+            result[indexVel] = end_[indexVel];
+            result[indexAcc] = 0;
           }
         }// if not quaternion joint
 
