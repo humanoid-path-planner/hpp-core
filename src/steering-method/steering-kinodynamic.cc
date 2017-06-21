@@ -355,7 +355,7 @@ namespace hpp {
         }
 
         if(tryJump_){
-          if(index == 2 && v1 == 0){ // FIXME : axis z ?
+          if(index == 2 && ((v1 == 0) || (v2==0))){ // FIXME : axis z ?
             hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
             assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
             double aMax =std::fabs(aMax_[index]);
@@ -416,7 +416,10 @@ namespace hpp {
               hppDout(notice,"Trajectory with 3 segments");
             }
             hppDout(notice,"a1 = "<<(*a1)<<"  ;  a2 ="<<a2);
-            *t0 = T - *t1 - *tv - *t2;
+            if(v1==0)
+              *t0 = T - *t1 - *tv - *t2;
+            else
+              *t0=0;
             hppDout(notice,"t0 = "<<*t0);
             hppDout(notice,"t = "<<(*t1)<<"   ;   "<<(*tv)<<"   ;   "<<(*t2));
             hppDout(notice,"T = "<<T);
