@@ -164,6 +164,13 @@ namespace hpp {
         }
         aMax_=Vector3::Ones(3)*aMaxFixed_;
         try {
+          boost::any value = problem_->get<boost::any> (std::string("aMaxZ"));
+          aMaxFixed_Z_ = boost::any_cast<double>(value);
+          aMax_[2] = aMaxFixed_Z_;
+        } catch (const std::exception& e) {
+          aMaxFixed_Z_ = 10.;
+        }
+        try {
           boost::any value = problem_->get<boost::any> (std::string("vMax"));
           vMax_ *= boost::any_cast<double>(value);
         } catch (const std::exception& e) {
