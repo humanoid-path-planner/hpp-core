@@ -17,6 +17,7 @@
 #include <hpp/core/steering-method/spline.hh>
 
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
 
 #include <hpp/constraints/svd.hh>
@@ -77,14 +78,14 @@ namespace hpp {
         // TODO calls to basisFunctionDerivative could be cached as they do not
         // depend on the inputs.
         p->basisFunctionDerivative(0, 0, coeffs.row(0));
-        rhs.row(0).setZero();
+        pinocchio::difference<hpp::pinocchio::LieGroupTpl>(device_.lock(), q1, p->base(), rhs.row(0));
         for (std::size_t i = 0; i < order1.size(); ++i)
           p->basisFunctionDerivative(order1[i], 0, coeffs.row(i+1));
         rhs.middleRows(1, order1.size()).transpose() = derivatives1;
 
         size_type row = 1 + order1.size();
         p->basisFunctionDerivative(0, 1, coeffs.row(row));
-        pinocchio::difference(device_.lock(), q2, q1, rhs.row(row));
+        pinocchio::difference<hpp::pinocchio::LieGroupTpl>(device_.lock(), q2, p->base(), rhs.row(row));
         ++row;
         for (std::size_t i = 0; i < order2.size(); ++i)
           p->basisFunctionDerivative(order2[i], 1, coeffs.row(i+row));
