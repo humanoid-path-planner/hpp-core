@@ -192,11 +192,12 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res)
+      void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
       {
         // TODO: add a cache.
         assert (u >= 0 && u <= 1);
         BasisFunction_t::derivative (order, u, res);
+        res /= powersOfT_(order);
       }
 
       template <int _SplineType, int _Order>
@@ -218,7 +219,7 @@ namespace hpp {
         BasisFunctionVector_t basisFunc;
         const value_type u = (t - timeRange().first) / timeRange().second;
         basisFunctionDerivative(order, u, basisFunc);
-        res.noalias() = parameters_.transpose() * basisFunc / powersOfT_(order);
+        res.noalias() = parameters_.transpose() * basisFunc;
       }
 
       template <int _SplineType, int _Order>
@@ -260,7 +261,6 @@ namespace hpp {
         matrix_t tmp (parameters_.transpose() * Ic);
         res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
       }
-
 
       template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
       template class Spline<CanonicalPolynomeBasis, 2>;

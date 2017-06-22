@@ -65,7 +65,7 @@ namespace hpp {
           typedef internal::spline_basis_function<PolynomeBasis, Order> BasisFunction_t;
           typedef Eigen::Matrix<value_type, NbPowerOfT, 1> PowersOfT_t;
           typedef typename sbf_traits::Coeffs_t BasisFunctionVector_t;
-          typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic> ParameterMatrix_t;
+          typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic, Eigen::RowMajor> ParameterMatrix_t;
           typedef boost::shared_ptr<Spline> Ptr_t;
           typedef boost::weak_ptr<Spline> WkPtr_t;
 
@@ -97,9 +97,9 @@ namespace hpp {
 
           void squaredNormIntegralDerivative (const size_type order, vectorOut_t res);
 
-          static void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res);
+          void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const;
 
-          static void basisFunctionDerivative (const size_type order, const value_type& u, vectorOut_t res)
+          void basisFunctionDerivative (const size_type order, const value_type& u, vectorOut_t res) const
           {
             assert (res.size() == NbCoeffs);
             BasisFunctionVector_t tmp;

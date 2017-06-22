@@ -89,7 +89,7 @@ template <int SplineType> void compare_to_straight_path ()
 
   // create StraightPath
   PathPtr_t sp = (*problem.steeringMethod()) (q1, q2);
-  value_type length = sp->length();
+  // value_type length = sp->length();
 
   // Create linear spline
   typename SM_t::Ptr_t sm (SM_t::create (problem));
@@ -106,6 +106,7 @@ template <int SplineType> void compare_to_straight_path ()
   */
 
   BOOST_CHECK(sp->initial().isApprox(ls->initial()));
+  BOOST_CHECK(sp->end().isApprox(ls->end()));
 
   const size_type N = 10;
   const value_type step1 = sp->length() / N;
@@ -121,8 +122,6 @@ template <int SplineType> void compare_to_straight_path ()
   for (size_type i = 0; i < N; ++i) {
     sp->derivative(v1, value_type(i) * step1, 1);
     ls->derivative(v2, value_type(i) * step2, 1);
-    std::cout << v1.head<10>().transpose() << std::endl;
-    std::cout << v2.head<10>().transpose() << std::endl;
     BOOST_CHECK_SMALL((v2 * step2 - v1 * step1).squaredNorm(), 1e-12);
   }
 
