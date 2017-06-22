@@ -201,6 +201,15 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::squaredNormBasisFunctionIntegral (const size_type order, BasisFunctionIntegralMatrix_t& Ic) const
+      {
+        // TODO: add a cache.
+        BasisFunction_t::integral (order, Ic);
+        if (order > 0) Ic /= powersOfT_[2 * order - 1];
+        else           Ic *= powersOfT_[1];
+      }
+
+      template <int _SplineType, int _Order>
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
       {
         BasisFunctionVector_t basisFunc;
@@ -245,9 +254,7 @@ namespace hpp {
       value_type Spline<_SplineType, _Order>::squaredNormIntegral (const size_type order)
       {
         typename sbf_traits::IntegralCoeffs_t Ic;
-        BasisFunction_t::integral (order, Ic);
-        if (order > 0) Ic /= powersOfT_[2 * order - 1];
-        else           Ic *= powersOfT_[1];
+        squaredNormBasisFunctionIntegral(order, Ic);
         return (parameters_ * parameters_.transpose()).cwiseProduct(Ic).sum();
       }
 
@@ -255,9 +262,7 @@ namespace hpp {
       void Spline<_SplineType, _Order>::squaredNormIntegralDerivative (const size_type order, vectorOut_t res)
       {
         typename BasisFunction_t::IntegralCoeffs_t Ic;
-        BasisFunction_t::integral (order, Ic);
-        if (order > 0) Ic /= powersOfT_[2 * order - 1];
-        else           Ic *= powersOfT_[1];
+        squaredNormBasisFunctionIntegral(order, Ic);
         matrix_t tmp (parameters_.transpose() * Ic);
         res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
       }

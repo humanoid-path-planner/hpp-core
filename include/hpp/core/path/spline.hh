@@ -65,6 +65,7 @@ namespace hpp {
           typedef internal::spline_basis_function<PolynomeBasis, Order> BasisFunction_t;
           typedef Eigen::Matrix<value_type, NbPowerOfT, 1> PowersOfT_t;
           typedef typename sbf_traits::Coeffs_t BasisFunctionVector_t;
+          typedef typename sbf_traits::IntegralCoeffs_t BasisFunctionIntegralMatrix_t;
           typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic, Eigen::RowMajor> ParameterMatrix_t;
           typedef boost::shared_ptr<Spline> Ptr_t;
           typedef boost::weak_ptr<Spline> WkPtr_t;
@@ -89,7 +90,7 @@ namespace hpp {
 
           void parameterIntegrate (vectorIn_t dParam)
           {
-            assert (dParam.size() == robot_->numberDof() + parameterSize_);
+            assert (dParam.size() == NbCoeffs * parameterSize_);
             impl_paramIntegrate (dParam);
           }
 
@@ -104,6 +105,16 @@ namespace hpp {
             assert (res.size() == NbCoeffs);
             BasisFunctionVector_t tmp;
             basisFunctionDerivative(order, u, tmp);
+            res = tmp;
+          }
+
+          void squaredNormBasisFunctionIntegral (const size_type order, BasisFunctionIntegralMatrix_t& res) const;
+
+          void squaredNormBasisFunctionIntegral (const size_type order, matrixOut_t res) const
+          {
+            // assert (res.size() == NbCoeffs);
+            BasisFunctionIntegralMatrix_t tmp;
+            squaredNormBasisFunctionIntegral (order, tmp);
             res = tmp;
           }
 
@@ -184,10 +195,20 @@ namespace hpp {
               powersOfT_(i) = powersOfT_(i - 1) * interval.second;
           }
 
-          Spline (const Spline& path) : Path (path) {}
+          Spline (const Spline& path)
+            : Path (path),
+            parameterSize_ (path.parameterSize_),
+            robot_ (path.robot_),
+            base_ (path.base_),
+            parameters_ (path.parameters_)
+          {}
 
           Spline (const Spline& path, const ConstraintSetPtr_t& constraints)
-            : Path (path, constraints)
+            : Path (path, constraints),
+            parameterSize_ (path.parameterSize_),
+            robot_ (path.robot_),
+            base_ (path.base_),
+            parameters_ (path.parameters_)
           {}
 
           void init (const Ptr_t& self) { Path::init(self); weak_ = self; }
