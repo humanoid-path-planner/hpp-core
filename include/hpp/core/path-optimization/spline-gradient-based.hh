@@ -73,11 +73,13 @@ namespace hpp {
           SplineGradientBased (const Problem& problem);
 
         private:
+          struct LinearConstraint;
+
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
 
-          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, matrix_t& J, matrix_t& b);
+          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, LinearConstraint& continuity);
 
           // void addProblemConstraints
 
@@ -229,7 +231,7 @@ namespace hpp {
           value_type alphaMax_;
           */
 
-          bool isContinuous (const Splines_t& splines, const size_type maxOrder, const matrix_t& J, const matrix_t& b) const;
+          bool isContinuous (const Splines_t& splines, const size_type maxOrder, const LinearConstraint& continuity) const;
 
           template <typename Cost_t> bool checkHessian (const Cost_t& cost, const matrix_t& H, const Splines_t& splines) const;
 
