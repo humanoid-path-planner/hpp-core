@@ -57,6 +57,7 @@ locked-joint.cc
   path-optimization/collision-constraints-result.hh #
   path-optimization/path-length.cc #
   path-optimization/gradient-based.cc #
+  path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/config-optimization.cc#
   path-planner.cc #

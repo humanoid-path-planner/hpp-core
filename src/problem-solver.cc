@@ -45,6 +45,7 @@
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
+#include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
 #include <hpp/core/path-validation-report.hh>
@@ -172,6 +173,13 @@ namespace hpp {
       add <PathOptimizerBuilder_t> ("PartialShortcut",    pathOptimization::PartialShortcut::create);
       add <PathOptimizerBuilder_t> ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
       add <PathOptimizerBuilder_t> ("None",               NoneOptimizer::create); // TODO: Delete me
+
+      add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
+      add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 2>::create);
+      add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 3>::create);
+      add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
+      add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 2>::create);
+      add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 3>::create);
 
       // Store path validation methods in map.
       add <PathValidationBuilder_t> ("Discretized", DiscretizedCollisionChecking::create);
