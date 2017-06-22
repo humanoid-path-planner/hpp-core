@@ -246,7 +246,7 @@ namespace hpp {
         // pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl>
           // (robot_, base_, dParam.head(robot_->numberDof()), base_);
 
-        Eigen::Map<vector_t, Eigen::Aligned> (parameters_.data(), parameters_.size())
+        ParameterVector_t(parameters_.data(), parameters_.size())
           .noalias() += dParam;
       }
 
@@ -256,6 +256,7 @@ namespace hpp {
         typename sbf_traits::IntegralCoeffs_t Ic;
         squaredNormBasisFunctionIntegral(order, Ic);
         return (parameters_ * parameters_.transpose()).cwiseProduct(Ic).sum();
+        // return (parameters_.transpose() * (Ic * parameters_)).trace();
       }
 
       template <int _SplineType, int _Order>

@@ -66,7 +66,11 @@ namespace hpp {
           typedef Eigen::Matrix<value_type, NbPowerOfT, 1> PowersOfT_t;
           typedef typename sbf_traits::Coeffs_t BasisFunctionVector_t;
           typedef typename sbf_traits::IntegralCoeffs_t BasisFunctionIntegralMatrix_t;
+
           typedef Eigen::Matrix<value_type, NbCoeffs, Eigen::Dynamic, Eigen::RowMajor> ParameterMatrix_t;
+          typedef Eigen::Map<const vector_t, Eigen::Aligned> ConstParameterVector_t;
+          typedef Eigen::Map<      vector_t, Eigen::Aligned>      ParameterVector_t;
+
           typedef boost::shared_ptr<Spline> Ptr_t;
           typedef boost::weak_ptr<Spline> WkPtr_t;
 
@@ -153,6 +157,16 @@ namespace hpp {
           void parameters (const ParameterMatrix_t& m)
           {
             parameters_ = m;
+          }
+
+          ConstParameterVector_t rowParameters () const
+          {
+            return ConstParameterVector_t (parameters_.data(), parameters_.size());
+          }
+
+          void rowParameters (vectorIn_t p)
+          {
+            ParameterVector_t(parameters_.data(), parameters_.size()) = p;
           }
 
           PathPtr_t copy () const
