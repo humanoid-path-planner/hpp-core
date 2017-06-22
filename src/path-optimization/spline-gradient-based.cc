@@ -339,7 +339,7 @@ namespace hpp {
           P.segment (i * size, size) = splines[i]->rowParameters();
         value_type result = 0.5 * P.transpose() * H * P;
 
-        bool ret = std::fabs(expected - result) < Eigen::NumTraits<value_type>::epsilon();
+        bool ret = std::fabs(expected - result) < Eigen::NumTraits<value_type>::dummy_precision();
         if (!ret) {
           hppDout (error, "Hessian of the cost is not correct: " << expected << " - " << result << " = " << expected - result);
         }

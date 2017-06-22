@@ -92,7 +92,7 @@ namespace hpp {
 
             value_type diff = res1 - res2;
 
-            if (std::fabs(diff) > Eigen::NumTraits<value_type>::epsilon()) {
+            if (std::fabs(diff) > Eigen::NumTraits<value_type>::dummy_precision()) {
               hppDout (error, "Hessian seems wrong for spline " << k << ": "
                   << res1 << " - " << res2 << " = " << res1 - res2 << '\n'
                   << H.block(shift, shift, Spline::NbCoeffs * paramSize_, Spline::NbCoeffs * paramSize_));
