@@ -192,6 +192,26 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
+      Spline<_SplineType, _Order>::Spline (const Spline& path) :
+        Path (path),
+        parameterSize_ (path.parameterSize_),
+        robot_ (path.robot_),
+        base_ (path.base_),
+        parameters_ (path.parameters_),
+        powersOfT_ (path.powersOfT_)
+      {}
+
+      template <int _SplineType, int _Order>
+      Spline<_SplineType, _Order>::Spline (const Spline& path, const ConstraintSetPtr_t& constraints) :
+        Path (path, constraints),
+        parameterSize_ (path.parameterSize_),
+        robot_ (path.robot_),
+        base_ (path.base_),
+        parameters_ (path.parameters_),
+        powersOfT_ (path.powersOfT_)
+      {}
+
+      template <int _SplineType, int _Order>
       void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
       {
         // TODO: add a cache.

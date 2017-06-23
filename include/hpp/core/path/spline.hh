@@ -209,21 +209,9 @@ namespace hpp {
               powersOfT_(i) = powersOfT_(i - 1) * interval.second;
           }
 
-          Spline (const Spline& path)
-            : Path (path),
-            parameterSize_ (path.parameterSize_),
-            robot_ (path.robot_),
-            base_ (path.base_),
-            parameters_ (path.parameters_)
-          {}
+          Spline (const Spline& path);
 
-          Spline (const Spline& path, const ConstraintSetPtr_t& constraints)
-            : Path (path, constraints),
-            parameterSize_ (path.parameterSize_),
-            robot_ (path.robot_),
-            base_ (path.base_),
-            parameters_ (path.parameters_)
-          {}
+          Spline (const Spline& path, const ConstraintSetPtr_t& constraints);
 
           void init (const Ptr_t& self) { Path::init(self); weak_ = self; }
 
