@@ -262,11 +262,13 @@ namespace hpp {
         for (std::size_t i = 0; i < path->numberPaths(); ++i)
         {
           PathPtr_t p = path->pathAtRank(i);
-          StraightPathPtr_t sp (HPP_DYNAMIC_PTR_CAST(StraightPath, p));
-          PathVectorPtr_t pv (HPP_DYNAMIC_PTR_CAST(PathVector, p));
-          if (sp)      appendEquivalentSpline (sp, splines);
-          else if (pv) appendEquivalentSpline(pv, splines);
-          else // if TODO check if path is a spline.
+          StraightPathPtr_t straight (HPP_DYNAMIC_PTR_CAST(StraightPath, p));
+          PathVectorPtr_t pvect      (HPP_DYNAMIC_PTR_CAST(PathVector, p));
+          SplinePtr_t spline         (HPP_DYNAMIC_PTR_CAST(Spline, p));
+          if (straight   ) appendEquivalentSpline(straight, splines);
+          else if (pvect ) appendEquivalentSpline(pvect   , splines);
+          else if (spline) splines.push_back(HPP_STATIC_PTR_CAST(Spline, spline->copy()));
+          else // if TODO check if path is another type of spline.
             throw std::logic_error("Unknown type of path");
         }
       }
