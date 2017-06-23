@@ -30,6 +30,8 @@
 
 namespace hpp {
   namespace core {
+    using pinocchio::Device;
+
     namespace pathOptimization {
       typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RowMajorMatrix_t;
       typedef Eigen::Map<const vector_t> ConstVectorMap_t;
@@ -123,20 +125,26 @@ namespace hpp {
           QPr.H = PK.transpose() * H_PK;
           QPr.b = 2 * xStar.transpose() * H_PK;
           if (!QP.bIsZero) {
-            QPr.b.noalias() += QP.b * PK;
+            QPr.b.transpose().noalias() += QP.b.transpose() * PK;
           }
           QPr.bIsZero = false;
 
           QPr.Hinv = PKinv * QP.Hinv * PKinv.transpose();
         }
 
-        void reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr) const
+        bool reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr) const
         {
           lcr.J = lc.J * PK;
           lcr.b = lc.b - lc.J * xStar;
 
+          if (lcr.J.rows() > J.cols()) {
+            // The problem is over constrained
+            return false;
+          }
+
           // Decompose
           lcr.decompose(true);
+          return true;
         }
 
         void computeSolution (const vector_t& v)
@@ -332,8 +340,8 @@ namespace hpp {
        const CollisionPathValidationReportPtr_t& report,
        LinearConstraint& collision) const
       {
-        CollisionConstraintPtr_t cc =
-          CollisionConstraint::create (robot_, spline, nextSpline, report);
+        CollisionFunctionPtr_t cc =
+          CollisionFunction::create (robot_, spline, nextSpline, report);
 
         const value_type t = report->parameter * spline->length() / nextSpline->length();
 
@@ -347,12 +355,12 @@ namespace hpp {
         // J = Jf(S(p, t)) * dS/dp
         // f(S(t)) = b -> J * P = b
 
-        Configuration_t q;
+        Configuration_t q(robot_->configSize());
         (*spline) (q, t);
-        cc->value(q, collision.b.col(0).tail(nbRows));
+        cc->value(collision.b.col(0).tail(nbRows), q);
 
         matrix_t J (nbRows, cc->inputDerivativeSize());
-        cc->jacobian(q, J);
+        cc->jacobian(J, q);
 
         typename Spline::BasisFunctionVector_t paramDerivativeCoeff;
         spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
@@ -380,6 +388,7 @@ namespace hpp {
       template <int _PB, int _SO>
       PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize (const PathVectorPtr_t& path)
       {
+        robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
         const size_type rDof = robot_->numberDof();
 
         // 1
@@ -422,7 +431,7 @@ namespace hpp {
 #ifndef NDEBUG
         checkHessian(cost, QP.H, splines);
 #endif // NDEBUG
-        QP.decompose(Spline::NbCoeffs * rDof);
+        QP.decompose(Spline::NbCoeffs * rDof); // Use the fact that the Hessian is block diagonal.
 
         QuadraticProblem QPcontinuous (QP, continuity);
         // TODO void this copy
@@ -462,6 +471,7 @@ namespace hpp {
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
           } else {
             if (alpha != 1.) {
+              hppDout (info, "Adding " << reports.size() << " constraints.");
               for (std::size_t i = 0; i < reports.size(); ++i)
                 addCollisionConstraint(reports[i].second,
                     splines[reports[i].second],
@@ -469,7 +479,11 @@ namespace hpp {
                     reports[i].first,
                     collision);
 
-              continuity.reduceConstraint(collision, collisionReduced);
+              bool feasible = continuity.reduceConstraint(collision, collisionReduced);
+              if (!feasible) {
+                hppDout (info, "The constraints became infeasible.");
+                break;
+              }
               QPreduced = QuadraticProblem (QPcontinuous, collisionReduced);
 
               // When adding a new constraint, try first minimum under this
@@ -478,7 +492,7 @@ namespace hpp {
               alpha = 1.;
             } else {
               // alpha = alphaInit_;
-              alpha = 0.1;
+              alpha = 0.2;
             }
           }
 

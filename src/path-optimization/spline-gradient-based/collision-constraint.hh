@@ -31,21 +31,20 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
-      HPP_PREDEF_CLASS (CollisionConstraintsResult);
-      HPP_PREDEF_CLASS (CollisionConstraint);
-      typedef boost::shared_ptr <CollisionConstraint> CollisionConstraintPtr_t;
+      HPP_PREDEF_CLASS (CollisionFunction);
+      typedef boost::shared_ptr <CollisionFunction> CollisionFunctionPtr_t;
       typedef pinocchio::Transform3f Transform3f;
       namespace eigen {
 	typedef Eigen::Matrix <value_type, 3, 1> vector3_t;
       } // namespace eigen
 
 
-      class CollisionConstraint : public DifferentiableFunction
+      class CollisionFunction : public DifferentiableFunction
       {
       public:
-       virtual ~CollisionConstraint () {}
+       virtual ~CollisionFunction () {}
        template <typename SplinePtr_t>
-       static CollisionConstraintPtr_t create
+       static CollisionFunctionPtr_t create
        (const DevicePtr_t& robot, const SplinePtr_t& freeSpline,
         const SplinePtr_t& collSpline,
         const CollisionPathValidationReportPtr_t& report)
@@ -53,6 +52,7 @@ namespace hpp {
          const value_type& tColl = report->parameter;
          bool success;
          Configuration_t qColl = (*collSpline) (tColl, success);
+         assert(success);
 
          HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
              *(report->configurationReport));
@@ -72,22 +72,23 @@ namespace hpp {
          value_type tFree = tColl * freeSpline->length () / collSpline->length();
 
          Configuration_t qFree = (*freeSpline) (tFree, success);
+         assert(success);
          hppDout (info, "qFree = " << qFree.transpose());
 
          return create (robot, qFree, qColl, object1, object2);
        }
-       static CollisionConstraintPtr_t create
+       static CollisionFunctionPtr_t create
        (const DevicePtr_t& robot, const Configuration_t& qFree,
 	const Configuration_t& qColl, const CollisionObjectConstPtr_t& object1,
 	const CollisionObjectConstPtr_t& object2)
        {
-         CollisionConstraint* ptr = new CollisionConstraint
+         CollisionFunction* ptr = new CollisionFunction
            (robot, qFree, qColl, object1, object2);
-         CollisionConstraintPtr_t shPtr (ptr);
+         CollisionFunctionPtr_t shPtr (ptr);
          return shPtr;
        }
       protected:
-       CollisionConstraint (const DevicePtr_t& robot,
+       CollisionFunction (const DevicePtr_t& robot,
                             const Configuration_t& qFree,
                             const Configuration_t& qColl,
 			    const CollisionObjectConstPtr_t& object1,
@@ -175,7 +176,7 @@ namespace hpp {
 	Configuration_t qFree_;
 	matrix_t J_;
 	mutable vector_t difference_;
-      }; // class CollisionConstraint
+      }; // class CollisionFunction
     } // namespace pathOptimization
   } // namespace core
 } // namespace hpp
