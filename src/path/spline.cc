@@ -53,6 +53,7 @@ namespace hpp {
           static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
           /// Integrate between 0 and 1
           static void integral (const size_type order, IntegralCoeffs_t& res);
+          static void absDerBounds (Coeffs_t& res);
         };
         template <int Degree>
         void spline_basis_function<CanonicalPolynomeBasis, Degree>::eval (const value_type t, Coeffs_t& res)
@@ -95,6 +96,13 @@ namespace hpp {
             }
           }
         }
+        template <int Degree>
+        void spline_basis_function<CanonicalPolynomeBasis, Degree>::absDerBounds
+        (Coeffs_t& res)
+        {
+          res(0) = 0;
+          for (size_type i = 1; i < NbCoeffs; ++i) res(i) = value_type(i);
+        }
 
         template <int Degree> struct spline_basis_function <BernsteinBasis, Degree>
         {
@@ -107,6 +115,7 @@ namespace hpp {
           static void derivative (const size_type order, const value_type& t, Coeffs_t& res);
           /// Integrate between 0 and 1
           static void integral (const size_type order, IntegralCoeffs_t& res);
+          static void absDerBounds (Coeffs_t& res);
         };
         template <int Degree>
         void spline_basis_function<BernsteinBasis, Degree>::eval (const value_type t, Coeffs_t& res)
@@ -180,6 +189,12 @@ namespace hpp {
           }
           res *= value_type(factors(Degree) / factors(Degree - k));
         }
+        template <int Degree>
+        void spline_basis_function<BernsteinBasis, Degree>::absDerBounds
+        (Coeffs_t& res)
+        {
+          res.setConstant (2*Degree);
+        }
       }
 
       template <int _SplineType, int _Order>
@@ -218,6 +233,14 @@ namespace hpp {
         assert (u >= 0 && u <= 1);
         BasisFunction_t::derivative (order, u, res);
         res /= powersOfT_(order);
+      }
+
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::maxVelocity (vectorOut_t res) const
+      {
+        BasisFunctionVector_t ub;
+        BasisFunction_t::absDerBounds (ub);
+        res.transpose() = ub.transpose() * parameters_.cwiseAbs();
       }
 
       template <int _SplineType, int _Order>

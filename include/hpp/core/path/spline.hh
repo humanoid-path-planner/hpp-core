@@ -112,6 +112,8 @@ namespace hpp {
             res = tmp;
           }
 
+          void maxVelocity (vectorOut_t res) const;
+
           void squaredNormBasisFunctionIntegral (const size_type order, BasisFunctionIntegralMatrix_t& res) const;
 
           void squaredNormBasisFunctionIntegral (const size_type order, matrixOut_t res) const
