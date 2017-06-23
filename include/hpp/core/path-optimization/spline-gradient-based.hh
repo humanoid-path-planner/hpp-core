@@ -82,7 +82,7 @@ namespace hpp {
 
           // void addProblemConstraints
 
-          Reports_t validatePath (const Splines_t& splines) const;
+          Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
 
           void addCollisionConstraint (const std::size_t idxSpline,
               const SplinePtr_t& spline, const SplinePtr_t& nextSpline,

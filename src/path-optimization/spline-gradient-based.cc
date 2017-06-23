@@ -307,7 +307,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       typename SplineGradientBased<_PB, _SO>::Reports_t SplineGradientBased<_PB, _SO>::validatePath
-      (const Splines_t& splines) const
+      (const Splines_t& splines, bool stopAtFirst) const
       {
         PathValidationPtr_t pathValidation (problem ().pathValidation ());
 	PathPtr_t validPart;
@@ -319,6 +319,7 @@ namespace hpp {
 	    reports.push_back
 	      (std::make_pair (HPP_STATIC_PTR_CAST
 			       (CollisionPathValidationReport, report), i));
+            if (stopAtFirst) break;
 	  }
 	}
         return reports;
@@ -453,7 +454,7 @@ namespace hpp {
           } */
 
           // 6.3
-          reports = validatePath (*currentSplines);
+          reports = validatePath (*currentSplines, noCollision);
           noCollision = reports.empty();
           if (noCollision) {
             // Update the spline
