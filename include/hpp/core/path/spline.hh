@@ -133,7 +133,7 @@ namespace hpp {
           Configuration_t end () const
           {
             Configuration_t q (outputSize());
-            bool res = operator() (q, timeRange().first + timeRange().second);
+            bool res = operator() (q, timeRange().second);
             assert(res);
             return q;
           }
@@ -206,7 +206,7 @@ namespace hpp {
           {
             powersOfT_(0) = 1;
             for (size_type i = 1; i < NbPowerOfT; ++i)
-              powersOfT_(i) = powersOfT_(i - 1) * interval.second;
+              powersOfT_(i) = powersOfT_(i - 1) * length();
           }
 
           Spline (const Spline& path);

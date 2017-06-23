@@ -233,7 +233,7 @@ namespace hpp {
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
       {
         BasisFunctionVector_t basisFunc;
-        const value_type u = (t - timeRange().first) / timeRange().second;
+        const value_type u = (t - timeRange().first) / length();
         basisFunctionDerivative(0, u, basisFunc);
         velocity_.noalias() = parameters_.transpose() * basisFunc;
 
@@ -246,7 +246,7 @@ namespace hpp {
       {
         assert (order > 0);
         BasisFunctionVector_t basisFunc;
-        const value_type u = (t - timeRange().first) / timeRange().second;
+        const value_type u = (t - timeRange().first) / length();
         basisFunctionDerivative(order, u, basisFunc);
         res.noalias() = parameters_.transpose() * basisFunc;
       }
@@ -255,7 +255,7 @@ namespace hpp {
       void Spline<_SplineType, _Order>::impl_paramDerivative (vectorOut_t res, const value_type& t) const
       {
         BasisFunctionVector_t basisFunc;
-        const value_type u = (t - timeRange().first) / timeRange().second;
+        const value_type u = (t - timeRange().first) / length();
         basisFunctionDerivative(0, u, basisFunc);
         res = basisFunc;
       }
