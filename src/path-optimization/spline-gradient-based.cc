@@ -412,7 +412,7 @@ namespace hpp {
 
         // 4
         // TODO add weights
-        SquaredLength<Spline, 1> cost (splines.size(), rDof, rDof);
+        SquaredLength<Spline, 1> cost (splines, rDof, rDof);
 
         // 5
         continuity.decompose (true); // true = check that the constraint is feasible

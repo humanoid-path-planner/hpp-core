@@ -32,23 +32,30 @@ namespace hpp {
         typedef typename Spline::Ptr_t SplinePtr_t;
         typedef std::vector<SplinePtr_t> Splines_t;
 
-        SquaredLength (size_type nSplines, size_type paramSize, size_type paramDerivativeSize)
+        SquaredLength (const Splines_t& splines, size_type paramSize, size_type paramDerivativeSize)
           :
         // SplineCost (size_type nSplines, size_type paramSize, size_type paramDerivativeSize, const std::string& name)
           // : Cost (nSplines * Spline::NbCoeffs * paramSize, splines.size() * Spline::NbCoeffs * inputDerivativeSize, name),
-          nSplines_ (nSplines),
+          lambda_ (splines.size()),
+          nSplines_ (splines.size()),
           paramSize_ (paramSize),
           paramDerivativeSize_ (paramDerivativeSize),
-          inputSize_ (nSplines * Spline::NbCoeffs * paramSize),
-          inputDerivativeSize_ (nSplines * Spline::NbCoeffs * paramDerivativeSize)
-        {}
+          inputSize_ (nSplines_ * Spline::NbCoeffs * paramSize),
+          inputDerivativeSize_ (nSplines_ * Spline::NbCoeffs * paramDerivativeSize)
+        {
+          for (std::size_t i = 0; i < nSplines_; ++i)
+            lambda_[i] = splines[i]->squaredNormIntegral(DerivativeOrder);
+          value_type lMax = lambda_.maxCoeff();
+          lambda_ = (lambda_.array() > 1e-6 * lMax)
+            .select(lambda_.cwiseInverse(), 1e6 / lMax);
+        }
 
         void value (value_type& result, const Splines_t& splines) const
         {
           assert (nSplines_ == splines.size());
           result = 0;
           for (std::size_t i = 0; i < nSplines_; ++i)
-            result += splines[i]->squaredNormIntegral(DerivativeOrder);
+            result += lambda_[i] * splines[i]->squaredNormIntegral(DerivativeOrder);
         }
 
         void jacobian (vectorOut_t J, const Splines_t& splines) const
@@ -60,6 +67,7 @@ namespace hpp {
           for (std::size_t i = 0; i < nSplines_; ++i) {
             splines[i]->squaredNormIntegralDerivative(DerivativeOrder,
                 J.segment (col, size));
+            J.segment (col, size) *= lambda_[i];
             col += size;
           }
         }
@@ -79,7 +87,7 @@ namespace hpp {
             for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
               for (size_type j = 0; j < Spline::NbCoeffs; ++j) {
                 H.block(shift + i * paramSize_, shift + j * paramSize_, paramSize_, paramSize_)
-                  .diagonal().setConstant (Ic(i,j));
+                  .diagonal().setConstant (Ic(i,j) * lambda_[k]);
               }
             }
 
@@ -88,7 +96,7 @@ namespace hpp {
               H.block(shift, shift, Spline::NbCoeffs * paramSize_, Spline::NbCoeffs * paramSize_)
               * splines[k]->rowParameters();
 
-            value_type res2 = splines[k]->squaredNormIntegral(DerivativeOrder);
+            value_type res2 = splines[k]->squaredNormIntegral(DerivativeOrder) * lambda_[k];
 
             value_type diff = res1 - res2;
 
@@ -102,6 +110,7 @@ namespace hpp {
           }
         }
 
+        vector_t lambda_;
         const std::size_t nSplines_;
         const size_type paramSize_, paramDerivativeSize_;
         const size_type inputSize_, inputDerivativeSize_;
