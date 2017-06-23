@@ -29,10 +29,6 @@ namespace hpp {
     /// \addtogroup path_optimization
     /// \{
     namespace pathOptimization {
-      class CollisionConstraintsResult;
-      typedef std::vector <CollisionConstraintsResult>
-      CollisionConstraintsResults_t;
-
       template <int _PolynomeBasis, int _SplineOrder>
       class HPP_CORE_DLLAPI SplineGradientBased : public PathOptimizer
       {
@@ -74,6 +70,9 @@ namespace hpp {
 
         private:
           struct LinearConstraint;
+          struct QuadraticProblem;
+          typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
+                  std::size_t> > Reports_t;
 
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
@@ -82,6 +81,13 @@ namespace hpp {
           void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, LinearConstraint& continuity);
 
           // void addProblemConstraints
+
+          Reports_t validatePath (const Splines_t& splines) const;
+
+          void addCollisionConstraint (const std::size_t idxSpline,
+              const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
+              const CollisionPathValidationReportPtr_t& report,
+              LinearConstraint& collision) const;
 
           PathVectorPtr_t buildPathVector (const Splines_t& splines) const;
 
@@ -234,6 +240,19 @@ namespace hpp {
           bool isContinuous (const Splines_t& splines, const size_type maxOrder, const LinearConstraint& continuity) const;
 
           template <typename Cost_t> bool checkHessian (const Cost_t& cost, const matrix_t& H, const Splines_t& splines) const;
+
+          /// \todo static
+          void copy (const Splines_t& in, Splines_t& out) const;
+
+          /// Returns res = (1 - alpha) * a + alpha * b
+          void updateSplines (Splines_t& spline, const vector_t& param) const;
+
+          /// Returns res = (1 - alpha) * a + alpha * b
+          /// \todo static
+          void interpolate (const Splines_t& a, const Splines_t& b,
+              const value_type& alpha, Splines_t& res) const;
+
+          void copyParam (const Splines_t& in, Splines_t& out) const;
 
           DevicePtr_t robot_;
           typename SM_t::Ptr_t steeringMethod_;
