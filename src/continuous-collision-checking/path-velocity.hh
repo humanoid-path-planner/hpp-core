@@ -19,7 +19,12 @@
 #ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH
 # define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_PATH_VELOCITY_HH
 
+# include <boost/mpl/vector.hpp>
+# include <boost/mpl/for_each.hpp>
+
 # include <pinocchio/multibody/geometry.hpp>
+
+# include <hpp/core/path/spline.hh>
 
 namespace hpp {
   namespace core {
@@ -39,48 +44,38 @@ namespace hpp {
       struct PathVelocity
       {
 	typedef std::map <value_type, value_type> Velocities_t;
+        template <typename PathPtr> struct init {};
+        struct initializer {
+          PathPtr_t p;
+          PathVelocity& pv;
+          bool& ok;
+          initializer (PathPtr_t _p, PathVelocity& _pv, bool& _ok) : p(_p), pv(_pv), ok(_ok) {}
+          template <typename T> void operator() (boost::shared_ptr<T>) {
+            if (ok) return;
+            boost::shared_ptr<T> tp = HPP_DYNAMIC_PTR_CAST (T, p);
+            if (tp) { init<T>::run (pv, tp); ok = true; }
+          }
+        };
 
 	PathVelocity (CoefficientVelocities_t const* coefs, PathPtr_t path) :
 	  coefs_ (coefs)
 	{
-	  StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
-	  if (sp) { init (sp); return; }
-	  InterpolatedPathPtr_t ip = HPP_DYNAMIC_PTR_CAST (InterpolatedPath, path);
-	  if (ip) { init (ip); return; }
-	  throw std::logic_error ("Unknown type of paths");
+          bool ok = false;
+          boost::mpl::for_each< boost::mpl::vector<
+            StraightPathPtr_t,
+            InterpolatedPathPtr_t,
+            typename path::Spline<path::BernsteinBasis, 1>::Ptr_t,
+            typename path::Spline<path::BernsteinBasis, 2>::Ptr_t,
+            typename path::Spline<path::BernsteinBasis, 3>::Ptr_t,
+            typename path::Spline<path::CanonicalPolynomeBasis, 1>::Ptr_t,
+            typename path::Spline<path::CanonicalPolynomeBasis, 2>::Ptr_t,
+            typename path::Spline<path::CanonicalPolynomeBasis, 3>::Ptr_t
+            > > (initializer (path, *this, ok));
+          if (!ok) throw std::logic_error ("Unknown type of paths");
 	}
 
 	PathVelocity (CoefficientVelocities_t const* coefs) :
 	  maximalVelocity_ (0), coefs_ (coefs) {}
-
-	void init (StraightPathPtr_t path)
-	{
-	  value_type t0 = path->timeRange ().first;
-	  value_type t1 = path->timeRange ().second;
-	  Configuration_t q0 = path->initial();
-	  Configuration_t q1 = path->end();
-	  maximalVelocity_ = computeMaximalVelocity (t0, q0, t1, q1);
-	  maximalVelocities_.insert(std::make_pair (t1, maximalVelocity_));
-	}
-
-	void init (InterpolatedPathPtr_t path)
-	{
-	  typedef InterpolatedPath::InterpolationPoints_t IPs_t;
-	  const IPs_t& ips = path->interpolationPoints();
-	  value_type tprev = path->timeRange ().first;
-	  Configuration_t qprev = path->initial();
-	  maximalVelocity_ = 0;
-	  for (IPs_t::const_iterator it = (++ips.begin ());
-	       it != ips.end(); ++it) {
-	    const value_type& t = it->first;
-	    const Configuration_t& q = it->second;
-	    value_type mv = computeMaximalVelocity (tprev, qprev, t, q);
-	    maximalVelocities_.insert(std::make_pair (t, mv));
-	    if (mv > maximalVelocity_) maximalVelocity_ = mv;
-	    tprev = t;
-	    qprev = q;
-	  }
-	}
 
 	value_type maximalVelocity (const value_type& t) const
 	{
@@ -113,6 +108,61 @@ namespace hpp {
 	value_type maximalVelocity_;
 	CoefficientVelocities_t const* coefs_;
       }; // struct PathVelocity
+
+      template <> struct PathVelocity::init<StraightPath> {
+        static void run (PathVelocity& pv, StraightPathPtr_t path)
+        {
+          value_type t0 = path->timeRange ().first;
+          value_type t1 = path->timeRange ().second;
+          Configuration_t q0 = path->initial();
+          Configuration_t q1 = path->end();
+          pv.maximalVelocity_ = pv.computeMaximalVelocity (t0, q0, t1, q1);
+          pv.maximalVelocities_.insert(std::make_pair (t1, pv.maximalVelocity_));
+        }
+      };
+
+      template <> struct PathVelocity::init<InterpolatedPath> {
+        static void run (PathVelocity& pv, InterpolatedPathPtr_t path)
+        {
+          typedef InterpolatedPath::InterpolationPoints_t IPs_t;
+          const IPs_t& ips = path->interpolationPoints();
+          value_type tprev = path->timeRange ().first;
+          Configuration_t qprev = path->initial();
+          pv.maximalVelocity_ = 0;
+          for (IPs_t::const_iterator it = (++ips.begin ());
+              it != ips.end(); ++it) {
+            const value_type& t = it->first;
+            const Configuration_t& q = it->second;
+            value_type mv = pv.computeMaximalVelocity (tprev, qprev, t, q);
+            pv.maximalVelocities_.insert(std::make_pair (t, mv));
+            if (mv > pv.maximalVelocity_) pv.maximalVelocity_ = mv;
+            tprev = t;
+            qprev = q;
+          }
+        }
+      };
+
+      template <int PB, int SP> struct PathVelocity::init<path::Spline<PB, SP> > {
+        static void run (PathVelocity& pv, typename path::Spline<PB, SP>::Ptr_t path)
+        {
+          vector_t maxV (path->outputDerivativeSize());
+          path->maxVelocity(maxV);
+
+          pv.maximalVelocity_ = 0;
+          if (path->length() == 0) {
+            pv.maximalVelocity_ = std::numeric_limits<value_type>::infinity();
+          } else {
+            for (CoefficientVelocities_t::const_iterator itCoef =
+                pv.coefs_->begin (); itCoef != pv.coefs_->end (); ++itCoef) {
+              const JointPtr_t& joint = itCoef->joint_;
+              const value_type& value = itCoef->value_;
+              pv.maximalVelocity_ += value * maxV.segment(joint->rankInVelocity(), joint->numberDof()).norm();
+            }
+          }
+          value_type t1 = path->timeRange ().second;
+          pv.maximalVelocities_.insert(std::make_pair (t1, pv.maximalVelocity_));
+        }
+      };
     } // namespace continuousCollisionChecking
   } // namespace core
 } // namespace hpp
