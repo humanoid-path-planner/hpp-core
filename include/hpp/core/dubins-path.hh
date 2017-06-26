@@ -75,7 +75,7 @@ namespace hpp {
       {
 	DubinsPath* ptr = new DubinsPath (*path);
 	DubinsPathPtr_t shPtr (ptr);
-	ptr->initCopy (shPtr);
+	ptr->init (shPtr);
 	return shPtr;
       }
 
@@ -87,7 +87,7 @@ namespace hpp {
       {
 	DubinsPath* ptr = new DubinsPath (*path, constraints);
 	DubinsPathPtr_t shPtr (ptr);
-	ptr->initCopy (shPtr);
+	ptr->init (shPtr);
 	return shPtr;
       }
 
@@ -161,12 +161,6 @@ namespace hpp {
 		  const ConstraintSetPtr_t& constraints);
 
       void init (DubinsPathPtr_t self);
-
-      void initCopy (DubinsPathPtr_t self)
-      {
-	parent_t::initCopy (self);
-	weak_ = self;
-      }
 
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const;

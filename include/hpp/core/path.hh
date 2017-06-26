@@ -221,9 +221,7 @@ namespace hpp {
       /// Store weak pointer to itself
       ///
       /// should be called at construction of derived class instances
-      void init (const PathPtr_t& self);
-      /// should be called at copy construction of derived class instances
-      void initCopy (const PathPtr_t& self);
+      void init (const PathWkPtr_t& self);
 
       /// Interval of definition
       interval_t timeRange_;
