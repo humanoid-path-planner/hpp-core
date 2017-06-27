@@ -31,7 +31,8 @@ namespace hpp {
         virtual ~ConstantCurvature () throw () {}
          /// Create instance and return shared pointer.
         static ConstantCurvaturePtr_t create
-        (const DevicePtr_t& robot, ConfigurationIn_t init, value_type length,
+        (const DevicePtr_t& robot, ConfigurationIn_t init,
+         ConfigurationIn_t end, value_type length,
          value_type curvature, size_type xyId, size_type rzId);
 
          /// Create instance and return shared pointer.
@@ -88,8 +89,9 @@ namespace hpp {
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
-                           value_type length, value_type curvature,
-                           size_type xyId, size_type rzId);
+                           ConfigurationIn_t end, value_type length,
+                           value_type curvature, size_type xyId,
+                           size_type rzId);
 
         /// Constructor
         /// \param robot the carlike robot,
@@ -102,8 +104,8 @@ namespace hpp {
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
-                           value_type length, value_type curvature,
-                           size_type xyId, size_type rzId,
+                           ConfigurationIn_t end, value_type length,
+                           value_type curvature, size_type xyId, size_type rzId,
                            ConstraintSetPtr_t constraints);
 
         /// Copy constructor

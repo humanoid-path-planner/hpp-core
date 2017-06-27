@@ -158,8 +158,6 @@ namespace hpp {
 
       void init (ReedsSheppPathPtr_t self);
 
-      virtual bool impl_compute (ConfigurationOut_t result,
-				 value_type param) const;
       /// Virtual implementation of derivative
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;

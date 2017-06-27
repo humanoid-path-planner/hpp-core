@@ -643,10 +643,11 @@ namespace hpp {
         rotate(end_.segment<2>(rzId_), initial_.segment<2>(rzId_));
       value_type phi = atan2(csPhi(1), csPhi(0));
 
-      Configuration_t q (initial_);
+      Configuration_t qInit (initial_), qEnd (device_->configSize ());
       if (xy.squaredNorm () + phi*phi < 1e-8) {
         ConstantCurvaturePtr_t segment
-          (ConstantCurvature::create (device_, q, 0, 0, xyId_, rzId_));
+          (ConstantCurvature::create (device_, qInit, qInit, 0, 0, xyId_,
+                                      rzId_));
         appendPath (segment);
         currentLength_ = 0;
         return;
@@ -657,8 +658,10 @@ namespace hpp {
       CCSC (xy, csPhi, phi);
       CCSCC(xy, csPhi, phi);
       // build path vector
+      value_type L (currentLength_), l (0.);
       for (unsigned int i=0; i<5; ++i) {
         if (fabs (lengths_ [i]) > precision) {
+          l += fabs (lengths_ [i]);
           value_type curvature;
           switch (types [typeId_][i]) {
           case RS_NOP:
@@ -675,33 +678,15 @@ namespace hpp {
           default:
             abort ();
           }
+          model::interpolate (device_, initial_, end_, l/L, qEnd);
           ConstantCurvaturePtr_t segment
-            (ConstantCurvature::create (device_, q,
+            (ConstantCurvature::create (device_, qInit, qEnd,
                                         rho_ * lengths_ [i],
                                         curvature, xyId_, rzId_));
           appendPath (segment);
-          q = segment->end ();
+          qInit = segment->end ();
         }
       }
-    }
-
-    bool ReedsSheppPath::impl_compute (ConfigurationOut_t result,
-				 value_type param) const
-    {
-      if (param <= timeRange ().first ||
-	  timeRange ().second == timeRange ().first) {
-	result = initial_;
-	return true;
-      }
-      if (param >= timeRange ().second) {
-	result = end_;
-	return true;
-      }
-      // Does a linear interpolation on all the joints.
-      const value_type u = (timeRange ().second == 0)?0:param/timeRange ().second;
-      model::interpolate (device_, initial_, end_, u, result);
-      parent_t::impl_compute (result, param);
-      return true;
     }
 
     void ReedsSheppPath::impl_derivative

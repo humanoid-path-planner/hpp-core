@@ -18,6 +18,7 @@
 
 #include <hpp/core/steering-method/constant-curvature.hh>
 
+#include <hpp/model/configuration.hh>
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 
@@ -26,11 +27,12 @@ namespace hpp {
     namespace steeringMethod {
 
       ConstantCurvaturePtr_t ConstantCurvature::create
-      (const DevicePtr_t& robot, ConfigurationIn_t init, value_type length,
-       value_type curvature, size_type xyId, size_type rzId)
+      (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
+       value_type length, value_type curvature, size_type xyId, size_type rzId)
       {
         ConstantCurvature* ptr (new ConstantCurvature
-                                (robot, init, length, curvature, xyId, rzId));
+                                (robot, init, end, length, curvature, xyId,
+                                 rzId));
         ConstantCurvaturePtr_t shPtr (ptr);
         ptr->init (shPtr);
         return shPtr;
@@ -71,12 +73,12 @@ namespace hpp {
       }
 
       ConstantCurvature::ConstantCurvature
-      (const DevicePtr_t& robot, ConfigurationIn_t init, value_type length,
-       value_type curvature, size_type xyId, size_type rzId,
+      (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
+       value_type length, value_type curvature, size_type xyId, size_type rzId,
        ConstraintSetPtr_t constraints) :
         Path (std::make_pair (0., fabs (length)), robot->configSize (),
               robot->numberDof (), constraints), robot_ (robot),
-        initial_ (init), end_ (robot->configSize ()), curvature_ (curvature),
+        initial_ (init), end_ (end), curvature_ (curvature),
         xyId_ (xyId), rzId_ (rzId), forward_ (length > 0 ? 1 : -1)
       {
         // Find rank of translation and rotation in velocity vectors
@@ -92,12 +94,13 @@ namespace hpp {
       }
 
       ConstantCurvature::ConstantCurvature
-      (const DevicePtr_t& robot, ConfigurationIn_t init, value_type length,
-       value_type curvature, size_type xyId, size_type rzId) :
+      (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
+       value_type length, value_type curvature, size_type xyId,
+       size_type rzId) :
         Path (std::make_pair (0., fabs (length)), robot->configSize (),
               robot->numberDof ()), robot_ (robot),
-        initial_ (init), end_ (robot->configSize ()), curvature_ (curvature),
-        xyId_ (xyId), rzId_ (rzId), forward_ (length > 0 ? 1 : -1)
+        initial_ (init), end_ (end), curvature_ (curvature), xyId_ (xyId),
+        rzId_ (rzId), forward_ (length > 0 ? 1 : -1)
       {
         // Find rank of translation and rotation in velocity vectors
         // Hypothesis: degrees of freedom all belong to a planar joint or
@@ -130,6 +133,11 @@ namespace hpp {
       bool ConstantCurvature::impl_compute (ConfigurationOut_t result,
                                             value_type param) const
       {
+        // Does a linear interpolation on all the joints.
+        const value_type u = (timeRange ().second == 0) ? 0 :
+          param/timeRange ().second;
+        model::interpolate (robot_, initial_, end_, u, result);
+
         value_type t (forward_ * param);
         value_type x0 (initial_ [xyId_ + 0]), y0 (initial_ [xyId_ + 1]);
         value_type c0 (initial_ [rzId_ + 0]), s0 (initial_ [rzId_ + 1]);
