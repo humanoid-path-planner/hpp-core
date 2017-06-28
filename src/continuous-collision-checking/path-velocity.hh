@@ -43,126 +43,74 @@ namespace hpp {
 
       struct PathVelocity
       {
-	typedef std::map <value_type, value_type> Velocities_t;
-        template <typename PathPtr> struct init {};
-        struct initializer {
-          PathPtr_t p;
-          PathVelocity& pv;
-          bool& ok;
-          initializer (PathPtr_t _p, PathVelocity& _pv, bool& _ok) : p(_p), pv(_pv), ok(_ok) {}
-          template <typename T> void operator() (boost::shared_ptr<T>) {
-            if (ok) return;
-            boost::shared_ptr<T> tp = HPP_DYNAMIC_PTR_CAST (T, p);
-            if (tp) { init<T>::run (pv, tp); ok = true; }
-          }
-        };
-
 	PathVelocity (CoefficientVelocities_t const* coefs, PathPtr_t path) :
-	  coefs_ (coefs)
+	  coefs_ (coefs), refine_ (true),
+          path_ (path), Vb_ (path->outputDerivativeSize())
 	{
-          bool ok = false;
-          boost::mpl::for_each< boost::mpl::vector<
-            StraightPathPtr_t,
-            InterpolatedPathPtr_t,
-            typename path::Spline<path::BernsteinBasis, 1>::Ptr_t,
-            typename path::Spline<path::BernsteinBasis, 2>::Ptr_t,
-            typename path::Spline<path::BernsteinBasis, 3>::Ptr_t,
-            typename path::Spline<path::CanonicalPolynomeBasis, 1>::Ptr_t,
-            typename path::Spline<path::CanonicalPolynomeBasis, 2>::Ptr_t,
-            typename path::Spline<path::CanonicalPolynomeBasis, 3>::Ptr_t
-            > > (initializer (path, *this, ok));
-          if (!ok) throw std::logic_error ("Unknown type of paths");
+          if (HPP_DYNAMIC_PTR_CAST(StraightPath, path_)) refine_ = false;
+
+          value_type t0 = path->timeRange ().first;
+          value_type t1 = path->timeRange ().second;
+          assert (t1 >= t0);
+          if (t1 - t0 == 0) maximalVelocity_ = std::numeric_limits<value_type>::infinity();
+          else {
+            path_->velocityBound (Vb_, t0, t1);
+            maximalVelocity_ = computeMaximalVelocity (Vb_);
+          }
 	}
 
 	PathVelocity (CoefficientVelocities_t const* coefs) :
 	  maximalVelocity_ (0), coefs_ (coefs) {}
 
-	value_type maximalVelocity (const value_type& t) const
-	{
-	  Velocities_t::const_iterator itAfter =
-	    maximalVelocities_.lower_bound(t);
-	  if (itAfter != maximalVelocities_.begin ()) itAfter--;
-	  return itAfter->second;
-	}
-
 	/// Compute maximal velocity of points of body1 in the frame of body 2
 	/// \param path input path
-	value_type computeMaximalVelocity (
-					   const value_type& t0, ConfigurationIn_t q0,
-					   const value_type& t1, ConfigurationIn_t q1) const
+	value_type computeMaximalVelocity (vectorIn_t v) const
 	{
-	  const value_type T = t1 - t0;
-	  if (T == 0) return std::numeric_limits<value_type>::infinity();
-
 	  value_type maximalVelocity = 0;
 	  for (CoefficientVelocities_t::const_iterator itCoef =
 		 coefs_->begin (); itCoef != coefs_->end (); ++itCoef) {
 	    const JointPtr_t& joint = itCoef->joint_;
 	    const value_type& value = itCoef->value_;
-	    maximalVelocity += value * joint->jointModel().distance (q0, q1) / T;
+	    maximalVelocity += value * v.segment(joint->rankInVelocity(), joint->numberDof()).norm();
 	  }
 	  return maximalVelocity;
 	}
 
-	Velocities_t maximalVelocities_;
+        /// Compute a collision free interval around t given a lower bound of
+        /// the distance to obstacle.
+        /// \retval maxVelocity
+        /// \return the interval half length
+        value_type collisionFreeInterval(const value_type& t,
+            const value_type& distanceLowerBound,
+            value_type& maxVelocity) const
+        {
+          value_type T[3];
+          value_type tm, tM;
+          maxVelocity = maximalVelocity_;
+          T[0] = distanceLowerBound / maxVelocity;
+          if (!refine_
+              || ( t - T[0] < path_->timeRange().first
+                && t + T[0] < path_->timeRange().second))
+            return T[0];
+          else {
+            for (int i = 0; i < 2; ++i) {
+              tm = t - T[i]; if (tm < path_->timeRange().first ) tm = t;
+              tM = t + T[i]; if (tM > path_->timeRange().second) tM = t;
+              path_->velocityBound (Vb_, tm, tM);
+              maxVelocity = computeMaximalVelocity(Vb_);
+              T[i+1] = distanceLowerBound / maxVelocity;
+            }
+            assert(T[2] <= T[1]);
+            return T[2];
+          }
+        }
+
 	value_type maximalVelocity_;
 	CoefficientVelocities_t const* coefs_;
+        bool refine_;
+        PathPtr_t path_;
+        mutable vector_t Vb_;
       }; // struct PathVelocity
-
-      template <> struct PathVelocity::init<StraightPath> {
-        static void run (PathVelocity& pv, StraightPathPtr_t path)
-        {
-          value_type t0 = path->timeRange ().first;
-          value_type t1 = path->timeRange ().second;
-          Configuration_t q0 = path->initial();
-          Configuration_t q1 = path->end();
-          pv.maximalVelocity_ = pv.computeMaximalVelocity (t0, q0, t1, q1);
-          pv.maximalVelocities_.insert(std::make_pair (t1, pv.maximalVelocity_));
-        }
-      };
-
-      template <> struct PathVelocity::init<InterpolatedPath> {
-        static void run (PathVelocity& pv, InterpolatedPathPtr_t path)
-        {
-          typedef InterpolatedPath::InterpolationPoints_t IPs_t;
-          const IPs_t& ips = path->interpolationPoints();
-          value_type tprev = path->timeRange ().first;
-          Configuration_t qprev = path->initial();
-          pv.maximalVelocity_ = 0;
-          for (IPs_t::const_iterator it = (++ips.begin ());
-              it != ips.end(); ++it) {
-            const value_type& t = it->first;
-            const Configuration_t& q = it->second;
-            value_type mv = pv.computeMaximalVelocity (tprev, qprev, t, q);
-            pv.maximalVelocities_.insert(std::make_pair (t, mv));
-            if (mv > pv.maximalVelocity_) pv.maximalVelocity_ = mv;
-            tprev = t;
-            qprev = q;
-          }
-        }
-      };
-
-      template <int PB, int SP> struct PathVelocity::init<path::Spline<PB, SP> > {
-        static void run (PathVelocity& pv, typename path::Spline<PB, SP>::Ptr_t path)
-        {
-          vector_t maxV (path->outputDerivativeSize());
-          path->maxVelocity(maxV);
-
-          pv.maximalVelocity_ = 0;
-          if (path->length() == 0) {
-            pv.maximalVelocity_ = std::numeric_limits<value_type>::infinity();
-          } else {
-            for (CoefficientVelocities_t::const_iterator itCoef =
-                pv.coefs_->begin (); itCoef != pv.coefs_->end (); ++itCoef) {
-              const JointPtr_t& joint = itCoef->joint_;
-              const value_type& value = itCoef->value_;
-              pv.maximalVelocity_ += value * maxV.segment(joint->rankInVelocity(), joint->numberDof()).norm();
-            }
-          }
-          value_type t1 = path->timeRange ().second;
-          pv.maximalVelocities_.insert(std::make_pair (t1, pv.maximalVelocity_));
-        }
-      };
     } // namespace continuousCollisionChecking
   } // namespace core
 } // namespace hpp

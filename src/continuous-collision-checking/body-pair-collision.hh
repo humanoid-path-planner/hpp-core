@@ -162,6 +162,8 @@ namespace hpp {
 	  using std::numeric_limits;
 	  value_type distanceLowerBound =
 	    numeric_limits <value_type>::infinity ();
+          static const fcl::CollisionRequest request
+            (1, false, true, 1, false, true, fcl::GST_INDEP);
 	  for (ConstObjectStdVector_t::const_iterator ita = objects_a_.begin ();
 	       ita != objects_a_.end (); ++ita) {
 	    // Compute position of object a
@@ -171,8 +173,6 @@ namespace hpp {
 	      // Compute position of object b
 	      pinocchio::FclConstCollisionObjectPtr_t object_b = (*itb)->fcl ();
 	      // Perform collision test
-	      fcl::CollisionRequest request (1, false, true, 1, false, true,
-					     fcl::GST_INDEP);
 	      fcl::CollisionResult result;
 	      fcl::collide (object_a, object_b, request, result);
 	      // Get result
@@ -198,8 +198,9 @@ namespace hpp {
 	    halfLengthDist = numeric_limits <value_type>::infinity ();
 	    halfLengthTol = 0;
 	  } else {
-	    halfLengthDist = distanceLowerBound/pathVelocity_.maximalVelocity_;
-	    halfLengthTol = 2*tolerance_/pathVelocity_.maximalVelocity_;
+            value_type Vm;
+            halfLengthDist = pathVelocity_.collisionFreeInterval(t, distanceLowerBound, Vm);
+	    halfLengthTol = 2*tolerance_/Vm;
 	  }
 	  assert (!isnan (halfLengthDist));
 	  assert (!isnan (halfLengthTol));
