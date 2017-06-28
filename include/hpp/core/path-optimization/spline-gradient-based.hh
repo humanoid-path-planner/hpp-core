@@ -73,6 +73,7 @@ namespace hpp {
           struct QuadraticProblem;
           typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
                   std::size_t> > Reports_t;
+          struct CollisionFunctions;
 
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
@@ -87,7 +88,7 @@ namespace hpp {
           void addCollisionConstraint (const std::size_t idxSpline,
               const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
               const CollisionPathValidationReportPtr_t& report,
-              LinearConstraint& collision) const;
+              LinearConstraint& collision, CollisionFunctions& functions) const;
 
           PathVectorPtr_t buildPathVector (const Splines_t& splines) const;
 

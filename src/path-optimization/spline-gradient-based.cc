@@ -261,6 +261,64 @@ namespace hpp {
         vector_t xStar;
       };
 
+      template <int _PB, int _SO>
+      struct SplineGradientBased<_PB, _SO>::CollisionFunctions
+      {
+        void addConstraint (const CollisionFunctionPtr_t& f,
+                            const std::size_t& idx,
+                            const value_type& r)
+        {
+          assert (f->outputSize() == 1);
+          functions.push_back(f);
+          indexes.push_back(idx);
+          ratios.push_back(r);
+        }
+
+        // Compute linearization
+        // b = f(S(t))
+        // J = Jf(S(p, t)) * dS/dp
+        // f(S(t)) = b -> J * P = b
+        void linearize (const SplinePtr_t& spline, const std::size_t& fIdx,
+            LinearConstraint& lc)
+        {
+          const CollisionFunctionPtr_t& f = functions[fIdx];
+
+          const size_type row = fIdx,
+                          nbRows = 1,
+                          rDof = f->inputDerivativeSize();
+          const value_type t = spline->length() * ratios[fIdx];
+
+          q.resize(f->inputSize());
+          (*spline) (q, t);
+
+          f->value(lc.b.col(0).segment(row, nbRows), q);
+
+          J.resize(f->outputSize(), f->inputDerivativeSize());
+          f->jacobian(J, q);
+
+          spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
+
+          const size_type col = indexes[fIdx] * Spline::NbCoeffs * rDof;
+          for (size_type i = 0; i < Spline::NbCoeffs; ++i)
+            lc.J.block (row, col + i * rDof, nbRows, rDof).noalias()
+              = paramDerivativeCoeff(i) * J;
+        }
+
+        void linearize (const Splines_t& splines, LinearConstraint& lc)
+        {
+          for (std::size_t i = 0; i < functions.size(); ++i)
+            linearize(splines[indexes[i]], i, lc);
+        }
+
+        std::vector<CollisionFunctionPtr_t> functions;
+        std::vector<std::size_t> indexes;
+        std::vector<value_type> ratios;
+
+        mutable Configuration_t q;
+        mutable matrix_t J;
+        mutable typename Spline::BasisFunctionVector_t paramDerivativeCoeff;
+      };
+
       // ----------- Resolution steps --------------------------------------- //
 
       template <int _PB, int _SO>
@@ -369,37 +427,16 @@ namespace hpp {
       (const std::size_t idxSpline,
        const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
        const CollisionPathValidationReportPtr_t& report,
-       LinearConstraint& collision) const
+       LinearConstraint& collision,
+       CollisionFunctions& functions) const
       {
         CollisionFunctionPtr_t cc =
           CollisionFunction::create (robot_, spline, nextSpline, report);
 
-        const value_type t = report->parameter * spline->length() / nextSpline->length();
+        collision.addRows(cc->outputSize());
+        functions.addConstraint (cc, idxSpline, report->parameter / nextSpline->length()); 
 
-        const size_type row = collision.J.rows(),
-                        nbRows = cc->outputSize(),
-                        rDof = robot_->numberDof();
-        collision.addRows(nbRows);
-
-        // Compute linearization
-        // b = f(S(t))
-        // J = Jf(S(p, t)) * dS/dp
-        // f(S(t)) = b -> J * P = b
-
-        Configuration_t q(robot_->configSize());
-        (*spline) (q, t);
-        cc->value(collision.b.col(0).tail(nbRows), q);
-
-        matrix_t J (nbRows, cc->inputDerivativeSize());
-        cc->jacobian(J, q);
-
-        typename Spline::BasisFunctionVector_t paramDerivativeCoeff;
-        spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
-
-        const size_type col = idxSpline * Spline::NbCoeffs * rDof;
-        for (size_type i = 0; i < Spline::NbCoeffs; ++i)
-          collision.J.block (row, col + i * rDof, nbRows, rDof).noalias()
-            = paramDerivativeCoeff(i) * J;
+        functions.linearize(spline, functions.functions.size() - 1, collision);
       }
 
       template <int _PB, int _SO>
@@ -442,6 +479,7 @@ namespace hpp {
         // 3
         // addProblemConstraints
         LinearConstraint collision (nParameters * rDof, 1, 0);
+        CollisionFunctions collisionFunctions;
 
         // 4
         // TODO add weights
@@ -506,7 +544,7 @@ namespace hpp {
                     splines[reports[i].second],
                     (*currentSplines)[reports[i].second],
                     reports[i].first,
-                    collision);
+                    collision, collisionFunctions);
 
               bool feasible = continuity.reduceConstraint(collision, collisionReduced);
               if (!feasible) {
