@@ -465,6 +465,7 @@ namespace hpp {
         // Get some parameters
         value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit", value_type(0.2));
         bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst", false);
+        bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", true);
 
         robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
         const size_type rDof = robot_->numberDof();
@@ -541,6 +542,11 @@ namespace hpp {
             // Update the spline
             for (std::size_t i = 0; i < splines.size(); ++i)
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
+            if (linearizeAtEachStep) {
+              collisionFunctions.linearize (splines, collision);
+              continuity.reduceConstraint(collision, collisionReduced);
+              collisionReduced.reduceProblem (QPcontinuous, QPreduced);
+            }
             hppDout (info, "Improved path with alpha = " << alpha);
           } else {
             if (alpha != 1.) {
