@@ -200,6 +200,8 @@ namespace hpp {
       /// Virtual implementation of derivative
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;
+      virtual void impl_velocityBound (vectorOut_t result,
+          const value_type& t0, const value_type& t1) const;
     private:
       DevicePtr_t device_;
       InterpolationPoints_t configs_;

@@ -164,6 +164,23 @@ namespace hpp {
       }
     }
 
+    void InterpolatedPath::impl_velocityBound (vectorOut_t result,
+        const value_type& t0, const value_type& t1) const
+    {
+      InterpolationPoints_t::const_iterator next = configs_.lower_bound (t0);
+      InterpolationPoints_t::const_iterator current = next; --next;
+
+      result.setZero();
+      vector_t tmp (result.size());
+      while (t1 > current->first) {
+	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	  (device_, next->second, current->second, tmp);
+        const value_type T = next->first - current->first;
+        result.noalias() = result.cwiseMax(tmp.cwiseAbs() / T);
+        ++current; ++next;
+      }
+    }
+
     PathPtr_t InterpolatedPath::extract (const interval_t& subInterval) const
         throw (projection_error)
     {
