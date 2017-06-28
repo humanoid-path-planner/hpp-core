@@ -16,6 +16,8 @@
 
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 
+#include <hpp/util/timer.hh>
+
 #include <hpp/pinocchio/device.hh>
 
 #include <hpp/constraints/svd.hh>
@@ -38,6 +40,8 @@ namespace hpp {
       typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RowMajorMatrix_t;
       typedef Eigen::Map<const vector_t> ConstVectorMap_t;
       typedef Eigen::Map<      vector_t>      VectorMap_t;
+
+      HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
 
       template <int NbRows>
       VectorMap_t reshape (Eigen::Matrix<value_type, NbRows, Eigen::Dynamic, Eigen::RowMajor>& parameters)
@@ -342,6 +346,7 @@ namespace hpp {
       typename SplineGradientBased<_PB, _SO>::Reports_t SplineGradientBased<_PB, _SO>::validatePath
       (const Splines_t& splines, bool stopAtFirst) const
       {
+        HPP_START_TIMECOUNTER(SGB_validatePath);
         PathValidationPtr_t pathValidation (problem ().pathValidation ());
 	PathPtr_t validPart;
 	PathValidationReportPtr_t report;
@@ -355,6 +360,7 @@ namespace hpp {
             if (stopAtFirst) break;
 	  }
 	}
+        HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_validatePath);
         return reports;
       }
 
