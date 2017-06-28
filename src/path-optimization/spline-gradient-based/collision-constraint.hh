@@ -20,6 +20,8 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_COLLISION_CONSTRAINTS_HH
 # define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_COLLISION_CONSTRAINTS_HH
 
+#include <hpp/util/exception-factory.hh>
+
 # include <hpp/fcl/collision.h>
 # include <hpp/fcl/distance.h>
 
@@ -104,13 +106,25 @@ namespace hpp {
 	 robot_->computeForwardKinematics ();
          robot_->updateGeometryPlacements ();
 	 fcl::CollisionResult result;
-	 fcl::CollisionRequest collisionRequest (1, true, false, 1, false, true,
-						 fcl::GST_INDEP);
-     fcl::collide (object1->fcl (), object2->fcl (),
-		       collisionRequest, result);
+         fcl::CollisionRequest collisionRequest (1, true, false, 1, false, true, fcl::GST_INDEP);
+         fcl::collide (object1->fcl (), object2->fcl (), collisionRequest, result);
+         if (result.numContacts() != 1) {
+           result.clear();
+           collisionRequest.enable_contact = false;
+           fcl::collide (object1->fcl (), object2->fcl (), collisionRequest, result);
+           if (result.isCollision()) {
+             hppDout (error, "FCL does not returns the same result when asking or not for the contact points.");
+           }
+
+           HPP_THROW(std::invalid_argument,
+               "Object " << object1->name() << " and " << object2->name()
+               << " are not in collision in configuration\n"
+               << qColl.transpose().format(IPythonFormat)
+               << "\nqFree is\n" << qFree.transpose().format(IPythonFormat));
+         }
 	 assert (result.numContacts () == 1);
 	 const vector3_t& contactPoint (result.getContact (0).pos);
-	 hppDout (info, "contact point = " << contactPoint);
+	 hppDout (info, "contact point = " << contactPoint.transpose());
 
 	 JointConstPtr_t joint1 = object1->joint ();
          // FIXME this copy can probably be avoided.
@@ -128,8 +142,8 @@ namespace hpp {
 	   M1 = joint1->currentTransformation ();
 	   // Position of x2 in local frame of joint1
        vector3_t x2_J1 (M1.actInv (M2.act (x2_J2)));
-	   hppDout (info, "x1 in J1 = " << x1_J1);
-	   hppDout (info, "x2 in J1 = " << x2_J1);
+	   hppDout (info, "x1 in J1 = " << x1_J1.transpose());
+	   hppDout (info, "x2 in J1 = " << x2_J1.transpose());
        eigen::vector3_t u=x2_J1 - x1_J1;
        matrix3_t rot;
        rot.setIdentity();
@@ -148,7 +162,7 @@ namespace hpp {
 	   Transform3f M1 (joint1->currentTransformation ());
 	   // position of x1 in global frame
        vector3_t x1_J2 (M1.act (x1_J1));
-	   hppDout (info, "x1 in J2 = " << x1_J2);
+	   hppDout (info, "x1 in J2 = " << x1_J2.transpose());
        eigen::vector3_t u=x1_J2 - x2_J2;
        matrix3_t rot;
        rot.setIdentity();
