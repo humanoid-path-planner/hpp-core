@@ -128,7 +128,7 @@ namespace hpp {
           {
             Configuration_t q (outputSize());
             bool res = operator() (q, timeRange().first);
-            assert(res);
+            assert(res); (void)res;
             return q;
           }
 
@@ -136,7 +136,7 @@ namespace hpp {
           {
             Configuration_t q (outputSize());
             bool res = operator() (q, timeRange().second);
-            assert(res);
+            assert(res); (void)res;
             return q;
           }
 
