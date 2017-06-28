@@ -480,7 +480,7 @@ namespace hpp {
             // 6.2
             QPreduced.solve();
             collisionReduced.computeSolution(QPreduced.xStar);
-            continuity.computeSolution(collisionReduced.xStar);
+            continuity.computeSolution(collisionReduced.xSol);
             updateSplines(collSplines, continuity.xSol);
             currentSplines = &collSplines;
             minimumReached = true;
