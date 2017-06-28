@@ -490,13 +490,6 @@ namespace hpp {
             minimumReached = false;
           }
 
-          /*
-          matrix_t error = continuity.J * Eigen::Map<RowMajorMatrix_t> (Pstar.data(), nParameters, rDof) - continuity.b;
-          if (!error.isZero()) {
-            hppDout (warning, "The continuity constraints are not satisfied: "
-                << error.norm() << '\n' << error);
-          } */
-
           // 6.3
           reports = validatePath (*currentSplines, stopAtFirst);
           noCollision = reports.empty();
