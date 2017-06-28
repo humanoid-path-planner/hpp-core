@@ -129,7 +129,8 @@ namespace hpp {
           }
           QPr.bIsZero = false;
 
-          QPr.Hinv = PKinv * QP.Hinv * PKinv.transpose();
+          // QPr.Hpinv = PKinv * QP.Hpinv * PKinv.transpose();
+          QPr.decompose();
         }
 
         bool reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr) const
@@ -178,7 +179,9 @@ namespace hpp {
       {
         QuadraticProblem (size_type inputSize) :
           H (inputSize, inputSize), b (inputSize),
-          Hinv (inputSize, inputSize), xStar (inputSize)
+          Hpinv (inputSize, inputSize),
+          svd (inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
+          xStar (inputSize)
         {
           H.setZero();
           b.setZero();
@@ -186,14 +189,16 @@ namespace hpp {
         }
 
         QuadraticProblem (const QuadraticProblem& QP, const LinearConstraint& lc) :
-          H (lc.PK.rows(), lc.PK.rows()), b (lc.PK.rows()),
-          Hinv (lc.PK.rows(), lc.PK.rows()), xStar (lc.PK.rows())
+          H (lc.PK.cols(), lc.PK.cols()), b (lc.PK.cols()),
+          Hpinv (lc.PK.cols(), lc.PK.cols()),
+          svd (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
+          xStar (lc.PK.cols())
         {
           lc.reduceProblem(QP, *this);
         }
 
         QuadraticProblem (const QuadraticProblem& QP) :
-          H (QP.H), b (QP.b), Hinv (QP.Hinv), xStar (QP.xStar)
+          H (QP.H), b (QP.b), Hpinv (QP.Hpinv), svd (QP.svd), xStar (QP.xStar)
         {}
 
         void addRows (const std::size_t& nbRows)
@@ -206,22 +211,37 @@ namespace hpp {
 
         /// \param blockSize if not zero, H is considered block diagonal, the
         ///                  block being of size blockSize x blockSize
-        void decompose (std::size_t blockSize = 0)
+        bool decompose (std::size_t blockSize = 0)
         {
-          if (blockSize == 0)
-            Hinv = H.inverse();
-          else {
-            Hinv.setZero();
+          bool isFullRank = true;
+          if (blockSize == 0) {
+            svd.compute(H);
+            constraints::pseudoInverse (svd, Hpinv);
+            isFullRank = (svd.rank() == H.rows());
+          } else {
+            Hpinv.setZero();
+            Eigen::JacobiSVD<matrix_t> svdTmp (blockSize, blockSize, Eigen::ComputeThinU | Eigen::ComputeThinV);
             for (size_type r = 0; r < H.rows(); r += blockSize) {
-              Hinv.block(r, r, blockSize, blockSize)
-                = H.block(r, r, blockSize, blockSize).inverse();
+#ifndef NDEBUG
+              for (size_type c = 0; c < H.rows(); c += blockSize) {
+                if (c == r) continue;
+                if (!H.block(r, c, blockSize, blockSize).isZero()) {
+                  hppDout (error, "Hessian should be block diagonal (blockSize = " << blockSize << ").\n"
+                      << H.block(r, c, blockSize, blockSize));
+                }
+              }
+#endif // NDEBUG
+              svdTmp.compute(H.block(r, r, blockSize, blockSize));
+              constraints::pseudoInverse (svdTmp, Hpinv.block(r, r, blockSize, blockSize));
+              isFullRank = isFullRank && (svdTmp.rank() == blockSize);
             }
           }
+          return isFullRank;
         }
 
         void solve ()
         {
-          xStar = - 0.5 * Hinv * b;
+          xStar = - 0.5 * Hpinv * b;
         }
 
         // model
@@ -230,7 +250,8 @@ namespace hpp {
         bool bIsZero;
 
         // Data
-        matrix_t Hinv;
+        matrix_t Hpinv;
+        Eigen::JacobiSVD<matrix_t> svd;
         vector_t xStar;
       };
 
