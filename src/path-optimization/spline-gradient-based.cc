@@ -42,6 +42,7 @@ namespace hpp {
       typedef Eigen::Map<      vector_t>      VectorMap_t;
 
       HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
+      HPP_DEFINE_TIMECOUNTER(SGB_matrixDecomposition);
 
       template <int NbRows>
       VectorMap_t reshape (Eigen::Matrix<value_type, NbRows, Eigen::Dynamic, Eigen::RowMajor>& parameters)
@@ -89,6 +90,7 @@ namespace hpp {
 
         void decompose (bool check = false)
         {
+          HPP_START_TIMECOUNTER(SGB_matrixDecomposition);
           if (J.rows() == 0) { // No constraint
             PK = matrix_t::Identity (J.cols() * b.cols(), J.cols() * b.cols());
             PKinv = PK;
@@ -123,6 +125,8 @@ namespace hpp {
             PKinv = PK.adjoint();
           }
           assert((PKinv * PK).eval().isIdentity());
+
+          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_matrixDecomposition);
         }
 
         void reduceProblem (const QuadraticProblem& QP, QuadraticProblem& QPr) const
@@ -219,6 +223,7 @@ namespace hpp {
         ///                  block being of size blockSize x blockSize
         bool decompose (std::size_t blockSize = 0)
         {
+          HPP_START_TIMECOUNTER(SGB_matrixDecomposition);
           bool isFullRank = true;
           if (blockSize == 0) {
             svd.compute(H);
@@ -242,6 +247,7 @@ namespace hpp {
               isFullRank = isFullRank && (svdTmp.rank() == (size_type)blockSize);
             }
           }
+          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_matrixDecomposition);
           return isFullRank;
         }
 
