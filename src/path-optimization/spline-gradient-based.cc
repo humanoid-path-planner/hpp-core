@@ -239,7 +239,7 @@ namespace hpp {
 #endif // NDEBUG
               svdTmp.compute(H.block(r, r, blockSize, blockSize));
               constraints::pseudoInverse (svdTmp, Hpinv.block(r, r, blockSize, blockSize));
-              isFullRank = isFullRank && (svdTmp.rank() == blockSize);
+              isFullRank = isFullRank && (svdTmp.rank() == (size_type)blockSize);
             }
           }
           return isFullRank;
