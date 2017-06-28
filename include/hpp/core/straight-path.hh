@@ -210,6 +210,8 @@ namespace hpp {
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;
 
+      virtual void impl_velocityBound (vectorOut_t result, const value_type&, const value_type&) const;
+
     private:
       DevicePtr_t device_;
       Configuration_t initial_;

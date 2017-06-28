@@ -110,6 +110,13 @@ namespace hpp {
       HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
     }
 
+    void StraightPath::impl_velocityBound (
+        vectorOut_t result, const value_type&, const value_type&) const
+    {
+      pinocchio::difference <hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, result);
+      result.noalias() = result.cwiseAbs() / length();
+    }
+
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const
       throw (projection_error)
     {
