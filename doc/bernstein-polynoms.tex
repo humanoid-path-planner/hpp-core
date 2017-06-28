@@ -90,4 +90,51 @@ with $I(i,k,n) = [ \max(0, k+i-n), \min(k,i) ]$
   % \alpha_{i-p,j-q,n-k}^{(0)} \\
 % \end{eqnarray*}
 
+\paragraph{Maximum on an interval}
+Let $I = \left[ t_0, t_1 \right] \subset \left[ 0,1 \right]$.
+
+We seek $ M_{i,n} (I) = \max_{u \in I} |\bernstein{i}{n} (u)| $.
+Clearly, we have
+$$ M_{0, n} (I) = \bernstein{0}{n} (t_0) $$
+and
+$$ M_{n, n} (I) = \bernstein{n}{n} (t_1) $$
+
+As $\bernstein{i}{n}' (u) = { n \choose i } ( i - u n ) u^{i-1} (1-u)^{n-i-1}$,
+we have, $\forall i \in \left[ 1, n-1 \right]$, $ M_{i,n} (I) = \bernstein{i}{n} (t_M(I)) $
+where
+\begin{equation}
+  t_M (I) = \left\lbrace
+  \begin{array}{cl}
+    t_0 & \textbf{ if } \frac{i}{n} > t_0 \\
+    t_1 & \textbf{ if } t_1 < \frac{i}{n} \\
+    \frac{i}{n} & \textbf{otherwise}
+  \end{array}
+  \right.
+\end{equation}
+The above formula is also true for $i = 0$ and $i=n$.
+
+We seek $ M_{i,n}' (I) = \max_{u \in I} |\bernstein{i}{n}' (u)| $.
+
+$$
+\bernstein{i}{n}'' (u) = { n \choose i } \left[ (n-1)^2 u^2 - (2 i - 1) (n - 1) u + i (i-1) \right] u^{i-2} (1-u)^{n-i-2}
+$$
+
+Let $ \alpha(u) = (n-1)^2 u^2 - (n - 1)(2 i - 1) u + i (i-1) $.
+As $\Delta = (n-1)^2 ( (2i-1)^2 - 4 i (i - 1)) = (n-1)^2$,
+the roots of $\alpha$ are $ u_- = \frac{i-1}{n-1} $ and $ u_+ = \frac{i}{n-1}$.
+As $(n-1)^2 > 0$, $\bernstein{i}{n}'$ increases on $\left[ 0, u_- \right]$ and on $\left[ u_+, 1\right]$
+and decreases on $\left[ u_-, u_+ \right]$.
+
+$$
+\bernstein{i}{n}' (u_-) = { n \choose i } \frac{(n-i)^{n-i} (i-1)^{i-1}}{(n-1)^{n-1}}
+$$
+$$
+\bernstein{i}{n}' (u_+) = - { n \choose i } \frac{(i)^i (n-i-1)^{n-i-1}}{(n-1)^{n-1}}
+$$
+
+Then
+
+$$ M_{i,n}'(I) = \max(|\bernstein{i}{n}' (t_0)|,|\bernstein{i}{n}' (t_1)|,|\bernstein{i}{n}' (u_+)|,|\bernstein{i}{n}' (u_-)|)$$
+
+
 \end{document}
