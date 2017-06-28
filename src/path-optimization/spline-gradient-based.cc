@@ -25,6 +25,8 @@
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 
+Eigen::IOFormat IPythonFormat (Eigen::FullPrecision, 0, ", ", ",\n", "[", "]", "[\n", "]\n");
+
 #include <path-optimization/spline-gradient-based/cost.hh>
 #include <path-optimization/spline-gradient-based/collision-constraint.hh>
 
@@ -411,6 +413,10 @@ namespace hpp {
       template <int _PB, int _SO>
       PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize (const PathVectorPtr_t& path)
       {
+        // Get some parameters
+        value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit", value_type(0.2));
+        bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst", false);
+
         robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
         const size_type rDof = robot_->numberDof();
 
@@ -441,7 +447,7 @@ namespace hpp {
         continuity.reduceConstraint(collision, collisionReduced);
 
         // 6
-        bool noCollision = true;
+        bool noCollision = true, stopAtFirst = true;
         bool minimumReached = false;
         value_type alpha = 1;
         Splines_t alphaSplines, collSplines;
@@ -457,7 +463,7 @@ namespace hpp {
         QP.decompose(Spline::NbCoeffs * rDof); // Use the fact that the Hessian is block diagonal.
 
         QuadraticProblem QPcontinuous (QP, continuity);
-        // TODO void this copy
+        // TODO avoid this copy
         QuadraticProblem QPreduced (QPcontinuous);
 
         while (!(noCollision && minimumReached) && (!interrupt_)) {
@@ -486,12 +492,13 @@ namespace hpp {
           } */
 
           // 6.3
-          reports = validatePath (*currentSplines, noCollision);
+          reports = validatePath (*currentSplines, stopAtFirst);
           noCollision = reports.empty();
           if (noCollision) {
             // Update the spline
             for (std::size_t i = 0; i < splines.size(); ++i)
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
+            hppDout (info, "Improved path with alpha = " << alpha);
           } else {
             if (alpha != 1.) {
               hppDout (info, "Adding " << reports.size() << " constraints.");
@@ -511,11 +518,12 @@ namespace hpp {
 
               // When adding a new constraint, try first minimum under this
               // constraint. If this latter minimum is in collision,
-              // re-initialize alpha_ to alphaInit_.
+              // re-initialize alpha to alphaInit.
               alpha = 1.;
+              stopAtFirst = true;
             } else {
-              // alpha = alphaInit_;
-              alpha = 0.2;
+              alpha = alphaInit;
+              stopAtFirst = alwaysStopAtFirst;
             }
           }
 
