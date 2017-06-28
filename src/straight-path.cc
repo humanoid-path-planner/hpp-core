@@ -102,7 +102,7 @@ namespace hpp {
 	}
 	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
 	  (device_, end_, initial_, result);
-	result = (1/timeRange ().second) * result;
+	result /= length();
 	return;
       }
       std::ostringstream oss;
