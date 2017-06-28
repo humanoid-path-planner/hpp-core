@@ -54,6 +54,7 @@ namespace hpp {
           /// Integrate between 0 and 1
           static void integral (const size_type order, IntegralCoeffs_t& res);
           static void absDerBounds (Coeffs_t& res);
+          static void bound (const size_type& order, const value_type& /* t0 */, const value_type& t1, Coeffs_t& res) { derivative(order, t1, res); }
         };
         template <int Degree>
         void spline_basis_function<CanonicalPolynomeBasis, Degree>::eval (const value_type t, Coeffs_t& res)
@@ -116,6 +117,10 @@ namespace hpp {
           /// Integrate between 0 and 1
           static void integral (const size_type order, IntegralCoeffs_t& res);
           static void absDerBounds (Coeffs_t& res);
+          static void bound (const size_type& order, const value_type& t0, const value_type& t1, Coeffs_t& res);
+
+          private:
+          static Coeffs_t absBound (bool up);
         };
         template <int Degree>
         void spline_basis_function<BernsteinBasis, Degree>::eval (const value_type t, Coeffs_t& res)
@@ -194,6 +199,56 @@ namespace hpp {
         (Coeffs_t& res)
         {
           res.setConstant (2*Degree);
+        }
+        template <int Degree>
+        void spline_basis_function<BernsteinBasis, Degree>::bound
+        (const size_type& order, const value_type& t0, const value_type& t1, Coeffs_t& res)
+        {
+          assert(order == 1);
+          static const Coeffs_t b_up = absBound(true);
+          static const Coeffs_t b_um = absBound(false);
+          Coeffs_t bt0, bt1;
+          derivative(1, t0, bt0);
+          derivative(1, t1, bt1);
+
+          res.noalias() = bt0.cwiseAbs().cwiseMax(bt1.cwiseAbs());
+
+          // when u_p(i) in [t0, t1], consider b_up.
+          size_type r1 = size_type(std::ceil (t0 * (Degree - 1))),
+                    r2 = size_type(std::floor(t1 * (Degree - 1))),
+                    nr = r2 - r1;
+          res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_up.segment(r1, nr));
+
+          // when u_m(i) in [t0, t1], consider b_um.
+          r1 = size_type(std::ceil (1 + t0 * (Degree - 1))),
+          r2 = size_type(std::floor(1 + t1 * (Degree - 1))),
+          nr = r2 - r1;
+          res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_um.segment(r1, nr));
+        }
+        template <int Degree>
+        typename spline_basis_function<BernsteinBasis, Degree>::Coeffs_t spline_basis_function<BernsteinBasis, Degree>::absBound (bool up)
+        {
+          Coeffs_t res;
+          const Factorials_t factors = factorials<NbCoeffs>();
+          Factorials_t iToThePowerOfI (Factorials_t::Ones());
+          // const size_type im = (up ? 1      : 2);
+          // const size_type iM = (up ? Degree : Degree);
+          for (size_type i = 1; i < Degree; ++i) {
+            for (size_type j = 0; j < i; ++j)
+              iToThePowerOfI(i) *= i;
+          }
+          res(0) = Degree;
+          res(Degree) = Degree;
+          for (size_type i = 1; i < Degree; ++i) {
+            const size_type p = (up
+                ? iToThePowerOfI(i) * iToThePowerOfI(Degree - i - 1)
+                : iToThePowerOfI(Degree - i) * iToThePowerOfI(i - 1));
+            res(i) = value_type(binomial(Degree, i, factors) * p);
+          }
+          res.template segment<NbCoeffs-2>(1) /= value_type(iToThePowerOfI(Degree - 1));
+          // if (up) res(Degree - 1) = Degree;
+          // else    res(1)          = Degree;
+          return res;
         }
       }
 
@@ -291,6 +346,15 @@ namespace hpp {
 
         ParameterVector_t(parameters_.data(), parameters_.size())
           .noalias() += dParam;
+      }
+
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::impl_velocityBound (
+          vectorOut_t res, const value_type& t0, const value_type& t1) const
+      {
+        BasisFunctionVector_t ub;
+        BasisFunction_t::bound (1, t0, t1, ub);
+        res.transpose() = ub.transpose() * parameters_.cwiseAbs();
       }
 
       template <int _SplineType, int _Order>

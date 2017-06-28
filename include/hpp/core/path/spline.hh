@@ -229,6 +229,8 @@ namespace hpp {
 
           void impl_paramIntegrate (vectorIn_t dParam);
 
+          void impl_velocityBound (vectorOut_t result, const value_type& t0, const value_type& t1) const;
+
           size_type parameterSize_;
           DevicePtr_t robot_;
           Configuration_t base_;
