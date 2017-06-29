@@ -216,13 +216,13 @@ namespace hpp {
           // when u_p(i) in [t0, t1], consider b_up.
           size_type r1 = size_type(std::ceil (t0 * (Degree - 1))),
                     r2 = size_type(std::floor(t1 * (Degree - 1))),
-                    nr = r2 - r1;
+                    nr = r2 - r1 + 1;
           res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_up.segment(r1, nr));
 
           // when u_m(i) in [t0, t1], consider b_um.
           r1 = size_type(std::ceil (1 + t0 * (Degree - 1))),
           r2 = size_type(std::floor(1 + t1 * (Degree - 1))),
-          nr = r2 - r1;
+          nr = r2 - r1 + 1;
           res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_um.segment(r1, nr));
         }
         template <int Degree>
