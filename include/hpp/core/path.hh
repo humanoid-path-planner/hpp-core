@@ -146,8 +146,10 @@ namespace hpp {
       void velocityBound (vectorOut_t result, const value_type& t0, const value_type& t1) const
       {
         assert(result.size() == outputDerivativeSize());
-        assert(timeRange_.first <= t0 && t0 <= t1 && t1 <= timeRange_.second);
-	impl_velocityBound (result, t0, t1);
+        assert(t0 <= t1);
+	impl_velocityBound (result,
+            std::max(t0, timeRange().first ),
+            std::min(t1, timeRange().second));
       }
 
       /// \brief Function evaluation without applying constraints

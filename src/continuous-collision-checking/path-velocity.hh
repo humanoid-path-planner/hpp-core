@@ -84,23 +84,29 @@ namespace hpp {
             const value_type& distanceLowerBound,
             value_type& maxVelocity) const
         {
-          value_type T[3];
+          value_type T[3], Vm[2];
           value_type tm, tM;
           maxVelocity = maximalVelocity_;
           T[0] = distanceLowerBound / maxVelocity;
-          if (!refine_
-              || ( t - T[0] < path_->timeRange().first
-                && t + T[0] < path_->timeRange().second))
-            return T[0];
+          if (!refine_) return T[0];
           else {
+            tm = t - T[0];
+            tM = t + T[0];
+            bool  leftIsValid = (tm < path_->timeRange().first );
+            bool rightIsValid = (tM > path_->timeRange().second);
+            if (leftIsValid && rightIsValid) return T[0];
+
             for (int i = 0; i < 2; ++i) {
-              tm = t - T[i]; if (tm < path_->timeRange().first ) tm = t;
-              tM = t + T[i]; if (tM > path_->timeRange().second) tM = t;
+              tm = t - ( leftIsValid ? 0 : T[i]);
+              tM = t + (rightIsValid ? 0 : T[i]);
               path_->velocityBound (Vb_, tm, tM);
-              maxVelocity = computeMaximalVelocity(Vb_);
-              T[i+1] = distanceLowerBound / maxVelocity;
+              Vm[i] = computeMaximalVelocity(Vb_);
+              T[i+1] = distanceLowerBound / Vm[i];
             }
-            assert(T[2] <= T[1]);
+            assert(maximalVelocity_ >= Vm[1] && Vm[1] >= Vm[0]
+                && T[1] >= T[2] && T[2] >= T[0]);
+            // hppDout (info, "Refine changed the interval length of " << T[0] / T[2] << ", from " << T[0] << " to " << T[2]);
+            maxVelocity = Vm[1];
             return T[2];
           }
         }

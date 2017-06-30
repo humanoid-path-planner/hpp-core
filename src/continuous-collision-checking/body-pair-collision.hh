@@ -52,6 +52,9 @@ namespace hpp {
       class BodyPairCollision
       {
       public:
+        typedef std::pair<CollisionObjectConstPtr_t, CollisionObjectConstPtr_t> CollisionPair_t;
+        typedef std::vector<CollisionPair_t> CollisionPairs_t;
+
 	/// Create instance and return shared pointer
 	///
 	/// \param body_a body to test for collision with the environment
@@ -97,32 +100,20 @@ namespace hpp {
 	  return joint_b_;
 	}
 
-	void addObjectTo_b (const CollisionObjectConstPtr_t& object)
+	const CollisionPairs_t& pairs () const
 	{
-	  if (object->joint () &&
-	      object->joint ()->robot () == joint_a_->robot ()) {
-	    throw std::runtime_error
-	      ("Object should not be attached to a joint"
-	       " to add it to a collision pair.");
-	  }
-	  objects_b_.push_back (object);
-	}
-
-	const ConstObjectStdVector_t& objects_b  () const
-	{
-	  return objects_b_;
+	  return pairs_;
 	}
 
 	bool removeObjectTo_b (const CollisionObjectConstPtr_t& object)
 	{
-	  for (ConstObjectStdVector_t::iterator itObj = objects_b_.begin ();
-	       itObj != objects_b_.end (); ++itObj) {
-	    if (object == *itObj) {
-	      objects_b_.erase (itObj);
-	      return true;
-	    }
+          const std::size_t s = pairs_.size();
+	  for (CollisionPairs_t::iterator _pair = pairs_.begin ();
+	       _pair != pairs_.end (); ) {
+	    if (object == _pair->second) _pair = pairs_.erase (_pair);
+	    else                         ++_pair;
 	  }
-	  return false;
+	  return pairs_.size() < s;
 	}
 
 	/// Set path to validate
@@ -164,31 +155,25 @@ namespace hpp {
 	    numeric_limits <value_type>::infinity ();
           static const fcl::CollisionRequest request
             (1, false, true, 1, false, true, fcl::GST_INDEP);
-	  for (ConstObjectStdVector_t::const_iterator ita = objects_a_.begin ();
-	       ita != objects_a_.end (); ++ita) {
-	    // Compute position of object a
-	    pinocchio::FclConstCollisionObjectPtr_t object_a = (*ita)->fcl ();
-	    for (ConstObjectStdVector_t::const_iterator itb = objects_b_.begin ();
-		 itb != objects_b_.end (); ++itb) {
-	      // Compute position of object b
-	      pinocchio::FclConstCollisionObjectPtr_t object_b = (*itb)->fcl ();
-	      // Perform collision test
-	      fcl::CollisionResult result;
-	      fcl::collide (object_a, object_b, request, result);
-	      // Get result
-	      if (result.isCollision ()) {
-		report = CollisionValidationReportPtr_t
-		  (new CollisionValidationReport);
-		report->object1 = *ita;
-		report->object2 = *itb;
-		report->result = result;
-		return false;
-	      }
-	      if (result.distance_lower_bound < distanceLowerBound) {
-		distanceLowerBound = result.distance_lower_bound;
-	      }
-	    }
-	  }
+          for (CollisionPairs_t::const_iterator _pair = pairs_.begin();
+              _pair != pairs_.end(); ++_pair) {
+	    pinocchio::FclConstCollisionObjectPtr_t object_a = _pair->first ->fcl ();
+            pinocchio::FclConstCollisionObjectPtr_t object_b = _pair->second->fcl ();
+            fcl::CollisionResult result;
+            fcl::collide (object_a, object_b, request, result);
+            // Get result
+            if (result.isCollision ()) {
+              report = CollisionValidationReportPtr_t
+                (new CollisionValidationReport);
+              report->object1 = _pair->first ;
+              report->object2 = _pair->second;
+              report->result = result;
+              return false;
+            }
+            if (result.distance_lower_bound < distanceLowerBound) {
+              distanceLowerBound = result.distance_lower_bound;
+            }
+          }
 	  value_type halfLengthDist, halfLengthTol;
 	  /// \todo A finer bound could be computed when path is an
 	  ///       InterpolatedPath using the maximal velocity on each
@@ -228,7 +213,7 @@ namespace hpp {
 	  std::ostringstream oss;
 	  oss << "(" << joint_a_->name () << ",";
 	  if (joint_b_) oss << joint_b_->name ();
-	  else oss << (*objects_b_.begin ())->name ();
+	  else oss << "obstacles";
 	  oss << ")";
 	  return oss.str ();
 	}
@@ -248,6 +233,15 @@ namespace hpp {
 	  return os;
 	}
 
+        /// \note The left object should belong to joint_a and
+        /// the right one should belong to joint_b, or vice-versa.
+        /// This is not checked.
+        void addCollisionPair (const CollisionObjectConstPtr_t& left,
+            const CollisionObjectConstPtr_t right)
+        {
+          pairs_.push_back (CollisionPair_t(left, right));
+        }
+
       protected:
 	/// Constructor of inter-body collision checking
 	///
@@ -257,26 +251,13 @@ namespace hpp {
 	BodyPairCollision (const JointPtr_t& joint_a,
 			   const JointPtr_t& joint_b,
 			   value_type tolerance):
-	  joint_a_ (joint_a), joint_b_ (joint_b), objects_a_ (),
-	  objects_b_ (), joints_ (),
+	  joint_a_ (joint_a), joint_b_ (joint_b), pairs_ (), joints_ (),
 	  indexCommonAncestor_ (0), coefficients_ (),
 	  pathVelocity_ (&coefficients_),
 	  tolerance_ (tolerance), reverse_ (false)
 	{
 	  assert (joint_a);
 	  assert (joint_b);
-	  BodyPtr_t body_a = joint_a_->linkedBody ();
-	  BodyPtr_t body_b = joint_b_->linkedBody ();
-	  assert (body_a);
-	  assert (body_b);
-	  // TODO:: optimise!!
-	  for (size_type i = 0; i < body_a->innerObjects ().size (); ++i) {
-	    objects_a_.push_back (body_a->innerObjects ().at(i));
-	  }
-	  for (size_type i = 0; i < body_b->innerObjects ().size (); ++i) {
-	    objects_b_.push_back (body_b->innerObjects ().at(i));
-	  }
-
 	  if (joint_b_->robot () != joint_a_->robot ()) {
 	    throw std::runtime_error
 	      ("Joints do not belong to the same device.");
@@ -284,11 +265,15 @@ namespace hpp {
 	  if (joint_a_ == joint_b_) {
 	    throw std::runtime_error ("Bodies should be different");
 	  }
-
 	  if (tolerance < 0) {
 	    throw std::runtime_error ("tolerance should be non-negative.");
 	  }
-	  //
+
+	  BodyPtr_t body_a = joint_a_->linkedBody ();
+	  BodyPtr_t body_b = joint_b_->linkedBody ();
+	  assert (body_a);
+	  assert (body_b);
+
 	  // Find sequence of joints
 	  computeSequenceOfJoints ();
 	  computeCoefficients ();
@@ -302,27 +287,28 @@ namespace hpp {
 	BodyPairCollision (const JointPtr_t& joint_a,
 			   const ConstObjectStdVector_t& objects_b,
 			   value_type tolerance) :
-	  joint_a_ (joint_a), joint_b_ (), objects_a_ (),
-	  objects_b_ (objects_b), joints_ (),
+	  joint_a_ (joint_a), joint_b_ (), pairs_ (), joints_ (),
 	  indexCommonAncestor_ (0), coefficients_ (),
 	  pathVelocity_ (&coefficients_),
 	  tolerance_ (tolerance), reverse_ (false)
 	{
+	  if (tolerance < 0) {
+	    throw std::runtime_error ("tolerance should be non-negative.");
+	  }
 	  assert (joint_a);
 	  BodyPtr_t body_a = joint_a_->linkedBody ();
 	  assert (body_a);
 	  for (size_type i = 0; i < body_a->innerObjects ().size (); ++i) {
-	    objects_a_.push_back (body_a->innerObjects ().at(i));
+	    CollisionObjectConstPtr_t obj = body_a->innerObjects ().at(i);
+
+            for (ConstObjectStdVector_t::const_iterator it = objects_b.begin ();
+                it != objects_b.end (); ++it) {
+              assert (!(*it)->joint () ||
+                  (*it)->joint ()->robot () != joint_a_->robot ());
+              pairs_.push_back (CollisionPair_t(obj, *it));
+            }
 	  }
-	  for (std::vector<CollisionObjectConstPtr_t>::const_iterator it = objects_b.begin ();
-	       it != objects_b.end (); ++it) {
-	    assert (!(*it)->joint () ||
-		    (*it)->joint ()->robot () != joint_a_->robot ());
-	  }
-	  if (tolerance < 0) {
-	    throw std::runtime_error ("tolerance should be non-negative.");
-	  }
-	  //
+
 	  // Find sequence of joints
 	  computeSequenceOfJoints ();
 	  computeCoefficients ();
@@ -400,8 +386,7 @@ namespace hpp {
 
 	JointPtr_t joint_a_;
 	JointPtr_t joint_b_;
-	ConstObjectStdVector_t objects_a_;
-	ConstObjectStdVector_t objects_b_;
+        CollisionPairs_t pairs_;
 	std::vector <JointIndex> joints_;
 	std::size_t indexCommonAncestor_;
 	CoefficientVelocities_t coefficients_;

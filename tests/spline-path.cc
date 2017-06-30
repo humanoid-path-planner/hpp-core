@@ -143,8 +143,52 @@ template <int SplineType> void compare_to_straight_path ()
   } 
 }
 
+template <int SplineType, int Degree>
+void check_velocity_bounds ()
+{
+  typedef path::Spline<SplineType, Degree> path_t;
+  typedef steeringMethod::Spline<SplineType, Degree> SM_t;
+
+  DevicePtr_t dev = createRobot();
+  BOOST_REQUIRE (dev);
+  Problem problem (dev);
+
+  Configuration_t q1 (se3::randomConfiguration(dev->model()));
+  Configuration_t q2 (se3::randomConfiguration(dev->model()));
+  std::vector<int> orders (1, 1);
+  vector_t v1 (vector_t::Random(dev->numberDof())),
+           v2 (vector_t::Random(dev->numberDof()));
+
+
+  // Create spline
+  typename SM_t::Ptr_t sm (SM_t::create (problem));
+  PathPtr_t spline = sm->steer (q1, orders, v1, q2, orders, v2);
+
+  vector_t vb1 (vector_t::Random(dev->numberDof())), vb2 = vb1;
+  value_type t0 = spline->timeRange().first, t1 = spline->timeRange().second;
+  spline->velocityBound (vb1, t0, t1);
+
+  std::size_t N = 1000;
+  value_type step = spline->length() / N;
+  for (std::size_t i = 0; i < N; ++i) {
+    spline->velocityBound (vb2, t0, t1);
+    BOOST_CHECK_MESSAGE((vb2.array() <= vb1.array()).all(),
+        "i=" << i << " Velocity bound should have decreased. Interval is ["
+        << t0 << ", " << t1 << "]. Difference:\n"
+        << (vb1 - vb2).transpose());
+    vb1 = vb2;
+    if (i%2) {
+      t0 += step;
+    } else {
+      t1 -= step;
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE (spline)
 {
   compare_to_straight_path<path::CanonicalPolynomeBasis>();
   compare_to_straight_path<path::BernsteinBasis>();
+
+  check_velocity_bounds<path::BernsteinBasis, 3>();
 }

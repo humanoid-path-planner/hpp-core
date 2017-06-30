@@ -213,17 +213,29 @@ namespace hpp {
 
           res.noalias() = bt0.cwiseAbs().cwiseMax(bt1.cwiseAbs());
 
-          // when u_p(i) in [t0, t1], consider b_up.
-          size_type r1 = size_type(std::ceil (t0 * (Degree - 1))),
-                    r2 = size_type(std::floor(t1 * (Degree - 1))),
-                    nr = r2 - r1 + 1;
-          res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_up.segment(r1, nr));
+          // Case i = 0 and i = n
+          // Nothing to do.
 
-          // when u_m(i) in [t0, t1], consider b_um.
-          r1 = size_type(std::ceil (1 + t0 * (Degree - 1))),
-          r2 = size_type(std::floor(1 + t1 * (Degree - 1))),
-          nr = r2 - r1 + 1;
-          res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_um.segment(r1, nr));
+          // Case i = 1, n-1
+          if (t0 * Degree < 2 && 2 < t1 * Degree) // If max for i = 1 in [t0, t1]
+            res(1) = std::max(res(1), b_up(1));
+          if (t0 * Degree < Degree - 2 && Degree - 2 < t1 * Degree) // If max for i = n-1 in [t0, t1]
+            res(Degree-1) = std::max(res(Degree-1), b_up(Degree-1));
+
+          // Case 2 <= i <= n-2
+          if (Degree > 3) {
+            // when u_p(i) in [t0, t1], consider b_up.
+            size_type r1 = std::max(size_type(std::ceil (t0 * (Degree - 1))), size_type(2)),
+                      r2 =          size_type(std::floor(t1 * (Degree - 1))),
+                      nr = std::max(r2 - r1 + 1, size_type(0));
+            res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_up.segment(r1, nr));
+
+            // when u_m(i) in [t0, t1], consider b_um.
+            r1 =          size_type(std::ceil (1 + t0 * (Degree - 1))),
+            r2 = std::min(size_type(std::floor(1 + t1 * (Degree - 1))), size_type(Degree - 2));
+            nr = std::max(r2 - r1 + 1, size_type(0));
+            res.segment(r1, nr).noalias() = res.segment(r1, nr).cwiseMax(b_um.segment(r1, nr));
+          }
         }
         template <int Degree>
         typename spline_basis_function<BernsteinBasis, Degree>::Coeffs_t spline_basis_function<BernsteinBasis, Degree>::absBound (bool up)
@@ -231,23 +243,19 @@ namespace hpp {
           Coeffs_t res;
           const Factorials_t factors = factorials<NbCoeffs>();
           Factorials_t iToThePowerOfI (Factorials_t::Ones());
-          // const size_type im = (up ? 1      : 2);
-          // const size_type iM = (up ? Degree : Degree);
           for (size_type i = 1; i < Degree; ++i) {
             for (size_type j = 0; j < i; ++j)
               iToThePowerOfI(i) *= i;
           }
-          res(0) = Degree;
-          res(Degree) = Degree;
-          for (size_type i = 1; i < Degree; ++i) {
+          res(0) = res(Degree) = Degree;
+          res(1) = res(Degree - 1)
+            = value_type(iToThePowerOfI(Degree - 2)) / std::pow (Degree, Degree-3);
+          for (size_type i = 2; i < Degree - 1; ++i) {
             const size_type p = (up
                 ? iToThePowerOfI(i) * iToThePowerOfI(Degree - i - 1)
                 : iToThePowerOfI(Degree - i) * iToThePowerOfI(i - 1));
-            res(i) = value_type(binomial(Degree, i, factors) * p);
+            res(i) = value_type(binomial(Degree, i, factors) * p) / value_type(iToThePowerOfI(Degree - 1));
           }
-          res.template segment<NbCoeffs-2>(1) /= value_type(iToThePowerOfI(Degree - 1));
-          // if (up) res(Degree - 1) = Degree;
-          // else    res(1)          = Degree;
           return res;
         }
       }
