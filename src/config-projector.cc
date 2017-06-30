@@ -42,9 +42,6 @@
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
 
-// #define SVD_THRESHOLD Eigen::NumTraits<value_type>::dummy_precision()
-#define SVD_THRESHOLD 1e-8
-
 namespace hpp {
   namespace core {
     using constraints::HybridSolver;
