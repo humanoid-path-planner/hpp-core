@@ -105,7 +105,6 @@ namespace hpp {
                   << res1 << " - " << res2 << " = " << res1 - res2 << '\n'
                   << H.block(shift, shift, Spline::NbCoeffs * paramSize_, Spline::NbCoeffs * paramSize_));
             }
-
 #endif // NDEBUG
           }
         }
