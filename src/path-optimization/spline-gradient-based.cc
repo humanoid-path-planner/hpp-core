@@ -282,6 +282,19 @@ namespace hpp {
           ratios.push_back(r);
         }
 
+        void removeLastConstraint ( const std::size_t& n, LinearConstraint& lc)
+        {
+          assert (functions.size() >= n && lc.J.rows() >= n);
+
+          const std::size_t nSize = functions.size() - n;
+          functions.resize(nSize);
+          indexes.resize(nSize);
+          ratios.resize(nSize);
+
+          lc.J.conservativeResize(lc.J.rows() - n, lc.J.cols());
+          lc.b.conservativeResize(lc.b.rows() - n, lc.b.cols());
+        }
+
         // Compute linearization
         // b = f(S(t))
         // J = Jf(S(p, t)) * dS/dp
@@ -565,7 +578,6 @@ namespace hpp {
             hppDout (info, "Improved path with alpha = " << alpha);
           } else {
             if (alpha != 1.) {
-              hppDout (info, "Adding " << reports.size() << " constraints.");
               for (std::size_t i = 0; i < reports.size(); ++i)
                 addCollisionConstraint(reports[i].second,
                     splines[reports[i].second],
@@ -575,38 +587,30 @@ namespace hpp {
 
               bool fullRank = continuity.reduceConstraint(collision, collisionReduced);
               if (!fullRank) {
-                hppDout (info, "The constraints are rank deficient.");
-                // TODO This break is mandatory when the collision constraint
-                // are added one after the other because this last collision
-                // will not change the optimum. There are two options to do better.
-                // 1. Look for another collision on the same path
-                // 2. Backtrack using a different alpha.
-                break;
-              }
-              bool constraintInfeasible = (collisionReduced.J.cols() < collisionReduced.svd.rank());
-              bool overConstrained = (QPcontinuous.H.rows() < collisionReduced.svd.rank());
-              if (overConstrained) {
-                hppDout (info, "The problem is over constrained: "
-                    << QP.H.rows() << " variables for "
-                    << collisionReduced.svd.rank() << " independant constraints.");
-                break;
-              }
-              if (constraintInfeasible) {
-                hppDout (info, "The constraints became infeasible. "
-                    "This should not have happened since the problem should have been considered over constrained.");
-                break;
-              }
-              hppDout (info, "Adding " << reports.size() << " constraints. "
-                  "Constraints size " << collision.J.rows() <<
-                  "(" << collisionReduced.svd.rank() << ") / " << QPcontinuous.H.cols());
+                hppDout (info, "The collision constraint would be rank deficient. Removing last constraint.");
+                collisionFunctions.removeLastConstraint (reports.size(), collision);
+                alpha *= 0.5;
+                stopAtFirst = alwaysStopAtFirst;
+              } else {
+                bool overConstrained = (QPcontinuous.H.rows() < collisionReduced.svd.rank());
+                if (overConstrained) {
+                  hppDout (info, "The problem is over constrained: "
+                      << QP.H.rows() << " variables for "
+                      << collisionReduced.svd.rank() << " independant constraints.");
+                  break;
+                }
+                hppDout (info, "Added " << reports.size() << " constraints. "
+                    "Constraints size " << collision.J.rows() <<
+                    "(" << collisionReduced.svd.rank() << ") / " << QPcontinuous.H.cols());
 
-              QPreduced = QuadraticProblem (QPcontinuous, collisionReduced);
+                QPreduced = QuadraticProblem (QPcontinuous, collisionReduced);
 
-              // When adding a new constraint, try first minimum under this
-              // constraint. If this latter minimum is in collision,
-              // re-initialize alpha to alphaInit.
-              alpha = 1.;
-              stopAtFirst = true;
+                // When adding a new constraint, try first minimum under this
+                // constraint. If this latter minimum is in collision,
+                // re-initialize alpha to alphaInit.
+                alpha = 1.;
+                stopAtFirst = true;
+              }
             } else {
               alpha = alphaInit;
               stopAtFirst = alwaysStopAtFirst;
