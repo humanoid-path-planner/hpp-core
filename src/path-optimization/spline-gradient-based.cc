@@ -111,8 +111,8 @@ namespace hpp {
             // check that the constraints are feasible
             matrix_t error = J * XStar - b;
             if (!error.isZero()) {
-              hppDout (warning, "The continuity constraints are infeasible: "
-                  << error.norm() << '\n' << error);
+              hppDout (warning, "Constraint not feasible: "
+                  << error.norm() << '\n' << error.transpose());
             }
           }
 
@@ -132,10 +132,10 @@ namespace hpp {
         void reduceProblem (const QuadraticProblem& QP, QuadraticProblem& QPr) const
         {
           matrix_t H_PK (QP.H * PK);
-          QPr.H = PK.transpose() * H_PK;
-          QPr.b = 2 * xStar.transpose() * H_PK;
+          QPr.H.noalias() = PK.transpose() * H_PK;
+          QPr.b.noalias() = 2 * H_PK.transpose() * xStar;
           if (!QP.bIsZero) {
-            QPr.b.transpose().noalias() += QP.b.transpose() * PK;
+            QPr.b.noalias() += PK.transpose() * QP.b;
           }
           QPr.bIsZero = false;
 
@@ -145,22 +145,23 @@ namespace hpp {
 
         bool reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr) const
         {
-          lcr.J = lc.J * PK;
-          lcr.b = lc.b - lc.J * xStar;
-
-          if (lcr.J.rows() > J.cols()) {
-            // The problem is over constrained
-            return false;
-          }
+          lcr.J.noalias() = lc.J * PK;
+          lcr.b.noalias() = lc.b - lc.J * xStar;
 
           // Decompose
           lcr.decompose(true);
-          return true;
+          return (lcr.J.rows() == 0 || lcr.svd.rank() == std::min(lcr.J.rows(), lcr.J.cols()));
         }
 
         void computeSolution (const vector_t& v)
         {
-          xSol = xStar + PK * v;
+          xSol.noalias() = xStar + PK * v;
+          assert (isSatisfied(xSol));
+        }
+
+        bool isSatisfied (const vector_t& x)
+        {
+          return (J * Eigen::Map<const RowMajorMatrix_t> (x.data(), J.cols(), b.cols()) - b).isZero();
         }
 
         void addRows (const std::size_t& nbRows)
@@ -199,7 +200,7 @@ namespace hpp {
         }
 
         QuadraticProblem (const QuadraticProblem& QP, const LinearConstraint& lc) :
-          H (lc.PK.cols(), lc.PK.cols()), b (lc.PK.cols()),
+          H (lc.PK.cols(), lc.PK.cols()), b (lc.PK.cols()), bIsZero (false),
           Hpinv (lc.PK.cols(), lc.PK.cols()),
           svd (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
           xStar (lc.PK.cols())
@@ -208,7 +209,8 @@ namespace hpp {
         }
 
         QuadraticProblem (const QuadraticProblem& QP) :
-          H (QP.H), b (QP.b), Hpinv (QP.Hpinv), svd (QP.svd), xStar (QP.xStar)
+          H (QP.H), b (QP.b), bIsZero (QP.bIsZero),
+          Hpinv (QP.Hpinv), svd (QP.svd), xStar (QP.xStar)
         {}
 
         void addRows (const std::size_t& nbRows)
@@ -253,7 +255,7 @@ namespace hpp {
 
         void solve ()
         {
-          xStar = - 0.5 * Hpinv * b;
+          xStar.noalias() = - 0.5 * Hpinv * b;
         }
 
         // model
