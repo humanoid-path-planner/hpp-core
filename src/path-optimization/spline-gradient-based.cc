@@ -297,7 +297,8 @@ namespace hpp {
           q.resize(f->inputSize());
           (*spline) (q, t);
 
-          f->value(lc.b.col(0).segment(row, nbRows), q);
+          vector_t v (f->outputSize());
+          f->value(v, q);
 
           J.resize(f->outputSize(), f->inputDerivativeSize());
           f->jacobian(J, q);
@@ -308,6 +309,10 @@ namespace hpp {
           for (size_type i = 0; i < Spline::NbCoeffs; ++i)
             lc.J.block (row, col + i * rDof, nbRows, rDof).noalias()
               = paramDerivativeCoeff(i) * J;
+
+          lc.b.col(0).segment(row, nbRows) =
+            lc.J.block (row, col, nbRows, Spline::NbCoeffs * rDof)
+            * spline->rowParameters();
         }
 
         void linearize (const Splines_t& splines, LinearConstraint& lc)
