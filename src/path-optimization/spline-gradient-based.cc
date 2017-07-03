@@ -576,13 +576,19 @@ namespace hpp {
               bool fullRank = continuity.reduceConstraint(collision, collisionReduced);
               if (!fullRank) {
                 hppDout (info, "The constraints are rank deficient.");
+                // TODO This break is mandatory when the collision constraint
+                // are added one after the other because this last collision
+                // will not change the optimum. There are two options to do better.
+                // 1. Look for another collision on the same path
+                // 2. Backtrack using a different alpha.
+                break;
               }
               bool constraintInfeasible = (collisionReduced.J.cols() < collisionReduced.svd.rank());
               bool overConstrained = (QPcontinuous.H.rows() < collisionReduced.svd.rank());
               if (overConstrained) {
                 hppDout (info, "The problem is over constrained: "
                     << QP.H.rows() << " variables for "
-                    << constraint.svd.rank() << " independant constraints.");
+                    << collisionReduced.svd.rank() << " independant constraints.");
                 break;
               }
               if (constraintInfeasible) {
@@ -591,7 +597,8 @@ namespace hpp {
                 break;
               }
               hppDout (info, "Adding " << reports.size() << " constraints. "
-                  "Constraints size " << constraint.J.rows() << " / " << constraint.J.cols());
+                  "Constraints size " << collision.J.rows() <<
+                  "(" << collisionReduced.svd.rank() << ") / " << QPcontinuous.H.cols());
 
               QPreduced = QuadraticProblem (QPcontinuous, collisionReduced);
 
