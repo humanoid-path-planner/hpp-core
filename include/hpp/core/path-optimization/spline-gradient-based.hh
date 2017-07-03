@@ -69,6 +69,7 @@ namespace hpp {
           SplineGradientBased (const Problem& problem);
 
         private:
+          struct ContinuityConstraint;
           struct LinearConstraint;
           struct QuadraticProblem;
           typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
@@ -79,7 +80,7 @@ namespace hpp {
 
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
 
-          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, LinearConstraint& continuity);
+          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, ContinuityConstraint& continuity);
 
           // void addProblemConstraints
 
@@ -238,7 +239,7 @@ namespace hpp {
           value_type alphaMax_;
           */
 
-          bool isContinuous (const Splines_t& splines, const size_type maxOrder, const LinearConstraint& continuity) const;
+          bool isContinuous (const Splines_t& splines, const size_type maxOrder, const ContinuityConstraint& continuity) const;
 
           template <typename Cost_t> bool checkHessian (const Cost_t& cost, const matrix_t& H, const Splines_t& splines) const;
 

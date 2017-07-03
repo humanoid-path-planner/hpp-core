@@ -42,7 +42,8 @@ namespace hpp {
       typedef Eigen::Map<      vector_t>      VectorMap_t;
 
       HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
-      HPP_DEFINE_TIMECOUNTER(SGB_matrixDecomposition);
+      HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
+      HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
 
       template <int NbRows>
       VectorMap_t reshape (Eigen::Matrix<value_type, NbRows, Eigen::Dynamic, Eigen::RowMajor>& parameters)
@@ -68,32 +69,21 @@ namespace hpp {
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::LinearConstraint
       {
-        LinearConstraint (size_type inputRows, size_type inputCols, size_type outputSize) :
-          J (outputSize, inputRows), b (outputSize, inputCols),
-          svd (outputSize, inputRows, Eigen::ComputeThinU | Eigen::ComputeFullV),
-          xSol (inputRows * inputCols)
+        LinearConstraint (size_type inputSize, size_type outputSize) :
+          J (outputSize, inputSize), b (outputSize),
+          svd (outputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeFullV),
+          xSol (inputSize)
         {
           J.setZero();
           b.setZero();
         }
 
-        template <typename Derived>
-        void expandPK (const Eigen::MatrixBase<Derived>& PKs, matrix_t& PK, const size_type pSize)
-        {
-          PK.setZero();
-          for (size_type i = 0; i < PKs.rows(); ++i) {
-            for (size_type j = 0; j < PKs.cols(); ++j) {
-              PK.block(i*pSize, j*pSize, pSize, pSize).diagonal().setConstant(PKs(i,j));
-            }
-          }
-        }
-
         void decompose (bool check = false)
         {
-          HPP_START_TIMECOUNTER(SGB_matrixDecomposition);
+          HPP_START_TIMECOUNTER(SGB_constraintDecomposition);
           if (J.rows() == 0) { // No constraint
-            PK = matrix_t::Identity (J.cols() * b.cols(), J.cols() * b.cols());
-            PKinv = PK;
+            PK = matrix_t::Identity (J.cols(), J.cols());
+            // PK_linv = PK;
             xStar = vector_t::Zero (PK.rows());
             return;
           }
@@ -101,32 +91,26 @@ namespace hpp {
           svd.compute (J);
           assert (J.rows() <= J.cols());
 
-          PK.resize(J.cols() * b.cols(), (J.cols() - svd.rank()) * b.cols());
+          PK.resize(J.cols(), J.cols() - svd.rank());
           xStar.resize (PK.rows());
 
-          Eigen::Map<RowMajorMatrix_t, Eigen::Aligned> XStar (xStar.data(), J.cols(), b.cols());
-          XStar = svd.solve (b);
+          xStar = svd.solve (b);
 
           if (check) {
             // check that the constraints are feasible
-            matrix_t error = J * XStar - b;
+            matrix_t error = J * xStar - b;
             if (!error.isZero()) {
               hppDout (warning, "Constraint not feasible: "
                   << error.norm() << '\n' << error.transpose());
             }
           }
 
-          PKinv.resize(PK.cols(), PK.rows());
-          if (b.cols() > 1) {
-            expandPK (constraints::getV2(svd)          , PK   , b.cols());
-            expandPK (constraints::getV2(svd).adjoint(), PKinv, b.cols());
-          } else {
-            PK = constraints::getV2(svd);
-            PKinv = PK.adjoint();
-          }
-          assert((PKinv * PK).eval().isIdentity());
+          // PK_linv.resize(PK.cols(), PK.rows());
+          PK = constraints::getV2(svd);
+          // PK_linv = PK.adjoint();
+          // assert((PK_linv * PK).eval().isIdentity());
 
-          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_matrixDecomposition);
+          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_constraintDecomposition);
         }
 
         void reduceProblem (const QuadraticProblem& QP, QuadraticProblem& QPr) const
@@ -139,7 +123,7 @@ namespace hpp {
           }
           QPr.bIsZero = false;
 
-          // QPr.Hpinv = PKinv * QP.Hpinv * PKinv.transpose();
+          // QPr.Hpinv = PK_linv * QP.Hpinv * PK_linv.transpose();
           QPr.decompose();
         }
 
@@ -161,37 +145,76 @@ namespace hpp {
 
         bool isSatisfied (const vector_t& x)
         {
-          return (J * Eigen::Map<const RowMajorMatrix_t> (x.data(), J.cols(), b.cols()) - b).isZero();
+          return (J * x - b).isZero();
         }
 
         void addRows (const std::size_t& nbRows)
         {
           J.conservativeResize(J.rows() + nbRows, J.cols());
-          b.conservativeResize(b.rows() + nbRows, b.cols());
+          b.conservativeResize(b.rows() + nbRows);
 
           J.bottomRows(nbRows).setZero();
         }
 
         // model
         matrix_t J;
-        matrix_t b;
+        vector_t b;
 
         // Data
         Eigen::JacobiSVD < matrix_t > svd;
 
         // Data for vectorized input
         // Solutions are x = xStar + PK * v, v \in kernel(J)
-        matrix_t PK, PKinv;
+        matrix_t PK;
+        // matrix_t PK_linv;
         vector_t xStar, xSol;
+      };
+
+      template <int _PB, int _SO>
+      struct SplineGradientBased<_PB, _SO>::ContinuityConstraint
+      {
+        ContinuityConstraint (size_type inputRows, size_type inputCols, size_type outputSize) :
+          J (outputSize, inputRows), b (outputSize, inputCols)
+        {
+          J.setZero();
+          b.setZero();
+        }
+
+        template <typename Derived>
+        static void expand (const Eigen::MatrixBase<Derived>& in, matrix_t& out, const size_type pSize)
+        {
+          out.setZero();
+          for (size_type i = 0; i < in.rows(); ++i) {
+            for (size_type j = 0; j < in.cols(); ++j) {
+              out.block(i*pSize, j*pSize, pSize, pSize).diagonal().setConstant(in(i,j));
+            }
+          }
+        }
+
+        LinearConstraint linearConstraint () const
+        {
+          LinearConstraint lc (J.cols() * b.cols(), b.size());
+          expand (J, lc.J, b.cols());
+          Eigen::Map<RowMajorMatrix_t> (lc.b.data(), b.rows(), b.cols()) = b;
+          return lc;
+        }
+
+        // model
+        matrix_t J;
+        matrix_t b;
       };
 
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::QuadraticProblem
       {
+        // typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
+        // typedef Eigen::ColPivHouseholderQR < matrix_t > Decomposition_t;
+        typedef Eigen::HouseholderQR < matrix_t > Decomposition_t;
+
         QuadraticProblem (size_type inputSize) :
           H (inputSize, inputSize), b (inputSize),
-          Hpinv (inputSize, inputSize),
-          svd (inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
+          // dec (inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
+          dec (inputSize, inputSize),
           xStar (inputSize)
         {
           H.setZero();
@@ -201,8 +224,8 @@ namespace hpp {
 
         QuadraticProblem (const QuadraticProblem& QP, const LinearConstraint& lc) :
           H (lc.PK.cols(), lc.PK.cols()), b (lc.PK.cols()), bIsZero (false),
-          Hpinv (lc.PK.cols(), lc.PK.cols()),
-          svd (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
+          // dec (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
+          dec (lc.PK.cols(), lc.PK.cols()),
           xStar (lc.PK.cols())
         {
           lc.reduceProblem(QP, *this);
@@ -210,7 +233,7 @@ namespace hpp {
 
         QuadraticProblem (const QuadraticProblem& QP) :
           H (QP.H), b (QP.b), bIsZero (QP.bIsZero),
-          Hpinv (QP.Hpinv), svd (QP.svd), xStar (QP.xStar)
+          dec (QP.dec), xStar (QP.xStar)
         {}
 
         void addRows (const std::size_t& nbRows)
@@ -223,39 +246,20 @@ namespace hpp {
 
         /// \param blockSize if not zero, H is considered block diagonal, the
         ///                  block being of size blockSize x blockSize
-        bool decompose (std::size_t blockSize = 0)
+        void decompose (std::size_t blockSize = 0)
         {
-          HPP_START_TIMECOUNTER(SGB_matrixDecomposition);
-          bool isFullRank = true;
+          HPP_START_TIMECOUNTER(SGB_qpDecomposition);
           if (blockSize == 0) {
-            svd.compute(H);
-            constraints::pseudoInverse (svd, Hpinv);
-            isFullRank = (svd.rank() == H.rows());
+            dec.compute(H);
           } else {
-            Hpinv.setZero();
-            Eigen::JacobiSVD<matrix_t> svdTmp (blockSize, blockSize, Eigen::ComputeThinU | Eigen::ComputeThinV);
-            for (size_type r = 0; r < H.rows(); r += blockSize) {
-#ifndef NDEBUG
-              for (size_type c = 0; c < H.rows(); c += blockSize) {
-                if (c == r) continue;
-                if (!H.block(r, c, blockSize, blockSize).isZero()) {
-                  hppDout (error, "Hessian should be block diagonal (blockSize = " << blockSize << ").\n"
-                      << H.block(r, c, blockSize, blockSize));
-                }
-              }
-#endif // NDEBUG
-              svdTmp.compute(H.block(r, r, blockSize, blockSize));
-              constraints::pseudoInverse (svdTmp, Hpinv.block(r, r, blockSize, blockSize));
-              isFullRank = isFullRank && (svdTmp.rank() == (size_type)blockSize);
-            }
+            throw std::logic_error("unimplemented");
           }
-          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_matrixDecomposition);
-          return isFullRank;
+          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
         }
 
         void solve ()
         {
-          xStar.noalias() = - 0.5 * Hpinv * b;
+          xStar.noalias() = - 0.5 * dec.solve(b);
         }
 
         // model
@@ -265,7 +269,7 @@ namespace hpp {
 
         // Data
         matrix_t Hpinv;
-        Eigen::JacobiSVD<matrix_t> svd;
+        Decomposition_t dec;
         vector_t xStar;
       };
 
@@ -282,9 +286,9 @@ namespace hpp {
           ratios.push_back(r);
         }
 
-        void removeLastConstraint ( const std::size_t& n, LinearConstraint& lc)
+        void removeLastConstraint (const std::size_t& n, LinearConstraint& lc)
         {
-          assert (functions.size() >= n && lc.J.rows() >= n);
+          assert (functions.size() >= n && std::size_t(lc.J.rows()) >= n);
 
           const std::size_t nSize = functions.size() - n;
           functions.resize(nSize);
@@ -325,7 +329,7 @@ namespace hpp {
             lc.J.block (row, col + i * rDof, nbRows, rDof).noalias()
               = paramDerivativeCoeff(i) * J;
 
-          lc.b.col(0).segment(row, nbRows) =
+          lc.b.segment(row, nbRows) =
             lc.J.block (row, col, nbRows, Spline::NbCoeffs * rDof)
             * spline->rowParameters();
         }
@@ -360,10 +364,15 @@ namespace hpp {
       void SplineGradientBased<_PB, _SO>::appendEquivalentSpline
       (const StraightPathPtr_t& path, Splines_t& splines) const
       {
-        splines.push_back(
-            HPP_DYNAMIC_PTR_CAST(Spline,
-            steeringMethod_->impl_compute (path->initial(), path->end()))
-            );
+        PathPtr_t s =
+          steeringMethod_->impl_compute (path->initial(), path->end());
+        if (path->constraints()) {
+          splines.push_back(
+              HPP_DYNAMIC_PTR_CAST(Spline, s->copy (path->constraints()))
+              );
+        } else {
+          splines.push_back(HPP_DYNAMIC_PTR_CAST(Spline, s));
+        }
       }
 
       template <int _PB, int _SO>
@@ -386,7 +395,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::addContinuityConstraints
-      (const Splines_t& splines, const size_type maxOrder, LinearConstraint& lc)
+      (const Splines_t& splines, const size_type maxOrder, ContinuityConstraint& lc)
       {
         typename Spline::BasisFunctionVector_t B0, B1;
         enum { NbCoeffs = Spline::NbCoeffs };
@@ -499,13 +508,14 @@ namespace hpp {
         enum { MaxContinuityOrder = int( (SplineOrder - 1) / 2) };
         const size_type orderContinuity = MaxContinuityOrder;
 
-        LinearConstraint continuity (nParameters, rDof, (splines.size() + 1) * (orderContinuity + 1));
+        ContinuityConstraint continuity (nParameters, rDof, (splines.size() + 1) * (orderContinuity + 1));
         addContinuityConstraints (splines, orderContinuity, continuity);
         isContinuous(splines, orderContinuity, continuity);
 
+        LinearConstraint constraint = continuity.linearConstraint();
         // 3
         // addProblemConstraints
-        LinearConstraint collision (nParameters * rDof, 1, 0);
+        LinearConstraint collision (nParameters * rDof, 0);
         CollisionFunctions collisionFunctions;
 
         // 4
@@ -513,9 +523,9 @@ namespace hpp {
         SquaredLength<Spline, 1> cost (splines, rDof, rDof);
 
         // 5
-        continuity.decompose (true); // true = check that the constraint is feasible
-        LinearConstraint collisionReduced (continuity.PK.rows(), 1, 0);
-        continuity.reduceConstraint(collision, collisionReduced);
+        constraint.decompose (true); // true = check that the constraint is feasible
+        LinearConstraint collisionReduced (constraint.PK.rows(), 0);
+        constraint.reduceConstraint(collision, collisionReduced);
 
         // 6
         bool noCollision = true, stopAtFirst = true;
@@ -535,22 +545,19 @@ namespace hpp {
         checkHessian(cost, QP.H, splines);
 #endif // NDEBUG
         QP.H /= 2;
-        QP.decompose(Spline::NbCoeffs * rDof); // Use the fact that the Hessian is block diagonal.
 
-        QuadraticProblem QPcontinuous (QP, continuity);
+        QuadraticProblem QPc (QP, constraint);
         // TODO avoid this copy
-        QuadraticProblem QPreduced (QPcontinuous);
+        QuadraticProblem QPr (QPc);
 
         while (!(noCollision && minimumReached) && (!interrupt_)) {
           // 6.1
-          // min p^T H p   ->  min 0.5 v^t * Hr * v + br^t * v
-          // s.t. J p = b
           if (alpha == 1) {
             // 6.2
-            QPreduced.solve();
-            collisionReduced.computeSolution(QPreduced.xStar);
-            continuity.computeSolution(collisionReduced.xSol);
-            updateSplines(collSplines, continuity.xSol);
+            QPr.solve();
+            collisionReduced.computeSolution(QPr.xStar);
+            constraint.computeSolution(collisionReduced.xSol);
+            updateSplines(collSplines, constraint.xSol);
             cost.value(costLowerBound, collSplines);
             hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             currentSplines = &collSplines;
@@ -572,8 +579,8 @@ namespace hpp {
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
             if (linearizeAtEachStep) {
               collisionFunctions.linearize (splines, collision);
-              continuity.reduceConstraint(collision, collisionReduced);
-              collisionReduced.reduceProblem (QPcontinuous, QPreduced);
+              constraint.reduceConstraint(collision, collisionReduced);
+              collisionReduced.reduceProblem (QPc, QPr);
             }
             hppDout (info, "Improved path with alpha = " << alpha);
           } else {
@@ -585,14 +592,14 @@ namespace hpp {
                     reports[i].first,
                     collision, collisionFunctions);
 
-              bool fullRank = continuity.reduceConstraint(collision, collisionReduced);
+              bool fullRank = constraint.reduceConstraint(collision, collisionReduced);
               if (!fullRank) {
                 hppDout (info, "The collision constraint would be rank deficient. Removing last constraint.");
                 collisionFunctions.removeLastConstraint (reports.size(), collision);
                 alpha *= 0.5;
                 stopAtFirst = alwaysStopAtFirst;
               } else {
-                bool overConstrained = (QPcontinuous.H.rows() < collisionReduced.svd.rank());
+                bool overConstrained = (QPc.H.rows() < collisionReduced.svd.rank());
                 if (overConstrained) {
                   hppDout (info, "The problem is over constrained: "
                       << QP.H.rows() << " variables for "
@@ -601,9 +608,9 @@ namespace hpp {
                 }
                 hppDout (info, "Added " << reports.size() << " constraints. "
                     "Constraints size " << collision.J.rows() <<
-                    "(" << collisionReduced.svd.rank() << ") / " << QPcontinuous.H.cols());
+                    "(" << collisionReduced.svd.rank() << ") / " << QPc.H.cols());
 
-                QPreduced = QuadraticProblem (QPcontinuous, collisionReduced);
+                QPr = QuadraticProblem (QPc, collisionReduced);
 
                 // When adding a new constraint, try first minimum under this
                 // constraint. If this latter minimum is in collision,
@@ -628,7 +635,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       bool SplineGradientBased<_PB, _SO>::isContinuous
-      (const Splines_t& splines, const size_type maxOrder, const LinearConstraint& lc) const
+      (const Splines_t& splines, const size_type maxOrder, const ContinuityConstraint& lc) const
       {
         typename Spline::BasisFunctionVector_t B0, B1;
         enum { NbCoeffs = Spline::NbCoeffs };
