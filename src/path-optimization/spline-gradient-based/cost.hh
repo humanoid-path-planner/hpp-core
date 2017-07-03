@@ -43,11 +43,14 @@ namespace hpp {
           inputSize_ (nSplines_ * Spline::NbCoeffs * paramSize),
           inputDerivativeSize_ (nSplines_ * Spline::NbCoeffs * paramDerivativeSize)
         {
-          for (std::size_t i = 0; i < nSplines_; ++i)
-            lambda_[i] = splines[i]->squaredNormIntegral(DerivativeOrder);
-          value_type lMax = lambda_.maxCoeff();
-          lambda_ = (lambda_.array() > 1e-6 * lMax)
-            .select(lambda_.cwiseInverse(), 1e6 / lMax);
+          // for (std::size_t i = 0; i < nSplines_; ++i)
+            // lambda_[i] = splines[i]->squaredNormIntegral(DerivativeOrder);
+          // value_type lMax = lambda_.maxCoeff();
+          // lambda_ = (lambda_.array() > 1e-6 * lMax)
+            // .select(lambda_.cwiseInverse(), 1e6 / lMax);
+          // TODO currently, these lambdas give bad result because the spline
+          // length equals to one.
+          lambda_.setOnes();
         }
 
         void value (value_type& result, const Splines_t& splines) const
