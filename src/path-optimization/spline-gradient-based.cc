@@ -22,6 +22,7 @@
 
 #include <hpp/constraints/svd.hh>
 
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-validation.hh>
@@ -436,6 +437,66 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::addProblemConstraints
+      (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc) const
+      {
+        assert (init->numberPaths() == splines.size());
+        for (std::size_t i = 0; i < splines.size(); ++i) {
+          addProblemConstraints (init->pathAtRank(i), i, splines[i], lc);
+        }
+      }
+
+      template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::addProblemConstraints
+      (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc) const
+      {
+        ConstraintSetPtr_t cs = path->constraints();
+        if (cs) {
+          ConfigProjectorPtr_t cp = cs->configProjector();
+          if (cp) {
+            const HybridSolver& solver = cp->solver();
+            const constraints::ExplicitSolver& es = solver.explicitSolver();
+            typename Spline::BasisFunctionVector_t B0, B1;
+            const size_type rDof = robot_->numberDof(),
+                            col  = idxSpline * Spline::NbCoeffs * rDof,
+                            shift = lc.J.rows(),
+                            nOutVar = es.outDers().nbIndexes();
+            size_type row0, row1;
+
+            // TODO to remove the explicitely constrained DOF, we constrain
+            // set them to zero.
+            // lc.addRows(Spline::NbCoeffs * nOutVar);
+            lc.addRows(2 * nOutVar);
+
+            // Position: 2 * nOutVar rows
+            row0 = shift; row1 = shift + nOutVar;
+            spline->basisFunctionDerivative(0, 0, B0);
+            spline->basisFunctionDerivative(0, 1, B1);
+            matrix_t tmp(matrix_t::Zero(rDof, rDof));
+            for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
+              tmp.diagonal().setConstant(B0(k));
+              lc.J.block(row0, col + k * rDof, nOutVar, rDof)
+                = es.outDers().rview(tmp);
+
+              tmp.diagonal().setConstant(B1(k));
+              lc.J.block(row1, col + k * rDof, nOutVar, rDof)
+                = es.outDers().rview(tmp);
+            }
+            lc.b.segment(row0, nOutVar) = es.outDers().rview (spline->parameters().transpose() * B0);
+            lc.b.segment(row1, nOutVar) = es.outDers().rview (spline->parameters().transpose() * B1);
+
+            assert ((lc.J.block(row0, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+                .isApprox(lc.b.segment(row0, nOutVar)));
+            assert ((lc.J.block(row1, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+                .isApprox(lc.b.segment(row1, nOutVar)));
+
+            // TODO Velocity continuity
+            // Derivatives
+          }
+        }
+      }
+
+      template <int _PB, int _SO>
       typename SplineGradientBased<_PB, _SO>::Reports_t SplineGradientBased<_PB, _SO>::validatePath
       (const Splines_t& splines, bool stopAtFirst) const
       {
@@ -513,8 +574,9 @@ namespace hpp {
         isContinuous(splines, orderContinuity, continuity);
 
         LinearConstraint constraint = continuity.linearConstraint();
+        addProblemConstraints (path, splines, constraint);
+
         // 3
-        // addProblemConstraints
         LinearConstraint collision (nParameters * rDof, 0);
         CollisionFunctions collisionFunctions;
 

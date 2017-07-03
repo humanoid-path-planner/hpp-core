@@ -82,7 +82,9 @@ namespace hpp {
 
           void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, ContinuityConstraint& continuity);
 
-          // void addProblemConstraints
+          void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc) const;
+
+          void addProblemConstraints (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc) const;
 
           Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
 
