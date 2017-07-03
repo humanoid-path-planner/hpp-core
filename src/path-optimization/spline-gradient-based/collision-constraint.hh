@@ -164,6 +164,7 @@ namespace hpp {
            vector3_t x1_J2 (M1.act (x1_J1));
            hppDout (info, "x1 in J2 = " << x1_J2.transpose());
            eigen::vector3_t u=x1_J2 - x2_J2;
+           u.normalize();
            matrix3_t rot;
            rot.setIdentity();
            DifferentiableFunctionPtr_t f = constraints::Position::create
