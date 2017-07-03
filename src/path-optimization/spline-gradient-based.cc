@@ -514,10 +514,14 @@ namespace hpp {
         Reports_t reports;
 
         QuadraticProblem QP(cost.inputDerivativeSize_);
+        value_type optimalCost, costLowerBound = 0;
+        cost.value(optimalCost, splines);
+        hppDout (info, "Initial cost is " << optimalCost);
         cost.hessian(QP.H, splines);
 #ifndef NDEBUG
         checkHessian(cost, QP.H, splines);
 #endif // NDEBUG
+        QP.H /= 2;
         QP.decompose(Spline::NbCoeffs * rDof); // Use the fact that the Hessian is block diagonal.
 
         QuadraticProblem QPcontinuous (QP, continuity);
@@ -534,6 +538,8 @@ namespace hpp {
             collisionReduced.computeSolution(QPreduced.xStar);
             continuity.computeSolution(collisionReduced.xSol);
             updateSplines(collSplines, continuity.xSol);
+            cost.value(costLowerBound, collSplines);
+            hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             currentSplines = &collSplines;
             minimumReached = true;
           } else {
@@ -546,6 +552,8 @@ namespace hpp {
           reports = validatePath (*currentSplines, stopAtFirst);
           noCollision = reports.empty();
           if (noCollision) {
+            cost.value(optimalCost, *currentSplines);
+            hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             // Update the spline
             for (std::size_t i = 0; i < splines.size(); ++i)
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
@@ -565,11 +573,26 @@ namespace hpp {
                     reports[i].first,
                     collision, collisionFunctions);
 
-              bool feasible = continuity.reduceConstraint(collision, collisionReduced);
-              if (!feasible) {
-                hppDout (info, "The constraints became infeasible.");
+              bool fullRank = continuity.reduceConstraint(collision, collisionReduced);
+              if (!fullRank) {
+                hppDout (info, "The constraints are rank deficient.");
+              }
+              bool constraintInfeasible = (collisionReduced.J.cols() < collisionReduced.svd.rank());
+              bool overConstrained = (QPcontinuous.H.rows() < collisionReduced.svd.rank());
+              if (overConstrained) {
+                hppDout (info, "The problem is over constrained: "
+                    << QP.H.rows() << " variables for "
+                    << constraint.svd.rank() << " independant constraints.");
                 break;
               }
+              if (constraintInfeasible) {
+                hppDout (info, "The constraints became infeasible. "
+                    "This should not have happened since the problem should have been considered over constrained.");
+                break;
+              }
+              hppDout (info, "Adding " << reports.size() << " constraints. "
+                  "Constraints size " << constraint.J.rows() << " / " << constraint.J.cols());
+
               QPreduced = QuadraticProblem (QPcontinuous, collisionReduced);
 
               // When adding a new constraint, try first minimum under this
