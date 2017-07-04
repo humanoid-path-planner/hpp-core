@@ -65,13 +65,7 @@ namespace hpp {
     }
 
     // Initialization after creation
-    void Path::init (const PathPtr_t& self)
-    {
-      weak_ = self;
-    }
-
-    // Initialization after copy
-    void Path::initCopy (const PathPtr_t& self)
+    void Path::init (const PathWkPtr_t& self)
     {
       weak_ = self;
     }

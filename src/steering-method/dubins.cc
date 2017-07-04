@@ -1,5 +1,5 @@
-// Copyright (c) 2016, Joseph Mirabel
-// Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
+// Copyright (c) 2017, CNRS
+// Authors: Florent Lamiraux
 //
 // This file is part of hpp-core.
 // hpp-core is free software: you can redistribute it
@@ -14,44 +14,43 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/steering-method/reeds-shepp.hh>
+# include <hpp/core/steering-method/dubins.hh>
 
-#include <pinocchio/multibody/joint/joint.hpp>
+# include <hpp/model/device.hh>
+# include <hpp/model/joint.hh>
 
-#include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint.hh>
-
-#include <hpp/core/problem.hh>
-#include <hpp/core/reeds-shepp-path.hh>
+# include <hpp/core/problem.hh>
+# include <hpp/core/dubins-path.hh>
 
 namespace hpp {
   namespace core {
     namespace steeringMethod {
-      PathPtr_t ReedsShepp::impl_compute (ConfigurationIn_t q1,
+      PathPtr_t Dubins::impl_compute (ConfigurationIn_t q1,
           ConfigurationIn_t q2) const
       {
-        ReedsSheppPathPtr_t path =
-          ReedsSheppPath::create (device_.lock (), q1, q2,
-              rho_ , xy_, rz_, constraints ());
-        path->setWheelJoints (turningJoint_, wheels_);
+        DubinsPathPtr_t path =
+          DubinsPath::create (device_.lock (), q1, q2,
+			      rho_ , xy_->rankInConfiguration(),
+			      rz_->rankInConfiguration(), constraints ());
+        path->setWheelJoints (rz_, wheels_);
         return path;
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
+      Dubins::Dubins (const ProblemPtr_t& problem) :
         CarLike (problem), weak_ ()
       {
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
+      Dubins::Dubins  (const ProblemPtr_t& problem,
           const value_type turningRadius,
-          size_type xyRank, size_type rzRank,
+          JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
 	CarLike (problem, turningRadius, xyJoint, rzJoint, wheels)
       {
       }
 
       /// Copy constructor
-      ReedsShepp::ReedsShepp (const ReedsShepp& other) :
+      Dubins::Dubins  (const Dubins& other) :
         CarLike (other)
       {
       }

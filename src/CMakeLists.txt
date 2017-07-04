@@ -38,6 +38,9 @@ discretized-collision-checking.cc
 discretized-path-validation.cc
 distance/reeds-shepp.cc
 distance-between-objects.cc
+  dubins.hh
+  dubins.cc
+  dubins-path.cc
 explicit-numerical-constraint.cc
 explicit-relative-transformation.cc
 extracted-path.hh
@@ -45,7 +48,6 @@ equation.cc
 interpolated-path.cc
 joint-bound-validation.cc
 locked-joint.cc
-#########################"
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
   # nearest-neighbor/k-d-tree.cc #
@@ -76,6 +78,10 @@ locked-joint.cc
  random-shortcut.cc
  roadmap.cc
  steering-method/reeds-shepp.cc # TODO access type of joint
+  steering-method/car-like.cc
+  steering-method/constant-curvature.cc
+  steering-method/dubins.cc
+  steering-method/snibud.cc
  straight-path.cc
  visibility-prm-planner.cc
  weighed-distance.cc

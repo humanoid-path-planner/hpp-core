@@ -33,10 +33,17 @@
 #include <hpp/core/discretized-path-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/projection-error.hh>
+#include <hpp/core/reeds-shepp-path.hh>
+#include <hpp/core/steering-method/constant-curvature.hh>
 
 namespace hpp {
   namespace core {
     namespace {
+      using steeringMethod::ConstantCurvature;
+      using steeringMethod::ConstantCurvaturePtr_t;
+
+      value_type precision (sqrt(std::numeric_limits <value_type>::epsilon ()));
+
       // The comments, variable names, etc. use the nomenclature from the Reeds & Shepp paper.
 
       const value_type pi = boost::math::constants::pi<value_type>();
@@ -69,13 +76,12 @@ namespace hpp {
         { RS_RIGHT, RS_LEFT, RS_STRAIGHT, RS_RIGHT, RS_LEFT }       // 17
       };
 
-      template <typename D1> inline vector2_t rotate
-        (const Eigen::MatrixBase<D1>& U, const value_type& theta)
+      template <typename D1, typename D2> inline vector2_t rotate
+        (const Eigen::MatrixBase<D1>& U, const Eigen::MatrixBase<D2>& CS)
         {
-          const D1& _U = U.derived();
-          return (vector2_t() <<   _U(0)*cos (theta) + _U(1)*sin (theta),
-                                 - _U(0)*sin (theta) + _U(1)*cos (theta)).
-	    finished();
+          const D1& _U = U.derived(); const D2& _CS = CS.derived();
+          return (vector2_t() <<   _U.dot(_CS),
+                                 - _U(0)*_CS(1) + _U(1)*_CS(0)).finished();
         }
     }
 
@@ -85,6 +91,11 @@ namespace hpp {
       if (v < -pi)     v += twopi;
       else if (v > pi) v -= twopi;
       return v;
+    }
+    inline value_type angle(const vector2_t& cs)
+    {
+      if (cs(1) < 0) return - std::acos (cs(0));
+      else           return   std::acos (cs(0));
     }
     inline void polar(const value_type& x, const value_type& y, value_type &r, value_type &theta)
     {
@@ -136,9 +147,19 @@ namespace hpp {
       }
       return false;
     }
+
+    void ReedsSheppPath::setupPath (const std::size_t& typeId, double t,
+                                    double u, double v, double w, double x)
+    {
+      typeId_ = typeId;
+      lengths_(0) = t; lengths_(1) = u; lengths_(2) = v; lengths_(3) = w;
+      lengths_(4) = x;
+      currentLength_ = rho_ * lengths_.lpNorm<1> ();
+    }
+
     void ReedsSheppPath::CSC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = length(), L;
+      value_type t, u, v, Lmin = currentLength_, L;
       if (LpSpLp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(14, t, u, v);
@@ -196,7 +217,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = length(), L;
+      value_type t, u, v, Lmin = currentLength_, L;
       if (LpRmL(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(0, t, u, v);
@@ -275,7 +296,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = length(), L;
+      value_type t, u, v, Lmin = currentLength_, L;
       if (LpRupLumRm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v)))
       {
         setupPath(2, t, u, -u, v);
@@ -352,7 +373,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCSC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = length() - .5*pi, L;
+      value_type t, u, v, Lmin = currentLength_ - .5*pi, L;
       if (LpRmSmLm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(4, t, -.5*pi, u, v);
@@ -462,7 +483,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCSCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = length() - pi, L;
+      value_type t, u, v, Lmin = currentLength_ - pi, L;
       if (LpRmSLmRp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(16, t, -.5*pi, u, -.5*pi, v);
@@ -524,44 +545,53 @@ namespace hpp {
       weak_ = self;
     }
 
+    std::ostream& ReedsSheppPath::print (std::ostream &os) const
+    {
+      os << "ReedsSheppPath:" << std::endl;
+      return parent_t::print (os);
+    }
+
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
-			ConfigurationIn_t init,
-			ConfigurationIn_t end,
-			value_type rho,
-                        size_type xyId, size_type rzId
-                        ) :
-      parent_t (interval_t (0, 1.), device->configSize (),
-		device->numberDof ()),
+                                    ConfigurationIn_t init,
+                                    ConfigurationIn_t end,
+                                    value_type rho,
+                                    size_type xyId, size_type rzId) :
+      parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
-      xyId_ (xyId), rzId_ (rzId), typeId_ (0), rho_ (rho)
+      xyId_ (xyId), rzId_ (rzId), typeId_ (0), lengths_ (),
+      currentLength_ (std::numeric_limits <value_type>::infinity ()), rho_ (rho)
     {
       assert (device);
       assert (rho_ > 0);
+      lengths_.setZero ();
       buildReedsShepp ();
     }
 
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
-			ConfigurationIn_t init,
-			ConfigurationIn_t end,
-			value_type rho,
-                        size_type xyId, size_type rzId,
-			ConstraintSetPtr_t constraints) :
-      parent_t (interval_t (0, 1.), device->configSize (),
-		device->numberDof (), constraints),
+                                    ConfigurationIn_t init,
+                                    ConfigurationIn_t end,
+                                    value_type rho,
+                                    size_type xyId, size_type rzId,
+                                    ConstraintSetPtr_t constraints) :
+      parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
-      xyId_ (xyId), rzId_ (rzId), typeId_ (0), rho_ (rho)
+      xyId_ (xyId), rzId_ (rzId), typeId_ (0),
+      currentLength_ (std::numeric_limits <value_type>::infinity ()), rho_ (rho)
     {
       assert (device);
       assert (rho_ > 0);
+      lengths_.setZero ();
+      Path::constraints (constraints);
       buildReedsShepp ();
+      assert (fabs (currentLength_ - timeRange ().second) < 1e-8);
     }
 
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
       parent_t (path), device_ (path.device_), initial_ (path.initial_),
       end_ (path.end_), xyId_ (path.xyId_), rzId_ (path.rzId_),
       dxyId_ (path.dxyId_), drzId_ (path.drzId_),
-      wheels_ (path.wheels_),
-      typeId_ (path.typeId_), lengths_(path.lengths_), rho_ (path.rho_)
+      typeId_ (path.typeId_), lengths_(path.lengths_),
+      currentLength_ (path.currentLength_), rho_ (path.rho_)
     {
     }
 
@@ -570,7 +600,6 @@ namespace hpp {
       parent_t (path, constraints), device_ (path.device_),
       initial_ (path.initial_), end_ (path.end_),
       xyId_ (path.xyId_), rzId_ (path.rzId_),
-      wheels_ (path.wheels_),
       typeId_ (path.typeId_), lengths_(path.lengths_), rho_ (path.rho_)
     {
       assert (constraints->apply (initial_));
@@ -592,23 +621,11 @@ namespace hpp {
     void ReedsSheppPath::setWheelJoints (const JointPtr_t rz,
         const std::vector<JointPtr_t> wheels)
     {
-      Transform3f zt (rz->currentTransformation ());
-      zt.inverse();
-
-      wheels_.resize(wheels.size());
-      std::size_t rk = 0;
-      for (std::vector<JointPtr_t>::const_iterator _wheels = wheels.begin();
-          _wheels != wheels.end(); ++_wheels) {
-        wheels_[rk].j = *_wheels;
-        wheels_[rk].S = meanBounds(wheels_[rk].j, 0);
-
-        const vector3_t radius = zt.act (wheels_[rk].j->currentTransformation().translation());
-        const value_type left  = std::atan(radius[2] / (- radius[1] - rho_));
-        const value_type right = std::atan(radius[2] / (- radius[1] + rho_));
-
-        wheels_[rk].L = saturate(wheels_[rk].S + left, *_wheels, 0);
-        wheels_[rk].R = saturate(wheels_[rk].S + right, *_wheels, 0);
-        ++rk;
+      for (std::size_t i=0; i < numberPaths (); ++i) {
+        PathPtr_t p (pathAtRank (i));
+        assert (HPP_DYNAMIC_PTR_CAST (ConstantCurvature, p));
+        HPP_STATIC_PTR_CAST (ConstantCurvature, p)->setWheelJoints
+          (rz, wheels);
       }
     }
 
@@ -624,97 +641,58 @@ namespace hpp {
       offset = rzId_ - joint->rankInConfiguration ();
       drzId_ = joint->rankInVelocity () + offset;
       // rotate
-      vector2_t xy = rotate
-	(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_), initial_ [rzId_]);
+      vector2_t xy =
+        rotate(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_),
+          initial_.segment<2>(rzId_));
       xy /= rho_;
-      value_type phi = mod2pi (end_ (rzId_) - initial_ (rzId_));
-      vector2_t csPhi; csPhi << cos (phi), sin (phi);
-      timeRange_.second = std::numeric_limits<value_type>::max();
+      vector2_t csPhi =
+        rotate(end_.segment<2>(rzId_), initial_.segment<2>(rzId_));
+      value_type phi = atan2(csPhi(1), csPhi(0));
+
+      Configuration_t qInit (initial_), qEnd (device_->configSize ());
+      if (xy.squaredNorm () + phi*phi < 1e-8) {
+        ConstantCurvaturePtr_t segment
+          (ConstantCurvature::create (device_, qInit, qInit, 0, 0, xyId_,
+                                      rzId_));
+        appendPath (segment);
+        currentLength_ = 0;
+        return;
+      }
       CSC  (xy, csPhi, phi);
       CCC  (xy, csPhi, phi);
       CCCC (xy, csPhi, phi);
       CCSC (xy, csPhi, phi);
       CCSCC(xy, csPhi, phi);
-    }
-
-    bool ReedsSheppPath::impl_compute (ConfigurationOut_t result,
-				 value_type param) const
-    {
-      if (param <= timeRange ().first ||
-	  timeRange ().second == timeRange ().first) {
-	result = initial_;
-	return true;
-      }
-      if (param >= timeRange ().second) {
-	result = end_;
-	return true;
-      }
-      // Does a linear interpolation on all the joints.
-      const value_type u = (timeRange ().second == 0)?0:param/timeRange ().second;
-      pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, initial_, end_, u, result);
-
-      // Compute the position of the car.
-      result.segment <2> (xyId_).setZero();
-      value_type t = param/rho_, v, phi = initial_(rzId_);
-
-      SegmentType lastType = RS_NOP;
-      for (unsigned int i=0; i<5 && t>0; ++i)
-      {
-        if (lengths_[i] < 0) {
-          v = std::max(-t, lengths_[i]);
-          t += v;
-        } else {
-          v = std::min(t, lengths_[i]);
-          t -= v;
-        }
-
-        switch(types[typeId_][i])
-        {
-          case RS_LEFT:
-            result(xyId_+0) +=   sin(phi+v) - sin(phi);
-            result(xyId_+1) += - cos(phi+v) + cos(phi);
-            lastType = RS_LEFT;
-            phi += v;
-            break;
-          case RS_RIGHT:
-            result(xyId_+0) += - sin(phi-v) + sin(phi);
-            result(xyId_+1) +=   cos(phi-v) - cos(phi);
-            lastType = RS_RIGHT;
-            phi -= v;
-            break;
-          case RS_STRAIGHT:
-            result(xyId_+0) += v * cos(phi);
-            result(xyId_+1) += v * sin(phi);
-            lastType = RS_STRAIGHT;
-            break;
+      // build path vector
+      value_type L (currentLength_), l (0.);
+      for (unsigned int i=0; i<5; ++i) {
+        if (fabs (lengths_ [i]) > precision) {
+          l += fabs (lengths_ [i]);
+          value_type curvature;
+          switch (types [typeId_][i]) {
           case RS_NOP:
             break;
+          case RS_LEFT:
+            curvature = 1./rho_;
+            break;
+          case RS_RIGHT:
+            curvature = -1./rho_;
+            break;
+          case RS_STRAIGHT:
+            curvature = 0;
+            break;
+          default:
+            abort ();
+          }
+          model::interpolate (device_, initial_, end_, l/L, qEnd);
+          ConstantCurvaturePtr_t segment
+            (ConstantCurvature::create (device_, qInit, qEnd,
+                                        rho_ * lengths_ [i],
+                                        curvature, xyId_, rzId_));
+          appendPath (segment);
+          qInit = segment->end ();
         }
       }
-      result.segment <2> (xyId_) *= rho_;
-      result.segment <2> (xyId_) += initial_.segment<2>(xyId_);
-      result(rzId_) = phi;
-      switch(lastType)
-      {
-        case RS_LEFT:
-          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
-              _w != wheels_.end(); ++_w)
-            result(_w->j->rankInConfiguration()) = _w->L;
-          break;
-        case RS_RIGHT:
-          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
-              _w != wheels_.end(); ++_w)
-            result(_w->j->rankInConfiguration()) = _w->R;
-          break;
-        case RS_STRAIGHT:
-          for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
-              _w != wheels_.end(); ++_w)
-            result(_w->j->rankInConfiguration()) = _w->S;
-          break;
-        case RS_NOP:
-          break;
-      }
-      return true;
     }
 
     void ReedsSheppPath::impl_derivative
@@ -730,8 +708,8 @@ namespace hpp {
 	  timeRange ().second == timeRange ().first) {
 	p = timeRange ().first;
       }
-      if (p >= timeRange ().second) {
-	p = timeRange ().second;
+      if (p >= timeRange ().second - precision) {
+	p = timeRange ().second - precision;
       }
       // Does a linear interpolation on all the joints.
       if (order > 1) {
@@ -742,68 +720,10 @@ namespace hpp {
 	  (device_, end_, initial_, result);
 	result = (1/timeRange ().second) * result;
       } else {
-	std::ostringstream oss;
-	oss << "order of derivative (" << order << ") should be positive.";
-	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
+        assert (order > 0);
+        result.setZero ();
       }
-
-      // Compute the position of the car.
-      result.segment <2> (xyId_).setZero();
-      value_type t = p/rho_, v,
-                 phi = atan2(initial_(rzId_+1), initial_(rzId_));
-      value_type dPhi = sqrt (-1);
-      if (t == 0) t = std::numeric_limits <value_type>::epsilon ();
-      for (unsigned int i=0; i<5 && t>0; ++i)
-      {
-	value_type forward;
-        if (lengths_[i] < 0) {
-          v = std::max(-t, lengths_[i]);
-          t += v;
-	  forward = -1.;
-        } else {
-          v = std::min(t, lengths_[i]);
-          t -= v;
-	  forward = 1.;
-        }
-
-        switch(types[typeId_][i])
-        {
-          case RS_LEFT:
-	    // Fill velocity only for last segment
-	    if (t <= 0) {
-	      result(xyId_+0) = forward * cos (phi+v);
-	      result(xyId_+1) = forward * sin (phi+v);
-	      dPhi = forward;
-	    }
-            phi += v;
-            break;
-          case RS_RIGHT:
-	    // Fill velocity only for last segment
-	    if (t <= 0) {
-	      result(xyId_+0) = forward * cos (phi-v);
-	      result(xyId_+1) = forward * sin (phi-v);
-	      dPhi = -forward;
-	    }
-            phi -= v;
-            break;
-          case RS_STRAIGHT:
-	    // Fill velocity only for last segment
-	    if (t <= 0) {
-	      result(xyId_+0) = forward * cos(phi);
-	      result(xyId_+1) = forward * sin(phi);
-	      dPhi = 0;
-	    }
-            break;
-          case RS_NOP:
-            break;
-        }
-      }
-      assert (!isnan (dPhi));
-      result.segment <2> (dxyId_);
-      result(drzId_) = dPhi / rho_;
-      for (std::vector<Wheels_t>::const_iterator _w = wheels_.begin();
-	   _w != wheels_.end(); ++_w)
-	result(_w->j->rankInVelocity ()) = 0;
+      parent_t::impl_derivative (result, param, order);
     }
 
   } //   namespace hpp-core

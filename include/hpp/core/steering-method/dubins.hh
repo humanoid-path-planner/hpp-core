@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2015 CNRS
-// Authors: Joseph Mirabel
+// Copyright (c) 2017 CNRS
+// Authors: Florent Lamiraux
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -16,8 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
-# define HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
+#ifndef HPP_CORE_STEERING_METHOD_DUBINS_HH
+# define HPP_CORE_STEERING_METHOD_DUBINS_HH
 
 # include <hpp/util/debug.hh>
 # include <hpp/util/pointer.hh>
@@ -32,9 +32,9 @@ namespace hpp {
       /// \addtogroup steering_method
       /// \{
 
-      /// Steering method that creates ReedsSheppPath instances
+      /// Steering method that creates DubinsPath instances
       ///
-      class HPP_CORE_DLLAPI ReedsShepp : public CarLike
+      class HPP_CORE_DLLAPI Dubins : public CarLike
       {
         public:
           /// Create an instance
@@ -44,11 +44,11 @@ namespace hpp {
           ///   translation joint,
           /// - the 2 following parameters corresponds to the RZ unbounded
           ///   rotation joint.
-          /// Use Carlike::setWheelJoints to set the wheel joints.
-          static ReedsSheppPtr_t createWithGuess (const ProblemPtr_t& problem)
+          /// Use CarLike::setWheelJoints to set the wheel joints.
+          static DubinsPtr_t createWithGuess (const ProblemPtr_t& problem)
           {
-            ReedsShepp* ptr = new ReedsShepp (problem);
-            ReedsSheppPtr_t shPtr (ptr);
+            Dubins* ptr = new Dubins (problem);
+            DubinsPtr_t shPtr (ptr);
             ptr->init (shPtr);
             return shPtr;
           }
@@ -56,24 +56,24 @@ namespace hpp {
           /// Create an instance
           ///
           /// This constructor does no assumption.
-          static ReedsSheppPtr_t create (const ProblemPtr_t& problem,
+          static DubinsPtr_t create (const ProblemPtr_t& problem,
               const value_type turningRadius,
-              size_type xyRank, size_type rzRank,
+              JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
           {
-            ReedsShepp* ptr = new ReedsShepp (problem, turningRadius,
-                xyRank, rzRank, wheels);
-            ReedsSheppPtr_t shPtr (ptr);
+            Dubins* ptr = new Dubins (problem, turningRadius,
+                xyJoint, rzJoint, wheels);
+            DubinsPtr_t shPtr (ptr);
             ptr->init (shPtr);
             return shPtr;
           }
 
           /// Copy instance and return shared pointer
-          static ReedsSheppPtr_t createCopy
-            (const ReedsSheppPtr_t& other)
+          static DubinsPtr_t createCopy
+            (const DubinsPtr_t& other)
             {
-              ReedsShepp* ptr = new ReedsShepp (*other);
-              ReedsSheppPtr_t shPtr (ptr);
+              Dubins* ptr = new Dubins (*other);
+              DubinsPtr_t shPtr (ptr);
               ptr->init (shPtr);
               return shPtr;
             }
@@ -90,29 +90,29 @@ namespace hpp {
 
         protected:
           /// Constructor
-          ReedsShepp (const ProblemPtr_t& problem);
+          Dubins (const ProblemPtr_t& problem);
 
           /// Constructor
-          ReedsShepp (const ProblemPtr_t& problem,
+          Dubins (const ProblemPtr_t& problem,
               const value_type turningRadius,
-              size_type xyRank, size_type rzRank,
+              JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);
 
           /// Copy constructor
-          ReedsShepp (const ReedsShepp& other);
+          Dubins (const Dubins& other);
 
           /// Store weak pointer to itself
-          void init (ReedsSheppWkPtr_t weak)
+          void init (DubinsWkPtr_t weak)
           {
             CarLike::init (weak);
             weak_ = weak;
           }
 
         private:
-          ReedsSheppWkPtr_t weak_;
-      }; // ReedsShepp
+          DubinsWkPtr_t weak_;
+      }; // Dubins
       /// \}
     } // namespace steeringMethod
   } // namespace core
 } // namespace hpp
-#endif // HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
+#endif // HPP_CORE_STEERING_METHOD_DUBINS_HH

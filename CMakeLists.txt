@@ -77,6 +77,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/distance/reeds-shepp.hh
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
+  include/hpp/core/dubins-path.hh
   include/hpp/core/edge.hh
   include/hpp/core/explicit-numerical-constraint.hh
   include/hpp/core/explicit-relative-transformation.hh
@@ -104,7 +105,11 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/roadmap.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method-straight.hh
+  include/hpp/core/steering-method/car-like.hh
+  include/hpp/core/steering-method/constant-curvature.hh
+  include/hpp/core/steering-method/dubins.hh
   include/hpp/core/steering-method/reeds-shepp.hh
+  include/hpp/core/steering-method/snibud.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/interpolated-path.hh
   include/hpp/core/validation-report.hh
@@ -131,6 +136,7 @@ ADD_SUBDIRECTORY(src)
 IF (RUN_TESTS)
   SET(BOOST_COMPONENTS system timer unit_test_framework)
   SEARCH_FOR_BOOST()
+  ADD_REQUIRED_DEPENDENCY("hpp-model-urdf >= 3.1")
   ADD_SUBDIRECTORY(tests)
 ELSE ()
   SET(BOOST_COMPONENTS system)
