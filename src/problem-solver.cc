@@ -601,6 +601,7 @@ namespace hpp {
     (ConfigurationIn_t start, ConfigurationIn_t end, bool validate,
      std::size_t& pathId, std::string& report)
     {
+      report = "";
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
       // Create steering method using factory
@@ -613,28 +614,32 @@ namespace hpp {
 	pathId = -1;
 	return false;
       }
-      PathPtr_t validSection;
+      PathPtr_t dp1, dp2;
       PathValidationReportPtr_t r;
-      bool PathValid = true;
+      bool projValid = true, projected = true, pathValid = true;
       if (validate) {
-	PathValid = problem()->pathValidation ()->validate
-	  (dp, false, validSection, r);
-      }
-      if (!PathValid) {
-	hppDout(info, "Path only partly valid!");
-	hppDout (info, *r);
-	dp = validSection;
-	std::ostringstream oss;
-	oss << *r; report = oss.str ();
+        PathProjectorPtr_t proj (problem ()->pathProjector ());
+        if (proj) {
+          projected = proj->apply (dp, dp1);
+        } else {
+          dp1 = dp;
+        }
+	projValid = problem()->pathValidation ()->validate (dp1, false, dp2, r);
+        pathValid = projValid && projected;
+        if (!projValid) {
+          hppDout (info, *r);
+          std::ostringstream oss;
+          oss << *r; report = oss.str ();
+        }
       } else {
-	report = "";
+        dp2 = dp;
       }
       // Add Path in problem
-      PathVectorPtr_t path (core::PathVector::create (dp->outputSize (),
-		 	   dp->outputDerivativeSize ()));
-      path->appendPath (dp);
+      PathVectorPtr_t path (core::PathVector::create (dp2->outputSize (),
+                            dp2->outputDerivativeSize ()));
+      path->appendPath (dp2);
       pathId = addPath (path);
-      return PathValid;
+      return pathValid;
     }
 
     void ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
