@@ -49,8 +49,8 @@ namespace hpp {
         hppDout (info, "rho_ = " << rho_);
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
-        SteeringMethod (problem), device_ (problem->robot ()),
+      ReedsShepp::ReedsShepp (const Problem& problem) :
+        SteeringMethod (problem), device_ (problem.robot ()),
         rho_ (1.), xy_ (0), rz_(2), weak_ ()
       {
         DevicePtr_t d (device_.lock());
@@ -73,13 +73,13 @@ namespace hpp {
         computeRadius();
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
+      ReedsShepp::ReedsShepp (const Problem& problem,
           const value_type turningRadius,
           size_type xyRank, size_type rzRank,
           std::vector <JointPtr_t> wheels) :
-        SteeringMethod (problem), device_ (problem->robot ()),
+        SteeringMethod (problem), device_ (problem.robot ()),
         rho_ (turningRadius),
-        turningJoint_ (problem->robot ()->getJointAtConfigRank (rzRank)),
+        turningJoint_ (problem.robot ()->getJointAtConfigRank (rzRank)),
         xy_ (xyRank),
         rz_ (rzRank),
         wheels_ (wheels), weak_ ()

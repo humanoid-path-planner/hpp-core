@@ -33,7 +33,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI WeighedDistance : public Distance {
     public:
       static WeighedDistancePtr_t createFromProblem
-	(const ProblemPtr_t& problem);
+	(const Problem& problem);
       static WeighedDistancePtr_t create (const DevicePtr_t& robot);
       static WeighedDistancePtr_t
     createWithWeight (const DevicePtr_t& robot,
@@ -59,7 +59,7 @@ namespace hpp {
 	return robot_;
       }
     protected:
-      WeighedDistance (const ProblemPtr_t& problem);
+      WeighedDistance (const Problem& problem);
       WeighedDistance (const DevicePtr_t& robot);
       WeighedDistance (const DevicePtr_t& robot,
 		       const std::vector <value_type>& weights);

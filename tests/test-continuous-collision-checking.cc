@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
   ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
 
   // create steering method
-  ProblemPtr_t problem (new Problem (robot));
+  Problem problem (robot);
   SteeringMethodPtr_t sm (SteeringMethodStraight::create (problem));
 
   // create path validation objects
@@ -154,7 +154,6 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking)
     }
   }
   // delete problem
-  delete problem;
 }
 
 

@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   robot->createGeomData();
 
   // Create steering method
-  Problem p = Problem (robot);
-  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
+  Problem p (robot);
+  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
 
   // Create steering method
   Problem p (robot);
-  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (&p);
+  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
