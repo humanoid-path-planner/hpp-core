@@ -138,7 +138,7 @@ namespace hpp {
         struct Wheels_t {
           value_type value; // Constant value of the wheel angle
           JointPtr_t j;
-          Wheels_t () : j(NULL) {}
+          Wheels_t () : j () {}
         };
         std::vector<Wheels_t> wheels_;
         ConstantCurvatureWkPtr_t weak_;

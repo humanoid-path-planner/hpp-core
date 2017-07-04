@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_DUBINS_PATH_HH
 # define HPP_CORE_DUBINS_PATH_HH
 
-# include <hpp/model/device.hh>
+# include <hpp/pinocchio/device.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
@@ -34,7 +34,7 @@ namespace hpp {
     ///
     /// Implement a Dubins motion generation on the base joint.
     /// Degrees of freedom are interpolated depending on the type of
-    /// \link hpp::model::Joint joint \endlink
+    /// \link hpp::pinocchio::Joint joint \endlink
     /// they parameterize:
     /// The following interpolation is made:
     ///   \li Reeds and Shepp interpolation for the base_joint_xy and
@@ -52,7 +52,7 @@ namespace hpp {
       virtual ~DubinsPath () throw () {}
 
       /// Create an instance and return a shared pointer
-      static DubinsPathPtr_t create (const model::DevicePtr_t& device,
+      static DubinsPathPtr_t create (const DevicePtr_t& device,
 				     ConfigurationIn_t init,
 				     ConfigurationIn_t end,
 				     value_type rho,
@@ -181,7 +181,7 @@ namespace hpp {
       struct Wheels_t {
         value_type L, R, S; // Left, Right and Straight turn
         JointPtr_t j;
-        Wheels_t () : j(NULL) {}
+        Wheels_t () : j() {}
       };
       std::vector<Wheels_t> wheels_;
       std::size_t typeId_;

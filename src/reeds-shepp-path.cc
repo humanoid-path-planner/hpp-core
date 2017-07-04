@@ -684,7 +684,7 @@ namespace hpp {
           default:
             abort ();
           }
-          model::interpolate (device_, initial_, end_, l/L, qEnd);
+          pinocchio::interpolate (device_, initial_, end_, l/L, qEnd);
           ConstantCurvaturePtr_t segment
             (ConstantCurvature::create (device_, qInit, qEnd,
                                         rho_ * lengths_ [i],

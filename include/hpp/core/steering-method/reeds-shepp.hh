@@ -58,11 +58,11 @@ namespace hpp {
           /// This constructor does no assumption.
           static ReedsSheppPtr_t create (const Problem& problem,
               const value_type turningRadius,
-              size_type xyRank, size_type rzRank,
+              JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
           {
             ReedsShepp* ptr = new ReedsShepp (problem, turningRadius,
-                xyRank, rzRank, wheels);
+                xyJoint, rzJoint, wheels);
             ReedsSheppPtr_t shPtr (ptr);
             ptr->init (shPtr);
             return shPtr;
@@ -95,7 +95,7 @@ namespace hpp {
           /// Constructor
           ReedsShepp (const Problem& problem,
               const value_type turningRadius,
-              size_type xyRank, size_type rzRank,
+              JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);
 
           /// Copy constructor

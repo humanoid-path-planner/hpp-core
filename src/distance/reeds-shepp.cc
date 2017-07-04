@@ -35,12 +35,12 @@ namespace hpp {
 	ptr->init (shPtr);
 	return shPtr;
       }
-      ReedsSheppPtr_t ReedsShepp::create (const Problem& problem,
-					const value_type& turningRadius,
-					size_type xyRank, size_type rzRank)
+      ReedsSheppPtr_t ReedsShepp::create
+      (const Problem& problem, const value_type& turningRadius,
+       JointPtr_t xyJoint, JointPtr_t rzJoint)
       {
 	ReedsShepp* ptr (new ReedsShepp (problem, turningRadius,
-					 xyRank, rzRank));
+					 xyJoint, rzJoint));
 	ReedsSheppPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -61,9 +61,9 @@ namespace hpp {
 
       ReedsShepp::ReedsShepp (const Problem& problem,
 			      const value_type& turningRadius,
-			      size_type xyRank, size_type rzRank) :
+			      JointPtr_t xyJoint, JointPtr_t rzJoint) :
 	Distance (), sm_ (steeringMethod::ReedsShepp::create
-			  (problem, turningRadius, xyRank, rzRank))
+			  (problem, turningRadius, xyJoint, rzJoint))
       {
       }
       

@@ -32,19 +32,20 @@ namespace hpp {
       {
         ReedsSheppPathPtr_t path =
           ReedsSheppPath::create (device_.lock (), q1, q2,
-              rho_ , xy_, rz_, constraints ());
-        path->setWheelJoints (turningJoint_, wheels_);
+              rho_ , xy_->rankInConfiguration(),
+              rz_->rankInConfiguration(), constraints ());
+        path->setWheelJoints (rz_, wheels_);
         return path;
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem) :
+      ReedsShepp::ReedsShepp (const Problem& problem) :
         CarLike (problem), weak_ ()
       {
       }
 
-      ReedsShepp::ReedsShepp (const ProblemPtr_t& problem,
+      ReedsShepp::ReedsShepp (const Problem& problem,
           const value_type turningRadius,
-          size_type xyRank, size_type rzRank,
+          JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
 	CarLike (problem, turningRadius, xyJoint, rzJoint, wheels)
       {

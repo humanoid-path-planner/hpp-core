@@ -14,10 +14,11 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/car-like.hh>
+#include <pinocchio/spatial/se3.hpp>
 
 namespace hpp {
   namespace core {
@@ -27,16 +28,7 @@ namespace hpp {
       {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(0);
-        if (!dynamic_cast <model::JointTranslation <2>* > (xy_)) {
-          throw std::runtime_error ("root joint should be of type "
-              "model::JointTranslation <2>");
-        }
         rz_ = d->getJointAtConfigRank(2);
-        if (!dynamic_cast <model::jointRotation::UnBounded*> (rz_)) {
-          throw std::runtime_error ("second joint should be of type "
-              "model::jointRotation::Unbounded");
-        }
-
         guessWheels();
         computeRadius();
       }
@@ -74,8 +66,8 @@ namespace hpp {
       {
         // Compute wheel position in joint RZ
         const Transform3f zt (rz_->currentTransformation ());
-        const Transform3f wt (zt.inverseTimes (wheel->currentTransformation ()));
-        const vector3_t& wp (wt.getTranslation ());
+        const Transform3f wt (zt.inverse () * wheel->currentTransformation ());
+        const vector3_t& wp (wt.translation ());
 
         // Assume the non turning wheels are on the plane z = 0 of 
         // in joint rz.

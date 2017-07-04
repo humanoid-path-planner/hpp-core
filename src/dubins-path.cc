@@ -21,15 +21,16 @@
 
 #include <math.h>
 #include <hpp/util/debug.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/dubins-path.hh>
+#include <pinocchio/spatial/se3.hpp>
 #include "dubins.hh"
 
 namespace hpp {
   namespace core {
-    DubinsPathPtr_t DubinsPath::create (const model::DevicePtr_t& device,
+    DubinsPathPtr_t DubinsPath::create (const DevicePtr_t& device,
 					ConfigurationIn_t init,
 					ConfigurationIn_t end,
 					value_type rho,
@@ -73,8 +74,7 @@ namespace hpp {
     void DubinsPath::setWheelJoints (const JointPtr_t rz,
 				     const std::vector<JointPtr_t> wheels)
     {
-      Transform3f zt (rz->currentTransformation ());
-      zt.inverse();
+      Transform3f zt (rz->currentTransformation ().inverse());
 
       wheels_.resize(wheels.size());
       std::size_t rk = 0;
@@ -83,8 +83,8 @@ namespace hpp {
         wheels_[rk].j = *_wheels;
         wheels_[rk].S = meanBounds(wheels_[rk].j, 0);
 
-        const vector3_t radius = zt.transform
-	  (wheels_[rk].j->currentTransformation().getTranslation());
+        const vector3_t radius = zt.act
+	  (wheels_[rk].j->currentTransformation().translation());
         const value_type left  = std::atan(radius[2] / (- radius[1] - rho_));
         const value_type right = std::atan(radius[2] / (- radius[1] + rho_));
 
@@ -285,7 +285,7 @@ namespace hpp {
       // Does a linear interpolation on all the joints.
       const value_type u = (timeRange ().second == 0)? 0 :
 	param/timeRange ().second;
-      model::interpolate (device_, initial_, end_, u, result);
+      pinocchio::interpolate (device_, initial_, end_, u, result);
 
       // Compute the position of the car.
       result.segment <2> (xyId_).setZero();
@@ -380,7 +380,7 @@ namespace hpp {
 	result.setZero ();
       }
       else if (order == 1) {
-	model::difference (device_, end_, initial_, result);
+	pinocchio::difference (device_, end_, initial_, result);
 	result = (1/timeRange ().second) * result;
       } else {
 	std::ostringstream oss;

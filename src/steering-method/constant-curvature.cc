@@ -18,9 +18,10 @@
 
 #include <hpp/core/steering-method/constant-curvature.hh>
 
-#include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <pinocchio/spatial/se3.hpp>
 
 namespace hpp {
   namespace core {
@@ -136,7 +137,7 @@ namespace hpp {
         // Does a linear interpolation on all the joints.
         const value_type u = (timeRange ().second == 0) ? 0 :
           param/timeRange ().second;
-        model::interpolate (robot_, initial_, end_, u, result);
+        pinocchio::interpolate (robot_, initial_, end_, u, result);
 
         value_type t (forward_ * param);
         value_type x0 (initial_ [xyId_ + 0]), y0 (initial_ [xyId_ + 1]);
@@ -231,12 +232,7 @@ namespace hpp {
       void ConstantCurvature::setWheelJoints
       (const JointPtr_t rz, const std::vector<JointPtr_t> wheels)
       {
-#ifdef PINOCCHIO
         Transform3f zt (rz->currentTransformation ().inverse ());
-#else
-        Transform3f zt (rz->currentTransformation ());
-        zt.inverse();
-#endif
         wheels_.resize(wheels.size());
         std::size_t rk = 0;
         if (curvature_ == 0) {
@@ -252,15 +248,10 @@ namespace hpp {
                _wheels != wheels.end(); ++_wheels) {
             wheels_[rk].j = *_wheels;
             wheels_[rk].value = meanBounds(wheels_[rk].j, 0);
-            const vector3_t wheelPos = zt.transform
-              (wheels_[rk].j->currentTransformation().getTranslation());
-#ifdef PINOCCHIO
+            const vector3_t wheelPos = zt.act
+              (wheels_[rk].j->currentTransformation().translation());
             const value_type value (std::atan(wheelPos[2] /
                                               (- wheelPos[1] - rho)));
-#else
-            const value_type value (std::atan(wheelPos[0] /
-                                              (rho - wheelPos[1])));
-#endif
             wheels_[rk].value = saturate(meanBounds(wheels_[rk].j, 0) + value,
                                          *_wheels, 0);
             ++rk;
