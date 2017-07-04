@@ -70,9 +70,11 @@ namespace hpp {
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::LinearConstraint
       {
+        typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
+
         LinearConstraint (size_type inputSize, size_type outputSize) :
           J (outputSize, inputSize), b (outputSize),
-          svd (outputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeFullV),
+          dec (outputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeFullV),
           xSol (inputSize)
         {
           J.setZero();
@@ -89,13 +91,13 @@ namespace hpp {
             return;
           }
 
-          svd.compute (J);
+          dec.compute (J);
           assert (J.rows() <= J.cols());
 
-          PK.resize(J.cols(), J.cols() - svd.rank());
+          PK.resize(J.cols(), J.cols() - dec.rank());
           xStar.resize (PK.rows());
 
-          xStar = svd.solve (b);
+          xStar = dec.solve (b);
 
           if (check) {
             // check that the constraints are feasible
@@ -107,7 +109,7 @@ namespace hpp {
           }
 
           // PK_linv.resize(PK.cols(), PK.rows());
-          PK = constraints::getV2(svd);
+          PK.noalias() = constraints::getV2(dec);
           // PK_linv = PK.adjoint();
           // assert((PK_linv * PK).eval().isIdentity());
 
@@ -135,7 +137,7 @@ namespace hpp {
 
           // Decompose
           lcr.decompose(true);
-          return (lcr.J.rows() == 0 || lcr.svd.rank() == std::min(lcr.J.rows(), lcr.J.cols()));
+          return (lcr.J.rows() == 0 || lcr.dec.rank() == std::min(lcr.J.rows(), lcr.J.cols()));
         }
 
         void computeSolution (const vector_t& v)
@@ -162,7 +164,7 @@ namespace hpp {
         vector_t b;
 
         // Data
-        Eigen::JacobiSVD < matrix_t > svd;
+        Decomposition_t dec;
 
         // Data for vectorized input
         // Solutions are x = xStar + PK * v, v \in kernel(J)
@@ -661,16 +663,16 @@ namespace hpp {
                 alpha *= 0.5;
                 stopAtFirst = alwaysStopAtFirst;
               } else {
-                bool overConstrained = (QPc.H.rows() < collisionReduced.svd.rank());
+                bool overConstrained = (QPc.H.rows() < collisionReduced.dec.rank());
                 if (overConstrained) {
                   hppDout (info, "The problem is over constrained: "
                       << QP.H.rows() << " variables for "
-                      << collisionReduced.svd.rank() << " independant constraints.");
+                      << collisionReduced.dec.rank() << " independant constraints.");
                   break;
                 }
                 hppDout (info, "Added " << reports.size() << " constraints. "
                     "Constraints size " << collision.J.rows() <<
-                    "(" << collisionReduced.svd.rank() << ") / " << QPc.H.cols());
+                    "(" << collisionReduced.dec.rank() << ") / " << QPc.H.cols());
 
                 QPr = QuadraticProblem (QPc, collisionReduced);
 
