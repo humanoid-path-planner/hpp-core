@@ -594,7 +594,11 @@ namespace hpp {
         // 6
         bool noCollision = true, stopAtFirst = true;
         bool minimumReached = false;
-        value_type alpha = 1;
+
+        bool computeOptimum = true, computeInterpolatedSpline = true;
+
+        value_type alpha = alphaInit;
+
         Splines_t alphaSplines, collSplines;
         Splines_t* currentSplines;
         copy(splines, alphaSplines); copy(splines, collSplines);
@@ -616,7 +620,7 @@ namespace hpp {
 
         while (!(noCollision && minimumReached) && (!interrupt_)) {
           // 6.1
-          if (alpha == 1) {
+          if (computeOptimum) {
             // 6.2
             QPr.solve();
             collisionReduced.computeSolution(QPr.xStar);
@@ -626,10 +630,13 @@ namespace hpp {
             hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             currentSplines = &collSplines;
             minimumReached = true;
-          } else {
+            computeOptimum = false;
+          }
+          if (computeInterpolatedSpline) {
             interpolate(splines, collSplines, alpha, alphaSplines);
             currentSplines = &alphaSplines;
             minimumReached = false;
+            computeInterpolatedSpline = false;
           }
 
           // 6.3
@@ -647,6 +654,8 @@ namespace hpp {
               collisionReduced.reduceProblem (QPc, QPr);
             }
             hppDout (info, "Improved path with alpha = " << alpha);
+
+            computeInterpolatedSpline = true;
           } else {
             if (alpha != 1.) {
               for (std::size_t i = 0; i < reports.size(); ++i)
@@ -662,6 +671,8 @@ namespace hpp {
                 collisionFunctions.removeLastConstraint (reports.size(), collision);
                 alpha *= 0.5;
                 stopAtFirst = alwaysStopAtFirst;
+
+                computeInterpolatedSpline = true;
               } else {
                 bool overConstrained = (QPc.H.rows() < collisionReduced.dec.rank());
                 if (overConstrained) {
@@ -681,10 +692,12 @@ namespace hpp {
                 // re-initialize alpha to alphaInit.
                 alpha = 1.;
                 stopAtFirst = true;
+                computeOptimum = true;
               }
             } else {
               alpha = alphaInit;
               stopAtFirst = alwaysStopAtFirst;
+              computeInterpolatedSpline = true;
             }
           }
 
