@@ -29,11 +29,12 @@ namespace hpp {
 
       ConstantCurvaturePtr_t ConstantCurvature::create
       (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
-       value_type length, value_type curvature, size_type xyId, size_type rzId)
+       value_type length, value_type curvature, size_type xyId, size_type rzId,
+       const JointPtr_t rz, const std::vector<JointPtr_t> wheels)
       {
         ConstantCurvature* ptr (new ConstantCurvature
                                 (robot, init, end, length, curvature, xyId,
-                                 rzId));
+                                 rzId, rz, wheels));
         ConstantCurvaturePtr_t shPtr (ptr);
         ptr->init (shPtr);
         return shPtr;
@@ -76,6 +77,7 @@ namespace hpp {
       ConstantCurvature::ConstantCurvature
       (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
        value_type length, value_type curvature, size_type xyId, size_type rzId,
+       const JointPtr_t rz, const std::vector<JointPtr_t> wheels,
        ConstraintSetPtr_t constraints) :
         Path (std::make_pair (0., fabs (length)), robot->configSize (),
               robot->numberDof (), constraints), robot_ (robot),
@@ -91,13 +93,14 @@ namespace hpp {
         joint = robot_->getJointAtConfigRank (rzId_);
         offset = rzId_ - joint->rankInConfiguration ();
         drzId_ = joint->rankInVelocity () + offset;
+        setWheelJoints (rz, wheels);
         impl_compute (end_, timeRange ().second);
       }
 
       ConstantCurvature::ConstantCurvature
       (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
-       value_type length, value_type curvature, size_type xyId,
-       size_type rzId) :
+       value_type length, value_type curvature, size_type xyId, size_type rzId,
+       const JointPtr_t rz, const std::vector<JointPtr_t> wheels) :
         Path (std::make_pair (0., fabs (length)), robot->configSize (),
               robot->numberDof ()), robot_ (robot),
         initial_ (init), end_ (end), curvature_ (curvature), xyId_ (xyId),
@@ -112,13 +115,14 @@ namespace hpp {
         joint = robot_->getJointAtConfigRank (rzId_);
         offset = rzId_ - joint->rankInConfiguration ();
         drzId_ = joint->rankInVelocity () + offset;
+        setWheelJoints (rz, wheels);
         impl_compute (end_, timeRange ().second);
       }
 
       ConstantCurvature::ConstantCurvature (const ConstantCurvature& other) :
         Path (other), robot_ (other.robot_), initial_ (other.initial_),
         end_ (other.end_), curvature_ (other.curvature_),  xyId_ (other.xyId_),
-        rzId_ (other.rzId_), forward_ (other.forward_)
+        rzId_ (other.rzId_), forward_ (other.forward_), wheels_ (other.wheels_)
       {
       }
 
@@ -127,7 +131,7 @@ namespace hpp {
         parent_t (other, constraints), robot_ (other.robot_),
         initial_ (other.initial_), end_ (other.end_),
         curvature_ (other.curvature_),  xyId_ (other.xyId_),
-        rzId_ (other.rzId_), forward_ (other.forward_)
+        rzId_ (other.rzId_), forward_ (other.forward_), wheels_ (other.wheels_)
       {
       }
 

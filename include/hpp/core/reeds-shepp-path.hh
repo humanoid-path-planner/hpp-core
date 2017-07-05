@@ -59,7 +59,8 @@ namespace hpp {
 				   ConfigurationIn_t init,
 				   ConfigurationIn_t end,
                                    value_type rho,
-                                   size_type xyId, size_type rzId);
+                                   size_type xyId, size_type rzId,
+                                   const std::vector<JointPtr_t> wheels);
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
@@ -71,6 +72,7 @@ namespace hpp {
 				   ConfigurationIn_t end,
                                    value_type rho,
                                    size_type xyId, size_type rzId,
+                                   const std::vector<JointPtr_t> wheels,
 				   ConstraintSetPtr_t constraints);
 
       /// Create copy and return shared pointer
@@ -128,25 +130,20 @@ namespace hpp {
         return end_;
       }
 
-      /// Set the wheel joints for a car-like vehicle.
-      ///
-      /// \param rz joint from which the turning radius was computed.
-      /// \param wheels bounded rotation joints.
-      void setWheelJoints (const JointPtr_t rz,
-          const std::vector<JointPtr_t> wheels);
-
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const;
       /// Constructor
       ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
                       ConfigurationIn_t end, value_type rho,
-                      size_type xyId, size_type rzId);
+                      size_type xyId, size_type rzId,
+                      const std::vector<JointPtr_t> wheels);
 
       /// Constructor with constraints
       ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		      ConfigurationIn_t end, value_type rho,
                       size_type xyId, size_type rzId,
+                      const std::vector<JointPtr_t> wheels,
 		      ConstraintSetPtr_t constraints);
 
       /// Copy constructor
@@ -166,7 +163,8 @@ namespace hpp {
       typedef Eigen::Matrix<value_type, 5, 1> Lengths_t;
 
       // Compute path
-      void buildReedsShepp ();
+      void buildReedsShepp (const JointPtr_t rz,
+                            const std::vector<JointPtr_t> wheels);
       // Setup path
       void setupPath (const std::size_t& typeId, double t, double u=0.,
                       double v=0., double w=0., double x=0.);

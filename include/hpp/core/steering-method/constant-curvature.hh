@@ -30,10 +30,22 @@ namespace hpp {
         typedef Path parent_t;
         virtual ~ConstantCurvature () throw () {}
          /// Create instance and return shared pointer.
+        /// \param robot the carlike robot,
+        /// \param init Initial configuration of the path,
+        /// \param curvature curvature of the path,
+        /// \param length length of the path, negative values correspond to
+        ///        backward motions
+        /// \param xyId id of degrees of freedom corresponding to (x,y)
+        /// coordinates of robot,
+        /// \param rzId id of degrees of freedom corresponding to orientation
+        /// of robot.
+        /// \param rz joint corresponding to orientation of robot,
+        /// \param vector of joints corresponding to wheels.
         static ConstantCurvaturePtr_t create
         (const DevicePtr_t& robot, ConfigurationIn_t init,
          ConfigurationIn_t end, value_type length,
-         value_type curvature, size_type xyId, size_type rzId);
+         value_type curvature, size_type xyId, size_type rzId,
+         const JointPtr_t rz, const std::vector<JointPtr_t> wheels);
 
          /// Create instance and return shared pointer.
         static ConstantCurvaturePtr_t createCopy
@@ -67,13 +79,6 @@ namespace hpp {
           return end_;
         }
 
-        /// Set the wheel joints for a car-like vehicle.
-        ///
-        /// \param rz joint from which the turning radius was computed.
-        /// \param wheels bounded rotation joints.
-        void setWheelJoints (const JointPtr_t rz,
-                             const std::vector<JointPtr_t> wheels);
-
       protected:
         /// Print path in a stream
         virtual std::ostream& print (std::ostream &os) const;
@@ -88,10 +93,13 @@ namespace hpp {
         /// coordinates of robot,
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
+        /// \param rz joint corresponding to orientation of robot,
+        /// \param vector of joints corresponding to wheels.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
                            ConfigurationIn_t end, value_type length,
                            value_type curvature, size_type xyId,
-                           size_type rzId);
+                           size_type rzId, const JointPtr_t rz,
+                           const std::vector<JointPtr_t> wheels);
 
         /// Constructor
         /// \param robot the carlike robot,
@@ -103,9 +111,14 @@ namespace hpp {
         /// coordinates of robot,
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
+        /// \param rz joint corresponding to orientation of robot,
+        /// \param vector of joints corresponding to wheels,
+        /// \param constraints set of contraints the path is suject to.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
                            ConfigurationIn_t end, value_type length,
                            value_type curvature, size_type xyId, size_type rzId,
+                           const JointPtr_t rz,
+                           const std::vector<JointPtr_t> wheels,
                            ConstraintSetPtr_t constraints);
 
         /// Copy constructor
@@ -128,6 +141,13 @@ namespace hpp {
           weak_ = weak;
         }
     private:
+        /// Set the wheel joints for a car-like vehicle.
+        ///
+        /// \param rz joint from which the turning radius was computed.
+        /// \param wheels bounded rotation joints.
+        void setWheelJoints (const JointPtr_t rz,
+                             const std::vector<JointPtr_t> wheels);
+
         const DevicePtr_t robot_;
         const Configuration_t initial_;
         Configuration_t end_;

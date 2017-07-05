@@ -33,8 +33,7 @@ namespace hpp {
         ReedsSheppPathPtr_t path =
           ReedsSheppPath::create (device_.lock (), q1, q2,
               rho_ , xy_->rankInConfiguration(),
-              rz_->rankInConfiguration(), constraints ());
-        path->setWheelJoints (rz_, wheels_);
+              rz_->rankInConfiguration(), wheels_, constraints ());
         return path;
       }
 

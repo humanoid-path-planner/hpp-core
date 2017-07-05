@@ -507,9 +507,11 @@ namespace hpp {
 				    ConfigurationIn_t init,
 				    ConfigurationIn_t end,
 				    value_type rho,
-                                    size_type xyId, size_type rzId)
+                                    size_type xyId, size_type rzId,
+                                    const std::vector<JointPtr_t> wheels)
     {
-      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, rho, xyId, rzId);
+      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, rho, xyId,
+                                                rzId, wheels);
       ReedsSheppPathPtr_t shPtr (ptr);
       try {
 	ptr->init (shPtr);
@@ -524,10 +526,11 @@ namespace hpp {
 				    ConfigurationIn_t end,
 				    value_type rho,
                                     size_type xyId, size_type rzId,
+                                    const std::vector<JointPtr_t> wheels,
 				    ConstraintSetPtr_t constraints)
     {
-      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, rho, xyId, rzId,
-				    constraints);
+      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, rho, xyId,
+                                                rzId, wheels, constraints);
       ReedsSheppPathPtr_t shPtr (ptr);
       try {
 	ptr->init (shPtr);
@@ -555,7 +558,8 @@ namespace hpp {
                                     ConfigurationIn_t init,
                                     ConfigurationIn_t end,
                                     value_type rho,
-                                    size_type xyId, size_type rzId) :
+                                    size_type xyId, size_type rzId,
+                                    const std::vector<JointPtr_t> wheels) :
       parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
       xyId_ (xyId), rzId_ (rzId), typeId_ (0), lengths_ (),
@@ -564,7 +568,7 @@ namespace hpp {
       assert (device);
       assert (rho_ > 0);
       lengths_.setZero ();
-      buildReedsShepp ();
+      buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
     }
 
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
@@ -572,6 +576,7 @@ namespace hpp {
                                     ConfigurationIn_t end,
                                     value_type rho,
                                     size_type xyId, size_type rzId,
+                                    const std::vector<JointPtr_t> wheels,
                                     ConstraintSetPtr_t constraints) :
       parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
@@ -582,7 +587,7 @@ namespace hpp {
       assert (rho_ > 0);
       lengths_.setZero ();
       Path::constraints (constraints);
-      buildReedsShepp ();
+      buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
       assert (fabs (currentLength_ - timeRange ().second) < 1e-8);
     }
 
@@ -618,18 +623,8 @@ namespace hpp {
       return std::min(j->upperBound(i), std::max(j->lowerBound(i), v));
     }
 
-    void ReedsSheppPath::setWheelJoints (const JointPtr_t rz,
-        const std::vector<JointPtr_t> wheels)
-    {
-      for (std::size_t i=0; i < numberPaths (); ++i) {
-        PathPtr_t p (pathAtRank (i));
-        assert (HPP_DYNAMIC_PTR_CAST (ConstantCurvature, p));
-        HPP_STATIC_PTR_CAST (ConstantCurvature, p)->setWheelJoints
-          (rz, wheels);
-      }
-    }
-
-    void ReedsSheppPath::buildReedsShepp()
+    void ReedsSheppPath::buildReedsShepp(const JointPtr_t rz,
+                                         const std::vector<JointPtr_t> wheels)
     {
       // Find rank of translation and rotation in velocity vectors
       // Hypothesis: degrees of freedom all belong to a planar joint or
@@ -653,7 +648,7 @@ namespace hpp {
       if (xy.squaredNorm () + phi*phi < 1e-8) {
         ConstantCurvaturePtr_t segment
           (ConstantCurvature::create (device_, qInit, qInit, 0, 0, xyId_,
-                                      rzId_));
+                                      rzId_, rz, wheels));
         appendPath (segment);
         currentLength_ = 0;
         return;
@@ -688,7 +683,7 @@ namespace hpp {
           ConstantCurvaturePtr_t segment
             (ConstantCurvature::create (device_, qInit, qEnd,
                                         rho_ * lengths_ [i],
-                                        curvature, xyId_, rzId_));
+                                        curvature, xyId_, rzId_, rz, wheels));
           appendPath (segment);
           qInit = segment->end ();
         }
