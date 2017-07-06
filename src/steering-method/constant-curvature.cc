@@ -254,8 +254,8 @@ namespace hpp {
             wheels_[rk].value = meanBounds(wheels_[rk].j, 0);
             const vector3_t wheelPos = zt.act
               (wheels_[rk].j->currentTransformation().translation());
-            const value_type value (std::atan(wheelPos[2] /
-                                              (- wheelPos[1] - rho)));
+            const value_type value (std::atan(wheelPos[0] /
+                                              (rho - wheelPos[1])));
             wheels_[rk].value = saturate(meanBounds(wheels_[rk].j, 0) + value,
                                          *_wheels, 0);
             ++rk;

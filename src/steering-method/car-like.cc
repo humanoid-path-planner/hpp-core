@@ -19,12 +19,14 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/car-like.hh>
 #include <pinocchio/spatial/se3.hpp>
+#include <pinocchio/multibody/joint/joint.hpp>
 
 namespace hpp {
   namespace core {
     namespace steeringMethod {
       CarLike::CarLike (const Problem& problem) :
-	SteeringMethod (problem), device_ (problem.robot ()), rho_ (1.)
+	SteeringMethod (problem), device_ (problem.robot ()), rho_ (1.),
+        xyId_ (0), rzId_ (2)
       {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(0);
@@ -39,14 +41,20 @@ namespace hpp {
 			std::vector <JointPtr_t> wheels) :
         SteeringMethod (problem), device_ (problem.robot ()),
         rho_ (turningRadius), xy_ (xyJoint), rz_ (rzJoint),
-        wheels_ (wheels), weak_ ()
+        xyId_ (xy_->rankInConfiguration ()), wheels_ (wheels), weak_ ()
       {
+        if (rz_->jointModel ().classname () == "JointModelPlanar") {
+          rzId_ = rz_->rankInConfiguration () + 2;
+        } else {
+          rzId_ = rz_->rankInConfiguration ();
+        }
       }
 
       /// Copy constructor
       CarLike::CarLike (const CarLike& other) :
         SteeringMethod (other), device_ (other.device_),
-        rho_ (other.rho_), xy_ (other.xy_), rz_ (other.rz_)
+        rho_ (other.rho_), xy_ (other.xy_), rz_ (other.rz_),
+        xyId_ (other.xyId_), rzId_ (other.rzId_)
       {
       }
 
@@ -69,11 +77,11 @@ namespace hpp {
         const Transform3f wt (zt.inverse () * wheel->currentTransformation ());
         const vector3_t& wp (wt.translation ());
 
-        // Assume the non turning wheels are on the plane z = 0 of 
+        // Assume the non turning wheels are on the plane z = 0 of
         // in joint rz.
         const value_type alpha = (wheel->upperBound(0) - wheel->lowerBound(0)) / 2;
         const value_type delta = std::abs(wp[1]);
-        const value_type beta = std::abs(wp[2]);
+        const value_type beta = std::abs(wp[0]);
 
         return delta + beta / std::tan(alpha);
       }

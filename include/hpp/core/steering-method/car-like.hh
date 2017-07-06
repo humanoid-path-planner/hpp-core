@@ -82,6 +82,7 @@ namespace hpp {
           DeviceWkPtr_t device_;
           value_type rho_;
           JointPtr_t xy_, rz_;
+          size_type xyId_, rzId_;
           std::vector<JointPtr_t> wheels_;
         private:
           value_type computeAngle(const JointPtr_t wheel) const;
