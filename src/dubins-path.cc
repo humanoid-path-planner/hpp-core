@@ -34,9 +34,11 @@ namespace hpp {
 					ConfigurationIn_t init,
 					ConfigurationIn_t end,
 					value_type rho,
-					size_type xyId, size_type rzId)
+					size_type xyId, size_type rzId,
+                                        const std::vector<JointPtr_t> wheels)
     {
-      DubinsPath* ptr = new DubinsPath (device, init, end, rho, xyId, rzId);
+      DubinsPath* ptr = new DubinsPath (device, init, end, rho, xyId, rzId,
+                                        wheels);
       DubinsPathPtr_t shPtr (ptr);
       try {
 	ptr->init (shPtr);
@@ -51,10 +53,11 @@ namespace hpp {
 					ConfigurationIn_t end,
 					value_type rho,
 					size_type xyId, size_type rzId,
+                                        const std::vector<JointPtr_t> wheels,
 					ConstraintSetPtr_t constraints)
     {
       DubinsPath* ptr = new DubinsPath (device, init, end, rho, xyId, rzId,
-					constraints);
+					wheels, constraints);
       DubinsPathPtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
@@ -83,10 +86,10 @@ namespace hpp {
         wheels_[rk].j = *_wheels;
         wheels_[rk].S = meanBounds(wheels_[rk].j, 0);
 
-        const vector3_t radius = zt.act
+        const vector3_t wheelPos = zt.act
 	  (wheels_[rk].j->currentTransformation().translation());
-        const value_type left  = std::atan(radius[2] / (- radius[1] - rho_));
-        const value_type right = std::atan(radius[2] / (- radius[1] + rho_));
+        const value_type left  = std::atan(wheelPos[0] / ( rho_ - wheelPos[1]));
+        const value_type right = std::atan(wheelPos[0] / (-rho_ - wheelPos[1]));
 
         wheels_[rk].L = saturate(wheels_[rk].S + left, *_wheels, 0);
         wheels_[rk].R = saturate(wheels_[rk].S + right, *_wheels, 0);
@@ -96,7 +99,8 @@ namespace hpp {
 
     DubinsPath::DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 			    ConfigurationIn_t end, value_type rho,
-			    size_type xyId, size_type rzId) :
+			    size_type xyId, size_type rzId,
+                            const std::vector<JointPtr_t> wheels) :
       parent_t (interval_t (0, 1.), robot->configSize (),
 		robot->numberDof ()),
       device_ (robot), initial_ (init), end_ (end),
@@ -110,11 +114,13 @@ namespace hpp {
       q0 [2] = atan2 (initial_ [rzId_ + 1], initial_ [rzId_ + 0]);
       q1 [2] = atan2 (end_ [rzId_ + 1], end_ [rzId_ + 0]);
       dubins_init (q0, q1);
+      setWheelJoints (robot->getJointAtConfigRank (rzId), wheels);
     }
 
     DubinsPath::DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 			    ConfigurationIn_t end, value_type rho,
 			    size_type xyId, size_type rzId,
+                            const std::vector<JointPtr_t> wheels,
 			    ConstraintSetPtr_t constraints) :
       parent_t (interval_t (0, 1.), robot->configSize (),
 		robot->numberDof (), constraints),
@@ -129,6 +135,7 @@ namespace hpp {
       q0 [2] = atan2 (initial_ [rzId_ + 1], initial_ [rzId_ + 0]);
       q1 [2] = atan2 (end_ [rzId_ + 1], end_ [rzId_ + 0]);
       dubins_init (q0, q1);
+      setWheelJoints (robot->getJointAtConfigRank (rzId), wheels);
     }
 
     DubinsPath::DubinsPath (const DubinsPath& path) :

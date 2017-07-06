@@ -30,9 +30,7 @@ namespace hpp {
       {
         DubinsPathPtr_t path =
           DubinsPath::create (device_.lock (), q2, q1,
-			      rho_ , xy_->rankInConfiguration(),
-			      rz_->rankInConfiguration(), constraints ());
-        path->setWheelJoints (rz_, wheels_);
+			      rho_ , xyId_, rzId_, wheels_, constraints ());
 	
         return path->reverse ();
       }

@@ -51,22 +51,33 @@ namespace hpp {
       /// Destructor
       virtual ~DubinsPath () throw () {}
 
-      /// Create an instance and return a shared pointer
-      static DubinsPathPtr_t create (const DevicePtr_t& device,
-				     ConfigurationIn_t init,
-				     ConfigurationIn_t end,
-				     value_type rho,
-				     size_type xyId, size_type rzId);
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param rho The radius of a turn.
+      /// \param xyId, rzId indices in configuration vector of translation
+      ///                   and rotation of the car,
+      /// \param wheels vector of joints that represent turning wheels.
+      static DubinsPathPtr_t create (const DevicePtr_t& device,
+				     ConfigurationIn_t init,
+				     ConfigurationIn_t end,
+				     value_type rho,
+				     size_type xyId, size_type rzId,
+                                     const std::vector<JointPtr_t> wheels);
+      /// Create instance and return shared pointer
+      /// \param device Robot corresponding to configurations
+      /// \param init, end Start and end configurations of the path
+      /// \param rho The radius of a turn.
+      /// \param xyId, rzId indices in configuration vector of translation
+      ///                   and rotation of the car,
+      /// \param wheels vector of joints that represent turning wheels,
       /// \param constraints the path is subject to
       static DubinsPathPtr_t create (const DevicePtr_t& device,
 				     ConfigurationIn_t init,
 				     ConfigurationIn_t end,
 				     value_type rho,
 				     size_type xyId, size_type rzId,
+                                     const std::vector<JointPtr_t> wheels,
 				     ConstraintSetPtr_t constraints);
 
       /// Create copy and return shared pointer
@@ -124,13 +135,6 @@ namespace hpp {
         return end_;
       }
 
-      /// Set the wheel joints for a car-like vehicle.
-      ///
-      /// \param rz joint from which the turning radius was computed.
-      /// \param wheels bounded rotation joints.
-      void setWheelJoints (const JointPtr_t rz,
-			   const std::vector<JointPtr_t> wheels);
-
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const
@@ -145,12 +149,14 @@ namespace hpp {
       /// Constructor
       DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		  ConfigurationIn_t end, value_type rho,
-		  size_type xyId, size_type rzId);
+		  size_type xyId, size_type rzId,
+                  const std::vector<JointPtr_t> wheels);
 
       /// Constructor with constraints
       DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		  ConfigurationIn_t end, value_type rho,
 		  size_type xyId, size_type rzId,
+                  const std::vector<JointPtr_t> wheels,
 		  ConstraintSetPtr_t constraints);
 
       /// Copy constructor
@@ -169,6 +175,12 @@ namespace hpp {
 				    size_type order) const;
 
     private:
+      /// Set the wheel joints for a car-like vehicle.
+      ///
+      /// \param rz joint from which the turning radius was computed.
+      /// \param wheels bounded rotation joints.
+      void setWheelJoints (const JointPtr_t rz,
+			   const std::vector<JointPtr_t> wheels);
       void dubins_init_normalised (double alpha, double beta, double d);
       void dubins_init (vector3_t q0, vector3_t q1);
       typedef Eigen::Matrix<value_type, 3, 1> Lengths_t;
