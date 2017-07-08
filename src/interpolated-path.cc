@@ -104,7 +104,7 @@ namespace hpp {
 
     void InterpolatedPath::initCopy (InterpolatedPathPtr_t self)
     {
-      parent_t::initCopy (self);
+      parent_t::init (self);
       weak_ = self;
       checkPath ();
     }

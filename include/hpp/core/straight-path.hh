@@ -85,7 +85,7 @@ namespace hpp {
       {
 	StraightPath* ptr = new StraightPath (*path);
 	StraightPathPtr_t shPtr (ptr);
-	ptr->initCopy (shPtr);
+	ptr->init (shPtr);
         ptr->checkPath ();
 	return shPtr;
       }
@@ -98,7 +98,7 @@ namespace hpp {
       {
 	StraightPath* ptr = new StraightPath (*path, constraints);
 	StraightPathPtr_t shPtr (ptr);
-	ptr->initCopy (shPtr);
+	ptr->init (shPtr);
         ptr->checkPath ();
 	return shPtr;
       }
@@ -196,12 +196,6 @@ namespace hpp {
 	parent_t::init (self);
 	weak_ = self;
         checkPath ();
-      }
-
-      void initCopy (StraightPathPtr_t self)
-      {
-	parent_t::initCopy (self);
-	weak_ = self;
       }
 
       virtual bool impl_compute (ConfigurationOut_t result,

@@ -38,13 +38,14 @@ namespace hpp {
 	static ReedsSheppPtr_t create (const Problem& problem);
 	static ReedsSheppPtr_t create (const Problem& problem,
 				     const value_type& turningRadius,
-				     size_type xyRank, size_type rzRank);
+				     JointPtr_t xyJoint, JointPtr_t rzJoint);
+
 	static ReedsSheppPtr_t createCopy (const ReedsSheppPtr_t& distance);
       protected:
 	ReedsShepp (const Problem& problem);
 	ReedsShepp (const Problem& problem,
 		    const value_type& turningRadius,
-		    size_type xyRank, size_type rzRank);
+		    JointPtr_t xyJoint, JointPtr_t rzJoint);
 	ReedsShepp (const ReedsShepp& distance);
 	
 	/// Derived class should implement this function

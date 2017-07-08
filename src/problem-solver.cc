@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
@@ -39,6 +40,9 @@
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
+#include <hpp/core/steering-method/dubins.hh>
+#include <hpp/core/steering-method/snibud.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/path-projector/global.hh>
@@ -165,6 +169,8 @@ namespace hpp {
               (&SteeringMethodStraight::create), _1
             ));
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      add <SteeringMethodBuilder_t> ("Dubins", steeringMethod::Dubins::createWithGuess);
+      add <SteeringMethodBuilder_t> ("Snibud", steeringMethod::Snibud::createWithGuess);
 
       // Store path optimization methods in map.
       add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);

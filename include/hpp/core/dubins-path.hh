@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2016 CNRS
-// Authors: Joseph Mirabel
+// Copyright (c) 2017 CNRS
+// Authors: Florent Lamiraux
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -16,23 +16,23 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_REEDS_SHEPP_PATH_HH
-# define HPP_CORE_REEDS_SHEPP_PATH_HH
+#ifndef HPP_CORE_DUBINS_PATH_HH
+# define HPP_CORE_DUBINS_PATH_HH
 
 # include <hpp/pinocchio/device.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/path-vector.hh>
+# include <hpp/core/path.hh>
 
 namespace hpp {
   namespace core {
     /// \addtogroup path
     /// \{
 
-    /// Car like motion
+    /// Car like motion going only forward
     ///
-    /// Implement a Reeds and Shepp motion generation on the base joint.
+    /// Implement a Dubins motion generation on the base joint.
     /// Degrees of freedom are interpolated depending on the type of
     /// \link hpp::pinocchio::Joint joint \endlink
     /// they parameterize:
@@ -43,44 +43,49 @@ namespace hpp {
     ///       the configuration parameter of those joints are computed so that
     ///       the wheel is aligned with the velocity.
     ///   \li linear interpolation for the other joints
-    class HPP_CORE_DLLAPI ReedsSheppPath : public PathVector
+    class DubinsPath : public Path
     {
     public:
-      typedef core::PathVector parent_t;
+      typedef core::Path parent_t;
 
       /// Destructor
-      virtual ~ReedsSheppPath () throw () {}
+      virtual ~DubinsPath () throw () {}
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param rho The radius of a turn.
-      static ReedsSheppPathPtr_t create (const pinocchio::DevicePtr_t& device,
-				   ConfigurationIn_t init,
-				   ConfigurationIn_t end,
-                                   value_type rho,
-                                   size_type xyId, size_type rzId,
-                                   const std::vector<JointPtr_t> wheels);
-
+      /// \param xyId, rzId indices in configuration vector of translation
+      ///                   and rotation of the car,
+      /// \param wheels vector of joints that represent turning wheels.
+      static DubinsPathPtr_t create (const DevicePtr_t& device,
+				     ConfigurationIn_t init,
+				     ConfigurationIn_t end,
+				     value_type rho,
+				     size_type xyId, size_type rzId,
+                                     const std::vector<JointPtr_t> wheels);
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param rho The radius of a turn.
+      /// \param xyId, rzId indices in configuration vector of translation
+      ///                   and rotation of the car,
+      /// \param wheels vector of joints that represent turning wheels,
       /// \param constraints the path is subject to
-      static ReedsSheppPathPtr_t create (const DevicePtr_t& device,
-				   ConfigurationIn_t init,
-				   ConfigurationIn_t end,
-                                   value_type rho,
-                                   size_type xyId, size_type rzId,
-                                   const std::vector<JointPtr_t> wheels,
-				   ConstraintSetPtr_t constraints);
+      static DubinsPathPtr_t create (const DevicePtr_t& device,
+				     ConfigurationIn_t init,
+				     ConfigurationIn_t end,
+				     value_type rho,
+				     size_type xyId, size_type rzId,
+                                     const std::vector<JointPtr_t> wheels,
+				     ConstraintSetPtr_t constraints);
 
       /// Create copy and return shared pointer
       /// \param path path to copy
-      static ReedsSheppPathPtr_t createCopy (const ReedsSheppPathPtr_t& path)
+      static DubinsPathPtr_t createCopy (const DubinsPathPtr_t& path)
       {
-	ReedsSheppPath* ptr = new ReedsSheppPath (*path);
-	ReedsSheppPathPtr_t shPtr (ptr);
+	DubinsPath* ptr = new DubinsPath (*path);
+	DubinsPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
@@ -88,11 +93,11 @@ namespace hpp {
       /// Create copy and return shared pointer
       /// \param path path to copy
       /// \param constraints the path is subject to
-      static ReedsSheppPathPtr_t createCopy
-	(const ReedsSheppPathPtr_t& path, const ConstraintSetPtr_t& constraints)
+      static DubinsPathPtr_t createCopy
+      (const DubinsPathPtr_t& path, const ConstraintSetPtr_t& constraints)
       {
-	ReedsSheppPath* ptr = new ReedsSheppPath (*path, constraints);
-	ReedsSheppPathPtr_t shPtr (ptr);
+	DubinsPath* ptr = new DubinsPath (*path, constraints);
+	DubinsPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
       }
@@ -132,62 +137,73 @@ namespace hpp {
 
     protected:
       /// Print path in a stream
-      virtual std::ostream& print (std::ostream &os) const;
+      virtual std::ostream& print (std::ostream &os) const
+      {
+	os << "DubinsPath:" << std::endl;
+	os << "interval: [ " << timeRange ().first << ", "
+	   << timeRange ().second << " ]" << std::endl;
+	os << "initial configuration: " << initial_.transpose () << std::endl;
+	os << "final configuration:   " << end_.transpose () << std::endl;
+	return os;
+      }
       /// Constructor
-      ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                      ConfigurationIn_t end, value_type rho,
-                      size_type xyId, size_type rzId,
-                      const std::vector<JointPtr_t> wheels);
+      DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
+		  ConfigurationIn_t end, value_type rho,
+		  size_type xyId, size_type rzId,
+                  const std::vector<JointPtr_t> wheels);
 
       /// Constructor with constraints
-      ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		      ConfigurationIn_t end, value_type rho,
-                      size_type xyId, size_type rzId,
-                      const std::vector<JointPtr_t> wheels,
-		      ConstraintSetPtr_t constraints);
+      DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
+		  ConfigurationIn_t end, value_type rho,
+		  size_type xyId, size_type rzId,
+                  const std::vector<JointPtr_t> wheels,
+		  ConstraintSetPtr_t constraints);
 
       /// Copy constructor
-      ReedsSheppPath (const ReedsSheppPath& path);
+      DubinsPath (const DubinsPath& path);
 
       /// Copy constructor with constraints
-      ReedsSheppPath (const ReedsSheppPath& path,
-		    const ConstraintSetPtr_t& constraints);
+      DubinsPath (const DubinsPath& path,
+		  const ConstraintSetPtr_t& constraints);
 
-      void init (ReedsSheppPathPtr_t self);
+      void init (DubinsPathPtr_t self);
 
+      virtual bool impl_compute (ConfigurationOut_t result,
+				 value_type param) const;
       /// Virtual implementation of derivative
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;
 
     private:
-      typedef Eigen::Matrix<value_type, 5, 1> Lengths_t;
-
-      // Compute path
-      void buildReedsShepp (const JointPtr_t rz,
-                            const std::vector<JointPtr_t> wheels);
-      // Setup path
-      void setupPath (const std::size_t& typeId, double t, double u=0.,
-                      double v=0., double w=0., double x=0.);
-
-      void CSC  (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
-      void CCC  (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
-      void CCCC (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
-      void CCSC (const vector2_t& xy, const vector2_t& csPhi, const double& phi);
-      void CCSCC(const vector2_t& xy, const vector2_t& csPhi, const double& phi);
-
+      /// Set the wheel joints for a car-like vehicle.
+      ///
+      /// \param rz joint from which the turning radius was computed.
+      /// \param wheels bounded rotation joints.
+      void setWheelJoints (const JointPtr_t rz,
+			   const std::vector<JointPtr_t> wheels);
+      void dubins_init_normalised (double alpha, double beta, double d);
+      void dubins_init (vector3_t q0, vector3_t q1);
+      typedef Eigen::Matrix<value_type, 3, 1> Lengths_t;
 
       DevicePtr_t device_;
       Configuration_t initial_;
       Configuration_t end_;
       const size_type xyId_,rzId_;
       size_type dxyId_,drzId_;
+      struct Wheels_t {
+        value_type L, R, S; // Left, Right and Straight turn
+        JointPtr_t j;
+        Wheels_t () : j() {}
+      };
+      std::vector<Wheels_t> wheels_;
       std::size_t typeId_;
       Lengths_t lengths_;
-      value_type currentLength_;
       value_type rho_;
-      ReedsSheppPathWkPtr_t weak_;
-    }; // class ReedsSheppPath
-    /// \}
+
+      vector3_t qi_;       // the initial configuration
+      DubinsPathWkPtr_t weak_;
+
+    }; // class DubinsPath
   } //   namespace core
 } // namespace hpp
-#endif // HPP_CORE_REEDS_SHEPP_PATH_HH
+#endif // HPP_CORE_DUBINS_PATH_HH
