@@ -52,7 +52,7 @@ namespace hpp {
               // A.conservativeResize(A.rows() + 1, A.cols());
               // b.conservativeResize(b.rows() + 1);
               A.row(row).setZero();
-              A(row, idxV) = -1;
+              A(row, idxV + i) = -1;
               b(row) = -(low(i) - neutral(i));
               row++;
             }
@@ -61,7 +61,7 @@ namespace hpp {
               // A.conservativeResize(A.rows() + 1, A.cols());
               // b.conservativeResize(b.rows() + 1);
               A.row(row).setZero();
-              A(row, idxV) = 1;
+              A(row, idxV + i) = 1;
               b(row) = up(i) - neutral(i);
               row++;
             }
