@@ -248,13 +248,16 @@ namespace hpp {
               iToThePowerOfI(i) *= i;
           }
           res(0) = res(Degree) = Degree;
-          res(1) = res(Degree - 1)
-            = value_type(iToThePowerOfI(Degree - 2)) / std::pow (Degree, Degree-3);
-          for (size_type i = 2; i < Degree - 1; ++i) {
-            const size_type p = (up
-                ? iToThePowerOfI(i) * iToThePowerOfI(Degree - i - 1)
-                : iToThePowerOfI(Degree - i) * iToThePowerOfI(i - 1));
-            res(i) = value_type(binomial(Degree, i, factors) * p) / value_type(iToThePowerOfI(Degree - 1));
+          if (Degree > 1) {
+            if (Degree == 2) res(1) = res(Degree - 1) = 2;
+            else res(1) = res(Degree - 1)
+              = value_type(iToThePowerOfI(Degree - 2)) / std::pow (Degree, Degree-3);
+            for (size_type i = 2; i < Degree - 1; ++i) {
+              const size_type p = (up
+                  ? iToThePowerOfI(i) * iToThePowerOfI(Degree - i - 1)
+                  : iToThePowerOfI(Degree - i) * iToThePowerOfI(i - 1));
+              res(i) = value_type(binomial(Degree, i, factors) * p) / value_type(iToThePowerOfI(Degree - 1));
+            }
           }
           return res;
         }
