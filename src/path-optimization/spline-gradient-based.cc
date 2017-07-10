@@ -282,11 +282,13 @@ namespace hpp {
       {
         void addConstraint (const CollisionFunctionPtr_t& f,
                             const std::size_t& idx,
+                            const size_type& row,
                             const value_type& r)
         {
           assert (f->outputSize() == 1);
           functions.push_back(f);
-          indexes.push_back(idx);
+          splineIds.push_back(idx);
+          rows.push_back(row);
           ratios.push_back(r);
         }
 
@@ -296,7 +298,8 @@ namespace hpp {
 
           const std::size_t nSize = functions.size() - n;
           functions.resize(nSize);
-          indexes.resize(nSize);
+          splineIds.resize(nSize);
+          rows.resize(nSize);
           ratios.resize(nSize);
 
           lc.J.conservativeResize(lc.J.rows() - n, lc.J.cols());
@@ -312,7 +315,7 @@ namespace hpp {
         {
           const CollisionFunctionPtr_t& f = functions[fIdx];
 
-          const size_type row = fIdx,
+          const size_type row = rows[fIdx],
                           nbRows = 1,
                           rDof = f->inputDerivativeSize();
           const value_type t = spline->length() * ratios[fIdx];
@@ -328,7 +331,7 @@ namespace hpp {
 
           spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
 
-          const size_type col = indexes[fIdx] * Spline::NbCoeffs * rDof;
+          const size_type col = splineIds[fIdx] * Spline::NbCoeffs * rDof;
           for (size_type i = 0; i < Spline::NbCoeffs; ++i)
             lc.J.block (row, col + i * rDof, nbRows, rDof).noalias()
               = paramDerivativeCoeff(i) * J;
@@ -341,11 +344,12 @@ namespace hpp {
         void linearize (const Splines_t& splines, LinearConstraint& lc)
         {
           for (std::size_t i = 0; i < functions.size(); ++i)
-            linearize(splines[indexes[i]], i, lc);
+            linearize(splines[splineIds[i]], i, lc);
         }
 
         std::vector<CollisionFunctionPtr_t> functions;
-        std::vector<std::size_t> indexes;
+        std::vector<std::size_t> splineIds;
+        std::vector<size_type> rows;
         std::vector<value_type> ratios;
 
         mutable Configuration_t q;
@@ -581,7 +585,9 @@ namespace hpp {
           CollisionFunction::create (robot_, spline, nextSpline, report);
 
         collision.addRows(cc->outputSize());
-        functions.addConstraint (cc, idxSpline, report->parameter / nextSpline->length()); 
+        functions.addConstraint (cc, idxSpline,
+            collision.J.rows() - 1,
+            report->parameter / nextSpline->length()); 
 
         functions.linearize(spline, functions.functions.size() - 1, collision);
       }
@@ -688,7 +694,7 @@ namespace hpp {
             computeOptimum = false;
 
             // Check the bounds
-            Indexes_t boundIndexes = validateBounds(splines, boundConstraint);
+            Indexes_t boundIndexes = validateBounds(collSplines, boundConstraint);
             std::size_t nbAddedConstraint =
               addBoundConstraints (boundIndexes, boundConstraint, activeBoundConstraint, collision);
             if (nbAddedConstraint > 0) {
@@ -747,8 +753,10 @@ namespace hpp {
                     reports[i].first,
                     collision, collisionFunctions);
 
-              bool fullRank = constraint.reduceConstraint(collision, collisionReduced);
-              if (!fullRank) {
+              const size_type curNullSpace = (collisionReduced.J.rows() == 0 ? 0 : collisionReduced.dec.rank() - collisionReduced.J.rows());
+              constraint.reduceConstraint(collision, collisionReduced);
+              const size_type newNullSpace = collisionReduced.dec.rank() - collisionReduced.J.rows();
+              if (newNullSpace > curNullSpace) {
                 hppDout (info, "The collision constraint would be rank deficient. Removing last constraint.");
                 collisionFunctions.removeLastConstraint (reports.size(), collision);
                 alpha *= 0.5;
