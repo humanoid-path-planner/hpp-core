@@ -121,7 +121,7 @@ namespace hpp {
         {
           matrix_t H_PK (QP.H * PK);
           QPr.H.noalias() = PK.transpose() * H_PK;
-          QPr.b.noalias() = 2 * H_PK.transpose() * xStar;
+          QPr.b.noalias() = H_PK.transpose() * xStar;
           if (!QP.bIsZero) {
             QPr.b.noalias() += PK.transpose() * QP.b;
           }
@@ -263,7 +263,7 @@ namespace hpp {
 
         void solve ()
         {
-          xStar.noalias() = - 0.5 * dec.solve(b);
+          xStar.noalias() = - dec.solve(b);
         }
 
         // model
@@ -668,7 +668,6 @@ namespace hpp {
 #ifndef NDEBUG
         checkHessian(cost, QP.H, splines);
 #endif // NDEBUG
-        QP.H /= 2;
 
         QuadraticProblem QPc (QP, constraint);
         // TODO avoid this copy
