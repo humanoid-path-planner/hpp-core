@@ -109,7 +109,6 @@ namespace hpp {
             }
           }
 
-          // PK_linv.resize(PK.cols(), PK.rows());
           PK.noalias() = constraints::getV2(dec);
           // PK_linv = PK.adjoint();
           // assert((PK_linv * PK).eval().isIdentity());
@@ -211,14 +210,11 @@ namespace hpp {
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::QuadraticProblem
       {
-        // typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
-        // typedef Eigen::ColPivHouseholderQR < matrix_t > Decomposition_t;
-        typedef Eigen::HouseholderQR < matrix_t > Decomposition_t;
+        typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
 
         QuadraticProblem (size_type inputSize) :
           H (inputSize, inputSize), b (inputSize),
-          // dec (inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
-          dec (inputSize, inputSize),
+          dec (inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
           xStar (inputSize)
         {
           H.setZero();
@@ -228,8 +224,7 @@ namespace hpp {
 
         QuadraticProblem (const QuadraticProblem& QP, const LinearConstraint& lc) :
           H (lc.PK.cols(), lc.PK.cols()), b (lc.PK.cols()), bIsZero (false),
-          // dec (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
-          dec (lc.PK.cols(), lc.PK.cols()),
+          dec (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
           xStar (lc.PK.cols())
         {
           lc.reduceProblem(QP, *this);
@@ -248,16 +243,10 @@ namespace hpp {
           H.bottomRows(nbRows).setZero();
         }
 
-        /// \param blockSize if not zero, H is considered block diagonal, the
-        ///                  block being of size blockSize x blockSize
-        void decompose (std::size_t blockSize = 0)
+        void decompose ()
         {
           HPP_START_TIMECOUNTER(SGB_qpDecomposition);
-          if (blockSize == 0) {
-            dec.compute(H);
-          } else {
-            throw std::logic_error("unimplemented");
-          }
+          dec.compute(H);
           HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
         }
 
@@ -531,11 +520,16 @@ namespace hpp {
       {
         Indexes_t violated;
 
-        const size_type cols = robot_->numberDof() * Spline::NbCoeffs;
+        const size_type rDof = robot_->numberDof();
+        const size_type cols = rDof * Spline::NbCoeffs;
         const size_type rows = lc.J.rows() / splines.size();
+        const size_type nBoundedDof = rows / (2*Spline::NbCoeffs);
         assert (lc.J.rows() % splines.size() == 0);
+        assert (rows % (2*Spline::NbCoeffs) == 0);
 
+        const value_type thr = Eigen::NumTraits<value_type>::dummy_precision();
         vector_t err;
+        std::vector<bool> dofActive (nBoundedDof, false);
 
         for (std::size_t i = 0; i < splines.size(); ++i) {
           const size_type row = i * rows;
@@ -544,11 +538,30 @@ namespace hpp {
           err = lc.J.block(row, col, rows, cols) * splines[i]->rowParameters()
             - lc.b.segment(row, rows);
 
-          for (size_type k = 0; k < rows; ++k)
-            if (err(k) > Eigen::NumTraits<value_type>::dummy_precision()) {
-              violated.push_back (row + k);
-              hppDout(info, "Bound violation at " << row + k << ": " << err(k));
+          // Find the maximum per parameter
+          for (size_type j = 0; j < nBoundedDof; ++j) {
+            if (dofActive[j]) continue;
+            value_type errM = thr;
+            size_type iErrM = -1;
+            for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
+              const size_type low = 2*j + k * 2*nBoundedDof;
+              const size_type up  = 2*j + k * 2*nBoundedDof + 1;
+              if (err(low) > errM) {
+                iErrM = low;
+                errM = err(low);
+              }
+              if (err(up) > errM) {
+                iErrM = up;
+                errM = err(up);
+              }
             }
+            if (iErrM >= 0) {
+              violated.push_back(row + iErrM);
+              dofActive[j] = true;
+              hppDout(info, "Bound violation at spline " << i << ", param " << (iErrM - 2*j) / nBoundedDof
+                  << ", iDof " << j << ": " << errM);
+            }
+          }
 	}
         if (!violated.empty()) {
           hppDout (info, violated.size() << " bounds violated." );
