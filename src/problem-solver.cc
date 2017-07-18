@@ -535,14 +535,13 @@ namespace hpp {
     void ProblemSolver::createPathOptimizers ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
-      if (pathOptimizers_.size () == 0) {
-	for (PathOptimizerTypes_t::const_iterator it =
-	       pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
-	     ++it) {
-	  PathOptimizerBuilder_t createOptimizer =
-            get<PathOptimizerBuilder_t> (*it);
-	  pathOptimizers_.push_back (createOptimizer (*problem_));
-	}
+      pathOptimizers_.clear();
+      for (PathOptimizerTypes_t::const_iterator it =
+          pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
+          ++it) {
+        PathOptimizerBuilder_t createOptimizer =
+          get<PathOptimizerBuilder_t> (*it);
+        pathOptimizers_.push_back (createOptimizer (*problem_));
       }
     }
 
