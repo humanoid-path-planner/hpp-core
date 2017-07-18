@@ -33,6 +33,7 @@ Eigen::IOFormat IPythonFormat (Eigen::FullPrecision, 0, ", ", ",\n", "[", "]", "
 #include <path-optimization/spline-gradient-based/cost.hh>
 #include <path-optimization/spline-gradient-based/collision-constraint.hh>
 #include <path-optimization/spline-gradient-based/joint-bounds.hh>
+#include <path-optimization/spline-gradient-based/eiquadprog_2011.hpp>
 
 namespace hpp {
   namespace core {
@@ -211,6 +212,7 @@ namespace hpp {
       struct SplineGradientBased<_PB, _SO>::QuadraticProblem
       {
         typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
+        typedef Eigen::LLT <matrix_t, Eigen::Lower> LLT_t;
 
         QuadraticProblem (size_type inputSize) :
           H (inputSize, inputSize), b (inputSize),
@@ -255,10 +257,33 @@ namespace hpp {
           xStar.noalias() = - dec.solve(b);
         }
 
+        void computeLLT()
+        {
+          trace = H.trace();
+          llt.compute(H);
+        }
+
+        double solve(const LinearConstraint& ce, const LinearConstraint& ci)
+        {
+          // min   0.5 * x G x + g0 x
+          // s.t.  CE^T x + ce0 = 0
+          //       CI^T x + ci0 >= 0
+          return solve_quadprog2 (llt, trace, b,
+              ce.J.transpose(), - ce.b,
+              ci.J.transpose(), - ci.b,
+              xStar, activeConstraint, activeSetSize);
+        }
+
         // model
         matrix_t H;
         vector_t b;
         bool bIsZero;
+
+        // Data
+        LLT_t llt;
+        value_type trace;
+        Eigen::VectorXi activeConstraint;
+        int activeSetSize;
 
         // Data
         matrix_t Hpinv;
@@ -664,7 +689,8 @@ namespace hpp {
         jointBoundConstraint (splines, boundConstraint);
         if (!validateBounds(splines, boundConstraint).empty())
           throw std::invalid_argument("Input path does not satisfy joint bounds");
-        Bools_t activeBoundConstraint(boundConstraint.J.rows(), false);
+        LinearConstraint boundConstraintReduced (boundConstraint.PK.rows(), 0);
+        constraint.reduceConstraint(boundConstraint, boundConstraintReduced);
 
         // 6
         bool noCollision = true, stopAtFirst = true;
@@ -689,16 +715,14 @@ namespace hpp {
 #endif // NDEBUG
 
         QuadraticProblem QPc (QP, constraint);
-        // TODO avoid this copy
-        QuadraticProblem QPr (QPc);
+        QPc.computeLLT();
+        QPc.solve(collisionReduced, boundConstraintReduced);
 
         while (!(noCollision && minimumReached) && (!interrupt_)) {
           // 6.1
           if (computeOptimum) {
             // 6.2
-            QPr.solve();
-            collisionReduced.computeSolution(QPr.xStar);
-            constraint.computeSolution(collisionReduced.xSol);
+            constraint.computeSolution(QPc.xStar);
             updateSplines(collSplines, constraint.xSol);
             cost.value(costLowerBound, collSplines);
             hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
@@ -706,32 +730,6 @@ namespace hpp {
             minimumReached = true;
             computeOptimum = false;
 
-            // Check the bounds
-            Indexes_t boundIndexes = validateBounds(collSplines, boundConstraint);
-            std::size_t nbAddedConstraint =
-              addBoundConstraints (boundIndexes, boundConstraint, activeBoundConstraint, collision);
-            if (nbAddedConstraint > 0) {
-              bool fullRank = constraint.reduceConstraint(collision, collisionReduced);
-              if (!fullRank) {
-                hppDout (info, "The bound constraint made the problem rank deficient.");
-              }
-              bool overConstrained = (QPc.H.rows() < collisionReduced.dec.rank());
-              if (overConstrained) {
-                hppDout (info, "The problem is over constrained: "
-                    << QP.H.rows() << " variables for "
-                    << collisionReduced.dec.rank() << " independant constraints.");
-                break;
-              }
-              hppDout (info, "Added " << nbAddedConstraint << " bound constraints. "
-                  "Constraints size " << collision.J.rows() <<
-                  "(" << collisionReduced.dec.rank() << ") / " << QPc.H.cols());
-
-              QPr = QuadraticProblem (QPc, collisionReduced);
-
-              minimumReached = false;
-              computeOptimum = true;
-              continue;
-            }
           }
           if (computeInterpolatedSpline) {
             interpolate(splines, collSplines, alpha, alphaSplines);
@@ -752,7 +750,9 @@ namespace hpp {
             if (linearizeAtEachStep) {
               collisionFunctions.linearize (splines, collision);
               constraint.reduceConstraint(collision, collisionReduced);
-              collisionReduced.reduceProblem (QPc, QPr);
+              QPc.solve(collisionReduced, boundConstraintReduced);
+              hppDout (info, "linearized");
+              computeOptimum = true;
             }
             hppDout (info, "Improved path with alpha = " << alpha);
 
@@ -766,17 +766,16 @@ namespace hpp {
                     reports[i].first,
                     collision, collisionFunctions);
 
-              const size_type curNullSpace = (collisionReduced.J.rows() == 0 ? 0 : collisionReduced.dec.rank() - collisionReduced.J.rows());
-              constraint.reduceConstraint(collision, collisionReduced);
-              const size_type newNullSpace = collisionReduced.dec.rank() - collisionReduced.J.rows();
-              if (newNullSpace > curNullSpace) {
-                hppDout (info, "The collision constraint would be rank deficient. Removing last constraint.");
+              bool fullRank = constraint.reduceConstraint(collision, collisionReduced);
+              if (!fullRank) {
+                hppDout (info, "The collision constraint would be rank deficient. Removing added constraint.");
                 collisionFunctions.removeLastConstraint (reports.size(), collision);
                 alpha *= 0.5;
                 stopAtFirst = alwaysStopAtFirst;
 
                 computeInterpolatedSpline = true;
               } else {
+                QPc.solve(collisionReduced, boundConstraintReduced);
                 bool overConstrained = (QPc.H.rows() < collisionReduced.dec.rank());
                 if (overConstrained) {
                   hppDout (info, "The problem is over constrained: "
@@ -786,9 +785,7 @@ namespace hpp {
                 }
                 hppDout (info, "Added " << reports.size() << " constraints. "
                     "Constraints size " << collision.J.rows() <<
-                    "(" << collisionReduced.dec.rank() << ") / " << QPc.H.cols());
-
-                QPr = QuadraticProblem (QPc, collisionReduced);
+                    "(rank=" << collisionReduced.dec.rank() << ", ass=" << QPc.activeSetSize << ") / " << QPc.H.cols());
 
                 // When adding a new constraint, try first minimum under this
                 // constraint. If this latter minimum is in collision,
@@ -839,8 +836,8 @@ namespace hpp {
           for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
             const size_type row = i * size + k * rows;
             const size_type col = i * cols + k * rDof;
-            lc.J.block (row, col, rows, rDof) = A;
-            lc.b.segment (row, rows)          = b;
+            lc.J.block (row, col, rows, rDof) = -A;
+            lc.b.segment (row, rows)          = -b;
           }
         }
       }
