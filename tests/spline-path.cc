@@ -146,7 +146,6 @@ template <int SplineType> void compare_to_straight_path ()
 template <int SplineType, int Degree>
 void check_velocity_bounds ()
 {
-  typedef path::Spline<SplineType, Degree> path_t;
   typedef steeringMethod::Spline<SplineType, Degree> SM_t;
 
   DevicePtr_t dev = createRobot();
@@ -169,7 +168,7 @@ void check_velocity_bounds ()
   spline->velocityBound (vb1, t0, t1);
 
   std::size_t N = 1000;
-  value_type step = spline->length() / N;
+  value_type step = spline->length() / value_type(N);
   for (std::size_t i = 0; i < N; ++i) {
     spline->velocityBound (vb2, t0, t1);
     BOOST_CHECK_MESSAGE((vb2.array() <= vb1.array()).all(),

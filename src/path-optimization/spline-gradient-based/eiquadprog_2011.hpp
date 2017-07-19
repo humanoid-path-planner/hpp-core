@@ -167,9 +167,9 @@ namespace Eigen {
     {
         int i, j, k, l; /* indices */
         int ip, me, mi;
-        int n=g0.size();
-        int p=CE.cols();
-        int m=CI.cols();
+        VectorXd::Index n=g0.size();
+        MatrixXd::Index p=CE.cols();
+        MatrixXd::Index m=CI.cols();
         MatrixXd R(g0.size(),g0.size()), J(g0.size(),g0.size());
 
 
@@ -482,7 +482,7 @@ namespace Eigen {
 
     inline bool add_constraint(MatrixXd& R, MatrixXd& J, VectorXd& d, int& iq, double& R_norm)
     {
-        int n=J.rows();
+        MatrixXd::Index n=J.rows();
 #ifdef TRACE_SOLVER
         std::cerr << "Add constraint " << iq << '/';
 #endif
@@ -549,7 +549,7 @@ namespace Eigen {
     inline void delete_constraint(MatrixXd& R, MatrixXd& J, VectorXi& A, VectorXd& u,  int p, int& iq, int l)
     {
 
-        int n = R.rows();
+        MatrixXd::Index n = R.rows();
 #ifdef TRACE_SOLVER
         std::cerr << "Delete constraint " << l << ' ' << iq;
 #endif
