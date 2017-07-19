@@ -726,6 +726,7 @@ namespace hpp {
 
         LinearConstraint collisionReduced (constraint.PK.rows(), 0);
         constraint.reduceConstraint(collision, collisionReduced);
+        collisionReduced.dec.setThreshold(1e-8);
 
         LinearConstraint boundConstraint (nParameters * rDof, 0);
         if (checkJointBound) {
