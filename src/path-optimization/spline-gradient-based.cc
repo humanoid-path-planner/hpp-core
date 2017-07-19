@@ -687,8 +687,12 @@ namespace hpp {
       {
         // Get some parameters
         value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit", value_type(0.2));
-        bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst", false);
-        bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", true);
+        bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst", true);
+        bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", false);
+        bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound", true);
+
+        PathVectorPtr_t input = PathVector::create (robot_->configSize(), robot_->numberDof());
+        path->flatten(input);
 
         robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
         const size_type rDof = robot_->numberDof();
@@ -707,7 +711,7 @@ namespace hpp {
         isContinuous(splines, orderContinuity, continuity);
 
         LinearConstraint constraint = continuity.linearConstraint();
-        addProblemConstraints (path, splines, constraint);
+        addProblemConstraints (input, splines, constraint);
 
         // 3
         LinearConstraint collision (nParameters * rDof, 0);
@@ -731,7 +735,7 @@ namespace hpp {
         constraint.reduceConstraint(boundConstraint, boundConstraintReduced);
 
         // 6
-        bool noCollision = true, stopAtFirst = true;
+        bool noCollision = true, stopAtFirst = alwaysStopAtFirst;
         bool minimumReached = false;
 
         bool computeOptimum = true, computeInterpolatedSpline = true;
