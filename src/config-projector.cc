@@ -42,16 +42,11 @@
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
 
-// #define SVD_THRESHOLD Eigen::NumTraits<value_type>::dummy_precision()
-#define SVD_THRESHOLD 1e-8
-
 namespace hpp {
   namespace core {
     using constraints::HybridSolver;
 
     namespace {
-      HPP_DEFINE_TIMECOUNTER (projection);
-      HPP_DEFINE_TIMECOUNTER (optimize);
 
       DifferentiableFunctionPtr_t activeSetFunction (
           const DifferentiableFunctionPtr_t& function,
@@ -268,10 +263,7 @@ namespace hpp {
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
-      HPP_START_TIMECOUNTER (projection);
       HybridSolver::Status status = solverSolve (configuration);
-      HPP_STOP_TIMECOUNTER (projection);
-      HPP_DISPLAY_TIMECOUNTER (projection);
       switch (status) {
         case HybridSolver::ERROR_INCREASED:
           statistics_.addFailure (REASON_ERROR_INCREASED);
@@ -306,13 +298,10 @@ namespace hpp {
       const size_type maxIterSave = maxIterations();
       if (maxIter == 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
-      HPP_START_TIMECOUNTER (optimize);
       lastIsOptional(false);
       HybridSolver::Status status = solverSolve (configuration);
       lastIsOptional(true);
       maxIterations(maxIterSave);
-      HPP_STOP_TIMECOUNTER (optimize);
-      HPP_DISPLAY_TIMECOUNTER (optimize);
       hppDout (info, "After optimization: " << configuration.transpose ());
       if (status == HybridSolver::SUCCESS)
         return true;

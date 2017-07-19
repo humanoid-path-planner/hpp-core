@@ -134,6 +134,24 @@ namespace hpp {
 	impl_derivative (result, t, order);
       }
 
+      /// Get the maximum velocity on a sub-interval of this path
+      /// \param t0 begin of the interval
+      /// \param t1 end of the interval
+      /// \retval result maximal derivative on the sub-interval. Should be allocated and of correct size.
+      /// \warning the method is not implemented in this class and throws if
+      ///          called without being implemented in the derived class.
+      /// \note unless otherwise stated, this method is not compatible with
+      ///       constraints. The derivative of the non-constrained path will
+      ///       be computed.
+      void velocityBound (vectorOut_t result, const value_type& t0, const value_type& t1) const
+      {
+        assert(result.size() == outputDerivativeSize());
+        assert(t0 <= t1);
+	impl_velocityBound (result,
+            std::max(t0, timeRange().first ),
+            std::min(t1, timeRange().second));
+      }
+
       /// \brief Function evaluation without applying constraints
       ///
       /// \return true if everything went good.
@@ -143,6 +161,12 @@ namespace hpp {
       /// Virtual implementation of derivative
       virtual void impl_derivative (vectorOut_t, const value_type&,
 				    size_type) const
+      {
+	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
+      }
+
+      /// Virtual implementation of velocityBound
+      virtual void impl_velocityBound (vectorOut_t, const value_type&, const value_type&) const
       {
 	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
       }

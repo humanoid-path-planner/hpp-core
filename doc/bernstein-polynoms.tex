@@ -1,0 +1,165 @@
+\documentclass {article}
+
+\newcommand\reals{\mathbf{R}}
+\newcommand\bernstein[2]{b_{#1, #2}}
+\begin{document}
+
+\section{Polynom}
+
+$$
+P (t) = \sum_{i=0}^n P_i \times b_i(\frac{t - t_0}{T})
+$$
+
+where $t \in \left[ t_0, t_0 + T \right]$, $(b_i)$ is a basis of the polynoms
+of degree less or equal to $n$ and $(P_i)$ is a set of points.
+
+\paragraph{Derivative}
+
+$$
+P^{(k)} (t) = \sum_{i=0}^n \frac{P_i}{T^k} \times b_i^{(k)}(\frac{t - t_0}{T})
+$$
+
+\paragraph{Integral of derivatives}
+\begin{eqnarray*}
+\int_{t_{min}}^{t_{min} + T} {P^{(k)} (t)}^T . P^{(k)} (t) dt
+&=& \sum_{i,j} \frac{P_i^T P_j}{T^{2k}} \int_{t_{min}}^{t_{min} + T} b_i^{(k)}(\frac{t - t_0}{T}) b_j^{(k)}(\frac{t - t_0}{T}) dt \\
+&=& \sum_{i,j} \frac{P_i^T P_j}{T^{2k}} T \int_0^1 b_i^{(k)}(u) b_j^{(k)}(u) du \\
+&=& T^{1-2k} \sum_{i,j} P_i^T P_j \int_0^1 b_i^{(k)}(u) b_j^{(k)}(u) du \\
+\end{eqnarray*}
+
+\section{Definiton of some basis}
+
+We consider $u \in \left[ 0,1 \right]$.
+
+\subsection {Canonical polynom basis}
+
+$$
+b_i(u) = u^i
+$$
+
+Its $k$-th derivative is, for $k \le i$:
+$$
+b_i^{(k)} (u) = \frac{i!}{(i-k)!} u^{i-k}
+$$
+
+Finally,
+\begin{eqnarray*}
+\int_0^1 b_i^{(k)} (u) b_j^{(k)} (u) du
+&=& \frac{i!}{(i-k)!} \frac{j!}{(j-k)!} \int_0^1 u^{i+j-2k} du \\
+&=& \frac{i!}{(i-k)!} \frac{j!}{(j-k)!} \frac{1}{i+j-2k+1}
+\end{eqnarray*}
+
+\subsection {Bernstein polynoms}
+The $i$-th Bernstein polynom of degree $n$ is:
+$$
+\bernstein{i}{n} (u) = { n \choose i } u^i (1-u)^{n-i}
+$$
+
+Its $k$-th derivative is, for $k \le n$:
+\begin{eqnarray*}
+\bernstein{i}{n}^{(k)} (u) &=& n! \sum_{p = \max(0, k+i-n)}^{\min(k,i)} { k \choose p } (-1)^{k-p} \frac{u^{i-p} (1-u)^{n-k-(i-p)}}{(i-p)!(n-k-(i-p))!} \\
+&=& \frac{n!}{(n-k)!} \sum_{p = \max(0, k+i-n)}^{\min(k,i)} { k \choose p } (-1)^{k-p} \bernstein{i-p}{n-k}(u)
+\end{eqnarray*}
+
+\paragraph{Integral of product of derivatives}
+We seek to compute
+\begin{eqnarray*}
+  \alpha_{i,j,n}^{(k)} &:=& \int_0^1 \bernstein{i}{n}^{(k)}(u) \bernstein{j}{n}^{(k)} (u) dt \\
+& =& \left(\frac{n!}{(n-k)!}\right)^2 \sum_{p \in I(i,k,n), q \in I(j,k,n)} { k \choose p } { k \choose q } (-1)^{2k - (p+q)} \alpha_{i-p,j-q,n-k}^{(0)} \\
+\end{eqnarray*}
+
+with $I(i,k,n) = [ \max(0, k+i-n), \min(k,i) ]$
+
+% with:
+% $$
+% \beta_{i,j}^{n,k} = \int_0^1 \bernstein{i-p}{n-k}(u) \bernstein{j-q}{n-k} (u) dt \\
+% $$
+
+\paragraph{Calculation of $\alpha_{i,j,n}^{(0)}$}
+\begin{eqnarray*}
+  \alpha_{i,j,n}^{(0)}
+  &=& { n \choose i } { n \choose j } { 2n \choose i+j }^{-1} \int_0^1 \bernstein{i+j}{2n}(u) dt \\
+  &=& { n \choose i } { n \choose j } { 2n \choose i+j }^{-1} \frac{1}{2n + 1}
+\end{eqnarray*}
+
+% Thus:
+% \begin{eqnarray*}
+  % \alpha_{i,j,n}^{(k)}
+  % & =& \left(\frac{n!}{(n-k)!}\right)^2 \sum_{p \in I(i,k,n), q \in I(j,k,n)} (-1)^{2k - (p+q)}
+  % { k \choose p } { k \choose q } { n-k \choose i-p } { n-k \choose j-q } { 2(n-k) \choose i-p+j-q }^{-1} \frac{1}{2(n-k) + 1}
+  % \alpha_{i-p,j-q,n-k}^{(0)} \\
+% \end{eqnarray*}
+
+\paragraph{Maximum on an interval}
+Let $I = \left[ t_0, t_1 \right] \subset \left[ 0,1 \right]$.
+
+We seek $ M_{i,n} (I) = \max_{u \in I} |\bernstein{i}{n} (u)| $.
+Clearly, we have
+$$ M_{0, n} (I) = \bernstein{0}{n} (t_0) $$
+and
+$$ M_{n, n} (I) = \bernstein{n}{n} (t_1) $$
+
+As $\bernstein{i}{n}' (u) = { n \choose i } ( i - u n ) u^{i-1} (1-u)^{n-i-1}$,
+we have, $\forall i \in \left[ 1, n-1 \right]$, $ M_{i,n} (I) = \bernstein{i}{n} (t_M(I)) $
+where
+\begin{equation}
+  t_M (I) = \left\lbrace
+  \begin{array}{cl}
+    t_0 & \textbf{ if } \frac{i}{n} > t_0 \\
+    t_1 & \textbf{ if } t_1 < \frac{i}{n} \\
+    \frac{i}{n} & \textbf{otherwise}
+  \end{array}
+  \right.
+\end{equation}
+The above formula is also true for $i = 0$ and $i=n$.
+
+We seek $ M_{i,n}' (I) = \max_{u \in I} |\bernstein{i}{n}' (u)| $.
+
+\subparagraph{Case $i = 0$ or $i = n$}: $\bernstein{i}{n}' (u)$ is monotone on $I$.
+
+\subparagraph{Case $i = 1$}:
+$ \bernstein{1}{n}' (u) = n (1 - u n) (1-u)^{n-2} $
+and
+$$
+\bernstein{1}{n}'' (u) = n (n-1) \left[ n u - 2 \right] (1-u)^{n-3}
+$$
+
+The extremun, in $u = \frac{2}{n} $, is $\frac{(n-2)^{n-2}}{n^{n-3}}$.
+
+\subparagraph{Case $i = n-1$}:
+$ \bernstein{n-1}{n}' (u) = n (n - 1 - u n) u^{n-2} $
+and
+$$
+\bernstein{n-1}{n}'' (u) = n (n-1) \left[ n-2 - n u \right] u^{n-3}
+$$
+
+The extremun, in $u = \frac{n-2}{n} $, is $\frac{(n-2)^{n-2}}{n^{n-3}}$, as for $i = 1$.
+
+\subparagraph{General case}:
+
+$$
+\bernstein{i}{n}'' (u) = { n \choose i } \left[ (n-1)^2 u^2 - (2 i - 1) (n - 1) u + i (i-1) \right] u^{i-2} (1-u)^{n-i-2}
+$$
+
+Let $ \alpha(u) = (n-1)^2 u^2 - (n - 1)(2 i - 1) u + i (i-1) $.
+As $\Delta = (n-1)^2 ( (2i-1)^2 - 4 i (i - 1)) = (n-1)^2$,
+the roots of $\alpha$ are $ u^-_{i,n} = \frac{i-1}{n-1} $ and $ u^+_{i,n} = \frac{i}{n-1}$.
+As $(n-1)^2 > 0$, $\bernstein{i}{n}'$ increases on $\left[ 0, u^-_{i,n} \right]$ and on $\left[ u^+_{i,n}, 1\right]$
+and decreases on $\left[ u^-_{i,n}, u^+_{i,n} \right]$.
+
+$$
+\bernstein{i}{n}' (u^-_{i,n}) = { n \choose i } \frac{(n-i)^{n-i} (i-1)^{i-1}}{(n-1)^{n-1}}
+$$
+$$
+\bernstein{i}{n}' (u^+_{i,n}) = - { n \choose i } \frac{(i)^i (n-i-1)^{n-i-1}}{(n-1)^{n-1}}
+$$
+
+Then, the following procedure computes $M$:
+
+\begin{enumerate}
+  \item $ M_{i,n}'(I) = \max(|\bernstein{i}{n}' (t_0)|,|\bernstein{i}{n}' (t_1)|) $
+  \item If $u^+_{i,n} \in I$, then $ M_{i,n}'(I) = \max(M_{i,n}'(I), |\bernstein{i}{n}' (u^+_{i,n})|)$
+  \item If $u^-_{i,n} \in I$, then $ M_{i,n}'(I) = \max(M_{i,n}'(I), |\bernstein{i}{n}' (u^-_{i,n})|)$
+\end{enumerate}
+
+\end{document}

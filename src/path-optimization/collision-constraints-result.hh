@@ -68,6 +68,7 @@ namespace hpp {
 	 // Compute contact point in configuration qColl
 	 robot_->currentConfiguration (qColl);
 	 robot_->computeForwardKinematics ();
+         robot_->updateGeometryPlacements ();
 	 fcl::CollisionResult result;
 	 fcl::CollisionRequest collisionRequest (1, true, false, 1, false, true,
 						 fcl::GST_INDEP);

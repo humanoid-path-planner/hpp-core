@@ -102,12 +102,19 @@ namespace hpp {
 	}
 	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
 	  (device_, end_, initial_, result);
-	result = (1/timeRange ().second) * result;
+	result /= length();
 	return;
       }
       std::ostringstream oss;
       oss << "order of derivative (" << order << ") should be positive.";
       HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
+    }
+
+    void StraightPath::impl_velocityBound (
+        vectorOut_t result, const value_type&, const value_type&) const
+    {
+      pinocchio::difference <hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, result);
+      result.noalias() = result.cwiseAbs() / length();
     }
 
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const

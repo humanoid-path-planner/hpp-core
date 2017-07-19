@@ -239,6 +239,10 @@ namespace hpp {
     CollisionPair_t;
     typedef std::vector <CollisionPair_t> CollisionPairs_t;
 
+    namespace path {
+      template <int _PolynomeBasis, int _Order> class Spline;
+    } // namespace path
+
     HPP_PREDEF_CLASS (ContinuousCollisionChecking);
     typedef boost::shared_ptr <ContinuousCollisionChecking>
     ContinuousCollisionCheckingPtr_t;
@@ -301,6 +305,7 @@ namespace hpp {
       typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
       HPP_PREDEF_CLASS (Snibud);
       typedef boost::shared_ptr <Snibud> SnibudPtr_t;
+      template <int _PolynomeBasis, int _Order> class Spline;
     } // namespace steeringMethod
 
     namespace problemTarget {

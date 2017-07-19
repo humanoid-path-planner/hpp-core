@@ -92,11 +92,13 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/gradient-based.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/config-optimization.hh
+  include/hpp/core/path-optimization/spline-gradient-based.hh
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-validation.hh
   include/hpp/core/path-validation-report.hh
   include/hpp/core/path-vector.hh
+  include/hpp/core/path/spline.hh
   include/hpp/core/reeds-shepp-path.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
@@ -109,6 +111,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method/constant-curvature.hh
   include/hpp/core/steering-method/dubins.hh
   include/hpp/core/steering-method/reeds-shepp.hh
+  include/hpp/core/steering-method/spline.hh
   include/hpp/core/steering-method/snibud.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/interpolated-path.hh

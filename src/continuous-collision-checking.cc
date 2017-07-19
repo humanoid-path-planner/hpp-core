@@ -30,6 +30,10 @@
 namespace hpp {
   namespace core {
     namespace {
+      using continuousCollisionChecking::BodyPairCollision;
+      using continuousCollisionChecking::BodyPairCollisions_t;
+      using continuousCollisionChecking::BodyPairCollisionPtr_t;
+
       typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
 
       struct JointIndexPairCompare_t {
@@ -41,11 +45,8 @@ namespace hpp {
 	}
       };
 
-      using continuousCollisionChecking::BodyPairCollision;
-      using continuousCollisionChecking::BodyPairCollisions_t;
-      using continuousCollisionChecking::BodyPairCollisionPtr_t;
-
-      typedef std::set<JointIndexPair_t, JointIndexPairCompare_t> JointIndexPairSet_t;
+      // typedef std::set<JointIndexPair_t, JointIndexPairCompare_t> JointIndexPairSet_t;
+      typedef std::map<JointIndexPair_t, BodyPairCollisionPtr_t, JointIndexPairCompare_t> BodyPairCollisionMap_t;
     }
 
     /// Validate interval centered on a path parameter
@@ -66,8 +67,7 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics();
       robot_->updateGeometryPlacements();
-      for (BodyPairCollisions_t::iterator itPair =
-	     bodyPairCollisions_.begin ();
+      for (BodyPairCollisions_t::iterator itPair = bodyPairCollisions_.begin ();
 	   itPair != bodyPairCollisions_.end (); ++itPair) {
 	CollisionValidationReportPtr_t collisionReport;
 	if (!(*itPair)->validateConfiguration (t, tmpInt, collisionReport)) {
@@ -159,7 +159,7 @@ namespace hpp {
 	if (!(*itPair)->joint_b () && (*itPair)->joint_a () == joint) {
 	  if ((*itPair)->removeObjectTo_b (obstacle)) {
 	    removed = true;
-	    if ((*itPair)->objects_b ().empty ()) {
+	    if ((*itPair)->pairs ().empty ()) {
 	      bodyPairCollisions_.erase (itPair);
 	    }
 	  }
@@ -186,25 +186,28 @@ namespace hpp {
     {
       // Build body pairs for collision checking
       // First auto-collision
-      // FIXME The pairs of joint are duplicated
       const se3::GeometryModel& gmodel = robot->geomModel ();
       JointPtr_t joint1, joint2;
-      JointIndexPairSet_t jointPairs;
-      std::size_t duplicates = 0;
+      BodyPairCollisionMap_t bodyPairMap;
       for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
-        {
-          const se3::CollisionPair& cp = gmodel.collisionPairs[i];
-          JointIndexPair_t jp (
-			       gmodel.geometryObjects[cp.first].parentJoint,
-			       gmodel.geometryObjects[cp.second].parentJoint);
-          if (jointPairs.count(jp) == 0) {
-            jointPairs.insert(jp);
-            joint1 = JointPtr_t(new Joint(robot_, jp.first));
-            joint2 = JointPtr_t(new Joint(robot_, jp.second));
-            bodyPairCollisions_.push_back (BodyPairCollision::create
-					   (joint2, joint1, tolerance_));
-          } else duplicates++;
-	}
+      {
+        const se3::CollisionPair& cp = gmodel.collisionPairs[i];
+        JointIndexPair_t jp (gmodel.geometryObjects[cp.first ].parentJoint,
+                             gmodel.geometryObjects[cp.second].parentJoint);
+
+        BodyPairCollisionMap_t::iterator _bp = bodyPairMap.find(jp);
+
+        if (_bp == bodyPairMap.end()) {
+          joint1 = JointPtr_t(new Joint(robot_, jp.first));
+          joint2 = JointPtr_t(new Joint(robot_, jp.second));
+          bodyPairCollisions_.push_back (
+              BodyPairCollision::create (joint2, joint1, tolerance_));
+          bodyPairMap[jp] = bodyPairCollisions_.back();
+        }
+        bodyPairMap[jp]->addCollisionPair (
+            CollisionObjectConstPtr_t (new pinocchio::CollisionObject(robot, cp.first )),
+            CollisionObjectConstPtr_t (new pinocchio::CollisionObject(robot, cp.second)));
+      }
     }
   } // namespace core
 } // namespace hpp

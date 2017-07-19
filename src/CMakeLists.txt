@@ -59,10 +59,12 @@ locked-joint.cc
   path-optimization/collision-constraints-result.hh #
   path-optimization/path-length.cc #
   path-optimization/gradient-based.cc #
+  path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/config-optimization.cc#
   path-planner.cc #
   path-vector.cc #
+  path/spline.cc
   plan-and-optimize.cc #
   problem.cc # TODO : addObstacle
   problem-solver.cc # TODO : addObstacle
@@ -82,6 +84,7 @@ locked-joint.cc
   steering-method/constant-curvature.cc
   steering-method/dubins.cc
   steering-method/snibud.cc
+ steering-method/spline.cc
  straight-path.cc
  visibility-prm-planner.cc
  weighed-distance.cc

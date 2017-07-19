@@ -33,6 +33,7 @@ namespace hpp {
   namespace core {
     /// \addtogroup constraints
     /// \{
+    typedef constraints::HybridSolver HybridSolver;
 
     /** Implicit non-linear constraint
 
@@ -325,6 +326,11 @@ namespace hpp {
         return lockedJoints_;
       }
 
+      const HybridSolver& solver () const
+      {
+        return minimalSolver_;
+      }
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -359,7 +365,6 @@ namespace hpp {
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
 
-      typedef constraints::HybridSolver HybridSolver;
       enum LineSearchType {
         Backtracking,
         ErrorNormBased,
