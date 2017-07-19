@@ -728,9 +728,11 @@ namespace hpp {
         constraint.reduceConstraint(collision, collisionReduced);
 
         LinearConstraint boundConstraint (nParameters * rDof, 0);
-        jointBoundConstraint (splines, boundConstraint);
-        if (!validateBounds(splines, boundConstraint).empty())
-          throw std::invalid_argument("Input path does not satisfy joint bounds");
+        if (checkJointBound) {
+          jointBoundConstraint (splines, boundConstraint);
+          if (!validateBounds(splines, boundConstraint).empty())
+            throw std::invalid_argument("Input path does not satisfy joint bounds");
+        }
         LinearConstraint boundConstraintReduced (boundConstraint.PK.rows(), 0);
         constraint.reduceConstraint(boundConstraint, boundConstraintReduced);
 
@@ -771,7 +773,6 @@ namespace hpp {
             currentSplines = &collSplines;
             minimumReached = true;
             computeOptimum = false;
-
           }
           if (computeInterpolatedSpline) {
             interpolate(splines, collSplines, alpha, alphaSplines);
@@ -801,17 +802,26 @@ namespace hpp {
             computeInterpolatedSpline = true;
           } else {
             if (alpha != 1.) {
-              for (std::size_t i = 0; i < reports.size(); ++i)
+              bool ok = false;
+              for (std::size_t i = 0; i < reports.size(); ++i) {
                 addCollisionConstraint(reports[i].second,
                     splines[reports[i].second],
                     (*currentSplines)[reports[i].second],
                     reports[i].first,
                     collision, collisionFunctions);
 
-              bool fullRank = constraint.reduceConstraint(collision, collisionReduced);
-              if (!fullRank) {
+                ok |=
+                  findNewConstraint (constraint, collision, collisionReduced,
+                      collisionFunctions, collisionFunctions.functions.size() - 1,
+                      splines[reports[i].second]);
+              }
+
+              if (!ok) {
                 hppDout (info, "The collision constraint would be rank deficient. Removing added constraint.");
-                collisionFunctions.removeLastConstraint (reports.size(), collision);
+                if (alpha < alphaInit / (1 << 2)) {
+                  hppDout (info, "Interruption because alpha became too small.");
+                  break;
+                }
                 alpha *= 0.5;
                 stopAtFirst = alwaysStopAtFirst;
 
