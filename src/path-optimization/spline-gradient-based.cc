@@ -619,6 +619,7 @@ namespace hpp {
        LinearConstraint& collision,
        CollisionFunctions& functions) const
       {
+        hppDout (info, "Collision on spline " << idxSpline << " at ratio (in [0,1]) = " << report->parameter / nextSpline->length());
         CollisionFunctionPtr_t cc =
           CollisionFunction::create (robot_, spline, nextSpline, report);
 
@@ -628,6 +629,43 @@ namespace hpp {
             report->parameter / nextSpline->length()); 
 
         functions.linearize(spline, functions.functions.size() - 1, collision);
+      }
+
+      template <int _PB, int _SO>
+      bool SplineGradientBased<_PB, _SO>::findNewConstraint
+      (LinearConstraint& constraint,
+       LinearConstraint& collision,
+       LinearConstraint& collisionReduced,
+       CollisionFunctions& functions,
+       const std::size_t iF,
+       const SplinePtr_t& spline) const
+      {
+        bool solved = false;
+        Configuration_t q (robot_->configSize());
+        CollisionFunctionPtr_t function = functions.functions[iF];
+
+        solved = constraint.reduceConstraint(collision, collisionReduced);
+
+        size_type i = 5;
+        while (not solved) {
+          if (i == 0) {
+            functions.removeLastConstraint (1, collision);
+            hppDout (warning, "Could not find a suitable collision constraint. Removing it.");
+            return false;
+          }
+          hppDout (info, "Looking for collision which does not make the constraint rank deficient.");
+          // interpolate at alpha
+          pinocchio::interpolate<hpp::pinocchio::LieGroupTpl>
+            (robot_, function->qFree_, function->qColl_, 0.5, q);
+          hppDout (info, "New q: " << q.transpose());
+          // update the constraint
+          function->updateConstraint (q);
+          functions.linearize(spline, iF, collision);
+          // check the rank
+          solved = constraint.reduceConstraint(collision, collisionReduced);
+          --i;
+        }
+        return true;
       }
 
       template <int _PB, int _SO>

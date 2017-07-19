@@ -100,6 +100,12 @@ namespace hpp {
               const CollisionPathValidationReportPtr_t& report,
               LinearConstraint& collision, CollisionFunctions& functions) const;
 
+          bool findNewConstraint (LinearConstraint& constraint,
+              LinearConstraint& collision, LinearConstraint& collisionReduced,
+              CollisionFunctions& functions, const std::size_t iF,
+              const SplinePtr_t& spline) const;
+
+
           PathVectorPtr_t buildPathVector (const Splines_t& splines) const;
 
           void jointBoundConstraint (const Splines_t& splines, LinearConstraint& lc) const;
