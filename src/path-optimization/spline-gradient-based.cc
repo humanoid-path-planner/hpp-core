@@ -566,16 +566,16 @@ namespace hpp {
           // Find the maximum per parameter
           for (size_type j = 0; j < nBoundedDof; ++j) {
             if (dofActive[j]) continue;
-            value_type errM = thr;
+            value_type errM = -thr;
             size_type iErrM = -1;
             for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
               const size_type low = 2*j + k * 2*nBoundedDof;
               const size_type up  = 2*j + k * 2*nBoundedDof + 1;
-              if (err(low) > errM) {
+              if (err(low) < errM) {
                 iErrM = low;
                 errM = err(low);
               }
-              if (err(up) > errM) {
+              if (err(up) < errM) {
                 iErrM = up;
                 errM = err(up);
               }
