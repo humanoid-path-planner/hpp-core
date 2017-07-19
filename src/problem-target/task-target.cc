@@ -46,7 +46,7 @@ namespace hpp {
         }
       }
 
-      bool TaskTarget::reached (const RoadmapPtr_t& roadmap) const
+      bool TaskTarget::reached (const RoadmapPtr_t& /*roadmap*/) const
       {
         // TODO
         return false;

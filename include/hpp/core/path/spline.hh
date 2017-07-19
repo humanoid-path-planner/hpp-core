@@ -174,14 +174,14 @@ namespace hpp {
           PathPtr_t copy () const
           {
             Ptr_t other (new Spline (*this));
-            other->initCopy(other);
+            other->init(other);
             return other;
           }
 
           PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
           {
             Ptr_t other (new Spline (*this, constraints));
-            other->initCopy(other);
+            other->init(other);
             return other;
           }
 
@@ -216,8 +216,6 @@ namespace hpp {
           Spline (const Spline& path, const ConstraintSetPtr_t& constraints);
 
           void init (const Ptr_t& self) { Path::init(self); weak_ = self; }
-
-          void initCopy (const Ptr_t& self) { Path::initCopy(self); weak_ = self; }
 
           std::ostream& print (std::ostream &os) const;
 

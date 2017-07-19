@@ -166,7 +166,7 @@ namespace Eigen {
                                   VectorXd& x, VectorXi& A, int& q)
     {
         int i, j, k, l; /* indices */
-        int ip, me, mi;
+        MatrixXd::Index ip, me, mi;
         VectorXd::Index n=g0.size();
         MatrixXd::Index p=CE.cols();
         MatrixXd::Index m=CI.cols();

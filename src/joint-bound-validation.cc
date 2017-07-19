@@ -45,7 +45,7 @@ namespace hpp {
           || (model.lowerPositionLimit[i] > config[i])) {
           /// Find the joint at rank i
           JointPtr_t joint = robot_->getJointAtConfigRank(i);
-          assert (i >= joint->rankInConfiguration());
+          assert (i >= (std::size_t)joint->rankInConfiguration());
           const std::size_t j = i - joint->rankInConfiguration();
 
           JointBoundValidationReportPtr_t report(new JointBoundValidationReport
