@@ -78,15 +78,22 @@ namespace hpp {
           typedef std::vector <size_type> Indexes_t;
           struct CollisionFunctions;
 
+          typedef constraints::ExplicitSolver Solver_t;
+          struct SolverPtr_t {
+            ConstraintSetPtr_t set;
+            boost::shared_ptr<Solver_t> es;
+          };
+          typedef std::vector <SolverPtr_t> Solvers_t;
+
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
 
-          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, ContinuityConstraint& continuity);
+          void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ess) const;
 
-          void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc) const;
+          void addProblemConstraints (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SolverPtr_t& es) const;
 
-          void addProblemConstraints (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc) const;
+          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const Solvers_t& ess, ContinuityConstraint& continuity);
 
           Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
 
@@ -97,13 +104,14 @@ namespace hpp {
 
           void addCollisionConstraint (const std::size_t idxSpline,
               const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
+              const SolverPtr_t& solver,
               const CollisionPathValidationReportPtr_t& report,
               LinearConstraint& collision, CollisionFunctions& functions) const;
 
           bool findNewConstraint (LinearConstraint& constraint,
               LinearConstraint& collision, LinearConstraint& collisionReduced,
               CollisionFunctions& functions, const std::size_t iF,
-              const SplinePtr_t& spline) const;
+              const SplinePtr_t& spline, const SolverPtr_t& solver) const;
 
 
           PathVectorPtr_t buildPathVector (const Splines_t& splines) const;

@@ -83,6 +83,15 @@ namespace hpp {
           b.setZero();
         }
 
+        void concatenate (const LinearConstraint& oc)
+        {
+          assert(oc.J.cols() == J.cols());
+          J.conservativeResize (J.rows() + oc.J.rows(), J.cols());
+          J.bottomRows(oc.J.rows()) = oc.J;
+          b.conservativeResize (b.rows() + oc.b.rows());
+          b.tail(oc.b.rows()) = oc.b;
+        }
+
         void decompose (bool check = false)
         {
           HPP_START_TIMECOUNTER(SGB_constraintDecomposition);
@@ -94,7 +103,6 @@ namespace hpp {
           }
 
           dec.compute (J);
-          assert (J.rows() <= J.cols());
 
           PK.resize(J.cols(), J.cols() - dec.rank());
           xStar.resize (PK.rows());
@@ -131,14 +139,16 @@ namespace hpp {
           QPr.decompose();
         }
 
-        bool reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr) const
+        bool reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr, bool decompose = true, bool check = true) const
         {
           lcr.J.noalias() = lc.J * PK;
           lcr.b.noalias() = lc.b - lc.J * xStar;
 
           // Decompose
-          lcr.decompose(true);
-          return (lcr.J.rows() == 0 || lcr.dec.rank() == std::min(lcr.J.rows(), lcr.J.cols()));
+          if (decompose) {
+            lcr.decompose(check);
+            return (lcr.J.rows() == 0 || lcr.dec.rank() == std::min(lcr.J.rows(), lcr.J.cols()));
+          } else return true;
         }
 
         void computeSolution (const vector_t& v)
@@ -324,8 +334,8 @@ namespace hpp {
         // b = f(S(t))
         // J = Jf(S(p, t)) * dS/dp
         // f(S(t)) = b -> J * P = b
-        void linearize (const SplinePtr_t& spline, const std::size_t& fIdx,
-            LinearConstraint& lc)
+        void linearize (const SplinePtr_t& spline, const SolverPtr_t& solver,
+            const std::size_t& fIdx, LinearConstraint& lc)
         {
           const CollisionFunctionPtr_t& f = functions[fIdx];
 
@@ -337,11 +347,26 @@ namespace hpp {
           q.resize(f->inputSize());
           (*spline) (q, t);
 
+          // Evaluate explicit functions
+          if (solver.es) solver.es->solve(q);
+
           vector_t v (f->outputSize());
           f->value(v, q);
 
           J.resize(f->outputSize(), f->inputDerivativeSize());
           f->jacobian(J, q);
+
+          // Apply chain rule if necessary
+          if (solver.es) {
+            Js.resize(solver.es->derSize(), solver.es->derSize());
+            solver.es->jacobian(Js, q);
+
+            solver.es->inDers().lview(J) =
+              solver.es->inDers().lview(J).eval() +
+              solver.es->outDers().rviewTranspose(J).eval()
+              * solver.es->viewJacobian(Js).eval(); 
+            solver.es->outDers().lviewTranspose(J).setZero();
+          }
 
           spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
 
@@ -355,10 +380,10 @@ namespace hpp {
             * spline->rowParameters();
         }
 
-        void linearize (const Splines_t& splines, LinearConstraint& lc)
+        void linearize (const Splines_t& splines, const Solvers_t& ss, LinearConstraint& lc)
         {
           for (std::size_t i = 0; i < functions.size(); ++i)
-            linearize(splines[splineIds[i]], i, lc);
+            linearize(splines[splineIds[i]], ss[i], i, lc);
         }
 
         std::vector<CollisionFunctionPtr_t> functions;
@@ -367,7 +392,7 @@ namespace hpp {
         std::vector<value_type> ratios;
 
         mutable Configuration_t q;
-        mutable matrix_t J;
+        mutable matrix_t J, Js;
         mutable typename Spline::BasisFunctionVector_t paramDerivativeCoeff;
       };
 
@@ -416,8 +441,54 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::addProblemConstraints
+      (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ss) const
+      {
+        assert (init->numberPaths() == splines.size() && ss.size() == splines.size());
+        for (std::size_t i = 0; i < splines.size(); ++i) {
+          addProblemConstraints (init->pathAtRank(i), i, splines[i], lc, ss[i]);
+        }
+      }
+
+      template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::addProblemConstraints
+      (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SolverPtr_t& solver) const
+      {
+        ConstraintSetPtr_t cs = path->constraints();
+        if (cs) {
+          ConfigProjectorPtr_t cp = cs->configProjector();
+          if (cp) {
+            const HybridSolver& hs = cp->solver();
+            const constraints::ExplicitSolver& es = hs.explicitSolver();
+            solver.set = cs;
+            solver.es.reset(new Solver_t(es));
+            typename Spline::BasisFunctionVector_t B0, B1;
+            const size_type rDof = robot_->numberDof(),
+                            col  = idxSpline * Spline::NbCoeffs * rDof,
+                            row = lc.J.rows(),
+                            nOutVar = es.outDers().nbIndexes();
+
+            // TODO to remove the explicitely constrained DOF, we constrain
+            // them to their initial value.
+            lc.addRows(Spline::NbCoeffs * nOutVar);
+
+            matrix_t I (es.outDers().rview (matrix_t::Identity(rDof, rDof)));
+
+            for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
+              lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
+              lc.b.segment(row + k * nOutVar, nOutVar) = I * spline->parameters().row(k).transpose();
+            }
+
+            assert ((lc.J.block(row, col, Spline::NbCoeffs * nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+                .isApprox(lc.b.segment(row, Spline::NbCoeffs * nOutVar)));
+          }
+        }
+      }
+
+      template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::addContinuityConstraints
-      (const Splines_t& splines, const size_type maxOrder, ContinuityConstraint& lc)
+      (const Splines_t& splines, const size_type maxOrder,
+       const Solvers_t& /*ss*/, ContinuityConstraint& lc)
       {
         typename Spline::BasisFunctionVector_t B0, B1;
         enum { NbCoeffs = Spline::NbCoeffs };
@@ -454,66 +525,6 @@ namespace hpp {
           lc.J.template block<1, NbCoeffs> (row, indexParam) = B1.transpose();
           if (Czero) lc.b.row (row) = B1.transpose() * splines.back()->parameters();
           ++row;
-        }
-      }
-
-      template <int _PB, int _SO>
-      void SplineGradientBased<_PB, _SO>::addProblemConstraints
-      (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc) const
-      {
-        assert (init->numberPaths() == splines.size());
-        for (std::size_t i = 0; i < splines.size(); ++i) {
-          addProblemConstraints (init->pathAtRank(i), i, splines[i], lc);
-        }
-      }
-
-      template <int _PB, int _SO>
-      void SplineGradientBased<_PB, _SO>::addProblemConstraints
-      (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc) const
-      {
-        ConstraintSetPtr_t cs = path->constraints();
-        if (cs) {
-          ConfigProjectorPtr_t cp = cs->configProjector();
-          if (cp) {
-            const HybridSolver& solver = cp->solver();
-            const constraints::ExplicitSolver& es = solver.explicitSolver();
-            typename Spline::BasisFunctionVector_t B0, B1;
-            const size_type rDof = robot_->numberDof(),
-                            col  = idxSpline * Spline::NbCoeffs * rDof,
-                            shift = lc.J.rows(),
-                            nOutVar = es.outDers().nbIndexes();
-            size_type row0, row1;
-
-            // TODO to remove the explicitely constrained DOF, we constrain
-            // set them to zero.
-            // lc.addRows(Spline::NbCoeffs * nOutVar);
-            lc.addRows(2 * nOutVar);
-
-            // Position: 2 * nOutVar rows
-            row0 = shift; row1 = shift + nOutVar;
-            spline->basisFunctionDerivative(0, 0, B0);
-            spline->basisFunctionDerivative(0, 1, B1);
-            matrix_t tmp(matrix_t::Zero(rDof, rDof));
-            for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
-              tmp.diagonal().setConstant(B0(k));
-              lc.J.block(row0, col + k * rDof, nOutVar, rDof)
-                = es.outDers().rview(tmp);
-
-              tmp.diagonal().setConstant(B1(k));
-              lc.J.block(row1, col + k * rDof, nOutVar, rDof)
-                = es.outDers().rview(tmp);
-            }
-            lc.b.segment(row0, nOutVar) = es.outDers().rview (spline->parameters().transpose() * B0);
-            lc.b.segment(row1, nOutVar) = es.outDers().rview (spline->parameters().transpose() * B1);
-
-            assert ((lc.J.block(row0, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
-                .isApprox(lc.b.segment(row0, nOutVar)));
-            assert ((lc.J.block(row1, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
-                .isApprox(lc.b.segment(row1, nOutVar)));
-
-            // TODO Velocity continuity
-            // Derivatives
-          }
         }
       }
 
@@ -615,6 +626,7 @@ namespace hpp {
       void SplineGradientBased<_PB, _SO>::addCollisionConstraint
       (const std::size_t idxSpline,
        const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
+       const SolverPtr_t& solver,
        const CollisionPathValidationReportPtr_t& report,
        LinearConstraint& collision,
        CollisionFunctions& functions) const
@@ -628,7 +640,7 @@ namespace hpp {
             collision.J.rows() - 1,
             report->parameter / nextSpline->length()); 
 
-        functions.linearize(spline, functions.functions.size() - 1, collision);
+        functions.linearize(spline, solver, functions.functions.size() - 1, collision);
       }
 
       template <int _PB, int _SO>
@@ -638,7 +650,8 @@ namespace hpp {
        LinearConstraint& collisionReduced,
        CollisionFunctions& functions,
        const std::size_t iF,
-       const SplinePtr_t& spline) const
+       const SplinePtr_t& spline,
+       const SolverPtr_t& solver) const
       {
         bool solved = false;
         Configuration_t q (robot_->configSize());
@@ -660,7 +673,7 @@ namespace hpp {
           hppDout (info, "New q: " << q.transpose());
           // update the constraint
           function->updateConstraint (q);
-          functions.linearize(spline, iF, collision);
+          functions.linearize(spline, solver, iF, collision);
           // check the rank
           solved = constraint.reduceConstraint(collision, collisionReduced);
           --i;
@@ -706,12 +719,15 @@ namespace hpp {
         enum { MaxContinuityOrder = int( (SplineOrder - 1) / 2) };
         const size_type orderContinuity = MaxContinuityOrder;
 
+        LinearConstraint constraint (nParameters * rDof, 0);
+        Solvers_t solvers (splines.size());
+        addProblemConstraints (input, splines, constraint, solvers);
+
         ContinuityConstraint continuity (nParameters, rDof, (splines.size() + 1) * (orderContinuity + 1));
-        addContinuityConstraints (splines, orderContinuity, continuity);
+        addContinuityConstraints (splines, orderContinuity, solvers, continuity);
         isContinuous(splines, orderContinuity, continuity);
 
-        LinearConstraint constraint = continuity.linearConstraint();
-        addProblemConstraints (input, splines, constraint);
+        constraint.concatenate(continuity.linearConstraint());
 
         // 3
         LinearConstraint collision (nParameters * rDof, 0);
@@ -725,8 +741,8 @@ namespace hpp {
         constraint.decompose (true); // true = check that the constraint is feasible
 
         LinearConstraint collisionReduced (constraint.PK.rows(), 0);
-        constraint.reduceConstraint(collision, collisionReduced);
         collisionReduced.dec.setThreshold(1e-8);
+        constraint.reduceConstraint(collision, collisionReduced);
 
         LinearConstraint boundConstraint (nParameters * rDof, 0);
         if (checkJointBound) {
@@ -735,7 +751,7 @@ namespace hpp {
             throw std::invalid_argument("Input path does not satisfy joint bounds");
         }
         LinearConstraint boundConstraintReduced (boundConstraint.PK.rows(), 0);
-        constraint.reduceConstraint(boundConstraint, boundConstraintReduced);
+        constraint.reduceConstraint(boundConstraint, boundConstraintReduced, false);
 
         // 6
         bool noCollision = true, stopAtFirst = alwaysStopAtFirst;
@@ -792,7 +808,7 @@ namespace hpp {
             for (std::size_t i = 0; i < splines.size(); ++i)
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
             if (linearizeAtEachStep) {
-              collisionFunctions.linearize (splines, collision);
+              collisionFunctions.linearize (splines, solvers, collision);
               constraint.reduceConstraint(collision, collisionReduced);
               QPc.solve(collisionReduced, boundConstraintReduced);
               hppDout (info, "linearized");
@@ -808,13 +824,14 @@ namespace hpp {
                 addCollisionConstraint(reports[i].second,
                     splines[reports[i].second],
                     (*currentSplines)[reports[i].second],
+                    solvers[reports[i].second],
                     reports[i].first,
                     collision, collisionFunctions);
 
                 ok |=
                   findNewConstraint (constraint, collision, collisionReduced,
                       collisionFunctions, collisionFunctions.functions.size() - 1,
-                      splines[reports[i].second]);
+                      splines[reports[i].second], solvers[reports[i].second]);
               }
 
               if (!ok) {
