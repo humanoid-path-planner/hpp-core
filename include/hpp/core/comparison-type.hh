@@ -56,6 +56,7 @@ namespace hpp {
         /// \return true is the constraint is - at least partially - active
         virtual bool operator () (vectorOut_t value) const = 0;
 	/// Return whether the right hand side of the comparison is constant
+        /// \return true by default.
 	virtual bool constantRightHandSide () const
 	{
 	  return true;
@@ -89,6 +90,8 @@ namespace hpp {
             unique_ = EqualityPtr_t (new Equality());
           return unique_;
         }
+        /// Return whether right hand side is constant
+        /// \return false by default
 	virtual bool constantRightHandSide () const
 	{
 	  return false;
