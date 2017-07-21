@@ -591,9 +591,7 @@ namespace hpp {
       //   TODO The path projector should update the constraint according to the path they project.
       // - the steering method type must match the path projector type.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance(),
-            SteeringMethodStraight::create (*problem_),
-            pathProjectorTolerance_);
+        createProjector (*problem_, pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
     }
 
