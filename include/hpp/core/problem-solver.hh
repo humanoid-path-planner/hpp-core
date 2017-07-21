@@ -362,6 +362,9 @@ namespace hpp {
       void comparisonType (const std::string& name,
 			   const ComparisonType::VectorOfTypes types);
 
+      void comparisonType (const std::string& name,
+         const ComparisonType::Type &type);
+
       /// Set the comparison type of a constraint
       /// \param name name of the differentiable function.
       void comparisonType (const std::string& name,
