@@ -55,7 +55,7 @@ namespace hpp {
       /// Copy instance and return shared pointer
       virtual SteeringMethodPtr_t copy () const = 0;
 
-      const ProblemPtr_t& problem() const
+      const Problem& problem() const
       {
         return problem_;
       }
