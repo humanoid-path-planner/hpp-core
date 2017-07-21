@@ -18,6 +18,7 @@
 
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
+
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
@@ -445,7 +446,7 @@ namespace hpp {
             // const value_type t = ( 1 + (_dPrev->sigma - _d->sigma) / (K * _d->length) ) / 2;
             const value_type t = _dPrev->sigma / (K * _d->length);
             assert (t < 1 && t > 0);
-            hpp::model::interpolate (robot, _dPrev->q, _d->q, t, newD.q);
+            hpp::pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (robot, _dPrev->q, _d->q, t, newD.q);
             hppDout (info, "Add config " << newD.q.transpose());
 
             // Insert new respective elements
