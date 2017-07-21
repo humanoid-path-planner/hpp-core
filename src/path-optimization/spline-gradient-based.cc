@@ -734,6 +734,7 @@ namespace hpp {
         bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst", true);
         bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", false);
         bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound", true);
+        bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum", false);
 
         PathVectorPtr_t input = PathVector::create (robot_->configSize(), robot_->numberDof());
         path->flatten(input);
@@ -788,7 +789,7 @@ namespace hpp {
         bool noCollision = true, stopAtFirst = alwaysStopAtFirst;
         bool minimumReached = false;
 
-        bool computeOptimum = true, computeInterpolatedSpline = true;
+        bool computeOptimum = true, computeInterpolatedSpline = !returnOptimum;
 
         value_type alpha = alphaInit;
 
@@ -830,8 +831,13 @@ namespace hpp {
           }
 
           // 6.3.2 Check for collision
-          reports = validatePath (*currentSplines, stopAtFirst);
-          noCollision = reports.empty();
+          if (!returnOptimum) {
+            reports = validatePath (*currentSplines, stopAtFirst);
+            noCollision = reports.empty();
+          } else {
+            minimumReached = true;
+            noCollision = true;
+          }
           if (noCollision) {
             cost.value(optimalCost, *currentSplines);
             hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
