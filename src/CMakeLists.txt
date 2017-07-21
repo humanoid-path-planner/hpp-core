@@ -45,6 +45,7 @@ explicit-numerical-constraint.cc
 explicit-relative-transformation.cc
 extracted-path.hh
 equation.cc
+  hermite-path.cc
 interpolated-path.cc
 joint-bound-validation.cc
 locked-joint.cc
@@ -68,26 +69,28 @@ locked-joint.cc
   plan-and-optimize.cc #
   problem.cc # TODO : addObstacle
   problem-solver.cc # TODO : addObstacle
-  path-projector/progressive.cc #
+  path-projector.cc
   path-projector/dichotomy.cc #
   path-projector/global.cc #
+  path-projector/progressive.cc #
+  path-projector/recursive-hermite.cc
   path-projector.cc #
   parser/roadmap-factory.cc #
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
+  random-shortcut.cc
   reeds-shepp-path.cc
- relative-motion.cc
- random-shortcut.cc
- roadmap.cc
- steering-method/reeds-shepp.cc # TODO access type of joint
+  relative-motion.cc
+  roadmap.cc
+  steering-method/reeds-shepp.cc # TODO access type of joint
   steering-method/car-like.cc
   steering-method/constant-curvature.cc
   steering-method/dubins.cc
   steering-method/snibud.cc
- steering-method/spline.cc
- straight-path.cc
- visibility-prm-planner.cc
- weighed-distance.cc
+  steering-method/spline.cc
+  straight-path.cc
+  visibility-prm-planner.cc
+  weighed-distance.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

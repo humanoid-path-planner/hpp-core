@@ -58,9 +58,9 @@ namespace hpp {
 
         value_type d (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 	PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+	SteeringMethodPtr_t steeringMethod_;
       private:
         DistancePtr_t distance_;
-	SteeringMethodPtr_t steeringMethod_;
     };
   } // namespace core
 } // namespace hpp

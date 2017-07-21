@@ -25,6 +25,10 @@
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
 
+#include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/problem.hh>
+
 #include <limits>
 #include <queue>
 #include <stack>
@@ -38,12 +42,45 @@ namespace hpp {
         HPP_DEFINE_TIMECOUNTER (globalPathProjector_reinterpolate);
         HPP_DEFINE_TIMECOUNTER (globalPathProjector_createPath);
       }
+
+      GlobalPtr_t Global::create (const DistancePtr_t& distance,
+          const SteeringMethodPtr_t& steeringMethod, value_type step)
+      {
+        value_type hessianBound = -1;
+        value_type thr_min = 1e-3;
+        try {
+          hessianBound = steeringMethod->problem()->getParameter<value_type>
+            ("PathProjectionHessianBound", hessianBound);
+          thr_min = steeringMethod->problem()->getParameter<value_type>
+            ("PathProjectionMinimalDist", thr_min);
+          hppDout (info, "Hessian bound is " << hessianBound);
+          hppDout (info, "Min Dist is " << thr_min);
+        } catch (const boost::bad_any_cast& e) {
+          hppDout (error, "Could not cast parameter "
+              "PathProjectionHessianBound or PathProjectionMinimalDist "
+              "to value_type");
+        }
+        return GlobalPtr_t (new Global (distance, steeringMethod,
+              step, thr_min, hessianBound));
+      }
+
+      GlobalPtr_t Global::create (const ProblemPtr_t& problem,
+          const value_type& step)
+      {
+        return create (problem->distance(), problem->steeringMethod(), step);
+      }
+
       Global::Global (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
-				value_type step) :
+				value_type step, value_type threshold,
+                                value_type hessianBound) :
         PathProjector (distance, steeringMethod), step_ (step),
-        alphaMin (0.2), alphaMax (0.95)
-      {}
+        alphaMin (0.2), alphaMax (0.95), hessianBound_ (hessianBound),
+        thresholdMin_ (threshold)
+      {
+        // TODO Only SteeringMethodStraight has been tested so far.
+        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::SteeringMethodStraight, steeringMethod));
+      }
 
       bool Global::impl_apply (const PathPtr_t& path,
 				    PathPtr_t& proj) const
@@ -57,7 +94,10 @@ namespace hpp {
             proj = path;
             success = true;
           } else {
-            success = project (path, proj);
+            if (hessianBound_ <= 0)
+              success = project (path, proj);
+            else
+              success = project2 (path, proj);
           }
 	} else {
 	  PathVectorPtr_t res = PathVector::create
@@ -136,6 +176,72 @@ namespace hpp {
         HPP_START_TIMECOUNTER (globalPathProjector_createPath);
         bool ret = createPath (p.robot(), path->constraints(),
             cfgs, last, projected, lengths, proj);
+        HPP_STOP_AND_DISPLAY_TIMECOUNTER (globalPathProjector_createPath);
+        return ret;
+      }
+
+      bool Global::project2 (const PathPtr_t& path, PathPtr_t& proj) const
+      {
+        Configs_t cfgs;
+        ConfigProjector& p = *path->constraints ()->configProjector ();
+        q_.resize  (p.robot()->configSize());
+        dq_.resize (p.robot()->numberDof());
+
+        HPP_START_TIMECOUNTER(globalPathProjector_initCfgList);
+
+        Datas_t datas;
+        initialConfigList(path, p, datas);
+        Datas_t::iterator last = datas.end();
+        reinterpolate (p.robot(), p, datas, last);
+        if (datas.size() == 2) { // Shorter than step_
+          proj = path;
+#if HPP_ENABLE_BENCHMARK
+        hppBenchmark("Interpolated path (global - with hessian): "
+            << 0
+            << ", [ " << 0
+            <<   ", " << 0
+            <<   ", " << 0 << "]"
+            );
+#endif
+          return true;
+        }
+        assert ((datas.back().q - path->end ()).isZero ());
+        HPP_STOP_AND_DISPLAY_TIMECOUNTER(globalPathProjector_initCfgList);
+
+        std::size_t nbIter = 0;
+        const std::size_t maxIter = 2 * p.maxIterations ();
+        const std::size_t maxCfgNum =
+          2 + (std::size_t)(10 * path->length() / step_);
+
+        hppDout (info, "start with " << datas.size () << " configs");
+        bool repeat = true;
+        while (repeat) {
+          repeat = !projectOneStep (p, datas, last);
+          assert ((datas.back().q - path->end ()).isZero ());
+          if (datas.size() < maxCfgNum || !repeat) {
+            const size_type newCs = reinterpolate (p.robot(), p, datas, last);
+            if (newCs > 0) {
+              nbIter = 0;
+              hppDout (info, "Added " << newCs << " configs. Cur / Max = "
+                  << datas.size() << '/' << maxCfgNum);
+              repeat = true;
+            } else if (newCs < 0) {
+              hppDout (info, "Removed " << -newCs << " configs. Cur / Max = "
+                  << datas.size() << '/' << maxCfgNum);
+            }
+          }
+
+          nbIter++;
+
+          assert (datas.size() >= 2);
+          if (nbIter > maxIter) break;
+        }
+        HPP_DISPLAY_TIMECOUNTER(globalPathProjector_projOneStep);
+        HPP_DISPLAY_TIMECOUNTER(globalPathProjector_reinterpolate);
+
+        // Build the projection
+        HPP_START_TIMECOUNTER (globalPathProjector_createPath);
+        bool ret = createPath (p.robot(), path->constraints(), datas, last, proj);
         HPP_STOP_AND_DISPLAY_TIMECOUNTER (globalPathProjector_createPath);
         return ret;
       }
@@ -223,6 +329,36 @@ namespace hpp {
         return allAreSatisfied;
       }
 
+      bool Global::projectOneStep (ConfigProjector& p,
+          Datas_t& ds, const Datas_t::iterator& last) const
+      {
+        HPP_START_TIMECOUNTER(globalPathProjector_projOneStep);
+        Datas_t::iterator _dPrev =  ds.begin();
+        Datas_t::iterator _d     =  ++(ds.begin ());
+        bool allAreSatisfied = true;
+        bool curUpdated = false, prevUpdated = false;
+
+        for (; _d != last; ++_d) {
+          if (!_d->projected) {
+            _d->projected = p.oneStep (_d->q, dq_, _d->alpha);
+            _d->alpha = alphaMax - 0.8 * (alphaMax - _d->alpha);
+            _d->sigma = p.sigma();
+            ++_d->Niter;
+            allAreSatisfied = allAreSatisfied && _d->projected;
+            curUpdated = true;
+          }
+          if (prevUpdated || curUpdated)
+            _d->length = d (_dPrev->q, _d->q);
+          prevUpdated = curUpdated;
+          curUpdated = false;
+          ++_dPrev;
+        }
+        if (prevUpdated)
+          _d->length = d (_dPrev->q, _d->q);
+        HPP_STOP_TIMECOUNTER(globalPathProjector_projOneStep);
+        return allAreSatisfied;
+      }
+
       size_type Global::reinterpolate (const DevicePtr_t& robot,
           Configs_t& q, const Configs_t::iterator& last,
           Bools_t& b, Lengths_t& l, Alphas_t& a,
@@ -280,6 +416,53 @@ namespace hpp {
         return nbNewC;
       }
 
+      size_type Global::reinterpolate (const DevicePtr_t& robot,
+          ConfigProjector& p, Datas_t& ds, Datas_t::iterator& last) const
+      {
+        HPP_START_TIMECOUNTER(globalPathProjector_reinterpolate);
+        Datas_t::iterator begin  = ++(ds.begin ());
+        Datas_t::iterator _dPrev = ds.begin ();
+        size_type nbNewC = 0;
+        Data newD;
+        newD.q.resize(robot->configSize ());
+        const std::size_t maxIter = p.maxIterations ();
+        const value_type K = hessianBound_, dist_min = thresholdMin_,
+              sigma_min = dist_min * K;
+        for (Datas_t::iterator _d = begin; _d != last; ++_d) {
+          if (_dPrev->sigma < sigma_min || _dPrev->Niter >= maxIter) {
+            hppDout (info, "Rejected sigma " << _d->sigma);
+            last = _dPrev;
+            break;
+          }
+          if (_d->sigma < sigma_min) {
+            hppDout (info, "Rejected sigma " << _d->sigma);
+            last = _d;
+            break;
+          }
+          const value_type delta = _dPrev->sigma + _d->sigma;
+          if (_d->length > delta / K) {
+            ++nbNewC;
+            // const value_type t = ( 1 + (_dPrev->sigma - _d->sigma) / (K * _d->length) ) / 2;
+            const value_type t = _dPrev->sigma / (K * _d->length);
+            assert (t < 1 && t > 0);
+            hpp::model::interpolate (robot, _dPrev->q, _d->q, t, newD.q);
+            hppDout (info, "Add config " << newD.q.transpose());
+
+            // Insert new respective elements
+            initData(newD, newD.q, p, true, false, _dPrev->q);
+            _d = ds.insert(_d, newD);
+            // Update length after
+            Datas_t::iterator _dNext = _d; ++_dNext;
+            _dNext->length = d (_d->q, _dNext->q);
+            _dPrev = _d;
+            continue;
+          }
+          ++_dPrev;
+        }
+        HPP_STOP_TIMECOUNTER(globalPathProjector_reinterpolate);
+        return nbNewC;
+      }
+
       bool Global::createPath (const DevicePtr_t& robot,
           const ConstraintSetPtr_t& constraint,
           const Configs_t& q, const Configs_t::iterator&,
@@ -287,6 +470,8 @@ namespace hpp {
       {
         /// Compute total length
         value_type length = 0;
+        value_type min = std::numeric_limits<value_type>::max(), max = 0;
+        size_type nbWaypoints = 0;
         Lengths_t::const_iterator itL   = (l.begin ());
         Bools_t  ::const_iterator itB   = (b.begin ());
         Configs_t::const_iterator itCl  = (q.begin ());
@@ -297,15 +482,34 @@ namespace hpp {
             break;
           }
           length += *itL;
+
+          ++nbWaypoints;
+          min = std::min(min, *itL);
+          max = std::max(max, *itL);
+
           ++itCl;
           ++itL;
         }
         if (fullyProjected) {
           length += *itL;
+
+          ++nbWaypoints;
+          min = std::min(min, *itL);
+          max = std::max(max, *itL);
+
           ++itCl;
           ++itL;
           assert (itL == l.end ());
         }
+#if HPP_ENABLE_BENCHMARK
+        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
+        hppBenchmark("Interpolated path (global - non hessian): "
+            << nbWaypoints
+            << ", [ " << min
+            <<   ", " << avg
+            <<   ", " << max << "]"
+            );
+#endif
 
         InterpolatedPathPtr_t out = InterpolatedPath::create
           (robot, q.front(), *itCl, length, constraint);
@@ -318,6 +522,57 @@ namespace hpp {
             length += *itL;
             out->insert (length, *it);
             ++itL;
+          }
+        } else {
+          hppDout (info, "Path of length 0");
+          assert (!fullyProjected);
+        }
+        result = out;
+        hppDout (info, "Projection succeeded ? " << fullyProjected);
+        return fullyProjected;
+      }
+
+      bool Global::createPath (const DevicePtr_t& robot,
+          const ConstraintSetPtr_t& constraint,
+          const Datas_t& ds, const Datas_t::iterator& last, PathPtr_t& result) const
+      {
+        /// Compute total length
+        value_type length = 0;
+        value_type min = std::numeric_limits<value_type>::max(), max = 0;
+        size_type nbWaypoints = 0;
+        const Datas_t::const_iterator begin = ++(ds.begin ());
+        Datas_t::const_iterator _dLast = ds.begin ();
+        bool fullyProjected = (last == ds.end());
+        for (Datas_t::const_iterator _d = begin; _d != last; ++_d) {
+          if (!_d->projected) {
+            fullyProjected = false;
+            break;
+          }
+          length += _d->length;
+          ++_dLast;
+
+          ++nbWaypoints;
+          min = std::min(min, _d->length);
+          max = std::max(max, _d->length);
+        }
+#if HPP_ENABLE_BENCHMARK
+        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
+        hppBenchmark("Interpolated path (global - with hessian): "
+            << nbWaypoints
+            << ", [ " << min
+            <<   ", " << avg
+            <<   ", " << max << "]"
+            );
+#endif
+
+        InterpolatedPathPtr_t out = InterpolatedPath::create
+          (robot, ds.front().q, _dLast->q, length, constraint);
+
+        if (_dLast != ds.begin ()) {
+          length = 0;
+          for (Datas_t::const_iterator _d = begin; _d != _dLast; ++_d) {
+            length += _d->length;
+            out->insert (length, _d->q);
           }
         } else {
           hppDout (info, "Path of length 0");
@@ -356,6 +611,55 @@ namespace hpp {
           }
           cfgs.push_back (path->end ());
         }
+      }
+
+      void Global::initialConfigList (const PathPtr_t& path,
+          ConfigProjector& p, Datas_t& ds) const
+      {
+        Data newD;
+
+        // Set initial point.
+        initData(newD, path->initial(), p, true, true);
+        ds.push_back(newD);
+
+        InterpolatedPathPtr_t ip =
+          HPP_DYNAMIC_PTR_CAST (InterpolatedPath, path);
+        if (ip) {
+          // Get the waypoint of ip
+          const InterpolatedPath::InterpolationPoints_t& ips =
+            ip->interpolationPoints();
+          InterpolatedPath::InterpolationPoints_t::const_iterator _ipPrev
+            = ips.begin();
+          for (InterpolatedPath::InterpolationPoints_t::const_iterator
+              _ip = ++(ips.begin ()); _ip != ips.end (); ++_ip) {
+            initData(newD, _ip->second, p, true, false, _ipPrev->second);
+            ds.push_back (newD);
+            ++_ipPrev;
+          }
+        } else {
+          initData(newD, path->end(), p, true, true, path->initial());
+          ds.push_back(newD);
+        }
+      }
+
+      void Global::initData(Data& data, const Configuration_t& q,
+          ConfigProjector& p, bool computeSigma,
+          bool projected,
+          const Configuration_t& qLength) const
+      {
+        data.q = q;
+        if (computeSigma) {
+          q_ = q;
+          p.oneStep (q_, dq_, 1);
+          data.sigma = p.sigma();
+        }
+        data.projected = projected;
+        data.alpha = alphaMin;
+        data.Niter = 0;
+        if (qLength.size() == q.size())
+          data.length = d(qLength, q);
+        else
+          data.length = 0;
       }
     } // namespace pathProjector
   } // namespace core
