@@ -42,7 +42,7 @@ namespace hpp {
 	    (const Problem& problem,
 	     value_type maxPathLength)
           {
-            return create (problem->distance(), problem->steeringMethod(), maxPathLength);
+            return create (problem.distance(), problem.steeringMethod(), maxPathLength);
           }
 
         protected:
