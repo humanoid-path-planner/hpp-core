@@ -164,10 +164,12 @@ namespace hpp {
 
         void addRows (const std::size_t& nbRows)
         {
-          J.conservativeResize(J.rows() + nbRows, J.cols());
-          b.conservativeResize(b.rows() + nbRows);
+          if (nbRows > 0) {
+            J.conservativeResize(J.rows() + nbRows, J.cols());
+            b.conservativeResize(b.rows() + nbRows);
 
-          J.bottomRows(nbRows).setZero();
+            J.bottomRows(nbRows).setZero();
+          }
         }
 
         // model
