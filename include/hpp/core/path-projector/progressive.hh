@@ -32,7 +32,7 @@ namespace hpp {
           static ProgressivePtr_t create (const DistancePtr_t& distance,
              const SteeringMethodPtr_t& steeringMethod, value_type step);
 
-          static ProgressivePtr_t create (const ProblemPtr_t& problem,
+          static ProgressivePtr_t create (const Problem& problem,
               const value_type& step);
 
         protected:

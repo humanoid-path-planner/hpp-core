@@ -39,7 +39,7 @@ namespace hpp {
           }
 
           static DichotomyPtr_t create
-	    (const ProblemPtr_t& problem,
+	    (const Problem& problem,
 	     value_type maxPathLength)
           {
             return create (problem->distance(), problem->steeringMethod(), maxPathLength);

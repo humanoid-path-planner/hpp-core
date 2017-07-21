@@ -37,7 +37,7 @@ namespace hpp {
           static GlobalPtr_t create (const DistancePtr_t& distance,
 	     const SteeringMethodPtr_t& steeringMethod, value_type step);
 
-          static GlobalPtr_t create (const ProblemPtr_t& problem,
+          static GlobalPtr_t create (const Problem& problem,
               const value_type& step);
 
         protected:

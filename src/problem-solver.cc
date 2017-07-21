@@ -120,7 +120,7 @@ namespace hpp {
     // Struct that constructs an empty shared pointer to PathProjector.
     struct NonePathProjector
     {
-      static PathProjectorPtr_t create (const ProblemPtr_t&,
+      static PathProjectorPtr_t create (const Problem&,
 					const value_type&)
       {
 	return PathProjectorPtr_t ();

@@ -35,7 +35,7 @@ namespace hpp {
       {
         value_type beta = 0.9;
         try {
-          beta = steeringMethod->problem()->getParameter<value_type>
+          beta = steeringMethod->problem().getParameter<value_type>
             ("PathProjectionRecursiveHermiteBeta", beta);
           hppDout (info, "beta is " << beta);
         } catch (const boost::bad_any_cast& e) {
@@ -47,9 +47,9 @@ namespace hpp {
       }
 
       RecursiveHermitePtr_t RecursiveHermite::create (
-          const ProblemPtr_t& problem, const value_type& step)
+          const Problem& problem, const value_type& step)
       {
-        return create (problem->distance(), problem->steeringMethod(), step);
+        return create (problem.distance(), problem.steeringMethod(), step);
       }
 
       RecursiveHermite::RecursiveHermite (const DistancePtr_t& distance,

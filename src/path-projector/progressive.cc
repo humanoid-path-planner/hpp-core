@@ -41,9 +41,9 @@ namespace hpp {
         value_type hessianBound = -1;
         value_type thr_min = 1e-3;
         try {
-          hessianBound = steeringMethod->problem()->getParameter<value_type>
+          hessianBound = steeringMethod->problem().getParameter<value_type>
             ("PathProjectionHessianBound", hessianBound);
-          thr_min = steeringMethod->problem()->getParameter<value_type>
+          thr_min = steeringMethod->problem().getParameter<value_type>
             ("PathProjectionMinimalDist", thr_min);
           hppDout (info, "Hessian bound is " << hessianBound);
           hppDout (info, "Min Dist is " << thr_min);
@@ -56,10 +56,10 @@ namespace hpp {
               step, thr_min, hessianBound));
       }
 
-      ProgressivePtr_t Progressive::create (const ProblemPtr_t& problem,
+      ProgressivePtr_t Progressive::create (const Problem& problem,
           const value_type& step)
       {
-        return create (problem->distance(), problem->steeringMethod(), step);
+        return create (problem.distance(), problem.steeringMethod(), step);
       }
 
       Progressive::Progressive (const DistancePtr_t& distance,
