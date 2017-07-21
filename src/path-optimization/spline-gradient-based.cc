@@ -462,19 +462,48 @@ namespace hpp {
           if (cp) {
             const HybridSolver& hs = cp->solver();
             const constraints::ExplicitSolver& es = hs.explicitSolver();
+
+            const size_type rDof = robot_->numberDof(),
+                            col  = idxSpline * Spline::NbCoeffs * rDof;
+            size_type row = lc.J.rows(),
+                      nOutVar;
+
+            // Handle implicit part
+            // constraints::bool_array_t adp = es.inDers().rview(hs->activeDerivativeParameters().matrix().eval()).array();
+            constraints::bool_array_t adp = hs.activeDerivativeParameters();
+            typedef Eigen::BlockIndex<size_type> EBI_t;
+            EBI_t::vector_t ebi = EBI_t::fromLogicalExpression(adp);
+            Eigen::RowBlockIndexes bi (
+                EBI_t::difference (ebi,
+                  EBI_t::difference (EBI_t::type(0, rDof), es.inDers().indexes()))
+                );
+            bi.updateIndexes<true, true, true>();
+
+            nOutVar = bi.nbIndexes();
+            matrix_t I (bi.rview (matrix_t::Identity(rDof, rDof)));
+
+            lc.addRows(Spline::NbCoeffs * nOutVar);
+            for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
+              lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
+              lc.b.segment(row + k * nOutVar, nOutVar) = I * spline->parameters().row(k).transpose();
+            }
+
+            assert ((lc.J.block(row, col, Spline::NbCoeffs * nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+                .isApprox(lc.b.segment(row, Spline::NbCoeffs * nOutVar)));
+
+            // Handle explicit part
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
             typename Spline::BasisFunctionVector_t B0, B1;
-            const size_type rDof = robot_->numberDof(),
-                            col  = idxSpline * Spline::NbCoeffs * rDof,
-                            row = lc.J.rows(),
-                            nOutVar = es.outDers().nbIndexes();
+
+            row = lc.J.rows();
+            nOutVar = es.outDers().nbIndexes();
 
             // TODO to remove the explicitely constrained DOF, we constrain
             // them to their initial value.
             lc.addRows(Spline::NbCoeffs * nOutVar);
 
-            matrix_t I (es.outDers().rview (matrix_t::Identity(rDof, rDof)));
+            I = es.outDers().rview (matrix_t::Identity(rDof, rDof));
 
             for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
               lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
