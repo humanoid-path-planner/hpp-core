@@ -15,8 +15,11 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/configuration.hh>
+
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/liegroup.hh>
+
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/hermite-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -107,13 +110,6 @@ namespace hpp {
       checkPath ();
     }
 
-    void HermitePath::initCopy (HermitePathPtr_t self)
-    {
-      parent_t::initCopy (self);
-      weak_ = self;
-      checkPath ();
-    }
-
     bool HermitePath::impl_compute (ConfigurationOut_t result,
 				     value_type param) const
     {
@@ -128,7 +124,7 @@ namespace hpp {
 	return true;
       }
 
-      model::integrate (device_, initial_, delta(param), result);
+      pinocchio::integrate<true, hpp::pinocchio::LieGroupTpl> (device_, initial_, delta(param), result);
       return true;
     }
 
@@ -140,7 +136,7 @@ namespace hpp {
 
     void HermitePath::computeVelocities ()
     {
-      model::difference (device_, end_, initial_, vs_.col(0));
+      pinocchio::difference<hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, vs_.col(0));
       if (constraints() && constraints()->configProjector()) {
         ConfigProjectorPtr_t proj = constraints()->configProjector();
         vs_.rightCols<2>().setZero();

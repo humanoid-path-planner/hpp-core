@@ -54,7 +54,7 @@ namespace hpp {
       {
         HermitePath* ptr = new HermitePath (*path);
         HermitePathPtr_t shPtr (ptr);
-        ptr->initCopy (shPtr);
+        ptr->init (shPtr);
         return shPtr;
       }
 
@@ -66,7 +66,7 @@ namespace hpp {
         {
           HermitePath* ptr = new HermitePath (*path, constraints);
           HermitePathPtr_t shPtr (ptr);
-          ptr->initCopy (shPtr);
+          ptr->init (shPtr);
           return shPtr;
         }
 
@@ -167,8 +167,6 @@ namespace hpp {
             const ConstraintSetPtr_t& constraints);
 
       void init (HermitePathPtr_t self);
-
-      void initCopy (HermitePathPtr_t self);
 
       virtual bool impl_compute (ConfigurationOut_t result,
                  value_type param) const;
