@@ -18,6 +18,8 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_HH
 # define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_HH
 
+#include <hpp/constraints/explicit-solver.hh>
+
 #include <hpp/core/path-optimizer.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path/spline.hh>
