@@ -84,7 +84,7 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
-      // void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
+      void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
 
       virtual ~ContinuousCollisionChecking ();
     protected:

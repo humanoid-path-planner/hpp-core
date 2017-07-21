@@ -175,7 +175,6 @@ namespace hpp {
       }
     }
 
-    /*
     void ContinuousCollisionChecking::filterCollisionPairs
     (const RelativeMotion::matrix_type& relMotion)
     {
@@ -206,7 +205,6 @@ namespace hpp {
         }
       }
     }
-    */
 
     ContinuousCollisionChecking::~ContinuousCollisionChecking ()
     {
