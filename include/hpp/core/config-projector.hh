@@ -251,9 +251,9 @@ namespace hpp {
         return minimalSolver_.residualError();
       }
 
-      value_type sigma() const
+      const value_type& sigma() const
       {
-        return sigma_;
+        return minimalSolver_.sigma();
       }
 
       /// \name Right hand side of equalities - inequalities
@@ -361,14 +361,11 @@ namespace hpp {
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
 
-      // TODO void updateSigma();
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
-      // TODO size_type maxRank_;
       LockedJoints_t lockedJoints_;
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
-      // TODO mutable value_type sigma_;
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
 

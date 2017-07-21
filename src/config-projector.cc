@@ -135,7 +135,6 @@ namespace hpp {
       rightHandSide_ (cp.rightHandSide_),
       rhsReducedSize_ (cp.rhsReducedSize_),
       toMinusFrom_ (cp.toMinusFrom_.size ()),
-      toMinusFromSmall_ (cp.toMinusFromSmall_.size ()),
       projMinusFrom_ (cp.projMinusFrom_.size ()),
       lineSearchType_ (cp.lineSearchType_),
       minimalSolver_ (cp.minimalSolver_),
@@ -223,19 +222,6 @@ namespace hpp {
       minimalSolver_.getValue(value);
       minimalSolver_.getReducedJacobian(reducedJacobian);
     }
-
-    /* TODO
-    void updateSigma ()
-    {
-      if (svd_.rank() > maxRank_) {
-        maxRank_ = svd_.rank();
-        hppDout (info, "Updating max rank to " << maxRank_);
-      }
-      if (maxRank_ == 0) sigma_ = 0;
-      else sigma_ = svd_.singularValues()[maxRank_ - 1];
-    }
-    */
-
 
     /// Convert vector of non locked degrees of freedom to vector of
     /// all degrees of freedom
