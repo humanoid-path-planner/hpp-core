@@ -467,29 +467,34 @@ namespace hpp {
                             col  = idxSpline * Spline::NbCoeffs * rDof;
             size_type row = lc.J.rows(),
                       nOutVar;
+            matrix_t I;
 
             // Handle implicit part
-            // constraints::bool_array_t adp = es.inDers().rview(hs->activeDerivativeParameters().matrix().eval()).array();
-            constraints::bool_array_t adp = hs.activeDerivativeParameters();
-            typedef Eigen::BlockIndex<size_type> EBI_t;
-            EBI_t::vector_t ebi = EBI_t::fromLogicalExpression(adp);
-            Eigen::RowBlockIndexes bi (
-                EBI_t::difference (ebi,
-                  EBI_t::difference (EBI_t::type(0, rDof), es.inDers().indexes()))
-                );
-            bi.updateIndexes<true, true, true>();
+            if (hs.dimension() > 0) {
+              constraints::bool_array_t adp = hs.activeDerivativeParameters();
+              typedef Eigen::BlockIndex<size_type> EBI_t;
+              EBI_t::vector_t ebi = EBI_t::fromLogicalExpression(adp);
+              Eigen::ColBlockIndexes esadp = es.activeDerivativeParameters();
+              ebi.insert (ebi.end(), esadp.indexes().begin(), esadp.indexes().end());
+              EBI_t::sort(ebi);
+              EBI_t::shrink(ebi);
+              Eigen::RowBlockIndexes bi (
+                  EBI_t::difference (ebi, es.outDers().indexes())
+                  );
+              bi.updateIndexes<true, true, true>();
 
-            nOutVar = bi.nbIndexes();
-            matrix_t I (bi.rview (matrix_t::Identity(rDof, rDof)));
+              nOutVar = bi.nbIndexes();
+              I = bi.rview (matrix_t::Identity(rDof, rDof));
 
-            lc.addRows(Spline::NbCoeffs * nOutVar);
-            for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
-              lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
-              lc.b.segment(row + k * nOutVar, nOutVar) = I * spline->parameters().row(k).transpose();
+              lc.addRows(Spline::NbCoeffs * nOutVar);
+              for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
+                lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
+                lc.b.segment(row + k * nOutVar, nOutVar) = I * spline->parameters().row(k).transpose();
+              }
+
+              assert ((lc.J.block(row, col, Spline::NbCoeffs * nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+                  .isApprox(lc.b.segment(row, Spline::NbCoeffs * nOutVar)));
             }
-
-            assert ((lc.J.block(row, col, Spline::NbCoeffs * nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
-                .isApprox(lc.b.segment(row, Spline::NbCoeffs * nOutVar)));
 
             // Handle explicit part
             solver.set = cs;
