@@ -583,7 +583,7 @@ namespace hpp {
       // TODO: the steering method of a path projector should not have
       //       the problem constraints.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (problem_->distance (), 
+        createProjector (problem_->distance (),
             SteeringMethodStraight::create (*problem_),
             pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
@@ -664,7 +664,7 @@ namespace hpp {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
       // Create steering method using factory
-      SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t> 
+      SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t>
                              (steeringMethodType_) (*problem_));
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
@@ -701,10 +701,10 @@ namespace hpp {
       return pathValid;
     }
 
-    void ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config) 
+    void ProblemSolver::addConfigToRoadmap (const ConfigurationPtr_t& config)
     {
       roadmap_->addNode(config);
-    }  
+    }
 
     void ProblemSolver::addEdgeToRoadmap (const ConfigurationPtr_t& config1,
 					  const ConfigurationPtr_t& config2,
