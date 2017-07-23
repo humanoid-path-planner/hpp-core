@@ -308,6 +308,9 @@ namespace hpp {
     {
       robot_ = robot;
       constraints_ = ConstraintSet::create (robot_, "Default constraint set");
+      // Reset obstacles
+      obstacleModel_ = pinocchio::GeomModelPtr_t (new GeomModel());
+      obstacleData_ = pinocchio::GeomDataPtr_t (new GeomData(*obstacleModel_));
       resetProblem ();
     }
 
