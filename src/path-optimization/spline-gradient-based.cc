@@ -15,6 +15,8 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
+#include <hpp/core/path-optimization/spline-gradient-based/linear-constraint.hh>
+
 
 #include <hpp/util/timer.hh>
 
@@ -68,123 +70,6 @@ namespace hpp {
       {}
 
       // ----------- Convenience class -------------------------------------- //
-
-      template <int _PB, int _SO>
-      struct SplineGradientBased<_PB, _SO>::LinearConstraint
-      {
-        typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
-
-        LinearConstraint (size_type inputSize, size_type outputSize) :
-          J (outputSize, inputSize), b (outputSize),
-          dec (outputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeFullV),
-          xSol (inputSize)
-        {
-          J.setZero();
-          b.setZero();
-        }
-
-        void concatenate (const LinearConstraint& oc)
-        {
-          assert(oc.J.cols() == J.cols());
-          J.conservativeResize (J.rows() + oc.J.rows(), J.cols());
-          J.bottomRows(oc.J.rows()) = oc.J;
-          b.conservativeResize (b.rows() + oc.b.rows());
-          b.tail(oc.b.rows()) = oc.b;
-        }
-
-        void decompose (bool check = false)
-        {
-          HPP_START_TIMECOUNTER(SGB_constraintDecomposition);
-          if (J.rows() == 0) { // No constraint
-            PK = matrix_t::Identity (J.cols(), J.cols());
-            // PK_linv = PK;
-            xStar = vector_t::Zero (PK.rows());
-            return;
-          }
-
-          dec.compute (J);
-
-          PK.resize(J.cols(), J.cols() - dec.rank());
-          xStar.resize (PK.rows());
-
-          xStar = dec.solve (b);
-
-          if (check) {
-            // check that the constraints are feasible
-            matrix_t error = J * xStar - b;
-            if (!error.isZero()) {
-              hppDout (warning, "Constraint not feasible: "
-                  << error.norm() << '\n' << error.transpose());
-            }
-          }
-
-          PK.noalias() = constraints::getV2(dec);
-          // PK_linv = PK.adjoint();
-          // assert((PK_linv * PK).eval().isIdentity());
-
-          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_constraintDecomposition);
-        }
-
-        void reduceProblem (const QuadraticProblem& QP, QuadraticProblem& QPr) const
-        {
-          matrix_t H_PK (QP.H * PK);
-          QPr.H.noalias() = PK.transpose() * H_PK;
-          QPr.b.noalias() = H_PK.transpose() * xStar;
-          if (!QP.bIsZero) {
-            QPr.b.noalias() += PK.transpose() * QP.b;
-          }
-          QPr.bIsZero = false;
-
-          // QPr.Hpinv = PK_linv * QP.Hpinv * PK_linv.transpose();
-          QPr.decompose();
-        }
-
-        bool reduceConstraint (const LinearConstraint& lc, LinearConstraint& lcr, bool decompose = true, bool check = true) const
-        {
-          lcr.J.noalias() = lc.J * PK;
-          lcr.b.noalias() = lc.b - lc.J * xStar;
-
-          // Decompose
-          if (decompose) {
-            lcr.decompose(check);
-            return (lcr.J.rows() == 0 || lcr.dec.rank() == std::min(lcr.J.rows(), lcr.J.cols()));
-          } else return true;
-        }
-
-        void computeSolution (const vector_t& v)
-        {
-          xSol.noalias() = xStar + PK * v;
-          assert (isSatisfied(xSol));
-        }
-
-        bool isSatisfied (const vector_t& x)
-        {
-          return (J * x - b).isZero();
-        }
-
-        void addRows (const std::size_t& nbRows)
-        {
-          if (nbRows > 0) {
-            J.conservativeResize(J.rows() + nbRows, J.cols());
-            b.conservativeResize(b.rows() + nbRows);
-
-            J.bottomRows(nbRows).setZero();
-          }
-        }
-
-        // model
-        matrix_t J;
-        vector_t b;
-
-        // Data
-        Decomposition_t dec;
-
-        // Data for vectorized input
-        // Solutions are x = xStar + PK * v, v \in kernel(J)
-        matrix_t PK;
-        // matrix_t PK_linv;
-        vector_t xStar, xSol;
-      };
 
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::ContinuityConstraint
