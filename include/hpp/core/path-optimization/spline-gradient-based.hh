@@ -20,6 +20,8 @@
 
 #include <hpp/constraints/explicit-solver.hh>
 
+#include <hpp/constraints/hybrid-solver.hh>
+
 #include <hpp/core/path-optimizer.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path/spline.hh>
@@ -70,16 +72,14 @@ namespace hpp {
 
           SplineGradientBased (const Problem& problem);
 
-        private:
-          struct ContinuityConstraint;
-          struct LinearConstraint;
-          struct QuadraticProblem;
-          typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
-                  std::size_t> > Reports_t;
-          typedef std::vector <bool> Bools_t;
-          typedef std::vector <size_type> Indexes_t;
-          struct CollisionFunctions;
+          // Path validation
+          std::vector<PathValidationPtr_t> validations_;
 
+          virtual void initializePathValidation(const Splines_t& splines);
+
+          // Constraint creation
+
+          struct LinearConstraint;
           typedef constraints::ExplicitSolver Solver_t;
           struct SolverPtr_t {
             ConstraintSetPtr_t set;
@@ -87,13 +87,31 @@ namespace hpp {
           };
           typedef std::vector <SolverPtr_t> Solvers_t;
 
+          virtual void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ess) const;
+
+          void addProblemConstraintOnPath (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SolverPtr_t& es) const;
+
+          /// \param guessThr Threshold used to check whether the Jacobian
+          ///                 contains rows of zeros, in which case the
+          ///                 corresponding DoF is considered passive.
+          Eigen::RowBlockIndexes computeActiveParameters (const PathPtr_t& path,
+              const constraints::HybridSolver& hs,
+              const value_type& guessThr = -1) const;
+
+          DevicePtr_t robot_;
+
+        private:
+          struct ContinuityConstraint;
+          struct QuadraticProblem;
+          typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
+                  std::size_t> > Reports_t;
+          typedef std::vector <bool> Bools_t;
+          typedef std::vector <size_type> Indexes_t;
+          struct CollisionFunctions;
+
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
-
-          void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ess) const;
-
-          void addProblemConstraints (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SolverPtr_t& es) const;
 
           void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const Solvers_t& ess, ContinuityConstraint& continuity);
 
@@ -137,7 +155,6 @@ namespace hpp {
 
           void copyParam (const Splines_t& in, Splines_t& out) const;
 
-          DevicePtr_t robot_;
           typename SM_t::Ptr_t steeringMethod_;
 
           // Continuity constraints

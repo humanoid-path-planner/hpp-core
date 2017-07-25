@@ -328,17 +328,27 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
-      void SplineGradientBased<_PB, _SO>::addProblemConstraints
-      (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ss) const
+      void SplineGradientBased<_PB, _SO>::initializePathValidation
+      (const Splines_t& splines)
       {
-        assert (init->numberPaths() == splines.size() && ss.size() == splines.size());
+        validations_.resize(splines.size());
         for (std::size_t i = 0; i < splines.size(); ++i) {
-          addProblemConstraints (init->pathAtRank(i), i, splines[i], lc, ss[i]);
+          validations_[i] = problem ().pathValidation();
         }
       }
 
       template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::addProblemConstraints
+      (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ss) const
+      {
+        assert (init->numberPaths() == splines.size() && ss.size() == splines.size());
+        for (std::size_t i = 0; i < splines.size(); ++i) {
+          addProblemConstraintOnPath (init->pathAtRank(i), i, splines[i], lc, ss[i]);
+        }
+      }
+
+      template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::addProblemConstraintOnPath
       (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SolverPtr_t& solver) const
       {
         ConstraintSetPtr_t cs = path->constraints();
@@ -348,53 +358,21 @@ namespace hpp {
             const HybridSolver& hs = cp->solver();
             const constraints::ExplicitSolver& es = hs.explicitSolver();
 
+            // Get the active parameter row selection.
+            value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
+            Eigen::RowBlockIndexes select = computeActiveParameters (path, hs, guessThreshold);
+
             const size_type rDof = robot_->numberDof(),
-                            col  = idxSpline * Spline::NbCoeffs * rDof;
-            size_type row = lc.J.rows(),
-                      nOutVar;
-            matrix_t I;
+                            col  = idxSpline * Spline::NbCoeffs * rDof,
+                            row = lc.J.rows(),
+                            nOutVar = select.nbIndexes();
 
-            // Handle implicit part
-            if (hs.dimension() > 0) {
-              constraints::bool_array_t adp = hs.activeDerivativeParameters();
-              typedef Eigen::BlockIndex<size_type> EBI_t;
-              EBI_t::vector_t ebi = EBI_t::fromLogicalExpression(adp);
-              Eigen::ColBlockIndexes esadp = es.activeDerivativeParameters();
-              ebi.insert (ebi.end(), esadp.indexes().begin(), esadp.indexes().end());
-              EBI_t::sort(ebi);
-              EBI_t::shrink(ebi);
-              Eigen::RowBlockIndexes bi (
-                  EBI_t::difference (ebi, es.outDers().indexes())
-                  );
-              bi.updateIndexes<true, true, true>();
-
-              nOutVar = bi.nbIndexes();
-              I = bi.rview (matrix_t::Identity(rDof, rDof));
-
-              lc.addRows(Spline::NbCoeffs * nOutVar);
-              for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
-                lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
-                lc.b.segment(row + k * nOutVar, nOutVar) = I * spline->parameters().row(k).transpose();
-              }
-
-              assert ((lc.J.block(row, col, Spline::NbCoeffs * nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
-                  .isApprox(lc.b.segment(row, Spline::NbCoeffs * nOutVar)));
-            }
-
-            // Handle explicit part
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
-            typename Spline::BasisFunctionVector_t B0, B1;
 
-            row = lc.J.rows();
-            nOutVar = es.outDers().nbIndexes();
-
-            // TODO to remove the explicitely constrained DOF, we constrain
-            // them to their initial value.
+            // Add nOutVar constraint per coefficient.
             lc.addRows(Spline::NbCoeffs * nOutVar);
-
-            I = es.outDers().rview (matrix_t::Identity(rDof, rDof));
-
+            matrix_t I = select.rview(matrix_t::Identity(rDof, rDof));
             for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
               lc.J.block  (row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
               lc.b.segment(row + k * nOutVar, nOutVar) = I * spline->parameters().row(k).transpose();
@@ -404,6 +382,79 @@ namespace hpp {
                 .isApprox(lc.b.segment(row, Spline::NbCoeffs * nOutVar)));
           }
         }
+      }
+
+      template <int _PB, int _SO>
+      Eigen::RowBlockIndexes SplineGradientBased<_PB, _SO>::computeActiveParameters
+      (const PathPtr_t& path, const HybridSolver& hs, const value_type& guessThr) const
+      {
+        const constraints::ExplicitSolver& es = hs.explicitSolver();
+
+        typedef Eigen::BlockIndex<size_type> BlockIndex;
+        BlockIndex::vector_t implicitBI, explicitBI;
+
+        // Handle implicit part
+        if (hs.dimension() > 0) {
+          // This set of active parameters does not take the explicit
+          // function into accounts.
+          constraints::bool_array_t adp = hs.activeDerivativeParameters();
+          implicitBI = BlockIndex::fromLogicalExpression(adp);
+
+          // Add active parameters from explicit solver.
+          Eigen::ColBlockIndexes esadp = es.activeDerivativeParameters();
+          implicitBI.insert (implicitBI.end(),
+              esadp.indexes().begin(), esadp.indexes().end());
+          BlockIndex::sort(implicitBI);
+          BlockIndex::shrink(implicitBI);
+
+          // in the case of PR2 passing a box from right to left hand,
+          // the double grasp is a loop closure so the DoF of the base are
+          // not active (one can see this in the Jacobian).
+          // They should be left unconstrained.
+          // TODO I do not see any good way of guessing this since it is
+          // the DoF of the base are not active only on the submanifold
+          // satisfying the constraint. It has to be dealt with in
+          // hpp-manipulation.
+
+          // If requested, check if the jacobian has columns of zeros.
+          BlockIndex::vector_t passive;
+          if (guessThr >= 0) {
+            matrix_t J (hs.dimension(), es.inDers().nbIndexes());
+            hs.computeValue<true>(path->initial());
+            hs.updateJacobian(path->initial());
+            hs.getReducedJacobian(J);
+            size_type j = 0, k = 0;
+            for (size_type r = 0; r < J.cols(); ++r) {
+              if (J.col(r).isZero(guessThr)) {
+                size_type idof = es.inDers().indexes()[j].first + k;
+                passive.push_back(BlockIndex::type(idof, 1));
+                hppDout (info, "Deactivated dof (thr=" << guessThr
+                    << ") " << idof << ". J = " << J.col(r).transpose());
+              }
+              k++;
+              if (k >= es.inDers().indexes()[j].second) {
+                j++;
+                k = 0;
+              }
+            }
+            BlockIndex::sort(passive);
+            BlockIndex::shrink(passive);
+            hppDout (info, "Deactivated dof (thr=" << guessThr
+                << ") " << Eigen::ColBlockIndexes(passive)
+                << "J = " << J);
+            implicitBI = BlockIndex::difference (implicitBI, passive);
+          }
+        }
+
+        // Handle explicit part
+        explicitBI = es.outDers().indexes();
+
+        // Add both
+        implicitBI.insert (implicitBI.end(),
+            explicitBI.begin(), explicitBI.end());
+        Eigen::RowBlockIndexes rbi (implicitBI);
+        rbi.updateIndexes<true, true, true>();
+        return rbi;
       }
 
       template <int _PB, int _SO>
@@ -453,13 +504,13 @@ namespace hpp {
       typename SplineGradientBased<_PB, _SO>::Reports_t SplineGradientBased<_PB, _SO>::validatePath
       (const Splines_t& splines, bool stopAtFirst) const
       {
+        assert (validations_.size() == splines.size());
         HPP_START_TIMECOUNTER(SGB_validatePath);
-        PathValidationPtr_t pathValidation (problem ().pathValidation ());
 	PathPtr_t validPart;
 	PathValidationReportPtr_t report;
 	Reports_t reports;
         for (std::size_t i = 0; i < splines.size(); ++i) {
-	  if (!pathValidation->validate (splines[i], false, validPart, report)) {
+	  if (!validations_[i]->validate (splines[i], false, validPart, report)) {
 	    HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport, *report);
 	    reports.push_back
 	      (std::make_pair (HPP_STATIC_PTR_CAST
@@ -636,6 +687,8 @@ namespace hpp {
         Splines_t splines;
         appendEquivalentSpline (path, splines);
         const size_type nParameters = splines.size() * Spline::NbCoeffs;
+
+        initializePathValidation(splines);
 
         // 2
         enum { MaxContinuityOrder = int( (SplineOrder - 1) / 2) };
