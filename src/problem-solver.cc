@@ -451,6 +451,17 @@ namespace hpp {
       ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
       get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
     }
+    
+    void ProblemSolver::comparisonType (const std::string& name,
+        const ComparisonType::Type &type)
+    {
+      if (!has <NumericalConstraintPtr_t> (name))
+        throw std::logic_error (std::string ("Numerical constraint ") +
+            name + std::string (" not defined."));
+      ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (
+        get<NumericalConstraintPtr_t> (name)->function ().outputSize(), type);
+      get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
+    }    
 
     void ProblemSolver::comparisonType (const std::string& name,
         const ComparisonType::Type &type)
