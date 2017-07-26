@@ -89,7 +89,7 @@ namespace hpp {
 	  (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
 	assert (constraints->isSatisfied (q1));
         if (!constraints->isSatisfied (q2)) return false;
-        if (!cp) {
+        if (!cp || cp->dimension() == 0) {
           proj = path;
           return true;
         }

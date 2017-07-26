@@ -53,7 +53,8 @@ namespace hpp {
 	PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path);
 	if (!pv) {
           if (!path->constraints()
-              || !path->constraints()->configProjector()) {
+              || !path->constraints()->configProjector()
+              || path->constraints()->configProjector()->dimension() == 0) {
             proj = path;
             success = true;
           } else {

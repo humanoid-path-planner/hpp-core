@@ -81,7 +81,7 @@ namespace hpp {
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
         }
-        if (!cp) {
+        if (!cp || cp->dimension() == 0) {
           projection = path;
           return true;
         }
