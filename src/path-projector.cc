@@ -16,16 +16,24 @@
 
 #include "hpp/core/path-projector.hh"
 
+#include <hpp/util/pointer.hh>
+#include <hpp/util/timer.hh>
+
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/steering-method.hh>
 
 namespace hpp {
   namespace core {
+    namespace {
+      HPP_DEFINE_TIMECOUNTER (PathProjection);
+    }
+
     PathProjector::PathProjector (const DistancePtr_t& distance,
 				  const SteeringMethodPtr_t& steeringMethod,
 				  bool keepSteeringMethodConstraints) :
-      distance_ (distance), steeringMethod_ (steeringMethod->copy ())
+      steeringMethod_ (steeringMethod->copy ()),
+      distance_ (distance)
     {
       assert (distance_ != NULL);
       assert (steeringMethod_ != NULL);
@@ -35,7 +43,10 @@ namespace hpp {
     }
 
     PathProjector::~PathProjector ()
-    {}
+    {
+      HPP_DISPLAY_TIMECOUNTER (PathProjection);
+      HPP_RESET_TIMECOUNTER (PathProjection);
+    }
 
     value_type PathProjector::d (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
@@ -46,14 +57,18 @@ namespace hpp {
 				    ConfigurationIn_t q2) const
     {
       PathPtr_t result ((*steeringMethod_) (q1, q2));
-      assert (!result->constraints ());
+      // In the case of hermite path, we want the paths to be constrained.
+      // assert (!result->constraints ());
       return result;
     }
 
     bool PathProjector::apply (const PathPtr_t& path,
 			       PathPtr_t& proj) const
     {
-      return impl_apply (path, proj);
+      HPP_START_TIMECOUNTER (PathProjection);
+      bool ret = impl_apply (path, proj);
+      HPP_STOP_TIMECOUNTER (PathProjection);
+      return ret;
     }
   } // namespace core
 } // namespace hpp

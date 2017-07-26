@@ -251,6 +251,11 @@ namespace hpp {
         return minimalSolver_.residualError();
       }
 
+      const value_type& sigma() const
+      {
+        return minimalSolver_.sigma();
+      }
+
       /// \name Right hand side of equalities - inequalities
       /// @{
 
@@ -355,13 +360,12 @@ namespace hpp {
     private:
       virtual std::ostream& print (std::ostream& os) const;
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
+
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
       LockedJoints_t lockedJoints_;
-      /// Intervals of non locked degrees of freedom
       vector_t rightHandSide_;
       size_type rhsReducedSize_;
-      /// Jacobian without locked degrees of freedom
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
 

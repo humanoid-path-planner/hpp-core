@@ -77,6 +77,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (StraightPath);
     HPP_PREDEF_CLASS (InterpolatedPath);
     HPP_PREDEF_CLASS (DubinsPath);
+    HPP_PREDEF_CLASS (HermitePath);
     HPP_PREDEF_CLASS (ReedsSheppPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
@@ -209,6 +210,8 @@ namespace hpp {
     typedef boost::shared_ptr <const DubinsPath> DubinsPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
+    typedef boost::shared_ptr <HermitePath> HermitePathPtr_t;
+    typedef boost::shared_ptr <const HermitePath> HermitePathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
     typedef boost::shared_ptr <SteeringMethodStraight>
     SteeringMethodStraightPtr_t;
@@ -290,6 +293,8 @@ namespace hpp {
       typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
       HPP_PREDEF_CLASS (Progressive);
       typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
+      HPP_PREDEF_CLASS (RecursiveHermite);
+      typedef boost::shared_ptr <RecursiveHermite> RecursiveHermitePtr_t;
     } // namespace pathProjector
 
     namespace steeringMethod {
@@ -306,6 +311,8 @@ namespace hpp {
       HPP_PREDEF_CLASS (Snibud);
       typedef boost::shared_ptr <Snibud> SnibudPtr_t;
       template <int _PolynomeBasis, int _Order> class Spline;
+      HPP_PREDEF_CLASS (Hermite);
+      typedef boost::shared_ptr <Hermite> HermitePtr_t;
     } // namespace steeringMethod
 
     namespace problemTarget {

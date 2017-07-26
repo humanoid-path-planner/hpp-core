@@ -71,3 +71,4 @@ ADD_TESTCASE (explicit-relative-transformation FALSE)
 SET_PROPERTY(TARGET explicit-relative-transformation APPEND_STRING PROPERTY COMPILE_FLAGS " -DDATA_DIR=\\\"${CMAKE_CURRENT_SOURCE_DIR}/data\\\"")
 
 ADD_TESTCASE (spline-path FALSE)
+# ADD_TESTCASE (hermite-path FALSE) Refactoring hpp-model -> hpp-pinocchio not done

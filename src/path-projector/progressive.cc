@@ -16,9 +16,17 @@
 
 #include "hpp/core/path-projector/progressive.hh"
 
+#include <hpp/util/timer.hh>
+
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
+
+// TODO used to access parameters of the problem. We should not do this here.
+//      See todo of pathProjector::Global::create
+#include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/problem.hh>
 
 #include <limits>
 #include <queue>
@@ -27,11 +35,43 @@
 namespace hpp {
   namespace core {
     namespace pathProjector {
+      ProgressivePtr_t Progressive::create (const DistancePtr_t& distance,
+          const SteeringMethodPtr_t& steeringMethod, value_type step)
+      {
+        value_type hessianBound = -1;
+        value_type thr_min = 1e-3;
+        try {
+          hessianBound = steeringMethod->problem().getParameter<value_type>
+            ("PathProjectionHessianBound", hessianBound);
+          thr_min = steeringMethod->problem().getParameter<value_type>
+            ("PathProjectionMinimalDist", thr_min);
+          hppDout (info, "Hessian bound is " << hessianBound);
+          hppDout (info, "Min Dist is " << thr_min);
+        } catch (const boost::bad_any_cast& e) {
+          hppDout (error, "Could not cast parameter "
+              "PathProjectionHessianBound or PathProjectionMinimalDist "
+              "to value_type");
+        }
+        return ProgressivePtr_t (new Progressive (distance, steeringMethod,
+              step, thr_min, hessianBound));
+      }
+
+      ProgressivePtr_t Progressive::create (const Problem& problem,
+          const value_type& step)
+      {
+        return create (problem.distance(), problem.steeringMethod(), step);
+      }
+
       Progressive::Progressive (const DistancePtr_t& distance,
 				const SteeringMethodPtr_t& steeringMethod,
-				value_type step) :
-        PathProjector (distance, steeringMethod), step_ (step)
-      {}
+				value_type step, value_type thresholdMin, value_type hessianBound) :
+        PathProjector (distance, steeringMethod), step_ (step),
+        thresholdMin_ (thresholdMin),
+        hessianBound_ (hessianBound), withHessianBound_ (hessianBound > 0)
+      {
+        // TODO Only SteeringMethodStraight has been tested so far.
+        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::SteeringMethodStraight, steeringMethod));
+      }
 
       bool Progressive::impl_apply (const PathPtr_t& path,
 				    PathPtr_t& proj) const
@@ -84,6 +124,8 @@ namespace hpp {
         core::interval_t timeRange = path->timeRange ();
         const Configuration_t& q1 = path->initial ();
         const Configuration_t& q2 = path->end ();
+        Configuration_t qtmp = q1;
+        vector_t dqtmp (vector_t::Zero(cp->robot()->numberDof()));
         const size_t maxDichotomyTries = 10,
                      maxPathSplit =
 	  (size_t)(10 * (timeRange.second - timeRange.first) / (double)step_);
@@ -100,17 +142,31 @@ namespace hpp {
         Configuration_t qi (q1.size());
         value_type curStep, curLength, totalLength = 0;
         size_t c = 0;
+        const value_type& K = hessianBound_; // upper bound of Hessian
+        if (withHessianBound_) cp->oneStep (qtmp, dqtmp, 1);
+        value_type sigma = cp->sigma();
+
+        value_type min = std::numeric_limits<value_type>::max(), max = 0;
+
         while (true) {
-          if (toSplit->length () < step_) {
+          const value_type threshold = (withHessianBound_ ? sigma / K : step_);
+          const value_type thr_min = thresholdMin_;
+
+          if (toSplit->length () < threshold) {
             paths.push (toSplit);
             totalLength += toSplit->length ();
             pathIsFullyProjected = true;
             break;
           }
           const Configuration_t& qb = toSplit->initial ();
-          curStep = step_ - Eigen::NumTraits<value_type>::epsilon ();
           curLength = std::numeric_limits <value_type>::max();
           size_t dicC = 0;
+
+          curStep = threshold - Eigen::NumTraits<value_type>::epsilon();
+
+          /* if (withHessianBound_) */ if (threshold < thr_min) break;
+          // if (withHessianBound_) std::cout << threshold << std::endl;
+
           /// Find the good length.
           /// Here, it would be good to have an upper bound of the Hessian
           /// of the constraint.
@@ -121,15 +177,33 @@ namespace hpp {
               curLength = d (qb, qi);
             curStep /= 2;
             dicC++;
-          } while (curLength > step_ || curLength < 1e-3);
+          } while (curLength > threshold || curLength < 1e-3);
           if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
 	  assert (curLength == d (qb, qi));
+
+          if (withHessianBound_) {
+            /// Update sigma
+            qtmp = qi;
+            cp->oneStep (qtmp, dqtmp, 1);
+            sigma = cp->sigma();
+          }
+
           PathPtr_t part = steer (qb, qi);
           paths.push (part);
           totalLength += part->length ();
+          min = std::min(min, part->length());
+          max = std::max(max, part->length());
           toSplit = steer (qi, q2);
           c++;
         }
+#if HPP_ENABLE_BENCHMARK
+        hppBenchmark("Interpolated path (progressive): "
+            << paths.size()
+            << ", [ " << min
+            <<   ", " << (paths.empty() ? 0 : totalLength / paths.size())
+            <<   ", " << max << "]"
+            );
+#endif
         switch (paths.size ()) {
           case 0:
             timeRange = path->timeRange();

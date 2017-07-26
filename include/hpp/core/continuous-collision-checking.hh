@@ -84,6 +84,8 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
+      void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
+
       virtual ~ContinuousCollisionChecking ();
     protected:
       /// Constructor
@@ -107,7 +109,8 @@ namespace hpp {
 				  PathValidationReportPtr_t& report);
       DevicePtr_t robot_;
       value_type tolerance_;
-      continuousCollisionChecking::BodyPairCollisions_t bodyPairCollisions_;
+      continuousCollisionChecking::BodyPairCollisions_t
+        bodyPairCollisions_, disabledBodyPairCollisions_;
       value_type stepSize_;
     private:
       virtual bool validateStraightPath

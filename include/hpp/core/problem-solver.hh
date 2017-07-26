@@ -42,9 +42,8 @@ namespace hpp {
     typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
         const value_type&) >
       PathValidationBuilder_t;
-    typedef boost::function <PathProjectorPtr_t (const DistancePtr_t&,
-        const SteeringMethodPtr_t&,
-        value_type) >
+    typedef boost::function <PathProjectorPtr_t (const Problem&,
+        const value_type&) >
       PathProjectorBuilder_t;
     typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
       ConfigurationShooterBuilder_t;
