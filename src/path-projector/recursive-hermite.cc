@@ -115,7 +115,7 @@ namespace hpp {
         const Configuration_t q2 = path->end ();
         if (!constraints->isSatisfied (q2)) return false;
         const ConfigProjectorPtr_t& cp = constraints->configProjector ();
-        if (!cp) {
+        if (!cp || cp->dimension() == 0) {
           proj = path;
           return true;
         }
