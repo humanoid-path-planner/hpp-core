@@ -732,9 +732,9 @@ namespace hpp {
         bool noCollision = true, stopAtFirst = alwaysStopAtFirst;
         bool minimumReached = false;
 
-        bool computeOptimum = true, computeInterpolatedSpline = !returnOptimum;
+        bool computeOptimum = true, computeInterpolatedSpline = !(checkOptimum_ || returnOptimum);
 
-        value_type alpha = alphaInit;
+        value_type alpha = (checkOptimum_ || returnOptimum ? 1 : alphaInit);
 
         Splines_t alphaSplines, collSplines;
         Splines_t* currentSplines;

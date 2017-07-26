@@ -99,6 +99,7 @@ namespace hpp {
               const value_type& guessThr = -1) const;
 
           DevicePtr_t robot_;
+          bool checkOptimum_;
 
         private:
           struct ContinuityConstraint;
