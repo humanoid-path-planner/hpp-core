@@ -374,9 +374,7 @@ namespace hpp {
       hppDout (info, "add locked joint " << lockedJoint->jointName_
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
-      hppDout (info, "Intervals: ");
-      // TODO add printer to MatrixBlockIndexes
-      // hppDout (info, minimalSolver_.explicitSolver().outDers())
+      hppDout (info, "Intervals: " << minimalSolver_.explicitSolver().outDers());
       if (!lockedJoint->comparisonType ()->constantRightHandSide ())
         rhsReducedSize_ += lockedJoint->rhsSize ();
     }
