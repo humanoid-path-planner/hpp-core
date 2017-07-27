@@ -49,6 +49,8 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
       HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
+      HPP_DEFINE_TIMECOUNTER(SGB_findNewConstraint);
+      HPP_DEFINE_TIMECOUNTER(SGB_qpSolve);
 
       template <int NbRows>
       VectorMap_t reshape (Eigen::Matrix<value_type, NbRows, Eigen::Dynamic, Eigen::RowMajor>& parameters)
@@ -144,9 +146,8 @@ namespace hpp {
 
         void decompose ()
         {
-          HPP_START_TIMECOUNTER(SGB_qpDecomposition);
+          HPP_SCOPE_TIMECOUNTER(SGB_qpDecomposition);
           dec.compute(H);
-          HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
         }
 
         void solve ()
@@ -156,12 +157,14 @@ namespace hpp {
 
         void computeLLT()
         {
+          HPP_SCOPE_TIMECOUNTER(SGB_qpDecomposition);
           trace = H.trace();
           llt.compute(H);
         }
 
         double solve(const LinearConstraint& ce, const LinearConstraint& ci)
         {
+          HPP_SCOPE_TIMECOUNTER(SGB_qpSolve);
           // min   0.5 * x G x + g0 x
           // s.t.  CE^T x + ce0 = 0
           //       CI^T x + ci0 >= 0
@@ -183,7 +186,6 @@ namespace hpp {
         int activeSetSize;
 
         // Data
-        matrix_t Hpinv;
         Decomposition_t dec;
         vector_t xStar;
       };
@@ -505,7 +507,7 @@ namespace hpp {
       (const Splines_t& splines, bool stopAtFirst) const
       {
         assert (validations_.size() == splines.size());
-        HPP_START_TIMECOUNTER(SGB_validatePath);
+        HPP_SCOPE_TIMECOUNTER(SGB_validatePath);
 	PathPtr_t validPart;
 	PathValidationReportPtr_t report;
 	Reports_t reports;
@@ -518,7 +520,6 @@ namespace hpp {
             if (stopAtFirst) break;
 	  }
 	}
-        HPP_STOP_AND_DISPLAY_TIMECOUNTER(SGB_validatePath);
         return reports;
       }
 
@@ -625,6 +626,7 @@ namespace hpp {
        const SplinePtr_t& spline,
        const SolverPtr_t& solver) const
       {
+        HPP_SCOPE_TIMECOUNTER(SGB_findNewConstraint);
         bool solved = false;
         Configuration_t q (robot_->configSize());
         CollisionFunctionPtr_t function = functions.functions[iF];
@@ -713,10 +715,11 @@ namespace hpp {
         SquaredLength<Spline, 1> cost (splines, rDof, rDof);
 
         // 5
-        constraint.decompose (true); // true = check that the constraint is feasible
+        { HPP_SCOPE_TIMECOUNTER(SGB_constraintDecomposition);
+          constraint.decompose (true); // true = check that the constraint is feasible
+        }
 
         LinearConstraint collisionReduced (constraint.PK.rows(), 0);
-        collisionReduced.dec.setThreshold(1e-8);
         constraint.reduceConstraint(collision, collisionReduced);
 
         LinearConstraint boundConstraint (nParameters * rDof, 0);
@@ -826,16 +829,16 @@ namespace hpp {
                 computeInterpolatedSpline = true;
               } else {
                 QPc.solve(collisionReduced, boundConstraintReduced);
-                bool overConstrained = (QPc.H.rows() < collisionReduced.dec.rank());
+                bool overConstrained = (QPc.H.rows() < collisionReduced.rank);
                 if (overConstrained) {
                   hppDout (info, "The problem is over constrained: "
                       << QP.H.rows() << " variables for "
-                      << collisionReduced.dec.rank() << " independant constraints.");
+                      << collisionReduced.rank << " independant constraints.");
                   break;
                 }
                 hppDout (info, "Added " << reports.size() << " constraints. "
                     "Constraints size " << collision.J.rows() <<
-                    "(rank=" << collisionReduced.dec.rank() << ", ass=" << QPc.activeSetSize << ") / " << QPc.H.cols());
+                    "(rank=" << collisionReduced.rank << ", ass=" << QPc.activeSetSize << ") / " << QPc.H.cols());
 
                 // When adding a new constraint, try first minimum under this
                 // constraint. If this latter minimum is in collision,
@@ -855,6 +858,11 @@ namespace hpp {
         }
 
         // 7
+        HPP_DISPLAY_TIMECOUNTER(SGB_validatePath);
+        HPP_DISPLAY_TIMECOUNTER(SGB_constraintDecomposition);
+        HPP_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
+        HPP_DISPLAY_TIMECOUNTER(SGB_findNewConstraint);
+        HPP_DISPLAY_TIMECOUNTER(SGB_qpSolve);
         return buildPathVector (splines);
       }
 
