@@ -80,7 +80,7 @@ namespace hpp {
             qr.matrixR().topLeftCorner(rank, rank).template triangularView<Eigen::Upper>()
             .transpose().solve (rhs);
           z.tail(J.cols() - rank).setZero();
-          xStar = qr.householderQ() * z;
+          xStar.noalias() = qr.householderQ() * z;
 
           PK.noalias() = qr.householderQ() * matrix_t::Identity(J.cols(), J.cols()).rightCols(J.cols() - rank);
 #endif // USE_SVD
