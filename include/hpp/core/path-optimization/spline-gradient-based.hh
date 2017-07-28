@@ -47,7 +47,6 @@ namespace hpp {
           typedef typename Spline::Ptr_t SplinePtr_t;
           typedef std::vector<SplinePtr_t> Splines_t;
 
-
           /// Return shared pointer to new object.
           /// Default cost is path length.
           static Ptr_t create (const Problem& problem);
@@ -81,9 +80,17 @@ namespace hpp {
 
           struct LinearConstraint;
           typedef constraints::ExplicitSolver Solver_t;
+          typedef Eigen::RowBlockIndexes RowBlockIndexes;
           struct SolverPtr_t {
+            SolverPtr_t () {}
+            SolverPtr_t (size_type rDof) { av.addRow (0, rDof); }
+
             ConstraintSetPtr_t set;
             boost::shared_ptr<Solver_t> es;
+
+            /// Variable on which we can optimize.
+            /// Other variables are fully constrained.
+            RowBlockIndexes av;
           };
           typedef std::vector <SolverPtr_t> Solvers_t;
 
@@ -114,7 +121,7 @@ namespace hpp {
 
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
 
-          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const Solvers_t& ess, ContinuityConstraint& continuity);
+          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const Solvers_t& ess, LinearConstraint& continuity);
 
           Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
 

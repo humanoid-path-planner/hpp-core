@@ -46,6 +46,8 @@ namespace hpp {
       typedef Eigen::Map<const vector_t> ConstVectorMap_t;
       typedef Eigen::Map<      vector_t>      VectorMap_t;
 
+      typedef Eigen::BlockIndex<size_type> BlockIndex;
+
       HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
       HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
@@ -102,6 +104,43 @@ namespace hpp {
           return lc;
         }
 
+        typedef typename Spline::BasisFunctionVector_t BasisFunctionVector_t;
+
+        static inline void setRows (LinearConstraint& lc, const size_type& row,
+            const size_type& col,
+            const size_type& rDof,
+            const RowBlockIndexes select,
+            const BasisFunctionVector_t& Bl,
+            const BasisFunctionVector_t& Br,
+            const SplinePtr_t& splineL,
+            const SplinePtr_t& splineR,
+            bool Czero)
+        {
+          const size_type& rows = select.nbIndexes();
+          size_type c = col;
+          lc.b.segment(row, rows).setZero();
+          if (splineL) {
+            for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
+              lc.J.block (row, c, rows, rDof).noalias()
+                = select.rview ( - Bl(i) * matrix_t::Identity(rDof, rDof));
+              c += rDof;
+            }
+            if (Czero)
+              lc.b.segment(row, rows).noalias()
+                = select.rview (splineL->parameters ().transpose() * (-Bl));
+          }
+          if (splineR) {
+            for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
+              lc.J.block (row, c, rows, rDof).noalias()
+                = select.rview ( Br(i) * matrix_t::Identity(rDof, rDof));
+              c += rDof;
+            }
+            if (Czero)
+              lc.b.segment(row, rows).noalias()
+                += select.rview (splineR->parameters ().transpose() * Br).eval();
+          }
+        }
+
         // model
         matrix_t J;
         matrix_t b;
@@ -148,6 +187,7 @@ namespace hpp {
         {
           HPP_SCOPE_TIMECOUNTER(SGB_qpDecomposition);
           dec.compute(H);
+          assert(dec.rank() == H.rows());
         }
 
         void solve ()
@@ -371,6 +411,7 @@ namespace hpp {
 
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
+            solver.av = RowBlockIndexes (BlockIndex::difference (BlockIndex::type(0, rDof), select.indexes()));
 
             // Add nOutVar constraint per coefficient.
             lc.addRows(Spline::NbCoeffs * nOutVar);
@@ -392,7 +433,6 @@ namespace hpp {
       {
         const constraints::ExplicitSolver& es = hs.explicitSolver();
 
-        typedef Eigen::BlockIndex<size_type> BlockIndex;
         BlockIndex::vector_t implicitBI, explicitBI;
 
         // Handle implicit part
@@ -462,44 +502,73 @@ namespace hpp {
       template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::addContinuityConstraints
       (const Splines_t& splines, const size_type maxOrder,
-       const Solvers_t& /*ss*/, ContinuityConstraint& lc)
+       const Solvers_t& ss, LinearConstraint& lc)
       {
         typename Spline::BasisFunctionVector_t B0, B1;
         enum { NbCoeffs = Spline::NbCoeffs };
 
-        size_type row = 0, paramSize = Spline::NbCoeffs;
+        const size_type rDof = robot_->numberDof();
+
+        // Compute which continuity constraint are necessary
+        size_type nbRows = 0;
+        std::vector<RowBlockIndexes> rbis (splines.size() + 1);
+        BlockIndex::type space (0, rDof);
+        rbis[0] = ss[0].av;
+        nbRows += rbis[0].nbIndexes();
+        for (std::size_t i = 1; i < ss.size(); ++i) {
+          // Compute intersection between A = ss[i-1].av.indexes()
+          // and B = ss[i].av.indexes()
+          // intersection(A, B) = A \ B^c
+          rbis[i] = RowBlockIndexes(
+              BlockIndex::difference (ss[i-1].av.indexes(),
+                BlockIndex::difference (space, ss[i].av.indexes())
+                ));
+          nbRows += rbis[i].nbIndexes();
+        }
+        rbis[ss.size()] = ss[ss.size()-1].av;
+        nbRows += rbis[ss.size()].nbIndexes();
+
+        nbRows *= (maxOrder + 1);
+
+        // Create continuity constraint
+        size_type row = lc.J.rows(), paramSize = rDof * Spline::NbCoeffs;
+        lc.addRows (nbRows);
 
         for (size_type k = 0; k <= maxOrder; ++k) {
+          bool Czero = (k == 0);
 
           // Continuity at the beginning
           splines[0]->basisFunctionDerivative(k, 0, B0);
-          bool Czero = (k == 0);
           size_type indexParam = 0;
-          lc.J.template block<1, NbCoeffs> (row, indexParam) = - B0.transpose();
-          if (Czero) lc.b.row(row) = - B0.transpose() * splines[0]->parameters();
-          ++row;
+
+          ContinuityConstraint::setRows
+            (lc, row, indexParam, rDof, rbis[0],
+             B1, B0, SplinePtr_t(), splines[0], Czero);
+          row += rbis[0].nbIndexes();
 
           for (std::size_t j = 0; j < splines.size() - 1; ++j) {
             splines[j  ]->basisFunctionDerivative(k, 1, B1);
             splines[j+1]->basisFunctionDerivative(k, 0, B0);
 
             // Continuity between spline i and j
-            lc.J.template block<1, NbCoeffs> (row, indexParam) = B1.transpose();
-            indexParam += paramSize;
-            lc.J.template block<1, NbCoeffs> (row, indexParam) = - B0.transpose();
+            ContinuityConstraint::setRows
+              (lc, row, indexParam, rDof, rbis[j+1],
+               B1, B0, splines[j], splines[j+1], Czero);
 
-            if (Czero) lc.b.row (row) =
-                B1.transpose() * splines[j  ]->parameters()
-              - B0.transpose() * splines[j+1]->parameters();
-            ++row;
+            row += rbis[j+1].nbIndexes();
+            indexParam += paramSize;
           }
 
           // Continuity at the end
           splines.back()->basisFunctionDerivative(k, 1, B1);
-          lc.J.template block<1, NbCoeffs> (row, indexParam) = B1.transpose();
-          if (Czero) lc.b.row (row) = B1.transpose() * splines.back()->parameters();
-          ++row;
+          ContinuityConstraint::setRows
+            (lc, row, indexParam, rDof, rbis.back(),
+             B1, B0, splines.back(), SplinePtr_t(), Czero);
+          row += rbis.back().nbIndexes();
+
+          assert (indexParam + paramSize == lc.J.cols());
         }
+        assert(row == lc.J.rows());
       }
 
       template <int _PB, int _SO>
@@ -697,14 +766,10 @@ namespace hpp {
         const size_type orderContinuity = MaxContinuityOrder;
 
         LinearConstraint constraint (nParameters * rDof, 0);
-        Solvers_t solvers (splines.size());
+        Solvers_t solvers (splines.size(), SolverPtr_t(rDof));
         addProblemConstraints (input, splines, constraint, solvers);
 
-        ContinuityConstraint continuity (nParameters, rDof, (splines.size() + 1) * (orderContinuity + 1));
-        addContinuityConstraints (splines, orderContinuity, solvers, continuity);
-        isContinuous(splines, orderContinuity, continuity);
-
-        constraint.concatenate(continuity.linearConstraint());
+        addContinuityConstraints (splines, orderContinuity, solvers, constraint);
 
         // 3
         LinearConstraint collision (nParameters * rDof, 0);
@@ -853,8 +918,6 @@ namespace hpp {
               computeInterpolatedSpline = true;
             }
           }
-
-          isContinuous(splines, orderContinuity, continuity);
         }
 
         // 7
