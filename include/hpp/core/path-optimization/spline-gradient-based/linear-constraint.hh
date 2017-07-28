@@ -114,9 +114,6 @@ namespace hpp {
             QPr.b.noalias() += PK.transpose() * QP.b;
           }
           QPr.bIsZero = false;
-
-          // QPr.Hpinv = PK_linv * QP.Hpinv * PK_linv.transpose();
-          QPr.decompose();
         }
 
         /// Reduced constraint into the set of solutions of this constraint.
