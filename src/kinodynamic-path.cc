@@ -39,8 +39,15 @@ namespace hpp {
       hppDout(notice,"t1 = "<<model::displayConfig(t1_));
       hppDout(notice,"tv = "<<model::displayConfig(tv_));
       hppDout(notice,"t2 = "<<model::displayConfig(t2_));
+      hppDout(notice,"length = "<<length);
       hppDout(notice,"vLim = "<<model::displayConfig(vLim_));
       
+      // for now, this class only deal with the translation part of a freeflyer :
+      assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
+      for(size_t i = 3 ; i < 3 ; i++){
+        assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <float>::epsilon ()
+               && "Kinodynamic path : length is not coherent with switch times");
+      }
       
     }
     
@@ -54,6 +61,22 @@ namespace hpp {
     {
       assert (device);
       assert (length >= 0);
+      hppDout(notice,"Create kinodynamic path with constraints, with values : ");
+      hppDout(notice,"a1 = "<<model::displayConfig(a1_));
+      hppDout(notice,"t0 = "<<model::displayConfig(t0_));
+      hppDout(notice,"t1 = "<<model::displayConfig(t1_));
+      hppDout(notice,"tv = "<<model::displayConfig(tv_));
+      hppDout(notice,"t2 = "<<model::displayConfig(t2_));
+      hppDout(notice,"length = "<<length);
+      hppDout(notice,"vLim = "<<model::displayConfig(vLim_));
+
+      // for now, this class only deal with the translation part of a freeflyer :
+      assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
+      for(size_t i = 3 ; i < 3 ; i++){
+        assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <float>::epsilon ()
+               && "Kinodynamic path : length is not coherent with switch times");
+      }
+
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
