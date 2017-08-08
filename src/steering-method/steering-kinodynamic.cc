@@ -181,7 +181,7 @@ namespace hpp {
 
         try {
           boost::any value = problem_->get<boost::any> (std::string("tryJump"));
-          tryJump_ = bool(boost::any_cast<double>(value));
+          tryJump_ = bool(boost::any_cast<int>(value));
         } catch (const std::exception& e) {
           hppDout(notice,"try jump not set, use false as default");
           tryJump_=false;
@@ -189,8 +189,9 @@ namespace hpp {
         hppDout(notice,"tryJump in steering method = "<<tryJump_);
         try {
           boost::any value = problem_->get<boost::any> (std::string("orientedPath"));
-          orientedPath_ = boost::any_cast<bool>(value);
+          orientedPath_ = (bool)boost::any_cast<double>(value);
         } catch (const std::exception& e) {
+          hppDout(notice,"orientedPath not set, use false as default");
           orientedPath_ = false;
         }
         hppDout(notice,"oriented path : "<<orientedPath_);
