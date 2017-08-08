@@ -356,7 +356,7 @@ namespace hpp {
           *a1 = 0;
           *t0 = 0;
           *t1 = 0;
-          *tv = 0;
+          *tv = T;
           *t2 = 0;
           *vLim = 0;
           return;
