@@ -182,6 +182,10 @@ namespace hpp {
     throw (projection_error)
     {
       // Length is assumed to be proportional to interval range
+      if(subInterval.first == timeRange_.first && subInterval.second == timeRange_.second){
+        hppDout(notice,"Call extract with same interval");
+        return weak_.lock();
+      }
       value_type l = fabs (subInterval.second - subInterval.first);
       hppDout(notice,"%% EXTRACT PATH :");      
       bool success;
