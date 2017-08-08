@@ -445,8 +445,13 @@ namespace hpp {
         double b = 2*T*(v12) - 4*p2_1;
         double c = -(v2_1*v2_1);
         const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
-        const double x1 = q/a;
-        const double x2 = c/q;
+        double x1 = 0;
+        double x2 = 0;
+        if(a!= 0)
+          x1 = q/a;
+        if(q!=0)
+          x2 = c/q;
+
         if(fabs(x1) > fabs(x2))
           *a1 = x1;
         else
