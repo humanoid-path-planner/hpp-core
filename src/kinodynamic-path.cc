@@ -44,7 +44,7 @@ namespace hpp {
       
       // for now, this class only deal with the translation part of a freeflyer :
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
-      for(size_t i = 3 ; i < 3 ; i++){
+      for(size_t i = 0 ; i < 3 ; i++){
         assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <float>::epsilon ()
                && "Kinodynamic path : length is not coherent with switch times");
       }
@@ -72,7 +72,7 @@ namespace hpp {
 
       // for now, this class only deal with the translation part of a freeflyer :
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
-      for(size_t i = 3 ; i < 3 ; i++){
+      for(size_t i = 0 ; i < 3 ; i++){
         assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <float>::epsilon ()
                && "Kinodynamic path : length is not coherent with switch times");
       }
@@ -181,18 +181,30 @@ namespace hpp {
     PathPtr_t KinodynamicPath::extract (const interval_t& subInterval) const
     throw (projection_error)
     {
+      assert(subInterval.first >=0 && subInterval.second >=0 && "Negative time values in extract path");
+      assert(subInterval.first >=timeRange_.first && subInterval.second <= timeRange_.second && "Given interval not inside path interval");
       // Length is assumed to be proportional to interval range
       if(subInterval.first == timeRange_.first && subInterval.second == timeRange_.second){
         hppDout(notice,"Call extract with same interval");
         return weak_.lock();
       }
       value_type l = fabs (subInterval.second - subInterval.first);
-      hppDout(notice,"%% EXTRACT PATH :");      
+      if(l<=0){
+        hppDout(notice,"Call Extract with a length null");
+        return PathPtr_t();
+      }
+
+      hppDout(notice,"%% EXTRACT PATH : path interval : "<<timeRange_.first<<" ; "<<timeRange_.second);
+      hppDout(notice,"%% EXTRACT PATH : sub  interval : "<<subInterval.first<<" ; "<<subInterval.second);
+
       bool success;
       Configuration_t q1 ((*this) (subInterval.first, success));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
       Configuration_t q2 ((*this) (subInterval.second, success));
+      if (!success) throw projection_error
+          ("Failed to apply constraints in KinodynamicPath::extract");
+
       // set acceleration to 0 for initial and end config :
       size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();
       q1[configSize+3] = 0.0;
