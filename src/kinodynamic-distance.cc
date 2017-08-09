@@ -159,16 +159,18 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
     tv = ((v1*v1+v2*v2 - 2*vLim*vLim)/(2*vLim*a1)) + (p2-p1)/vLim ; //eq 16
     t2 = (v2-vLim)/a2;  //eq 17
   }
+  /*
   if(twoSegment){
-    //hppDout(notice,"Trajectory with 2 segments");
+    hppDout(notice,"Trajectory with 2 segments");
   }else{
-    //hppDout(notice,"Trajectory with 3 segments");
+    hppDout(notice,"Trajectory with 3 segments");
   }
+  */
   //hppDout(notice,"a1 = "<<a1<<"  ;  a2 ="<<a2);
   //hppDout(notice,"t = "<<(t1)<<"   ;   "<<(tv)<<"   ;   "<<(t2));
-  double T = (t1)+(tv)+(t2);
+  //double T = (t1)+(tv)+(t2);
   //hppDout(notice,"T = "<<T);
-  return T;
+  return (t1)+(tv)+(t2);
 }
 
 value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
@@ -184,15 +186,14 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
     //hppDout(info,"and              : "<<model::displayConfig(q2));
 
     for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){// FIX ME : only work with freeflyer
-        size_type indexVel = indexConfig + configSize;
         //hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());
-        if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
-            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel]);
+        //if(robot_->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3" true){
+            T = computeMinTime(q1[indexConfig],q2[indexConfig],q1[indexConfig + configSize],q2[indexConfig + configSize]);
             if(T > Tmax)
                 Tmax = T;
-        }else{
-            //hppDout(notice,"!! Kinodynamic distance for quaternion not implemented yet.");
-        }
+        /*}else{
+            hppDout(notice,"!! Kinodynamic distance for quaternion not implemented yet.");
+        }*/
 
     }
    // hppDout(info," is : "<<Tmax);
