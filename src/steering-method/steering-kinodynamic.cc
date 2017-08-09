@@ -238,8 +238,12 @@ namespace hpp {
 
         const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
         hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
-        const double x1 = q/a;
-        const double x2 = c/q;
+        double x1 = 0;
+        double x2 = 0;
+        if(a!= 0)
+          x1 = q/a;
+        if(q!=0)
+          x2 = c/q;
         const double x = std::max(x1,x2);
         hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
         hppDout(info," x = "<<x);
@@ -387,9 +391,20 @@ namespace hpp {
             const double c = (0.5*(v1+v2)*(v2-v1)/a2) - (p2-p1);
 
             const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
+            double x1 = 0;
+            double x2 = 0;
+            if(a!= 0)
+              x1 = q/a;
+            else
+              x1 = sgn(p2_1)*aMax_[index];
+            if(q!=0)
+              x2 = c/q;
+            else
+              x2 = sgn(p2_1)*aMax_[index];
+
+
             hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
-            const double x1 = q/a;
-            const double x2 = c/q;
+
             const double x = std::max(x1,x2);
             hppDout(info,"Solve quadratic equation : x1 = "<<x1<<"  ; x2 = "<<x2);
             hppDout(info," x = "<<x);
@@ -449,15 +464,22 @@ namespace hpp {
         double x2 = 0;
         if(a!= 0)
           x1 = q/a;
+        else
+          x1 = sgn(p2_1)*aMax_[index];
         if(q!=0)
           x2 = c/q;
+        else
+          x2 = sgn(p2_1)*aMax_[index];
 
+
+        hppDout(notice,"a = "<<a<<" ; b = "<<b<<" ; c = "<<c<<" ; q = "<<q);
+        hppDout(notice,"x1 = "<<x1<<" ; x2 = "<<x2);
         if(fabs(x1) > fabs(x2))
           *a1 = x1;
         else
           *a1 = x2;
         double a2 = -(*a1);
-
+        hppDout(notice,"a1 = "<<*a1);
         *t1 = 0.5*((v2_1/(*a1))+T);
         *vLim = sgn((*a1))*vMax;
         if(std::abs(v1+(*t1)*(*a1)) <= vMax){  // two segment trajectory
@@ -467,7 +489,9 @@ namespace hpp {
         }else{ // three segment trajectory
           hppDout(notice,"Trajectory with 3 segments");
           // adjust acceleration :
-          *a1 = ((*vLim - v1)*(*vLim - v1) + (*vLim - v2)*(*vLim - v2))/(2*(*vLim*T- p2_1));
+          if(q!=0) // otherwise this mean that the solution have only a constant velocity segment, and the following equation will lead to a NaN because (*vLim*T- p2_1) == 0
+            *a1 = ((*vLim - v1)*(*vLim - v1) + (*vLim - v2)*(*vLim - v2))/(2*(*vLim*T- p2_1));
+
           a2 = -(*a1);
           // compute new time intervals :
           *t1 = (*vLim - v1)/(*a1);
