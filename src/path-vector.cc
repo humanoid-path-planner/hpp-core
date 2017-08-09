@@ -55,6 +55,9 @@ namespace hpp {
     void PathVector::appendPath (const PathPtr_t& path)
     {
       paths_.push_back (path);
+      hppDout(notice,"append path, length = "<<path->length ()<<" ; first : "<<path->timeRange().first<<" ; second : "<<path->timeRange().second);
+      if(path->timeRange().first > 0)
+        hppDout(notice,"Warning : append path with first interval not null !");
       timeRange_.second += path->length ();
     }
 

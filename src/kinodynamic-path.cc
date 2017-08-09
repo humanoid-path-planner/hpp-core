@@ -129,32 +129,33 @@ namespace hpp {
         indexVel = id + configSize;
         indexAcc = id + configSize + 3;
         
-       // hppDout(notice," PATH For joint "<<(*itJoint)->name());
+        //hppDout(notice," PATH For joint :"<<id<<" ; t = "<<t);
        // hppDout(notice,"PATH for joint :"<<device()->getJointAtConfigRank(id)->name());
         if(device()->getJointAtConfigRank(id)->name() != "base_joint_SO3"){          
           
           //if((*itJoint)->configSize() >= 1){
           // 3 case (each segment of the trajectory) : 
           if(t <= t0_[id]){ // before first segment
+            //hppDout(info,"before 1° segment");
             result[id] = initial_[id] + t*initial_[indexVel];
             result[indexVel] = initial_[indexVel];
             result[indexAcc] = 0;
           }
           else if(t <= (t0_[id] + t1_[id])){
-            //  hppDout(info,"on  1° segment");
+            //hppDout(info,"on  1° segment");
             t1 = t - t0_[id];
             result[id] = 0.5*t1*t1*a1_[id] + t1*initial_[indexVel] + initial_[id] + t0_[id]*initial_[indexVel];
             result[indexVel] = t1*a1_[id] + initial_[indexVel];
             result[indexAcc] = a1_[id];
           }else if (t <= (t0_[id] + t1_[id] + tv_[id]) ){
-            //  hppDout(info,"on  constant velocity segment");
+            //hppDout(info,"on  constant velocity segment");
             tv = t - t0_[id] - t1_[id];
             result[id] = 0.5*t1_[id]*t1_[id]*a1_[id] + t1_[id]*initial_[indexVel] + initial_[id] + t0_[id]*initial_[indexVel] + (tv)*vLim_[id];
             result[indexVel] = vLim_[id];
             result[indexAcc] = 0.;
 
           }else if (t <= (t0_[id] + t1_[id] + tv_[id] +t2_[id]) ){
-          //  hppDout(info,"on  3° segment");
+            //hppDout(info,"on  3° segment");
             t2 = t - tv_[id] - t1_[id] - t0_[id];
             if(tv_[id] > 0 )
               v2 = vLim_[id];
@@ -164,7 +165,12 @@ namespace hpp {
             result[indexVel] = v2 - t2 * a1_[id];
             result[indexAcc] = -a1_[id];
 
-          }else{ // after last segment
+          }else{ // after last segment : constant velocity (null ?)
+            if(end_[indexVel] != 0 && (t - (t0_[id] + t1_[id] + tv_[id] +t2_[id])) > 0.00015 ){ // epsilon from rbprm-steering-kinodynamic
+              hppDout(notice,"Should not happen : You should not have a constant velocity segment at the end if the velocity is not null");
+              hppDout(notice,"index Joint = "<<id);
+              hppDout(notice,"t = "<<t<<"  ;  length = "<<t0_[id] + t1_[id] + tv_[id] +t2_[id]);
+            }
             result[id] = end_[id];
             result[indexVel] = end_[indexVel];
             result[indexAcc] = 0;
@@ -255,8 +261,10 @@ namespace hpp {
               tv[i] = 0;
               ti = ti - tv_[i];
               t2[i] = t2_[i] - ti;
-              if(t2[i] <= 0)
+              if(t2[i] < 0){
                 t2[i] = 0;
+                hppDout(notice,"Should not happen !");
+              }
             }
           }
         }
@@ -277,6 +285,10 @@ namespace hpp {
               t1[i] = 0;
               tf = tf - oldT1;
               t0[i] = oldT0 - tf;
+              if(t0[i] < 0){
+                t0[i] = 0;
+                hppDout(notice,"Should not happen !");
+              }
             }
           }
         }
