@@ -30,6 +30,7 @@
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/steering-method.hh>
 #include "astar.hh"
+#include <hpp/util/timer.hh>
 
 namespace hpp {
   namespace core {
@@ -90,8 +91,12 @@ namespace hpp {
 	  oss << "Maximal number of iterations reached: " << maxIterations_;
 	  throw std::runtime_error (oss.str ().c_str ());
 	}
+    hppStartBenchmark(ONE_STEP);
         problem_.target ()->oneStep ();
 	oneStep ();
+    hppStopBenchmark(ONE_STEP);
+    hppDisplayBenchmark(ONE_STEP);
+
 	++nIter;
 	solved = roadmap()->pathExists ();
 	if (interrupt_) throw std::runtime_error ("Interruption");
