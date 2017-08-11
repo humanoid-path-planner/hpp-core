@@ -29,6 +29,7 @@
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/steering-method.hh>
+#include <hpp/util/timer.hh>
 
 namespace hpp {
   namespace core {
@@ -97,7 +98,12 @@ namespace hpp {
 	  oss << "Maximal number of iterations reached: " << maxIterations_;
 	  throw std::runtime_error (oss.str ().c_str ());
 	}
+    hppStartBenchmark(ONE_STEP);
+        problem_.target ()->oneStep ();
 	oneStep ();
+    hppStopBenchmark(ONE_STEP);
+    hppDisplayBenchmark(ONE_STEP);
+
 	++nIter;
         solved = problem_.target()->reached (roadmap());
 	if (interrupt_) throw std::runtime_error ("Interruption");
@@ -138,6 +144,7 @@ namespace hpp {
 	   itn != roadmap ()->goalNodes ().end (); ++itn) {
 	ConfigurationPtr_t q1 ((initNode)->configuration ());
 	ConfigurationPtr_t q2 ((*itn)->configuration ());
+	assert (*q1 != *q2);
 	path = (*sm) (*q1, *q2);
         if (!path) continue;
         if (pathProjector) {
@@ -149,9 +156,13 @@ namespace hpp {
 	  PathValidationReportPtr_t report;
           bool pathValid = pathValidation->validate (projPath, false, validPath,
 						     report);
-          if (pathValid && validPath->length() > 0) {
+          if (pathValid && validPath->timeRange ().second !=
+              path->timeRange ().first) {
             roadmap ()->addEdge (initNode, *itn, projPath);
-            roadmap ()->addEdge (*itn, initNode, projPath->reverse());
+            interval_t timeRange = projPath->timeRange ();
+            roadmap ()->addEdge (*itn, initNode, projPath->extract
+                (interval_t (timeRange.second,
+                             timeRange.first)));
           }
         }
       }
