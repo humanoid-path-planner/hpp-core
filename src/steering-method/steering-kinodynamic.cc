@@ -83,6 +83,12 @@ namespace hpp {
           }
         }
 
+        if(Tmax<=std::numeric_limits<double>::epsilon()){
+          hppDout(notice,"Steering kinodynamic : no translation mouvement.");
+          //TODO : it mean that you must rotate without translation, not implemented yet
+          return PathPtr_t();
+        }
+
 
         value_type length = computeMaxRequiredTime(Tmax,infIntervalsVector);
         hppDout(notice,"Tmax = "<<Tmax<<"  after infeasible interval : "<<length);
