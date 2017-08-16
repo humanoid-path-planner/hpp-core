@@ -155,9 +155,9 @@ namespace hpp {
       Kinodynamic::Kinodynamic (const ProblemPtr_t& problem) :
         SteeringMethod (problem), aMax_(Vector3::Ones(3)),vMax_(Vector3::Ones(3)), device_ (problem->robot ()), weak_ ()
       {
-        if(((problem->robot()->extraConfigSpace().dimension())) < (2*((problem->robot()->configSize()) - problem->robot()->extraConfigSpace().dimension()))){
-          std::cout<<"Error : you need at least "<<2*(problem->robot()->configSize()-problem->robot()->extraConfigSpace().dimension())<<" extra DOF"<<std::endl;
-          hppDout(error,"Error : you need at least "<<2*(problem->robot()->configSize() - problem->robot()->extraConfigSpace().dimension())<<" extra DOF");
+        if(((problem->robot()->extraConfigSpace().dimension())) < 6){
+          std::cout<<"Error : you need at least "<<6<<" extra DOF"<<std::endl;
+          hppDout(error,"Error : you need at least "<<6<<" extra DOF");
         }
 
         // get velocity and acceleration bounds from problem :
