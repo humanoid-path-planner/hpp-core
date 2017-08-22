@@ -52,8 +52,10 @@ namespace hpp {
           value_type t0 = path->timeRange ().first;
           value_type t1 = path->timeRange ().second;
           assert (t1 >= t0);
-          if (t1 - t0 == 0) maximalVelocity_ = std::numeric_limits<value_type>::infinity();
-          else {
+          if (t1 - t0 == 0) {
+            maximalVelocity_ = std::numeric_limits<value_type>::infinity();
+            refine_ = false;
+          } else {
             path_->velocityBound (Vb_, t0, t1);
             maximalVelocity_ = computeMaximalVelocity (Vb_);
           }

@@ -79,7 +79,7 @@ namespace hpp {
 	} else {
 	  interval.first = std::max (interval.first, tmpInt.first);
 	  interval.second = std::min (interval.second, tmpInt.second);
-	  assert (interval.second > interval.first);
+	  assert (interval.second >= interval.first);
 	  assert (interval.first <= t);
 	  assert (t <= interval.second);
 	}
