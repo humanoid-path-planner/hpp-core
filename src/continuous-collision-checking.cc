@@ -181,7 +181,7 @@ namespace hpp {
       // Loop over collision pairs and remove disabled ones.
       size_type ia, ib;
       for (BodyPairCollisions_t::iterator _colPair = bodyPairCollisions_.begin ();
-          _colPair != bodyPairCollisions_.end (); ++_colPair) {
+          _colPair != bodyPairCollisions_.end ();) {
         const JointConstPtr_t& ja = (*_colPair)->joint_a(),
               jb = (*_colPair)->joint_b();
         ia = RelativeMotion::idx(ja);
