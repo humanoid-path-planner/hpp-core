@@ -103,7 +103,8 @@ namespace hpp {
           ///                 corresponding DoF is considered passive.
           Eigen::RowBlockIndexes computeActiveParameters (const PathPtr_t& path,
               const constraints::HybridSolver& hs,
-              const value_type& guessThr = -1) const;
+              const value_type& guessThr = -1,
+              const bool& useExplicitInput = false) const;
 
           DevicePtr_t robot_;
           bool checkOptimum_;

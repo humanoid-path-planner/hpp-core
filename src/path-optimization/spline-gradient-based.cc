@@ -429,7 +429,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       Eigen::RowBlockIndexes SplineGradientBased<_PB, _SO>::computeActiveParameters
-      (const PathPtr_t& path, const HybridSolver& hs, const value_type& guessThr) const
+      (const PathPtr_t& path, const HybridSolver& hs, const value_type& guessThr, const bool& useExplicitInput) const
       {
         const constraints::ExplicitSolver& es = hs.explicitSolver();
 
@@ -486,6 +486,9 @@ namespace hpp {
                 << "J = " << J);
             implicitBI = BlockIndex::difference (implicitBI, passive);
           }
+        } else if (useExplicitInput) {
+          Eigen::ColBlockIndexes esadp = es.activeDerivativeParameters();
+          implicitBI = esadp.indexes();
         }
 
         // Handle explicit part
