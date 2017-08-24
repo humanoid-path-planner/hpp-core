@@ -70,6 +70,9 @@ namespace hpp {
       for (BodyPairCollisions_t::iterator itPair = bodyPairCollisions_.begin ();
 	   itPair != bodyPairCollisions_.end (); ++itPair) {
 	CollisionValidationReportPtr_t collisionReport;
+        // the valid interval will not be greater than "interval" so we do not
+        // need to perform collision checking on a greater interval.
+        tmpInt = interval;
 	if (!(*itPair)->validateConfiguration (t, tmpInt, collisionReport)) {
 	  report = CollisionPathValidationReportPtr_t
 	    (new CollisionPathValidationReport);
@@ -79,7 +82,7 @@ namespace hpp {
 	} else {
 	  interval.first = std::max (interval.first, tmpInt.first);
 	  interval.second = std::min (interval.second, tmpInt.second);
-	  assert (interval.second >= interval.first);
+	  assert ((*itPair)->path()->length() == 0 || interval.second > interval.first);
 	  assert (interval.first <= t);
 	  assert (t <= interval.second);
 	}
@@ -191,7 +194,8 @@ namespace hpp {
             hppDout(info, "Parameterized collision pairs treated as Constrained");
           case RelativeMotion::Constrained:
             hppDout(info, "Disabling collision between joint "
-                << ja->name() << " and " << jb->name());
+                << (ja ? ja->name() : "universe") << " and "
+                << (jb ? jb->name() : "universe"));
             disabledBodyPairCollisions_.push_back (*_colPair);
             _colPair = bodyPairCollisions_.erase (_colPair);
             break;

@@ -22,6 +22,9 @@
 # include <limits>
 # include <iterator>
 
+# include <boost/icl/continuous_interval.hpp>
+# include <boost/icl/interval_set.hpp>
+
 # include <hpp/fcl/collision_data.h>
 # include <hpp/fcl/collision.h>
 # include <hpp/pinocchio/body.hh>
@@ -127,6 +130,7 @@ namespace hpp {
 	  pathVelocity_ = PathVelocity (&coefficients_, path);
 	  reverse_ = reverse;
 	  valid_ = false;
+          validInterval_ = interval_set();
 	}
 
 	/// Get path
@@ -137,8 +141,10 @@ namespace hpp {
 
 	/// Validate interval centered on a path parameter
 	/// \param t parameter value in the path interval of definition
-	/// \retval interval interval over which pair is collision-free,
-	///                  not necessarily included in definition interval
+	/// \param[in,out] interval as input, interval over which
+        ///                collision checking must be performed.
+        ///                As output, interval over which pair is collision-free,
+        ///                not necessarily included in definition interval.
 	/// \return true if the body pair is collision free for this parameter
 	///         value, false if the body pair is in collision.
 	/// \note object should be in the positions defined by the configuration
@@ -146,10 +152,19 @@ namespace hpp {
 	bool validateConfiguration (const value_type& t, interval_t& interval,
 				    CollisionValidationReportPtr_t& report)
 	{
+          namespace icl = boost::icl;
 	  if (valid_) {
 	    interval = path_->timeRange ();
 	    return true;
 	  }
+          continuous_interval iclInterval
+            (interval.first, interval.second, icl::interval_bounds::closed());
+          if (icl::contains (validInterval_, iclInterval))
+          {
+            // TODO interval could probably be enlarge using validInterval_
+            // interval = validInterval_;
+            return true;
+          }
 	  using std::numeric_limits;
 	  value_type distanceLowerBound =
 	    numeric_limits <value_type>::infinity ();
@@ -191,10 +206,13 @@ namespace hpp {
 	  assert (!isnan (halfLengthTol));
 	  interval.first = t - (halfLengthDist + halfLengthTol);
 	  interval.second = t + (halfLengthDist + halfLengthTol);
-	  if ((interval.first <= path_->timeRange ().first) &&
-	      (interval.second >= path_->timeRange ().second)) {
+
+          validInterval_.insert (continuous_interval(interval.first, interval.second, icl::interval_bounds::closed()));
+
+          // Check if the whole path is valid.
+          iclInterval = continuous_interval (path_->timeRange ().first, path_->timeRange ().second, icl::interval_bounds::closed());
+          if (icl::contains (validInterval_, iclInterval))
 	    valid_ = true;
-	  }
 	  return true;
 	}
 
@@ -384,6 +402,9 @@ namespace hpp {
 	  }
 	}
 
+        typedef boost::icl::continuous_interval<value_type> continuous_interval;
+        typedef boost::icl::interval_set<value_type> interval_set;
+
 	JointPtr_t joint_a_;
 	JointPtr_t joint_b_;
         CollisionPairs_t pairs_;
@@ -394,6 +415,7 @@ namespace hpp {
 	PathVelocity pathVelocity_;
 	value_type tolerance_;
 	bool valid_;
+        interval_set validInterval_;
 	bool reverse_;
       }; // class BodyPairCollision
 
