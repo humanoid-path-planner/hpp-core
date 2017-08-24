@@ -67,6 +67,7 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics();
       robot_->updateGeometryPlacements();
+      BodyPairCollisions_t::iterator itMin;
       for (BodyPairCollisions_t::iterator itPair = bodyPairCollisions_.begin ();
 	   itPair != bodyPairCollisions_.end (); ++itPair) {
 	CollisionValidationReportPtr_t collisionReport;
@@ -80,6 +81,7 @@ namespace hpp {
 	  report->parameter = t;
 	  return false;
 	} else {
+          if (interval.second > tmpInt.second) itMin = itPair;
 	  interval.first = std::max (interval.first, tmpInt.first);
 	  interval.second = std::min (interval.second, tmpInt.second);
 	  assert ((*itPair)->path()->length() == 0 || interval.second > interval.first);
@@ -87,6 +89,8 @@ namespace hpp {
 	  assert (t <= interval.second);
 	}
       }
+      if (bodyPairCollisions_.size() > 1 && itMin != bodyPairCollisions_.begin())
+        std::iter_swap (bodyPairCollisions_.begin(), itMin);
       return true;
     }
 
