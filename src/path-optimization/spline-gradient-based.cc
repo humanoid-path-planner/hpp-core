@@ -412,6 +412,8 @@ namespace hpp {
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
             solver.av = RowBlockIndexes (BlockIndex::difference (BlockIndex::type(0, rDof), select.indexes()));
+            hppDout (info, "Path " << idxSpline << ": do not change this dof " << select);
+            hppDout (info, "Path " << idxSpline << ": active dofs " << solver.av);
 
             // Add nOutVar constraint per coefficient.
             lc.addRows(Spline::NbCoeffs * nOutVar);
@@ -519,13 +521,13 @@ namespace hpp {
         rbis[0] = ss[0].av;
         nbRows += rbis[0].nbIndexes();
         for (std::size_t i = 1; i < ss.size(); ++i) {
-          // Compute intersection between A = ss[i-1].av.indexes()
+          // Compute union between A = ss[i-1].av.indexes()
           // and B = ss[i].av.indexes()
-          // intersection(A, B) = A \ B^c
-          rbis[i] = RowBlockIndexes(
-              BlockIndex::difference (ss[i-1].av.indexes(),
-                BlockIndex::difference (space, ss[i].av.indexes())
-                ));
+          BlockIndex::vector_t v (ss[i-1].av.indexes());
+          v.insert(v.end(), ss[i].av.indexes().begin(), ss[i].av.indexes().end());
+          rbis[i] = RowBlockIndexes (v);
+          rbis[i].updateRows<true, true, true>();
+          hppDout (info, "Optimize waypoint " << i << " over " << rbis[i]);
           nbRows += rbis[i].nbIndexes();
         }
         rbis[ss.size()] = ss[ss.size()-1].av;
