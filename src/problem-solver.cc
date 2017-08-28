@@ -155,7 +155,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (),
       configurationShooterType_ ("BasicConfigurationShooter"),
       distanceType_("WeighedDistance"),
-      steeringMethodType_ ("SteeringMethodStraight"),
+      steeringMethodType_ ("Straight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       collisionObstacles_ (), distanceObstacles_ (),
@@ -175,7 +175,10 @@ namespace hpp {
 
       add <DistanceBuilder_t> ("WeighedDistance",
 			       WeighedDistance::createFromProblem);
+      // TODO "SteeringMethodStraight" is kept for backward compatibility
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight",
+          Factory<steeringMethod::Straight>::create);
+      add <SteeringMethodBuilder_t> ("Straight",
           Factory<steeringMethod::Straight>::create);
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
       add <SteeringMethodBuilder_t> ("Dubins", steeringMethod::Dubins::createWithGuess);
