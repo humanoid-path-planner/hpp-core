@@ -70,7 +70,10 @@ namespace hpp {
         hessianBound_ (hessianBound), withHessianBound_ (hessianBound > 0)
       {
         // TODO Only SteeringMethodStraight has been tested so far.
-        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::SteeringMethodStraight, steeringMethod));
+        SteeringMethodStraightPtr_t sm
+          (HPP_DYNAMIC_PTR_CAST (SteeringMethodStraight, steeringMethod));
+        if (!sm) throw std::logic_error ("The steering method should be of type"
+                                         " SteeringMethodStraight.");
       }
 
       bool Progressive::impl_apply (const PathPtr_t& path,
