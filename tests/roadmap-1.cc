@@ -31,7 +31,7 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/nearest-neighbor.hh>
 
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
@@ -49,8 +49,8 @@ using hpp::pinocchio::JointPtr_t;
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
 using hpp::core::Problem;
-using hpp::core::SteeringMethodStraight;
-using hpp::core::SteeringMethodStraightPtr_t;
+using hpp::core::steeringMethod::Straight;
+using hpp::core::steeringMethod::StraightPtr_t;
 using hpp::core::RoadmapPtr_t;
 using hpp::core::Roadmap;
 using hpp::core::NodePtr_t;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 
   // Create steering method
   Problem p (robot);
-  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (p);
+  StraightPtr_t sm = Straight::create (p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
 
   // Create steering method
   Problem p (robot);
-  SteeringMethodStraightPtr_t sm = SteeringMethodStraight::create (p);
+  StraightPtr_t sm = Straight::create (p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
 				     (robot, boost::assign::list_of (1)(1)));

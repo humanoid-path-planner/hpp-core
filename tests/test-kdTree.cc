@@ -36,7 +36,7 @@
 #include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include "../src/nearest-neighbor/basic.hh"
 #include "../src/nearest-neighbor/k-d-tree.hh"
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   ConfigurationShooterPtr_t confShoot = problem.configurationShooter();
   nearestNeighbor::KDTree kdTree(robot,distance,30);
   nearestNeighbor::Basic basic (distance);
-  SteeringMethodPtr_t sm = SteeringMethodStraight::create (&problem);
+  SteeringMethodPtr_t sm = steeringMethod::Straight::create (&problem);
 
   // Add 4 connectedComponents with 2000 nodes each
   ConfigurationPtr_t configuration;

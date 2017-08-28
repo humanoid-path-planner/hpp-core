@@ -48,7 +48,7 @@
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/hermite-path.hh>
 
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/steering-method/hermite.hh>
 
 #include <hpp/core/path-projector/global.hh>
@@ -294,14 +294,14 @@ const char* traits_parabola::_func = "parabola";
 struct traits_progressive {
   typedef pathProjector::Progressive Proj_t;
   typedef pathProjector::ProgressivePtr_t ProjPtr_t;
-  typedef SteeringMethodStraight SM_t;
+  typedef steeringMethod::Straight SM_t;
   static const value_type projection_step;
   static const char* _proj;
 };
 struct traits_global {
   typedef pathProjector::Global Proj_t;
   typedef pathProjector::GlobalPtr_t ProjPtr_t;
-  typedef SteeringMethodStraight SM_t;
+  typedef steeringMethod::Straight SM_t;
   static const value_type projection_step;
   static const char* _proj;
 };

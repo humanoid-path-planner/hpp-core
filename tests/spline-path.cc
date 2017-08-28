@@ -27,7 +27,7 @@
 #include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/core/problem.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/steering-method/spline.hh>
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()

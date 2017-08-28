@@ -29,7 +29,7 @@
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
 
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
@@ -54,7 +54,7 @@ using hpp::core::PathVector;
 using hpp::core::PathVectorPtr_t;
 using hpp::core::Problem;
 using hpp::core::SteeringMethodPtr_t;
-using hpp::core::SteeringMethodStraight;
+using hpp::core::steeringMethod::Straight;
 using hpp::core::PathOptimizerPtr_t;
 using hpp::core::pathOptimization::GradientBased;
 

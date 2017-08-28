@@ -23,7 +23,7 @@
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
@@ -43,8 +43,8 @@ using hpp::core::PathVector;
 using hpp::core::PathVectorPtr_t;
 using hpp::core::Problem;
 using hpp::core::ProblemPtr_t;
-using hpp::core::SteeringMethodStraight;
-using hpp::core::SteeringMethodStraightPtr_t;
+using hpp::core::steeringMethod::Straight;
+using hpp::core::steeringMethod::StraightPtr_t;
 using hpp::core::value_type;
 
 HPP_PREDEF_CLASS (LocalPath);

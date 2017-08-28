@@ -28,7 +28,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/steering-method/spline.hh>
 #include <hpp/core/path/spline.hh>
 
@@ -52,7 +52,7 @@ using hpp::core::PathValidationReportPtr_t;
 using hpp::core::Problem;
 using hpp::core::ProblemPtr_t;
 using hpp::core::SteeringMethodPtr_t;
-using hpp::core::SteeringMethodStraight;
+using hpp::core::steeringMethod::Straight;
 using hpp::core::ValidationReportPtr_t;
 
 BOOST_AUTO_TEST_SUITE (test_hpp_core)
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
 
   // create steering method
   Problem problem (robot);
-  SteeringMethodPtr_t sm (SteeringMethodStraight::create (problem));
+  SteeringMethodPtr_t sm (Straight::create (problem));
 
   // create path validation objects
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
