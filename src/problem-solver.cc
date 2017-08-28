@@ -58,7 +58,7 @@
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
 #include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/visibility-prm-planner.hh>
@@ -176,7 +176,7 @@ namespace hpp {
       add <DistanceBuilder_t> ("WeighedDistance",
 			       WeighedDistance::createFromProblem);
       add <SteeringMethodBuilder_t> ("SteeringMethodStraight",
-          Factory<SteeringMethodStraight>::create);
+          Factory<steeringMethod::Straight>::create);
       add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
       add <SteeringMethodBuilder_t> ("Dubins", steeringMethod::Dubins::createWithGuess);
       add <SteeringMethodBuilder_t> ("Snibud", steeringMethod::Snibud::createWithGuess);

@@ -26,7 +26,7 @@
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/problem-target.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
@@ -42,7 +42,7 @@ namespace hpp {
       robot_ (robot),
       distance_ (WeighedDistance::create (robot)),
       initConf_ (), goalConfigurations_ (), target_ (),
-      steeringMethod_ (SteeringMethodStraight::create (*this)),
+      steeringMethod_ (steeringMethod::Straight::create (*this)),
       configValidations_ (),
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),

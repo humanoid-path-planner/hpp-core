@@ -25,7 +25,7 @@
 // TODO used to access parameters of the problem. We should not do this here.
 //      See todo of pathProjector::Global::create
 #include <hpp/core/steering-method.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/problem.hh>
 
 #include <limits>
@@ -69,11 +69,10 @@ namespace hpp {
         thresholdMin_ (thresholdMin),
         hessianBound_ (hessianBound), withHessianBound_ (hessianBound > 0)
       {
-        // TODO Only SteeringMethodStraight has been tested so far.
         SteeringMethodStraightPtr_t sm
-          (HPP_DYNAMIC_PTR_CAST (SteeringMethodStraight, steeringMethod));
+          (HPP_DYNAMIC_PTR_CAST (steeringMethod::Straight, steeringMethod));
         if (!sm) throw std::logic_error ("The steering method should be of type"
-                                         " SteeringMethodStraight.");
+                                         " Straight.");
       }
 
       bool Progressive::impl_apply (const PathPtr_t& path,

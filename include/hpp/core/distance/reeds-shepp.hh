@@ -20,6 +20,7 @@
 # define HPP_CORE_DISTANCE_REEDS_SHEPP_HH
 
 # include <hpp/core/distance.hh>
+# include <hpp/core/steering-method/fwd.hh>
 
 namespace hpp {
   namespace core {

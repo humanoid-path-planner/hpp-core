@@ -19,7 +19,9 @@
 #ifndef HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH
 # define HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH
 
+# include <hpp/core/fwd.hh>
 # include <hpp/core/path.hh>
+# include <hpp/core/steering-method/fwd.hh>
 
 namespace hpp {
   namespace core {

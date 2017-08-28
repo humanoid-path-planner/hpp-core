@@ -21,7 +21,7 @@
 
 #include <hpp/core/path-optimizer.hh>
 #include <hpp/core/path-vector.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 
 namespace hpp {
   namespace core {
@@ -172,7 +172,7 @@ namespace hpp {
 	mutable Configuration_t initial_;
 	mutable Configuration_t end_;
 	WeighedDistancePtr_t distance_;
-	SteeringMethodStraightPtr_t steeringMethod_;
+        steeringMethod::StraightPtr_t steeringMethod_;
 	/// I_, H_ Identity matrix and cost Hessian respectively
 	/// Jf_  collision-constraints jacobian for now
 	/// J_ problem-constraints jacobian

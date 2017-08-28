@@ -18,7 +18,9 @@
 #ifndef HPP_CORE_STEERING_METHOD_HERMITE_HH
 # define HPP_CORE_STEERING_METHOD_HERMITE_HH
 
+# include <hpp/core/fwd.hh>
 # include <hpp/core/problem.hh>
+# include <hpp/core/steering-method/fwd.hh>
 # include <hpp/core/steering-method.hh>
 # include <hpp/core/hermite-path.hh>
 # include <hpp/core/weighed-distance.hh>

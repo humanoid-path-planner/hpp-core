@@ -27,7 +27,7 @@
 #include <hpp/core/config-projector.hh>
 
 #include <hpp/core/steering-method.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/problem.hh>
 
 #include <limits>
@@ -79,8 +79,8 @@ namespace hpp {
         alphaMin (0.2), alphaMax (0.95), hessianBound_ (hessianBound),
         thresholdMin_ (threshold)
       {
-        // TODO Only SteeringMethodStraight has been tested so far.
-        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::SteeringMethodStraight, steeringMethod));
+        // TODO Only steeringMethod::Straight has been tested so far.
+        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::steeringMethod::Straight, steeringMethod));
       }
 
       bool Global::impl_apply (const PathPtr_t& path,

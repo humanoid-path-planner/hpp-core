@@ -24,6 +24,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
+# include <hpp/core/steering-method/fwd.hh>
 # include <hpp/core/steering-method.hh>
 
 namespace hpp {

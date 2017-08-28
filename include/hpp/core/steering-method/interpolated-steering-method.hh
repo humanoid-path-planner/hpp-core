@@ -19,6 +19,7 @@
 # define HPP_CORE_STEERING_METHOD_INTERPOLATED_HH
 
 # include <hpp/core/steering-method.hh>
+# include <hpp/core/steering-method/fwd.hh>
 # include <hpp/core/interpolated-path.hh>
 # include <hpp/core/weighed-distance.hh>
 
