@@ -22,6 +22,7 @@
 
 #include <hpp/constraints/svd.hh>
 
+#include <hpp/core/distance.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/path/spline.hh>
 
@@ -65,8 +66,10 @@ namespace hpp {
         typedef Eigen::Matrix<value_type, Eigen::Dynamic, SplineOrder+1, Eigen::RowMajor> ConstraintMatrix_t;
         typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RhsMatrix_t;
 
+        DistancePtr_t d = problem_.distance();
+        value_type length = (*d) (q1, q2);
         SplinePathPtr_t p = SplinePath::create
-          (device_.lock(), interval_t (0, 1), constraints());
+          (device_.lock(), interval_t (0, length), constraints());
 
         const size_type nbConstraints = 2 + derivatives1.cols() + derivatives2.cols();
         ConstraintMatrix_t coeffs (nbConstraints, SplineOrder+1);
