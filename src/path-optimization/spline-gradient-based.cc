@@ -753,15 +753,21 @@ namespace hpp {
         bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound", true);
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum", false);
 
+        PathVectorPtr_t tmp = PathVector::create (robot_->configSize(), robot_->numberDof());
+        path->flatten(tmp);
+        // Remove zero length path
         PathVectorPtr_t input = PathVector::create (robot_->configSize(), robot_->numberDof());
-        path->flatten(input);
+        for (std::size_t i = 0; i < tmp->numberPaths(); ++i) {
+          PathPtr_t p = tmp->pathAtRank (i);
+          if (p->length() > 0) input->appendPath (p);
+        }
 
         robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
         const size_type rDof = robot_->numberDof();
 
         // 1
         Splines_t splines;
-        appendEquivalentSpline (path, splines);
+        appendEquivalentSpline (input, splines);
         const size_type nParameters = splines.size() * Spline::NbCoeffs;
 
         initializePathValidation(splines);
