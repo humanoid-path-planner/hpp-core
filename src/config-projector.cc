@@ -466,7 +466,7 @@ namespace hpp {
     {
       const size_type rhsImplicitSize = minimalSolver_.rightHandSideSize();
       minimalSolver_.rightHandSide (small.head(rhsImplicitSize));
-      fullSolver_.rightHandSide (small.head(rhsImplicitSize));
+      // fullSolver_.rightHandSide (small.head(rhsImplicitSize));
 
       assert (rightHandSide_.size () == rhsImplicitSize); // TODO remove
       size_type row = rhsImplicitSize;
