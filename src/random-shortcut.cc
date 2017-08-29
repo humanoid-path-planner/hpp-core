@@ -67,9 +67,12 @@ namespace hpp {
       using std::numeric_limits;
       using std::make_pair;
       bool finished = false;
-      value_type t0, t3;
-      const Configuration_t q0 = path->initial ();
-      const Configuration_t q3 = path->end ();
+      value_type t[4];
+      Configuration_t q[4];
+      q[0] = path->initial();
+      q[1].resize(path->outputSize ()),
+      q[2].resize(path->outputSize ());
+      q[3] = path->end();
       PathVectorPtr_t tmpPath = path;
 
       // Maximal number of iterations without improvements
@@ -79,39 +82,34 @@ namespace hpp {
 				      numeric_limits <value_type>::infinity ());
       length.push_back (PathLength<>::run (tmpPath, problem ().distance ()));
       PathVectorPtr_t result;
-      Configuration_t q1 (path->outputSize ()),
-                      q2 (path->outputSize ());
 
       while (!finished && projectionError != 0) {
-        t0 = tmpPath->timeRange ().first;
-        t3 = tmpPath->timeRange ().second;
-	value_type u2 = (t3-t0) * rand ()/RAND_MAX;
-	value_type u1 = (t3-t0) * rand ()/RAND_MAX;
-	value_type t1, t2;
+        t[0] = tmpPath->timeRange ().first;
+        t[3] = tmpPath->timeRange ().second;
+	value_type u2 = (t[3]-t[0]) * rand ()/RAND_MAX;
+	value_type u1 = (t[3]-t[0]) * rand ()/RAND_MAX;
 	if (u1 < u2) {
-          t1 = t0 + u1; t2 = t0 + u2;
+          t[1] = t[0] + u1; t[2] = t[0] + u2;
         } else {
-          t1 = t0 + u2; t2 = t0 + u1;
+          t[1] = t[0] + u2; t[2] = t[0] + u1;
         }
-	if (!(*tmpPath) (q1, t1)) {
-          hppDout (error, "Configuration at param " << t1 << " could not be "
-              "projected");
-          projectionError--;
-          continue;
+        bool error = false;
+        for (int i = 1; i < 3; ++i) {
+          if (!(*tmpPath) (q[i], t[i])) {
+            hppDout (error, "Configuration at param "
+                << t[i] << " could not be projected");
+            projectionError--;
+            error = true;
+            break;
+          }
         }
-	if (!(*tmpPath) (q2, t2)) {
-          hppDout (error, "Configuration at param " << t1 << " could not be "
-              "projected");
-          projectionError--;
-          continue;
-        }
+        if (error) continue;
 	// Validate sub parts
 	bool valid [3];
 	PathPtr_t proj [3];
         // Build and projects the path
-	proj [0] = steer (q0, q1);
-	proj [1] = steer (q1, q2);
-	proj [2] = steer (q2, q3);
+        for (int i = 0; i < 3; ++i)
+          proj[i] = steer (q[i], q[i+1]);
         if (!proj[0] && !proj[1] && !proj[2]) {
           hppDout (info, "Enable to create a valid path");
           projectionError--;
@@ -130,27 +128,17 @@ namespace hpp {
 	result = PathVector::create (path->outputSize (),
 				     path->outputDerivativeSize ());
         try {
-          if (valid [0])
-            result->appendPath (proj [0]);
-          else
-            result->concatenate (tmpPath->extract
-				 (make_pair (t0, t1))->
-				 as <PathVector> ());
-          if (valid [1])
-            result->appendPath (proj [1]);
-          else
-            result->concatenate (tmpPath->extract
-				 (make_pair (t1, t2))->
-				 as <PathVector> ());
-          if (valid [2])
-            result->appendPath (proj [2]);
-          else
-            result->concatenate (tmpPath->extract
-				 (make_pair (t2, t3))->
-				 as <PathVector> ());
+          for (int i = 0; i < 3; ++i) {
+            if (valid [i])
+              result->appendPath (proj [i]);
+            else
+              result->concatenate (tmpPath->extract
+                                   (make_pair (t[i], t[i+1]))->
+                                   as <PathVector> ());
+          }
         } catch (const projection_error& e) {
-          hppDout (error, "Caught exception at with time " << t1 << " and " <<
-              t2 << ": " << e.what ());
+          hppDout (error, "Caught exception at with time " << t[1] << " and " <<
+              t[2] << ": " << e.what ());
           projectionError--;
           result = tmpPath;
           continue;
