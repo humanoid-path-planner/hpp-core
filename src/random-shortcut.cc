@@ -107,23 +107,24 @@ namespace hpp {
         }
 	// Validate sub parts
 	bool valid [3];
-	PathPtr_t straight [3];
-	straight [0] = steer (q0, q1);
-	straight [1] = steer (q1, q2);
-	straight [2] = steer (q2, q3);
-        PathPtr_t proj [3];
+	PathPtr_t proj [3];
+        // Build and projects the path
+	proj [0] = steer (q0, q1);
+	proj [1] = steer (q1, q2);
+	proj [2] = steer (q2, q3);
+        if (!proj[0] && !proj[1] && !proj[2]) {
+          hppDout (info, "Enable to create a valid path");
+          projectionError--;
+          continue;
+        }
+        // validate the paths
         for (unsigned i=0; i<3; ++i) {
 	  PathPtr_t validPart;
 	  PathValidationReportPtr_t report;
-          if (!straight [i]) valid[i] = false;
-          else {
-            if (problem().pathProjector()) {
-              valid[i] = problem().pathProjector()->apply(straight[i], proj[i]);
-              if (!valid[i]) continue;
-            } else proj[i] = straight[i];
+          if (!proj [i]) valid[i] = false;
+          else
             valid [i] = problem ().pathValidation ()->validate
               (proj [i], false, validPart, report);
-          }
 	}
 	// Replace valid parts
 	result = PathVector::create (path->outputSize (),
