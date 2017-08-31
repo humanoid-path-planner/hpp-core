@@ -297,8 +297,11 @@ namespace hpp {
       {
         // TODO: add a cache.
         assert (u >= 0 && u <= 1);
-        BasisFunction_t::derivative (order, u, res);
-        res /= powersOfT_(order);
+        if (length() == 0) res.setZero();
+        else {
+          BasisFunction_t::derivative (order, u, res);
+          res /= powersOfT_(order);
+        }
       }
 
       template <int _SplineType, int _Order>
@@ -313,16 +316,19 @@ namespace hpp {
       void Spline<_SplineType, _Order>::squaredNormBasisFunctionIntegral (const size_type order, BasisFunctionIntegralMatrix_t& Ic) const
       {
         // TODO: add a cache.
-        BasisFunction_t::integral (order, Ic);
-        if (order > 0) Ic /= powersOfT_[2 * order - 1];
-        else           Ic *= powersOfT_[1];
+        if (length() == 0) Ic.setZero();
+        else {
+          BasisFunction_t::integral (order, Ic);
+          if (order > 0) Ic /= powersOfT_[2 * order - 1];
+          else           Ic *= powersOfT_[1];
+        }
       }
 
       template <int _SplineType, int _Order>
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
       {
         BasisFunctionVector_t basisFunc;
-        const value_type u = (t - timeRange().first) / length();
+        const value_type u = (length() == 0 ? 0 : (t - timeRange().first) / length());
         basisFunctionDerivative(0, u, basisFunc);
         velocity_.noalias() = parameters_.transpose() * basisFunc;
 
@@ -335,7 +341,7 @@ namespace hpp {
       {
         assert (order > 0);
         BasisFunctionVector_t basisFunc;
-        const value_type u = (t - timeRange().first) / length();
+        const value_type u = (length() == 0 ? 0 : (t - timeRange().first) / length());
         basisFunctionDerivative(order, u, basisFunc);
         res.noalias() = parameters_.transpose() * basisFunc;
       }
@@ -344,7 +350,7 @@ namespace hpp {
       void Spline<_SplineType, _Order>::impl_paramDerivative (vectorOut_t res, const value_type& t) const
       {
         BasisFunctionVector_t basisFunc;
-        const value_type u = (t - timeRange().first) / length();
+        const value_type u = (length() == 0 ? 0 : (t - timeRange().first) / length());
         basisFunctionDerivative(0, u, basisFunc);
         res = basisFunc;
       }

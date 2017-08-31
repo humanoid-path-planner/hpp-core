@@ -206,8 +206,6 @@ namespace hpp {
             base_ (outputSize()),
             parameters_ ((int)NbCoeffs, parameterSize_)
           {
-            if (length() == 0)
-              throw std::logic_error ("Spline paths cannot be of length 0");
             powersOfT_(0) = 1;
             for (size_type i = 1; i < NbPowerOfT; ++i)
               powersOfT_(i) = powersOfT_(i - 1) * length();
