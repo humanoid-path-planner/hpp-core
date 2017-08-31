@@ -280,7 +280,7 @@ namespace hpp {
 	    throw std::runtime_error
 	      ("Joints do not belong to the same device.");
 	  }
-	  if (joint_a_ == joint_b_) {
+	  if (joint_a_->index() == joint_b_->index()) {
 	    throw std::runtime_error ("Bodies should be different");
 	  }
 	  if (tolerance < 0) {

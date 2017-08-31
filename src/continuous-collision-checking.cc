@@ -234,6 +234,9 @@ namespace hpp {
         JointIndexPair_t jp (gmodel.geometryObjects[cp.first ].parentJoint,
                              gmodel.geometryObjects[cp.second].parentJoint);
 
+        // Ignore pairs of bodies that are in the same joint.
+        if (jp.first == jp.second) continue;
+
         BodyPairCollisionMap_t::iterator _bp = bodyPairMap.find(jp);
 
         if (_bp == bodyPairMap.end()) {
