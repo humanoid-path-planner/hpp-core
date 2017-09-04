@@ -814,9 +814,11 @@ namespace hpp {
         SquaredLength<Spline, 1> cost (splines, rDof, rDof);
 
         // 5
+        bool feasible;
         { HPP_SCOPE_TIMECOUNTER(SGB_constraintDecomposition);
-          constraint.decompose (true); // true = check that the constraint is feasible
+          feasible = constraint.decompose (true); // true = check that the constraint is feasible
         }
+        if (!feasible) throw std::invalid_argument("Constraints are not feasible");
 
         LinearConstraint collisionReduced (constraint.PK.rows(), 0);
         constraint.reduceConstraint(collision, collisionReduced);

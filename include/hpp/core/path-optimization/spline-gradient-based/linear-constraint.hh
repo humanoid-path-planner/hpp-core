@@ -46,13 +46,13 @@ namespace hpp {
 
         /// Compute one solution and a base of the kernel of matrix J.
         /// rank is also updated.
-        void decompose (bool check = false)
+        bool decompose (bool check = false)
         {
           // HPP_START_TIMECOUNTER(SGB_constraintDecomposition);
           if (J.rows() == 0) { // No constraint
             PK = matrix_t::Identity (J.cols(), J.cols());
             xStar = vector_t::Zero (PK.rows());
-            return;
+            return true;
           }
 
 #ifdef USE_SVD
@@ -91,8 +91,10 @@ namespace hpp {
             if (!error.isZero()) {
               hppDout (warning, "Constraint not feasible: "
                   << error.norm() << '\n' << error.transpose());
+              return false;
             }
           }
+          return true;
         }
 
         /// Compute rank of the constraint using a LU decomposition
@@ -144,7 +146,10 @@ namespace hpp {
 
         bool isSatisfied (const vector_t& x)
         {
-          return (J * x - b).isZero();
+          vector_t err (J * x - b);
+          if (err.isZero()) return true;
+          hppDout (error, "constraints could not be satisfied: " << err.norm() << '\n' << err);
+          return false;
         }
 
         void addRows (const std::size_t& nbRows)
