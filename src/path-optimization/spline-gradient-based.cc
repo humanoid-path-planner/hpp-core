@@ -1096,11 +1096,11 @@ namespace hpp {
 
       // ----------- Instanciate -------------------------------------------- //
 
-      template class SplineGradientBased<path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
-      template class SplineGradientBased<path::CanonicalPolynomeBasis, 2>;
-      template class SplineGradientBased<path::CanonicalPolynomeBasis, 3>;
+      // template class SplineGradientBased<path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
+      // template class SplineGradientBased<path::CanonicalPolynomeBasis, 2>;
+      // template class SplineGradientBased<path::CanonicalPolynomeBasis, 3>;
       template class SplineGradientBased<path::BernsteinBasis, 1>; // equivalent to StraightPath
-      template class SplineGradientBased<path::BernsteinBasis, 2>;
+      // template class SplineGradientBased<path::BernsteinBasis, 2>;
       template class SplineGradientBased<path::BernsteinBasis, 3>;
     } // namespace pathOptimization
   }  // namespace core
