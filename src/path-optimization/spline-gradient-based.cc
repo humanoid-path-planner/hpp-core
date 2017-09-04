@@ -17,7 +17,7 @@
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/spline-gradient-based/linear-constraint.hh>
 
-
+#include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
 
 #include <hpp/pinocchio/device.hh>
@@ -27,6 +27,7 @@
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 
@@ -353,6 +354,26 @@ namespace hpp {
 
       template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::appendEquivalentSpline
+      (const InterpolatedPathPtr_t& path, Splines_t& splines) const
+      {
+        if (path->interpolationPoints().size() > 2) {
+          HPP_THROW (std::logic_error,
+              "Projected path with more than 2 IPs are not supported. "
+              << path->interpolationPoints().size() << ").");
+        }
+        PathPtr_t s =
+          steeringMethod_->impl_compute (path->initial(), path->end());
+        if (path->constraints()) {
+          splines.push_back(
+              HPP_DYNAMIC_PTR_CAST(Spline, s->copy (path->constraints()))
+              );
+        } else {
+          splines.push_back(HPP_DYNAMIC_PTR_CAST(Spline, s));
+        }
+      }
+
+      template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::appendEquivalentSpline
       (const PathVectorPtr_t& path, Splines_t& splines) const
       {
         for (std::size_t i = 0; i < path->numberPaths(); ++i)
@@ -360,9 +381,11 @@ namespace hpp {
           PathPtr_t p = path->pathAtRank(i);
           StraightPathPtr_t straight (HPP_DYNAMIC_PTR_CAST(StraightPath, p));
           PathVectorPtr_t pvect      (HPP_DYNAMIC_PTR_CAST(PathVector, p));
+          InterpolatedPathPtr_t intp (HPP_DYNAMIC_PTR_CAST(InterpolatedPath, p));
           SplinePtr_t spline         (HPP_DYNAMIC_PTR_CAST(Spline, p));
           if (straight   ) appendEquivalentSpline(straight, splines);
           else if (pvect ) appendEquivalentSpline(pvect   , splines);
+          else if (intp  ) appendEquivalentSpline(intp    , splines);
           else if (spline) splines.push_back(HPP_STATIC_PTR_CAST(Spline, spline->copy()));
           else // if TODO check if path is another type of spline.
             throw std::logic_error("Unknown type of path");
