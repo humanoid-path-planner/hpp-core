@@ -138,7 +138,6 @@ namespace hpp {
 	   itn != roadmap ()->goalNodes ().end (); ++itn) {
 	ConfigurationPtr_t q1 ((initNode)->configuration ());
 	ConfigurationPtr_t q2 ((*itn)->configuration ());
-	assert (*q1 != *q2);
 	path = (*sm) (*q1, *q2);
         if (!path) continue;
         if (pathProjector) {
