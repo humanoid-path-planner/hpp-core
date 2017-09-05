@@ -4,28 +4,22 @@
 
     addToSet (set):
       set.push_back (self)
-    addLockedDof (lockedDof):
+    addLockedJoint (lockedJoint):
       pass
 
 
   ConfigProjector                               ConstraintSet
 
-    addLockedDof (ld):                           addToSet (set):
-      lockedDofs_.push_back (ld)                    for c in constraints_:
+    add (LockedJoint ld):                         addToSet (set):
+      lockedJoints_.push_back (ld)                  for c in constraints_:
                                                       c.addToSet (set)
     addToSet (set):       
-      if set.configProjector_:                   addLockedDof (ld):
-        throw                                      for c in constraints_:
-      if set.lockedDof_:                             c.addLockedDof (ld)
-        throw
+      if set.configProjector_:                    addConstraint (c):
+        throw                                       c.addToSet (self)
+      Constraint.addToSet (set)
       set.removeFirstElement ()
-      set.configProjector_ = self                addConstraint (c):
-      Constraint::addToSet (set)                   c.addToSet (self)
+      set.configProjector_ = self                
+      Constraint::addToSet (set)                 
 
 
-                             LockedDof
-
-                               addToSet (set):
-                                 Constraint::addToSet (self)
-                                 set.lockedDof_ = true
-                                 set.addLockedDof (self)
+                             LockedJoint
