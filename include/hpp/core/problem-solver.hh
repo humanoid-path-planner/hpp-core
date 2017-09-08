@@ -67,10 +67,12 @@ namespace hpp {
                              PathProjectorBuilder_t,
                              ConfigurationShooterBuilder_t,
                              NumericalConstraintPtr_t,
+                             LockedJointPtr_t,
                              DistanceBuilder_t,
                              SteeringMethodBuilder_t,
                              AffordanceObjects_t,
-                             AffordanceConfig_t > >
+                             AffordanceConfig_t,
+                             JointAndShapes_t> >
     {
     public:
 
