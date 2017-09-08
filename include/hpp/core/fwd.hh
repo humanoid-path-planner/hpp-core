@@ -300,6 +300,10 @@ namespace hpp {
       typedef boost::shared_ptr <GoalConfigurations> GoalConfigurationsPtr_t;
       typedef boost::shared_ptr <TaskTarget> TaskTargetPtr_t;
     } // namespace problemTarget
+
+    typedef std::vector<core::vector3_t> Shape_t;
+    typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
+    typedef std::list <JointAndShape_t> JointAndShapes_t;
   } // namespace core
 } // namespace hpp
 
