@@ -284,7 +284,10 @@ namespace hpp {
       void addConstraint (const ConstraintPtr_t& constraint);
 
       /// Add a LockedJoint
-      void addLockedJoint (const LockedJointPtr_t& lockedJoint);
+      /// \deprecated use createLockedJoint and addLockedJointToConfigProjector
+      ///             instead
+      void addLockedJoint (const LockedJointPtr_t& lockedJoint)
+        HPP_CORE_DEPRECATED;
 
       /// Get constraint set
       const ConstraintSetPtr_t& constraints () const
@@ -317,14 +320,23 @@ namespace hpp {
         return it->second;
       }
 
-      /// Add differential function to the config projector
-      /// \param constraintName Name given to config projector if created by
+      /// Add numerical constraint to the config projector
+      /// \param configProjName Name given to config projector if created by
       ///        this method.
-      /// \param functionName name of the function as stored in internal map.
+      /// \param  constraintName name of the function as stored in internal map.
       /// Build the config projector if not yet constructed.
-      virtual void addFunctionToConfigProjector
-	(const std::string& constraintName, const std::string& functionName,
+      virtual void addNumericalConstraintToConfigProjector
+	(const std::string& configProjName, const std::string& constraintName,
          const std::size_t priority = 0);
+
+      /// Add locked joint to the config projector
+      /// \param configProjName Name given to config projector if created by
+      ///        this method.
+      /// \param lockedJointName name of the locked joint as stored in internal
+      ///        map.
+      /// Build the config projector if not yet constructed.
+      virtual void addLockedJointToConfigProjector
+	(const std::string& configProjName, const std::string& lockedJointName);
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
