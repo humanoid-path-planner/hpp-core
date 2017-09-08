@@ -468,15 +468,19 @@ namespace hpp {
         const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
         double x1 = 0;
         double x2 = 0;
-        if(a!= 0)
+        if(fabs(a)>std::numeric_limits<double>::epsilon()*100.)
           x1 = q/a;
-        else
+        else{
           x1 = sgn(p2_1)*aMax_[index];
-        if(q!=0)
+          hppDout(notice,"a == 0, take x1 = aMax");
+        }
+        if(fabs(q)>std::numeric_limits<double>::epsilon()*100.)
           x2 = c/q;
-        else
+        else{
           x2 = sgn(p2_1)*aMax_[index];
-
+          hppDout(notice,"q == 0, take x1 = aMax");
+        }
+        hppDout(notice,"epsilon = "<<std::numeric_limits<double>::epsilon()*100.);
 
         hppDout(notice,"a = "<<a<<" ; b = "<<b<<" ; c = "<<c<<" ; q = "<<q);
         hppDout(notice,"x1 = "<<x1<<" ; x2 = "<<x2);
@@ -495,8 +499,12 @@ namespace hpp {
         }else{ // three segment trajectory
           hppDout(notice,"Trajectory with 3 segments");
           // adjust acceleration :
-          if(q!=0) // otherwise this mean that the solution have only a constant velocity segment, and the following equation will lead to a NaN because (*vLim*T- p2_1) == 0
+          if(fabs(q)>std::numeric_limits<double>::epsilon()*100.) // otherwise this mean that the solution have only a constant velocity segment, and the following equation will lead to a NaN because (*vLim*T- p2_1) == 0
             *a1 = ((*vLim - v1)*(*vLim - v1) + (*vLim - v2)*(*vLim - v2))/(2*(*vLim*T- p2_1));
+          else{
+            *a1 =sgn(p2_1)*aMax_[index];
+            hppDout(notice,"q == 0, take x1 = aMax");
+          }
 
           a2 = -(*a1);
           // compute new time intervals :
