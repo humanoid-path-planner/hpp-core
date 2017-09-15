@@ -94,8 +94,8 @@ namespace hpp {
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       collisionObstacles_ (), distanceObstacles_ (), obstacleMap_ (),
       errorThreshold_ (1e-4), maxIterProjection_ (20),
-      maxIterPathPlanning_ (std::numeric_limits
-			    <unsigned long int>::infinity ()),
+      maxIterPathPlanning_ (std::numeric_limits<unsigned long int>::infinity ()),
+      timeOutPathPlanning_(std::numeric_limits<double>::infinity()),
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -483,6 +483,7 @@ namespace hpp {
         get <PathPlannerBuilder_t> (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       pathPlanner_->maxIterations (maxIterPathPlanning_);
+      pathPlanner_->timeOut(timeOutPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();
       /// create Path projector
       initPathProjector ();

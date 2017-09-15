@@ -434,19 +434,27 @@ namespace hpp {
 	return maxIterProjection_;
       }
 
-      /// Set maximal number of iterations in config projector
+      /// Set maximal number of iterations in path planning
       void maxIterPathPlanning (size_type iterations)
       {
 	maxIterPathPlanning_ = iterations;
-	if (constraints_ && constraints_->configProjector ()) {
-	  constraints_->configProjector ()->maxIterations (iterations);
-	}
       }
-      /// Get maximal number of iterations in config projector
+      /// Get maximal number of iterations in path planning
       size_type maxIterPathPlanning () const
       {
 	return maxIterPathPlanning_;
       }
+
+      /// set time out for the path planning ( in seconds)
+      void setTimeOutPathPlanning(double timeOut){
+        timeOutPathPlanning_ = timeOut;
+      }
+
+      /// set time out for the path planning ( in seconds)
+      double getTimeOutPathPlanning(){
+        return timeOutPathPlanning_;
+      }
+
 
       /// Set error threshold in config projector
       void errorThreshold (const value_type& threshold)
@@ -693,6 +701,8 @@ namespace hpp {
       size_type maxIterProjection_;
       /// Maximal number of iterations for path planner
       unsigned long int maxIterPathPlanning_;
+      /// time out for the path planning ( in seconds)
+      double timeOutPathPlanning_;
       /// Map of passive dofs
       SizeIntervalsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation
