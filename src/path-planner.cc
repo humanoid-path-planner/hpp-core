@@ -29,6 +29,7 @@
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/steering-method.hh>
+#include "astar.hh"
 #include <hpp/util/timer.hh>
 
 namespace hpp {
@@ -38,7 +39,8 @@ namespace hpp {
       problem_ (problem), roadmap_ (Roadmap::create (problem.distance (),
 						     problem.robot())),
       interrupt_ (false),
-      maxIterations_ (std::numeric_limits <unsigned long int>::max ())
+      maxIterations_ (std::numeric_limits <unsigned long int>::infinity ()),
+      timeOut_ (std::numeric_limits <double>::infinity ())
     {
     }
 
@@ -46,7 +48,8 @@ namespace hpp {
 			      const RoadmapPtr_t& roadmap) :
       problem_ (problem), roadmap_ (roadmap),
       interrupt_ (false),
-      maxIterations_ (std::numeric_limits <unsigned long int>::max ())
+      maxIterations_ (std::numeric_limits <unsigned long int>::infinity ()),
+      timeOut_ (std::numeric_limits <double>::infinity ())
     {
     }
 
@@ -85,6 +88,7 @@ namespace hpp {
       interrupt_ = false;
       bool solved = false;
       unsigned long int nIter (0);
+      boost::posix_time::ptime timeStart(boost::posix_time::microsec_clock::universal_time());
       startSolve ();
       tryDirectPath ();
       solved = problem_.target()->reached (roadmap());
@@ -97,7 +101,11 @@ namespace hpp {
     if (maxIterations_ !=  std::numeric_limits <unsigned long int>::infinity () && nIter >= maxIterations_) {
 	  oss << "Maximal number of iterations reached: " << maxIterations_;
 	  throw std::runtime_error (oss.str ().c_str ());
-	}
+    }
+    if(((boost::posix_time::microsec_clock::universal_time() - timeStart).total_milliseconds()) > timeOut_*1000.){
+      oss << "time out reached : " << timeOut_<<" s";
+      throw std::runtime_error (oss.str ().c_str ());
+    }
     hppStartBenchmark(ONE_STEP);
         problem_.target ()->oneStep ();
 	oneStep ();

@@ -182,6 +182,8 @@ namespace hpp {
       errorThreshold_ (1e-4), maxIterProjection_ (20),
       maxIterPathPlanning_ (std::numeric_limits
 			    <unsigned long int>::max ()),
+      timeOutPathPlanning_(std::numeric_limits<double>::infinity()),
+      
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {

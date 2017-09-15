@@ -317,6 +317,17 @@ namespace hpp {
 	return maxIterPathPlanning_;
       }
 
+      /// set time out for the path planning ( in seconds)
+      void setTimeOutPathPlanning(double timeOut){
+        timeOutPathPlanning_ = timeOut;
+      }
+
+      /// set time out for the path planning ( in seconds)
+      double getTimeOutPathPlanning(){
+        return timeOutPathPlanning_;
+      }
+
+
       /// Set error threshold in config projector
       void errorThreshold (const value_type& threshold);
       /// Get errorimal number of threshold in config projector
