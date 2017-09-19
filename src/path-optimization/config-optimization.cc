@@ -86,7 +86,6 @@ namespace hpp {
 
         value_type length = pathLength (unpacked, problem().distance());
         hppDout (info, "ConfigOptimization: length " << length);
-        value_type alpha = parameters.alphaInit;
         // Loop over pass index.
         for (std::size_t ipass = 0; ipass < parameters.numberOfPass; ++ipass) {
           PathVectorPtr_t optedF = PathVector::create (path->outputSize(),
@@ -96,11 +95,11 @@ namespace hpp {
           bool didChangeF, didChangeB;
           // Forward pass: from path 0 to rIndex
           bool successF = pass <true> (configs, newConfigs, optimizers,
-              rIndex  , alpha, optedF, didChangeF);
+              rIndex  , optedF, didChangeF);
           if (successF) {
             // Backward pass from P-1 ro rIndex + 1
             bool successB = pass <false> (configs, newConfigs, optimizers,
-                rIndex + 1, alpha, optedB, didChangeB);
+                rIndex + 1, optedB, didChangeB);
             if (successB && (didChangeF || didChangeB)) {
               // Try to link the two passes (the steering method may not be
               // symmetric so try in both directions)
@@ -123,7 +122,7 @@ namespace hpp {
                   unpacked = opted;
                   length = optedLength;
                   hppDout (info, "ConfigOptimization: accepted length "
-                      << length << ", alpha = " << alpha);
+                      << length);
                   /// Update configs
                   configs = newConfigs;
                   continue;
@@ -135,9 +134,7 @@ namespace hpp {
             }
           }
           /// Failure
-          hppDout (info, "ConfigOptimization: pass " << ipass << " failed"
-                      << ", alpha = " << alpha);
-          alpha /= 2.;
+          hppDout (info, "ConfigOptimization: pass " << ipass << " failed");
         }
 
         return opted;
@@ -178,10 +175,9 @@ namespace hpp {
       }
 
       bool ConfigOptimization::Optimizer::optimize (ConfigurationOut_t q,
-          const std::size_t numIter,
-          const value_type alpha) const
+          const std::size_t numIter) const
       {
-        return proj->optimize (q, numIter, alpha);
+        return proj->optimize (q, numIter);
       }
 
       ConfigProjectorPtr_t ConfigOptimizationTraits::getConfigProjector
@@ -277,7 +273,7 @@ namespace hpp {
       bool ConfigOptimization::pass (
           vectorIn_t configs, vectorOut_t newConfigs,
           const Optimizers_t& optimizers, const std::size_t& index,
-          const value_type& alpha, PathVectorPtr_t opted, bool& didChange
+          PathVectorPtr_t opted, bool& didChange
           ) const
       {
         std::list <PathPtr_t> paths;
@@ -292,7 +288,7 @@ namespace hpp {
           /// Optimize
           bool isOpted = optimizers[i-1].optimize (
               newConfigs.segment (i * N, N),
-              parameters.numberOfIterations, alpha);
+              parameters.numberOfIterations);
           PathPtr_t current;
           if (isOpted)
             current = steer (newConfigs.segment (iN*N, N),

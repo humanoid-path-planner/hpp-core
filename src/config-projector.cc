@@ -288,17 +288,18 @@ namespace hpp {
     bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
         vectorOut_t dq, const value_type& alpha)
     {
-      // TODO dq = minimalSolver_.dq_; // Not accessible yet.
-      return solverOneStep (configuration);
+      bool ret = solverOneStep (configuration);
+      dq = minimalSolver_.lastStep ();
+      return ret;
     }
 
     bool ConfigProjector::optimize (ConfigurationOut_t configuration,
-        std::size_t maxIter, const value_type alpha)
+        std::size_t maxIter)
     {
       if (!lastIsOptional()) return true;
       if (!isSatisfied (configuration)) return false;
       const size_type maxIterSave = maxIterations();
-      if (maxIter == 0) maxIterations(maxIter);
+      if (maxIter != 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
       lastIsOptional(false);
       HybridSolver::Status status = solverSolve (configuration);
