@@ -31,8 +31,6 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
-#include <hpp/constraints/svd.hh>
-#include <hpp/constraints/macros.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/active-set-differentiable-function.hh>
 
