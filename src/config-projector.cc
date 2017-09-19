@@ -265,12 +265,17 @@ namespace hpp {
       switch (status) {
         case HybridSolver::ERROR_INCREASED:
           statistics_.addFailure (REASON_ERROR_INCREASED);
-          statistics_.isLowRatio (true);
+          // statistics_.isLowRatio (true);
           return false;
           break;
         case HybridSolver::MAX_ITERATION_REACHED:
           statistics_.addFailure (REASON_MAX_ITER);
-          statistics_.isLowRatio (true);
+          // statistics_.isLowRatio (true);
+          return false;
+          break;
+        case HybridSolver::INFEASIBLE:
+          statistics_.addFailure (REASON_INFEASIBLE);
+          // statistics_.isLowRatio (true);
           return false;
           break;
         case HybridSolver::SUCCESS:
