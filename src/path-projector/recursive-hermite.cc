@@ -20,6 +20,7 @@
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/hermite-path.hh>
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/steering-method/hermite.hh>
 
@@ -61,7 +62,8 @@ namespace hpp {
         // beta should be between 0.5 and 1.
         if (beta_ < 0.5 || 1 < beta_)
           throw std::invalid_argument ("Beta should be between 0.5 and 1");
-        assert (HPP_DYNAMIC_PTR_CAST(hpp::core::steeringMethod::Hermite, steeringMethod));
+        if (!HPP_DYNAMIC_PTR_CAST(hpp::core::steeringMethod::Hermite, steeringMethod))
+          throw std::invalid_argument ("Steering method should be of type Hermite");
       }
 
       bool RecursiveHermite::impl_apply (const PathPtr_t& path,
@@ -124,18 +126,48 @@ namespace hpp {
 
         const value_type thr = 2 * cp->errorThreshold() / M_;
 
+        std::vector<HermitePathPtr_t> ps;
         HermitePathPtr_t p = HPP_DYNAMIC_PTR_CAST (HermitePath, path);
         if (!p) {
-          p = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (path->initial(), path->end()));
-        }
-        p->computeHermiteLength();
-        if (p->hermiteLength() < thr) {
-          proj = path;
-          return true;
+          InterpolatedPathPtr_t ip = HPP_DYNAMIC_PTR_CAST(InterpolatedPath, path);
+          if (ip) {
+            typedef InterpolatedPath::InterpolationPoints_t IPs_t;
+            const IPs_t& ips = ip->interpolationPoints();
+            ps.reserve(ips.size() - 1);
+            IPs_t::const_iterator _ip1 = ips.begin(); std::advance (_ip1, 1);
+            for (IPs_t::const_iterator _ip0 = ips.begin();
+                _ip1 != ips.end(); ++_ip0) {
+              ps.push_back (HPP_DYNAMIC_PTR_CAST(HermitePath,
+                    steer (_ip0->second, _ip1->second)));
+              ++_ip1;
+            }
+          } else {
+            p = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (path->initial(), path->end()));
+            ps.push_back (p);
+          }
+        } else {
+          ps.push_back (p);
         }
         PathVectorPtr_t res = PathVector::create (path->outputSize(),
                                                   path->outputDerivativeSize());
-        bool success = recurse (p, res, thr);
+        bool success = true;
+        for (std::size_t i = 0; i < ps.size(); ++i) {
+          p = ps[i];
+          p->computeHermiteLength();
+          if (p->hermiteLength() < thr) {
+            res->appendPath (p);
+            continue;
+          }
+          PathVectorPtr_t r = PathVector::create (path->outputSize(),
+                                                  path->outputDerivativeSize());
+          std::cout << p->hermiteLength() 
+            << " / " << thr
+            << " : " << 
+            path->constraints()->name() << std::endl;
+          success = recurse (p, r, thr);
+          res->concatenate (r);
+          if (!success) break;
+        }
 #if HPP_ENABLE_BENCHMARK
         value_type min = std::numeric_limits<value_type>::max(), max = 0, totalLength = 0;
         const size_t nbPaths = res->numberPaths();
@@ -176,13 +208,16 @@ namespace hpp {
           const value_type& acceptThr) const
       {
         if (path->hermiteLength() < acceptThr) {
-          proj->appendPath (path);
+          proj->appendPath (path->copy (ConstraintSetPtr_t()));
           return true;
         } else {
           const value_type t = 0.5; //path->timeRange().first + path->length() / 2;
           bool success;
           const Configuration_t q1((*path) (t, success));
-          if (!success) return false;
+          if (!success) {
+            hppDout (info, "RHP stopped because it could not project a configuration");
+            return false;
+          }
           const Configuration_t q0 = path->initial ();
           const Configuration_t q2 = path->end ();
           // Velocities must be divided by two because each half is rescale
@@ -190,11 +225,13 @@ namespace hpp {
           const vector_t vHalf = path->velocity (t) / 2;
 
           HermitePathPtr_t left = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (q0, q1));
+          if (!left) throw std::runtime_error ("Not an HermitePath");
           left->v0 (path->v0() / 2);
           left->v1 (vHalf);
           left->computeHermiteLength();
 
           HermitePathPtr_t right = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (q1, q2));
+          if (!right) throw std::runtime_error ("Not an HermitePath");
           right->v0 (vHalf);
           right->v1 (path->v1() / 2);
           right->computeHermiteLength();
@@ -206,7 +243,7 @@ namespace hpp {
           // This is the inverse of the condition in the RSS paper. Is there a typo in the paper ?
           // if (std::max (left->hermiteLength(), right->hermiteLength()) > beta * path->hermiteLength()) {
           if (stop) {
-            hppDout (info, "RHP stopped: " << path->hermiteLength() << " -> " <<
+            hppDout (info, "RHP stopped: " << path->hermiteLength() << " * " << beta_ << " -> " <<
                 left->hermiteLength() << " / " << right->hermiteLength());
           }
           if (lStop || !recurse (left , proj, acceptThr)) return false;
