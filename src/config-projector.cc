@@ -80,6 +80,7 @@ namespace hpp {
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
+    HPP_DEFINE_REASON_FAILURE (REASON_INFEASIBLE, "Problem infeasible");
 
     ConfigProjectorPtr_t ConfigProjector::create (const DevicePtr_t& robot,
 						  const std::string& name,
@@ -205,6 +206,7 @@ namespace hpp {
         minimalSolver_.explicitSolverHasChanged();
       }
       fullSolver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
+      hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
 
       functions_.push_back (nm);
       // rhsReducedSize_ += nm->rhsSize ();
@@ -265,17 +267,14 @@ namespace hpp {
       switch (status) {
         case HybridSolver::ERROR_INCREASED:
           statistics_.addFailure (REASON_ERROR_INCREASED);
-          // statistics_.isLowRatio (true);
           return false;
           break;
         case HybridSolver::MAX_ITERATION_REACHED:
           statistics_.addFailure (REASON_MAX_ITER);
-          // statistics_.isLowRatio (true);
           return false;
           break;
         case HybridSolver::INFEASIBLE:
           statistics_.addFailure (REASON_INFEASIBLE);
-          // statistics_.isLowRatio (true);
           return false;
           break;
         case HybridSolver::SUCCESS:
@@ -378,6 +377,7 @@ namespace hpp {
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
       hppDout (info, "Intervals: " << minimalSolver_.explicitSolver().outDers());
+      hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
       if (!lockedJoint->comparisonType ()->constantRightHandSide ())
         rhsReducedSize_ += lockedJoint->rhsSize ();
     }
