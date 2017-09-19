@@ -435,8 +435,8 @@ namespace hpp {
 	constraints_ = ConstraintSet::create (robot_, "Default constraint set");
     }
 
-    void ProblemSolver::addFunctionToConfigProjector
-    (const std::string& constraintName, const std::string& functionName,
+    void ProblemSolver::addNumericalConstraintToConfigProjector
+    (const std::string& configProjName, const std::string& constraintName,
      const std::size_t priority)
     {
       if (!robot_) {
@@ -445,15 +445,36 @@ namespace hpp {
       ConfigProjectorPtr_t  configProjector = constraints_->configProjector ();
       if (!configProjector) {
 	configProjector = ConfigProjector::create
-	  (robot_, constraintName, errorThreshold_, maxIterProjection_);
+	  (robot_, configProjName, errorThreshold_, maxIterProjection_);
 	constraints_->addConstraint (configProjector);
       }
-      if (!has <NumericalConstraintPtr_t> (functionName)) {
-        std::stringstream ss; ss << "Function " << functionName << " does not exists";
+      if (!has <NumericalConstraintPtr_t> (constraintName)) {
+        std::stringstream ss; ss << "Function " << constraintName <<
+                                " does not exists";
         throw std::invalid_argument (ss.str());
       }
-      configProjector->add (get<NumericalConstraintPtr_t> (functionName),
+      configProjector->add (get<NumericalConstraintPtr_t> (constraintName),
 			    SizeIntervals_t (0), priority);
+    }
+
+    void ProblemSolver::addLockedJointToConfigProjector
+    (const std::string& configProjName, const std::string& lockedJointName)
+    {
+      if (!robot_) {
+	hppDout (error, "Cannot add constraint while robot is not set");
+      }
+      ConfigProjectorPtr_t  configProjector = constraints_->configProjector ();
+      if (!configProjector) {
+	configProjector = ConfigProjector::create
+	  (robot_, configProjName, errorThreshold_, maxIterProjection_);
+	constraints_->addConstraint (configProjector);
+      }
+      if (!has <LockedJointPtr_t> (lockedJointName)) {
+        std::stringstream ss; ss << "Function " << lockedJointName <<
+                                " does not exists";
+        throw std::invalid_argument (ss.str());
+      }
+      configProjector->add (get<LockedJointPtr_t> (lockedJointName));
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
