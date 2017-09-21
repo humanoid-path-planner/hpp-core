@@ -22,7 +22,7 @@
 # include <hpp/core/problem.hh>
 # include <hpp/core/steering-method/fwd.hh>
 # include <hpp/core/steering-method.hh>
-# include <hpp/core/hermite-path.hh>
+# include <hpp/core/path/hermite.hh>
 # include <hpp/core/weighed-distance.hh>
 
 namespace hpp {
@@ -31,7 +31,7 @@ namespace hpp {
       /// \addtogroup steering_method
       /// \{
 
-      /// Steering method that creates HermitePath instances
+      /// Steering method that creates path::Hermite instances
       ///
       class HPP_CORE_DLLAPI Hermite : public SteeringMethod
       {
@@ -64,11 +64,8 @@ namespace hpp {
           virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
               ConfigurationIn_t q2) const
           {
-            HermitePathPtr_t path = HermitePath::create
+            path::HermitePtr_t path = path::Hermite::create
               (problem_.robot(), q1, q2, constraints ());
-            const vector_t v0 = path->v0();
-            const vector_t v1 = path->v1();
-            const vector_t linVel = path->linearVelocity();
 
             path->computeHermiteLength();
             return path;

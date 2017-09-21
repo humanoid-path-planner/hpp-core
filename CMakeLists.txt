@@ -100,6 +100,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-validation-report.hh
   include/hpp/core/path-vector.hh
   include/hpp/core/path/spline.hh
+  include/hpp/core/path/hermite.hh
   include/hpp/core/reeds-shepp-path.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
@@ -133,7 +134,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem-target/goal-configurations.hh
   include/hpp/core/problem-target/task-target.hh
   include/hpp/core/subchain-path.hh
-  include/hpp/core/hermite-path.hh
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-pinocchio >= 4")

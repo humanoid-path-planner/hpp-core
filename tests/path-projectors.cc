@@ -46,7 +46,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/interpolated-path.hh>
-#include <hpp/core/hermite-path.hh>
+#include <hpp/core/path/hermite.hh>
 
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/steering-method/hermite.hh>

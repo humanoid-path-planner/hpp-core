@@ -19,7 +19,7 @@
 #include <hpp/util/timer.hh>
 
 #include <hpp/core/path-vector.hh>
-#include <hpp/core/hermite-path.hh>
+#include <hpp/core/path/hermite.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/steering-method/hermite.hh>
@@ -126,8 +126,8 @@ namespace hpp {
 
         const value_type thr = 2 * cp->errorThreshold() / M_;
 
-        std::vector<HermitePathPtr_t> ps;
-        HermitePathPtr_t p = HPP_DYNAMIC_PTR_CAST (HermitePath, path);
+        std::vector<HermitePtr_t> ps;
+        HermitePtr_t p = HPP_DYNAMIC_PTR_CAST (Hermite, path);
         if (!p) {
           InterpolatedPathPtr_t ip = HPP_DYNAMIC_PTR_CAST(InterpolatedPath, path);
           if (ip) {
@@ -137,12 +137,12 @@ namespace hpp {
             IPs_t::const_iterator _ip1 = ips.begin(); std::advance (_ip1, 1);
             for (IPs_t::const_iterator _ip0 = ips.begin();
                 _ip1 != ips.end(); ++_ip0) {
-              ps.push_back (HPP_DYNAMIC_PTR_CAST(HermitePath,
+              ps.push_back (HPP_DYNAMIC_PTR_CAST(Hermite,
                     steer (_ip0->second, _ip1->second)));
               ++_ip1;
             }
           } else {
-            p = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (path->initial(), path->end()));
+            p = HPP_DYNAMIC_PTR_CAST(Hermite, steer (path->initial(), path->end()));
             ps.push_back (p);
           }
         } else {
@@ -181,7 +181,7 @@ namespace hpp {
         hppBenchmark("Hermite path: "
             << nbPaths
             << ", [ " << min
-            <<   ", " << (nbPaths == 0 ? 0 : totalLength / nbPaths)
+            <<   ", " << (nbPaths == 0 ? 0 : totalLength / (value_type)nbPaths)
             <<   ", " << max << "]"
             );
 #endif
@@ -204,7 +204,7 @@ namespace hpp {
         return false;
       }
 
-      bool RecursiveHermite::recurse (const HermitePathPtr_t& path, PathVectorPtr_t& proj,
+      bool RecursiveHermite::recurse (const HermitePtr_t& path, PathVectorPtr_t& proj,
           const value_type& acceptThr) const
       {
         if (path->hermiteLength() < acceptThr) {
@@ -224,14 +224,14 @@ namespace hpp {
           // from [0, 0.5] to [0, 1]
           const vector_t vHalf = path->velocity (t) / 2;
 
-          HermitePathPtr_t left = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (q0, q1));
-          if (!left) throw std::runtime_error ("Not an HermitePath");
+          HermitePtr_t left = HPP_DYNAMIC_PTR_CAST(Hermite, steer (q0, q1));
+          if (!left) throw std::runtime_error ("Not an path::Hermite");
           left->v0 (path->v0() / 2);
           left->v1 (vHalf);
           left->computeHermiteLength();
 
-          HermitePathPtr_t right = HPP_DYNAMIC_PTR_CAST(HermitePath, steer (q1, q2));
-          if (!right) throw std::runtime_error ("Not an HermitePath");
+          HermitePtr_t right = HPP_DYNAMIC_PTR_CAST(Hermite, steer (q1, q2));
+          if (!right) throw std::runtime_error ("Not an path::Hermite");
           right->v0 (vHalf);
           right->v1 (path->v1() / 2);
           right->computeHermiteLength();
