@@ -28,81 +28,38 @@
 namespace hpp {
   namespace core {
     namespace path {
-      namespace {
-        typedef Eigen::Matrix<value_type, 3, 3> matrix3_t;
-        typedef Eigen::Matrix<value_type, 3, 1> vector3_t;
-        typedef Eigen::DiagonalMatrix<value_type, 3> DiagonalMatrix_t;
-        const Eigen::Matrix<value_type, 3, 3> HermiteCoeffs =
-          (matrix3_t() << 0,  3, -2,
-                          1, -2,  1,
-                          0, -1,  1).finished();
-
-        vector3_t powsOfT (const value_type& t) {
-          vector3_t pows;
-          pows(0) = t;
-          pows(1) = pows(0) * t;
-          pows(2) = pows(1) * t;
-          return pows;
-        }
-
-        vector3_t powsOfTprime (const value_type& t) {
-          vector3_t pows;
-          pows(0) = 1;
-          pows(1) = 2 * t;
-          pows(2) = 3 * t * t;
-          return pows;
-        }
-      }
-
-      Hermite::Hermite (const DevicePtr_t& device,
-                        ConfigurationIn_t init,
-                        ConfigurationIn_t end) :
-        parent_t (interval_t (0, 1), device->configSize (),
-                  device->numberDof ()),
-        device_ (device),
-        initial_ (init), end_ (end),
-        vs_ (device->numberDof(), 3),
-        hermiteLength_ (-1)
-      {
-        assert (init.size() == device_->configSize ());
-        assert (device);
-        assert (!constraints ());
-
-        computeVelocities();
-      }
-
       Hermite::Hermite (const DevicePtr_t& device,
                         ConfigurationIn_t init,
                         ConfigurationIn_t end,
                         ConstraintSetPtr_t constraints) :
-        parent_t (interval_t (0, 1), device->configSize (),
-                  device->numberDof (), constraints),
-        device_ (device),
-        initial_ (init), end_ (end),
-        vs_ (device->numberDof(), 3),
+        parent_t (device, interval_t (0, 1), constraints),
+        init_ (init), end_ (end),
         hermiteLength_ (-1)
       {
-        assert (init.size() == device_->configSize ());
+        assert (init.size() == robot_->configSize ());
         assert (device);
 
-        computeVelocities();
+        base (init);
+        parameters_.row(0).setZero();
+        pinocchio::difference<hpp::pinocchio::LieGroupTpl>
+          (robot_, init, end, parameters_.row(3));
+
+        projectVelocities(init, end);
       }
 
       Hermite::Hermite (const Hermite& path) :
-        parent_t (path), device_ (path.device_),
-        initial_ (path.initial_), end_(path.end_),
-        vs_ (path.vs_), hermiteLength_ (-1)
-      {
-        assert (initial().size() == device_->configSize ());
-      }
+        parent_t (path),
+        init_ (path.init_), end_ (path.end_),
+        hermiteLength_ (-1)
+      {}
 
       Hermite::Hermite (const Hermite& path,
                         const ConstraintSetPtr_t& constraints) :
-        parent_t (path, constraints), device_ (path.device_),
-        initial_ (path.initial_), end_(path.end_),
+        parent_t (path, constraints),
+        init_ (path.init_), end_ (path.end_),
         hermiteLength_ (-1)
       {
-        computeVelocities();
+        projectVelocities(init_, end_);
       }
 
       void Hermite::init (HermitePtr_t self)
@@ -112,60 +69,41 @@ namespace hpp {
         checkPath ();
       }
 
-      bool Hermite::impl_compute (ConfigurationOut_t result,
-                                  value_type param) const
+      // void Hermite::computeVelocities (ConfigurationIn_t qi, ConfigurationIn_t qe)
+      void Hermite::projectVelocities (ConfigurationIn_t qi, ConfigurationIn_t qe)
       {
-        assert (timeRange().first == 0 && timeRange().second == 1);
-        assert (0 <= param && param <= 1);
-        if (param == timeRange ().first) {
-          result.noalias () = initial();
-          return true;
-        }
-        if (param >= timeRange ().second) {
-          result.noalias () = end();
-          return true;
-        }
-
-        pinocchio::integrate<true, hpp::pinocchio::LieGroupTpl> (device_, initial_, delta(param), result);
-        return true;
-      }
-
-      vector_t Hermite::delta (const value_type& t) const
-      {
-        assert (0 <= t && t <= 1);
-        return vs_ * (HermiteCoeffs * powsOfT (t));
-      }
-
-      void Hermite::computeVelocities ()
-      {
-        pinocchio::difference<hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, vs_.col(0));
+        // vector_t v_i2e (outputDerivativeSize());
+        // pinocchio::difference<hpp::pinocchio::LieGroupTpl> (robot_, qe, qi, v_i2e);
         if (constraints() && constraints()->configProjector()) {
           ConfigProjectorPtr_t proj = constraints()->configProjector();
-          vs_.rightCols<2>().setZero();
-          proj->projectVectorOnKernel (initial_, vs_.col(0), vs_.col(1));
-          proj->projectVectorOnKernel (end_    , vs_.col(0), vs_.col(2));
+          vector_t v (outputDerivativeSize());
+          // Compute v0
+          // proj->projectVectorOnKernel (qi, v_i2e, v);
+          proj->projectVectorOnKernel (qi, parameters_.row(3), v);
+          v0 (v);
+          // Compute v1
+          proj->projectVectorOnKernel (qe, parameters_.row(3), v);
+          v1 (v);
         } else {
-          vs_.col(1) = vs_.col(0);
-          vs_.col(2) = vs_.col(0);
+          v0(parameters_.row(3));
+          v1(parameters_.row(3));
         }
-        assert (!vs_.hasNaN());
+        assert (!parameters_.hasNaN());
       }
 
       void Hermite::computeHermiteLength ()
       {
-        hermiteLength_ =
-          (vs_.col(1).norm() + vs_.col(2).norm()) / 3
-          + (- vs_.col(0) + (vs_.col(1) + vs_.col(2)) / 3).norm();
+        hermiteLength_ = (parameters_.bottomRows<3>() - parameters_.topRows<3>()).rowwise().norm().sum();
       }
 
       vector_t Hermite::velocity (const value_type& param) const
       {
-        const value_type t = param;
-        vector_t v = vs_ * (HermiteCoeffs * powsOfTprime (t)); 
+        vector_t v (outputDerivativeSize());
+        derivative (v, param, 1);
         if (constraints() && constraints()->configProjector()) {
           ConfigProjectorPtr_t proj = constraints()->configProjector();
           Configuration_t q (outputSize());
-          if (!(*this) (q, t))
+          if (!(*this) (q, param))
             throw projection_error ("Configuration does not satisfy the constraints");
           proj->projectVectorOnKernel (q, v, v);
         }
@@ -174,7 +112,7 @@ namespace hpp {
 
       DevicePtr_t Hermite::device () const
       {
-        return device_;
+        return robot_;
       }
     } //   namespace path
   } //   namespace core

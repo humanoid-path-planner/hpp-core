@@ -124,7 +124,7 @@ namespace hpp {
             res = tmp;
           }
 
-          Configuration_t initial () const
+          virtual Configuration_t initial () const
           {
             Configuration_t q (outputSize());
             bool res = operator() (q, timeRange().first);
@@ -132,7 +132,7 @@ namespace hpp {
             return q;
           }
 
-          Configuration_t end () const
+          virtual Configuration_t end () const
           {
             Configuration_t q (outputSize());
             bool res = operator() (q, timeRange().second);

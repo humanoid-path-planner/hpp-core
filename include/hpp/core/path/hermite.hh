@@ -20,7 +20,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/path.hh>
+# include <hpp/core/path/spline.hh>
 
 namespace hpp {
   namespace core {
@@ -28,10 +28,10 @@ namespace hpp {
       /// \addtogroup path
       /// \{
 
-      class HPP_CORE_DLLAPI Hermite : public Path
+      class HPP_CORE_DLLAPI Hermite : public Spline<BernsteinBasis, 3>
       {
       public:
-        typedef Path parent_t;
+        typedef Spline<BernsteinBasis,3> parent_t;
 
         /// Destructor
         virtual ~Hermite () throw () {}
@@ -41,9 +41,7 @@ namespace hpp {
                                     ConfigurationIn_t end,
                                     ConstraintSetPtr_t constraints)
         {
-          Hermite* ptr;
-          if (constraints) ptr = new Hermite (device, init, end, constraints);
-          else             ptr = new Hermite (device, init, end);
+          Hermite* ptr = new Hermite (device, init, end, constraints);
           HermitePtr_t shPtr (ptr);
           ptr->init (shPtr);
           return shPtr;
@@ -94,39 +92,36 @@ namespace hpp {
 
         void v0 (const vectorIn_t& speed)
         {
-          vs_.col(1) = speed;
+          parameters_.row(1) = parameters_.row(0) + speed.transpose() / 3;
           hermiteLength_ = -1;
         }
 
         void v1 (const vectorIn_t& speed)
         {
-          vs_.col(2) = speed;
+          parameters_.row(2) = parameters_.row(3) - speed.transpose() / 3;
           hermiteLength_ = -1;
         }
 
         vector_t v0 () const
         {
-          return vs_.col(1);
+          return 3 * (parameters_.row(1) - parameters_.row(0));
+          // TODO Should be equivalent to
+          // vector_t res (outputDerivativeSize());
+          // derivative (res, timeRange().first, 1);
+          // return res;
         }
 
         vector_t v1 () const
         {
-          return vs_.col(2);
+          return 3 * (parameters_.row(3) - parameters_.row(2));
         }
 
-        vector_t linearVelocity () const
+        virtual Configuration_t initial () const
         {
-          return vs_.col(0);
+          return init_;
         }
 
-        /// Get the initial configuration
-        Configuration_t initial () const
-        {
-          return initial_;
-        }
-
-        /// Get the final configuration
-        Configuration_t end () const
+        virtual Configuration_t end () const
         {
           return end_;
         }
@@ -169,16 +164,12 @@ namespace hpp {
 
         void init (HermitePtr_t self);
 
-        virtual bool impl_compute (ConfigurationOut_t result,
-                   value_type param) const;
-
       private:
-        vector_t delta (const value_type& t) const;
-        void computeVelocities ();
+        // void computeVelocities ();
+        void projectVelocities (ConfigurationIn_t qi, ConfigurationIn_t qe);
 
         DevicePtr_t device_;
-        Configuration_t initial_, end_;
-        Eigen::Matrix<value_type, Eigen::Dynamic, 3> vs_;
+        Configuration_t init_, end_;
         value_type hermiteLength_;
 
         HermiteWkPtr_t weak_;
@@ -187,4 +178,4 @@ namespace hpp {
     } //   namespace path
   } //   namespace core
 } // namespace hpp
-#endif // HPP_CORE_HERMITE_PATH_HH
+#endif // HPP_CORE_PATH_HERMITE_HH
