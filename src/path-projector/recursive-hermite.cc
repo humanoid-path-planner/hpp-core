@@ -208,7 +208,10 @@ namespace hpp {
           const value_type& acceptThr) const
       {
         if (path->hermiteLength() < acceptThr) {
-          proj->appendPath (path->copy (ConstraintSetPtr_t()));
+          // TODO this does not work because it is not possible to remove
+          // constraints from a path.
+          // proj->appendPath (path->copy (ConstraintSetPtr_t()));
+          proj->appendPath(path);
           return true;
         } else {
           const value_type t = 0.5; //path->timeRange().first + path->length() / 2;
