@@ -37,11 +37,11 @@ namespace hpp {
     /// sequence (R3 x SO(3)), the position of this latter joint can be
     /// explicitely expressed with respect to the position of the first joint.
     ///
-    /// This class provides this expression through method solve.
+    /// This class provides this expression. The input configuration variables
+    /// are the joint values of all joints except the above mentioned freeflyer
+    /// joint. The output configuration variables are the 7 configuration
+    /// variables of the freeflyer joint.
     ///
-    /// When considered as an implicit constraint, for instance if this
-    /// constraint is grouped with other constraints, the classical
-    //  constraint::RelativeTransformation class is used.
     class HPP_CORE_DLLAPI ExplicitRelativeTransformation :
       public DifferentiableFunction
     {
@@ -59,17 +59,6 @@ namespace hpp {
 	(const std::string& name      , const DevicePtr_t& robot,
 	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
 	 const Transform3f& frame1    , const Transform3f& frame2);
-
-      ExplicitNumericalConstraintPtr_t createNumericalConstraint ()
-      {
-        return ExplicitNumericalConstraint::create (
-            implicit_,
-            weak_.lock(),
-            inConf_.indices(),
-            inVel_.indices(),
-            outConf_.indices(),
-            outVel_.indices());
-      }
 
     protected:
       typedef Eigen::BlockIndex BlockIndex;
@@ -89,13 +78,7 @@ namespace hpp {
               name),
           robot_ (robot),
           parentJoint_ (joint2->parentJoint ()),
-          implicit_ (RelativeTransformation::create (
-                name, robot, joint1, joint2, frame1, frame2, std::vector<bool>(6,true)
-                )),
-          rt_ (RelativeTransformation::create (
-                name, robot, joint2->parentJoint(), joint1,
-                (joint2->parentJoint() ? joint2->parentJoint()->positionInParentFrame() : Transform3f::Identity()),
-                frame1 * frame2.inverse(), std::vector<bool>(6,true))),
+          joint1_ (joint1), joint2_ (joint2),
           inConf_ (inConf),   inVel_  (inVel),
           outConf_ (outConf), outVel_ (outVel),
           F1inJ1_invF2inJ2_ (frame1 * frame2.inverse())
@@ -136,7 +119,7 @@ namespace hpp {
       DevicePtr_t robot_;
       // Parent of the R3 joint.
       JointConstPtr_t parentJoint_;
-      RelativeTransformationPtr_t implicit_, rt_;
+      JointConstPtr_t joint1_, joint2_;
       RowBlockIndices inConf_;
       ColBlockIndices inVel_;
       RowBlockIndices outConf_ , outVel_;
