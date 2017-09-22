@@ -173,6 +173,9 @@ namespace hpp {
     typedef pinocchio::vector3_t vector3_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
+    typedef constraints::LiegroupElement LiegroupElement;
+    typedef constraints::LiegroupSpace LiegroupSpace;
+    typedef constraints::LiegroupSpacePtr_t LiegroupSpacePtr_t;
     typedef pinocchio::size_type size_type;
     typedef pinocchio::value_type value_type;
     typedef std::pair<value_type, value_type> interval_t;

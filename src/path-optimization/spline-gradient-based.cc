@@ -109,14 +109,14 @@ namespace hpp {
         static inline void setRows (LinearConstraint& lc, const size_type& row,
             const size_type& col,
             const size_type& rDof,
-            const RowBlockIndexes select,
+            const RowBlockIndices select,
             const BasisFunctionVector_t& Bl,
             const BasisFunctionVector_t& Br,
             const SplinePtr_t& splineL,
             const SplinePtr_t& splineR,
             bool Czero)
         {
-          const size_type& rows = select.nbIndexes();
+          const size_type& rows = select.nbIndices();
           size_type c = col;
           lc.b.segment(row, rows).setZero();
           if (splineL) {
@@ -402,16 +402,16 @@ namespace hpp {
 
             // Get the active parameter row selection.
             value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
-            Eigen::RowBlockIndexes select = computeActiveParameters (path, hs, guessThreshold);
+            Eigen::RowBlockIndices select = computeActiveParameters (path, hs, guessThreshold);
 
             const size_type rDof = robot_->numberDof(),
                             col  = idxSpline * Spline::NbCoeffs * rDof,
                             row = lc.J.rows(),
-                            nOutVar = select.nbIndexes();
+                            nOutVar = select.nbIndices();
 
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
-            solver.av = RowBlockIndexes (BlockIndex::difference (BlockIndex::type(0, rDof), select.indexes()));
+            solver.av = RowBlockIndices (BlockIndex::difference (BlockIndex::type(0, rDof), select.indices()));
             hppDout (info, "Path " << idxSpline << ": do not change this dof " << select);
             hppDout (info, "Path " << idxSpline << ": active dofs " << solver.av);
 
@@ -430,7 +430,7 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
-      Eigen::RowBlockIndexes SplineGradientBased<_PB, _SO>::computeActiveParameters
+      Eigen::RowBlockIndices SplineGradientBased<_PB, _SO>::computeActiveParameters
       (const PathPtr_t& path, const HybridSolver& hs, const value_type& guessThr, const bool& useExplicitInput) const
       {
         const constraints::ExplicitSolver& es = hs.explicitSolver();
@@ -445,9 +445,9 @@ namespace hpp {
           implicitBI = BlockIndex::fromLogicalExpression(adp);
 
           // Add active parameters from explicit solver.
-          Eigen::ColBlockIndexes esadp = es.activeDerivativeParameters();
+          Eigen::ColBlockIndices esadp = es.activeDerivativeParameters();
           implicitBI.insert (implicitBI.end(),
-              esadp.indexes().begin(), esadp.indexes().end());
+              esadp.indices().begin(), esadp.indices().end());
           BlockIndex::sort(implicitBI);
           BlockIndex::shrink(implicitBI);
 
@@ -463,20 +463,20 @@ namespace hpp {
           // If requested, check if the jacobian has columns of zeros.
           BlockIndex::vector_t passive;
           if (guessThr >= 0) {
-            matrix_t J (hs.dimension(), es.inDers().nbIndexes());
+            matrix_t J (hs.dimension(), es.inDers().nbIndices());
             hs.computeValue<true>(path->initial());
             hs.updateJacobian(path->initial());
             hs.getReducedJacobian(J);
             size_type j = 0, k = 0;
             for (size_type r = 0; r < J.cols(); ++r) {
               if (J.col(r).isZero(guessThr)) {
-                size_type idof = es.inDers().indexes()[j].first + k;
+                size_type idof = es.inDers().indices()[j].first + k;
                 passive.push_back(BlockIndex::type(idof, 1));
                 hppDout (info, "Deactivated dof (thr=" << guessThr
                     << ") " << idof << ". J = " << J.col(r).transpose());
               }
               k++;
-              if (k >= es.inDers().indexes()[j].second) {
+              if (k >= es.inDers().indices()[j].second) {
                 j++;
                 k = 0;
               }
@@ -484,23 +484,23 @@ namespace hpp {
             BlockIndex::sort(passive);
             BlockIndex::shrink(passive);
             hppDout (info, "Deactivated dof (thr=" << guessThr
-                << ") " << Eigen::ColBlockIndexes(passive)
+                << ") " << Eigen::ColBlockIndices(passive)
                 << "J = " << J);
             implicitBI = BlockIndex::difference (implicitBI, passive);
           }
         } else if (useExplicitInput) {
-          Eigen::ColBlockIndexes esadp = es.activeDerivativeParameters();
-          implicitBI = esadp.indexes();
+          Eigen::ColBlockIndices esadp = es.activeDerivativeParameters();
+          implicitBI = esadp.indices();
         }
 
         // Handle explicit part
-        explicitBI = es.outDers().indexes();
+        explicitBI = es.outDers().indices();
 
         // Add both
         implicitBI.insert (implicitBI.end(),
             explicitBI.begin(), explicitBI.end());
-        Eigen::RowBlockIndexes rbi (implicitBI);
-        rbi.updateIndexes<true, true, true>();
+        Eigen::RowBlockIndices rbi (implicitBI);
+        rbi.updateIndices<true, true, true>();
         return rbi;
       }
 
@@ -516,22 +516,22 @@ namespace hpp {
 
         // Compute which continuity constraint are necessary
         size_type nbRows = 0;
-        std::vector<RowBlockIndexes> rbis (splines.size() + 1);
+        std::vector<RowBlockIndices> rbis (splines.size() + 1);
         BlockIndex::type space (0, rDof);
         rbis[0] = ss[0].av;
-        nbRows += rbis[0].nbIndexes();
+        nbRows += rbis[0].nbIndices();
         for (std::size_t i = 1; i < ss.size(); ++i) {
-          // Compute union between A = ss[i-1].av.indexes()
-          // and B = ss[i].av.indexes()
-          BlockIndex::vector_t v (ss[i-1].av.indexes());
-          v.insert(v.end(), ss[i].av.indexes().begin(), ss[i].av.indexes().end());
-          rbis[i] = RowBlockIndexes (v);
+          // Compute union between A = ss[i-1].av.indices()
+          // and B = ss[i].av.indices()
+          BlockIndex::vector_t v (ss[i-1].av.indices());
+          v.insert(v.end(), ss[i].av.indices().begin(), ss[i].av.indices().end());
+          rbis[i] = RowBlockIndices (v);
           rbis[i].updateRows<true, true, true>();
           hppDout (info, "Optimize waypoint " << i << " over " << rbis[i]);
-          nbRows += rbis[i].nbIndexes();
+          nbRows += rbis[i].nbIndices();
         }
         rbis[ss.size()] = ss[ss.size()-1].av;
-        nbRows += rbis[ss.size()].nbIndexes();
+        nbRows += rbis[ss.size()].nbIndices();
 
         nbRows *= (maxOrder + 1);
 
@@ -549,7 +549,7 @@ namespace hpp {
           ContinuityConstraint::setRows
             (lc, row, indexParam, rDof, rbis[0],
              B1, B0, SplinePtr_t(), splines[0], Czero);
-          row += rbis[0].nbIndexes();
+          row += rbis[0].nbIndices();
 
           for (std::size_t j = 0; j < splines.size() - 1; ++j) {
             splines[j  ]->basisFunctionDerivative(k, 1, B1);
@@ -560,7 +560,7 @@ namespace hpp {
               (lc, row, indexParam, rDof, rbis[j+1],
                B1, B0, splines[j], splines[j+1], Czero);
 
-            row += rbis[j+1].nbIndexes();
+            row += rbis[j+1].nbIndices();
             indexParam += paramSize;
           }
 
@@ -569,7 +569,7 @@ namespace hpp {
           ContinuityConstraint::setRows
             (lc, row, indexParam, rDof, rbis.back(),
              B1, B0, splines.back(), SplinePtr_t(), Czero);
-          row += rbis.back().nbIndexes();
+          row += rbis.back().nbIndices();
 
           assert (indexParam + paramSize == lc.J.cols());
         }
@@ -598,10 +598,10 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
-      typename SplineGradientBased<_PB, _SO>::Indexes_t SplineGradientBased<_PB, _SO>::validateBounds
+      typename SplineGradientBased<_PB, _SO>::Indices_t SplineGradientBased<_PB, _SO>::validateBounds
       (const Splines_t& splines, const LinearConstraint& lc) const
       {
-        Indexes_t violated;
+        Indices_t violated;
 
         const size_type rDof = robot_->numberDof();
         const size_type cols = rDof * Spline::NbCoeffs;
@@ -654,7 +654,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       std::size_t SplineGradientBased<_PB, _SO>::addBoundConstraints
-      (const Indexes_t& bci, const LinearConstraint& bc,
+      (const Indices_t& bci, const LinearConstraint& bc,
        Bools_t& activeConstraint, LinearConstraint& constraint) const
       {
         std::size_t nbC = 0;

@@ -80,7 +80,7 @@ namespace hpp {
 
           struct LinearConstraint;
           typedef constraints::ExplicitSolver Solver_t;
-          typedef Eigen::RowBlockIndexes RowBlockIndexes;
+          typedef Eigen::RowBlockIndices RowBlockIndices;
           struct SolverPtr_t {
             SolverPtr_t () {}
             SolverPtr_t (size_type rDof) { av.addRow (0, rDof); }
@@ -90,7 +90,7 @@ namespace hpp {
 
             /// Variable on which we can optimize.
             /// Other variables are fully constrained.
-            RowBlockIndexes av;
+            RowBlockIndices av;
           };
           typedef std::vector <SolverPtr_t> Solvers_t;
 
@@ -101,7 +101,7 @@ namespace hpp {
           /// \param guessThr Threshold used to check whether the Jacobian
           ///                 contains rows of zeros, in which case the
           ///                 corresponding DoF is considered passive.
-          Eigen::RowBlockIndexes computeActiveParameters (const PathPtr_t& path,
+          Eigen::RowBlockIndices computeActiveParameters (const PathPtr_t& path,
               const constraints::HybridSolver& hs,
               const value_type& guessThr = -1,
               const bool& useExplicitInput = false) const;
@@ -115,7 +115,7 @@ namespace hpp {
           typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
                   std::size_t> > Reports_t;
           typedef std::vector <bool> Bools_t;
-          typedef std::vector <size_type> Indexes_t;
+          typedef std::vector <size_type> Indices_t;
           struct CollisionFunctions;
 
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
@@ -126,9 +126,9 @@ namespace hpp {
 
           Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
 
-          Indexes_t validateBounds (const Splines_t& splines, const LinearConstraint& lc) const;
+          Indices_t validateBounds (const Splines_t& splines, const LinearConstraint& lc) const;
 
-          std::size_t addBoundConstraints (const Indexes_t& bci, const LinearConstraint& bc,
+          std::size_t addBoundConstraints (const Indices_t& bci, const LinearConstraint& bc,
               Bools_t& activeConstraint, LinearConstraint& constraint) const;
 
           void addCollisionConstraint (const std::size_t idxSpline,

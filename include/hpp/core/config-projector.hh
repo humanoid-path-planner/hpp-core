@@ -85,7 +85,7 @@ namespace hpp {
 
       /// Add a numerical constraint
       /// \param numericalConstraint The numerical constraint.
-      /// \param passiveDofs column indexes of the jacobian vector that will be
+      /// \param passiveDofs column indices of the jacobian vector that will be
       ///        set to zero when solving.
       /// \param priority priority of the function. The last level might be
       ///        optional.
@@ -179,7 +179,7 @@ namespace hpp {
       /// Get number of non-locked degrees of freedom
       size_type numberNonLockedDof () const
       {
-	return minimalSolver_.explicitSolver().inDers().nbIndexes();
+	return minimalSolver_.explicitSolver().inDers().nbIndices();
       }
 
       /// Get constraint dimension

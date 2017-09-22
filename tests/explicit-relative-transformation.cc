@@ -88,10 +88,10 @@ BOOST_AUTO_TEST_CASE (explicit_relative_transformation)
                   qout = qrand;
 
   // Check the output value
-  Eigen::RowBlockIndexes outConf (enm->outputConf());
-  Eigen::RowBlockIndexes  inConf (enm-> inputConf());
+  Eigen::RowBlockIndices outConf (enm->outputConf());
+  Eigen::RowBlockIndices  inConf (enm-> inputConf());
 
-  vector_t tmp(outConf.nbIndexes());
+  vector_t tmp(outConf.nbIndices());
   ert->value (tmp, inConf.rview(qrand).eval());
   outConf.lview(qout) = tmp;
 
@@ -104,8 +104,8 @@ BOOST_AUTO_TEST_CASE (explicit_relative_transformation)
   BOOST_CHECK (diff.isIdentity());
 
   // Check the jacobian
-  Eigen::RowBlockIndexes outVel (enm->outputVelocity());
-  Eigen::RowBlockIndexes  inVel (enm-> inputVelocity());
+  Eigen::RowBlockIndices outVel (enm->outputVelocity());
+  Eigen::RowBlockIndices  inVel (enm-> inputVelocity());
 
   // The velocity of the target in wrist joint should be the same as
   // the velocity of the target in the object joint.

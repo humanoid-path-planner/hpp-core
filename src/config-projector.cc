@@ -182,10 +182,10 @@ namespace hpp {
         HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
       if (enm) {
         addedAsExplicit = minimalSolver_.explicitSolver().add(enm->explicitFunction(),
-            Eigen::RowBlockIndexes(enm->inputConf()),
-            Eigen::RowBlockIndexes(enm->outputConf()),
-            Eigen::ColBlockIndexes(enm->inputVelocity()),
-            Eigen::RowBlockIndexes(enm->outputVelocity()));
+            Eigen::RowBlockIndices(enm->inputConf()),
+            Eigen::RowBlockIndices(enm->outputConf()),
+            Eigen::ColBlockIndices(enm->inputVelocity()),
+            Eigen::RowBlockIndices(enm->outputVelocity()));
         if (!addedAsExplicit) {
           hppDout (info, "Could not treat " <<
               enm->explicitFunction()->name() << " as an explicit function."
@@ -200,10 +200,10 @@ namespace hpp {
       } else {
         hppDout (info, "Numerical constraint added as explicit function: "
             << enm->explicitFunction()->name() << "with "
-            << "input conf " << Eigen::RowBlockIndexes(enm->inputConf())
-            << "input vel" << Eigen::RowBlockIndexes(enm->inputVelocity())
-            << "output conf " << Eigen::RowBlockIndexes(enm->outputConf())
-            << "output vel " << Eigen::RowBlockIndexes(enm->outputVelocity()));
+            << "input conf " << Eigen::RowBlockIndices(enm->inputConf())
+            << "input vel" << Eigen::RowBlockIndices(enm->inputVelocity())
+            << "output conf " << Eigen::RowBlockIndices(enm->outputConf())
+            << "output vel " << Eigen::RowBlockIndices(enm->outputVelocity()));
         minimalSolver_.explicitSolverHasChanged();
       }
       fullSolver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
@@ -242,8 +242,8 @@ namespace hpp {
     {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixIn_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
-        const Eigen::ColBlockIndexes& cols = minimalSolver_.explicitSolver().inDers();
-        small = View (normal, cols.nbIndexes(), cols.indexes(), cols.nbIndexes(), cols.indexes());
+        const Eigen::ColBlockIndices& cols = minimalSolver_.explicitSolver().inDers();
+        small = View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices());
       } else {
         small = minimalSolver_.explicitSolver().inDers().rview(normal);
       }
@@ -254,8 +254,8 @@ namespace hpp {
     {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixOut_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
-        const Eigen::ColBlockIndexes& cols = minimalSolver_.explicitSolver().inDers();
-        View (normal, cols.nbIndexes(), cols.indexes(), cols.nbIndexes(), cols.indexes()) = small;
+        const Eigen::ColBlockIndices& cols = minimalSolver_.explicitSolver().inDers();
+        View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices()) = small;
       } else {
         minimalSolver_.explicitSolver().inDers().lview(normal) = small;
       }
@@ -354,16 +354,16 @@ namespace hpp {
       }
 
       bool added = minimalSolver_.explicitSolver().add(lockedJoint->function(),
-          Eigen::RowBlockIndexes(),
-          Eigen::RowBlockIndexes(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
-          Eigen::ColBlockIndexes(),
-          Eigen::RowBlockIndexes(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())))
+          Eigen::RowBlockIndices(),
+          Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
+          Eigen::ColBlockIndices(),
+          Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())))
         &&
         fullSolver_.explicitSolver().add(lockedJoint->function(),
-            Eigen::RowBlockIndexes(),
-            Eigen::RowBlockIndexes(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
-            Eigen::ColBlockIndexes(),
-            Eigen::RowBlockIndexes(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())));
+            Eigen::RowBlockIndices(),
+            Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
+            Eigen::ColBlockIndices(),
+            Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())));
       if (!added) {
         hppDout (error, "Could not add LockedJoint " << lockedJoint->jointName_);
       }
@@ -412,7 +412,7 @@ namespace hpp {
 	os << lj << std::endl;
       }
       os << "    Intervals: ";
-      // TODO add printer to MatrixBlockIndexes
+      // TODO add printer to MatrixBlockIndices
       hppDout (info, minimalSolver_.explicitSolver().outDers());
       os << std::endl;
       return os;
@@ -427,9 +427,9 @@ namespace hpp {
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config,
 				       vector_t& error)
     {
-      // error.resize (minimalSolver_.dimension() + minimalSolver_.explicitSolver().outDers().nbIndexes());
+      // error.resize (minimalSolver_.dimension() + minimalSolver_.explicitSolver().outDers().nbIndices());
       // return minimalSolver_.isSatisfied (config, error);
-      error.resize (fullSolver_.dimension() + fullSolver_.explicitSolver().outDers().nbIndexes());
+      error.resize (fullSolver_.dimension() + fullSolver_.explicitSolver().outDers().nbIndices());
       return fullSolver_.isSatisfied (config, error);
     }
 

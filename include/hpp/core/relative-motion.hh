@@ -65,7 +65,7 @@ namespace hpp {
       /// Set the relative motion between two joints
       ///
       /// This does nothing if type is Unconstrained.
-      /// The full matrix is updated as follow. For any indexes i0 and i3
+      /// The full matrix is updated as follow. For any indices i0 and i3
       /// different from both i1 and i2:
       /// - set matrix(i0,i2) if i0 and i1 was constrained,
       /// - set matrix(i1,i3) if i2 and i3 was constrained,

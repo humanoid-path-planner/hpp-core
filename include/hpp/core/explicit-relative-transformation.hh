@@ -65,16 +65,16 @@ namespace hpp {
         return ExplicitNumericalConstraint::create (
             implicit_,
             weak_.lock(),
-            inConf_.indexes(),
-            inVel_.indexes(),
-            outConf_.indexes(),
-            outVel_.indexes());
+            inConf_.indices(),
+            inVel_.indices(),
+            outConf_.indices(),
+            outVel_.indices());
       }
 
     protected:
       typedef Eigen::BlockIndex<size_type> BlockIndex;
-      typedef Eigen::RowBlockIndexes RowBlockIndexes;
-      typedef Eigen::ColBlockIndexes ColBlockIndexes;
+      typedef Eigen::RowBlockIndices RowBlockIndices;
+      typedef Eigen::ColBlockIndices ColBlockIndices;
 
       ExplicitRelativeTransformation (
           const std::string& name      , const DevicePtr_t& robot,
@@ -131,9 +131,9 @@ namespace hpp {
       // Parent of the R3 joint.
       JointConstPtr_t parentJoint_;
       RelativeTransformationPtr_t implicit_, rt_;
-      RowBlockIndexes inConf_;
-      ColBlockIndexes inVel_;
-      RowBlockIndexes outConf_ , outVel_;
+      RowBlockIndices inConf_;
+      ColBlockIndices inVel_;
+      RowBlockIndices outConf_ , outVel_;
       Transform3f F1inJ1_invF2inJ2_;
 
       ExplicitRelativeTransformationWkPtr_t weak_;
