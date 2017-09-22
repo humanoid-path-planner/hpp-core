@@ -46,7 +46,7 @@ namespace hpp {
       typedef Eigen::Map<const vector_t> ConstVectorMap_t;
       typedef Eigen::Map<      vector_t>      VectorMap_t;
 
-      typedef Eigen::BlockIndex<size_type> BlockIndex;
+      typedef Eigen::BlockIndex BlockIndex;
 
       HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
       HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
@@ -411,7 +411,7 @@ namespace hpp {
 
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
-            solver.av = RowBlockIndices (BlockIndex::difference (BlockIndex::type(0, rDof), select.indices()));
+            solver.av = RowBlockIndices (BlockIndex::difference (BlockIndex::segment_t(0, rDof), select.indices()));
             hppDout (info, "Path " << idxSpline << ": do not change this dof " << select);
             hppDout (info, "Path " << idxSpline << ": active dofs " << solver.av);
 
@@ -435,7 +435,7 @@ namespace hpp {
       {
         const constraints::ExplicitSolver& es = hs.explicitSolver();
 
-        BlockIndex::vector_t implicitBI, explicitBI;
+        BlockIndex::segments_t implicitBI, explicitBI;
 
         // Handle implicit part
         if (hs.dimension() > 0) {
@@ -461,7 +461,7 @@ namespace hpp {
           // hpp-manipulation.
 
           // If requested, check if the jacobian has columns of zeros.
-          BlockIndex::vector_t passive;
+          BlockIndex::segments_t passive;
           if (guessThr >= 0) {
             matrix_t J (hs.dimension(), es.inDers().nbIndices());
             hs.computeValue<true>(path->initial());
@@ -471,7 +471,7 @@ namespace hpp {
             for (size_type r = 0; r < J.cols(); ++r) {
               if (J.col(r).isZero(guessThr)) {
                 size_type idof = es.inDers().indices()[j].first + k;
-                passive.push_back(BlockIndex::type(idof, 1));
+                passive.push_back(BlockIndex::segment_t(idof, 1));
                 hppDout (info, "Deactivated dof (thr=" << guessThr
                     << ") " << idof << ". J = " << J.col(r).transpose());
               }
@@ -517,13 +517,13 @@ namespace hpp {
         // Compute which continuity constraint are necessary
         size_type nbRows = 0;
         std::vector<RowBlockIndices> rbis (splines.size() + 1);
-        BlockIndex::type space (0, rDof);
+        BlockIndex::segment_t space (0, rDof);
         rbis[0] = ss[0].av;
         nbRows += rbis[0].nbIndices();
         for (std::size_t i = 1; i < ss.size(); ++i) {
           // Compute union between A = ss[i-1].av.indices()
           // and B = ss[i].av.indices()
-          BlockIndex::vector_t v (ss[i-1].av.indices());
+          BlockIndex::segments_t v (ss[i-1].av.indices());
           v.insert(v.end(), ss[i].av.indices().begin(), ss[i].av.indices().end());
           rbis[i] = RowBlockIndices (v);
           rbis[i].updateRows<true, true, true>();

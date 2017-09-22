@@ -72,7 +72,7 @@ namespace hpp {
       }
 
     protected:
-      typedef Eigen::BlockIndex<size_type> BlockIndex;
+      typedef Eigen::BlockIndex BlockIndex;
       typedef Eigen::RowBlockIndices RowBlockIndices;
       typedef Eigen::ColBlockIndices ColBlockIndices;
 

@@ -41,20 +41,20 @@ namespace hpp {
 
       typedef Eigen::BlockIndex<size_type> BlockIndex;
 
-      BlockIndex::vector_t vectorOfBoolToIntervals (std::vector<bool>& v)
+      BlockIndex::segments_t vectorOfBoolToIntervals (std::vector<bool>& v)
       {
-        BlockIndex::vector_t ret;
+        BlockIndex::segments_t ret;
         for (std::size_t i = 0; i < v.size(); ++i)
-          if (v[i]) ret.push_back(BlockIndex::type(i, 1));
+          if (v[i]) ret.push_back(BlockIndex::segment_t(i, 1));
         BlockIndex::shrink (ret);
         return ret;
       }
 
-      BlockIndex::vector_t jointConfInterval (JointConstPtr_t j) {
-        return BlockIndex::vector_t(1, BlockIndex::type(j->rankInConfiguration(), j->configSize()));
+      BlockIndex::segments_t jointConfInterval (JointConstPtr_t j) {
+        return BlockIndex::segments_t(1, BlockIndex::segment_t(j->rankInConfiguration(), j->configSize()));
       }
-      BlockIndex::vector_t jointVelInterval (JointConstPtr_t j) {
-        return BlockIndex::vector_t(1, BlockIndex::type(j->rankInVelocity(), j->numberDof()));
+      BlockIndex::segments_t jointVelInterval (JointConstPtr_t j) {
+        return BlockIndex::segments_t(1, BlockIndex::segment_t(j->rankInVelocity(), j->numberDof()));
       }
     }
 
