@@ -69,7 +69,7 @@ namespace hpp {
         f \left((q_{ic_{1}} \cdots q_{ic_{n_{ic}}})^T\right) + rhs \\
         \f}
 
-	\note If function $\f$f\f$ takes values in a sub-manifold, the above
+	\note If function \f$f\f$ takes values in a sub-manifold, the above
 	impicit formulation does not make sense. In this case, users may
 	derive method \code solve \endcode to implement its own resolution.
 

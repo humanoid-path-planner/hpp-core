@@ -279,19 +279,22 @@ namespace hpp {
           statistics_.addSuccess();
           return true;
           break;
+        case HybridSolver::INFEASIBLE:
+          assert (false && "In ConfigProjector::impl_compute, INFEASIBLE not "
+                  "handled.");
       }
       return false;
     }
 
     bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
-        vectorOut_t dq, const value_type& alpha)
+        vectorOut_t, const value_type&)
     {
       // TODO dq = minimalSolver_.dq_; // Not accessible yet.
       return solverOneStep (configuration);
     }
 
     bool ConfigProjector::optimize (ConfigurationOut_t configuration,
-        std::size_t maxIter, const value_type alpha)
+        std::size_t maxIter, const value_type)
     {
       if (!lastIsOptional()) return true;
       if (!isSatisfied (configuration)) return false;
