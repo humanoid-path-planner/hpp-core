@@ -120,6 +120,12 @@ namespace hpp {
         weak_ = weak;
       }
 
+      /// Compute the value (dimension 7) of the freeflyer joint 2
+      ///
+      /// \param argument vector of input configuration variables (all joints
+      ///        except freeflyer joint)
+      /// \retval result vector of output configuration variables corresponding
+      ///         to the freeflyer value.
       void impl_compute (vectorOut_t result, vectorIn_t argument) const;
 
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const;

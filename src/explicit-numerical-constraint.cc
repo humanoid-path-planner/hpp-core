@@ -51,6 +51,15 @@ namespace hpp {
 
     HPP_PREDEF_CLASS (ImplicitFunction);
     typedef boost::shared_ptr <ImplicitFunction> ImplicitFunctionPtr_t;
+
+    /// Function of the form f (q) = q2 - g (q1)
+    ///
+    /// where
+    ///  \li q2 is a vector composed of a subset of configuration variables of
+    ///      q,
+    ///  \li q1 is the vector composed of the other configuration variables of
+    ///      q,
+    ///  g is a differentiable function with values in  a Lie group.
     class ImplicitFunction : public DifferentiableFunction
     {
     public:
@@ -72,12 +81,12 @@ namespace hpp {
 	    configuration.segment (it->first, it->second);
 	  index += it->second;
 	}
-	(*inputToOutput_) (output_, input_);
+	inputToOutput_->value (output_, input_);
 	index = 0;
 	for (SizeIntervals_t::const_iterator it = outputConfIntervals_.begin ();
 	     it != outputConfIntervals_.end (); ++it) {
 	  configuration.segment (it->first, it->second) =
-	    output_.segment (index, it->second) +
+	    output_.vector ().segment (index, it->second) +
 	    rhs.segment (index, it->second);
 	  index += it->second;
 	}
@@ -89,11 +98,12 @@ namespace hpp {
 			const SizeIntervals_t& outputConf,
 			const SizeIntervals_t& outputVelocity)
 	: DifferentiableFunction (robot->configSize (), robot->numberDof (),
-				  function->outputSize (),
-				  function->outputDerivativeSize ()),
+				  LiegroupSpace::Rn
+                                  (function->outputSpace ()->nv ())),
 	  robot_ (robot), inputToOutput_ (function), inputConfIntervals_ (),
 	  inputDerivIntervals_ (), outputConfIntervals_ (outputConf),
-	  outputDerivIntervals_ (outputVelocity)
+	  outputDerivIntervals_ (outputVelocity),
+          output_ (function->outputSpace ())
       {
 	// Check input consistency
 	// Each configuration variable is either input or output
@@ -103,7 +113,6 @@ namespace hpp {
 	assert (function->inputDerivativeSize () +
 		function->outputDerivativeSize () == robot->numberDof ());
 	input_.resize (function->inputSize ());
-	output_.resize (function->outputSize ());
 	J_.resize (function->outputDerivativeSize (),
 		   function->inputDerivativeSize ());
 	size_type size = 0;
@@ -128,12 +137,12 @@ namespace hpp {
 		    inputDerivIntervals_);
       }
 
-      void impl_compute (vectorOut_t result, vectorIn_t argument) const
+      void impl_compute (LiegroupElement& result, vectorIn_t argument) const
       {
 	size_type index = 0;
 	for (SizeIntervals_t::const_iterator it = outputConfIntervals_.begin ();
 	     it != outputConfIntervals_.end (); ++it) {
-	  result.segment (index, it->second) =
+	  result.vector ().segment (index, it->second) =
 	    argument.segment (it->first, it->second);
 	  index += it->second;
 	}
@@ -144,8 +153,8 @@ namespace hpp {
 	    argument.segment (it->first, it->second);
 	  index += it->second;
 	}
-	(*inputToOutput_) (output_, input_);
-	result -= output_;
+	inputToOutput_->value (output_, input_);
+	result.vector () += (result - output_);
       }
 
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
@@ -186,7 +195,7 @@ namespace hpp {
       SizeIntervals_t outputConfIntervals_;
       SizeIntervals_t outputDerivIntervals_;
       mutable vector_t input_;
-      mutable vector_t output_;
+      mutable LiegroupElement output_;
       // Jacobian of explicit function
       mutable matrix_t J_;
     }; // class ImplicitFunction

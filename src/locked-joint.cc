@@ -140,7 +140,7 @@ namespace hpp {
       jointName_ (joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration ()),
       rankInVelocity_ (joint->rankInVelocity ()),
-      numberDof_ (joint->numberDof ())
+      numberDof_ (joint->numberDof ()), joint_ (joint)
     {
       rightHandSide (value);
       assert (rhsSize () == joint->configSize ());
@@ -152,7 +152,7 @@ namespace hpp {
       jointName_ ("partial_" + joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration () + index),
       rankInVelocity_ (joint->rankInVelocity () + index),
-      numberDof_ (joint->numberDof () - index)
+      numberDof_ (joint->numberDof () - index), joint_ (joint)
     {
       assert (joint->numberDof () == joint->configSize ());
       rightHandSide (value);
@@ -166,7 +166,7 @@ namespace hpp {
       (dev->configSize () - dev->extraConfigSpace().dimension() + index),
       rankInVelocity_
       (dev->numberDof ()  - dev->extraConfigSpace().dimension() + index),
-      numberDof_ (value.size())
+      numberDof_ (value.size()), joint (JointPtr_t ())
     {
       assert (value.size() > 0);
       assert (rankInConfiguration_ + value.size() <= dev->configSize());

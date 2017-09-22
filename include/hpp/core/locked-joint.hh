@@ -18,6 +18,8 @@
 #ifndef HPP_CORE_LOCKED_JOINT_HH
 # define HPP_CORE_LOCKED_JOINT_HH
 
+# include <hpp/pinocchio/joint.hh>
+
 # include <hpp/constraints/differentiable-function.hh>
 
 # include <hpp/core/equation.hh>
@@ -100,9 +102,14 @@ namespace hpp {
         return function_;
       }
 
+      /// Return shared pointer to joint
+      const JointPtr_t& joint ()
+      {
+        return joint_;
+      }
       /// Return the joint name.
       const std::string& jointName () const {
-        return jointName_;
+        return joint_->name ();
       }
       /// Print object in a stream
       std::ostream& print (std::ostream& os) const;
@@ -136,9 +143,9 @@ namespace hpp {
       {
         LockedJointWkPtr_t lj_;
 
-        Function(const LockedJointPtr_t& lj)
-          : DifferentiableFunction(0, 0, lj->size(), lj->numberDof(), "LockedJoint " + lj->jointName()),
-          lj_ (lj)
+        Function(const LockedJointPtr_t& lj) :
+          DifferentiableFunction(0, 0, lj->joint ()->configurationSpace (),
+                                 "LockedJoint " + lj->jointName()), lj_ (lj)
         {}
 
         void impl_compute (vectorOut_t result, vectorIn_t ) const
@@ -149,10 +156,10 @@ namespace hpp {
         void impl_jacobian (matrixOut_t, vectorIn_t ) const {}
       };
 
-      std::string jointName_;
       size_type rankInConfiguration_;
       size_type rankInVelocity_;
       size_type numberDof_;
+      JointPtr_t joint_;
       /// Weak pointer to itself
       LockedJointWkPtr_t weak_;
       boost::shared_ptr<Function> function_;
