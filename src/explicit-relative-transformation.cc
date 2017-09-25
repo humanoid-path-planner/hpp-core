@@ -39,8 +39,6 @@ namespace hpp {
         }
       }
 
-      typedef Eigen::BlockIndex<size_type> BlockIndex;
-
       BlockIndex::segments_t vectorOfBoolToIntervals (std::vector<bool>& v)
       {
         BlockIndex::segments_t ret;
@@ -91,7 +89,8 @@ namespace hpp {
       robot_->computeForwardKinematics ();
     }
 
-    void ExplicitRelativeTransformation::impl_compute (vectorOut_t result, vectorIn_t argument) const
+    void ExplicitRelativeTransformation::impl_compute
+    (LiegroupElement& result, vectorIn_t argument) const
     {
       forwardKinematics (argument);
 
@@ -110,8 +109,8 @@ namespace hpp {
         joint2_->positionInParentFrame ().actInv (freeflyerPose_);
 
       typedef Transform3f::Quaternion_t Q_t;
-      result.head<3>() = freeflyerPose_.translation();
-      result.tail<4>() = Q_t(freeflyerPose_.rotation()).coeffs();
+      result.vector ().head<3>() = freeflyerPose_.translation();
+      result.vector ().tail<4>() = Q_t(freeflyerPose_.rotation()).coeffs();
     }
 
     void ExplicitRelativeTransformation::impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
@@ -119,9 +118,10 @@ namespace hpp {
       forwardKinematics (arg);
 #ifndef NDEBUG
       // That the function has already been solved.
-      vector_t result (7);
+      LiegroupElement result (outputSpace ());
       impl_compute (result, arg);
-      assert (outConf_.rview(robot_->currentConfiguration()).eval().isApprox(result));
+      assert (outConf_.rview(robot_->currentConfiguration()).eval().isApprox
+              (result.vector ()));
 #endif
 
       const JointJacobian_t& J1 (joint1_->jacobian());

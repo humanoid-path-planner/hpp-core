@@ -41,7 +41,7 @@ namespace hpp {
     }
 
     LockedJointPtr_t LockedJoint::create (const JointPtr_t& joint,
-					  vectorIn_t value)
+					  const LiegroupElement& value)
     {
       LockedJoint* ptr = new LockedJoint (joint, value);
       LockedJointPtr_t shPtr (ptr);
@@ -86,64 +86,55 @@ namespace hpp {
       return rankInVelocity_;
     }
 
-    std::size_t LockedJoint::size () const
+    std::size_t LockedJoint::configSize () const
     {
-      return rhsSize ();
+      return configSpace_->nq ();
     }
 
     std::size_t LockedJoint::numberDof () const
     {
-      return numberDof_;
+      return configSpace_->nv ();
     }
 
-    vectorIn_t LockedJoint::value () const
+    const LiegroupSpacePtr_t& LockedJoint::configSpace () const
     {
-      return rightHandSide ();
-    }
-
-    void LockedJoint::value (vectorIn_t value)
-    {
-      rightHandSide (value);
+      return configSpace_;
     }
 
     bool LockedJoint::isSatisfied (ConfigurationIn_t config)
     {
-      bool result (config.segment (rankInConfiguration_,
-				   size ()).isApprox (rightHandSide ()));
-      if (result) {
-	hppDout (info, "(" <<
-		 config.segment (rankInConfiguration_, size ()).transpose ()
-		 << ")==(" << rightHandSide ().transpose () << ") succeeded");
-	return true;
-      } else {
-	hppDout (info, "(" <<
-		 config.segment (rankInConfiguration_, size ()).transpose ()
-		 << ")==(" << rightHandSide ().transpose () << ") failed");
-	return false;
-      }
+      vector_t error;
+      return isSatisfied (config, error);
     }
 
     bool LockedJoint::isSatisfied (ConfigurationIn_t config, vector_t& error)
     {
-      error = config.segment (rankInConfiguration_, size ()) - rightHandSide ();
-      return config.segment (rankInConfiguration_, size ()).isApprox (rightHandSide ());
+      LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
+                         configSpace_);
+      error = (q - configSpace_->neutral ()) - rightHandSide ().vector ();
+      return error.isApprox (vector_t::Zero (joint_->numberDof ()));
     }
 
     void LockedJoint::rightHandSideFromConfig (ConfigurationIn_t config)
     {
-      if (!comparisonType ()->constantRightHandSide ())
-        nonConstRightHandSide () = config.segment (rankInConfiguration_, size ());
+      if (!comparisonType ()->constantRightHandSide ()) {
+        LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
+                           configSpace_);
+        rightHandSide ().vector  () = q - configSpace_->neutral ();
+      }
     }
 
-    LockedJoint::LockedJoint (const JointPtr_t& joint, vectorIn_t value) :
-      Equation (Equality::create (), vector_t::Zero (joint->configSize ())),
+    LockedJoint::LockedJoint (const JointPtr_t& joint,
+                              const LiegroupElement& value) :
+      Equation (Equality::create (), vector_t::Zero (joint->numberDof ())),
       jointName_ (joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration ()),
-      rankInVelocity_ (joint->rankInVelocity ()),
-      numberDof_ (joint->numberDof ()), joint_ (joint)
+      rankInVelocity_ (joint->rankInVelocity ()), joint_ (joint),
+      configSpace_ (joint->configurationSpace ())
     {
-      rightHandSide (value);
-      assert (rhsSize () == joint->configSize ());
+      assert (rhsSize () == joint->numberDof ());
+      assert (*(value.space ()) == *configSpace_);
+      rightHandSide (value - configSpace_->neutral ());
     }
 
     LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
@@ -152,10 +143,12 @@ namespace hpp {
       jointName_ ("partial_" + joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration () + index),
       rankInVelocity_ (joint->rankInVelocity () + index),
-      numberDof_ (joint->numberDof () - index), joint_ (joint)
+      joint_ (joint), configSpace_
+      (LiegroupSpace::Rn (joint->configSize () - index))
     {
       assert (joint->numberDof () == joint->configSize ());
       rightHandSide (value);
+      assert (rhsSize () == value.size());
     }
 
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
@@ -166,7 +159,7 @@ namespace hpp {
       (dev->configSize () - dev->extraConfigSpace().dimension() + index),
       rankInVelocity_
       (dev->numberDof ()  - dev->extraConfigSpace().dimension() + index),
-      numberDof_ (value.size()), joint (JointPtr_t ())
+      joint_ (JointPtr_t ()), configSpace_ (LiegroupSpace::Rn (value.size ()))
     {
       assert (value.size() > 0);
       assert (rankInConfiguration_ + value.size() <= dev->configSize());
@@ -202,15 +195,16 @@ namespace hpp {
       Equation (ComparisonType::createDefault (), vector_t (1)),
       jointName_ ("FakeLockedJoint"),
       rankInConfiguration_ (robot->configSize ()),
-      rankInVelocity_ (robot->numberDof ()), numberDof_ (0)
+      rankInVelocity_ (robot->numberDof ()),
+      configSpace_ (LiegroupSpace::Rn (1))
     {
     }
 
     LockedJoint::LockedJoint (const LockedJoint& other) :
       Equation (other), jointName_ (other.jointName_),
       rankInConfiguration_ (other.rankInConfiguration_),
-      rankInVelocity_ (other.rankInVelocity_), numberDof_ (other.numberDof_),
-      weak_ ()
+      rankInVelocity_ (other.rankInVelocity_), joint_ (other.joint_),
+      configSpace_ (other.configSpace_), weak_ ()
     {
     }
 
@@ -223,7 +217,7 @@ namespace hpp {
 	if (jointName_ != lj.jointName_) return false;
 	if (rankInConfiguration_ != lj.rankInConfiguration_) return false;
 	if (rankInVelocity_ != lj.rankInVelocity_) return false;
-	if (numberDof_ != lj.numberDof_) return false;
+	if (*configSpace_ != *(lj.configSpace_)) return false;
 	if (swapAndTest) return lj.isEqual (*this, false);
 	return true;
       } catch (const std::bad_cast& err) {

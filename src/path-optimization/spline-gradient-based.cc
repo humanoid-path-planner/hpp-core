@@ -279,7 +279,7 @@ namespace hpp {
           // Evaluate explicit functions
           if (solver.es) solver.es->solve(q);
 
-          vector_t v (f->outputSize());
+          LiegroupElement v (f->outputSpace());
           f->value(v, q);
 
           J.resize(f->outputSize(), f->inputDerivativeSize());

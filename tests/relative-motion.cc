@@ -153,11 +153,14 @@ DevicePtr_t createRobot ()
 void lockJoint (ConfigProjectorPtr_t proj, DevicePtr_t dev, std::string name)
 {
   JointPtr_t j = dev->getJointByName (name);
+  LiegroupSpacePtr_t space (j->configurationSpace ());
+  LiegroupElement lge (space);
   Configuration_t q = dev->currentConfiguration();
+  lge.vector () = q.segment(j->rankInConfiguration(), j->configSize());
   proj->add (
       LockedJoint::create(
         dev->getJointByName(name),
-        q.segment(j->rankInConfiguration(), j->configSize()))
+        lge)
       );
 }
 

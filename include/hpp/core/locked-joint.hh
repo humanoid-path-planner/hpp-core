@@ -40,24 +40,27 @@ namespace hpp {
       /// Copy object and return shared pointer to copy
       virtual EquationPtr_t copy () const;
 
-      /// Return shared pointer to new object
+      /// Create locked joint and return shared pointer
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
       static LockedJointPtr_t create (const JointPtr_t& joint,
-				      vectorIn_t value);
+				      const LiegroupElement& value);
 
-      /// Return shared pointer to new object
+      /// Create partial locked joint (only some degrees of freedom)
       /// \param joint joint that is locked,
-      /// \param index index of the extra DOF that is locked,
-      /// \param value of the constant joint config,
+      /// \param index first locked degree of freedom in the joint,
+      /// \param value of the constant joint partial config, size of value
+      ///        determines the number of degrees of freedom locked.
+      /// \note valid only for translation joints.
       static LockedJointPtr_t create (const JointPtr_t& joint,
                                       const size_type index,
 				      vectorIn_t value);
 
-      /// Return shared pointer to new object
+      /// Create locked degrees of freedom of extra config space
       /// \param robot robot
-      /// \param index index of the extra DOF that is locked,
-      /// \param value of the constant joint config,
+      /// \param index index of the first  locked extra degree of freedom,
+      /// \param value of the locked degrees of freedom, size of value
+      ///        determines the number of degrees of freedom locked.
       static LockedJointPtr_t create (const DevicePtr_t& dev,
                                       const size_type index,
 				      vectorIn_t value);
@@ -73,10 +76,13 @@ namespace hpp {
       std::size_t rankInVelocity () const;
 
       /// Get the configuration size of the joint.
-      std::size_t size () const;
+      std::size_t configSize () const;
 
       /// Get number of degrees of freedom of the joint
       std::size_t numberDof () const;
+
+      /// Get configuration space of locked joint
+      const LiegroupSpacePtr_t& configSpace () const;
 
       /// Get the value of the locked joint.
       vectorIn_t value () const;
@@ -109,7 +115,7 @@ namespace hpp {
       }
       /// Return the joint name.
       const std::string& jointName () const {
-        return joint_->name ();
+        return jointName_;
       }
       /// Print object in a stream
       std::ostream& print (std::ostream& os) const;
@@ -117,17 +123,21 @@ namespace hpp {
       /// Constructor
       /// \param joint joint that is locked,
       /// \param value of the constant joint config,
-      LockedJoint (const JointPtr_t& joint, vectorIn_t value);
+      LockedJoint (const JointPtr_t& joint, const LiegroupElement& value);
       /// Constructor of partial locked joint
       /// \param joint joint that is locked,
-      /// \param start index of the first locked DOF (in configuration)
-      /// \param value of the constant joint config,
-      /// \note this is valid only for joint having as many configuration
-      /// parameter as velocity parameter.
+      /// \param index first locked degree of freedom in the joint,
+      /// \param value of the constant joint partial config, size of value
+      ///        determines the number of degrees of freedom locked.
+      /// \note valid only for translation joints.
       LockedJoint (const JointPtr_t& joint, const size_type index,
           vectorIn_t value);
-      /// Constructor
-      LockedJoint (const DevicePtr_t& dev, const size_type index,
+      /// Constructor of locked degrees of freedom of extra config space
+      /// \param robot robot
+      /// \param index index of the first  locked extra degree of freedom,
+      /// \param value of the locked degrees of freedom, size of value
+      ///        determines the number of degrees of freedom locked.
+      LockedJoint (const DevicePtr_t& robot, const size_type index,
           vectorIn_t value);
       /// Copy constructor
       LockedJoint (const LockedJoint& other);
@@ -144,22 +154,27 @@ namespace hpp {
         LockedJointWkPtr_t lj_;
 
         Function(const LockedJointPtr_t& lj) :
-          DifferentiableFunction(0, 0, lj->joint ()->configurationSpace (),
-                                 "LockedJoint " + lj->jointName()), lj_ (lj)
+          DifferentiableFunction
+          (0, 0, lj->configSpace (), "LockedJoint " + lj->jointName()),
+          lj_ (lj)
         {}
 
-        void impl_compute (vectorOut_t result, vectorIn_t ) const
+        void impl_compute (LiegroupElement& result, vectorIn_t) const
         {
-          result = lj_.lock()->value();
+          LockedJointPtr_t lj (lj_.lock ());
+          assert (*(result.space ()) == *(lj->configSpace ()));
+          result = lj->configSpace ()->neutral () +
+            lj->rightHandSide ().vector ();
         }
 
         void impl_jacobian (matrixOut_t, vectorIn_t ) const {}
       };
 
+      std::string jointName_;
       size_type rankInConfiguration_;
       size_type rankInVelocity_;
-      size_type numberDof_;
       JointPtr_t joint_;
+      LiegroupSpacePtr_t configSpace_;
       /// Weak pointer to itself
       LockedJointWkPtr_t weak_;
       boost::shared_ptr<Function> function_;

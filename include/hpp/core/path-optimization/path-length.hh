@@ -42,7 +42,7 @@ namespace hpp {
       protected:
 	PathLength (const WeighedDistancePtr_t& distance,
 		    const PathVectorPtr_t& path);
-	virtual void impl_compute (vectorOut_t result,
+	virtual void impl_compute (LiegroupElement& result,
 				   vectorIn_t argument) const;
 
 	virtual void impl_jacobian (matrixOut_t jacobian,

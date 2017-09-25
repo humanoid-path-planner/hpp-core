@@ -112,7 +112,8 @@ namespace hpp {
                             const Configuration_t& qColl,
 			    const CollisionObjectConstPtr_t& object1,
 			    const CollisionObjectConstPtr_t& object2)
-         : DifferentiableFunction (robot->configSize (), robot->numberDof (), 1, ""),
+         : DifferentiableFunction (robot->configSize (), robot->numberDof (),
+                                   LiegroupSpace::R1 (), ""),
          qFree_ (qFree), qColl_ (qColl),
          robot_ (robot),
          object1_ (object1), object2_ (object2),
@@ -201,11 +202,11 @@ namespace hpp {
          assert (J_.rows () == 1);
        }
 
-       virtual void impl_compute (vectorOut_t result, vectorIn_t argument)
+       virtual void impl_compute (LiegroupElement& result, vectorIn_t argument)
          const
        {
          pinocchio::difference<se3::LieGroupTpl> (robot_, argument, qFree_, difference_);
-         result = J_ * difference_;
+         result.vector () = J_ * difference_;
        }
        virtual void impl_jacobian (matrixOut_t jacobian, vectorIn_t) const
        {

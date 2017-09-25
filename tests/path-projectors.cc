@@ -128,15 +128,16 @@ ConstraintSetPtr_t createConstraints (DevicePtr_t r)
 class Polynomial : public DifferentiableFunction {
   public:
     Polynomial (DevicePtr_t robot) :
-      DifferentiableFunction (robot->configSize(), robot->numberDof (), 1, "Polynomial"),
+      DifferentiableFunction (robot->configSize(), robot->numberDof (),
+                              LiegroupSpace::R1 (), "Polynomial"),
       coefs_ (vector_t::Ones (robot->configSize()))
     {}
 
     vector_t coefs_;
 
   protected:
-      void impl_compute (vectorOut_t result, vectorIn_t argument) const {
-        result[0] = argument.cwiseProduct (argument).dot (coefs_) - 1;
+      void impl_compute (LiegroupElement& result, vectorIn_t argument) const {
+        result.vector ()[0] = argument.cwiseProduct (argument).dot (coefs_) - 1;
       }
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const {
         jacobian.row(0) = 2 * arg.cwiseProduct (coefs_);
@@ -187,7 +188,7 @@ void displayPaths (PathPtr_t path, PathPtr_t projection, DifferentiableFunctionP
   const value_type stepPath = path->length () / (100 - 1);
   const value_type stepProj = projection->length () / (100 - 1);
   Configuration_t q = path->initial(), qq = path->initial();
-  vector_t v1 (func->outputSize()), v2(func->outputSize());
+  LiegroupElement v1 (func->outputSpace ()), v2(func->outputSpace());
   std::cerr << std::fixed << std::showpos << std::setprecision (4);
   const char* sep = "\t| ";
   for (std::size_t i = 0; i < 100; ++i) {
@@ -197,8 +198,8 @@ void displayPaths (PathPtr_t path, PathPtr_t projection, DifferentiableFunctionP
     if (!(*projection) (qq, (value_type) i * stepProj))
       std::cerr << "Could not project projection at "
 		<< (value_type) i*stepProj << "\n";
-    (*func) (v1, q);
-    (*func) (v2, qq);
+    func->value (v1, q);
+    func->value (v2, qq);
     std::cerr << q.transpose () << sep << v1
       << sep << qq.transpose () << sep << v2 << "\n";
   }

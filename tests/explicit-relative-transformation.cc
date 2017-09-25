@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE (explicit_relative_transformation)
   Eigen::RowBlockIndices outConf (enm->outputConf());
   Eigen::RowBlockIndices  inConf (enm-> inputConf());
 
-  vector_t tmp(outConf.nbIndices());
+  LiegroupElement tmp (ert->outputSpace ());
   ert->value (tmp, inConf.rview(qrand).eval());
-  outConf.lview(qout) = tmp;
+  outConf.lview(qout) = tmp.vector ();
 
   robot->currentConfiguration(qout);
   robot->computeForwardKinematics();
@@ -131,12 +131,12 @@ BOOST_AUTO_TEST_CASE (explicit_relative_transformation)
   qdot.setRandom();
   qdot_out = qdot;
 
-  vector_t oVjt = oJjt * qdot;
+  vector_t oVjt (oJjt * qdot);
   // std::cout << oVjt.transpose() << std::endl;
 
   outVel.lview (qdot_out) = Jert * inVel.rview(qdot).eval();
 
-  vector_t oVat = oJat * qdot_out;
+  vector_t oVat (oJat * qdot_out);
   // std::cout << oVat.transpose() << std::endl;
 
   BOOST_CHECK(oVjt.isApprox(oVat));

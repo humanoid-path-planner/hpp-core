@@ -26,7 +26,7 @@
 # include <list>
 # include <set>
 # include <hpp/util/pointer.hh>
-# include <hpp/constraints/fwd.hh>
+# include <hpp/constraints/matrix-view.hh>
 
 namespace hpp {
   namespace core {
@@ -180,8 +180,9 @@ namespace hpp {
     typedef pinocchio::value_type value_type;
     typedef std::pair<value_type, value_type> interval_t;
     /// Interval of indices as (first index, number of indices)
-    typedef std::pair<size_type, size_type> SizeInterval_t;
-    typedef std::vector < SizeInterval_t > SizeIntervals_t;
+    typedef Eigen::BlockIndex BlockIndex;
+    typedef BlockIndex::segment_t SizeInterval_t;
+    typedef BlockIndex::segments_t SizeIntervals_t;
     typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
     typedef Node* NodePtr_t;
     typedef std::list <NodePtr_t> Nodes_t;

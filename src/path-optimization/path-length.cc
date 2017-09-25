@@ -93,7 +93,7 @@ namespace hpp {
 	hppDout (info, "computed lambda_ = " << lambda_.transpose ());
       }
 
-      void PathLength::impl_compute (vectorOut_t result,
+      void PathLength::impl_compute (LiegroupElement& result,
 				     vectorIn_t argument) const
       {
 	size_type index = 0;
@@ -109,7 +109,7 @@ namespace hpp {
 	}
 	d = (*distance_) (argument.segment (index, configSize_), end_);
 	cost += d*d * lambda_ [nbPaths_ - 1];
-	result [0] = .5*cost;
+	result.vector () [0] = .5*cost;
       }
 
       void PathLength::impl_jacobian (matrixOut_t jacobian,

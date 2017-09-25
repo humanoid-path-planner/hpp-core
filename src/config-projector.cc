@@ -358,13 +358,17 @@ namespace hpp {
 
       bool added = minimalSolver_.explicitSolver().add(lockedJoint->function(),
           Eigen::RowBlockIndices(),
-          Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
+          Eigen::RowBlockIndices(SizeInterval_t
+                                 (lockedJoint->rankInConfiguration(),
+                                  lockedJoint->configSize())),
           Eigen::ColBlockIndices(),
           Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())))
         &&
         fullSolver_.explicitSolver().add(lockedJoint->function(),
             Eigen::RowBlockIndices(),
-            Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInConfiguration(), lockedJoint->size())),
+            Eigen::RowBlockIndices(SizeInterval_t
+                                   (lockedJoint->rankInConfiguration(),
+                                    lockedJoint->configSize())),
             Eigen::ColBlockIndices(),
             Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())));
       if (!added) {

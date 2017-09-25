@@ -60,7 +60,8 @@ namespace hpp {
 			    const CollisionObjectConstPtr_t& object1,
 			    const CollisionObjectConstPtr_t& object2)
          : DifferentiableFunction (robot->configSize (), robot->numberDof (),
-                                   1, ""), robot_ (robot), qFree_ (qFree),
+                                   LiegroupSpace::R1 (), ""), robot_ (robot),
+           qFree_ (qFree),
            J_ (), difference_ ()
 	   
        {
@@ -127,11 +128,11 @@ namespace hpp {
 	 }
        }
 
-       virtual void impl_compute (vectorOut_t result, vectorIn_t argument)
+       virtual void impl_compute (LiegroupElement& result, vectorIn_t argument)
          const
        {
          pinocchio::difference<se3::LieGroupTpl> (robot_, argument, qFree_, difference_);
-         result = J_ * difference_;
+         result.vector () = J_ * difference_;
        }
        virtual void impl_jacobian (matrixOut_t jacobian, vectorIn_t) const
        {
@@ -243,7 +244,9 @@ namespace hpp {
 	  value_type t_local = localPath->length () * posAlongLocalPath_;
 	  bool success;
 	  Configuration_t q = (*localPath) (t_local, success);
-	  (*f_) (rhs.segment (rowInJacobian_, fSize_), q);
+          LiegroupElement e (f_->outputSpace ());
+	  f_->value (e, q);
+          rhs.segment (rowInJacobian_, fSize_) = e.vector ();
 	}
 
         void add (const LockedJoints_t& lj) {

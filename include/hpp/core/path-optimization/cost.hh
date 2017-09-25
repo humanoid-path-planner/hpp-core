@@ -40,7 +40,8 @@ namespace hpp {
       protected:
 	Cost (size_type inputSize, size_type inputDerivativeSize,
 	      const std::string& name) :
-	  DifferentiableFunction (inputSize, inputDerivativeSize, 1, name)
+	  DifferentiableFunction (inputSize, inputDerivativeSize,
+                                  LiegroupSpace::R1 (), name)
 	{
 	}
       }; // Cost

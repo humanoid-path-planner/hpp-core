@@ -99,22 +99,6 @@ namespace hpp {
     public:
       /// Copy object and return shared pointer to copy
       virtual EquationPtr_t copy () const;
-      /// Create instance and return shared pointer
-      ///
-      /// function relation between input configuration variables and output
-      ///          configuration variables,
-      /// outputConf set of integer intervals defining indices
-      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
-      /// outputVeclocity set of integer defining indices
-      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
-      /// \note comparison type for this constraint is always equality
-      static ExplicitNumericalConstraintPtr_t create
-        (const DifferentiableFunctionPtr_t& implicitFunction,
-         const DifferentiableFunctionPtr_t& explicitFunction,
-	 const SizeIntervals_t& inputConf,
-	 const SizeIntervals_t& inputVelocity,
-	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity);
 
       /// Create instance and return shared pointer
       ///
@@ -128,7 +112,8 @@ namespace hpp {
       /// \param rhs        right hand side.
       /// \note comparison type for this constraint is always equality
       static ExplicitNumericalConstraintPtr_t create
-        (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+        (const DevicePtr_t& robot,
+         const DifferentiableFunctionPtr_t& function,
 	 const SizeIntervals_t& inputConf,
 	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,
@@ -166,26 +151,8 @@ namespace hpp {
     protected:
       /// Constructor
       ///
-      /// \param implicitFunction the implicit formulation of the constraint,
-      /// \param explicitFunction relation between input configuration variables and
-      ///          output configuration variables,
-      /// \param outputConf set of integer intervals defining indices
-      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
-      /// \param outputVeclocity set of integer defining indices
-      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
-      /// \note comparison type for this constraint is always equality
-      ExplicitNumericalConstraint
-	(const DifferentiableFunctionPtr_t& implicitFunction,
-         const DifferentiableFunctionPtr_t& explicitFormulation,
-	 const SizeIntervals_t& inputConf,
-	 const SizeIntervals_t& inputVelocity,
-	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity);
-
-      /// Constructor
-      ///
       /// \param robot Robot for which the constraint is defined.
-      /// \param explicitFunction relation between input configuration variables and
+      /// \param function relation between input configuration variables and
       ///        output configuration variables,
       /// \param outputConf set of integer intervals defining indices
       ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
@@ -194,7 +161,7 @@ namespace hpp {
       /// \param rhs        right hand side.
       /// \note comparison type for this constraint is always equality
       ExplicitNumericalConstraint
-	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
 	 const SizeIntervals_t& inputConf,
 	 const SizeIntervals_t& inputVelocity,
 	 const SizeIntervals_t& outputConf,

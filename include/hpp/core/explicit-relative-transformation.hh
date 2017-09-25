@@ -60,6 +60,17 @@ namespace hpp {
 	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
 	 const Transform3f& frame1    , const Transform3f& frame2);
 
+      ExplicitNumericalConstraintPtr_t createNumericalConstraint ()
+      {
+        return ExplicitNumericalConstraint::create (
+            robot_,
+            weak_.lock(),
+            inConf_.indices(),
+            inVel_.indices(),
+            outConf_.indices(),
+            outVel_.indices());
+      }
+
     protected:
       typedef Eigen::BlockIndex BlockIndex;
       typedef Eigen::RowBlockIndices RowBlockIndices;
@@ -74,8 +85,7 @@ namespace hpp {
           std::vector <bool> /*mask*/ = std::vector<bool>(6,true))
         : DifferentiableFunction (
               BlockIndex::cardinal(inConf),  BlockIndex::cardinal(inVel),
-              BlockIndex::cardinal(outConf), BlockIndex::cardinal(outVel),
-              name),
+              joint2->configurationSpace (), name),
           robot_ (robot),
           parentJoint_ (joint2->parentJoint ()),
           joint1_ (joint1), joint2_ (joint2),
@@ -90,7 +100,6 @@ namespace hpp {
 	DifferentiableFunction (other),
 	robot_ (other.robot_),
         parentJoint_ (other.parentJoint_),
-	implicit_ (other.implicit_),
         inConf_ (other.inConf_),   inVel_  (other.inVel_),
         outConf_ (other.outConf_), outVel_ (other.outVel_),
         F1inJ1_invF2inJ2_ (other.F1inJ1_invF2inJ2_)
@@ -109,7 +118,7 @@ namespace hpp {
       ///        except freeflyer joint)
       /// \retval result vector of output configuration variables corresponding
       ///         to the freeflyer value.
-      void impl_compute (vectorOut_t result, vectorIn_t argument) const;
+      void impl_compute (LiegroupElement& result, vectorIn_t argument) const;
 
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const;
 

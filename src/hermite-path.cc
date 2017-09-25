@@ -131,7 +131,7 @@ namespace hpp {
     vector_t HermitePath::delta (const value_type& t) const
     {
       assert (0 <= t && t <= 1);
-      return vs_ * (HermiteCoeffs * powsOfT (t));
+      return vector_t (vs_ * (HermiteCoeffs * powsOfT (t)));
     }
 
     void HermitePath::computeVelocities ()
@@ -159,7 +159,7 @@ namespace hpp {
     vector_t HermitePath::velocity (const value_type& param) const
     {
       const value_type t = param;
-      vector_t v = vs_ * (HermiteCoeffs * powsOfTprime (t)); 
+      vector_t v (vs_ * (HermiteCoeffs * powsOfTprime (t)));
       if (constraints() && constraints()->configProjector()) {
         ConfigProjectorPtr_t proj = constraints()->configProjector();
         Configuration_t q (outputSize());
