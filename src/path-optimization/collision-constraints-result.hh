@@ -133,6 +133,7 @@ namespace hpp {
        {
          pinocchio::difference<se3::LieGroupTpl> (robot_, argument, qFree_, difference_);
          result.vector () = J_ * difference_;
+         result.check ();
        }
        virtual void impl_jacobian (matrixOut_t jacobian, vectorIn_t) const
        {

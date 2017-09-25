@@ -121,6 +121,7 @@ namespace hpp {
         LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
                            configSpace_);
         rightHandSide ().vector  () = q - configSpace_->neutral ();
+        rightHandSide ().check ();
       }
     }
 

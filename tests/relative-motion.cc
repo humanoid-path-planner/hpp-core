@@ -157,6 +157,7 @@ void lockJoint (ConfigProjectorPtr_t proj, DevicePtr_t dev, std::string name)
   LiegroupElement lge (space);
   Configuration_t q = dev->currentConfiguration();
   lge.vector () = q.segment(j->rankInConfiguration(), j->configSize());
+  lge.check ();
   proj->add (
       LockedJoint::create(
         dev->getJointByName(name),
