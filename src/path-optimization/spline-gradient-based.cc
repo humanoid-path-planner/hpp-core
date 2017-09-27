@@ -775,6 +775,7 @@ namespace hpp {
         bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", false);
         bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound", true);
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum", false);
+        value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold", value_type(0.01));
 
         PathVectorPtr_t tmp = PathVector::create (robot_->configSize(), robot_->numberDof());
         path->flatten(tmp);
@@ -901,6 +902,12 @@ namespace hpp {
             hppDout (info, "Improved path with alpha = " << alpha);
 
             computeInterpolatedSpline = true;
+            if (!minimumReached &&
+                std::abs(optimalCost - costLowerBound) < costThreshold * costLowerBound)
+            {
+              hppDout (info, "Stopping because cost interval is small.");
+              minimumReached = true;
+            }
           } else {
             if (alpha != 1.) {
               bool ok = false;
