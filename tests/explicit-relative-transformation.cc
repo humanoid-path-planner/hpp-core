@@ -52,7 +52,7 @@ DevicePtr_t createRobot ()
   robot->rootJoint()->upperBound (2,  10);
 
   /// Add a freeflyer at the end.
-  urdf::loadModel<false> (robot, 0, "empty/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
+  urdf::loadModel (robot, 0, "empty/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
   JointPtr_t rj = robot->getJointByName("empty/root_joint");
   rj->lowerBound (0, -1);
   rj->lowerBound (1, -1);
