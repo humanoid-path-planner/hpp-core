@@ -114,10 +114,10 @@ namespace hpp {
       static ExplicitNumericalConstraintPtr_t create
         (const DevicePtr_t& robot,
          const DifferentiableFunctionPtr_t& function,
-	 const SizeIntervals_t& inputConf,
-	 const SizeIntervals_t& inputVelocity,
-	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity);
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
 
       /// Create a copy and return shared pointer
       static ExplicitNumericalConstraintPtr_t createCopy
@@ -129,22 +129,22 @@ namespace hpp {
       }
 
       /// Get output configuration variables
-      const SizeIntervals_t& outputConf () const
+      const segments_t& outputConf () const
       {
 	return outputConf_;
       }
       /// Get output degrees of freedom
-      const SizeIntervals_t& outputVelocity () const
+      const segments_t& outputVelocity () const
       {
 	return outputVelocity_;
       }
       /// Get input configuration variables
-      const SizeIntervals_t& inputConf () const
+      const segments_t& inputConf () const
       {
 	return inputConf_;
       }
       /// Get input degrees of freedom
-      const SizeIntervals_t& inputVelocity () const
+      const segments_t& inputVelocity () const
       {
 	return inputVelocity_;
       }
@@ -162,10 +162,10 @@ namespace hpp {
       /// \note comparison type for this constraint is always equality
       ExplicitNumericalConstraint
 	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
-	 const SizeIntervals_t& inputConf,
-	 const SizeIntervals_t& inputVelocity,
-	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity);
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
 
       /// Constructor
       ///
@@ -177,10 +177,10 @@ namespace hpp {
       /// appropriate.
       ExplicitNumericalConstraint
 	(const DifferentiableFunctionPtr_t& implicitConstraint,
-	 const SizeIntervals_t& inputConf,
-	 const SizeIntervals_t& inputVelocity,
-	 const SizeIntervals_t& outputConf,
-	 const SizeIntervals_t& outputVelocity);
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
 
       /// Constructor
       ///
@@ -204,10 +204,10 @@ namespace hpp {
     private:
       // Relation between input and output configuration variables
       DifferentiableFunctionPtr_t inputToOutput_;
-      SizeIntervals_t inputConf_;
-      SizeIntervals_t inputVelocity_;
-      SizeIntervals_t outputConf_;
-      SizeIntervals_t outputVelocity_;
+      segments_t inputConf_;
+      segments_t inputVelocity_;
+      segments_t outputConf_;
+      segments_t outputVelocity_;
       ExplicitNumericalConstraintWkPtr_t weak_;
     }; // class ExplicitNumericalConstraint
     /// \}

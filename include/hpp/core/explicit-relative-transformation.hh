@@ -80,8 +80,8 @@ namespace hpp {
           const std::string& name      , const DevicePtr_t& robot,
           const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
           const Transform3f& frame1    , const Transform3f& frame2,
-          const SizeIntervals_t inConf , const SizeIntervals_t outConf,
-          const SizeIntervals_t inVel  , const SizeIntervals_t outVel ,
+          const segments_t inConf , const segments_t outConf,
+          const segments_t inVel  , const segments_t outVel ,
           std::vector <bool> /*mask*/ = std::vector<bool>(6,true))
         : DifferentiableFunction (
               BlockIndex::cardinal(inConf),  BlockIndex::cardinal(inVel),

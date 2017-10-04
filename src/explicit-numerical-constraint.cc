@@ -22,11 +22,11 @@
 
 namespace hpp {
   namespace core {
-    void complement (size_type size, const SizeIntervals_t& intervals,
-		     SizeIntervals_t& result)
+    void complement (size_type size, const segments_t& intervals,
+		     segments_t& result)
     {
       std::vector <bool> unionOfIntervals (size+1, false);
-      for (SizeIntervals_t::const_iterator it = intervals.begin ();
+      for (segments_t::const_iterator it = intervals.begin ();
 	   it != intervals.end (); ++it) {
 	for (size_type i=it->first; i < it->first + it->second; ++i) {
 	  unionOfIntervals [i] = true;
@@ -34,7 +34,7 @@ namespace hpp {
       }
       unionOfIntervals [size] = true;
       unsigned int state = 0;
-      SizeInterval_t interval;
+      segment_t interval;
       for (size_type i=0; i <= (size_type) unionOfIntervals.size (); ++i) {
 	if ((state == 0) && (unionOfIntervals [i] == false)) {
 	  // start a new interval
@@ -65,7 +65,7 @@ namespace hpp {
     public:
       static ImplicitFunctionPtr_t create
       (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
-       const SizeIntervals_t& outputConf, const SizeIntervals_t& outputVelocity)
+       const segments_t& outputConf, const segments_t& outputVelocity)
       {
 	ImplicitFunction* ptr = new ImplicitFunction
 	  (robot, function, outputConf, outputVelocity);
@@ -75,8 +75,8 @@ namespace hpp {
     protected:
       ImplicitFunction (const DevicePtr_t& robot,
 			const DifferentiableFunctionPtr_t& function,
-			const SizeIntervals_t& outputConf,
-			const SizeIntervals_t& outputVelocity)
+			const segments_t& outputConf,
+			const segments_t& outputVelocity)
 	: DifferentiableFunction (robot->configSize (), robot->numberDof (),
 				  LiegroupSpace::Rn
                                   (function->outputSpace ()->nv ())),
@@ -97,7 +97,7 @@ namespace hpp {
 		   function->inputDerivativeSize ());
 	size_type size = 0;
 	// Sum of configuration output interval sizes equal function output size
-	for (SizeIntervals_t::const_iterator it = outputConf.begin ();
+	for (segments_t::const_iterator it = outputConf.begin ();
 	     it != outputConf.end (); ++it) {
 	  size += it->second;
 	}
@@ -105,7 +105,7 @@ namespace hpp {
 	// Sum of velocity output interval sizes equal function output
 	// derivative size
 	size = 0;
-	for (SizeIntervals_t::const_iterator it = outputVelocity.begin ();
+	for (segments_t::const_iterator it = outputVelocity.begin ();
 	     it != outputVelocity.end (); ++it) {
 	  size += it->second;
 	}
@@ -120,14 +120,14 @@ namespace hpp {
       void impl_compute (LiegroupElement& result, vectorIn_t argument) const
       {
 	size_type index = 0;
-	for (SizeIntervals_t::const_iterator it = outputConfIntervals_.begin ();
+	for (segments_t::const_iterator it = outputConfIntervals_.begin ();
 	     it != outputConfIntervals_.end (); ++it) {
 	  result.vector ().segment (index, it->second) =
 	    argument.segment (it->first, it->second);
 	  index += it->second;
 	}
 	index = 0;
-	for (SizeIntervals_t::const_iterator it = inputConfIntervals_.begin ();
+	for (segments_t::const_iterator it = inputConfIntervals_.begin ();
 	     it != inputConfIntervals_.end (); ++it) {
 	  input_.segment (index, it->second) =
 	    argument.segment (it->first, it->second);
@@ -150,7 +150,7 @@ namespace hpp {
 	}
 
 	size_type index = 0;
-	for (SizeIntervals_t::const_iterator it = inputConfIntervals_.begin ();
+	for (segments_t::const_iterator it = inputConfIntervals_.begin ();
 	     it != inputConfIntervals_.end (); ++it) {
 	  input_.segment (index, it->second) =
 	    arg.segment (it->first, it->second);
@@ -159,7 +159,7 @@ namespace hpp {
 	inputToOutput_->jacobian (J_, input_);
 	size_type col=0;
 	size_type nbRows = inputToOutput_->outputDerivativeSize ();
-	for (SizeIntervals_t::const_iterator it = inputDerivIntervals_.begin ();
+	for (segments_t::const_iterator it = inputDerivIntervals_.begin ();
 	     it != inputDerivIntervals_.end (); ++it) {
 	  jacobian.block (0, it->first, nbRows, it->second) =
 	    - J_.block (0, col, nbRows, it->second);
@@ -170,10 +170,10 @@ namespace hpp {
     private:
       DevicePtr_t robot_;
       DifferentiableFunctionPtr_t inputToOutput_;
-      SizeIntervals_t inputConfIntervals_;
-      SizeIntervals_t inputDerivIntervals_;
-      SizeIntervals_t outputConfIntervals_;
-      SizeIntervals_t outputDerivIntervals_;
+      segments_t inputConfIntervals_;
+      segments_t inputDerivIntervals_;
+      segments_t outputConfIntervals_;
+      segments_t outputDerivIntervals_;
       mutable vector_t input_;
       mutable LiegroupElement output_;
       // Jacobian of explicit function
@@ -182,10 +182,10 @@ namespace hpp {
 
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
     (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
-     const SizeIntervals_t& inputConf,
-     const SizeIntervals_t& inputVelocity,
-     const SizeIntervals_t& outputConf,
-     const SizeIntervals_t& outputVelocity)
+     const segments_t& inputConf,
+     const segments_t& inputVelocity,
+     const segments_t& outputConf,
+     const segments_t& outputVelocity)
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
 	(robot, function, inputConf, inputVelocity, outputConf, outputVelocity);
@@ -213,10 +213,10 @@ namespace hpp {
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
-     const SizeIntervals_t& inputConf,
-     const SizeIntervals_t& inputVelocity,
-     const SizeIntervals_t& outputConf,
-     const SizeIntervals_t& outputVelocity) :
+     const segments_t& inputConf,
+     const segments_t& inputVelocity,
+     const segments_t& outputConf,
+     const segments_t& outputVelocity) :
       NumericalConstraint (ImplicitFunction::create
 			   (robot, explicitFunction, outputConf, outputVelocity),
 			   ComparisonTypes::create(Eigen::BlockIndex::cardinal
@@ -232,10 +232,10 @@ namespace hpp {
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const DifferentiableFunctionPtr_t& implicitConstraint,
-     const SizeIntervals_t& inputConf,
-     const SizeIntervals_t& inputVelocity,
-     const SizeIntervals_t& outputConf,
-     const SizeIntervals_t& outputVelocity) :
+     const segments_t& inputConf,
+     const segments_t& inputVelocity,
+     const segments_t& outputConf,
+     const segments_t& outputVelocity) :
       NumericalConstraint (implicitConstraint, ComparisonTypes::create(implicitConstraint->outputSize())),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),

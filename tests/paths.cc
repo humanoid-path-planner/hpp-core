@@ -203,9 +203,9 @@ BOOST_AUTO_TEST_CASE (subchain)
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
-  SizeIntervals_t intervals;
-  intervals.push_back(SizeInterval_t(0,3));
-  intervals.push_back(SizeInterval_t(6,3));
+  segments_t intervals;
+  intervals.push_back(segment_t (0,3));
+  intervals.push_back(segment_t (6,3));
 
   Configuration_t q1 (Configuration_t::Zero(dev->configSize()));
   Configuration_t q2 (Configuration_t::Ones(dev->configSize()));

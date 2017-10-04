@@ -52,7 +52,7 @@ namespace hpp {
       }
 
       static SubchainPathPtr_t
-      create (const PathPtr_t& original, const SizeIntervals_t& intervals)
+      create (const PathPtr_t& original, const segments_t& intervals)
       {
 	SubchainPath* ptr = new SubchainPath (original, intervals);
 	SubchainPathPtr_t shPtr (ptr);
@@ -106,7 +106,7 @@ namespace hpp {
       void dofExtract (ConfigurationIn_t qin, ConfigurationOut_t qout) const
       {
         size_type r = 0;
-        for (SizeIntervals_t::const_iterator _rank = intervals_.begin();
+        for (segments_t::const_iterator _rank = intervals_.begin();
             _rank != intervals_.end(); ++_rank) {
           qout.segment(r, _rank->second) = qin.segment(_rank->first, _rank->second);
           r += _rank->second;
@@ -120,7 +120,7 @@ namespace hpp {
       {
 	os << "Dof Extracted Path:" << std::endl;
 	os << "intervals: ";
-        for (SizeIntervals_t::const_iterator _rank = intervals_.begin();
+        for (segments_t::const_iterator _rank = intervals_.begin();
             _rank != intervals_.end(); ++_rank)
           os << "[ "  << _rank->first << ", " << _rank->second << "], " << std::endl;
 	os << "original path:" << std::endl;
@@ -132,7 +132,7 @@ namespace hpp {
       ///
       /// \param original Path to extract,
       /// \param intervals of the configuration parameters to be extracted
-      SubchainPath (const PathPtr_t& original, const SizeIntervals_t& intervals) :
+      SubchainPath (const PathPtr_t& original, const segments_t& intervals) :
 	Path (original->timeRange(), intervalsToSize(intervals), outputSize ()),
 	original_ (original), intervals_ (intervals),
         q_ (Configuration_t::Zero(original->outputSize()))
@@ -161,14 +161,14 @@ namespace hpp {
 
     private:
       PathPtr_t original_;
-      SizeIntervals_t intervals_;
+      segments_t intervals_;
       mutable Configuration_t q_;
       SubchainPathWkPtr_t weak_;
 
-      static size_type intervalsToSize(const SizeIntervals_t& ints)
+      static size_type intervalsToSize(const segments_t& ints)
       {
         size_type l = 0;
-        for (SizeIntervals_t::const_iterator _rank = ints.begin();
+        for (segments_t::const_iterator _rank = ints.begin();
             _rank != ints.end(); ++_rank)
           l += _rank->second;
         return l;

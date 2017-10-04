@@ -94,7 +94,7 @@ namespace hpp {
       /// \note The intervals are interpreted as a list of couple
       /// (index_start, length) and NOT as (index_start, index_end).
       bool add (const NumericalConstraintPtr_t& numericalConstraint,
-		const SizeIntervals_t& passiveDofs = SizeIntervals_t (0),
+		const segments_t& passiveDofs = segments_t (0),
 		const std::size_t priority = 0);
 
       void lastIsOptional (bool optional)

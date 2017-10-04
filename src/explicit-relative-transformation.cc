@@ -43,16 +43,19 @@ namespace hpp {
       {
         BlockIndex::segments_t ret;
         for (std::size_t i = 0; i < v.size(); ++i)
-          if (v[i]) ret.push_back(BlockIndex::segment_t(i, 1));
+          if (v[i]) ret.push_back(BlockIndex::segment_t (i, 1));
         BlockIndex::shrink (ret);
         return ret;
       }
 
       BlockIndex::segments_t jointConfInterval (JointConstPtr_t j) {
-        return BlockIndex::segments_t(1, BlockIndex::segment_t(j->rankInConfiguration(), j->configSize()));
+        return BlockIndex::segments_t(1, BlockIndex::segment_t
+                                      (j->rankInConfiguration(),
+                                       j->configSize()));
       }
       BlockIndex::segments_t jointVelInterval (JointConstPtr_t j) {
-        return BlockIndex::segments_t(1, BlockIndex::segment_t(j->rankInVelocity(), j->numberDof()));
+        return BlockIndex::segments_t(1, BlockIndex::segment_t
+                                      (j->rankInVelocity(), j->numberDof()));
       }
     }
 

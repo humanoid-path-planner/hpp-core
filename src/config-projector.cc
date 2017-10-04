@@ -50,7 +50,7 @@ namespace hpp {
 
       DifferentiableFunctionPtr_t activeSetFunction (
           const DifferentiableFunctionPtr_t& function,
-          const SizeIntervals_t& pdofs)
+          const segments_t& pdofs)
       {
         if (pdofs.empty()) return function;
         return constraints::ActiveSetDifferentiableFunctionPtr_t (new constraints::ActiveSetDifferentiableFunction(function, pdofs));
@@ -169,7 +169,7 @@ namespace hpp {
     }
 
     bool ConfigProjector::add (const NumericalConstraintPtr_t& nm,
-			       const SizeIntervals_t& passiveDofs,
+			       const segments_t& passiveDofs,
 			       const std::size_t priority)
     {
       if (contains (nm)) {
@@ -358,19 +358,21 @@ namespace hpp {
 
       bool added = minimalSolver_.explicitSolver().add(lockedJoint->function(),
           Eigen::RowBlockIndices(),
-          Eigen::RowBlockIndices(SizeInterval_t
+          Eigen::RowBlockIndices(segment_t
                                  (lockedJoint->rankInConfiguration(),
                                   lockedJoint->configSize())),
           Eigen::ColBlockIndices(),
-          Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())))
+          Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
+                                            lockedJoint->numberDof())))
         &&
         fullSolver_.explicitSolver().add(lockedJoint->function(),
             Eigen::RowBlockIndices(),
-            Eigen::RowBlockIndices(SizeInterval_t
+            Eigen::RowBlockIndices(segment_t
                                    (lockedJoint->rankInConfiguration(),
                                     lockedJoint->configSize())),
             Eigen::ColBlockIndices(),
-            Eigen::RowBlockIndices(SizeInterval_t(lockedJoint->rankInVelocity(), lockedJoint->numberDof())));
+            Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
+                                              lockedJoint->numberDof())));
       if (!added) {
         hppDout (error, "Could not add LockedJoint " << lockedJoint->jointName_);
       }

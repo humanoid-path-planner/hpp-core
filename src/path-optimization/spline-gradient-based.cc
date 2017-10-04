@@ -411,7 +411,9 @@ namespace hpp {
 
             solver.set = cs;
             solver.es.reset(new Solver_t(es));
-            solver.av = RowBlockIndices (BlockIndex::difference (BlockIndex::segment_t(0, rDof), select.indices()));
+            solver.av = RowBlockIndices (BlockIndex::difference
+                                         (BlockIndex::segment_t(0, rDof),
+                                          select.indices()));
             hppDout (info, "Path " << idxSpline << ": do not change this dof " << select);
             hppDout (info, "Path " << idxSpline << ": active dofs " << solver.av);
 
@@ -471,7 +473,7 @@ namespace hpp {
             for (size_type r = 0; r < J.cols(); ++r) {
               if (J.col(r).isZero(guessThr)) {
                 size_type idof = es.inDers().indices()[j].first + k;
-                passive.push_back(BlockIndex::segment_t(idof, 1));
+                passive.push_back(BlockIndex::segment_t (idof, 1));
                 hppDout (info, "Deactivated dof (thr=" << guessThr
                     << ") " << idof << ". J = " << J.col(r).transpose());
               }

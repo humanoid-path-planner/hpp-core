@@ -353,20 +353,20 @@ namespace hpp {
 
       /// Add a vector of passive dofs in a local map.
       /// \param name the key of the vector in the map.
-      /// \param passiveDofs a vector of SizeInterval_t interpreted as
+      /// \param passiveDofs a vector of segment_t interpreted as
       ///                    (index_start, interval_length).
       void addPassiveDofs (const std::string& name,
-                           const SizeIntervals_t& passiveDofs)
+                           const segments_t& passiveDofs)
       {
         passiveDofsMap_ [name] = passiveDofs;
       }
 
       /// Get the vector of passive dofs associated with this name.
-      SizeIntervals_t passiveDofs (const std::string& name) const
+      segments_t passiveDofs (const std::string& name) const
       {
-        SizeIntervalsMap_t::const_iterator it = passiveDofsMap_.find (name);
+        segmentsMap_t::const_iterator it = passiveDofsMap_.find (name);
         if (it == passiveDofsMap_.end ())
-          return SizeIntervals_t ();
+          return segments_t ();
         return it->second;
       }
 
@@ -696,7 +696,7 @@ namespace hpp {
       /// Maximal number of iterations for path planner
       unsigned long int maxIterPathPlanning_;
       /// Map of passive dofs
-      SizeIntervalsMap_t passiveDofsMap_;
+      segmentsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation
       CenterOfMassComputationMap_t comcMap_;
       /// Computation of distances to obstacles

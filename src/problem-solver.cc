@@ -398,7 +398,7 @@ namespace hpp {
 	goalConstraints_->addConstraint (configProjector);
       }
       configProjector->add (numericalConstraint (functionName),
-			    SizeIntervals_t (0), priority);
+			    segments_t (0), priority);
     }
 
     void ProblemSolver::resetGoalConstraint ()
@@ -454,7 +454,7 @@ namespace hpp {
         throw std::invalid_argument (ss.str());
       }
       configProjector->add (get<NumericalConstraintPtr_t> (constraintName),
-			    SizeIntervals_t (0), priority);
+			    segments_t (0), priority);
     }
 
     void ProblemSolver::addLockedJointToConfigProjector

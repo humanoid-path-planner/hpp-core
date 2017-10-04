@@ -181,9 +181,8 @@ namespace hpp {
     typedef std::pair<value_type, value_type> interval_t;
     /// Interval of indices as (first index, number of indices)
     typedef Eigen::BlockIndex BlockIndex;
-    typedef BlockIndex::segment_t SizeInterval_t;
-    typedef BlockIndex::segments_t SizeIntervals_t;
-    typedef std::vector < SizeIntervals_t > IntervalsContainer_t;
+    typedef BlockIndex::segment_t segment_t;
+    typedef BlockIndex::segments_t segments_t;
     typedef Node* NodePtr_t;
     typedef std::list <NodePtr_t> Nodes_t;
     typedef std::vector <NodePtr_t> NodeVector_t;
@@ -233,7 +232,7 @@ namespace hpp {
     NumericalConstraintMap_t;
     typedef std::map <std::string, ComparisonTypePtr_t>
     ComparisonTypeMap_t;
-    typedef std::map <std::string, SizeIntervals_t> SizeIntervalsMap_t;
+    typedef std::map <std::string, segments_t> segmentsMap_t;
     typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
     typedef std::map <std::string, CenterOfMassComputationPtr_t>
     CenterOfMassComputationMap_t;

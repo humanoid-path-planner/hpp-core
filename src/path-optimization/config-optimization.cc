@@ -229,7 +229,7 @@ namespace hpp {
           }
           // TODO: this is not robust since we do not know if level 1 is the
           // last
-          projectors[i].proj->add (cc, SizeIntervals_t (0), 1);
+          projectors[i].proj->add (cc, segments_t (0), 1);
           projectors[i].proj->lastIsOptional (true);
 
           hppDout (info, "ConfigOptimization: rank " << i <<
