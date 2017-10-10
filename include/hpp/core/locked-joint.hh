@@ -163,8 +163,7 @@ namespace hpp {
         {
           LockedJointPtr_t lj (lj_.lock ());
           assert (*(result.space ()) == *(lj->configSpace ()));
-          result = lj->configSpace ()->neutral () +
-            lj->rightHandSide ().vector ();
+          result = lj->configSpace ()->neutral () + lj->rightHandSide ();
         }
 
         void impl_jacobian (matrixOut_t, vectorIn_t ) const {}

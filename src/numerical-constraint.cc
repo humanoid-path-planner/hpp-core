@@ -106,8 +106,11 @@ namespace hpp {
     void NumericalConstraint::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       if (rhsSize () > 0) {
-        assert (rhsSize () == function_->outputSize ());
-        (*function_) (nonConstRightHandSide (), config);
+        assert (*(function_->outputSpace ()) ==
+                *(LiegroupSpace::Rn (function_->outputSize ())));
+        LiegroupElement value (function_->outputSpace ());
+        function_->value (value, config);
+        rightHandSide (value.vector ());
       }
     }
   } // namespace core

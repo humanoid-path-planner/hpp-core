@@ -42,22 +42,20 @@ namespace hpp {
 
         Recall that degrees of freedom refer to velocity vectors.
 
-        Let us notice that \f$n_{ic} + n_{oc}\f$ is equal to the robot
-        configuration size, and \f$n_{iv} + n_{ov}\f$ is equal to the velocity
-        size.
+        Let us notice that \f$n_{ic} + n_{oc}\f$ is less than the robot
+        configuration size, and \f$n_{iv} + n_{ov}\f$ is less than the velocity
+        size. Some degrees of freedom may indeed be neither input nor output.
 
         Then the differential function is of the form
-        \f{equation*}
+        \f{equation*}{
         \left(\begin{array}{c}
         q_{oc_{1}} \\ \vdots \\ q_{oc_{n_{oc}}}
         \end{array}\right) -
         f \left((q_{ic_{1}} \cdots q_{ic_{n_{ic}}})^T\right)
         \f}
-
-        It is straightforward that equality constraint with this function can
+        It is straightforward that an equality constraint with this function can
         solved explicitely:
-
-        \f{align*}
+        \f{align*}{
         \left(\begin{array}{c}
         q_{oc_{1}} \\ \vdots \\ q_{oc_{n_{oc}}}
         \end{array}\right) &-
@@ -68,21 +66,31 @@ namespace hpp {
         \end{array}\right) &=
         f \left((q_{ic_{1}} \cdots q_{ic_{n_{ic}}})^T\right) + rhs \\
         \f}
+	If function \f$f\f$ takes values in a Lie group (SO(2), SO(3)),
+        the above "+" between a Lie group element and a tangent vector
+        has to be undestood as the integration of the constant velocity from
+        the Lie group element:
+        \f{equation*}{
+        \mathbf{q} + \mathbf{v} = \mathbf{q}.\exp (\mathbf{v})
+        \f}
+        where \f$\mathbf{q}\f$ is a Lie group element and \f$\mathbf{v}\f$ is a
+        tangent vector.
 
-	\note If function \f$f\f$ takes values in a sub-manifold, the above
-	impicit formulation does not make sense. In this case, users may
-	derive method \code solve \endcode to implement its own resolution.
-
-        Considered as a numerical constraint, the Jacobian of the differentiable
-        function above is built as follows:
+        Considered as a NumericalConstraint, the expression of the Jacobian of
+        the DifferentiableFunction above depends on the output space of function
+        \f$f\f$. The rows corresponding to values in a vector space are
+        expressed as follows.
 
         for any index \f$i\f$ between 0 and the size of velocity vectors, either
         \li \f$\dot{q}_i\f$ is an input degree of freedom:
-        \f$\exists j\in n_{iv}\f$ such that \f$i=iv_{j}\f$, or
+        \f$\exists j\f$ integer, \f$1 \leq j \leq n_{iv}\f$ such that
+        \f$i=iv_{j}\f$,
         \li \f$\dot{q}_i\f$ is an output degree of freedom:
-        \f$\exists j\in n_{ov}\f$ such that \f$i=ov_{j}\f$.
-
-        \f{equation*}
+        \f$\exists j\f$ integer, \f$1\leq j \leq n_{ov}\f$ such that
+        \f$i=ov_{j}\f$, or
+        \li \f$\dot{q}_i\f$ neither input nor output. In this case, the
+        corresponding column is equal to 0.
+        \f{equation*}{
         J = \left(\begin{array}{cccccccccccc}
         \cdots & ov_1 & \cdots & iv_{1} & \cdots & ov_2 & \cdots & iv_2 & \cdots & ov_{n_{ov}} & \cdots \\
                &  1   &        &        &        &  0   &        &      &        &             &        \\
@@ -92,6 +100,26 @@ namespace hpp {
                & 0    &        &       &         &  0   &        &      &        &  1
         \end{array}\right)
         \f}
+        The rows corresponding to values in SO(3) have the following expression.
+        \f{equation*}{
+        J = \left(\begin{array}{cccccccccccc}
+        ov_1 \ ov_2 \ ov_3 & iv_1 \cdots  iv_{n_{iv}} \\
+        J_{log}(R_{f}^T R_{out}) & -J_{log}(R_{f}^T R_{out})R_{out}^T \frac{\partial f}{\partial q_{in}}
+        \end{array}\right)
+        \f}
+        where
+        \li \f$R_{out}\f$ is the rotation matrix corresponding to unit
+        quaternion \f$(q_{oc1},q_{oc2},q_{oc3},q_{oc4})\f$,
+        \li \f$R_{f}\f$ is the rotation matrix corresponding to the part of the
+        output value of \f$f\f$ corresponding to SO(3),
+        \li \f$J_{log}\f$ is the Jacobian matrix of function that associates
+        to a rotation matrix \f$R\f$ the vector \f$\omega\f$ such that
+        \f{equation*}{
+        R = \exp (\left[\omega\right]_{\times})
+        \f}
+
+
+
     **/
     class HPP_CORE_DLLAPI ExplicitNumericalConstraint :
       public NumericalConstraint

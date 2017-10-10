@@ -111,7 +111,7 @@ namespace hpp {
     {
       LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
                          configSpace_);
-      error = (q - configSpace_->neutral ()) - rightHandSide ().vector ();
+      error = q - (configSpace_->exp (rightHandSide ()));
       return error.isApprox (vector_t::Zero (joint_->numberDof ()));
     }
 
@@ -120,8 +120,7 @@ namespace hpp {
       if (!comparisonType ()->constantRightHandSide ()) {
         LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
                            configSpace_);
-        rightHandSide ().vector  () = q - configSpace_->neutral ();
-        rightHandSide ().check ();
+        rightHandSide (q - configSpace_->neutral ());
       }
     }
 
