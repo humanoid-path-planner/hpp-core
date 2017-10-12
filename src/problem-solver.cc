@@ -53,6 +53,7 @@
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
+#include <hpp/core/path-optimization/simple-time-parameterization.hh>
 #include <hpp/core/path-validation-report.hh>
 // #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
@@ -190,6 +191,7 @@ namespace hpp {
       add <PathOptimizerBuilder_t> ("GradientBased",      pathOptimization::GradientBased::create);
       add <PathOptimizerBuilder_t> ("PartialShortcut",    pathOptimization::PartialShortcut::create);
       add <PathOptimizerBuilder_t> ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
+      add <PathOptimizerBuilder_t> ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
       add <PathOptimizerBuilder_t> ("None",               NoneOptimizer::create); // TODO: Delete me
 
       // add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);

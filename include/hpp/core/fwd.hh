@@ -276,6 +276,8 @@ namespace hpp {
       typedef boost::shared_ptr <PathLength> PathLengthPtr_t;
       HPP_PREDEF_CLASS (PartialShortcut);
       typedef boost::shared_ptr <PartialShortcut> PartialShortcutPtr_t;
+      HPP_PREDEF_CLASS (SimpleTimeParameterization);
+      typedef boost::shared_ptr <SimpleTimeParameterization> SimpleTimeParameterizationPtr_t;
       HPP_PREDEF_CLASS (ConfigOptimization);
       typedef boost::shared_ptr <ConfigOptimization>
         ConfigOptimizationPtr_t;

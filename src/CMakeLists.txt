@@ -62,6 +62,7 @@ locked-joint.cc
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/config-optimization.cc#
+  path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
   path-vector.cc #
   path/spline.cc
