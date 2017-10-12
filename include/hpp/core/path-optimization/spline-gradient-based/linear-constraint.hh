@@ -88,7 +88,7 @@ namespace hpp {
           if (check) {
             // check that the constraints are feasible
             matrix_t error = J * xStar - b;
-            if (!error.isZero()) {
+            if (!error.isZero(1e-7)) {
               hppDout (warning, "Constraint not feasible: "
                   << error.norm() << '\n' << error.transpose());
               return false;
