@@ -32,6 +32,8 @@ namespace hpp {
     class HPP_CORE_DLLAPI PathOptimizer
     {
     public:
+      virtual ~PathOptimizer () {};
+
       /// Get problem
       const Problem& problem () const
       {

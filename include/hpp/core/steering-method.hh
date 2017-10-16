@@ -52,6 +52,8 @@ namespace hpp {
 	return PathPtr_t ();
       }
 
+      virtual ~SteeringMethod () {};
+
       /// Copy instance and return shared pointer
       virtual SteeringMethodPtr_t copy () const = 0;
 

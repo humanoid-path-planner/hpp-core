@@ -69,6 +69,8 @@ namespace hpp {
 
       virtual void filterCollisionPairs (const RelativeMotion::matrix_type&) {}
 
+      virtual ~PathValidation () {};
+
     protected:
       PathValidation ()
       {

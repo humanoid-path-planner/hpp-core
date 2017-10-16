@@ -73,6 +73,8 @@ namespace hpp {
       // Get distance function
       virtual DistancePtr_t distance () const = 0;
 
+      virtual ~NearestNeighbor () {};
+
     }; // class NearestNeighbor
   } // namespace core
 } // namespace hpp

@@ -33,6 +33,8 @@ namespace hpp {
     /// algorithm.
     class HPP_CORE_DLLAPI ProblemTarget {
     public:
+      virtual ~ProblemTarget () {};
+
       /// Check if the problem target is well specified.
       virtual void check (const RoadmapPtr_t& roadmap) const = 0;
 

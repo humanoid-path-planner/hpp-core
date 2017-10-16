@@ -67,6 +67,7 @@ namespace hpp {
 
       virtual void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
 
+      virtual ~DiscretizedPathValidation () {};
     protected:
       DiscretizedPathValidation
   (const DevicePtr_t& robot, const value_type& stepSize);

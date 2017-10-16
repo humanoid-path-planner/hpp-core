@@ -36,6 +36,8 @@ namespace hpp {
     public:
       /// Shoot a random configuration
       virtual ConfigurationPtr_t shoot () const = 0;
+
+      virtual ~ConfigurationShooter () {};
     protected:
       ConfigurationShooter ()
     {
