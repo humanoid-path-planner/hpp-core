@@ -60,6 +60,7 @@ namespace hpp {
     /// hpp-core library and component to be running in a middleware
     /// like CORBA or ROS.
     class HPP_CORE_DLLAPI ProblemSolver :
+      /// \cond
       public Containers <
         boost::mpl::vector < PathPlannerBuilder_t,
                              PathOptimizerBuilder_t,
@@ -74,6 +75,7 @@ namespace hpp {
                              AffordanceObjects_t,
                              AffordanceConfig_t,
                              JointAndShapes_t> >
+      /// \endcond
     {
     public:
 
