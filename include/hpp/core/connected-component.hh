@@ -30,6 +30,9 @@ namespace hpp {
     /// Set of nodes reachable from one another.
     class HPP_CORE_DLLAPI ConnectedComponent {
     public:
+      typedef ConnectedComponent* RawPtr_t;
+      typedef std::set <RawPtr_t> RawPtrs_t;
+
       // variable for ranking connected components
       static unsigned int globalFinishTime_;
       static ConnectedComponentPtr_t create ()
@@ -72,20 +75,26 @@ namespace hpp {
       /// \retval cc2Tocc1 list of connected components between cc2 and cc1
       ///         that should be merged.
       bool canReach (const ConnectedComponentPtr_t& cc,
-		     ConnectedComponents_t& cc2Tocc1);
+		     RawPtrs_t& cc2Tocc1);
 
       // Get connected components reachable from this
-      const ConnectedComponents_t& reachableTo () const
+      const RawPtrs_t& reachableTo () const
       {
 	return reachableTo_;
       }
 
       // Get connected components that can reach this
-      const ConnectedComponents_t& reachableFrom () const
+      const RawPtrs_t& reachableFrom () const
       {
 	return reachableFrom_;
       }
       /// \}
+
+      ConnectedComponentPtr_t self ()
+      {
+        return weak_.lock ();
+      }
+
     protected:
       /// Constructor
       ConnectedComponent () : nodes_ (), explored_ (false), weak_ ()
@@ -96,16 +105,17 @@ namespace hpp {
 	weak_ = shPtr;
       }
     private:
+      static void clean (RawPtrs_t& set);
+
       NodeVector_t nodes_;
       // List of CCs from which this connected component can be reached
-      ConnectedComponents_t reachableFrom_;
+      RawPtrs_t reachableFrom_;
       // List of CCs that can be reached from this connected component
-      ConnectedComponents_t reachableTo_;
+      RawPtrs_t reachableTo_;
       // status variable to indicate whether or not CC has been visited
       mutable bool explored_;
       ConnectedComponentWkPtr_t weak_;
       friend class Roadmap;
-      friend void clean (ConnectedComponents_t& set);
     }; // class ConnectedComponent
   } //   namespace core
 } // namespace hpp
