@@ -1,0 +1,352 @@
+\documentclass {article}
+
+\usepackage{color}
+\title {Explicit numerical constraints on Lie groups}
+
+\newcommand\reals{\mathbf{R}}
+\newcommand\rot{\mathbf{r}}
+\newcommand\x{\mathbf{x}}
+\newcommand\y{\mathbf{y}}
+\newcommand\rcross[1]{[\rot_{#1}]_{\times}}
+\newcommand\xcross{[\mathbf{x}]_{\times}}
+\newcommand\ycross{[\mathbf{y}]_{\times}}
+\newcommand\omegacross{[\omega]_{\times}}
+\newcommand\rdotcross{\left[\dot{\rot}\right]_{\times}}
+\newcommand\normr{\|\rot\|}
+\newcommand\e{\mathbf{e}}
+\newcommand\alphap{\alpha^{\prime}}
+\newcommand\cross[1]{[#1]_{\times}}
+\newcommand\CS{\mathcal{C}}
+\newcommand\conf{\mathbf{q}}
+\newcommand\logSO[1]{\log_{SO#1}}
+\newcommand\JlogSO[1]{J_{\log SO#1}}
+\newcommand\logSE[1]{\log_{SE#1}}
+\newcommand\JlogSE[1]{J_{\log SE#1}}
+\begin {document}
+\maketitle
+
+\section {Introduction and notation}
+
+Let $\CS$ be the configuration space of a robotic system. We assume that
+\begin{itemize}
+  \item $\CS=\CS_{out}\times\CS_{in}$ is the Cartesian product of two
+    configuration subspaces, and
+  \item $\CS_{out}$ and $\CS_{in}$ are the Cartesian products of elementary Lie
+    groups among $\reals^n$, $SO(3)$ and $SE(3)$, where $n$ is a positive integer.
+\end{itemize}
+Let $\conf = (\conf_{out},\conf_{in})$ be the configuration of the robotic system.
+We consider a $C^1$ mapping $f$ from $\CS_{in}$ to $\CS_{out}$, and a $C^1$ mapping $h$ from $\CS$ to $T_{\CS}$ defined as follows:
+\begin {equation}\label{eq:def-h}
+h (\conf) = \log (\conf_{out} - f (\conf_{in}))
+\end {equation}
+where $\log$ is the function defined on Lie group that maps to any element of
+the Lie group the tangent vector at the origin of minimal norm such that
+$$
+\mathbf{v} = \log \mathbf{e} \Rightarrow \mathbf{e} = \exp \mathbf{v}
+$$
+For readers not familiar with Lie groups, this means that
+\begin{itemize}
+\item $\log$ applies componentwise: if a Lie group ($\CS$ for
+  instance) is the Cartesian product of several Lie groups:
+  $\CS=lg_1\times\cdots\times lg_{k}$ where $k$ is a positive integer,
+  $$
+  \log (\mathbf{e}_1,\cdots,\mathbf{e}_k) = (\log\mathbf{e}_1,\cdots,\log\mathbf{e}_k)
+  $$
+\item if $\mathbf{e}\in\reals^n$, $\log\mathbf{e} = \mathbf{e}$,
+\item if $\mathbf{e}\in SO(3)$, and $R$ is the rotation matrix representing
+$\mathbf{e}$, $\log\mathbf{e} = \omega\in \reals^3$ such that
+$$
+\left[\omega\right]_{\times} = R^T\dot{R}
+$$
+\end{itemize}
+
+\section {Jacobian of $h$}
+
+In this section, we compute the Jacobian of $h$.
+
+\subsection {Vector space}
+
+Lines corresponding to vector spaces are of the form:
+$$
+\begin{array}{ccccc}
+&&\conf_{out}& \conf_{in} \\
+\reals^n & \left(\right. & I_{n} & -\frac{\partial f}{\partial\conf_{in}} & \left.\right)\\
+\end{array}
+$$
+
+\subsection {SO(3)}
+
+We compute now lines of the Jacobian of $h$ corresponding to $SO(3)$ parts of $\CS_{out}$. Those lines are the Jacobian of expression:
+\begin{equation}\label{eq:SO3-implicit}
+\log (\conf_{out\ i} - f_{i}(\conf_{in}))
+\end{equation}
+where $\conf_{out\ i}\in\reals^4$ is a unit quaternion and $f_{i}$ correspond to
+the 4 coordinates of $f$ related to SO(3). The above equation can be rewritten
+\begin{equation}\label{eq:SO3-implicit-R}
+\log (R_{f}(\conf_{in})^T R_{out})
+\end{equation}
+where $R_{out}$ and $R_{f}$ are rotation matrices corresponding respectively to
+$\conf_{out\ i}$ and $f_{i}$.
+
+Let us first derive the argument of the $\log$ function:
+\begin{equation}\label{eq:SO3-implicit-R-deriv}
+\frac{d}{dt}(R_{f}(\conf_{in})^T R_{out}) = \frac{d}{dt}R_{f}(\conf_{in})^T {R}_{out} + R_{f}(\conf_{in})^T\dot{R}_{out}
+\end{equation}
+We wish to express the derivative of $R_{f}(\conf_{in})^T R_{out}$ as the vector
+$\omega$ such that
+$$
+\frac{d}{dt}(R_{f}(\conf_{in})^T R_{out}) = R_{f}(\conf_{in})^T R_{out} \left[\omega\right]_{\times}
+$$
+with respect to $\omega_{out}$ defined by 
+\begin{equation}\label{eq:R_out-deriv}
+\dot{R}_{out} = R_{out}\left[\omega_{out}\right]_{\times}
+\end{equation}
+and $\dot{\conf}_{in}$. We also define $\omega_{f}$ by:
+\begin{equation}\label{eq:R_f-deriv}
+\frac{d}{dt}R_{f}(\conf_{in}) = R_{f}(\conf_{in})\left[\omega_{f}\right]_{\times}
+\end{equation}
+Substituting~(\ref{eq:R_out-deriv}) and (\ref{eq:R_f-deriv}) in (\ref{eq:SO3-implicit-R-deriv}), we get
+\begin{eqnarray*}
+\frac{d}{dt}(R_{f}(\conf_{in})^T R_{out}) &=& (R_{f}(\conf_{in})\left[\omega_{f}\right]_{\times})^T {R}_{out} + R_{f}(\conf_{in})^TR_{out}\left[\omega_{out}\right]_{\times}\\
+&=&-\left[\omega_{f}\right]_{\times}R_{f}(\conf_{in})^T {R}_{out} + R_{f}(\conf_{in})^TR_{out}\left[\omega_{out}\right]_{\times}\\
+\end{eqnarray*}
+Let us recall that $\left[R\omega\right]_{\times} = R\left[\omega\right]_{\times}R^T$ and thus $\left[\omega\right]_{\times}R^T=R^T\left[R\omega\right]_{\times}$. Using $R=R_{out}^TR_{f}(\conf_{in})$, we get:
+\begin{eqnarray*}
+\frac{d}{dt}(R_{f}(\conf_{in})^T R_{out}) &=& R_{f}(\conf_{in})^TR_{out}\left[\omega_{out}\right]_{\times} - R_{f}(\conf_{in})^T {R}_{out} \left[R_{out}^TR_{f}(\conf_{in})\omega_{f}\right]_{\times}\\
+&=& R_{f}(\conf_{in})^TR_{out}\left[\omega_{out} - R_{out}^TR_{f}(\conf_{in})\omega_{f} \right]_{\times}
+\end{eqnarray*}
+As a result,
+\begin{eqnarray*}
+\omega &=& \omega_{out} - R_{out}^TR_{f}(\conf_{in})\omega_{f} \\
+&=& \omega_{out} - R_{out}^TR_{f}(\conf_{in}) J_f\dot{\conf}_{in}
+\end{eqnarray*}
+And the 3 corresponding lines in the Jacobian $h$ are:
+$$
+\begin{array}{ccccc}
+&&\conf_{out}& \conf_{in} \\
+SO(3) & \left(\right. & \JlogSO{3}(R_{f}(\conf_{in})^T R_{out}) & -\JlogSO{3}(R_{f}(\conf_{in})^T R_{out})R_{out}^TR_{f}(\conf_{in})J_{f} & \left.\right)\\
+\end{array}
+$$
+
+\subsection {SE(3)}
+
+We compute now lines of the Jacobian of $h$ corresponding to $SE(3)$ parts of $\CS_{out}$. Those lines are the Jacobian of expression:
+\begin{equation}\label{eq:SE3-implicit}
+\mathbf{e}(\conf) = \log (\conf_{out\ i} - f_{i}(\conf_{in}))
+\end{equation}
+where $\conf_{out\ i}\in\reals^7$ is a the concatenation of an element of $\reals^3$ and of a unit quaternion and $f_{i}$ correspond to
+the 7 coordinates of $f$ related to SE(3). The above equation can be rewritten
+\begin{equation}\label{eq:SE3-implicit-R}
+\log (M_{f}(\conf_{in})^{-1} M_{out})
+\end{equation}
+where
+$$
+M_{out}=\left(\begin{array}{cc}R_{out} &\mathbf{p}_{out}\\
+0 & 1 \end{array}\right)\ \ \  \mbox{and} \ \ \ M_{f}=\left(\begin{array}{cc}R_{f} &\mathbf{p}_{f}\\
+0 & 1 \end{array}\right)
+$$
+are homogeneous matrices corresponding respectively to $\conf_{out\ i}$ and $f_{i}$.
+$$
+M_{f}^{-1} = \left(\begin{array}{cc}R_{f}^T & -R_{f}^T\mathbf{p}_{f}\\
+0 & 1\end{array}\right)
+$$
+(\ref{eq:SE3-implicit-R}) can thus be rewritten as
+$$
+\log \left(\begin{array}{cc}
+R_{f}^T R_{out} & R_{f}^T\mathbf{p}_{out} - R_{f}^T\mathbf{p}_{f}\\
+0 & 1
+\end{array}\right)
+$$
+\paragraph {Derivative of an homogeneous matrix.}
+
+Let $M=\left(\begin {array}{cc} R & \mathbf{p} \\ 0\ 0\ 0 & 1\end{array}\right)$ be a time varying homogeneous matrix. We represent the time derivative of this matrix by a vector of $\reals^6$ $(\mathbf{v},\omega)$ such that
+\begin{eqnarray}
+\label{eq:omega}
+\dot{R} &=& R\left[\omega\right]_{\times}\\
+\label{eq:v}
+\dot{\mathbf{p}} &=& R\ \mathbf{v}
+\end{eqnarray}
+
+Using this notation, if we denote by $(\mathbf{v}, \omega)$ the time derivative of the homogeneous matrix $M_{f}(\conf_{in})^{-1} M_{out}$, we get:
+\begin{eqnarray}
+\mathbf{v} &=& \mathbf{v}_{out} + R_{out}^T [\mathbf{p}_{out} - \mathbf{p}_{f}]_{\times} R_{f}\omega_{f} - R_{out}^T R_{f}\mathbf{v}_{f}\\
+\omega &=& \omega_{out} - R_{out}^TR_{f} \omega_{f}
+\end{eqnarray}
+We can rewrite the above expression as
+\begin{eqnarray*}
+\left(\begin{array}{c}\mathbf{v}\\\omega\end{array}\right) &=&
+\left(\begin{array}{cc}I_6 & \begin{array}{c}R_{out}^T [\mathbf{p}_{out} - \mathbf{p}_{f}]_{\times} R_{f}J_{f}^{\omega} - R_{out}^T R_{f}J_{f}^{\mathbf{v}}\\
+-R_{out}^TR_{f} J_{f}^{\omega}\end{array}\end{array}\right)
+\left(\begin{array}{c}\dot{\conf}_{out} \\\dot{\conf}_{in}\end{array}\right)
+\end{eqnarray*}
+where $J_{f}^{\mathbf{v}}$ and $J_{f}^{\omega}$ are respectively the first 3 and last
+3 rows of the Jacobian matrix of $f_i$.
+
+The Jacobian of $\mathbf{e}$~(\ref{eq:SE3-implicit}) is obtained by left multiplying the above matrix by the Jacobian of $\log$:
+$$
+J_{\mathbf{e}} (\conf) = J_{logSE3} (M_{f}(\conf_{in})^{-1} M_{out})
+\left(\begin{array}{cc}I_6 & \begin{array}{c}R_{out}^T [\mathbf{p}_{out} - \mathbf{p}_{f}]_{\times} R_{f}J_{f}^{\omega} - R_{out}^T R_{f}J_{f}^{\mathbf{v}}\\
+-R_{out}^TR_{f} J_{f}^{\omega}\end{array}\end{array}\right)
+$$
+
+\subsubsection {Logarithm of an homogeneous matrix.}
+
+Let $M = \left(\begin {array}{cc} R& \mathbf{p} \\ 0\ 0\ 0 & 1\end{array}\right)$ be an homogeneous matrix.
+We denote
+\begin{eqnarray}
+\mathbf{r} &=& \logSO{3} (R),\\
+\label{eq:V}
+V &=& I_3 -\frac{1}{2}\rcross{} +  \left(\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}\right)\rcross{}^2\\
+&=&I_3 -\frac{1}{2}\rcross{} +  \left(\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}\right)(\mathbf{r}\mathbf{r}^T - \normr^2 I_3)\\
+&=& \alpha (\normr)I_3 - \frac{1}{2}\rcross{} + \beta \mathbf{r}\mathbf{r}^T
+\end{eqnarray}
+with
+\begin{eqnarray}
+\beta(\normr)&=&\left(\frac{1}{\normr^2} - \frac{\sin\normr}{2\normr(1-\cos\normr)}\right)\\
+\alpha (\normr) &=& \frac{\normr\sin\normr}{2(1-\cos\normr)}
+\end{eqnarray}
+With this notation, $\logSE{3} M$ is defined by
+\begin{equation}\label{eq:logSE3}
+\logSE{3} M = \left(\begin{array}{c} V\mathbf{p} \\ \mathbf{r}\end{array}\right)
+\end{equation}
+
+\subsubsection {Jacobian of the logarithm of an homogeneous matrix}
+
+We aim at computing the $6\times 6$ matrix $\JlogSE{3}$ that maps the time derivative of the homogeneous matrix to the time derivative of the logarithm:
+\begin{eqnarray}
+\frac{d}{dt} \logSE{3} M &=& \JlogSE{3} (M) \left(\begin{array}{c}\mathbf{v}\\ \omega\end{array}\right)\\
+\left(\begin{array}{c}\dot{V}\mathbf{p} + V\mathbf{\dot{p}} \\
+\mathbf{\dot{r}}\end{array}\right) &=& \JlogSE{3} (M) \left(\begin{array}{c}\mathbf{v}\\ \omega\end{array}\right)
+\end{eqnarray}
+The Jacobian is obviously of the following form
+\begin{eqnarray}
+\JlogSE{3} (M) &=&\left(\begin{array}{cc}
+V\ R & J \\ 0 & \JlogSO{3}
+\end{array}\right)
+\end{eqnarray}
+where $J$ is the $3\times 3$ matrix satisfying
+\begin{eqnarray}
+\dot{V} \mathbf{p} &=& J\omega
+\end{eqnarray}
+We rewrite~(\ref{eq:V}) as
+\begin{equation}\label{eq:V_1}
+V = I_3 -\frac{1}{2}\rcross{} +  \beta (\normr)\rcross{}^2
+\end{equation}
+Deriving~(\ref{eq:V_1}) we get
+\begin{eqnarray}
+\dot{V} \mathbf{p} &=& -\frac{1}{2}[\dot{\rot}]_{\times}\mathbf{p} +  \frac{d}{dt}\left(\beta (\normr)\rcross{}^2 \right)\mathbf{p}\\
+\label{eq:1}
+ &=& \frac{1}{2}[\mathbf{p}]_{\times}\dot{\rot} + \frac{d}{dt}\left(\beta (\normr)\rcross{}^2 \right)\mathbf{p}\\
+\frac{d}{dt}\left(\beta (\normr)\rcross{}^2 \right)\mathbf{p} &=&
+\dot{\beta} (\normr) \frac{\rot^T\dot{\rot}}{\normr}\rcross{}^2\mathbf{p} +
+\beta (\normr)\frac{d}{dt}\rcross{}^2 \mathbf{p}
+\end{eqnarray}
+Let us replace $\rcross{}^2$ by the following expression
+\begin{equation}
+\rcross{}^2=\rot\rot^T - \normr^2 I_3
+\end{equation}
+\begin{eqnarray}\label{eq:deriv1}
+\frac{d}{dt}\left(\beta (\normr)\rcross{}^2 \right)\mathbf{p} &=&
+\dot{\beta} (\normr) \frac{\rot^T\dot{\rot}}{\normr}(\rot\rot^T\mathbf{p} - \normr^2\mathbf{p})\\
+&& +\beta (\normr)\frac{d}{dt}(\rot\rot^T\mathbf{p} - \normr^2\mathbf{p})
+\end{eqnarray}
+Note that
+\begin{eqnarray*}
+(\rot^T\dot{\rot})\rot\rot^T\mathbf{p} &=& \rot\rot^T\mathbf{p}\rot^T\dot{\rot} = (\rot^T\mathbf{p})\rot\rot^T\dot{\rot}\\
+(\rot^T\dot{\rot})\mathbf{p} &=& \mathbf{p}\rot^T\dot{\rot}
+\end{eqnarray*}
+Substituting in~(\ref{eq:deriv1}), we get
+\begin{eqnarray}\label{eq:deriv2}
+\frac{d}{dt}\left(\beta (\normr)\rcross{}^2 \right)\mathbf{p} &=&
+\dot{\beta} (\normr) (\frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
+-\normr \mathbf{p}\rot^T)\dot{\rot}\\
+\label{eq:deriv3}
+&& +\beta (\normr)\frac{d}{dt}(\rot\rot^T\mathbf{p} - \normr^2\mathbf{p})
+\end{eqnarray}
+We now express~(\ref{eq:deriv3}).
+\begin{eqnarray}
+  \frac{d}{dt}(\rot\rot^T\mathbf{p}) &=& \dot{\rot}\rot^T\mathbf{p} + \rot\dot{\rot}^T\mathbf{p}\\
+&=& (\rot^T\mathbf{p})\dot{\rot} + \rot\mathbf{p}^T\dot{\rot}\\
+  \frac{d}{dt}(\normr^2\mathbf{p}) &=& 2(\rot^T\dot{\rot})\mathbf{p}
+= 2\mathbf{p}\rot^T\dot{\rot}\\
+\label{eq:deriv4}
+\frac{d}{dt}(\rot\rot^T\mathbf{p} - \normr^2\mathbf{p}) &=&
+(\rot^T\mathbf{p}I_3 + \rot\mathbf{p}^T - 2\mathbf{p}\rot^T)\dot{\rot}
+\end{eqnarray}
+Substituting~(\ref{eq:deriv4}) into (\ref{eq:deriv2}-\ref{eq:deriv3}), we get
+\begin{eqnarray}\label{eq:deriv5}
+\frac{d}{dt}\left(\beta (\normr)\rcross{}^2 \right)\mathbf{p} &=&
+\dot{\beta} (\normr) (\frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
+-\normr \mathbf{p}\rot^T)\dot{\rot}\\
+\label{eq:deriv6}
+&& +\beta (\normr)(\rot^T\mathbf{p}I_3 + \rot\mathbf{p}^T - 2\mathbf{p}\rot^T)\dot{\rot}\\
+\label{eq:deriv7}
+&=&\left(\dot{\beta} (\normr) \frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
+- (\normr\dot{\beta} (\normr) + 2 \beta(\normr)) \mathbf{p}\rot^T\right.\\
+\label{eq:deriv8}
+&&\left. + \rot^T\mathbf{p}\beta (\normr)I_3 + \beta (\normr)\rot\mathbf{p}^T\right)\dot{\rot}
+\end{eqnarray}
+Substituting (\ref{eq:deriv7}-\ref{eq:deriv8}) into (\ref{eq:1}), we get
+\begin{eqnarray}
+\dot{V} \mathbf{p} &=& \left(\frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (\normr) \frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
+- (\normr\dot{\beta} (\normr) + 2 \beta(\normr)) \mathbf{p}\rot^T\right.\\
+&&\left. + \rot^T\mathbf{p}\beta (\normr)I_3 + \beta (\normr)\rot\mathbf{p}^T\right)\dot{\rot}
+\end{eqnarray}
+Let us recall that
+$$
+\dot{\rot} = \JlogSO{3} (R) \omega
+$$
+Therefore,
+\begin{eqnarray*}
+J &=& 
+\left(\frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (\normr) \frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
+- (\normr\dot{\beta} (\normr) + 2 \beta(\normr)) \mathbf{p}\rot^T\right.\\
+&&\left. + \rot^T\mathbf{p}\beta (\normr)I_3 + \beta (\normr)\rot\mathbf{p}^T\right)\JlogSO{3} (R)
+\end{eqnarray*}
+\paragraph {Expression of $\beta$ and derivative.}
+
+$$
+\beta(x)=\left(\frac{1}{x^2} - \frac{\sin x}{2x(1-\cos x)}\right)
+$$
+\begin{eqnarray*}
+\dot{\beta} (x) &=& -\frac{2}{x^3} - \frac{2x \cos x (1-\cos x) - \sin x
+(2(1-\cos x)+2x\sin x)}{4x^2(1-\cos x)^2}\\
+&=&-\frac{2}{x^3} - \frac{2x \cos x - 2x \cos^2 x - 2\sin x
++ 2\sin x\cos x-2x\sin^2 x}{4x^2(1-\cos x)^2}\\
+&=&-\frac{2}{x^3} - \frac{x \cos x - x - \sin x + \sin x\cos x}{2x^2(1-\cos x)^2}\\
+&=&-\frac{2}{x^3} - \frac{x (\cos x - 1) - \sin x (1 - \cos x)}{2x^2(1-\cos x)^2}\\
+&=&-\frac{2}{x^3} + \frac{x (1 - \cos x) + \sin x (1 - \cos x)}{2x^2(1-\cos x)^2}\\
+&=&-\frac{2}{x^3} + \frac{x + \sin x}{2x^2(1-\cos x)}
+\end{eqnarray*}
+Close to $0$, we need to approximate $\alpha$, $\beta$ and $\dot{\beta}$ by a Taylor expansion:
+$$
+\beta (x) = \frac{1}{12} + \frac{1}{720} x^2 + o(x^3)\ \ \ 
+\dot{\beta} (x) = \frac{1}{360} x + o(x^2),\ \  |x| \leq 0.02
+$$
+
+\begin{eqnarray*}
+\alpha (x) &=& \frac{x\sin x}{2(1-\cos x)} \\
+&=& 1 - \frac{1}{12}x^2 -\frac{1}{720} x^4 + o(x^4),\ \ |x| \leq 0.02\\
+%% &=&  \frac{x(x-\frac{1}{6}x^3 + \frac{1}{120}x^5 + o(x^6))}{2(\frac{1}{2}x^2-\frac{1}{24}x^4 +\frac{1}{720}x^6 + o(x^7))} = \frac{x^2-\frac{1}{6}x^4 + \frac{1}{120}x^6 + o(x^7)}{x^2-\frac{1}{12}x^4 +\frac{1}{360}x^6 + o(x^7)}\\
+%% &=&\frac{1-\frac{1}{6}x^2 + \frac{1}{120}x^4 + o(x^5)}{1-\frac{1}{12}x^2 +\frac{1}{360}x^4 + o(x^5)}\\
+%% &=& (1-\frac{1}{6}x^2 + \frac{1}{120}x^4 + o(x^5))\frac{1}{1-\frac{1}{12}x^2 +\frac{1}{360}x^4 + o(x^5)}
+\end{eqnarray*}
+%% \begin{eqnarray*}
+%% \frac{1}{1-\frac{1}{12}x^2 +\frac{1}{360}x^4 + o(x^5)} &=&
+%% 1 + (\frac{1}{12}x^2 -\frac{1}{360}x^4 + o(x^5)) + (\frac{1}{12}x^2 -\frac{1}{360}x^4 + o(x^5))^2 + o(x^4)\\
+%% &=&1 + \frac{1}{12}x^2 -\frac{1}{360}x^4 + \frac{1}{144}x^4 + o(x^4)\\
+%% &=&1 + \frac{1}{12}x^2 + \frac{1}{240}x^4 + o(x^4)\\
+%% \end{eqnarray*}
+%% %% $$
+%% %% \frac{1}{144}-\frac{1}{360} = \frac{1}{72*2}-\frac{1}{5*72} = \frac{5}{72*10}-\frac{2}{10*72} = \frac{3}{720} = \frac{1}{240}
+%% %% $$
+%% \begin{eqnarray*}
+%% \alpha (x) &=& (1-\frac{1}{6}x^2 + \frac{1}{120}x^4 + o(x^5))(1 + \frac{1}{12}x^2 + \frac{1}{240}x^4 + o(x^4))\\
+%% &=& 1 - \frac{1}{12}x^2 + (-\frac{1}{72}+\frac{1}{120}+\frac{1}{240}) x^4  + o(x^4)\\
+%% &=&1 - \frac{1}{12}x^2 -\frac{1}{720} x^4 + o(x^4)
+%% \end{eqnarray*}
+%% \begin{eqnarray*}
+%% -\frac{1}{72}+\frac{1}{120}+\frac{1}{240} &=& -\frac{1}{3*24}+\frac{1}{5*24}+\frac{1}{10*24} = \frac {-10+6+3}{30*24} = -\frac{1}{720}
+%% \end{eqnarray*}
+
+\end {document}
