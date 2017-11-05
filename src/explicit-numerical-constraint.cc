@@ -104,19 +104,6 @@ namespace hpp {
     }
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
-    (const DifferentiableFunctionPtr_t& implicitConstraint,
-     const segments_t& inputConf,
-     const segments_t& inputVelocity,
-     const segments_t& outputConf,
-     const segments_t& outputVelocity) :
-      NumericalConstraint (implicitConstraint, ComparisonTypes::create(implicitConstraint->outputSize())),
-      inputConf_ (inputConf),
-      inputVelocity_ (inputVelocity),
-      outputConf_ (outputConf),
-      outputVelocity_ (outputVelocity)
-    {}
-
-    ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const ExplicitNumericalConstraint& other) :
       NumericalConstraint (other), inputToOutput_ (other.inputToOutput_),
       inputConf_ (other.inputConf_), inputVelocity_ (other.inputVelocity_),

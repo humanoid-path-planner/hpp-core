@@ -104,7 +104,7 @@ namespace hpp {
         \f{equation*}{
         J = \left(\begin{array}{cccccccccccc}
         ov_1 \ ov_2 \ ov_3 & iv_1 \cdots  iv_{n_{iv}} \\
-        J_{log}(R_{f}^T R_{out}) & -J_{log}(R_{f}^T R_{out})R_{out}^T \frac{\partial f}{\partial q_{in}}
+        J_{log}(R_{f}^T R_{out}) & -J_{log}(R_{f}^T R_{out})R_{out}^T R_{f} \frac{\partial f}{\partial q_{in}}
         \end{array}\right)
         \f}
         where
@@ -190,21 +190,6 @@ namespace hpp {
       /// \note comparison type for this constraint is always equality
       ExplicitNumericalConstraint
 	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
-	 const segments_t& inputConf,
-	 const segments_t& inputVelocity,
-	 const segments_t& outputConf,
-	 const segments_t& outputVelocity);
-
-      /// Constructor
-      ///
-      /// \param implicitConstraint Function that is used when this constraint
-      ///        is handled as an implicit constraint
-      ///
-      /// This constructor is aimed at specializing this class, in order to
-      /// provide a function in case the default implicit function is not
-      /// appropriate.
-      ExplicitNumericalConstraint
-	(const DifferentiableFunctionPtr_t& implicitConstraint,
 	 const segments_t& inputConf,
 	 const segments_t& inputVelocity,
 	 const segments_t& outputConf,

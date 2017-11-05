@@ -33,6 +33,7 @@ namespace hpp {
     typedef hpp::pinocchio::liegroup::SpecialOrthogonalOperation <3> SO3;
     typedef hpp::pinocchio::liegroup::CartesianProductOperation <R3, SO3>
     R3xSO3;
+    typedef se3::SpecialEuclideanOperation <3> SE3;
     typedef hpp::pinocchio::LiegroupType LiegroupType;
 
     struct JacobianVisitor : public boost::static_visitor <>
@@ -61,27 +62,29 @@ namespace hpp {
       using Eigen::MatrixBlocks;
       using Eigen::BlockIndex;
       typedef hpp::constraints::BlockIndex BlockIndex;
+      hppDout (info, "result_ = " << std::endl << result_);
       // Fill R^3 part
       assert (outJacobian_.nbRows () == 6);
-      for (size_type i=0; i<3; ++i) {
-        outJacobian_.lview (result_) (i, i) = 1;
-      }
+      Eigen::MatrixBlocks <false, false> tmp (outJacobian_.block (0, 0, 3, 3));
+      tmp.lview (result_) = matrix3_t::Identity ();
+      hppDout (info, "result_ = " << std::endl << result_);
       // extract 3 top rows of inJacobian_
       segments_t cols (inJacobian_.cols ());
       MatrixBlocks <false, false> inJacobian
         (inJacobian_.block (0, 0, 3, BlockIndex::cardinal (cols)));
-      inJacobian.lview (result_) = Jf_.topRows <3> ();
+      inJacobian.lview (result_) = -Jf_.topRows <3> ();
+      hppDout (info, "result_ = " << std::endl << result_);
       // Fill SO(3) part
       // extract 3 bottom rows of inJacobian_
       inJacobian = inJacobian_.block (3, 0, 3, BlockIndex::cardinal (cols));
       // extract 3x3 bottom left part of outJacobian_
       MatrixBlocks <false, false> outJacobian (outJacobian_.block (3, 3, 3, 3));
-      assert (qOut_.size () == 4);
-      assert (f_qIn_.size () == 4);
+      assert (qOut_.size () == 7);
+      assert (f_qIn_.size () == 7);
       matrix3_t R_out
-        (Eigen::Quaterniond (qOut_.head <4> ()).toRotationMatrix ());
+        (Eigen::Quaterniond (qOut_.tail <4> ()).toRotationMatrix ());
       matrix3_t R_f
-        (Eigen::Quaterniond (f_qIn_.head <4> ()).toRotationMatrix ());
+        (Eigen::Quaterniond (f_qIn_.tail <4> ()).toRotationMatrix ());
       // \f$R_f^T R_{out}\f$
       matrix3_t R_f_T_R_out (R_f.transpose () * R_out);
       matrix3_t Jlog_R_f_T_R_out;
@@ -90,7 +93,40 @@ namespace hpp {
       constraints::logSO3 (R_f_T_R_out, theta, r);
       constraints::JlogSO3 (theta, r, Jlog_R_f_T_R_out);
       outJacobian.lview (result_) = Jlog_R_f_T_R_out;
-      inJacobian.lview (result_) = -Jlog_R_f_T_R_out * R_out.transpose () * Jf_;
+      hppDout (info, "result_ = " << std::endl << result_);
+      inJacobian.lview (result_) = -Jlog_R_f_T_R_out * R_out.transpose () *
+        R_f * Jf_.bottomRows <3> ();
+      hppDout (info, "result_ = " << std::endl << result_);
+    }
+
+    template <> inline void JacobianVisitor::operator () <SE3 > (const SE3&)
+    {
+      using Eigen::MatrixBlocks;
+      using Eigen::BlockIndex;
+      typedef hpp::constraints::BlockIndex BlockIndex;
+      assert (outJacobian_.nbRows () == 6);
+      // extract 3 top rows of inJacobian_
+      assert (qOut_.size () == 7);
+      assert (f_qIn_.size () == 7);
+      matrix3_t Rout (Eigen::Quaterniond (qOut_.tail <4> ()).
+                      toRotationMatrix ());
+      vector3_t pOut (qOut_.head <3> ());
+      Transform3f Mout (Rout, pOut);
+      matrix3_t Rf (Eigen::Quaterniond (f_qIn_.tail <4> ()).
+                    toRotationMatrix ());
+      vector3_t pf (f_qIn_.head <3> ());
+      Transform3f Mf (Rf, pf);
+      // \f$Mf^{-1} M_{out}\f$
+      Transform3f Mf_inverse_Mout (Mf.inverse () * Mout);
+      matrix6_t Jlog_Mf_inverse_Mout;
+      constraints::JlogSE3 (Mf_inverse_Mout, Jlog_Mf_inverse_Mout);
+      outJacobian_.lview (result_) = Jlog_Mf_inverse_Mout;
+      matrix_t inJ (6, Jf_.cols ());
+      inJ.topRows <3> () =
+        Rout.transpose () * se3::skew (pOut - pf) * Rf * Jf_.bottomRows <3> ()
+        - Rout.transpose () * Rf * Jf_.topRows <3> ();
+      inJ.bottomRows <3> () = -Rout.transpose () * Rf * Jf_.bottomRows <3> ();
+      inJacobian_.lview (result_) = Jlog_Mf_inverse_Mout * inJ;
     }
 
     template <typename LgT> void JacobianVisitor::operator () (const LgT&)
@@ -98,7 +134,7 @@ namespace hpp {
       for (size_type i=0; i<outJacobian_.nbRows (); ++i) {
         outJacobian_.lview (result_) (i, i) = 1;
       }
-      inJacobian_.lview (result_) = inJacobian_;
+      inJacobian_.lview (result_) = -Jf_;
     }
       
 
@@ -147,11 +183,11 @@ namespace hpp {
       {
 	// Check input consistency
 	// Each configuration variable is either input or output
-	assert (function->inputSize () + function->outputSize () ==
+	assert (function->inputSize () + function->outputSize () <=
 		robot->configSize ());
 	// Each velocity variable is either input or output
 	assert (function->inputDerivativeSize () +
-		function->outputDerivativeSize () == robot->numberDof ());
+		function->outputDerivativeSize () <= robot->numberDof ());
 	qIn_.resize (function->inputSize ());
 	Jf_.resize (function->outputDerivativeSize (),
                     function->inputDerivativeSize ());
@@ -176,6 +212,7 @@ namespace hpp {
       /// Compute q_{output} - f (q_{input})
       void impl_compute (LiegroupElement& result, vectorIn_t argument) const
       {
+        hppDout (info, "argument=" << argument.transpose ());
         // Store q_{output} in result
 	size_type index = 0;
 	for (segments_t::const_iterator it = outputConfIntervals_.begin ();
@@ -184,6 +221,8 @@ namespace hpp {
 	    argument.segment (it->first, it->second);
 	  index += it->second;
 	}
+        hppDout (info, "qOut_=" << qOut_);
+        assert (index == qOut_.space ()->nq ());
 	index = 0;
         // fill in q_{input}
 	for (segments_t::const_iterator it = inputConfIntervals_.begin ();
@@ -192,9 +231,13 @@ namespace hpp {
 	    argument.segment (it->first, it->second);
 	  index += it->second;
 	}
+        hppDout (info, "qIn_=" << qIn_);
+        assert (index == qIn_.size ());
         // compute  f (q_{input}) -> output_
 	inputToOutput_->value (f_qIn_, qIn_);
+        hppDout (info, "f_qIn_=" << f_qIn_);
 	result.vector () = qOut_ - f_qIn_;
+        hppDout (info, "result=" << result);
       }
 
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
@@ -205,7 +248,7 @@ namespace hpp {
         std::size_t rank = 0;
         impl_compute (result_, arg);
         inputToOutput_->jacobian (Jf_, qIn_);
-
+        hppDout (info, "Jf_=" << std::endl << Jf_);
         // Fill Jacobian by set of lines corresponding to the types of Lie group
         // that compose the outputspace of input to output function.
         segments_t outConfSegments (outputConfIntervals_);
@@ -219,7 +262,7 @@ namespace hpp {
                              f_qIn_.vector ().segment (iq, nq),
                              Jf_.middleRows (iv, nv), outJacobian_ [rank],
                              inJacobian_ [rank], jacobian.middleRows (iv, nv));
-          //
+          boost::apply_visitor (v, *it);
           iq += nq;
           iv += nv;
           ++rank;
@@ -229,23 +272,22 @@ namespace hpp {
     private:
       void computeJacobianBlocks ()
       {
-        segments_t remainingIndices (outputDerivIntervals_);
-        segments_t indices;
-        size_type iq = 0, iv = 0, nq, nv;
+        segments_t remainingCols (outputDerivIntervals_);
+        segments_t cols;
+        size_type iv = 0, nv;
         std::size_t rank = 0;
         for (std::vector <LiegroupType>::const_iterator it =
                inputToOutput_->outputSpace ()->liegroupTypes ().begin ();
              it != inputToOutput_->outputSpace ()->liegroupTypes ().end ();
              ++it) {
-          nq = inputToOutput_->outputSpace ()->nq (rank);
           nv = inputToOutput_->outputSpace ()->nv (rank);
-          indices = BlockIndex::split (remainingIndices, nv);
+          cols = BlockIndex::split (remainingCols, nv);
+          segments_t rows (1, std::make_pair (iv, nv));
           outJacobian_.push_back (Eigen::MatrixBlocks <false, false>
-                                  (indices, indices));
+                                  (rows, cols));
           inJacobian_.push_back (Eigen::MatrixBlocks <false, false>
-                                 (indices, inputDerivIntervals_));
+                                 (rows, inputDerivIntervals_));
           //
-          iq += nq;
           iv += nv;
           ++rank;
         }

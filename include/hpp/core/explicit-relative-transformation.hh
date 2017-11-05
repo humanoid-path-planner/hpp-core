@@ -85,7 +85,7 @@ namespace hpp {
           std::vector <bool> /*mask*/ = std::vector<bool>(6,true))
         : DifferentiableFunction (
               BlockIndex::cardinal(inConf),  BlockIndex::cardinal(inVel),
-              joint2->configurationSpace (), name),
+              pinocchio::LiegroupSpace::SE3 (), name),
           robot_ (robot),
           parentJoint_ (joint2->parentJoint ()),
           joint1_ (joint1), joint2_ (joint2),

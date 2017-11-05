@@ -35,6 +35,8 @@ namespace hpp {
             conf[joint->rankInConfiguration() + i] = !conf[joint->rankInConfiguration() + i];
           for (size_type i = 0; i < joint->numberDof(); ++i)
             vel[joint->rankInVelocity() + i] = !vel[joint->rankInVelocity() + i];
+          hppDout (info, "Adding joint " << joint->name ()
+                   << " as input variable.");
           joint = joint->parentJoint();
         }
       }
@@ -118,14 +120,12 @@ namespace hpp {
 
     void ExplicitRelativeTransformation::impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
     {
-      forwardKinematics (arg);
-#ifndef NDEBUG
-      // That the function has already been solved.
       LiegroupElement result (outputSpace ());
       impl_compute (result, arg);
-      assert (outConf_.rview(robot_->currentConfiguration()).eval().isApprox
-              (result.vector ()));
-#endif
+      Configuration_t q (robot_->currentConfiguration ());
+      outConf_.lview (q) = result.vector ();
+      robot_->currentConfiguration (q);
+      robot_->computeForwardKinematics ();
 
       const JointJacobian_t& J1 (joint1_->jacobian());
       // const JointJacobian_t& J2_parent (parentJoint_->jacobian());

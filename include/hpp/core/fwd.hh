@@ -170,6 +170,7 @@ namespace hpp {
     typedef std::list <LockedJointPtr_t> LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
     typedef pinocchio::matrix3_t matrix3_t;
+    typedef constraints::matrix6_t matrix6_t;
     typedef pinocchio::vector3_t vector3_t;
     typedef constraints::matrixIn_t matrixIn_t;
     typedef constraints::matrixOut_t matrixOut_t;
