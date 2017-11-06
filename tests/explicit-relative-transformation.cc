@@ -70,20 +70,20 @@ DevicePtr_t createRobot ()
 template <typename T> inline typename T::template NRowsBlockXpr<3>::Type trans(const Eigen::MatrixBase<T>& j) { return const_cast<Eigen::MatrixBase<T>&>(j).derived().template topRows   <3>(); }
 template <typename T> inline typename T::template NRowsBlockXpr<3>::Type omega(const Eigen::MatrixBase<T>& j) { return const_cast<Eigen::MatrixBase<T>&>(j).derived().template bottomRows<3>(); }
 
-BOOST_AUTO_TEST_CASE (two_objects)
+BOOST_AUTO_TEST_CASE (two_freeflyer)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
 
-  JointPtr_t object = robot->getJointByName("obj2/root_joint");
-  JointPtr_t joint  = robot->getJointByName("obj1/root_joint");
+  JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
+  JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
 
-  Transform3f aMt (Transform3f::Identity());
-  Transform3f jMt (Transform3f::Identity());
+  Transform3f M2inO2 (Transform3f::Identity());
+  Transform3f M1inO1 (Transform3f::Identity());
 
   ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
       "explicit_relative_transformation", robot,
-      joint, object, jMt, aMt);
+      object1, object2, M1inO1, M2inO2);
   ExplicitNumericalConstraintPtr_t enm = ert->createNumericalConstraint();
 
   Configuration_t q     = robot->currentConfiguration (),
@@ -94,18 +94,112 @@ BOOST_AUTO_TEST_CASE (two_objects)
   Eigen::RowBlockIndices outConf (enm->outputConf());
   Eigen::RowBlockIndices  inConf (enm-> inputConf());
 
-  // Compute position of object by solving explicit constraints
+  // Compute position of object2 by solving explicit constraints
   LiegroupElement q_obj2 (ert->outputSpace ());
   vector_t q_obj1 (inConf.rview(qout).eval());
   ert->value (q_obj2, q_obj1);
   outConf.lview(qout) = q_obj2.vector ();
 
-  // Test that at solution configuration, object and robot frames coincide.
+  // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
   robot->computeForwardKinematics();
   Transform3f diff =
-    jMt.inverse() * joint->currentTransformation().inverse()
-    * object->currentTransformation() * aMt;
+    M1inO1.inverse() * object1->currentTransformation().inverse()
+    * object2->currentTransformation() * M2inO2;
+
+  BOOST_CHECK (diff.isIdentity());
+
+  // Check Jacobian of implicit numerical constraints by finite difference
+  //
+  value_type dt (1e-5);
+  Configuration_t q0 (qout);
+  vector_t v (robot->numberDof ());
+  matrix_t J (6, enm->function ().inputDerivativeSize());
+  LiegroupElement value0 (enm->function ().outputSpace ()),
+    value (enm->function ().outputSpace ());
+  enm->function ().value (value0, q0);
+  enm->function ().jacobian (J, q0);
+    std::cout << "J=" << std::endl << J << std::endl;
+    std::cout << "q0=" << q0.transpose () << std::endl;
+  // First at solution configuration
+  for (size_type i=0; i<12; ++i) {
+    // test canonical basis vectors
+    v.setZero (); v [i] = 1;
+    integrate (robot, q0, dt * v, q);
+    enm->function ().value (value, q);
+    vector_t df ((value - value0)/dt);
+    vector_t Jdq (J * v);
+    std::cout << "v=" << v.transpose () << std::endl;
+    std::cout << "q=" << q.transpose () << std::endl;
+    std::cout << "df=" << df.transpose () << std::endl;
+    std::cout << "Jdq=" << Jdq.transpose () << std::endl;
+    std::cout << "||Jdq - df ||=" << (df - Jdq).norm () << std::endl << std::endl;
+    BOOST_CHECK ((df - Jdq).norm () < 1e-4);
+  }
+  // Second at random configurations
+  for (size_type i=0; i<100; ++i) {
+    q0 = se3::randomConfiguration(robot->model());
+    enm->function ().jacobian (J, q0);
+    std::cout << "J=" << std::endl << J << std::endl;
+    std::cout << "q0=" << q0.transpose () << std::endl;
+    enm->function ().value (value0, q0);
+    enm->function ().jacobian (J, q0);
+    for (size_type j=0; j<12; ++j) {
+      v.setZero (); v [j] = 1;
+      std::cout << "v=" << v.transpose () << std::endl;
+      integrate (robot, q0, dt * v, q);
+      std::cout << "q=" << q.transpose () << std::endl;
+      enm->function ().value (value, q);
+      vector_t df ((value - value0)/dt);
+      vector_t Jdq (J * v);
+      std::cout << "df=" << df.transpose () << std::endl;
+      std::cout << "Jdq=" << Jdq.transpose () << std::endl;
+      std::cout << "||Jdq - df ||=" << (df - Jdq).norm () << std::endl << std::endl;
+      BOOST_CHECK ((df - Jdq).norm () < 1e-4);
+    }
+    std::cout << std::endl;
+  }
+}
+
+BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
+{
+  DevicePtr_t robot = createRobot();
+  BOOST_REQUIRE (robot);
+
+  JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
+  JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
+
+  Transform3f M2inO2 (Transform3f::Random ());
+  Transform3f M1inO1 (Transform3f::Random ());
+
+  std::cout << "M2inO2=" << M2inO2 << std::endl;
+  std::cout << "M1inO1=" << M1inO1 << std::endl;
+
+  ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
+      "explicit_relative_transformation", robot,
+      object1, object2, M1inO1, M2inO2);
+  ExplicitNumericalConstraintPtr_t enm = ert->createNumericalConstraint();
+
+  Configuration_t q     = robot->currentConfiguration (),
+                  qrand = se3::randomConfiguration(robot->model()),
+                  qout = qrand;
+
+  // Check the output value
+  Eigen::RowBlockIndices outConf (enm->outputConf());
+  Eigen::RowBlockIndices  inConf (enm-> inputConf());
+
+  // Compute position of object2 by solving explicit constraints
+  LiegroupElement q_obj2 (ert->outputSpace ());
+  vector_t q_obj1 (inConf.rview(qout).eval());
+  ert->value (q_obj2, q_obj1);
+  outConf.lview(qout) = q_obj2.vector ();
+
+  // Test that at solution configuration, object2 and robot frames coincide.
+  robot->currentConfiguration(qout);
+  robot->computeForwardKinematics();
+  Transform3f diff =
+    M1inO1.inverse() * object1->currentTransformation().inverse()
+    * object2->currentTransformation() * M2inO2;
 
   BOOST_CHECK (diff.isIdentity());
 
