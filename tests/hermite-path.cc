@@ -24,7 +24,7 @@
 
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/hermite.hh>
-#include <hpp/core/hermite-path.hh>
+#include <hpp/core/path/hermite.hh>
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE (hermitePath)
   Configuration_t q1 (dev->configSize());
   Configuration_t v1 (dev->configSize());
 
-  HermitePathPtr_t p = HPP_DYNAMIC_PTR_CAST (HermitePath, (*hermiteSM) (q0, q2));
+  path::HermitePtr_t p = HPP_DYNAMIC_PTR_CAST (path::Hermite, (*hermiteSM) (q0, q2));
   p->v0 (v0);
   p->v1 (v2);
   p->computeHermiteLength();

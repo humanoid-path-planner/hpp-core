@@ -31,8 +31,6 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
-#include <hpp/constraints/svd.hh>
-#include <hpp/constraints/macros.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/active-set-differentiable-function.hh>
 
@@ -82,6 +80,7 @@ namespace hpp {
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
+    HPP_DEFINE_REASON_FAILURE (REASON_INFEASIBLE, "Problem infeasible");
 
     ConfigProjectorPtr_t ConfigProjector::create (const DevicePtr_t& robot,
 						  const std::string& name,
@@ -207,6 +206,7 @@ namespace hpp {
         minimalSolver_.explicitSolverHasChanged();
       }
       fullSolver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
+      hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
 
       functions_.push_back (nm);
       // rhsReducedSize_ += nm->rhsSize ();
@@ -267,12 +267,14 @@ namespace hpp {
       switch (status) {
         case HybridSolver::ERROR_INCREASED:
           statistics_.addFailure (REASON_ERROR_INCREASED);
-          statistics_.isLowRatio (true);
           return false;
           break;
         case HybridSolver::MAX_ITERATION_REACHED:
           statistics_.addFailure (REASON_MAX_ITER);
-          statistics_.isLowRatio (true);
+          return false;
+          break;
+        case HybridSolver::INFEASIBLE:
+          statistics_.addFailure (REASON_INFEASIBLE);
           return false;
           break;
         case HybridSolver::SUCCESS:
@@ -289,17 +291,18 @@ namespace hpp {
     bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
         vectorOut_t, const value_type&)
     {
-      // TODO dq = minimalSolver_.dq_; // Not accessible yet.
-      return solverOneStep (configuration);
+      bool ret = solverOneStep (configuration);
+      dq = minimalSolver_.lastStep ();
+      return ret;
     }
 
     bool ConfigProjector::optimize (ConfigurationOut_t configuration,
-        std::size_t maxIter, const value_type)
+        std::size_t maxIter)
     {
       if (!lastIsOptional()) return true;
       if (!isSatisfied (configuration)) return false;
       const size_type maxIterSave = maxIterations();
-      if (maxIter == 0) maxIterations(maxIter);
+      if (maxIter != 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
       lastIsOptional(false);
       HybridSolver::Status status = solverSolve (configuration);
@@ -384,6 +387,7 @@ namespace hpp {
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
       hppDout (info, "Intervals: " << minimalSolver_.explicitSolver().outDers());
+      hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
       if (!lockedJoint->comparisonType ()->constantRightHandSide ())
         rhsReducedSize_ += lockedJoint->rhsSize ();
     }
@@ -475,7 +479,7 @@ namespace hpp {
     {
       const size_type rhsImplicitSize = minimalSolver_.rightHandSideSize();
       minimalSolver_.rightHandSide (small.head(rhsImplicitSize));
-      fullSolver_.rightHandSide (small.head(rhsImplicitSize));
+      // fullSolver_.rightHandSide (small.head(rhsImplicitSize));
 
       assert (rightHandSide_.size () == rhsImplicitSize); // TODO remove
       size_type row = rhsImplicitSize;

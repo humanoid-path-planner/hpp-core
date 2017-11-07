@@ -113,7 +113,7 @@ namespace hpp {
       /// \return true if the configuration was optimized.
       /// \param maxIter if 0, use maxIterations().
       bool optimize (ConfigurationOut_t config,
-          std::size_t maxIter = 0, const value_type alpha = 0.2);
+          std::size_t maxIter = 0);
 
       /// Add a locked joint.
       /// \param lockedJoint The locked joint.
@@ -165,8 +165,9 @@ namespace hpp {
 
       /// Execute one iteration of the projection algorithm
       /// \return true if the constraints are satisfied
+      /// \deprecated use solver().oneStep is needed
       bool oneStep (ConfigurationOut_t config, vectorOut_t dq,
-          const value_type& alpha);
+          const value_type& alpha) HPP_CORE_DEPRECATED;
 
       /// \name Compression of locked degrees of freedom
       ///

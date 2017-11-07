@@ -100,8 +100,7 @@ namespace hpp {
           struct Optimizer {
             ConfigProjectorPtr_t proj;
             virtual bool optimize (ConfigurationOut_t q,
-                const std::size_t numIter,
-                const value_type alpha) const;
+                const std::size_t numIter) const;
           };
 
           typedef std::vector <Optimizer> Optimizers_t;
@@ -118,7 +117,7 @@ namespace hpp {
           template <bool forward> bool pass (
               vectorIn_t configs, vectorOut_t newConfigs,
               const Optimizers_t& optimizers, const std::size_t& index,
-              const value_type& alpha, PathVectorPtr_t opted, bool& didChange)
+              PathVectorPtr_t opted, bool& didChange)
             const;
       }; // class RandomShortcut
       /// \}

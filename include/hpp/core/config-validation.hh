@@ -75,6 +75,8 @@ namespace hpp {
       virtual void filterCollisionPairs (const RelativeMotion::matrix_type&)
       {}
 
+      virtual ~ConfigValidation () {};
+
     protected:
       ConfigValidation ()
       {

@@ -120,6 +120,8 @@ namespace hpp {
 
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
+          void appendEquivalentSpline (const InterpolatedPathPtr_t& path, Splines_t& splines) const;
+
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
 
           void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const Solvers_t& ess, LinearConstraint& continuity);

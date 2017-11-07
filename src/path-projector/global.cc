@@ -76,7 +76,7 @@ namespace hpp {
 				value_type step, value_type threshold,
                                 value_type hessianBound) :
         PathProjector (distance, steeringMethod), step_ (step),
-        alphaMin (0.2), alphaMax (0.95), hessianBound_ (hessianBound),
+        hessianBound_ (hessianBound),
         thresholdMin_ (threshold)
       {
         // TODO Only steeringMethod::Straight has been tested so far.
@@ -141,7 +141,7 @@ namespace hpp {
         HPP_STOP_AND_DISPLAY_TIMECOUNTER(globalPathProjector_initCfgList);
 
         Bools_t projected (cfgs.size () - 2, false);
-        Alphas_t alphas   (cfgs.size () - 2, alphaMin);
+        Alphas_t alphas   (cfgs.size () - 2, LineSearch_t());
         Lengths_t lengths (cfgs.size () - 1, 0);
         Configs_t::iterator last = --(cfgs.end());
 
@@ -274,8 +274,9 @@ namespace hpp {
         for (Configs_t::iterator it = begin; it != last; ++it) {
           if (!*itB) {
             oldQ.col(iCol) = *it;
-            *itB = p.oneStep (*it, dq.col(iCol),*itA);
-            *itA = alphaMax - 0.8 * (alphaMax - *itA);
+            *itB = p.solver().oneStep (*it, *itA);
+            dq.col(iCol) = p.solver().lastStep();
+            // *itA = alphaMax - 0.8 * (alphaMax - *itA);
             allAreSatisfied = allAreSatisfied && *itB;
             curUpdated = true;
             if (prevUpdated) {
@@ -342,8 +343,8 @@ namespace hpp {
 
         for (; _d != last; ++_d) {
           if (!_d->projected) {
-            _d->projected = p.oneStep (_d->q, dq_, _d->alpha);
-            _d->alpha = alphaMax - 0.8 * (alphaMax - _d->alpha);
+            _d->projected = p.solver().oneStep (_d->q, _d->alpha);
+            // dq_ = p.solver().lastStep();
             _d->sigma = p.sigma();
             ++_d->Niter;
             allAreSatisfied = allAreSatisfied && _d->projected;
@@ -383,7 +384,7 @@ namespace hpp {
             // Insert new respective elements
             it  = q.insert (it, newQ);
             itB = b.insert (itB, false);
-            itA = a.insert (itA, alphaMin);
+            itA = a.insert (itA, LineSearch_t());
             itL = l.insert (itL, d (*itCp, *it));
             // Update length after
             Configs_t::iterator itNC = it;  ++itNC;
@@ -504,7 +505,7 @@ namespace hpp {
           assert (itL == l.end ());
         }
 #if HPP_ENABLE_BENCHMARK
-        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
+        value_type avg = (nbWaypoints == 0 ? 0 : length / (value_type)nbWaypoints);
         hppBenchmark("Interpolated path (global - non hessian): "
             << nbWaypoints
             << ", [ " << min
@@ -558,7 +559,7 @@ namespace hpp {
           max = std::max(max, _d->length);
         }
 #if HPP_ENABLE_BENCHMARK
-        value_type avg = (nbWaypoints == 0 ? 0 : length / nbWaypoints);
+        value_type avg = (nbWaypoints == 0 ? 0 : length / (value_type)nbWaypoints);
         hppBenchmark("Interpolated path (global - with hessian): "
             << nbWaypoints
             << ", [ " << min
@@ -652,11 +653,13 @@ namespace hpp {
         data.q = q;
         if (computeSigma) {
           q_ = q;
-          p.oneStep (q_, dq_, 1);
+          LineSearch_t ls;
+          p.solver().oneStep (q_, ls);
+          // dq_ = p.solver().lastStep();
           data.sigma = p.sigma();
         }
         data.projected = projected;
-        data.alpha = alphaMin;
+        data.alpha = LineSearch_t();
         data.Niter = 0;
         if (qLength.size() == q.size())
           data.length = d(qLength, q);

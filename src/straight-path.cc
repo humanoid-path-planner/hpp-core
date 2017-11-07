@@ -113,6 +113,10 @@ namespace hpp {
     void StraightPath::impl_velocityBound (
         vectorOut_t result, const value_type&, const value_type&) const
     {
+      if (timeRange ().first == timeRange ().second) {
+        result.setZero();
+        return;
+      }
       pinocchio::difference <hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, result);
       result.noalias() = result.cwiseAbs() / length();
     }

@@ -62,6 +62,8 @@ namespace hpp {
       /// return shared pointer to copy
       virtual ConstraintPtr_t copy () const = 0;
 
+      virtual ~Constraint () {};
+
     protected:
       /// User defined implementation of the constraint.
       virtual bool impl_compute (ConfigurationOut_t configuration) = 0;

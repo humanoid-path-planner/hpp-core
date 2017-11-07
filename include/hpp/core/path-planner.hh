@@ -33,6 +33,8 @@ namespace hpp {
     /// set of goal configurations.
     class HPP_CORE_DLLAPI PathPlanner {
     public:
+      virtual ~PathPlanner () {};
+
       /// Get roadmap
       virtual const RoadmapPtr_t& roadmap () const;
       /// Get problem

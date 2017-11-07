@@ -60,6 +60,7 @@ namespace hpp {
     /// hpp-core library and component to be running in a middleware
     /// like CORBA or ROS.
     class HPP_CORE_DLLAPI ProblemSolver :
+      /// \cond
       public Containers <
         boost::mpl::vector < PathPlannerBuilder_t,
                              PathOptimizerBuilder_t,
@@ -68,11 +69,13 @@ namespace hpp {
                              ConfigurationShooterBuilder_t,
                              NumericalConstraintPtr_t,
                              LockedJointPtr_t,
+                             CenterOfMassComputationPtr_t,
                              DistanceBuilder_t,
                              SteeringMethodBuilder_t,
                              AffordanceObjects_t,
                              AffordanceConfig_t,
                              JointAndShapes_t> >
+      /// \endcond
     {
     public:
 
@@ -304,7 +307,7 @@ namespace hpp {
       void addCenterOfMassComputation (const std::string& name,
           CenterOfMassComputationPtr_t comc)
       {
-        comcMap_ [name] = comc;
+        add <CenterOfMassComputationPtr_t> (name, comc);
       }
 
       /// Get the CenterOfMassComputation object from the local map
@@ -313,11 +316,7 @@ namespace hpp {
       /// \note a null shared pointer is returned if the object was not found
       CenterOfMassComputationPtr_t centerOfMassComputation (const std::string& name) const
       {
-        CenterOfMassComputationMap_t::const_iterator it =
-          comcMap_.find (name);
-        if (it == comcMap_.end ())
-          return CenterOfMassComputationPtr_t ();
-        return it->second;
+        return get<CenterOfMassComputationPtr_t> (name);
       }
 
       /// Add numerical constraint to the config projector

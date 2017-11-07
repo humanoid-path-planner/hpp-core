@@ -46,7 +46,9 @@ namespace hpp {
     /// \li a set of methods to validate configurations. Default methods are
     /// collision checking and joint bound checking.
     class HPP_CORE_DLLAPI Problem :
+      /// \cond
       public Containers < boost::mpl::vector < boost::any > >
+      /// \endcond
     {
     public:
       /// Create a path planning problem.

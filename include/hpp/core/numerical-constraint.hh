@@ -51,6 +51,8 @@ namespace hpp {
 	static NumericalConstraintPtr_t createCopy
 	  (const NumericalConstraintPtr_t& other);
 
+        virtual ~NumericalConstraint () {};
+
         /// \sa Equation::rightHandSideFromConfig
         void rightHandSideFromConfig (ConfigurationIn_t config);
 

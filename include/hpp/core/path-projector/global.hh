@@ -19,6 +19,7 @@
 # define HPP_CORE_PATHPROJECTOR_GLOBAL_HH
 
 # include <hpp/core/path-projector.hh>
+# include <hpp/core/config-projector.hh>
 
 namespace hpp {
   namespace core {
@@ -50,15 +51,14 @@ namespace hpp {
         private:
           value_type step_;
 
-          const value_type alphaMin;
-          const value_type alphaMax;
           const value_type hessianBound_;
           const value_type thresholdMin_;
 
+          typedef constraints::lineSearch::FixedSequence LineSearch_t;
           struct Data {
             Configuration_t q;
             value_type length; // Length between this config and the previous one
-            value_type alpha;
+            LineSearch_t alpha;
             std::size_t Niter;
             value_type sigma;
             bool projected;
@@ -67,7 +67,7 @@ namespace hpp {
           typedef std::list <Configuration_t,
                   Eigen::aligned_allocator <Configuration_t> > Configs_t;
           typedef std::list <value_type> Lengths_t;
-          typedef std::list <value_type> Alphas_t;
+          typedef std::list <LineSearch_t> Alphas_t;
           typedef std::vector <bool> Bools_t;
           typedef std::list<Data> Datas_t;
 

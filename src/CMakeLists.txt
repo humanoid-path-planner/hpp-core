@@ -45,7 +45,6 @@ explicit-numerical-constraint.cc
 explicit-relative-transformation.cc
 extracted-path.hh
 equation.cc
-  hermite-path.cc
 interpolated-path.cc
 joint-bound-validation.cc
 locked-joint.cc
@@ -63,9 +62,11 @@ locked-joint.cc
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/config-optimization.cc#
+  path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
   path-vector.cc #
   path/spline.cc
+  path/hermite.cc
   plan-and-optimize.cc #
   problem.cc # TODO : addObstacle
   problem-solver.cc # TODO : addObstacle

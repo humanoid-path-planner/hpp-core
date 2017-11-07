@@ -41,6 +41,8 @@ namespace hpp {
 	parameter (param), configurationReport (report)
       {}
 
+      virtual ~PathValidationReport () {};
+
       virtual std::ostream& print (std::ostream& os) const
       {
 	os << "Invalid configuration at parameter " << parameter << std::endl;

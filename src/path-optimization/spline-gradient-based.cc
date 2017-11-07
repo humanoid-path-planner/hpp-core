@@ -17,7 +17,7 @@
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/spline-gradient-based/linear-constraint.hh>
 
-
+#include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
 
 #include <hpp/pinocchio/device.hh>
@@ -27,6 +27,7 @@
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 
@@ -353,6 +354,26 @@ namespace hpp {
 
       template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::appendEquivalentSpline
+      (const InterpolatedPathPtr_t& path, Splines_t& splines) const
+      {
+        if (path->interpolationPoints().size() > 2) {
+          HPP_THROW (std::logic_error,
+              "Projected path with more than 2 IPs are not supported. "
+              << path->interpolationPoints().size() << ").");
+        }
+        PathPtr_t s =
+          steeringMethod_->impl_compute (path->initial(), path->end());
+        if (path->constraints()) {
+          splines.push_back(
+              HPP_DYNAMIC_PTR_CAST(Spline, s->copy (path->constraints()))
+              );
+        } else {
+          splines.push_back(HPP_DYNAMIC_PTR_CAST(Spline, s));
+        }
+      }
+
+      template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::appendEquivalentSpline
       (const PathVectorPtr_t& path, Splines_t& splines) const
       {
         for (std::size_t i = 0; i < path->numberPaths(); ++i)
@@ -360,9 +381,11 @@ namespace hpp {
           PathPtr_t p = path->pathAtRank(i);
           StraightPathPtr_t straight (HPP_DYNAMIC_PTR_CAST(StraightPath, p));
           PathVectorPtr_t pvect      (HPP_DYNAMIC_PTR_CAST(PathVector, p));
+          InterpolatedPathPtr_t intp (HPP_DYNAMIC_PTR_CAST(InterpolatedPath, p));
           SplinePtr_t spline         (HPP_DYNAMIC_PTR_CAST(Spline, p));
           if (straight   ) appendEquivalentSpline(straight, splines);
           else if (pvect ) appendEquivalentSpline(pvect   , splines);
+          else if (intp  ) appendEquivalentSpline(intp    , splines);
           else if (spline) splines.push_back(HPP_STATIC_PTR_CAST(Spline, spline->copy()));
           else // if TODO check if path is another type of spline.
             throw std::logic_error("Unknown type of path");
@@ -754,6 +777,7 @@ namespace hpp {
         bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", false);
         bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound", true);
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum", false);
+        value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold", value_type(0.01));
 
         PathVectorPtr_t tmp = PathVector::create (robot_->configSize(), robot_->numberDof());
         path->flatten(tmp);
@@ -793,9 +817,11 @@ namespace hpp {
         SquaredLength<Spline, 1> cost (splines, rDof, rDof);
 
         // 5
+        bool feasible;
         { HPP_SCOPE_TIMECOUNTER(SGB_constraintDecomposition);
-          constraint.decompose (true); // true = check that the constraint is feasible
+          feasible = constraint.decompose (true); // true = check that the constraint is feasible
         }
+        if (!feasible) throw std::invalid_argument("Constraints are not feasible");
 
         LinearConstraint collisionReduced (constraint.PK.rows(), 0);
         constraint.reduceConstraint(collision, collisionReduced);
@@ -878,6 +904,12 @@ namespace hpp {
             hppDout (info, "Improved path with alpha = " << alpha);
 
             computeInterpolatedSpline = true;
+            if (!minimumReached &&
+                std::abs(optimalCost - costLowerBound) < costThreshold * costLowerBound)
+            {
+              hppDout (info, "Stopping because cost interval is small.");
+              minimumReached = true;
+            }
           } else {
             if (alpha != 1.) {
               bool ok = false;
@@ -1073,11 +1105,11 @@ namespace hpp {
 
       // ----------- Instanciate -------------------------------------------- //
 
-      template class SplineGradientBased<path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
-      template class SplineGradientBased<path::CanonicalPolynomeBasis, 2>;
-      template class SplineGradientBased<path::CanonicalPolynomeBasis, 3>;
+      // template class SplineGradientBased<path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
+      // template class SplineGradientBased<path::CanonicalPolynomeBasis, 2>;
+      // template class SplineGradientBased<path::CanonicalPolynomeBasis, 3>;
       template class SplineGradientBased<path::BernsteinBasis, 1>; // equivalent to StraightPath
-      template class SplineGradientBased<path::BernsteinBasis, 2>;
+      // template class SplineGradientBased<path::BernsteinBasis, 2>;
       template class SplineGradientBased<path::BernsteinBasis, 3>;
     } // namespace pathOptimization
   }  // namespace core

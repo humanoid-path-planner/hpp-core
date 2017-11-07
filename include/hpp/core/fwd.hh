@@ -76,7 +76,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (StraightPath);
     HPP_PREDEF_CLASS (InterpolatedPath);
     HPP_PREDEF_CLASS (DubinsPath);
-    HPP_PREDEF_CLASS (HermitePath);
     HPP_PREDEF_CLASS (ReedsSheppPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
@@ -213,8 +212,6 @@ namespace hpp {
     typedef boost::shared_ptr <const DubinsPath> DubinsPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
-    typedef boost::shared_ptr <HermitePath> HermitePathPtr_t;
-    typedef boost::shared_ptr <const HermitePath> HermitePathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
     typedef std::vector <PathPtr_t> Paths_t;
     typedef std::vector <PathVectorPtr_t> PathVectors_t;
@@ -245,6 +242,9 @@ namespace hpp {
 
     namespace path {
       template <int _PolynomeBasis, int _Order> class Spline;
+      HPP_PREDEF_CLASS (Hermite);
+      typedef boost::shared_ptr <Hermite> HermitePtr_t;
+      typedef boost::shared_ptr <const Hermite> HermiteConstPtr_t;
     } // namespace path
 
     HPP_PREDEF_CLASS (ContinuousCollisionChecking);
@@ -280,6 +280,8 @@ namespace hpp {
       typedef boost::shared_ptr <PathLength> PathLengthPtr_t;
       HPP_PREDEF_CLASS (PartialShortcut);
       typedef boost::shared_ptr <PartialShortcut> PartialShortcutPtr_t;
+      HPP_PREDEF_CLASS (SimpleTimeParameterization);
+      typedef boost::shared_ptr <SimpleTimeParameterization> SimpleTimeParameterizationPtr_t;
       HPP_PREDEF_CLASS (ConfigOptimization);
       typedef boost::shared_ptr <ConfigOptimization>
         ConfigOptimizationPtr_t;

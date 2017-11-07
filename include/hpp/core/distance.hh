@@ -44,7 +44,8 @@ namespace hpp {
       }
 
       virtual DistancePtr_t clone () const = 0;
-      
+
+      virtual ~Distance () {};
     protected:
 
       Distance ()

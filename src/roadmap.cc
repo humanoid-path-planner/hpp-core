@@ -52,6 +52,7 @@ namespace hpp {
     Roadmap::~Roadmap ()
     {
       clear ();
+      delete nearestNeighbor_;
     }
 
     const ConnectedComponents_t& Roadmap::connectedComponents () const
@@ -69,8 +70,10 @@ namespace hpp {
       if (nodes_.size() != 0) {
         throw std::runtime_error ("The roadmap must be empty before setting a new NearestNeighbor object.");
       }
-      if(nearestNeighbor)
+      if(nearestNeighbor != NULL) {
+        delete nearestNeighbor_;
         nearestNeighbor_ = nearestNeighbor;
+      }
     }
 
     void Roadmap::clear ()
