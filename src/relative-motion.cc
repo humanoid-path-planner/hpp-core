@@ -43,8 +43,14 @@ namespace hpp {
         if (t) {
           i1 = RelativeMotion::idx(t->joint1());
           i2 = RelativeMotion::idx(t->joint2());
+          assert (i1 > 0);
+          assert (i1 < t->joint1 ()->robot ()->getJointVector ().size ());
+          assert (i2 > 0);
+          assert (i2 < t->joint2 ()->robot ()->getJointVector ().size ());
+          return true;
         }
-        return true;
+        i1 = i2 = -1;
+        return false;
       }
     }
 

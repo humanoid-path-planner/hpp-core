@@ -281,15 +281,12 @@ namespace hpp {
           statistics_.addSuccess();
           return true;
           break;
-        case HybridSolver::INFEASIBLE:
-          assert (false && "In ConfigProjector::impl_compute, INFEASIBLE not "
-                  "handled.");
       }
       return false;
     }
 
     bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
-        vectorOut_t, const value_type&)
+        vectorOut_t dq, const value_type&)
     {
       bool ret = solverOneStep (configuration);
       dq = minimalSolver_.lastStep ();
