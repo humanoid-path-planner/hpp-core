@@ -23,6 +23,8 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 
+# include <hpp/core/connected-component.hh>
+
 namespace hpp {
   namespace core {
     /// \addtogroup roadmap
@@ -223,7 +225,7 @@ namespace hpp {
       /// \param cc1 the connected component to merge into
       /// \param the connected components to merge into cc1.
       void merge (const ConnectedComponentPtr_t& cc1,
-		  ConnectedComponents_t& ccs);
+		  ConnectedComponent::RawPtrs_t& ccs);
 
       const DistancePtr_t distance_;
       ConnectedComponents_t connectedComponents_;

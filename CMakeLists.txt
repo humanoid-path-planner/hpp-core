@@ -24,6 +24,7 @@ SET(DOXYGEN_USE_MATHJAX YES)
 
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
+INCLUDE(cmake/test.cmake)
 
 SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
@@ -48,9 +49,6 @@ IF (HPP_BENCHMARK)
 ENDIF()
 # Ask Doxygen to create a tree view in html documentation
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
-
-# Add a cache variable to allow not compiling and running tests
-set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
@@ -145,14 +143,9 @@ ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
 
 ADD_SUBDIRECTORY(src)
-IF (RUN_TESTS)
-  SET(BOOST_COMPONENTS system timer unit_test_framework)
-  SEARCH_FOR_BOOST()
-  ADD_SUBDIRECTORY(tests)
-ELSE ()
-  SET(BOOST_COMPONENTS system)
-  SEARCH_FOR_BOOST()
-ENDIF ()
+SET(BOOST_COMPONENTS system timer unit_test_framework)
+SEARCH_FOR_BOOST()
+ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-core library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")

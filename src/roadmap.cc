@@ -248,26 +248,26 @@ namespace hpp {
 			   const ConnectedComponentPtr_t& cc2)
     {
       if (cc1->canReach (cc2)) return;
-      ConnectedComponents_t cc2Tocc1;
+      ConnectedComponent::RawPtrs_t cc2Tocc1;
       if (cc2->canReach (cc1, cc2Tocc1)) {
 	merge (cc1, cc2Tocc1);
       } else {
-	cc1->reachableTo_.insert (cc2);
-	cc2->reachableFrom_.insert (cc1);
+	cc1->reachableTo_.insert (cc2.get());
+	cc2->reachableFrom_.insert (cc1.get());
       }
     }
   
     void Roadmap::merge (const ConnectedComponentPtr_t& cc1,
-			 ConnectedComponents_t& ccs)
+			 ConnectedComponent::RawPtrs_t& ccs)
     {
-      for (ConnectedComponents_t::iterator itcc = ccs.begin ();
+      for (ConnectedComponent::RawPtrs_t::iterator itcc = ccs.begin ();
 	   itcc != ccs.end (); ++itcc) {
-	if (*itcc != cc1) {
-	  cc1->merge (*itcc);
+	if (*itcc != cc1.get()) {
+	  cc1->merge ((*itcc)->self());
 #ifndef NDEBUG	  
 	  std::size_t nb =
 #endif
-	    connectedComponents_.erase (*itcc);
+	    connectedComponents_.erase ((*itcc)->self());
 	  assert (nb == 1);
 	}
       }
@@ -299,8 +299,8 @@ namespace hpp {
     {
       // Enumerate nodes and connected components
       std::map <NodePtr_t, size_type> nodeId;
-      std::map <ConnectedComponentPtr_t, size_type> ccId;
-      std::map <ConnectedComponentPtr_t, size_type> sccId;
+      std::map <ConnectedComponent::RawPtr_t, size_type> ccId;
+      std::map <ConnectedComponent::RawPtr_t, size_type> sccId;
 
       size_type count = 0;
       for (Nodes_t::const_iterator it = nodes ().begin ();
@@ -312,7 +312,7 @@ namespace hpp {
       for (ConnectedComponents_t::const_iterator it =
 	     connectedComponents ().begin ();
 	   it != connectedComponents ().end (); ++it) {
-	ccId [*it] = count; ++count;
+	ccId [it->get()] = count; ++count;
       }
 
 
@@ -352,7 +352,7 @@ namespace hpp {
 	     connectedComponents ().begin ();
 	   it != connectedComponents ().end (); ++it) {
 	const ConnectedComponentPtr_t cc = *it;
-	os << "Connected component " << ccId [cc] << std::endl;
+	os << "Connected component " << ccId [cc.get()] << std::endl;
 	os << "Nodes : ";
 	for (NodeVector_t::const_iterator itNode = cc->nodes ().begin ();
 	     itNode != cc->nodes ().end (); ++itNode) {
@@ -360,14 +360,14 @@ namespace hpp {
 	}
 	os << std::endl;
 	os << "Reachable to :";
-	for (ConnectedComponents_t::const_iterator itTo =
+	for (ConnectedComponent::RawPtrs_t::const_iterator itTo =
 	       cc->reachableTo ().begin (); itTo != cc->reachableTo ().end ();
 	     ++itTo) {
 	  os << ccId [*itTo] << ", ";
 	}
 	os << std::endl;
 	os << "Reachable from :";
-	for (ConnectedComponents_t::const_iterator itFrom =
+	for (ConnectedComponent::RawPtrs_t::const_iterator itFrom =
 	       cc->reachableFrom ().begin ();
 	     itFrom != cc->reachableFrom ().end (); ++itFrom) {
 	  os << ccId [*itFrom] << ", ";

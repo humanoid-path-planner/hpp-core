@@ -139,17 +139,22 @@ namespace hpp {
 	result.setZero ();
 	return;
       }
+      InterpolationPoints_t::const_iterator itA;
+      InterpolationPoints_t::const_iterator itB;
       if (param >= timeRange ().second) {
 	param = timeRange ().second;
-      }
-      InterpolationPoints_t::const_iterator itA = configs_.upper_bound (param);
-      InterpolationPoints_t::const_iterator itB = configs_.lower_bound (param);
-      if (itB == itA) {
-	if (itB == configs_.begin ()) {
-	  ++itA;
-	} else {
-	  --itB;
-	}
+        itA = configs_.end(); --itA;
+        itB = itA; --itB;
+      } else {
+        itA = configs_.upper_bound (param);
+        itB = configs_.lower_bound (param);
+        if (itB == itA) {
+          if (itB == configs_.begin ()) {
+            ++itA;
+          } else {
+            --itB;
+          }
+        }
       }
       assert (itA != configs_.end ());
       const value_type T = itA->first - itB->first;
