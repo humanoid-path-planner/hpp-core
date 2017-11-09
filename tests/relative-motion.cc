@@ -61,6 +61,7 @@ using hpp::constraints::RelativeTransformation;
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
+using ::se3::JointModelFreeFlyer;
 using ::se3::JointModelPX;
 using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
@@ -75,13 +76,13 @@ bool verbose = true;
    translations along x.
 
                                universe
-                                  |
+                                  |Px
                                test_x
-                             /         \
+                             /Px       \Px
                        joint_a0       joint_b0
-                           |              |
+                           |Px            |Px
                        joint_a1       joint_b1
-                                          |
+                                          |FF
                                       joint_b2
 
 */
@@ -110,10 +111,11 @@ DevicePtr_t createRobot ()
   }
   bname = "joint_b";
   idJoint = 1;
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 2; ++i) {
     idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
   }
-
+  int i = 2;
+  idJoint = robot->model().addJoint(idJoint,JointModelFreeFlyer(), mat,bname+TOSTR(i));
 
   robot->createData();
   robot->createGeomData();
@@ -221,9 +223,7 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   proj->add (ExplicitRelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2)->createNumericalConstraint());
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
-
   BOOST_CHECK(m(jointid("joint_a1"),jointid("joint_b2")) == RelativeMotion::Constrained);   // lock ert
 
   if (verbose) std::cout << '\n' << m << std::endl;
 }
-

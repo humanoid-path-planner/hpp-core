@@ -15,6 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/relative-motion.hh>
+#include <hpp/core/explicit-relative-transformation.hh>
 
 #include <pinocchio/multibody/model.hpp>
 
@@ -28,6 +29,8 @@
 #include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/locked-joint.hh>
+
+#include "../src/implicit-function.hh"
 
 namespace hpp {
   namespace core {
@@ -47,6 +50,27 @@ namespace hpp {
         }
         return false;
       }
+    }
+
+    bool isExplicitRelativeTransform (const DifferentiableFunctionPtr_t& f,
+                                      size_type& i1, size_type& i2)
+    {
+      ImplicitFunctionPtr_t implicit (HPP_DYNAMIC_PTR_CAST
+                                      (ImplicitFunction, f));
+      if (implicit) {
+        hppDout (info, f->name << " is an implicit function.");
+        ExplicitRelativeTransformationPtr_t ert
+          (HPP_DYNAMIC_PTR_CAST (ExplicitRelativeTransformation,
+                                 implicit->inputToOutput ()));
+        if (ert) {
+          hppDout (info, f->name << " contains an explicit relative transformation.");
+          i1 = RelativeMotion::idx(ert->joint1());
+          i2 = RelativeMotion::idx(ert->joint2());
+          return true;
+        }
+      }
+      hppDout (info, f->name << " is not an implicit function.");
+      return false;
     }
 
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
@@ -106,7 +130,9 @@ namespace hpp {
 
         if (nc.functionPtr()->outputSize() != 6) continue;
         if (   !is<RelativeTransformation> (nc.functionPtr(), i1, i2)
-            && !is<        Transformation> (nc.functionPtr(), i1, i2)) continue;
+            && !is<        Transformation> (nc.functionPtr(), i1, i2)
+            && !isExplicitRelativeTransform (nc.functionPtr(), i1, i2))
+          continue;
 
         bool cstRHS = nc.comparisonType()->constantRightHandSide();
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
