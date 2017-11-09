@@ -163,6 +163,12 @@ namespace hpp {
 	return ImplicitFunctionPtr_t (ptr);
       }
 
+      /// Get function that maps input variables to output variables
+      const DifferentiableFunctionPtr_t& inputToOutput () const
+      {
+        return inputToOutput_;
+      }
+
     protected:
       ImplicitFunction (const DevicePtr_t& robot,
 			const DifferentiableFunctionPtr_t& function,
