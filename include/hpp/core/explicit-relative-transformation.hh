@@ -71,6 +71,18 @@ namespace hpp {
             outVel_.indices());
       }
 
+      /// Get joint 1
+      const JointConstPtr_t& joint1 () const
+      {
+        return joint1_;
+      }
+
+      /// Get joint 2
+      const JointConstPtr_t& joint2 () const
+      {
+        return joint2_;
+      }
+
     protected:
       typedef Eigen::BlockIndex BlockIndex;
       typedef Eigen::RowBlockIndices RowBlockIndices;
