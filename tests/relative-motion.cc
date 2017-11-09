@@ -95,6 +95,7 @@ DevicePtr_t createRobot ()
     idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
   }
   bname = "joint_b";
+  idJoint = 1;
   for (int i = 0; i < 3; ++i) {
     idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
   }
@@ -239,6 +240,8 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   BOOST_CHECK(m(jointid("joint_a0"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock a1 + rt
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a1")) == RelativeMotion::Parameterized); // lock b1+b2+rt
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a0")) == RelativeMotion::Parameterized); // lock b1+b2+rt+a1
+
+  if (verbose) std::cout << '\n' << m << std::endl;
 
   proj = ConfigProjector::create (dev, "test", 1e-3, 10);
   constraints = ConstraintSet::create (dev, "test");
