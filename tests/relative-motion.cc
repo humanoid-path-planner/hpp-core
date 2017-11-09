@@ -66,11 +66,25 @@ using ::se3::JointModelPY;
 using ::se3::JointModelPZ;
 using ::se3::JointIndex;
 
-bool verbose = false;
+bool verbose = true;
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
 
+/* Create a robot with the following kinematic chain. All joints are
+   translations along x.
+
+                               universe
+                                  |
+                               test_x
+                             /         \
+                       joint_a0       joint_b0
+                           |              |
+                       joint_a1       joint_b1
+                                          |
+                                      joint_b2
+
+*/
 DevicePtr_t createRobot ()
 {
 
@@ -104,51 +118,6 @@ DevicePtr_t createRobot ()
   robot->createData();
   robot->createGeomData();
   return robot;
- /* DevicePtr_t robot = Device::create ("test");
-
-  const std::string& name = robot->name ();
-  fcl::Transform3f mat; mat.setIdentity ();
-  JointPtr_t joint, root, parent;
-  std::string jointName = name + "_x";
-  // Translation along x
-  root = objectFactory.createJointTranslation (mat);
-  root->name (jointName);
-
-  root->isBounded (0, 1);
-  root->lowerBound (0, -4);
-  root->upperBound (0, +4);
-
-  robot->rootJoint (root);
-
-  std::string bname = "joint_a";
-  parent = root;
-  for (int i = 0; i < 2; ++i) {
-    joint = objectFactory.createJointTranslation (mat);
-    std::stringstream ss; ss << bname << i;
-    joint->name (ss.str());
-
-    joint->isBounded (0, 1);
-    joint->lowerBound (0, -4);
-    joint->upperBound (0, +4);
-
-    parent->addChildJoint (joint);
-    parent = joint;
-  }
-  parent = root;
-  bname = "joint_b";
-  for (int i = 0; i < 3; ++i) {
-    joint = objectFactory.createJointTranslation (mat);
-    std::stringstream ss; ss << bname << i;
-    joint->name (ss.str());
-
-    joint->isBounded (0, 1);
-    joint->lowerBound (0, -4);
-    joint->upperBound (0, +4);
-
-    parent->addChildJoint (joint);
-    parent = joint;
-  }
-  return robot;*/
 }
 
 void lockJoint (ConfigProjectorPtr_t proj, DevicePtr_t dev, std::string name)
@@ -236,6 +205,9 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
+
+  if (verbose) std::cout << '\n' << m << std::endl;
+
   BOOST_CHECK(m(jointid("joint_a1"),jointid("joint_b2")) == RelativeMotion::Constrained);   // lock rt
   BOOST_CHECK(m(jointid("joint_a0"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock a1 + rt
   BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a1")) == RelativeMotion::Parameterized); // lock b1+b2+rt
