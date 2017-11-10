@@ -37,10 +37,12 @@ using hpp::pinocchio::DevicePtr_t;
 
 using hpp::pinocchio::urdf::loadRobotModel;
 
+using hpp::core::matrix_t;
 using hpp::core::vector_t;
+using hpp::core::size_type;
 using hpp::core::BasicConfigurationShooter;
 using hpp::core::CollisionValidation;
-using hpp::core::ConfigurationPtr_t;
+using hpp::core::Configuration_t;
 using hpp::core::ConfigurationShooterPtr_t;
 using hpp::core::ConfigValidationPtr_t;
 using hpp::core::continuousCollisionChecking::Dichotomy;
@@ -55,16 +57,71 @@ using hpp::core::SteeringMethodPtr_t;
 using hpp::core::steeringMethod::Straight;
 using hpp::core::ValidationReportPtr_t;
 
+static size_type i1 = 0, n1 = 100;
+static size_type i2 = 0, n2 = 10;
+
 BOOST_AUTO_TEST_SUITE (test_hpp_core)
 
-BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
+matrix_t generateRandomConfig (const DevicePtr_t& robot, size_type n)
+{
+  // Create configuration shooter
+  ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
+  matrix_t m (n, robot->configSize ());
+  for (size_type i=0; i<n; ++i) {
+    m.row (i) = *(shooter->shoot ());
+  }
+  return m;
+}
+
+matrix_t generateRandomVelocities (const DevicePtr_t& robot, size_type n)
+{
+  // Create configuration shooter
+  ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
+  matrix_t m (n, robot->numberDof ());
+  for (size_type i=0; i<n; ++i) {
+    m.row (i) = vector_t::Random (robot->numberDof());
+  }
+  return m;
+}
+
+void generate_random_numbers ()
 {
   // Load robot model (ur5)
   DevicePtr_t robot (Device::create ("ur5"));
-  loadRobotModel (robot, "anchor", "ur_description", "ur5_robot", "", "");
+  loadRobotModel (robot, "anchor", "ur_description", "ur5_joint_limited_robot",
+                  "", "");
+  matrix_t rand1 = generateRandomConfig (robot, 2*(n1+n2));
+  matrix_t rand2 = generateRandomVelocities (robot, 2*n2);
 
-  // Create configuration shooter
-  ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
+  Eigen::IOFormat f1 (Eigen::StreamPrecision, Eigen::DontAlignCols, ", ",
+                          ", ", "", "", "", ";\n");
+  Eigen::IOFormat f2 (Eigen::StreamPrecision, Eigen::DontAlignCols, ", ",
+                          ", ", "", "", "", ";\n");
+  std::cout << "static matrix_t m1 (" << rand1.rows () << ", " << rand1.cols ()
+            << "); m1 << " << rand1.format (f1);
+  std::cout << "static matrix_t m2 (" << rand2.rows () << ", " << rand2.cols ()
+            << "); m2 << " << rand2.format (f2);
+}
+
+#if 0
+BOOST_AUTO_TEST_CASE (random)
+{
+  generate_random_numbers ();
+}
+#else
+
+static matrix_t m1 (220, 6); 
+static matrix_t m2 (20, 6); 
+
+BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
+{
+
+  #include "../tests/random-numbers.hh"
+
+  // Load robot model (ur5)
+  DevicePtr_t robot (Device::create ("ur5"));
+  loadRobotModel (robot, "anchor", "ur_description", "ur5_joint_limited_robot",
+                  "", "");
 
   // create steering method
   Problem problem (robot);
@@ -72,22 +129,22 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
 
   // create path validation objects
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
-  PathValidationPtr_t progressive (Progressive::create (robot, 0.01));
+  PathValidationPtr_t progressive (Progressive::create (robot, 0.001));
   PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
                                    (robot, 0.05));
   // create configuration validation instance
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
   ValidationReportPtr_t collisionReport;
   //  create random paths and test them with different validation instances
-  for (std::size_t i=0; i<1000; ++i) {
-    ConfigurationPtr_t q1 (shooter->shoot ());
-    ConfigurationPtr_t q2 (shooter->shoot ());
+  for (size_type i=0; i<n1; ++i) {
+    Configuration_t q1 (m1.row (i1)); ++i1;
+    Configuration_t q2 (m1.row (i1)); ++i1;
     PathValidationReportPtr_t report1;
     PathValidationReportPtr_t report2;
     PathValidationReportPtr_t report3;
-    PathPtr_t path ((*sm) (*q1, *q2));
+    PathPtr_t path ((*sm) (q1, q2));
     PathPtr_t validPart;
-    if (configValidation->validate (*q1, collisionReport)) {
+    if (configValidation->validate (q1, collisionReport)) {
       bool res1 (discretized->validate (path, false, validPart, report1));
       bool res2 (progressive->validate  (path, false, validPart, report2));
       bool res3 (dichotomy->validate (path, false, validPart, report3));
@@ -97,31 +154,33 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
         BOOST_CHECK (!res3);
         if (res2) {
           hppDout (error, "Progressive failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }
         if (res3) {
           hppDout (error, "Dichotomy failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }
       }
       if (res1) {
+        BOOST_CHECK (res2);
+        BOOST_CHECK (res3);
         if (!res2) {
           hppDout (info, "Progressive found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report2);
         }
         if (!res3) {
           hppDout (info, "Dichotomy found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report3);
         }
       }
     }
-    if (configValidation->validate (*q2, collisionReport)) {
+    if (configValidation->validate (q2, collisionReport)) {
       bool res1 (discretized->validate (path, true, validPart, report1));
       bool res2 (progressive->validate  (path, true, validPart, report2));
       bool res3 (dichotomy->validate (path, true, validPart, report3));
@@ -131,26 +190,26 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
         BOOST_CHECK (!res3);
         if (res2) {
           hppDout (error, "Progressive failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }
         if (res3) {
           hppDout (error, "Dichotomy failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }
       }
       if (res1) {
         if (!res2) {
           hppDout (info, "Progressive found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report2);
         }
         if (!res3) {
           hppDout (info, "Dichotomy found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report3);
         }
       }
@@ -163,10 +222,8 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
 {
   // Load robot model (ur5)
   DevicePtr_t robot (Device::create ("ur5"));
-  loadRobotModel (robot, "anchor", "ur_description", "ur5_robot", "", "");
-
-  // Create configuration shooter
-  ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
+  loadRobotModel (robot, "anchor", "ur_description", "ur5_joint_limited_robot",
+                  "", "");
 
   // create steering method
   Problem problem (robot);
@@ -183,18 +240,17 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
 
   std::vector<int> orders (1, 1);
   //  create random paths and test them with different validation instances
-  for (std::size_t i=0; i<10; ++i) {
+  for (size_type i=0; i<n2; ++i) {
     std::cout << i << std::endl;
-    ConfigurationPtr_t q1 (shooter->shoot ());
-    ConfigurationPtr_t q2 (shooter->shoot ());
-    vector_t v1 (vector_t::Random(robot->numberDof())),
-             v2 (vector_t::Random(robot->numberDof()));
+    Configuration_t q1 (m1.row (i1)); ++i1;
+    Configuration_t q2 (m1.row (i1)); ++i1;
+    vector_t v1 (m2.row (i2++)), v2 (m2.row (i2++));
     PathValidationReportPtr_t report1;
     PathValidationReportPtr_t report2;
     PathValidationReportPtr_t report3;
-    PathPtr_t path (sm->steer (*q1, orders, v1, *q2, orders, v2));
+    PathPtr_t path (sm->steer (q1, orders, v1, q2, orders, v2));
     PathPtr_t validPart;
-    if (configValidation->validate (*q1, collisionReport)) {
+    if (configValidation->validate (q1, collisionReport)) {
       bool res1 (discretized->validate (path, false, validPart, report1));
       bool res2 (progressive->validate  (path, false, validPart, report2));
       // bool res3 (dichotomy->validate (path, false, validPart, report3));
@@ -204,31 +260,32 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
         // BOOST_CHECK (!res3);
         if (res2) {
           hppDout (error, "Progressive failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }
         /*if (res3) {
           hppDout (error, "Dichotomy failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }*/
       }
       if (res1) {
+        BOOST_CHECK (res2);
         if (!res2) {
           hppDout (info, "Progressive found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report2);
         }
         /*if (!res3) {
           hppDout (info, "Dichotomy found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report3);
         }*/
       }
     }
-    if (configValidation->validate (*q2, collisionReport)) {
+    if (configValidation->validate (q2, collisionReport)) {
       bool res1 (discretized->validate (path, true, validPart, report1));
       bool res2 (progressive->validate  (path, true, validPart, report2));
       // bool res3 (dichotomy->validate (path, true, validPart, report3));
@@ -238,26 +295,26 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
         // BOOST_CHECK (!res3);
         if (res2) {
           hppDout (error, "Progressive failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }
         /*if (res3) {
           hppDout (error, "Dichotomy failed to detect collision for q1="
-                   << q1->transpose () << ", q2=" << q2->transpose ());
+                   << q1.transpose () << ", q2=" << q2.transpose ());
           hppDout (error, *report1);
         }*/
       }
       if (res1) {
         if (!res2) {
           hppDout (info, "Progressive found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report2);
         }
         /*if (!res3) {
           hppDout (info, "Dichotomy found a collision where discretized did "
-		     "not for q1 = " << q1->transpose () << ", q2 = "
-		   << q2->transpose ());
+		     "not for q1 = " << q1.transpose () << ", q2 = "
+		   << q2.transpose ());
           hppDout (info, *report3);
         }*/
       }
@@ -270,6 +327,6 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking_spline)
 {
   test_spline_steering_method<hpp::core::steeringMethod::Spline<hpp::core::path::BernsteinBasis, 3> >();
 }
-
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
