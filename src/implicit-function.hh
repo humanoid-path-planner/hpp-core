@@ -101,9 +101,6 @@ namespace hpp {
 
     template <> inline void JacobianVisitor::operator () <SE3 > (const SE3&)
     {
-      using Eigen::MatrixBlocks;
-      using Eigen::BlockIndex;
-      typedef hpp::constraints::BlockIndex BlockIndex;
       assert (outJacobian_.nbRows () == 6);
       // extract 3 top rows of inJacobian_
       assert (qOut_.size () == 7);
@@ -197,48 +194,27 @@ namespace hpp {
 	qIn_.resize (function->inputSize ());
 	Jf_.resize (function->outputDerivativeSize (),
                     function->inputDerivativeSize ());
-	size_type size = 0;
-	// Sum of configuration output interval sizes equal function output size
-	for (segments_t::const_iterator it = outputConf.begin ();
-	     it != outputConf.end (); ++it) {
-	  size += it->second;
-	}
-	assert (size == function->outputSize ());
+	assert (BlockIndex::cardinal (outputConf) == function->outputSize ());
 	// Sum of velocity output interval sizes equal function output
 	// derivative size
-	size = 0;
-	for (segments_t::const_iterator it = outputVelocity.begin ();
-	     it != outputVelocity.end (); ++it) {
-	  size += it->second;
-	}
-	assert (size == function->outputDerivativeSize ());
+	assert (BlockIndex::cardinal (outputVelocity) ==
+                function->outputDerivativeSize ());
         computeJacobianBlocks ();
       }
 
       /// Compute q_{output} - f (q_{input})
       void impl_compute (LiegroupElement& result, vectorIn_t argument) const
       {
+        using Eigen::MatrixBlocks;
         hppDout (info, "argument=" << argument.transpose ());
         // Store q_{output} in result
-	size_type index = 0;
-	for (segments_t::const_iterator it = outputConfIntervals_.begin ();
-	     it != outputConfIntervals_.end (); ++it) {
-	  qOut_.vector ().segment (index, it->second) =
-	    argument.segment (it->first, it->second);
-	  index += it->second;
-	}
+        qOut_.vector () = MatrixBlocks <false, true>
+          (outputConfIntervals_).rview (argument);
         hppDout (info, "qOut_=" << qOut_);
-        assert (index == qOut_.space ()->nq ());
-	index = 0;
         // fill in q_{input}
-	for (segments_t::const_iterator it = inputConfIntervals_.begin ();
-	     it != inputConfIntervals_.end (); ++it) {
-	  qIn_.segment (index, it->second) =
-	    argument.segment (it->first, it->second);
-	  index += it->second;
-	}
+        qIn_ = MatrixBlocks <false, true>
+          (inputConfIntervals_).rview (argument);
         hppDout (info, "qIn_=" << qIn_);
-        assert (index == qIn_.size ());
         // compute  f (q_{input}) -> output_
 	inputToOutput_->value (f_qIn_, qIn_);
         hppDout (info, "f_qIn_=" << f_qIn_);

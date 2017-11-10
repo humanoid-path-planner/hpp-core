@@ -58,18 +58,15 @@ namespace hpp {
       ImplicitFunctionPtr_t implicit (HPP_DYNAMIC_PTR_CAST
                                       (ImplicitFunction, f));
       if (implicit) {
-        hppDout (info, f->name << " is an implicit function.");
         ExplicitRelativeTransformationPtr_t ert
           (HPP_DYNAMIC_PTR_CAST (ExplicitRelativeTransformation,
                                  implicit->inputToOutput ()));
         if (ert) {
-          hppDout (info, f->name << " contains an explicit relative transformation.");
           i1 = RelativeMotion::idx(ert->joint1());
           i2 = RelativeMotion::idx(ert->joint2());
           return true;
         }
       }
-      hppDout (info, f->name << " is not an implicit function.");
       return false;
     }
 
