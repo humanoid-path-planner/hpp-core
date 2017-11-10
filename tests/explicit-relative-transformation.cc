@@ -45,7 +45,7 @@ DevicePtr_t createRobot ()
 {
   //DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidRomeo, "romeo");
   DevicePtr_t robot (Device::create ("2-objects"));
-  urdf::loadModel<false> (robot, 0, "obj1/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
+  urdf::loadModel (robot, 0, "obj1/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
   robot->controlComputation((Device::Computation_t) (Device::JOINT_POSITION | Device::JACOBIAN));
   robot->rootJoint()->lowerBound (0, -10);
   robot->rootJoint()->lowerBound (1, -10);
@@ -55,7 +55,7 @@ DevicePtr_t createRobot ()
   robot->rootJoint()->upperBound (2,  10);
 
   /// Add a freeflyer at the end.
-  urdf::loadModel<false> (robot, 0, "obj2/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
+  urdf::loadModel (robot, 0, "obj2/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
   JointPtr_t rj = robot->getJointByName("obj2/root_joint");
   rj->lowerBound (0, -10);
   rj->lowerBound (1, -10);
