@@ -225,7 +225,6 @@ namespace hpp {
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
       {
 	jacobian.setZero ();
-	size_type row = 0;
         size_type iq = 0, iv = 0, nq, nv;
         std::size_t rank = 0;
         impl_compute (result_, arg);
