@@ -583,8 +583,8 @@ namespace hpp {
       }
       HPP_START_TIMECOUNTER (projection);
       value_type alpha = .2;
-      value_type alphaMax = .95;
-      size_type errorDecreased = 3, iter = 0;
+      value_type alphaMax = .99;
+      size_type errorDecreased = 5, iter = 0;
       value_type previousSquareNorm =
 	std::numeric_limits<value_type>::infinity();
       // Fill value and Jacobian
@@ -601,7 +601,7 @@ namespace hpp {
 	hppDout (info, "squareNorm = " << squareNorm_);
     hppDout(notice,"alpha = "<<alpha);
 	--errorDecreased;
-	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
+    if (squareNorm_ < previousSquareNorm) errorDecreased = 5;
 	previousSquareNorm = squareNorm_;
 	++iter;
       };
