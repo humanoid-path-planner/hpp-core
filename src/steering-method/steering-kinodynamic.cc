@@ -187,7 +187,7 @@ namespace hpp {
 
         try {
           boost::any value = problem_->get<boost::any> (std::string("tryJump"));
-          tryJump_ = bool(boost::any_cast<int>(value));
+          tryJump_ = (bool)boost::any_cast<double>(value);
         } catch (const std::exception& e) {
           hppDout(notice,"try jump not set, use false as default");
           tryJump_=false;

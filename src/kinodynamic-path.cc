@@ -46,7 +46,7 @@ namespace hpp {
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
       for(size_t i = 0 ; i < 3 ; i++){
         assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <float>::epsilon ()
-               && "Kinodynamic path : length is not coherent with switch times");
+               && "Kinodynamic path : length is not coherent with switch times at index "+i);
       }
       
     }
