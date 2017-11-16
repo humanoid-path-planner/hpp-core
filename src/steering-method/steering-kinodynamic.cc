@@ -371,9 +371,8 @@ namespace hpp {
           *vLim = 0;
           return;
         }
-
         if(tryJump_){
-          if(index == 2 && ((v1 == 0) || (v2==0))){ // FIXME : axis z ?
+          if(index == 2 && /*((v1 == 0) ||*/ (v2==0)){ // FIXME : axis z ?
             hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
             assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
             double aMax =std::fabs(aMax_[index]);
