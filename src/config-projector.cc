@@ -569,7 +569,7 @@ namespace hpp {
     {
       std::size_t level = stack_.size() - lastAsCost_;
 
-      hppDout (info, "before projection: " << configuration.transpose ());
+      hppDout (info, "before projection: " << model::displayConfig(configuration));
       computeLockedDofs (configuration);
       if (isSatisfiedNoLockedJoint (configuration)) return true;
       if (functions_.empty ()) return true;
@@ -599,6 +599,7 @@ namespace hpp {
 	alpha = alphaMax - .8*(alphaMax - alpha);
         computeError ();
 	hppDout (info, "squareNorm = " << squareNorm_);
+    hppDout(notice,"alpha = "<<alpha);
 	--errorDecreased;
 	if (squareNorm_ < previousSquareNorm) errorDecreased = 3;
 	previousSquareNorm = squareNorm_;
@@ -617,7 +618,7 @@ namespace hpp {
 	hppDout (info, "Projection failed.");
 	return false;
       }
-      hppDout (info, "After projection: " << configuration.transpose ());
+      hppDout (info, "After projection: " << model::displayConfig(configuration));
       if (numOptimize_){
         hppDout (info, "Projection successful, trying to optimize : ");
         optimize(configuration,numOptimize_);
@@ -641,7 +642,7 @@ namespace hpp {
       if (functions_.empty ()) return true;
       if (!isSatisfied (configuration)) return false;
       if (maxIter == 0) maxIter = maxIterations_;
-      hppDout (info, "before optimization: " << configuration.transpose ());
+      hppDout (info, "before optimization: " << model::displayConfig(configuration));
       HPP_START_TIMECOUNTER (optimize);
       Configuration_t current = configuration;
       std::size_t iter = 0;
@@ -672,7 +673,7 @@ namespace hpp {
 	hppDout (info, "Optimization failed.");
 	return false;
       }
-      hppDout (info, "After optimization: " << configuration.transpose ());
+      hppDout (info, "After optimization: " <<model::displayConfig(configuration));
       return true;
     }
 
