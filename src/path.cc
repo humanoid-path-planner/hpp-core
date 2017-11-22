@@ -96,9 +96,9 @@ namespace hpp {
     PathPtr_t Path::impl_extract (const interval_t& paramInterval) const
         throw (projection_error)
     {
-      if (subInterval == timeRange_)
+      if (paramInterval == paramRange_)
 	return this->copy ();
-      return ExtractedPath::create (weak_.lock (), subInterval);
+      return ExtractedPath::create (weak_.lock (), paramInterval);
     }
 
     PathPtr_t Path::reverse () const
