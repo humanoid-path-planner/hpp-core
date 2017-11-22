@@ -163,8 +163,7 @@ namespace hpp {
       PathVector (const PathVector& path) : parent_t (path),
 	paths_ ()
 	  {
-	    assert (timeRange().first  == path.timeRange().first);
-	    assert (timeRange().second == path.timeRange().second);
+	    assert (timeRange() == path.timeRange());
 	    for (Paths_t::const_iterator it = path.paths_.begin ();
 		 it != path.paths_.end (); it++) {
 	      paths_.push_back ((*it)->copy ());
@@ -176,8 +175,7 @@ namespace hpp {
 		  const ConstraintSetPtr_t& constraints) :
 	parent_t (path, constraints), paths_ ()
 	  {
-	    assert (timeRange().first  == path.timeRange().first);
-	    assert (timeRange().second == path.timeRange().second);
+	    assert (timeRange() == path.timeRange());
 	    for (Paths_t::const_iterator it = path.paths_.begin ();
 		 it != path.paths_.end (); it++) {
 	      paths_.push_back ((*it)->copy ());

@@ -26,6 +26,7 @@ namespace hpp {
     std::size_t PathVector::rankAtParam (const value_type& param,
 					 value_type& localParam) const
     {
+      assert(!timeParameterization());
       std::size_t res = 0;
       localParam = param;
       bool finished = false;
@@ -56,6 +57,7 @@ namespace hpp {
 
     void PathVector::appendPath (const PathPtr_t& path)
     {
+      assert(!timeParameterization());
       paths_.push_back (path);
       interval_t tr = timeRange();
       tr.second += path->length ();
@@ -98,6 +100,7 @@ namespace hpp {
 
     void PathVector::flatten (PathVectorPtr_t p) const
     {
+      assert(!timeParameterization());
       for (std::size_t i = 0; i < numberPaths (); ++i) {
         PathPtr_t path = pathAtRank (i);
         PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST(PathVector, path);
@@ -107,24 +110,26 @@ namespace hpp {
     }
 
     bool PathVector::impl_compute (ConfigurationOut_t result,
-				   value_type t) const
+				   value_type param) const
     {
+      assert(!timeParameterization());
       // Find direct path in vector corresponding to parameter.
       size_t rank;
       value_type localParam;
-      rank = rankAtParam (t, localParam);
+      rank = rankAtParam (param, localParam);
 
       PathPtr_t subpath = paths_ [rank];
       return (*subpath) (result, localParam);
     }
 
-    void PathVector::impl_derivative (vectorOut_t result, const value_type& t,
+    void PathVector::impl_derivative (vectorOut_t result, const value_type& param,
 				      size_type order) const
     {
+      assert(!timeParameterization());
       // Find direct path in vector corresponding to parameter.
       size_t rank;
       value_type localParam;
-      rank = rankAtParam (t, localParam);
+      rank = rankAtParam (param, localParam);
 
       PathPtr_t subpath = paths_ [rank];
       subpath->impl_derivative (result, localParam, order);
@@ -133,6 +138,7 @@ namespace hpp {
     PathPtr_t PathVector::extract (const interval_t& subInterval) const
         throw (projection_error)
     {
+      assert(!timeParameterization());
       using std::make_pair;
       PathVectorPtr_t path = create (outputSize (), outputDerivativeSize ());
       bool reversed = subInterval.first > subInterval.second ? true : false;
