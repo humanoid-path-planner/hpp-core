@@ -588,7 +588,7 @@ namespace hpp {
       lengths_.setZero ();
       Path::constraints (constraints);
       buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
-      assert (fabs (currentLength_ - timeRange ().second) < 1e-8);
+      assert (fabs (currentLength_ - paramRange ().second) < 1e-8);
     }
 
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
@@ -699,12 +699,12 @@ namespace hpp {
 	oss << "derivative only implemented for order 1: got" << order;
 	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
       }
-      if (p <= timeRange ().first ||
-	  timeRange ().second == timeRange ().first) {
-	p = timeRange ().first;
+      const value_type L = paramLength();
+      if (p <= paramRange ().first || L == 0) {
+	p = paramRange ().first;
       }
-      if (p >= timeRange ().second - precision) {
-	p = timeRange ().second - precision;
+      if (p >= paramRange ().second - precision) {
+	p = paramRange ().second - precision;
       }
       // Does a linear interpolation on all the joints.
       if (order > 1) {
@@ -713,7 +713,7 @@ namespace hpp {
       else if (order == 1) {
 	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
 	  (device_, end_, initial_, result);
-	result = (1/timeRange ().second) * result;
+	result = (1/L) * result;
       } else {
         assert (order > 0);
         result.setZero ();
