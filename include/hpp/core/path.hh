@@ -208,11 +208,21 @@ namespace hpp {
 	return timeRange_;
       }
 
+      /// Get interval of parameters.
+      /// If the instance contains a \ref timeParam_
+      /// this returns timeParam_ (timeRange())
+      /// otherwise, it returns \ref timeRange
+      const interval_t& paramRange () const
+      {
+	return paramRange_;
+      }
+
+      /// Set the time parameterization function
       void timeParameterization (const TimeParameterizationPtr_t& tp,
-          const interval_t& timeRange)
+          const interval_t& tr)
       {
         timeParam_ = tp;
-        timeRange_ = timeRange;
+        timeRange (tr);
       }
 
       /// Get length of definition interval
@@ -264,6 +274,9 @@ namespace hpp {
       /// should be called at construction of derived class instances
       void init (const PathWkPtr_t& self);
 
+      /// Interval of parameters
+      interval_t paramRange_;
+
       /// Set the constraints
       /// \warning this method is protected for child classes that need to
       ///          initialize themselves before being sure that the initial and
@@ -278,6 +291,21 @@ namespace hpp {
       void timeRange (const interval_t& timeRange)
       {
         timeRange_ = timeRange;
+        if (timeParam_) {
+          paramRange_.first  = timeParam_->value(timeRange_.first );
+          paramRange_.second = timeParam_->value(timeRange_.second);
+        } else
+          paramRange_ = timeRange_;
+      }
+
+      const TimeParameterizationPtr_t& timeParameterization() const
+      {
+        return timeParam_;
+      }
+
+      value_type paramLength() const
+      {
+        return paramRange_.second - paramRange_.first;
       }
     private:
       /// Interval of definition
