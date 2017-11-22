@@ -80,6 +80,22 @@ namespace hpp {
     PathPtr_t Path::extract (const interval_t& subInterval) const
         throw (projection_error)
     {
+      PathPtr_t res;
+      if (timeParam_) {
+        interval_t paramInterval (
+            timeParam_->value(subInterval.first),
+            timeParam_->value(subInterval.second));
+        res = this->impl_extract (paramInterval);
+        res->timeParameterization(timeParam_->copy(), subInterval);
+      } else {
+        res = this->impl_extract (subInterval);
+      }
+      return res;
+    }
+
+    PathPtr_t Path::impl_extract (const interval_t& paramInterval) const
+        throw (projection_error)
+    {
       if (subInterval == timeRange_)
 	return this->copy ();
       return ExtractedPath::create (weak_.lock (), subInterval);

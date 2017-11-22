@@ -75,7 +75,7 @@ namespace hpp {
       /// \exception projection_error is thrown when an end configuration of
       ///                             the returned path could not be computed
       ///                             due to projection failure.
-      virtual PathPtr_t extract (const interval_t& subInterval) const
+      PathPtr_t extract (const interval_t& subInterval) const
         throw (projection_error);
 
       /// Reversion of a path
@@ -312,6 +312,11 @@ namespace hpp {
       {
 	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
       }
+
+      virtual void impl_extract (const interval_t& paramInterval) const
+        throw (projection_error)
+      {
+      };
 
     private:
       /// Interval of definition
