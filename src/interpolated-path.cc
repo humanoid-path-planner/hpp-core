@@ -173,7 +173,7 @@ namespace hpp {
         const value_type& t0, const value_type& t1) const
     {
       InterpolationPoints_t::const_iterator next = configs_.lower_bound (t0);
-      InterpolationPoints_t::const_iterator current = next; --next;
+      InterpolationPoints_t::const_iterator current = next; ++next;
 
       result.setZero();
       vector_t tmp (result.size());
