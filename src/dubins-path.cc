@@ -282,18 +282,17 @@ namespace hpp {
     bool DubinsPath::impl_compute (ConfigurationOut_t result,
 				   value_type param) const
     {
-      if (param <= timeRange ().first ||
-	  timeRange ().second == timeRange ().first) {
+      const value_type L = paramLength();
+      if (param <= paramRange ().first || L == 0) {
 	result = initial_;
 	return true;
       }
-      if (param >= timeRange ().second) {
+      if (param >= paramRange ().second) {
 	result = end_;
 	return true;
       }
       // Does a linear interpolation on all the joints.
-      const value_type u = (timeRange ().second == 0)? 0 :
-	param/timeRange ().second;
+      const value_type u = (param - paramRange().first) / L;
       pinocchio::interpolate (device_, initial_, end_, u, result);
 
       // Compute the position of the car.
@@ -377,12 +376,12 @@ namespace hpp {
 	oss << "derivative only implemented for order 1: got" << order;
 	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
       }
-      if (p <= timeRange ().first ||
-	  timeRange ().second == timeRange ().first) {
-	p = timeRange ().first;
+      const value_type L = paramLength();
+      if (p <= paramRange ().first || L == 0) {
+	p = paramRange ().first;
       }
-      if (p >= timeRange ().second) {
-	p = timeRange ().second;
+      if (p >= paramRange ().second) {
+	p = paramRange ().second;
       }
       // Does a linear interpolation on all the joints.
       if (order > 1) {
@@ -390,7 +389,7 @@ namespace hpp {
       }
       else if (order == 1) {
 	pinocchio::difference (device_, end_, initial_, result);
-	result = (1/timeRange ().second) * result;
+	result = (1/L) * result;
       } else {
 	std::ostringstream oss;
 	oss << "order of derivative (" << order << ") should be positive.";
