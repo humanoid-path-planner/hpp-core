@@ -112,12 +112,12 @@ namespace hpp {
     bool InterpolatedPath::impl_compute (ConfigurationOut_t result,
 				     value_type param) const
     {
-      assert (param >= timeRange().first);
-      if (param == timeRange ().first || timeRange ().second == 0) {
+      assert (param >= paramRange().first);
+      if (param == paramRange ().first || paramLength() == 0) {
 	result.noalias () = initial();
 	return true;
       }
-      if (param >= timeRange ().second) {
+      if (param >= paramRange ().second) {
 	result.noalias () = end();
 	return true;
       }
@@ -131,18 +131,18 @@ namespace hpp {
     }
 
     void InterpolatedPath::impl_derivative
-    (vectorOut_t result, const value_type& t, size_type order) const
+    (vectorOut_t result, const value_type& s, size_type order) const
     {
-      value_type param (t);
-      assert (param >= timeRange().first);
-      if (timeRange ().first == timeRange ().second) {
+      value_type param (s);
+      assert (param >= paramRange().first);
+      if (paramRange ().first == paramRange ().second) {
 	result.setZero ();
 	return;
       }
       InterpolationPoints_t::const_iterator itA;
       InterpolationPoints_t::const_iterator itB;
-      if (param >= timeRange ().second) {
-	param = timeRange ().second;
+      if (param >= paramRange ().second) {
+	param = paramRange ().second;
         itA = configs_.end(); --itA;
         itB = itA; --itB;
       } else {
