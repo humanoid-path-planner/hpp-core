@@ -50,7 +50,7 @@ namespace hpp {
             value_type& T) 
         {
           vector_t a(4);
-          T = 3 * (s1 - s0) / B;
+          T = 3 * (s1 - s0) / (2 * B);
           a[0] = s0;
           a[1] = 0;
           a[2] = 3 * (s1 - s0) / (T * T);
@@ -85,8 +85,8 @@ namespace hpp {
         lb = cb + safety * (lb - cb);
 
         // When ub or lb are NaN, set them to infinity.
-        ub = (ub.array() == ub.array()).select(ub, infinity);
-        lb = (lb.array() == lb.array()).select(lb, infinity);
+        ub = (ub.array() == ub.array()).select(ub,  infinity);
+        lb = (lb.array() == lb.array()).select(lb, -infinity);
 
         hppDout (info, "Lower velocity bound :" << lb.transpose());
         hppDout (info, "Upper velocity bound :" << ub.transpose());
@@ -105,7 +105,7 @@ namespace hpp {
         vector_t v_inv (robot->numberDof());
         for (std::size_t i = 0; i < input->numberPaths(); ++i) {
           PathPtr_t p = input->pathAtRank(i);
-          interval_t paramRange = p->timeRange();
+          interval_t paramRange = p->paramRange();
 
           // Compute B
           p->velocityBound (v, paramRange.first, paramRange.second);
@@ -113,6 +113,7 @@ namespace hpp {
           const value_type B = std::min(
               ( ub.cwiseProduct(v_inv)).minCoeff(),
               (-lb.cwiseProduct(v_inv)).minCoeff());
+          assert (B > 0);
 
           // Compute the polynom and total time
           value_type T;
@@ -124,6 +125,8 @@ namespace hpp {
 
           PathPtr_t pp = p->copy();
           pp->timeParameterization (tp, interval_t (0, T));
+
+          output->appendPath (pp);
         }
         return output;
       }
