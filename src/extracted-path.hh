@@ -78,33 +78,34 @@ namespace hpp {
       virtual bool impl_compute (ConfigurationOut_t result,
 				 value_type param) const
       {
-        param = tInOriginalPath (param);
+        param = sInOriginalPath (param);
         return original_->impl_compute (result, param);
       }
 
-      virtual void impl_derivative (vectorOut_t result, const value_type& t,
+      virtual void impl_derivative (vectorOut_t result, const value_type& s,
 				    size_type order) const
       {
 	if (reversed_) {
-	  value_type param = (timeRange ().first + timeRange ().second - t);
+	  value_type param = (paramRange ().second - s);
 	  original_->impl_derivative (result, param, order);
 	  if (order % 2 == 1) result *= -1.;
 	} else {
-	  original_->impl_derivative (result, t, order);
+	  original_->impl_derivative (result, s, order);
 	}
       }
 
-      virtual PathPtr_t extract (const interval_t& subInterval) const
+      virtual PathPtr_t impl_extract (const interval_t& subInterval) const
         throw (projection_error)
       {
 	ExtractedPathPtr_t path = createCopy (weak_.lock ());
-	value_type tmin = tInOriginalPath (subInterval.first),
-                   tmax = tInOriginalPath (subInterval.second);
+	value_type tmin = sInOriginalPath (subInterval.first),
+                   tmax = sInOriginalPath (subInterval.second);
 	path->reversed_ = tmin > tmax;
 	if (path->reversed_) std::swap (tmin, tmax);
 	// path->reversed_ = ((this->reversed_) && (!reversed)) ||
 	  // ((!this->reversed_) && (reversed));
-	path->timeRange (std::make_pair (tmin, tmax));
+	path->timeParameterization (
+            TimeParameterizationPtr_t(), std::make_pair (tmin, tmax));
 	assert (path->timeRange().first >= timeRange ().first -
 		std::numeric_limits <float>::epsilon ());
 	assert (path->timeRange().second <= timeRange ().second +
@@ -184,11 +185,11 @@ namespace hpp {
       }
 
     private:
-      inline value_type tInOriginalPath (const value_type& t) const
+      inline value_type sInOriginalPath (const value_type& s) const
       {
-        assert (timeRange().first <= t && t <= timeRange().second);
-        if (!reversed_) return t;
-        return timeRange().first + (timeRange().second - t);
+        assert (paramRange().first <= s && s <= paramRange().second);
+        if (!reversed_) return s;
+        return paramRange().second - s;
       }
 
       PathPtr_t original_;
