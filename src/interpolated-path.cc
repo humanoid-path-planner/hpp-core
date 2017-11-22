@@ -141,6 +141,8 @@ namespace hpp {
       }
       InterpolationPoints_t::const_iterator itA;
       InterpolationPoints_t::const_iterator itB;
+      assert (fabs (configs_.rbegin()->first - paramRange ().second)
+          < Eigen::NumTraits<value_type>::dummy_precision());
       if (param >= configs_.rbegin()->first) {
 	param = configs_.rbegin()->first;
         itA = configs_.end(); --itA;
