@@ -34,18 +34,7 @@ using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 using hpp::pinocchio::JointConstPtr_t;
 
-using hpp::core::ConfigurationPtr_t;
-using hpp::core::ConstraintSetPtr_t;
-using hpp::core::interval_t;
-using hpp::core::Path;
-using hpp::core::PathPtr_t;
-using hpp::core::PathVector;
-using hpp::core::PathVectorPtr_t;
-using hpp::core::Problem;
-using hpp::core::ProblemPtr_t;
-using hpp::core::steeringMethod::Straight;
-using hpp::core::steeringMethod::StraightPtr_t;
-using hpp::core::value_type;
+using namespace hpp::core;
 
 HPP_PREDEF_CLASS (LocalPath);
 typedef boost::shared_ptr <LocalPath> LocalPathPtr_t;
@@ -147,12 +136,20 @@ BOOST_AUTO_TEST_CASE (path_extraction_1)
   pv->appendPath (p1);
   pv->appendPath (p2);
   pv->appendPath (p3);
+
   value_type tmin (3.7487655421722721), tmax (4.0792129048147352);
   PathPtr_t extracted (pv->extract (std::make_pair (tmin, tmax)));
-  BOOST_CHECK (extracted->timeRange ().first == 0);
-  BOOST_CHECK (fabs (extracted->timeRange ().second - (tmax - tmin)) <
+  BOOST_CHECK_EQUAL (extracted->timeRange ().first, 0);
+  BOOST_CHECK_CLOSE (extracted->timeRange ().second, tmax - tmin,
+      std::numeric_limits <float>::epsilon ());
+  BOOST_CHECK_CLOSE (extracted->length (), tmax - tmin,
 	       std::numeric_limits <float>::epsilon ());
-  BOOST_CHECK (fabs (extracted->length () - (tmax - tmin)) <
+
+  extracted = pv->extract (std::make_pair (tmax, tmin));
+  BOOST_CHECK_EQUAL (extracted->timeRange ().first, 0);
+  BOOST_CHECK_CLOSE (extracted->timeRange ().second, tmax - tmin,
+      std::numeric_limits <float>::epsilon ());
+  BOOST_CHECK_CLOSE (extracted->length (), tmax - tmin,
 	       std::numeric_limits <float>::epsilon ());
 }
 BOOST_AUTO_TEST_SUITE_END()
