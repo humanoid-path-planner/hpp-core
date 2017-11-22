@@ -16,6 +16,8 @@
 
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
 
+#include <limits>
+
 #include <pinocchio/multibody/model.hpp>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
@@ -24,10 +26,39 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/time-parameterization/polynomial.hh>
 
 namespace hpp {
   namespace core {
     namespace pathOptimization {
+      using timeParameterization::Polynomial;
+
+      namespace {
+        TimeParameterizationPtr_t computeTimeParameterizationFirstOrder (
+            const value_type& s0, const value_type& s1, const value_type& B,
+            value_type& T) 
+        {
+          vector_t a(2);
+          T = (s1 - s0) / B;
+          a[0] = s0;
+          a[1] = B;
+          return TimeParameterizationPtr_t (new Polynomial (a));
+        }
+
+        TimeParameterizationPtr_t computeTimeParameterizationThirdOrder (
+            const value_type& s0, const value_type& s1, const value_type& B,
+            value_type& T) 
+        {
+          vector_t a(4);
+          T = 3 * (s1 - s0) / B;
+          a[0] = s0;
+          a[1] = 0;
+          a[2] = 3 * (s1 - s0) / (T * T);
+          a[3] = - 2 * a[2] / (3 * T);
+          return TimeParameterizationPtr_t (new Polynomial (a));
+        }
+      }
+
       SimpleTimeParameterizationPtr_t SimpleTimeParameterization::create (const Problem& problem)
       {
         SimpleTimeParameterizationPtr_t ptr (new SimpleTimeParameterization(problem));
@@ -36,7 +67,10 @@ namespace hpp {
 
       PathVectorPtr_t SimpleTimeParameterization::optimize (const PathVectorPtr_t& path)
       {
+        const value_type infinity = std::numeric_limits<value_type>::infinity();
+
         const value_type safety = problem().getParameter("SimpleTimeParameterization/safety", (value_type)1);
+        const bool velocity = problem().getParameter("SimpleTimeParameterization/velocity", false);
 
         // Retrieve velocity limits
         const DevicePtr_t& robot = problem().robot();
@@ -50,6 +84,10 @@ namespace hpp {
         ub = cb + safety * (ub - cb);
         lb = cb + safety * (lb - cb);
 
+        // When ub or lb are NaN, set them to infinity.
+        ub = (ub.array() == ub.array()).select(ub, infinity);
+        lb = (lb.array() == lb.array()).select(lb, infinity);
+
         hppDout (info, "Lower velocity bound :" << lb.transpose());
         hppDout (info, "Upper velocity bound :" << ub.transpose());
 
@@ -57,62 +95,35 @@ namespace hpp {
             && ( lb.array() >= 0 ).any())
           throw std::invalid_argument ("The case where zero is not an admissible velocity is not implemented.");
 
-        vector_t ub_inv (ub.cwiseInverse());
-        vector_t lb_inv (lb.cwiseInverse());
-        // When ub or lb are NaN, set them to infinity, or, equivalently,
-        // set ub_inv or lb_inv to zero
-        ub_inv = (ub.array() == ub.array()).select(ub_inv, 0);
-        lb_inv = (lb.array() == lb.array()).select(lb_inv, 0);
-
-        hppDout (info, "Inverse of lower velocity bound :" << lb_inv.transpose());
-        hppDout (info, "Inverse of upper velocity bound :" << ub_inv.transpose());
-
         PathVectorPtr_t input = PathVector::create(
             path->outputSize(), path->outputDerivativeSize());
         PathVectorPtr_t output = PathVector::create(
             path->outputSize(), path->outputDerivativeSize());
         path->flatten(input);
 
-        vector_t delta (robot->numberDof());
+        vector_t v (robot->numberDof());
+        vector_t v_inv (robot->numberDof());
         for (std::size_t i = 0; i < input->numberPaths(); ++i) {
           PathPtr_t p = input->pathAtRank(i);
-          StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST(StraightPath, p);
-          InterpolatedPathPtr_t ip = HPP_DYNAMIC_PTR_CAST(InterpolatedPath, p);
-          if (sp) {
-            pinocchio::difference <hpp::pinocchio::LieGroupTpl>
-              (robot, sp->end(), sp->initial(), delta);
+          interval_t paramRange = p->timeRange();
 
-            // Shortest length
-            value_type l = std::max (
-              (delta.head(d).array() * ub_inv.array()).maxCoeff(),
-              (delta.head(d).array() * lb_inv.array()).maxCoeff());
+          // Compute B
+          p->velocityBound (v, paramRange.first, paramRange.second);
+          v_inv = (v.array() == 0).select(infinity, v.cwiseInverse());
+          const value_type B = std::min(
+              ( ub.cwiseProduct(v_inv)).minCoeff(),
+              (-lb.cwiseProduct(v_inv)).minCoeff());
 
-            output->appendPath (
-                StraightPath::create (robot, sp->initial(), sp->end(), l, sp->constraints())
-                );
-          } else if (ip) {
-            typedef InterpolatedPath::InterpolationPoints_t IPs_t;
-            const IPs_t& ips = ip->interpolationPoints();
-            value_type l = 0;
-            std::vector<value_type> ts; ts.reserve(ips.size());
-            for (IPs_t::const_iterator _ip2 = ips.begin(), _ip1 = _ip2++;
-                _ip2 != ips.end(); ++_ip1, ++_ip2) {
-              pinocchio::difference <hpp::pinocchio::LieGroupTpl>
-                (robot, _ip2->second, _ip1->second, delta);
-              // Shortest length
-              ts.push_back(l);
-              l += std::max (
-                  (delta.head(d).array() * ub_inv.array()).maxCoeff(),
-                  (delta.head(d).array() * lb_inv.array()).maxCoeff());
-            }
-            InterpolatedPathPtr_t nip = InterpolatedPath::create (robot, ip->initial(), ip->end(), l, ip->constraints());
-            std::size_t T = 1;
-            for (IPs_t::const_iterator _ip = (++ips.begin()); _ip != (--ips.end()); ++_ip)
-              nip->insert(ts[T], _ip->second);
-            output->appendPath(nip);
-          } else {
-            throw std::invalid_argument ("unknown type of paths.");
-          }
+          // Compute the polynom and total time
+          value_type T;
+          TimeParameterizationPtr_t tp;
+          if (velocity)
+            tp = computeTimeParameterizationThirdOrder (paramRange.first, paramRange.second, B, T);
+          else
+            tp = computeTimeParameterizationFirstOrder (paramRange.first, paramRange.second, B, T);
+
+          PathPtr_t pp = p->copy();
+          pp->timeParameterization (tp, interval_t (0, T));
         }
         return output;
       }
