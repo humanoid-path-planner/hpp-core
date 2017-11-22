@@ -120,11 +120,6 @@ namespace hpp {
       /// Each element of path is appended to this one.
       void concatenate (const PathVectorPtr_t& path);
 
-      /// Extraction of a sub-path
-      /// \param subInterval interval of definition of the extract path
-      virtual PathPtr_t extract (const interval_t& subInterval) const
-        throw (projection_error);
-
       /// Get the initial configuration
       virtual Configuration_t initial () const
       {
@@ -191,6 +186,10 @@ namespace hpp {
       /// Virtual implementation of derivative
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;
+      /// Extraction of a sub-path
+      /// \param subInterval interval of definition of the extract path
+      virtual PathPtr_t impl_extract (const interval_t& subInterval) const
+        throw (projection_error);
 
     private:
       Paths_t paths_;

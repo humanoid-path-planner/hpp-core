@@ -135,7 +135,7 @@ namespace hpp {
       subpath->impl_derivative (result, localParam, order);
     }
 
-    PathPtr_t PathVector::extract (const interval_t& subInterval) const
+    PathPtr_t PathVector::impl_extract (const interval_t& subInterval) const
         throw (projection_error)
     {
       assert(!timeParameterization());
