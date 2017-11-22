@@ -186,7 +186,7 @@ namespace hpp {
       }
     }
 
-    PathPtr_t InterpolatedPath::extract (const interval_t& subInterval) const
+    PathPtr_t InterpolatedPath::impl_extract (const interval_t& subInterval) const
         throw (projection_error)
     {
       // Length is assumed to be proportional to interval range
@@ -196,10 +196,10 @@ namespace hpp {
       const value_type l = tmax - tmin;
 
       bool success;
-      Configuration_t q1 ((*this) (subInterval.first, success));
+      Configuration_t q1 (configAtParam (subInterval.first, success));
       if (!success) throw projection_error
 		      ("Failed to apply constraints in InterpolatedPath::extract");
-      Configuration_t q2 ((*this) (subInterval.second, success));
+      Configuration_t q2 (configAtParam (subInterval.second, success));
       if (!success) throw projection_error
 		      ("Failed to apply constraints in InterpolatedPath::extract");
       InterpolatedPathPtr_t result = InterpolatedPath::create (device_, q1, q2, l,
@@ -218,11 +218,10 @@ namespace hpp {
 
     PathPtr_t InterpolatedPath::reverse () const
     {
-      const value_type& l = length();
+      const value_type& l = paramLength();
 
       InterpolatedPathPtr_t result =
-        InterpolatedPath::create (device_, end(), initial(), length(),
-					       constraints ());
+        InterpolatedPath::create (device_, end(), initial(), l, constraints ());
 
       if (configs_.size () > 2) {
         InterpolationPoints_t::const_reverse_iterator it = configs_.rbegin();

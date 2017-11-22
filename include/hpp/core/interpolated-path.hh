@@ -130,11 +130,6 @@ namespace hpp {
 	return createCopy (weak_.lock (), constraints);
       }
 
-      /// Extraction/Reversion of a sub-path
-      /// See Path::extract
-      virtual PathPtr_t extract (const interval_t& subInterval) const
-        throw (projection_error);
-
       virtual PathPtr_t reverse () const;
 
       /// Return the internal robot.
@@ -201,6 +196,11 @@ namespace hpp {
 				    size_type order) const;
       virtual void impl_velocityBound (vectorOut_t result,
           const value_type& t0, const value_type& t1) const;
+
+      /// Extraction/Reversion of a sub-path
+      /// See Path::extract
+      PathPtr_t impl_extract (const interval_t& subInterval) const
+        throw (projection_error);
     private:
       DevicePtr_t device_;
       InterpolationPoints_t configs_;
