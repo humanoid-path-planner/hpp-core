@@ -28,7 +28,7 @@ namespace hpp {
     Path::Path (const interval_t& interval, size_type outputSize,
 		size_type outputDerivativeSize,
 		const ConstraintSetPtr_t& constraints) :
-      timeRange_ (interval), outputSize_ (outputSize),
+      paramRange_ (interval), timeRange_ (interval), outputSize_ (outputSize),
       outputDerivativeSize_ (outputDerivativeSize), constraints_ ()
     {
       if (constraints) {
@@ -40,28 +40,35 @@ namespace hpp {
     // Constructor without constraints
     Path::Path (const interval_t& interval, size_type outputSize,
 		size_type outputDerivativeSize) :
-      timeRange_ (interval), outputSize_ (outputSize),
+      paramRange_ (interval), timeRange_ (interval), outputSize_ (outputSize),
       outputDerivativeSize_ (outputDerivativeSize), constraints_ ()
     {
     }
 
     // Copy constructor
     Path::Path (const Path& path) :
-      timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
-      outputDerivativeSize_ (path.outputDerivativeSize_), constraints_ ()
+      paramRange_ (path.paramRange_), timeRange_ (path.timeRange_),
+      outputSize_ (path.outputSize_),
+      outputDerivativeSize_ (path.outputDerivativeSize_), constraints_ (),
+      timeParam_ ()
     {
       if (path.constraints_) {
 	constraints_ = HPP_STATIC_PTR_CAST (ConstraintSet,
 					    path.constraints_->copy ());
       }
+      if (path.timeParam_)
+        timeParam_ = path.timeParam_->copy();
     }
 
     Path::Path (const Path& path, const ConstraintSetPtr_t& constraints) :
-      timeRange_ (path.timeRange_), outputSize_ (path.outputSize_),
+      paramRange_ (path.paramRange_), timeRange_ (path.timeRange_),
+      outputSize_ (path.outputSize_),
       outputDerivativeSize_ (path.outputDerivativeSize_),
-      constraints_ (constraints)
+      constraints_ (constraints), timeParam_ ()
     {
       assert (!path.constraints_);
+      if (path.timeParam_)
+        timeParam_ = path.timeParam_->copy();
     }
 
     // Initialization after creation
@@ -102,6 +109,17 @@ namespace hpp {
               "the constraints");
         }
       }
+    }
+
+    std::ostream& Path::print (std::ostream& os) const
+    {
+      os << "time in [ " << timeRange().first << ", "
+        << timeRange().second << " ]";
+      if (timeParam_)
+        os << ", param in [ " << paramRange().first << ", "
+          << timeRange().second << " ]";
+      os << std::endl;
+      return os;
     }
   } //   namespace core
 } // namespace hpp
