@@ -121,14 +121,6 @@ namespace hpp {
 	return createCopy (weak_.lock (), constraints);
       }
 
-
-      /// Extraction/Reversion of a sub-path
-      /// \param subInterval interval of definition of the extract path
-      /// If upper bound of subInterval is smaller than lower bound,
-      /// result is reversed.
-      virtual PathPtr_t extract (const interval_t& subInterval) const
-        throw (projection_error);
-
       /// Modify initial configuration
       /// \param initial new initial configuration
       /// \pre input configuration should be of the same size as current initial
@@ -204,6 +196,13 @@ namespace hpp {
 				    size_type order) const;
 
       virtual void impl_velocityBound (vectorOut_t result, const value_type&, const value_type&) const;
+
+      /// Extraction/Reversion of a sub-path
+      /// \param subInterval interval of definition of the extract path
+      /// If upper bound of subInterval is smaller than lower bound,
+      /// result is reversed.
+      PathPtr_t impl_extract (const interval_t& subInterval) const
+        throw (projection_error);
 
     private:
       DevicePtr_t device_;

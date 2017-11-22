@@ -121,17 +121,17 @@ namespace hpp {
       result.noalias() = result.cwiseAbs() / paramLength();
     }
 
-    PathPtr_t StraightPath::extract (const interval_t& subInterval) const
+    PathPtr_t StraightPath::impl_extract (const interval_t& subInterval) const
       throw (projection_error)
     {
       // Length is assumed to be proportional to interval range
       value_type l = fabs (subInterval.second - subInterval.first);
 
       bool success;
-      Configuration_t q1 ((*this) (subInterval.first, success));
+      Configuration_t q1 (configAtParam (subInterval.first, success));
       if (!success) throw projection_error
 		      ("Failed to apply constraints in StraightPath::extract");
-      Configuration_t q2 ((*this) (subInterval.second, success));
+      Configuration_t q2 (configAtParam (subInterval.second, success));
       if (!success) throw projection_error
 		      ("Failed to apply constraints in StraightPath::extract");
       PathPtr_t result = StraightPath::create (device_, q1, q2, l,
