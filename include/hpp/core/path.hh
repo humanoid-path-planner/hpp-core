@@ -97,13 +97,7 @@ namespace hpp {
 
       Configuration_t operator () (const value_type& time, bool& success) const
       {
-	Configuration_t result (outputSize ());
-	success = impl_compute (result, paramAtTime(time));
-	if (!success) return result;
-	if (constraints_) {
-	  success = constraints_->apply (result);
-	}
-	return result;
+        return configAtParam (paramAtTime(time), success);
       }
 
       bool operator () (ConfigurationOut_t result, const value_type& time)
@@ -159,25 +153,6 @@ namespace hpp {
             paramAtTime (std::min(t1, timeRange().second)));
         if (timeParam_)
           result *= timeParam_->derivativeBound (t0, t1);
-      }
-
-      /// \brief Function evaluation without applying constraints
-      ///
-      /// \return true if everything went good.
-      virtual bool impl_compute (ConfigurationOut_t configuration,
-				 value_type param) const = 0;
-
-      /// Virtual implementation of derivative
-      virtual void impl_derivative (vectorOut_t, const value_type&,
-				    size_type) const
-      {
-	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
-      }
-
-      /// Virtual implementation of velocityBound
-      virtual void impl_velocityBound (vectorOut_t, const value_type&, const value_type&) const
-      {
-	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
       }
 
       /// \name Constraints
@@ -307,6 +282,37 @@ namespace hpp {
       {
         return paramRange_.second - paramRange_.first;
       }
+
+      Configuration_t configAtParam (const value_type& param, bool& success) const
+      {
+	Configuration_t result (outputSize ());
+	success = impl_compute (result, param);
+	if (!success) return result;
+	if (constraints_) {
+	  success = constraints_->apply (result);
+	}
+	return result;
+      }
+
+      /// \brief Function evaluation without applying constraints
+      ///
+      /// \return true if everything went good.
+      virtual bool impl_compute (ConfigurationOut_t configuration,
+				 value_type param) const = 0;
+
+      /// Virtual implementation of derivative
+      virtual void impl_derivative (vectorOut_t, const value_type&,
+				    size_type) const
+      {
+	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
+      }
+
+      /// Virtual implementation of velocityBound
+      virtual void impl_velocityBound (vectorOut_t, const value_type&, const value_type&) const
+      {
+	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
+      }
+
     private:
       /// Interval of definition
       interval_t timeRange_;
