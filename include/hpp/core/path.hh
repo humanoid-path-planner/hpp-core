@@ -84,21 +84,21 @@ namespace hpp {
 
       /// \}
 
-      Configuration_t operator () (const value_type& t) const
+      Configuration_t operator () (const value_type& time) const
         HPP_CORE_DEPRECATED
       {
 	Configuration_t result (outputSize ());
-	impl_compute (result, paramAtTime(t));
+	impl_compute (result, paramAtTime(time));
 	if (constraints_) {
 	  constraints_->apply (result);
 	}
 	return result;
       }
 
-      Configuration_t operator () (const value_type& t, bool& success) const
+      Configuration_t operator () (const value_type& time, bool& success) const
       {
 	Configuration_t result (outputSize ());
-	success = impl_compute (result, paramAtTime(t));
+	success = impl_compute (result, paramAtTime(time));
 	if (!success) return result;
 	if (constraints_) {
 	  success = constraints_->apply (result);
@@ -106,22 +106,22 @@ namespace hpp {
 	return result;
       }
 
-      bool operator () (ConfigurationOut_t result, const value_type& t)
+      bool operator () (ConfigurationOut_t result, const value_type& time)
        const throw ()
       {
-	bool success = impl_compute (result, paramAtTime(t));
+	bool success = impl_compute (result, paramAtTime(time));
 	if (!success) return false;
 	return (!constraints_ || constraints_->apply (result));
       }
 
       /// Get the configuration at a parameter without applying the constraints.
-      bool at (const value_type& t, ConfigurationOut_t result) const
+      bool at (const value_type& time, ConfigurationOut_t result) const
       {
-        return impl_compute (result, paramAtTime(t));
+        return impl_compute (result, paramAtTime(time));
       }
 
       /// Get derivative with respect to parameter at given parameter
-      /// \param t value of the parameter in the definition interval,
+      /// \param time value of the time in the definition interval,
       /// \param order order of the derivative
       /// \retval result derivative. Should be allocated and of correct size.
       /// \warning the method is not implemented in this class and throws if
@@ -129,15 +129,15 @@ namespace hpp {
       /// \note unless otherwise stated, this method is not compatible with
       ///       constraints. The derivative of the non-constrained path will
       ///       be computed.
-      void derivative (vectorOut_t result, const value_type& t, size_type order)
-	const
+      void derivative (vectorOut_t result, const value_type& time,
+          size_type order) const
       {
         if (timeParam_) {
           assert (order == 1);
-          impl_derivative (result, paramAtTime(t), order);
-          result *= timeParam_->derivative(t);
+          impl_derivative (result, timeParam_->value(time), order);
+          result *= timeParam_->derivative(time);
         } else {
-          impl_derivative (result, t, order);
+          impl_derivative (result, time, order);
         }
       }
 
@@ -155,8 +155,8 @@ namespace hpp {
         assert(result.size() == outputDerivativeSize());
         assert(t0 <= t1);
 	impl_velocityBound (result,
-            std::max(t0, timeRange().first ),
-            std::min(t1, timeRange().second));
+            paramAtTime (std::max(t0, timeRange().first )),
+            paramAtTime (std::min(t1, timeRange().second)));
         if (timeParam_)
           result *= timeParam_->derivativeBound (t0, t1);
       }
@@ -165,7 +165,7 @@ namespace hpp {
       ///
       /// \return true if everything went good.
       virtual bool impl_compute (ConfigurationOut_t configuration,
-				 value_type t) const = 0;
+				 value_type param) const = 0;
 
       /// Virtual implementation of derivative
       virtual void impl_derivative (vectorOut_t, const value_type&,
@@ -228,8 +228,9 @@ namespace hpp {
       virtual Configuration_t end () const = 0;
 
     protected:
-      /// Print path in a stream
-      virtual std::ostream& print (std::ostream &os) const = 0;
+      /// Print interval of definition (and of parameters if relevant)
+      /// in a stream
+      virtual std::ostream& print (std::ostream &os) const;
 
       /// Constructor
       /// \param interval interval of definition of the path,
@@ -263,9 +264,6 @@ namespace hpp {
       /// should be called at construction of derived class instances
       void init (const PathWkPtr_t& self);
 
-      /// Interval of definition
-      interval_t timeRange_;
-
       /// Set the constraints
       /// \warning this method is protected for child classes that need to
       ///          initialize themselves before being sure that the initial and
@@ -276,7 +274,15 @@ namespace hpp {
 
       /// Should be called by child classes after having init.
       virtual void checkPath () const;
+
+      void timeRange (const interval_t& timeRange)
+      {
+        timeRange_ = timeRange;
+      }
     private:
+      /// Interval of definition
+      interval_t timeRange_;
+
       value_type paramAtTime (const value_type& time) const
       {
         if (timeParam_) {

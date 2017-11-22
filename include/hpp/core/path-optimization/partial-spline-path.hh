@@ -84,8 +84,7 @@ namespace hpp {
 	virtual std::ostream& print (std::ostream &os) const
 	{
 	  os << "PartialSplinePath:" << std::endl;
-	  os << "interval: [ " << timeRange ().first << ", "
-	     << timeRange ().second << " ]" << std::endl;
+          Path::print (os);
 	  return os;
 	}
 

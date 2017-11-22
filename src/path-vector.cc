@@ -57,7 +57,9 @@ namespace hpp {
     void PathVector::appendPath (const PathPtr_t& path)
     {
       paths_.push_back (path);
-      timeRange_.second += path->length ();
+      interval_t tr = timeRange();
+      tr.second += path->length ();
+      timeRange (tr);
     }
 
     PathPtr_t PathVector::pathAtRank (std::size_t rank) const

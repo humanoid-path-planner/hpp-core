@@ -140,8 +140,7 @@ namespace hpp {
       virtual std::ostream& print (std::ostream &os) const
       {
 	os << "DubinsPath:" << std::endl;
-	os << "interval: [ " << timeRange ().first << ", "
-	   << timeRange ().second << " ]" << std::endl;
+        Path::print (os);
 	os << "initial configuration: " << initial_.transpose () << std::endl;
 	os << "final configuration:   " << end_.transpose () << std::endl;
 	return os;

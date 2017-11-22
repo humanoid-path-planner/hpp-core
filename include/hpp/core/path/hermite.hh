@@ -140,8 +140,7 @@ namespace hpp {
         virtual std::ostream& print (std::ostream &os) const
         {
           os << "Hermite:" << std::endl;
-          os << "interval: [ " << timeRange ().first << ", "
-            << timeRange ().second << " ]" << std::endl;
+          Path::print (os);
           os << "initial configuration: " << initial().transpose () << std::endl;
           os << "final configuration:   " << end().transpose () << std::endl;
           return os;

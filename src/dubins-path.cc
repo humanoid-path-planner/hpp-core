@@ -196,7 +196,9 @@ namespace hpp {
         throw std::logic_error ("Failed to build Dubins path");
       }
       typeId_ = best_word;
-      timeRange_.second = rho_ * (lengths_ [0] + lengths_ [1] + lengths_ [2]);
+      interval_t tr = timeRange();
+      tr.second = rho_ * (lengths_ [0] + lengths_ [1] + lengths_ [2]);
+      timeRange (tr);
     }
 
     double fmodr( double x, double y)

@@ -104,10 +104,10 @@ namespace hpp {
 	if (path->reversed_) std::swap (tmin, tmax);
 	// path->reversed_ = ((this->reversed_) && (!reversed)) ||
 	  // ((!this->reversed_) && (reversed));
-	path->timeRange_ = std::make_pair (tmin, tmax);
-	assert (path->timeRange_.first >= timeRange ().first -
+	path->timeRange (std::make_pair (tmin, tmax));
+	assert (path->timeRange().first >= timeRange ().first -
 		std::numeric_limits <float>::epsilon ());
-	assert (path->timeRange_.second <= timeRange ().second +
+	assert (path->timeRange().second <= timeRange ().second +
 		std::numeric_limits <float>::epsilon ());
 	return path;
       }
@@ -116,7 +116,7 @@ namespace hpp {
       inline Configuration_t initial () const
       {
 	bool success;
-        return (*original_)(reversed_?timeRange_.second:timeRange_.first,
+        return (*original_)(reversed_?timeRange().second:timeRange().first,
               success);
       }
 
@@ -124,7 +124,7 @@ namespace hpp {
       inline Configuration_t end () const
       {
 	bool success;
-        return (*original_)(reversed_?timeRange_.first:timeRange_.second,
+        return (*original_)(reversed_?timeRange().first:timeRange().second,
               success);
       }
 
@@ -133,8 +133,7 @@ namespace hpp {
       virtual std::ostream& print (std::ostream &os) const
       {
 	os << "Extracted Path:" << std::endl;
-	os << "interval: [ " << timeRange ().first << ", "
-	   << timeRange ().second << " ]" << std::endl;
+        Path::print (os);
 	os << "original path:" << std::endl;
 	os << *original_ << std::endl;
 	return os;
@@ -152,14 +151,16 @@ namespace hpp {
 	original_ (original)
       {
 	reversed_ = subInterval.first <= subInterval.second ? false : true;
-	if (reversed_) {
-	  timeRange_.first = subInterval.second;
-	  timeRange_.second = subInterval.first;
+        interval_t tr;
+        if (reversed_) {
+          tr.first = subInterval.second;
+	  tr.second = subInterval.first;
 	} else {
-	  timeRange_ = subInterval;
+	  tr = subInterval;
 	}
-	assert (timeRange_.first >= original->timeRange ().first);
-	assert (timeRange_.second <= original->timeRange ().second);
+        timeRange (tr);
+	assert (timeRange().first >= original->timeRange ().first);
+	assert (timeRange().second <= original->timeRange ().second);
       }
 
       ExtractedPath (const ExtractedPath& path) : Path (path),
@@ -185,9 +186,9 @@ namespace hpp {
     private:
       inline value_type tInOriginalPath (const value_type& t) const
       {
-        assert (timeRange_.first <= t && t <= timeRange_.second);
+        assert (timeRange().first <= t && t <= timeRange().second);
         if (!reversed_) return t;
-        return timeRange_.first + (timeRange_.second - t);
+        return timeRange().first + (timeRange().second - t);
       }
 
       PathPtr_t original_;

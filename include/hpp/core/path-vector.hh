@@ -146,8 +146,7 @@ namespace hpp {
       virtual std::ostream& print (std::ostream &os) const
       {
 	os << "PathVector:" << std::endl;
-	os << "interval: [ " << timeRange ().first << ", "
-	   << timeRange ().second << " ]" << std::endl;
+        Path::print (os);
 	for (Paths_t::const_iterator itPath = paths_.begin ();
 	     itPath != paths_.end (); ++itPath) {
 	  os << (**itPath) << std::endl;
@@ -164,7 +163,8 @@ namespace hpp {
       PathVector (const PathVector& path) : parent_t (path),
 	paths_ ()
 	  {
-	    timeRange_ = path.timeRange_;
+	    assert (timeRange().first  == path.timeRange().first);
+	    assert (timeRange().second == path.timeRange().second);
 	    for (Paths_t::const_iterator it = path.paths_.begin ();
 		 it != path.paths_.end (); it++) {
 	      paths_.push_back ((*it)->copy ());
@@ -176,7 +176,8 @@ namespace hpp {
 		  const ConstraintSetPtr_t& constraints) :
 	parent_t (path, constraints), paths_ ()
 	  {
-	    timeRange_ = path.timeRange_;
+	    assert (timeRange().first  == path.timeRange().first);
+	    assert (timeRange().second == path.timeRange().second);
 	    for (Paths_t::const_iterator it = path.paths_.begin ();
 		 it != path.paths_.end (); it++) {
 	      paths_.push_back ((*it)->copy ());
