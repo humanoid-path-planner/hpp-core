@@ -325,10 +325,10 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type t) const
+      bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type s) const
       {
         BasisFunctionVector_t basisFunc;
-        const value_type u = (length() == 0 ? 0 : (t - timeRange().first) / length());
+        const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
         basisFunctionDerivative(0, u, basisFunc);
         velocity_.noalias() = parameters_.transpose() * basisFunc;
 
@@ -337,20 +337,20 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      void Spline<_SplineType, _Order>::impl_derivative (vectorOut_t res, const value_type& t, size_type order) const
+      void Spline<_SplineType, _Order>::impl_derivative (vectorOut_t res, const value_type& s, size_type order) const
       {
         assert (order > 0);
         BasisFunctionVector_t basisFunc;
-        const value_type u = (length() == 0 ? 0 : (t - timeRange().first) / length());
+        const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
         basisFunctionDerivative(order, u, basisFunc);
         res.noalias() = parameters_.transpose() * basisFunc;
       }
 
       template <int _SplineType, int _Order>
-      void Spline<_SplineType, _Order>::impl_paramDerivative (vectorOut_t res, const value_type& t) const
+      void Spline<_SplineType, _Order>::impl_paramDerivative (vectorOut_t res, const value_type& s) const
       {
         BasisFunctionVector_t basisFunc;
-        const value_type u = (length() == 0 ? 0 : (t - timeRange().first) / length());
+        const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
         basisFunctionDerivative(0, u, basisFunc);
         res = basisFunc;
       }
