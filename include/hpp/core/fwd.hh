@@ -242,6 +242,7 @@ namespace hpp {
     CollisionPair_t;
     typedef std::vector <CollisionPair_t> CollisionPairs_t;
 
+    class ExtractedPath;
     namespace path {
       template <int _PolynomeBasis, int _Order> class Spline;
       HPP_PREDEF_CLASS (Hermite);

@@ -132,7 +132,7 @@ namespace hpp {
       rank = rankAtParam (param, localParam);
 
       PathPtr_t subpath = paths_ [rank];
-      subpath->impl_derivative (result, localParam, order);
+      subpath->derivative (result, localParam, order);
     }
 
     PathPtr_t PathVector::impl_extract (const interval_t& subInterval) const

@@ -313,10 +313,8 @@ namespace hpp {
 	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
       }
 
-      virtual void impl_extract (const interval_t& paramInterval) const
-        throw (projection_error)
-      {
-      };
+      virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
+        throw (projection_error);
 
     private:
       /// Interval of definition
@@ -341,6 +339,7 @@ namespace hpp {
       /// Weak pointer to itself
       PathWkPtr_t weak_;
       friend std::ostream& operator<< (std::ostream& os, const Path& path);
+      friend class ExtractedPath;
     }; // class Path
     inline std::ostream& operator<< (std::ostream& os, const Path& path)
     {
