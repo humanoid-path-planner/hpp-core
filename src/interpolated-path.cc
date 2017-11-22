@@ -141,8 +141,8 @@ namespace hpp {
       }
       InterpolationPoints_t::const_iterator itA;
       InterpolationPoints_t::const_iterator itB;
-      if (param >= paramRange ().second) {
-	param = paramRange ().second;
+      if (param >= configs_.rbegin()->first) {
+	param = configs_.rbegin()->first;
         itA = configs_.end(); --itA;
         itB = itA; --itB;
       } else {
