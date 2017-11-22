@@ -42,6 +42,8 @@ namespace hpp {
           T = (s1 - s0) / B;
           a[0] = s0;
           a[1] = B;
+          hppDout (info, "Time parametrization returned " << a.transpose()
+              << ", " << T);
           return TimeParameterizationPtr_t (new Polynomial (a));
         }
 
@@ -55,7 +57,30 @@ namespace hpp {
           a[1] = 0;
           a[2] = 3 * (s1 - s0) / (T * T);
           a[3] = - 2 * a[2] / (3 * T);
+          hppDout (info, "Time parametrization returned " << a.transpose()
+              << ", " << T);
           return TimeParameterizationPtr_t (new Polynomial (a));
+        }
+
+        void checkTimeParameterization (const TimeParameterizationPtr_t tp,
+            const bool velocity, const interval_t sr, const value_type B, const value_type T)
+        {
+          using std::fabs;
+          const value_type thr = Eigen::NumTraits<value_type>::dummy_precision();
+          if (   fabs(tp->value(0) - sr.first) >= thr
+              || fabs(tp->value(T) - sr.second) >= thr) {
+            throw std::logic_error("Boundaries of TimeParameterization are not correct.");
+          }
+          if (velocity
+              && (tp->derivative(0) > thr
+              ||  tp->derivative(T) > thr
+              ||  fabs(tp->derivative(T/2) - B) > thr
+              ||  tp->derivative(0) < 0
+              ||  tp->derivative(T) < 0
+              ||  fabs(tp->derivative(T/2) - B) < 0)
+             ) {
+            throw std::logic_error("Derivative of TimeParameterization are not correct.");
+          }
         }
       }
 
@@ -122,6 +147,8 @@ namespace hpp {
             tp = computeTimeParameterizationThirdOrder (paramRange.first, paramRange.second, B, T);
           else
             tp = computeTimeParameterizationFirstOrder (paramRange.first, paramRange.second, B, T);
+
+          checkTimeParameterization (tp, velocity, paramRange, B, T);
 
           PathPtr_t pp = p->copy();
           pp->timeParameterization (tp, interval_t (0, T));
