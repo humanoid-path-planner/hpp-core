@@ -73,17 +73,17 @@ namespace hpp {
     bool StraightPath::impl_compute (ConfigurationOut_t result,
 				     value_type param) const
     {
-      if (param == timeRange ().first || timeRange ().second == 0) {
+      const value_type L = paramLength();
+      if (param == paramRange ().first || L == 0) {
 	result = initial_;
 	return true;
       }
-      if (param == timeRange ().second) {
+      if (param == paramRange ().second) {
 	result = end_;
 	return true;
       }
-      value_type u = param/timeRange ().second;
-      if (timeRange ().second == 0)
-	u = 0;
+      value_type u = (param - paramRange().first) / L;
+      if (L == 0) u = 0;
       pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, initial_, end_, u, result);
       return true;
     }
@@ -96,7 +96,7 @@ namespace hpp {
 	return;
       }
       if (order == 1) {
-	if (timeRange ().first == timeRange ().second) {
+	if (paramRange ().first == paramRange ().second) {
 	  result.setZero ();
 	  return;
 	}
@@ -113,12 +113,12 @@ namespace hpp {
     void StraightPath::impl_velocityBound (
         vectorOut_t result, const value_type&, const value_type&) const
     {
-      if (timeRange ().first == timeRange ().second) {
+      if (paramRange ().first == paramRange ().second) {
         result.setZero();
         return;
       }
       pinocchio::difference <hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, result);
-      result.noalias() = result.cwiseAbs() / length();
+      result.noalias() = result.cwiseAbs() / paramLength();
     }
 
     PathPtr_t StraightPath::extract (const interval_t& subInterval) const
