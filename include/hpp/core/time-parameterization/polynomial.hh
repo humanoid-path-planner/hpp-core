@@ -35,6 +35,16 @@ namespace hpp {
             a (param)
           {}
 
+          const vector_t& parameters () const
+          {
+            return a;
+          }
+
+          TimeParameterizationPtr_t copy () const
+          {
+            return TimeParameterizationPtr_t (new Polynomial (*this));
+          }
+
         protected:
           /// Computes \f$ \sum_{i=0}^n a_i t^i \f$
           void impl_compute (LiegroupElement& result, vectorIn_t arg) const

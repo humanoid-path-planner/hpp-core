@@ -36,6 +36,7 @@ namespace hpp {
         {
           matrix11_t der;
           jacobian(der, map11_t(&t));
+          assert (der[0] >= 0);
           return der[0];
         };
         value_type derivativeBound (const value_type& low, const value_type& up) const
@@ -43,6 +44,8 @@ namespace hpp {
           assert (low <= up);
           return impl_derivativeBound (low, up);
         }
+
+        virtual TimeParameterizationPtr_t copy () const = 0;
 
       protected:
         TimeParameterization (std::string name) : DifferentiableFunction (1, 1, 1, name) {}
