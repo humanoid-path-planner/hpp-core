@@ -135,6 +135,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem-target/goal-configurations.hh
   include/hpp/core/problem-target/task-target.hh
   include/hpp/core/subchain-path.hh
+  include/hpp/core/time-parameterization.hh
+  include/hpp/core/time-parameterization/polynomial.hh
   )
 
 ADD_REQUIRED_DEPENDENCY("hpp-pinocchio >= 4")

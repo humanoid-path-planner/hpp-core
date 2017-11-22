@@ -71,4 +71,5 @@ SET_PROPERTY(TARGET explicit-relative-transformation APPEND_STRING PROPERTY COMP
 
 ADD_TESTCASE (spline-path FALSE)
 ADD_TESTCASE (problem FALSE)
+ADD_TESTCASE (time-parameterization FALSE)
 # ADD_TESTCASE (hermite-path FALSE) Refactoring hpp-model -> hpp-pinocchio not done

@@ -26,6 +26,7 @@
 # include <hpp/core/constraint-set.hh>
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/projection-error.hh>
+# include <hpp/core/time-parameterization.hh>
 
 namespace hpp {
   namespace core {
@@ -87,7 +88,7 @@ namespace hpp {
         HPP_CORE_DEPRECATED
       {
 	Configuration_t result (outputSize ());
-	impl_compute (result, t);
+	impl_compute (result, paramAtTime(t));
 	if (constraints_) {
 	  constraints_->apply (result);
 	}
@@ -97,7 +98,7 @@ namespace hpp {
       Configuration_t operator () (const value_type& t, bool& success) const
       {
 	Configuration_t result (outputSize ());
-	success = impl_compute (result, t);
+	success = impl_compute (result, paramAtTime(t));
 	if (!success) return result;
 	if (constraints_) {
 	  success = constraints_->apply (result);
@@ -108,7 +109,7 @@ namespace hpp {
       bool operator () (ConfigurationOut_t result, const value_type& t)
        const throw ()
       {
-	bool success = impl_compute (result, t);
+	bool success = impl_compute (result, paramAtTime(t));
 	if (!success) return false;
 	return (!constraints_ || constraints_->apply (result));
       }
@@ -116,7 +117,7 @@ namespace hpp {
       /// Get the configuration at a parameter without applying the constraints.
       bool at (const value_type& t, ConfigurationOut_t result) const
       {
-        return impl_compute (result, t);
+        return impl_compute (result, paramAtTime(t));
       }
 
       /// Get derivative with respect to parameter at given parameter
@@ -131,7 +132,13 @@ namespace hpp {
       void derivative (vectorOut_t result, const value_type& t, size_type order)
 	const
       {
-	impl_derivative (result, t, order);
+        if (timeParam_) {
+          assert (order == 1);
+          impl_derivative (result, paramAtTime(t), order);
+          result *= timeParam_->derivative(t);
+        } else {
+          impl_derivative (result, t, order);
+        }
       }
 
       /// Get the maximum velocity on a sub-interval of this path
@@ -150,6 +157,8 @@ namespace hpp {
 	impl_velocityBound (result,
             std::max(t0, timeRange().first ),
             std::min(t1, timeRange().second));
+        if (timeParam_)
+          result *= timeParam_->derivativeBound (t0, t1);
       }
 
       /// \brief Function evaluation without applying constraints
@@ -197,6 +206,13 @@ namespace hpp {
       const interval_t& timeRange () const
       {
 	return timeRange_;
+      }
+
+      void timeParameterization (const TimeParameterizationPtr_t& tp,
+          const interval_t& timeRange)
+      {
+        timeParam_ = tp;
+        timeRange_ = timeRange;
       }
 
       /// Get length of definition interval
@@ -261,12 +277,22 @@ namespace hpp {
       /// Should be called by child classes after having init.
       virtual void checkPath () const;
     private:
+      value_type paramAtTime (const value_type& time) const
+      {
+        if (timeParam_) {
+          return timeParam_->value (time);
+        }
+        return time;
+      }
+
       /// Size of the configuration space
       size_type outputSize_;
       /// Number of degrees of freedom of the robot
       size_type outputDerivativeSize_;
       /// Constraints that apply to the robot
       ConstraintSetPtr_t constraints_;
+      /// Time parameterization
+      TimeParameterizationPtr_t timeParam_;
       /// Weak pointer to itself
       PathWkPtr_t weak_;
       friend std::ostream& operator<< (std::ostream& os, const Path& path);

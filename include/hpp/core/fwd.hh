@@ -60,6 +60,7 @@ namespace hpp {
     struct JointBoundValidationReport;
     class Node;
     HPP_PREDEF_CLASS (Path);
+    HPP_PREDEF_CLASS (TimeParameterization);
     HPP_PREDEF_CLASS (PathOptimizer);
     HPP_PREDEF_CLASS (PathPlanner);
     HPP_PREDEF_CLASS (ProblemTarget);
@@ -192,6 +193,7 @@ namespace hpp {
 
     typedef boost::shared_ptr <Path> PathPtr_t;
     typedef boost::shared_ptr <const Path> PathConstPtr_t;
+    typedef boost::shared_ptr <TimeParameterization> TimeParameterizationPtr_t;
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <ProblemTarget> ProblemTargetPtr_t;
