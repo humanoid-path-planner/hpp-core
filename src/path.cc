@@ -221,7 +221,7 @@ namespace hpp {
         << timeRange().second << " ]";
       if (timeParam_)
         os << ", param in [ " << paramRange().first << ", "
-          << timeRange().second << " ]";
+          << paramRange().second << " ]";
       os << std::endl;
       return os;
     }
