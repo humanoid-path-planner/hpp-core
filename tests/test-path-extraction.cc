@@ -24,6 +24,7 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/straight.hh>
+#include <hpp/core/time-parameterization/polynomial.hh>
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
@@ -152,5 +153,48 @@ BOOST_AUTO_TEST_CASE (path_extraction_1)
   BOOST_CHECK_CLOSE (extracted->length (), tmax - tmin,
 	       std::numeric_limits <float>::epsilon ());
 }
+
+BOOST_AUTO_TEST_CASE (path_extraction_2)
+{
+  PathVectorPtr_t pv (PathVector::create (1, 1));
+  // l0 = 0.52843097738664657
+  interval_t inter0 (std::make_pair (0,0.52843097738664657));
+  // L0 + l1 = 2.633158413063464
+  interval_t inter1 (std::make_pair (0,2.1047274356768177));
+  // l0 + l1 + l2 = 3.331454231080471
+  interval_t inter2 (std::make_pair (0.6751734883957865,1.3734693064127934));
+  // l0 + l1 + l2 + l3 = 4.079212904814735
+  interval_t inter3 (std::make_pair (0.83075838111776035, 1.578517054852024));
+  LocalPathPtr_t p0 (LocalPath::create (inter0));
+  LocalPathPtr_t p1 (LocalPath::create (inter1));
+  LocalPathPtr_t p2 (LocalPath::create (inter2));
+  vector_t a(2); a << 0, 0.5;
+  p2->timeParameterization (
+      TimeParameterizationPtr_t(new timeParameterization::Polynomial(a)),
+      interval_t (0, 2 * p2->length())
+      );
+  LocalPathPtr_t p3 (LocalPath::create (inter3));
+  pv->appendPath (p0);
+  pv->appendPath (p1);
+  pv->appendPath (p2);
+  pv->appendPath (p3);
+
+
+  value_type tmin (3.7487655421722721), tmax (4.0792129048147352);
+  PathPtr_t extracted (pv->extract (std::make_pair (tmin, tmax)));
+  BOOST_CHECK_EQUAL (extracted->timeRange ().first, 0);
+  BOOST_CHECK_CLOSE (extracted->timeRange ().second, tmax - tmin,
+      std::numeric_limits <float>::epsilon ());
+  BOOST_CHECK_CLOSE (extracted->length (), tmax - tmin,
+	       std::numeric_limits <float>::epsilon ());
+
+  extracted = pv->extract (std::make_pair (tmax, tmin));
+  BOOST_CHECK_EQUAL (extracted->timeRange ().first, 0);
+  BOOST_CHECK_CLOSE (extracted->timeRange ().second, tmax - tmin,
+      std::numeric_limits <float>::epsilon ());
+  BOOST_CHECK_CLOSE (extracted->length (), tmax - tmin,
+	       std::numeric_limits <float>::epsilon ());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
