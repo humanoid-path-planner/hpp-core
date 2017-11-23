@@ -203,6 +203,8 @@ namespace hpp {
       DubinsPathWkPtr_t weak_;
 
     }; // class DubinsPath
+
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_DUBINS_PATH_HH
