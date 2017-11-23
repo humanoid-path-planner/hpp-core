@@ -69,7 +69,7 @@ namespace hpp {
       {
         os << "-- ConstantCurvature" << std::endl;
         os << "from " << initial_.transpose () << std::endl;
-        os << "  length: " << forward_ * timeRange ().second << std::endl;
+        os << "  length: " << forward_ * paramLength() << std::endl;
         os << "  curvature: " << curvature_ << std::endl;
         return os;
       }
@@ -94,7 +94,7 @@ namespace hpp {
         offset = rzId_ - joint->rankInConfiguration ();
         drzId_ = joint->rankInVelocity () + offset;
         setWheelJoints (rz, wheels);
-        impl_compute (end_, timeRange ().second);
+        impl_compute (end_, paramRange ().second);
       }
 
       ConstantCurvature::ConstantCurvature
@@ -116,7 +116,7 @@ namespace hpp {
         offset = rzId_ - joint->rankInConfiguration ();
         drzId_ = joint->rankInVelocity () + offset;
         setWheelJoints (rz, wheels);
-        impl_compute (end_, timeRange ().second);
+        impl_compute (end_, paramRange ().second);
       }
 
       ConstantCurvature::ConstantCurvature (const ConstantCurvature& other) :
@@ -138,9 +138,9 @@ namespace hpp {
       bool ConstantCurvature::impl_compute (ConfigurationOut_t result,
                                             value_type param) const
       {
+        const value_type L = paramLength();
         // Does a linear interpolation on all the joints.
-        const value_type u = (timeRange ().second == 0) ? 0 :
-          param/timeRange ().second;
+        const value_type u = (L == 0) ? 0 : ((param - paramRange ().first) / L );
         pinocchio::interpolate (robot_, initial_, end_, u, result);
 
         value_type t (forward_ * param);
