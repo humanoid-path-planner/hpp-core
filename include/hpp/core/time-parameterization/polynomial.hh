@@ -26,14 +26,10 @@
 namespace hpp {
   namespace core {
     namespace timeParameterization {
-      class HPP_CORE_DLLAPI Polynomial :
-        public TimeParameterization
+      class HPP_CORE_DLLAPI Polynomial : public TimeParameterization
       {
         public:
-          Polynomial (const vector_t& param) :
-            TimeParameterization (""),
-            a (param)
-          {}
+          Polynomial (const vector_t& param) : a (param) {}
 
           const vector_t& parameters () const
           {
@@ -45,17 +41,16 @@ namespace hpp {
             return TimeParameterizationPtr_t (new Polynomial (*this));
           }
 
-        protected:
           /// Computes \f$ \sum_{i=0}^n a_i t^i \f$
-          void impl_compute (LiegroupElement& result, vectorIn_t arg) const
+          value_type value (const value_type& t) const
           {
-            result.vector()[0] = val (arg[0]);
+            return val (t);
           }
 
           /// Computes \f$ \sum_{i=1}^n i a_i t^{i-1} \f$
-          void impl_jacobian (matrixOut_t J, vectorIn_t arg) const
+          value_type derivative (const value_type& t) const
           {
-            J(0,0) = Jac(arg[0]);
+            return Jac(t);
           }
 
           /// Compute the bound of the derivative on \f$ [ low, up ] \f$.
@@ -69,7 +64,7 @@ namespace hpp {
           ///     - if \f$ low < x_m < up \f$,
           ///       \f$ B = \max{ |a_1 - \frac{a_2}{3 a_3}|, M } \f$
           ///     - else \f$ B = M \f$
-          value_type impl_derivativeBound (const value_type& low, const value_type& up) const
+          value_type derivativeBound (const value_type& low, const value_type& up) const
           {
             using std::max;
             using std::fabs;

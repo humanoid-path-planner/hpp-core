@@ -20,43 +20,21 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 
-# include <hpp/constraints/differentiable-function.hh>
-
 namespace hpp {
   namespace core {
-    class HPP_CORE_DLLAPI TimeParameterization :
-      public DifferentiableFunction
+    class HPP_CORE_DLLAPI TimeParameterization
     {
       public:
-        value_type value (const value_type& t) const
+        virtual value_type value (const value_type& t) const = 0;
+        virtual value_type derivative (const value_type& t) const = 0;
+        virtual value_type derivativeBound (const value_type& low, const value_type& up) const
         {
-          return this->operator() (map11_t(&t)).vector()[0];
-        }
-        value_type derivative (const value_type& t) const
-        {
-          matrix11_t der;
-          jacobian(der, map11_t(&t));
-          return der[0];
-        };
-        value_type derivativeBound (const value_type& low, const value_type& up) const
-        {
-          assert (low <= up);
-          return impl_derivativeBound (low, up);
-        }
-
-        virtual TimeParameterizationPtr_t copy () const = 0;
-
-      protected:
-        TimeParameterization (std::string name) : DifferentiableFunction (1, 1, 1, name) {}
-
-        virtual value_type impl_derivativeBound (const value_type&, const value_type&) const
-        {
+          (void) low;
+          (void) up;
           throw std::logic_error("not implemented");
         }
 
-      private:
-        typedef Eigen::Matrix<value_type, 1, 1> matrix11_t;
-        typedef Eigen::Map<const matrix11_t> map11_t;
+        virtual TimeParameterizationPtr_t copy () const = 0;
     }; // class TimeParameterization
   } //   namespace core
 } // namespace hpp

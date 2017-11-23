@@ -47,18 +47,15 @@ namespace hpp {
           }
 
           Shift (TimeParameterizationPtr_t tp, value_type t, value_type s)
-          : TimeParameterization(""), tp_ (tp), t_ (t), s_ (s) {}
+          : tp_ (tp), t_ (t), s_ (s) {}
 
-          void impl_compute (LiegroupElement& result, vectorIn_t arg) const
+          value_type value (const value_type& t) const
           {
-            Eigen::Matrix<value_type, 1, 1> x; x[0] = arg[0] + t_;
-            tp_->DifferentiableFunction::value(result, x);
-            result.vector()[0] += s_;
+            return tp_->value (t + t_) + s_;
           }
-          void impl_jacobian (matrixOut_t J, vectorIn_t arg) const
+          value_type derivative (const value_type& t) const
           {
-            Eigen::Matrix<value_type, 1, 1> x; x[0] = arg[0] + t_;
-            tp_->jacobian (J, x);
+            return tp_->derivative (t + t_);
           }
           value_type impl_derivativeBound (const value_type& l, const value_type& u) const
           {
