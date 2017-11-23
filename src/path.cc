@@ -20,10 +20,62 @@
 
 #include <hpp/util/debug.hh>
 
-#include <hpp/core/config-projector.hh>
+#include <hpp/core/time-parameterization.hh>
 
 namespace hpp {
   namespace core {
+    namespace timeParameterization {
+      class HPP_CORE_LOCAL Shift :
+        public TimeParameterization
+      {
+        public:
+          typedef boost::shared_ptr<Shift> Ptr_t;
+
+          static TimeParameterizationPtr_t createWithCheck (TimeParameterizationPtr_t tp, value_type t, value_type s)
+          {
+            if (t == 0 && s == 0) return tp;
+            else return create (tp, t, s);
+          }
+
+          static Ptr_t create (TimeParameterizationPtr_t tp, value_type t, value_type s)
+          {
+            Ptr_t shift = HPP_DYNAMIC_PTR_CAST(Shift, tp);
+            if (shift)
+              return Ptr_t(new Shift (shift->tp_, shift->t_ + t, shift->s_ + s));
+            else
+              return Ptr_t(new Shift (tp, t, s));
+          }
+
+          Shift (TimeParameterizationPtr_t tp, value_type t, value_type s)
+          : TimeParameterization(""), tp_ (tp), t_ (t), s_ (s) {}
+
+          void impl_compute (LiegroupElement& result, vectorIn_t arg) const
+          {
+            Eigen::Matrix<value_type, 1, 1> x; x[0] = arg[0] + t_;
+            tp_->DifferentiableFunction::value(result, x);
+            result.vector()[0] += s_;
+          }
+          void impl_jacobian (matrixOut_t J, vectorIn_t arg) const
+          {
+            Eigen::Matrix<value_type, 1, 1> x; x[0] = arg[0] + t_;
+            tp_->jacobian (J, x);
+          }
+          value_type impl_derivativeBound (const value_type& l, const value_type& u) const
+          {
+            return tp_->derivativeBound(l + t_, u + t_);
+          }
+
+          TimeParameterizationPtr_t copy () const
+          {
+            return create (tp_->copy(), t_, s_);
+          }
+
+          TimeParameterizationPtr_t tp_;
+          value_type t_;
+          value_type s_;
+      };
+    }
+
     // Constructor with constraints
     Path::Path (const interval_t& interval, size_type outputSize,
 		size_type outputDerivativeSize,
@@ -86,7 +138,43 @@ namespace hpp {
             timeParam_->value(subInterval.first),
             timeParam_->value(subInterval.second));
         res = this->impl_extract (paramInterval);
-        res->timeParameterization(timeParam_->copy(), subInterval);
+        // TODO Child class that reimplement impl_extract may return
+        // a path whose paramRange has been shifted to 0. We must then shift
+        // the time parameterization.
+        value_type shift_t, shift_s;
+        interval_t timeInterval;
+        if (subInterval.first > subInterval.second) {
+          shift_t = 0;
+          shift_s = res->paramRange().first - paramInterval.second;
+
+          if (shift_s != 0) {
+            shift_t = subInterval.second;
+            timeInterval.first = 0;
+            timeInterval.second = subInterval.first - subInterval.second;
+          } else {
+            shift_t = 0;
+            timeInterval = interval_t (subInterval.second, subInterval.first);
+          }
+        } else {
+          shift_t = 0;
+          shift_s = res->paramRange().first - paramInterval.first;
+          if (shift_s != 0) {
+            shift_t = subInterval.first;
+            timeInterval.first = 0;
+            timeInterval.second = subInterval.second - subInterval.first;
+          } else {
+            assert (res->paramRange() == paramInterval);
+            shift_t = 0;
+            timeInterval = subInterval;
+          }
+        }
+        timeParameterization::Shift::createWithCheck (timeParam_,
+            shift_t, shift_s);
+#ifndef NDEBUG
+        interval_t pr = res->paramRange();
+#endif // NDEBUG
+        res->timeParameterization(timeParam_->copy(), timeInterval);
+        assert (pr == res->paramRange());
       } else {
         res = this->impl_extract (subInterval);
       }
