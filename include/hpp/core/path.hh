@@ -34,8 +34,29 @@ namespace hpp {
     /// Path abstraction, implementation and decorators
     /// \{
 
-    /// Abstraction of paths: mapping from time to configuration space
-    ///
+    /** Abstraction of paths: mapping from time to configuration space
+     *
+     *  A path \f$ p \f$ is defined by:
+     *  \f{eqnarray*}{
+     *  p : [t_0, t_1] &\to     & \mathcal{C} \\
+     *               t &\mapsto & constraints.apply( q(t) )
+     *  \f}
+     *  where
+     *  \li \f$ [t_0, t_1] \f$ is given by \ref timeRange
+     *  \li \f$ q(t) \f$ is the child class implementation of \ref impl_compute
+     *  \li `constraints.apply` corresponds to calling Constraint::apply to
+     *      \ref Path::constraints "constraints"
+     *
+     *  Optionally, it is possible to time-parameterize the path with a function
+     *  \f$ s \f$. By default, \f$ s \f$ is the identity.
+     *  The model becomes:
+     *  \f{eqnarray*}{
+     *  p : [t_0, t_1] &\to     & \mathcal{C} \\
+     *               t &\mapsto & constraints.apply( q(s(t)) )
+     *  \f}
+     *  where \f$ s \f$ is the \ref timeParameterization, from
+     *  \ref timeRange to \ref paramRange.
+     */
     class HPP_CORE_DLLAPI Path
     {
     public:
@@ -68,7 +89,11 @@ namespace hpp {
 	return HPP_STATIC_PTR_CAST (const T, weak_.lock ());
       }
 
-      /// Extraction/Reversion of a sub-path
+      /// \}
+
+      /// \name Extraction/Reversion of a sub-path
+      /// \{
+
       /// \param subInterval interval of definition of the extract path
       /// If upper bound of subInterval is smaller than lower bound,
       /// result is reversed.
@@ -84,6 +109,10 @@ namespace hpp {
 
       /// \}
 
+      /// \name Evalutation of the path
+      /// \{
+
+      /// \deprecated Use operator()(value_type, bool)
       Configuration_t operator () (const value_type& time) const
         HPP_CORE_DEPRECATED
       {
@@ -135,7 +164,9 @@ namespace hpp {
         }
       }
 
-      /// Get the maximum velocity on a sub-interval of this path
+      /// Get an upper bound of the velocity on a sub-interval.
+      /// The result is a coefficient-wise.
+      ///               
       /// \param t0 begin of the interval
       /// \param t1 end of the interval
       /// \retval result maximal derivative on the sub-interval. Should be allocated and of correct size.
@@ -155,15 +186,8 @@ namespace hpp {
           result *= timeParam_->derivativeBound (t0, t1);
       }
 
-      /// \name Constraints
+      /// \name Path definition
       /// \{
-
-      /// Get constraints the path is subject to
-      const ConstraintSetPtr_t& constraints () const
-      {
-	return constraints_;
-      }
-      /// \}
 
       /// Get size of configuration space
       size_type outputSize () const
@@ -183,6 +207,31 @@ namespace hpp {
 	return timeRange_;
       }
 
+      /// Get length of definition interval
+      value_type length () const
+      {
+	return timeRange_.second - timeRange_.first;
+      }
+
+      /// Get the initial configuration
+      virtual Configuration_t initial () const = 0;
+
+      /// Get the final configuration
+      virtual Configuration_t end () const = 0;
+
+      /// Get constraints the path is subject to
+      const ConstraintSetPtr_t& constraints () const
+      {
+	return constraints_;
+      }
+
+      /// \}
+
+      /// \name Time parameterizarion
+      /// Time parameterization is handled by this class so child classes need
+      /// not to handle it.
+      /// \{
+
       /// Get interval of parameters.
       /// If the instance contains a \ref timeParam_
       /// this returns timeParam_ (timeRange())
@@ -200,17 +249,7 @@ namespace hpp {
         timeRange (tr);
       }
 
-      /// Get length of definition interval
-      value_type length () const
-      {
-	return timeRange_.second - timeRange_.first;
-      }
-
-      /// Get the initial configuration
-      virtual Configuration_t initial () const = 0;
-
-      /// Get the final configuration
-      virtual Configuration_t end () const = 0;
+      /// \}
 
     protected:
       /// Print interval of definition (and of parameters if relevant)
@@ -300,19 +339,34 @@ namespace hpp {
       virtual bool impl_compute (ConfigurationOut_t configuration,
 				 value_type param) const = 0;
 
-      /// Virtual implementation of derivative
-      virtual void impl_derivative (vectorOut_t, const value_type&,
-				    size_type) const
+      /// Virtual implementation of \ref derivative
+      /// \param param parameter within \ref paramRange
+      /// \param order order of derivation.
+      /// \retval derivative
+      virtual void impl_derivative (vectorOut_t derivative,
+                                    const value_type& param,
+				    size_type order) const
       {
+        (void) derivative;
+        (void) param;
+        (void) order;
 	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
       }
 
-      /// Virtual implementation of velocityBound
-      virtual void impl_velocityBound (vectorOut_t, const value_type&, const value_type&) const
+      /// Virtual implementation of \ref velocityBound
+      /// \param param0, param1 interval of parameter
+      /// \retval bound
+      virtual void impl_velocityBound (vectorOut_t bound,
+                                       const value_type& param0,
+                                       const value_type& param1) const
       {
+        (void) bound;
+        (void) param0;
+        (void) param1;
 	HPP_THROW_EXCEPTION (hpp::Exception, "not implemented");
       }
 
+      /// Virtual implementation of \ref extract
       virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
         throw (projection_error);
 
