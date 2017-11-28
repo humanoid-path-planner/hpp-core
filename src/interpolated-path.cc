@@ -117,11 +117,15 @@ namespace hpp {
 	result.noalias () = initial();
 	return true;
       }
-      if (param >= paramRange ().second) {
+      assert (fabs (configs_.rbegin()->first - paramRange ().second)
+          < Eigen::NumTraits<value_type>::dummy_precision());
+      if (param >= configs_.rbegin()->first) {
+	param = configs_.rbegin()->first;
 	result.noalias () = end();
 	return true;
       }
       InterpolationPoints_t::const_iterator itA = configs_.lower_bound (param);
+      assert (itA != configs_.end());
       InterpolationPoints_t::const_iterator itB = itA; --itB;
       const value_type T = itA->first - itB->first;
       const value_type u = (param - itB->first) / T;
