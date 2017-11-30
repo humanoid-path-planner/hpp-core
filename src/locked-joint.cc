@@ -183,23 +183,6 @@ namespace hpp {
       return os;
     }
 
-    LockedJointPtr_t LockedJoint::create (const DevicePtr_t& robot)
-    {
-      LockedJoint* ptr = new LockedJoint (robot);
-      LockedJointPtr_t shPtr (ptr);
-      ptr->init (shPtr);
-      return shPtr;
-    }
-
-    LockedJoint::LockedJoint (const DevicePtr_t& robot) :
-      Equation (ComparisonType::createDefault (), vector_t (1)),
-      jointName_ ("FakeLockedJoint"),
-      rankInConfiguration_ (robot->configSize ()),
-      rankInVelocity_ (robot->numberDof ()),
-      configSpace_ (LiegroupSpace::Rn (1))
-    {
-    }
-
     LockedJoint::LockedJoint (const LockedJoint& other) :
       Equation (other), jointName_ (other.jointName_),
       rankInConfiguration_ (other.rankInConfiguration_),

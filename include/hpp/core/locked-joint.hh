@@ -179,11 +179,6 @@ namespace hpp {
       boost::shared_ptr<Function> function_;
 
       friend class ConfigProjector;
-      /// Create a fake locked dof for ConfigProjector
-      static LockedJointPtr_t create (const DevicePtr_t& robot);
-
-      /// Create a fake locked joint after last joint of robot
-      LockedJoint (const DevicePtr_t& robot);
     }; // class LockedJoint
 
     /// \}
