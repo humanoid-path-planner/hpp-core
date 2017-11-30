@@ -86,7 +86,6 @@ namespace hpp {
 				      size_type _maxIterations) :
       Constraint (name), robot_ (robot), functions_ (),
       lockedJoints_ (),
-      rhsReducedSize_ (0),
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
       lineSearchType_ (Default),
@@ -109,7 +108,6 @@ namespace hpp {
       functions_ (cp.functions_),
       lockedJoints_ (),
       rightHandSide_ (cp.rightHandSide_),
-      rhsReducedSize_ (cp.rhsReducedSize_),
       toMinusFrom_ (cp.toMinusFrom_.size ()),
       projMinusFrom_ (cp.projMinusFrom_.size ()),
       lineSearchType_ (cp.lineSearchType_),
@@ -153,6 +151,8 @@ namespace hpp {
 		 << " already in " << this->name () << "." << std::endl);
 	return false;
       }
+      constraints::ComparisonTypes_t types = nm->comparisonType();
+
       bool addedAsExplicit = false;
       ExplicitNumericalConstraintPtr_t enm =
         HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
@@ -161,7 +161,8 @@ namespace hpp {
             Eigen::RowBlockIndices(enm->inputConf()),
             Eigen::RowBlockIndices(enm->outputConf()),
             Eigen::ColBlockIndices(enm->inputVelocity()),
-            Eigen::RowBlockIndices(enm->outputVelocity()));
+            Eigen::RowBlockIndices(enm->outputVelocity()),
+            types);
         if (!addedAsExplicit) {
           hppDout (info, "Could not treat " <<
               enm->explicitFunction()->name() << " as an explicit function."
@@ -169,7 +170,6 @@ namespace hpp {
         }
       }
 
-      constraints::ComparisonTypes_t types = nm->comparisonType();
       if (!addedAsExplicit) {
         minimalSolver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
       } else {
@@ -185,7 +185,6 @@ namespace hpp {
       hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
 
       functions_.push_back (nm);
-      // rhsReducedSize_ += nm->rhsSize ();
       return true;
     }
 
@@ -361,8 +360,6 @@ namespace hpp {
 	       << ", size: " << lockedJoint->numberDof ());
       hppDout (info, "Intervals: " << minimalSolver_.explicitSolver().outDers());
       hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
-      if (!lockedJoint->constantRightHandSide ())
-        rhsReducedSize_ += lockedJoint->rhsSize ();
     }
 
     void ConfigProjector::addToConstraintSet
@@ -423,11 +420,6 @@ namespace hpp {
     {
       minimalSolver_.rightHandSideFromInput (config);
       fullSolver_.rightHandSideFromInput (config);
-
-      // Update other degrees of freedom.
-      for (LockedJoints_t::iterator it = lockedJoints_.begin ();
-          it != lockedJoints_.end (); ++it )
-        (*it)->rightHandSideFromConfig (config);
       return rightHandSide();
     }
 
@@ -445,26 +437,16 @@ namespace hpp {
         const LockedJointPtr_t& lj,
         ConfigurationIn_t config)
     {
-      lj->rightHandSideFromConfig (config);
+      minimalSolver_.explicitSolver().rightHandSideFromInput (
+          lj->function(), config);
+      fullSolver_.explicitSolver().rightHandSideFromInput (
+          lj->function(), config);
     }
 
     void ConfigProjector::rightHandSide (const vector_t& small)
     {
-      const size_type rhsImplicitSize = minimalSolver_.rightHandSideSize();
-      minimalSolver_.rightHandSide (small.head(rhsImplicitSize));
-      // fullSolver_.rightHandSide (small.head(rhsImplicitSize));
-
-      assert (rightHandSide_.size () == rhsImplicitSize); // TODO remove
-      size_type row = rhsImplicitSize;
-      for (LockedJoints_t::iterator it = lockedJoints_.begin ();
-          it != lockedJoints_.end (); ++it ) {
-        LockedJoint& lj = **it;
-        if (!lj.constantRightHandSide ()) {
-          lj.rightHandSide (small.segment (row, lj.rhsSize ()));
-          row += lj.rhsSize ();
-        }
-      }
-      assert (row == small.size ());
+      minimalSolver_.rightHandSide (small);
+      fullSolver_.rightHandSide (small);
     }
 
     void ConfigProjector::rightHandSide (
@@ -481,30 +463,13 @@ namespace hpp {
         const LockedJointPtr_t& lj,
         vectorIn_t rhs)
     {
-      if (lj->constantRightHandSide ()) {
-        lj->rightHandSide (rhs);
-      }
+      minimalSolver_.explicitSolver().rightHandSide (lj->function(), rhs);
+      fullSolver_.   explicitSolver().rightHandSide (lj->function(), rhs);
     }
 
     vector_t ConfigProjector::rightHandSide () const
     {
-      vector_t small(minimalSolver_.rightHandSideSize() + rhsReducedSize_);
-
-      vector_t rhsImplicit = minimalSolver_.rightHandSide();
-
-      size_type row = rhsImplicit.size();
-      small.head(row) = rhsImplicit;
-
-      for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
-          it != lockedJoints_.end (); ++it ) {
-        LockedJoint& lj = **it;
-        if (!lj.constantRightHandSide ()) {
-          small.segment (row, lj.rhsSize ()) = lj.rightHandSide ();
-          row += lj.rhsSize ();
-        }
-      }
-      assert (row == small.size ());
-      return small;
+      return minimalSolver_.rightHandSide();
     }
 
     inline bool ConfigProjector::solverOneStep (ConfigurationOut_t config) const

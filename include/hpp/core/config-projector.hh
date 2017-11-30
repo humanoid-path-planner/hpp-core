@@ -366,7 +366,6 @@ namespace hpp {
       NumericalConstraints_t functions_;
       LockedJoints_t lockedJoints_;
       vector_t rightHandSide_;
-      size_type rhsReducedSize_;
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
 
