@@ -83,16 +83,8 @@ namespace hpp {
     HPP_PREDEF_CLASS (WeighedDistance);
     class KDTree;
 
-    class ComparisonType;
-    typedef boost::shared_ptr <ComparisonType> ComparisonTypePtr_t;
-    class Equality;
-    typedef boost::shared_ptr <Equality> EqualityPtr_t;
-    class EqualToZero;
-    typedef boost::shared_ptr <EqualToZero> EqualToZeroPtr_t;
-    class ComparisonTypes;
-    typedef boost::shared_ptr <ComparisonTypes> ComparisonTypesPtr_t;
-    class DoubleInequality;
-    typedef boost::shared_ptr <DoubleInequality> DoubleInequalityPtr_t;
+    typedef constraints::ComparisonTypes_t ComparisonTypes_t;
+    typedef constraints::ComparisonType ComparisonType;
 
     typedef boost::shared_ptr < BasicConfigurationShooter >
     BasicConfigurationShooterPtr_t;
@@ -230,8 +222,7 @@ namespace hpp {
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
     typedef std::map <std::string, NumericalConstraintPtr_t>
     NumericalConstraintMap_t;
-    typedef std::map <std::string, ComparisonTypePtr_t>
-    ComparisonTypeMap_t;
+    typedef std::map <std::string, ComparisonTypes_t> ComparisonTypeMap_t;
     typedef std::map <std::string, segments_t> segmentsMap_t;
     typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
     typedef std::map <std::string, CenterOfMassComputationPtr_t>

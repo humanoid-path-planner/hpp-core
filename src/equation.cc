@@ -16,8 +16,6 @@
 
 #include "hpp/core/equation.hh"
 
-#include <hpp/core/comparison-type.hh>
-
 namespace hpp {
   namespace core {
     void Equation::rightHandSide (vectorIn_t rhs)
@@ -40,24 +38,32 @@ namespace hpp {
       return rhs_.size ();
     }
 
-    const ComparisonTypePtr_t& Equation::comparisonType () const
+    const ComparisonTypes_t& Equation::comparisonType () const
     {
       return comparison_;
     }
 
-    void Equation::comparisonType (const ComparisonTypePtr_t& comp)
+    bool Equation::constantRightHandSide () const
+    {
+      for (std::size_t i = 0; i < comparison_.size(); ++i)
+        if (comparison_[i] == constraints::Equality)
+          return false;
+      return true;
+    }
+
+    void Equation::comparisonType (const ComparisonTypes_t& comp)
     {
       comparison_ = comp;
-      if (comparison_->constantRightHandSide ())
+      if (constantRightHandSide())
         rhs_ = vector_t ();
       else
         rhs_ = vector_t::Zero (rhsRealSize_);
     }
 
-    Equation::Equation (const ComparisonTypePtr_t& comp, vectorIn_t rhs) :
+    Equation::Equation (const ComparisonTypes_t& comp, vectorIn_t rhs) :
       comparison_ (comp), rhs_ (rhs), rhsRealSize_ (rhs.size())
     {
-      if (comparison_->constantRightHandSide ())
+      if (constantRightHandSide ())
         rhs_ = vector_t ();
     }
 

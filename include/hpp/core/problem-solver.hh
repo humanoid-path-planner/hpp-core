@@ -30,7 +30,6 @@
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/container.hh>
 # include <hpp/core/constraint-set.hh>
-# include <hpp/core/comparison-type.hh> // ComparisonType::VectorOfTypes
 
 namespace hpp {
   namespace core {
@@ -372,17 +371,12 @@ namespace hpp {
       /// Set the comparison types of a constraint.
       /// \param name name of the differentiable function.
       void comparisonType (const std::string& name,
-			   const ComparisonType::VectorOfTypes types);
+			   const ComparisonTypes_t types);
 
       void comparisonType (const std::string& name,
-         const ComparisonType::Type &type);
+                           const ComparisonType &type);
 
-      /// Set the comparison type of a constraint
-      /// \param name name of the differentiable function.
-      void comparisonType (const std::string& name,
-			   const ComparisonTypePtr_t eq);
-
-      ComparisonTypePtr_t comparisonType (const std::string& name) const;
+      ComparisonTypes_t comparisonType (const std::string& name) const;
 
       /// Get constraint with given name
       NumericalConstraintPtr_t numericalConstraint (const std::string& name)

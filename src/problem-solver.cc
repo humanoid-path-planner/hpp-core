@@ -480,36 +480,26 @@ namespace hpp {
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
-        const ComparisonType::VectorOfTypes types)
+        const ComparisonTypes_t types)
     {
       if (!has <NumericalConstraintPtr_t> (name))
         throw std::logic_error (std::string ("Numerical constraint ") +
             name + std::string (" not defined."));
-      ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (types);
-      get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
+      get<NumericalConstraintPtr_t> (name)->comparisonType (types);
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
-        const ComparisonType::Type &type)
+        const ComparisonType &type)
     {
       if (!has <NumericalConstraintPtr_t> (name))
         throw std::logic_error (std::string ("Numerical constraint ") +
             name + std::string (" not defined."));
-      ComparisonTypesPtr_t eqtypes = ComparisonTypes::create (
-        get<NumericalConstraintPtr_t> (name)->function ().outputSize(), type);
+      NumericalConstraintPtr_t nc = get<NumericalConstraintPtr_t> (name);
+      ComparisonTypes_t eqtypes (nc->function().outputSize(), type);
       get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
     }
 
-    void ProblemSolver::comparisonType (const std::string& name,
-        const ComparisonTypePtr_t eq)
-    {
-      if (!has <NumericalConstraintPtr_t> (name))
-        throw std::logic_error (std::string ("Numerical constraint ") +
-            name + std::string (" not defined."));
-      get<NumericalConstraintPtr_t> (name)->comparisonType (eq);
-    }
-
-    ComparisonTypePtr_t ProblemSolver::comparisonType (const std::string& name) const
+    ComparisonTypes_t ProblemSolver::comparisonType (const std::string& name) const
     {
       if (!has <NumericalConstraintPtr_t> (name))
         throw std::logic_error (std::string ("Numerical constraint ") +

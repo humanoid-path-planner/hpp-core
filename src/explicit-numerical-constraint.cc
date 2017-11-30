@@ -17,7 +17,6 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/matrix-view.hh>
-#include <hpp/core/comparison-type.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
 #include "../src/implicit-function.hh"
 
@@ -92,9 +91,9 @@ namespace hpp {
       NumericalConstraint (ImplicitFunction::create
 			   (robot, explicitFunction, inputConf, inputVelocity,
                             outputConf, outputVelocity),
-			   ComparisonTypes::create(Eigen::BlockIndex::cardinal
-                                                   (outputVelocity),
-                                                   ComparisonTypes::Default)),
+			   ComparisonTypes_t(Eigen::BlockIndex::cardinal
+                                             (outputVelocity),
+                                             constraints::EqualToZero)),
       inputToOutput_ (explicitFunction),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),

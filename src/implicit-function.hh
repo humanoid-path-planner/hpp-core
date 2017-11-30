@@ -23,7 +23,6 @@
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/matrix-view.hh>
 #include <hpp/constraints/tools.hh>
-#include <hpp/core/comparison-type.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {

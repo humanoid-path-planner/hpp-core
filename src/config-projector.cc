@@ -37,7 +37,6 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
-#include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
 
 namespace hpp {
@@ -54,28 +53,6 @@ namespace hpp {
         return constraints::ActiveSetDifferentiableFunctionPtr_t (new constraints::ActiveSetDifferentiableFunction(function, pdofs));
       }
 
-      template <typename T> bool convert (const ComparisonTypePtr_t& c,
-          HybridSolver::ComparisonTypes_t& types,
-          HybridSolver::ComparisonType t)
-      {
-        if (HPP_DYNAMIC_PTR_CAST(T, c)) { types.push_back (t); return true; }
-        return false;
-      }
-
-      void convertCompTypes (
-          const ComparisonTypePtr_t& c,
-          HybridSolver::ComparisonTypes_t& types)
-      {
-        ComparisonTypesPtr_t cts = HPP_DYNAMIC_PTR_CAST(ComparisonTypes, c);
-        if (cts) {
-          for (std::size_t i = 0; i < cts->size(); ++i)
-            convertCompTypes(cts->at(i), types);
-        } else if (convert<SuperiorIneq>(c, types, HybridSolver::Superior   )) {}
-        else if   (convert<InferiorIneq>(c, types, HybridSolver::Inferior   )) {}
-        else if   (convert<EqualToZero >(c, types, HybridSolver::EqualToZero)) {}
-        else if   (convert<Equality    >(c, types, HybridSolver::Equality   )) {}
-        else throw std::logic_error("Unknow ComparisonType");
-      }
     }
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
@@ -192,8 +169,7 @@ namespace hpp {
         }
       }
 
-      HybridSolver::ComparisonTypes_t types;
-      convertCompTypes(nm->comparisonType(), types);
+      constraints::ComparisonTypes_t types = nm->comparisonType();
       if (!addedAsExplicit) {
         minimalSolver_.add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
       } else {
@@ -385,7 +361,7 @@ namespace hpp {
 	       << ", size: " << lockedJoint->numberDof ());
       hppDout (info, "Intervals: " << minimalSolver_.explicitSolver().outDers());
       hppDout (info, "Constraints " << name() << " has dimension " << minimalSolver_.dimension());
-      if (!lockedJoint->comparisonType ()->constantRightHandSide ())
+      if (!lockedJoint->constantRightHandSide ())
         rhsReducedSize_ += lockedJoint->rhsSize ();
     }
 
@@ -483,7 +459,7 @@ namespace hpp {
       for (LockedJoints_t::iterator it = lockedJoints_.begin ();
           it != lockedJoints_.end (); ++it ) {
         LockedJoint& lj = **it;
-        if (!lj.comparisonType ()->constantRightHandSide ()) {
+        if (!lj.constantRightHandSide ()) {
           lj.rightHandSide (small.segment (row, lj.rhsSize ()));
           row += lj.rhsSize ();
         }
@@ -505,7 +481,7 @@ namespace hpp {
         const LockedJointPtr_t& lj,
         vectorIn_t rhs)
     {
-      if (lj->comparisonType ()->constantRightHandSide ()) {
+      if (lj->constantRightHandSide ()) {
         lj->rightHandSide (rhs);
       }
     }
@@ -522,7 +498,7 @@ namespace hpp {
       for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
           it != lockedJoints_.end (); ++it ) {
         LockedJoint& lj = **it;
-        if (!lj.comparisonType ()->constantRightHandSide ()) {
+        if (!lj.constantRightHandSide ()) {
           small.segment (row, lj.rhsSize ()) = lj.rightHandSide ();
           row += lj.rhsSize ();
         }

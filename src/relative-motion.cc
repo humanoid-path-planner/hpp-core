@@ -26,7 +26,6 @@
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/comparison-type.hh>
 #include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/locked-joint.hh>
 
@@ -109,7 +108,7 @@ namespace hpp {
           hppDout (info, "Joint of locked joint not found: " << **it);
           continue;
         }
-        bool cstRHS = (*it)->comparisonType()->constantRightHandSide();
+        bool cstRHS = (*it)->constantRightHandSide();
 
         // JointPtr_t j = robot->getJointByName ((*it)->jointName());
         // const size_type i1 = idx(j),
@@ -131,7 +130,7 @@ namespace hpp {
             && !isExplicitRelativeTransform (nc.functionPtr(), i1, i2))
           continue;
 
-        bool cstRHS = nc.comparisonType()->constantRightHandSide();
+        bool cstRHS = nc.constantRightHandSide();
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
     }

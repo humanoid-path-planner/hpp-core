@@ -23,8 +23,6 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
-#include <hpp/core/comparison-type.hh>
-
 namespace hpp {
   namespace core {
     namespace {
@@ -117,7 +115,7 @@ namespace hpp {
 
     void LockedJoint::rightHandSideFromConfig (ConfigurationIn_t config)
     {
-      if (!comparisonType ()->constantRightHandSide ()) {
+      if (!constantRightHandSide ()) {
         LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
                            configSpace_);
         rightHandSide (q - configSpace_->neutral ());
@@ -126,7 +124,8 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const JointPtr_t& joint,
                               const LiegroupElement& value) :
-      Equation (Equality::create (), vector_t::Zero (joint->numberDof ())),
+      Equation (ComparisonTypes_t(joint->numberDof(), constraints::Equality),
+                vector_t::Zero (joint->numberDof ())),
       jointName_ (joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration ()),
       rankInVelocity_ (joint->rankInVelocity ()), joint_ (joint),
@@ -139,7 +138,8 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
         vectorIn_t value) :
-      Equation (Equality::create (), vector_t::Zero (value.size ())),
+      Equation (ComparisonTypes_t(value.size(), constraints::Equality),
+                vector_t::Zero (value.size())),
       jointName_ ("partial_" + joint->name ()),
       rankInConfiguration_ (joint->rankInConfiguration () + index),
       rankInVelocity_ (joint->rankInVelocity () + index),
@@ -153,7 +153,8 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
         vectorIn_t value) :
-      Equation (Equality::create (), vector_t::Zero (value.size())),
+      Equation (ComparisonTypes_t(value.size(), constraints::Equality),
+                vector_t::Zero (value.size())),
       jointName_ (dev->name() + "_extraDof" + numToStr (index)),
       rankInConfiguration_
       (dev->configSize () - dev->extraConfigSpace().dimension() + index),

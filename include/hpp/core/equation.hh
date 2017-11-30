@@ -64,10 +64,12 @@ namespace hpp {
         size_type rhsSize () const;
 
         /// Return the ComparisonType
-        const ComparisonTypePtr_t& comparisonType () const;
+        const ComparisonTypes_t& comparisonType () const;
 
 	/// Set the comparison type
-	void comparisonType (const ComparisonTypePtr_t& comp);
+	void comparisonType (const ComparisonTypes_t& comp);
+
+        bool constantRightHandSide () const;
 
         /// Return the right hand side of the equation.
         vectorOut_t nonConstRightHandSide ();
@@ -75,7 +77,7 @@ namespace hpp {
         virtual ~Equation () {}
 
       protected:
-        Equation (const ComparisonTypePtr_t& comp, vectorIn_t rhs);
+        Equation (const ComparisonTypes_t& comp, vectorIn_t rhs);
 	//Copy constructor
 	Equation (const Equation& other);
 	/// Test equality with other instance
@@ -88,7 +90,7 @@ namespace hpp {
 	  weak_ = weak;
 	}
       private:
-        ComparisonTypePtr_t comparison_;
+        ComparisonTypes_t comparison_;
         vector_t rhs_;
         size_type rhsRealSize_;
 	EquationWkPtr_t weak_;

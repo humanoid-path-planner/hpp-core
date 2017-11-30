@@ -24,7 +24,6 @@ astar.hh
 bi-rrt-planner.cc
 collision-validation.cc
 config-projector.cc
-comparison-type.cc
 config-validations.cc
 connected-component.cc
 constraint.cc

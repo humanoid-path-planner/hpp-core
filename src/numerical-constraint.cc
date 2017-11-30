@@ -21,7 +21,7 @@
 namespace hpp {
   namespace core {
     NumericalConstraint::NumericalConstraint (const DifferentiableFunctionPtr_t& function,
-        ComparisonTypePtr_t comp) :
+        ComparisonTypes_t comp) :
       Equation (comp, vector_t::Zero (function->outputSize ())),
       function_ (function), value_ (function->outputSize ()),
       jacobian_ (function->outputDerivativeSize (),
@@ -29,7 +29,7 @@ namespace hpp {
     {}
 
     NumericalConstraint::NumericalConstraint (const DifferentiableFunctionPtr_t& function,
-        ComparisonTypePtr_t comp, vectorIn_t rhs) :
+        ComparisonTypes_t comp, vectorIn_t rhs) :
       Equation (comp, rhs), function_ (function), value_ (function->outputSize ()),
       jacobian_ (matrix_t (function->outputSize (), function->inputDerivativeSize ()))
     {}
@@ -58,7 +58,7 @@ namespace hpp {
     NumericalConstraintPtr_t NumericalConstraint::create (
         const DifferentiableFunctionPtr_t& function)
     {
-      ComparisonTypePtr_t comp = ComparisonTypes::create (function->outputSize());
+      ComparisonTypes_t comp (function->outputSize(), constraints::EqualToZero);
 
       NumericalConstraint* ptr = new NumericalConstraint (function, comp);
       NumericalConstraintPtr_t shPtr (ptr);
@@ -68,7 +68,7 @@ namespace hpp {
     }
 
     NumericalConstraintPtr_t NumericalConstraint::create (
-        const DifferentiableFunctionPtr_t& function, ComparisonTypePtr_t comp)
+        const DifferentiableFunctionPtr_t& function, ComparisonTypes_t comp)
     {
       NumericalConstraint* ptr = new NumericalConstraint (function, comp);
       NumericalConstraintPtr_t shPtr (ptr);
@@ -79,7 +79,7 @@ namespace hpp {
 
     NumericalConstraintPtr_t NumericalConstraint::create (
         const DifferentiableFunctionPtr_t& function,
-        ComparisonTypePtr_t comp, vectorIn_t rhs)
+        ComparisonTypes_t comp, vectorIn_t rhs)
     {
       NumericalConstraint* ptr = new NumericalConstraint (function, comp, rhs);
       NumericalConstraintPtr_t shPtr (ptr);

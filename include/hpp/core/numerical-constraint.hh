@@ -19,7 +19,6 @@
 # define HPP_CORE_NUMERICALCONSTRAINT_HH
 
 # include <hpp/core/equation.hh>
-# include <hpp/core/comparison-type.hh> // ComparisonType::createDefault()
 
 namespace hpp {
   namespace core {
@@ -40,12 +39,12 @@ namespace hpp {
         /// Create a shared pointer to a new instance.
         /// \sa constructors
         static NumericalConstraintPtr_t create (const DifferentiableFunctionPtr_t& function,
-            ComparisonTypePtr_t comp);
+            ComparisonTypes_t comp);
 
         /// Create a shared pointer to a new instance.
         /// \sa constructors
         static NumericalConstraintPtr_t create (const DifferentiableFunctionPtr_t& function,
-            ComparisonTypePtr_t comp, vectorIn_t rhs);
+            ComparisonTypes_t comp, vectorIn_t rhs);
 
 	/// Create a copy and return shared pointer
 	static NumericalConstraintPtr_t createCopy
@@ -88,13 +87,13 @@ namespace hpp {
         /// Constructor
         /// \param function the differentiable function
         NumericalConstraint (const DifferentiableFunctionPtr_t& function,
-            ComparisonTypePtr_t comp = ComparisonType::createDefault());
+            ComparisonTypes_t comp);
 
         /// Constructor
         /// \param function the differentiable function
         /// \param rhs the right hand side of this equation
         NumericalConstraint (const DifferentiableFunctionPtr_t& function,
-            ComparisonTypePtr_t comp, vectorIn_t rhs);
+            ComparisonTypes_t comp, vectorIn_t rhs);
 
 	/// Copy constructor
 	NumericalConstraint (const NumericalConstraint& other);
