@@ -341,7 +341,7 @@ namespace hpp {
           Eigen::ColBlockIndices(),
           Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
                                             lockedJoint->numberDof())),
-          types);
+          types)
         &&
         fullSolver_.explicitSolver().add(lockedJoint->function(),
             Eigen::RowBlockIndices(),
