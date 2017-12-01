@@ -174,7 +174,8 @@ namespace hpp {
 			const segments_t& outputVelocity)
 	: DifferentiableFunction (robot->configSize (), robot->numberDof (),
 				  LiegroupSpace::Rn
-                                  (function->outputSpace ()->nv ())),
+                                  (function->outputSpace ()->nv ()),
+                                  "implicit " + function->name()),
 	  robot_ (robot), inputToOutput_ (function),
           inputConfIntervals_ (inputConf),
 	  inputDerivIntervals_ (inputVelocity),
