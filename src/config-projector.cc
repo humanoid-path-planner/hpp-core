@@ -331,6 +331,8 @@ namespace hpp {
 	}
       }
 
+      constraints::ComparisonTypes_t types = lockedJoint->comparisonType();
+
       bool added = minimalSolver_.explicitSolver().add(lockedJoint->function(),
           Eigen::RowBlockIndices(),
           Eigen::RowBlockIndices(segment_t
@@ -338,7 +340,8 @@ namespace hpp {
                                   lockedJoint->configSize())),
           Eigen::ColBlockIndices(),
           Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
-                                            lockedJoint->numberDof())))
+                                            lockedJoint->numberDof())),
+          types);
         &&
         fullSolver_.explicitSolver().add(lockedJoint->function(),
             Eigen::RowBlockIndices(),
@@ -347,7 +350,9 @@ namespace hpp {
                                     lockedJoint->configSize())),
             Eigen::ColBlockIndices(),
             Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
-                                              lockedJoint->numberDof())));
+                                              lockedJoint->numberDof())),
+          types);
+
       if (!added) {
         hppDout (error, "Could not add LockedJoint " << lockedJoint->jointName_);
       }
