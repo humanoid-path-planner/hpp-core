@@ -427,10 +427,16 @@ namespace hpp {
         const NumericalConstraintPtr_t& nm,
         ConfigurationIn_t config)
     {
-      if (!minimalSolver_.rightHandSideFromInput (nm->functionPtr(), config)) {
-        throw std::runtime_error ("Function was not found in the solver. This is probably because it is an explicit function and rhs is not supported for this type of function.");
+      ExplicitNumericalConstraintPtr_t enm =
+        HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
+      DifferentiableFunctionPtr_t fImplicit = nm->functionPtr(), fExplicit;
+      if (enm) fExplicit = enm->explicitFunction();
+
+      if (!minimalSolver_.rightHandSideFromInput (
+            fImplicit, fExplicit, config)) {
+        throw std::runtime_error ("Function was not found in the solver.");
       }
-      fullSolver_.rightHandSideFromInput (nm->functionPtr(), config);
+      fullSolver_.rightHandSideFromInput (fImplicit, fExplicit, config);
     }
 
     void ConfigProjector::rightHandSideFromConfig (
@@ -453,10 +459,15 @@ namespace hpp {
         const NumericalConstraintPtr_t& nm,
         vectorIn_t rhs)
     {
-      if (!minimalSolver_.rightHandSide (nm->functionPtr(), rhs)) {
+      ExplicitNumericalConstraintPtr_t enm =
+        HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
+      DifferentiableFunctionPtr_t fImplicit = nm->functionPtr(), fExplicit;
+      if (enm) fExplicit = enm->explicitFunction();
+
+      if (!minimalSolver_.rightHandSide (fImplicit, fExplicit, rhs)) {
         throw std::runtime_error ("Function was not found in the solver. This is probably because it is an explicit function and rhs is not supported for this type of function.");
       }
-      fullSolver_.rightHandSide (nm->functionPtr(), rhs);
+      fullSolver_.rightHandSide (fImplicit, fExplicit, rhs);
     }
 
     void ConfigProjector::rightHandSide (
