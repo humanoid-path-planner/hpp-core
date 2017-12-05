@@ -72,14 +72,18 @@ namespace hpp {
             throw std::logic_error("Boundaries of TimeParameterization are not correct.");
           }
           if (velocity
-              && (tp->derivative(0) > thr
-              ||  tp->derivative(T) > thr
-              ||  fabs(tp->derivative(T/2) - B) > thr
-              ||  tp->derivative(0) < 0
-              ||  tp->derivative(T) < 0
-              ||  fabs(tp->derivative(T/2) - B) < 0)
+              && (fabs(tp->derivative(0)) > thr
+              ||  fabs(tp->derivative(T)) > thr
+              ||  fabs(tp->derivative(T/2) - B) > thr)
              ) {
-            throw std::logic_error("Derivative of TimeParameterization are not correct.");
+            HPP_THROW(std::logic_error,
+                "Derivative of TimeParameterization are not correct:"
+                << "\ntp->derivative(0) = " << tp->derivative(0)
+                << "\ntp->derivative(T) = " << tp->derivative(T)
+                << "\ntp->derivative(T/2) - B = " << tp->derivative(T/2) - B
+                << "\nT = " << T
+                << "\nB = " << B
+                );
           }
         }
       }
