@@ -134,6 +134,7 @@ namespace hpp {
       assert (rhsSize () == joint->numberDof ());
       assert (*(value.space ()) == *configSpace_);
       rightHandSide (value - configSpace_->neutral ());
+      initFunction ();
     }
 
     LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
@@ -149,6 +150,7 @@ namespace hpp {
       assert (joint->numberDof () == joint->configSize ());
       rightHandSide (value);
       assert (rhsSize () == value.size());
+      initFunction ();
     }
 
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
@@ -166,12 +168,12 @@ namespace hpp {
       assert (rankInConfiguration_ + value.size() <= dev->configSize());
       rightHandSide (value);
       assert (rhsSize () == value.size());
+      initFunction ();
     }
 
     void LockedJoint::init (const LockedJointPtr_t& self)
     {
       weak_ = self;
-      function_.reset(new Function(self));
     }
 
     std::ostream& LockedJoint::print (std::ostream& os) const
@@ -188,7 +190,7 @@ namespace hpp {
       Equation (other), jointName_ (other.jointName_),
       rankInConfiguration_ (other.rankInConfiguration_),
       rankInVelocity_ (other.rankInVelocity_), joint_ (other.joint_),
-      configSpace_ (other.configSpace_), weak_ ()
+      configSpace_ (other.configSpace_), function_ (other.function_), weak_ ()
     {
     }
 
@@ -207,6 +209,15 @@ namespace hpp {
       } catch (const std::bad_cast& err) {
 	return false;
       }
+    }
+
+    void LockedJoint::initFunction ()
+    {
+      function_ = constraints::ConstantFunctionPtr_t (
+          new constraints::ConstantFunction (
+            configSpace_->neutral(), 0, 0,
+            "LockedJoint " + jointName()
+            ));
     }
   } // namespace core
 } // namespace hpp

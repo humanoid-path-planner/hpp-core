@@ -20,7 +20,7 @@
 
 # include <hpp/pinocchio/joint.hh>
 
-# include <hpp/constraints/differentiable-function.hh>
+# include <hpp/constraints/affine-function.hh>
 
 # include <hpp/core/equation.hh>
 
@@ -149,34 +149,16 @@ namespace hpp {
       void init (const LockedJointPtr_t& self);
 
     private:
-      struct Function : constraints::DifferentiableFunction
-      {
-        LockedJointWkPtr_t lj_;
-
-        Function(const LockedJointPtr_t& lj) :
-          DifferentiableFunction
-          (0, 0, lj->configSpace (), "LockedJoint " + lj->jointName()),
-          lj_ (lj)
-        {}
-
-        void impl_compute (LiegroupElement& result, vectorIn_t) const
-        {
-          LockedJointPtr_t lj (lj_.lock ());
-          assert (*(result.space ()) == *(lj->configSpace ()));
-          result = lj->configSpace ()->neutral () + lj->rightHandSide ();
-        }
-
-        void impl_jacobian (matrixOut_t, vectorIn_t ) const {}
-      };
+      void initFunction ();
 
       std::string jointName_;
       size_type rankInConfiguration_;
       size_type rankInVelocity_;
       JointPtr_t joint_;
       LiegroupSpacePtr_t configSpace_;
+      constraints::ConstantFunctionPtr_t function_;
       /// Weak pointer to itself
       LockedJointWkPtr_t weak_;
-      boost::shared_ptr<Function> function_;
 
       friend class ConfigProjector;
     }; // class LockedJoint
