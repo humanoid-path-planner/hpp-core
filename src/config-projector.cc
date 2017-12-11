@@ -340,6 +340,11 @@ namespace hpp {
       if (!added) {
         hppDout (error, "Could not add LockedJoint " << lockedJoint->jointName_);
       }
+      if (added) {
+        solver_.explicitSolver().rightHandSide (
+            lockedJoint->function(),
+            lockedJoint->rightHandSide());
+      }
       solver_.explicitSolverHasChanged();
 
       lockedJoints_.push_back (lockedJoint);
