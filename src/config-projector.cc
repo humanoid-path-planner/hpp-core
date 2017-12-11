@@ -198,13 +198,13 @@ namespace hpp {
     void ConfigProjector::uncompressVector (vectorIn_t small,
 					    vectorOut_t normal) const
     {
-      solver_.explicitSolver().inDers().lviewTranspose(normal) = small;
+      solver_.explicitSolver().freeDers().lviewTranspose(normal) = small;
     }
 
     void ConfigProjector::compressVector (vectorIn_t normal,
 					  vectorOut_t small) const
     {
-      small = solver_.explicitSolver().inDers().rviewTranspose(normal);
+      small = solver_.explicitSolver().freeDers().rviewTranspose(normal);
     }
 
     void ConfigProjector::compressMatrix (matrixIn_t normal,
@@ -212,10 +212,10 @@ namespace hpp {
     {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixIn_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
-        const Eigen::ColBlockIndices& cols = solver_.explicitSolver().inDers();
+        const Eigen::ColBlockIndices& cols = solver_.explicitSolver().freeDers();
         small = View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices());
       } else {
-        small = solver_.explicitSolver().inDers().rview(normal);
+        small = solver_.explicitSolver().freeDers().rview(normal);
       }
     }
 
@@ -224,10 +224,10 @@ namespace hpp {
     {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixOut_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
-        const Eigen::ColBlockIndices& cols = solver_.explicitSolver().inDers();
+        const Eigen::ColBlockIndices& cols = solver_.explicitSolver().freeDers();
         View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices()) = small;
       } else {
-        solver_.explicitSolver().inDers().lview(normal) = small;
+        solver_.explicitSolver().freeDers().lview(normal) = small;
       }
     }
 
