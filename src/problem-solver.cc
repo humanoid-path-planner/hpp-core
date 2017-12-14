@@ -433,8 +433,12 @@ namespace hpp {
 
     void ProblemSolver::resetConstraints ()
     {
-      if (robot_)
+      if (robot_) {
 	constraints_ = ConstraintSet::create (robot_, "Default constraint set");
+        if (problem_) {
+          problem_->constraints (constraints_);
+        }
+      }
     }
 
     void ProblemSolver::addNumericalConstraintToConfigProjector
