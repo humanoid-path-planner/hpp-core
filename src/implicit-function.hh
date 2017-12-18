@@ -128,7 +128,7 @@ namespace hpp {
     template <typename LgT> void JacobianVisitor::operator () (const LgT&)
     {
       for (size_type i=0; i<outJacobian_.nbRows (); ++i) {
-        outJacobian_.lview (result_) (i, i) = 1;
+        outJacobian_.lview (result_).setIdentity ();
       }
       inJacobian_.lview (result_) = -Jf_;
     }
