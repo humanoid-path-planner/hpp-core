@@ -47,6 +47,7 @@ equation.cc
 interpolated-path.cc
 joint-bound-validation.cc
 locked-joint.cc
+path-validations.cc
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
   # nearest-neighbor/k-d-tree.cc #

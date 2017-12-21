@@ -48,6 +48,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
     HPP_PREDEF_CLASS (DiscretizedPathValidation);
+    HPP_PREDEF_CLASS (PathValidations);
     HPP_PREDEF_CLASS (Equation);
     HPP_PREDEF_CLASS (ExplicitNumericalConstraint);
     HPP_PREDEF_CLASS (ExplicitRelativeTransformation);
@@ -132,6 +133,8 @@ namespace hpp {
     DiscretizedCollisionCheckingPtr_t;
     typedef boost::shared_ptr <DiscretizedPathValidation>
     DiscretizedPathValidationPtr_t;
+    typedef boost::shared_ptr <PathValidations>
+    PathValidationsPtr_t;
     typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef boost::shared_ptr <DistanceBetweenObjects>
     DistanceBetweenObjectsPtr_t;
