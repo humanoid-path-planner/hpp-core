@@ -154,6 +154,7 @@ namespace hpp {
       pathPlannerType_ ("DiffusingPlanner"),
       target_ (problemTarget::GoalConfigurations::create(NULL)),
       initConf_ (), goalConfigurations_ (),
+      robotType_ ("hpp::pinocchio::Device"),
       configurationShooterType_ ("BasicConfigurationShooter"),
       distanceType_("WeighedDistance"),
       steeringMethodType_ ("Straight"),
@@ -168,6 +169,7 @@ namespace hpp {
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
+      add <RobotBuilder_t> (robotType_, Device_t::create);
       add <PathPlannerBuilder_t> ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
       add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
       add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
@@ -318,6 +320,23 @@ namespace hpp {
       if (robot_ && problem_) {
 	initPathProjector ();
       }
+    }
+
+    void ProblemSolver::robotType (const std::string& type)
+    {
+      robotType_ = type;
+    }
+
+    const std::string& ProblemSolver::robotType () const
+    {
+      return robotType_;
+    }
+
+    DevicePtr_t ProblemSolver::createRobot (const std::string& name)
+    {
+      RobotBuilder_t factory (get <RobotBuilder_t> (robotType_));
+      assert (factory);
+      return factory (name);
     }
 
     void ProblemSolver::robot (const DevicePtr_t& robot)

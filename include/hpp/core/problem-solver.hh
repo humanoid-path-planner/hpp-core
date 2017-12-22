@@ -33,6 +33,7 @@
 
 namespace hpp {
   namespace core {
+    typedef boost::function < DevicePtr_t (const std::string&) > RobotBuilder_t;
     typedef boost::function < PathOptimizerPtr_t (const Problem&) >
       PathOptimizerBuilder_t;
     typedef boost::function < PathPlannerPtr_t (const Problem&,
@@ -61,7 +62,8 @@ namespace hpp {
     class HPP_CORE_DLLAPI ProblemSolver :
       /// \cond
       public Containers <
-        boost::mpl::vector < PathPlannerBuilder_t,
+        boost::mpl::vector < RobotBuilder_t,
+                             PathPlannerBuilder_t,
                              PathOptimizerBuilder_t,
                              PathValidationBuilder_t,
                              PathProjectorBuilder_t,
@@ -89,6 +91,20 @@ namespace hpp {
 
       /// Destructor
       virtual ~ProblemSolver ();
+
+      /// Set robot type
+      /// \param type type of the robots that will be created later
+      void robotType (const std::string& type);
+
+      /// Get robot type
+      const std::string& robotType () const;
+
+      /// Create a robot of a type defined by method setRobotType
+      ///
+      /// \param name name of the robot
+      ///
+      /// Robot is stored in problemSolver.
+      DevicePtr_t createRobot (const std::string& name);
 
       /// Set robot
       virtual void robot (const DevicePtr_t& robot);
@@ -664,6 +680,8 @@ namespace hpp {
       ConfigurationPtr_t initConf_;
       /// Shared pointer to goal configuration.
       Configurations_t goalConfigurations_;
+      /// Robot type
+      std::string robotType_;
       /// Configuration shooter
       std::string configurationShooterType_;
       /// Steering method
