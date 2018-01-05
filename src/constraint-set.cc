@@ -136,5 +136,14 @@ namespace hpp {
       HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->uncompressMatrix (small, normal, rows);
     }
 
+    std::ostream& ConstraintSet::print (std::ostream& os) const
+    {
+      os << "Constraint set " << name () << ", contains" << incindent;
+      for (Constraints_t::const_iterator itConstraint = constraints_.begin ();
+          itConstraint != constraints_.end (); itConstraint++) {
+        os << iendl << **itConstraint;
+      }
+      return os << decindent;
+    }
   } // namespace core
 } // namespace core

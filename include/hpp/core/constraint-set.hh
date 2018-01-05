@@ -140,15 +140,7 @@ namespace hpp {
       }
       virtual bool impl_compute (ConfigurationOut_t configuration);
 
-      virtual std::ostream& print (std::ostream& os) const
-      {
-	os << "Constraint set " << name () << ", contains" << std::endl;
-	for (Constraints_t::const_iterator itConstraint = constraints_.begin ();
-	     itConstraint != constraints_.end (); itConstraint++) {
-	  os << "  " << **itConstraint << std::endl;
-	}
-	return os;
-      }
+      virtual std::ostream& print (std::ostream& os) const;
     private:
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
       {

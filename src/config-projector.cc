@@ -328,13 +328,10 @@ namespace hpp {
       constraints::ComparisonTypes_t types = lockedJoint->comparisonType();
 
       bool added = solver_.explicitSolver().add(lockedJoint->function(),
-          Eigen::RowBlockIndices(),
-          Eigen::RowBlockIndices(segment_t
-                                 (lockedJoint->rankInConfiguration(),
-                                  lockedJoint->configSize())),
-          Eigen::ColBlockIndices(),
-          Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
-                                            lockedJoint->numberDof())),
+          Eigen::RowBlockIndices(lockedJoint->inputConf()),
+          Eigen::RowBlockIndices(lockedJoint->outputConf()),
+          Eigen::ColBlockIndices(lockedJoint->inputVelocity()),
+          Eigen::RowBlockIndices(lockedJoint->outputVelocity()),
           types);
 
       if (!added) {
@@ -374,24 +371,20 @@ namespace hpp {
 
     std::ostream& ConfigProjector::print (std::ostream& os) const
     {
-      os << "Config projector: " << name () << ", contains" << std::endl;
+      os << "Config projector: " << name () << ", contains" << incindent;
       for (NumericalConstraints_t::const_iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
 	const DifferentiableFunction& f = (*it)->function ();
-	os << "    " << f << std::endl;
+	os << iendl << f;
       }
-      os << "    Locked dofs" << std::endl;
+      os << iendl << "Locked dofs";
       for (LockedJoints_t::const_iterator itLock = lockedJoints_.begin ();
           itLock != lockedJoints_.end (); ++itLock) {
 	const LockedJoint& lj (*(itLock->get ()));
-	os << "      ";
-	os << lj << std::endl;
+	os << iendl << lj << std::endl;
       }
-      os << "    Intervals: ";
-      // TODO add printer to MatrixBlockIndices
-      hppDout (info, solver_.explicitSolver().outDers());
-      os << std::endl;
-      return os;
+      os << iendl << "Intervals: " << solver_.explicitSolver().outDers();
+      return os << decindent;
     }
 
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config)

@@ -81,6 +81,27 @@ namespace hpp {
       /// Get number of degrees of freedom of the joint
       std::size_t numberDof () const;
 
+      /// Get output configuration variables
+      segments_t outputConf () const
+      {
+	return segments_t(1, segment_t (rankInConfiguration(), configSize()));
+      }
+      /// Get output degrees of freedom
+      segments_t outputVelocity () const
+      {
+	return segments_t(1, segment_t (rankInVelocity(), numberDof()));
+      }
+      /// Get input configuration variables
+      segments_t inputConf () const
+      {
+	return segments_t();
+      }
+      /// Get input degrees of freedom
+      segments_t inputVelocity () const
+      {
+	return segments_t();
+      }
+
       /// Get configuration space of locked joint
       const LiegroupSpacePtr_t& configSpace () const;
 
