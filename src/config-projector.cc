@@ -328,13 +328,10 @@ namespace hpp {
       constraints::ComparisonTypes_t types = lockedJoint->comparisonType();
 
       bool added = solver_.explicitSolver().add(lockedJoint->function(),
-          Eigen::RowBlockIndices(),
-          Eigen::RowBlockIndices(segment_t
-                                 (lockedJoint->rankInConfiguration(),
-                                  lockedJoint->configSize())),
-          Eigen::ColBlockIndices(),
-          Eigen::RowBlockIndices(segment_t (lockedJoint->rankInVelocity(),
-                                            lockedJoint->numberDof())),
+          Eigen::RowBlockIndices(lockedJoint->inputConf()),
+          Eigen::RowBlockIndices(lockedJoint->outputConf()),
+          Eigen::ColBlockIndices(lockedJoint->inputVelocity()),
+          Eigen::RowBlockIndices(lockedJoint->outputVelocity()),
           types);
 
       if (!added) {
