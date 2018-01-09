@@ -371,20 +371,8 @@ namespace hpp {
 
     std::ostream& ConfigProjector::print (std::ostream& os) const
     {
-      os << "Config projector: " << name () << ", contains" << incindent;
-      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
-	   it != functions_.end (); ++it) {
-	const DifferentiableFunction& f = (*it)->function ();
-	os << iendl << f;
-      }
-      os << iendl << "Locked dofs";
-      for (LockedJoints_t::const_iterator itLock = lockedJoints_.begin ();
-          itLock != lockedJoints_.end (); ++itLock) {
-	const LockedJoint& lj (*(itLock->get ()));
-	os << iendl << lj << std::endl;
-      }
-      os << iendl << "Intervals: " << solver_.explicitSolver().outDers();
-      return os << decindent;
+      return os << "Config projector: " << name () << ", contains "
+        << incindent << solver_ << decindent;
     }
 
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config)
