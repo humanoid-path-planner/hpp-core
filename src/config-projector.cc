@@ -98,7 +98,6 @@ namespace hpp {
       maxIterations  (_maxIterations);
       lastIsOptional (false);
       solver_.integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupTpl>, robot_, _1, _2, _3));
-      solver_.explicitSolver().difference (boost::bind(hpp::pinocchio::difference<se3::LieGroupTpl>, robot, _1, _2, _3));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
