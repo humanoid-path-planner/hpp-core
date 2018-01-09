@@ -185,7 +185,7 @@ namespace hpp {
       /// Get constraint dimension
       size_type dimension () const
       {
-	return solver_.dimension();
+	return solver_.reducedDimension();
       }
 
       /// Compress Velocity vector by removing locked degrees of freedom
