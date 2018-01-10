@@ -463,11 +463,8 @@ namespace hpp {
         BlockIndex::segments_t implicitBI, explicitBI;
 
         // Handle implicit part
-        if (hs.dimension() > 0) {
-          // This set of active parameters does not take the explicit
-          // function into accounts.
-          constraints::bool_array_t adp = hs.activeDerivativeParameters();
-          implicitBI = BlockIndex::fromLogicalExpression(adp);
+        if (hs.reducedDimension() > 0) {
+          implicitBI = hs.implicitDof();
 
           // Add active parameters from explicit solver.
           Eigen::ColBlockIndices esadp = es.activeDerivativeParameters();
