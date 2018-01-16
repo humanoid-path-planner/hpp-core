@@ -150,7 +150,7 @@ namespace hpp {
       /// Get the final configuration
       Configuration_t end () const
       {
-        return (--(configs_.end ()))->second;
+        return configs_.rbegin ()->second;
       }
 
       const InterpolationPoints_t& interpolationPoints () const
