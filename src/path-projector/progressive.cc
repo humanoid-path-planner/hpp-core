@@ -254,6 +254,13 @@ namespace hpp {
 	}
         assert (!pathIsFullyProjected ||
 		(d (proj->end (), path->end ()) == 0));
+        assert (proj->constraints ()->isSatisfied (proj->end ()));
+#ifndef NDEBUG
+        bool success;
+        Configuration_t q = (*proj) (proj->timeRange ().second, success);
+        assert (success);
+        assert (proj->constraints ()->isSatisfied (q));
+#endif
         return pathIsFullyProjected;
       }
     } // namespace pathProjector

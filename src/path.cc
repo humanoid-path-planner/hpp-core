@@ -19,7 +19,7 @@
 #include "extracted-path.hh"
 
 #include <hpp/util/debug.hh>
-
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/time-parameterization.hh>
 
 namespace hpp {
@@ -196,18 +196,29 @@ namespace hpp {
 
     void Path::checkPath () const
     {
+      using pinocchio::displayConfig;
       if (constraints()) {
         if (!constraints()->isSatisfied (initial())) {
+          std::stringstream oss;
           hppDout (error, *constraints());
           hppDout (error, initial().transpose ());
-          throw projection_error ("Initial configuration of path does not satisfy "
-              "the constraints");
+          oss << "Initial configuration of path does not satisfy the path "
+            "constraints: q=" << displayConfig (initial ()) << "; error=";
+          vector_t error;
+          constraints ()->isSatisfied (initial (), error);
+          oss << displayConfig (error) << ".";
+          throw projection_error (oss.str ().c_str ());
         }
         if (constraints() && !constraints()->isSatisfied (end())) {
+          std::stringstream oss;
           hppDout (error, *constraints());
           hppDout (error, end().transpose ());
-          throw projection_error ("End configuration of path does not satisfy "
-              "the constraints");
+          oss << "End configuration of path does not satisfy the path "
+            "constraints: q=" << displayConfig (initial ()) << "; error=";
+          vector_t error;
+          constraints ()->isSatisfied (end (), error);
+          oss << displayConfig (error) << ".";
+          throw projection_error (oss.str ().c_str ());
         }
       }
     }
