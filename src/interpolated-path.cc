@@ -131,6 +131,8 @@ namespace hpp {
       }
       assert (fabs (configs_.rbegin()->first - paramRange ().second)
           < Eigen::NumTraits<value_type>::dummy_precision());
+      assert (param < configs_.rbegin()->first +
+              Eigen::NumTraits<value_type>::dummy_precision());
       if (param >= configs_.rbegin()->first) {
 	param = configs_.rbegin()->first;
 	result.noalias () = end();
