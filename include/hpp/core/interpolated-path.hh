@@ -178,6 +178,10 @@ namespace hpp {
 		    ConfigurationIn_t end, value_type length,
 		    ConstraintSetPtr_t constraints);
 
+      /// DIscretization of a given path.
+      InterpolatedPath (const PathPtr_t& path, const DevicePtr_t& device,
+                        const std::size_t& nbSamples);
+
       /// Copy constructor
       InterpolatedPath (const InterpolatedPath& path);
 

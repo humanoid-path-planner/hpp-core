@@ -59,6 +59,30 @@ namespace hpp {
       assert (length >= 0);
     }
 
+    InterpolatedPath::InterpolatedPath (const PathPtr_t& path,
+                                        const DevicePtr_t& device,
+                                        const std::size_t& nbSamples) :
+      parent_t (interval_t (0, path->length ()), device->configSize (),
+		device->numberDof (), path->constraints ()), device_ (device)
+
+    {
+      assert (path->initial ().size() == device_->configSize ());
+      insert (0, path->initial ());
+      insert (path->length (), path->end ());
+      assert (device);
+      assert (path->length () >= 0);
+
+      const value_type dl = path->length () / (value_type) (nbSamples + 1);
+      Configuration_t q (device->configSize ());
+      for (std::size_t iS = 0; iS < nbSamples; ++iS) {
+        const value_type u = dl * (value_type) (iS + 1);
+        if (!(*path) (q, u))
+          throw projection_error ("could not build InterpolatedPath");
+        insert (u, q);
+      }
+
+    }
+
     InterpolatedPath::InterpolatedPath (const InterpolatedPath& path) :
       parent_t (path), device_ (path.device_), configs_ (path.configs_)
     {
@@ -77,21 +101,9 @@ namespace hpp {
     {
       // TODO: If it is a path vector, should we get the waypoints and build
       //       a interpolated path from those waypoints ?
-      InterpolatedPath* ptr = new InterpolatedPath (device,
-          path->initial (), path->end(), path->length(),
-          path->constraints ());
+      InterpolatedPath* ptr = new InterpolatedPath (path, device, nbSamples);
       InterpolatedPathPtr_t shPtr (ptr);
       ptr->init (shPtr);
-
-      const value_type dl = path->length () / (value_type) (nbSamples + 1);
-      Configuration_t q (device->configSize ());
-      for (std::size_t iS = 0; iS < nbSamples; ++iS) {
-        const value_type u = dl * (value_type) (iS + 1);
-        if (!(*path) (q, u))
-          throw projection_error ("could not build InterpolatedPath");
-        ptr->insert (u, q);
-      }
-
       return shPtr;
     }
 
