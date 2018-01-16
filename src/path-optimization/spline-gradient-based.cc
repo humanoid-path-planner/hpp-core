@@ -466,12 +466,8 @@ namespace hpp {
         if (hs.reducedDimension() > 0) {
           implicitBI = hs.implicitDof();
 
-          // Add active parameters from explicit solver.
-          Eigen::ColBlockIndices esadp = es.activeDerivativeParameters();
-          implicitBI.insert (implicitBI.end(),
-              esadp.indices().begin(), esadp.indices().end());
-          BlockIndex::sort(implicitBI);
-          BlockIndex::shrink(implicitBI);
+          hppDout (info, "Solver " << hs
+              << '\n' << Eigen::RowBlockIndices(implicitBI));
 
           // in the case of PR2 passing a box from right to left hand,
           // the double grasp is a loop closure so the DoF of the base are
