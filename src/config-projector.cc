@@ -97,7 +97,8 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_.integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupTpl>, robot_, _1, _2, _3));
+      solver_.integration(boost::bind(hpp::pinocchio::integrate<false, se3::LieGroupTpl>, robot_, _1, _2, _3));
+      solver_.saturation(boost::bind(hpp::pinocchio::saturate, robot_, _1, _2));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
