@@ -103,11 +103,11 @@ namespace hpp {
 
         // Retrieve velocity limits
         const DevicePtr_t& robot = problem().robot();
-        size_type d = robot->numberDof() - robot->extraConfigSpace().dimension();
         vector_t ub ( robot->model().velocityLimit),
                  lb (-robot->model().velocityLimit),
                  cb ((ub + lb) / 2);
-        assert (cb.size() == d);
+        assert (cb.size() + robot->extraConfigSpace().dimension()
+            == robot->numberDof());
 
         // The velocity must be in [lb, ub]
         ub = cb + safety * (ub - cb);
