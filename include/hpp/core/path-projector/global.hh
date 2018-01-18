@@ -18,6 +18,8 @@
 #ifndef HPP_CORE_PATHPROJECTOR_GLOBAL_HH
 # define HPP_CORE_PATHPROJECTOR_GLOBAL_HH
 
+# include <hpp/constraints/iterative-solver.hh> // lineSearch::FixedSequence
+
 # include <hpp/core/path-projector.hh>
 # include <hpp/core/config-projector.hh>
 

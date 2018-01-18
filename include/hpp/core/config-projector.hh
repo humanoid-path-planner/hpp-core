@@ -23,7 +23,7 @@
 
 # include <hpp/statistics/success-bin.hh>
 
-# include <hpp/constraints/hybrid-solver.hh>
+# include <hpp/constraints/fwd.hh>
 
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
@@ -31,9 +31,10 @@
 
 namespace hpp {
   namespace core {
+    typedef constraints::HybridSolver HybridSolver;
+
     /// \addtogroup constraints
     /// \{
-    typedef constraints::HybridSolver HybridSolver;
 
     /** Implicit non-linear constraint
 
@@ -77,6 +78,9 @@ namespace hpp {
       /// return shared pointer to copy
       virtual ConstraintPtr_t copy () const;
 
+      /// Destructor
+      virtual ~ConfigProjector ();
+
       /// Check that numerical constraint is in config projector
       /// \param numericalConstraint numerical constraint
       /// \return true if numerical constraint is already in config projector
@@ -97,15 +101,9 @@ namespace hpp {
 		const segments_t& passiveDofs = segments_t (0),
 		const std::size_t priority = 0);
 
-      void lastIsOptional (bool optional)
-      {
-        solver_.lastIsOptional(optional);
-      }
+      void lastIsOptional (bool optional);
 
-      bool lastIsOptional () const
-      {
-        return solver_.lastIsOptional();
-      }
+      bool lastIsOptional () const;
 
       /// Optimize the configuration while respecting the constraints
       /// The input configuration must already satisfy the constraints.
@@ -177,16 +175,10 @@ namespace hpp {
       /// \{
 
       /// Get number of non-locked degrees of freedom
-      size_type numberNonLockedDof () const
-      {
-	return solver_.explicitSolver().inDers().nbIndices();
-      }
+      size_type numberNonLockedDof () const;
 
       /// Get constraint dimension
-      size_type dimension () const
-      {
-	return solver_.reducedDimension();
-      }
+      size_type dimension () const;
 
       /// Compress Velocity vector by removing locked degrees of freedom
       ///
@@ -222,37 +214,18 @@ namespace hpp {
       /// \}
 
       /// Set maximal number of iterations
-      void maxIterations (size_type iterations)
-      {
-        solver_.maxIterations(iterations);
-      }
+      void maxIterations (size_type iterations);
       /// Get maximal number of iterations in config projector
-      size_type maxIterations () const
-      {
-	return solver_.maxIterations();
-      }
+      size_type maxIterations () const;
 
       /// Set error threshold
-      void errorThreshold (const value_type& threshold)
-      {
-        solver_.errorThreshold(threshold);
-        solver_.inequalityThreshold(threshold);
-      }
+      void errorThreshold (const value_type& threshold);
       /// Get errorimal number of threshold in config projector
-      value_type errorThreshold () const
-      {
-	return solver_.errorThreshold();
-      }
+      value_type errorThreshold () const;
 
-      value_type residualError() const
-      {
-        return solver_.residualError();
-      }
+      value_type residualError() const;
 
-      const value_type& sigma() const
-      {
-        return solver_.sigma();
-      }
+      const value_type& sigma() const;
 
       /// \name Right hand side of equalities - inequalities
       /// @{
@@ -331,7 +304,7 @@ namespace hpp {
 
       const HybridSolver& solver () const
       {
-        return solver_;
+        return *solver_;
       }
 
     protected:
@@ -373,10 +346,10 @@ namespace hpp {
         Default = FixedSequence
       };
       LineSearchType lineSearchType_;
-      HybridSolver solver_;
+      HybridSolver* solver_;
 
-      bool                 solverOneStep (ConfigurationOut_t config) const;
-      HybridSolver::Status solverSolve   (ConfigurationOut_t config) const;
+      bool solverOneStep (ConfigurationOut_t config) const;
+      int  solverSolve   (ConfigurationOut_t config) const;
 
       ConfigProjectorWkPtr_t weak_;
       ::hpp::statistics::SuccessStatistics statistics_;
