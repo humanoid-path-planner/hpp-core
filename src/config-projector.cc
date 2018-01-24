@@ -504,7 +504,7 @@ namespace hpp {
 
     size_type ConfigProjector::numberNonLockedDof () const
     {
-      return solver_->explicitSolver().inDers().nbIndices();
+      return solver_->explicitSolver().freeDers().nbIndices();
     }
 
     size_type ConfigProjector::dimension () const
