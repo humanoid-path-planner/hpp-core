@@ -200,6 +200,11 @@ namespace hpp {
 	assert (BlockIndex::cardinal (outputVelocity) ==
                 function->outputDerivativeSize ());
         computeJacobianBlocks ();
+
+        Eigen::RowBlockIndices (inputConfIntervals_) .lview (activeParameters_.matrix()).setConstant(true);
+        Eigen::RowBlockIndices (inputDerivIntervals_).lview (activeDerivativeParameters_.matrix()).setConstant(true);
+        Eigen::RowBlockIndices (outputConfIntervals_) .lview (activeParameters_.matrix()).setConstant(true);
+        Eigen::RowBlockIndices (outputDerivIntervals_).lview (activeDerivativeParameters_.matrix()).setConstant(true);
       }
 
       /// Compute q_{output} - f (q_{input})
