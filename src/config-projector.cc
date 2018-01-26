@@ -26,9 +26,12 @@
 #include <hpp/util/timer.hh>
 
 #include <pinocchio/multibody/liegroup/liegroup.hpp>
+#include <pinocchio/multibody/model.hpp>
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/extra-config-space.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
@@ -54,6 +57,47 @@ namespace hpp {
         return constraints::ActiveSetDifferentiableFunctionPtr_t (new constraints::ActiveSetDifferentiableFunction(function, pdofs));
       }
 
+      bool saturate (const DevicePtr_t& robot, vectorIn_t q, Eigen::VectorXi& sat)
+      {
+        bool ret = false;
+        const se3::Model& model = robot->model();
+
+        for (std::size_t i = 1; i < model.joints.size(); ++i) {
+          const size_type nq = model.joints[i].nq();
+          const size_type nv = model.joints[i].nv();
+          const size_type idx_q = model.joints[i].idx_q();
+          const size_type idx_v = model.joints[i].idx_v();
+          for (size_type j = 0; j < nq; ++j) {
+            const size_type iq = idx_q + j;
+            const size_type iv = idx_v + std::min(j,nv-1);
+            if        (q[iq] >= model.upperPositionLimit[iq]) {
+              sat[iv] =  1;
+              ret = true;
+            } else if (q[iq] <= model.lowerPositionLimit[iq]) {
+              sat[iv] = -1;
+              ret = true;
+            } else
+              sat[iv] =  0;
+          }
+        }
+
+        const hpp::pinocchio::ExtraConfigSpace& ecs = robot->extraConfigSpace();
+        const size_type& d = ecs.dimension();
+
+        for (size_type k = 0; k < d; ++k) {
+          const size_type iq = model.nq + k;
+          const size_type iv = model.nv + k;
+          if        (q[iq] >= ecs.upper(k)) {
+            sat[iv] =  1;
+            ret = true;
+          } else if (q[iq] <= ecs.lower(k)) {
+            sat[iv] = -1;
+            ret = true;
+          } else
+            sat[iv] =  0;
+        }
+        return ret;
+      }
     }
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
@@ -98,8 +142,8 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->integration(boost::bind(hpp::pinocchio::integrate<false, se3::LieGroupTpl>, robot_, _1, _2, _3));
-      solver_->saturation(boost::bind(hpp::pinocchio::saturate, robot_, _1, _2));
+      solver_->integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupTpl>, robot_, _1, _2, _3));
+      solver_->saturation(boost::bind(saturate, robot_, _1, _2));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
