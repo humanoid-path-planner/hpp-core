@@ -22,8 +22,6 @@
 
 # include <hpp/pinocchio/device.hh>
 
-# include <hpp/constraints/matrix-view.hh>
-
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 

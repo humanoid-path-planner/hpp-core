@@ -106,7 +106,6 @@ namespace hpp {
       Constraint (cp), robot_ (cp.robot_),
       functions_ (cp.functions_),
       lockedJoints_ (),
-      rightHandSide_ (cp.rightHandSide_),
       toMinusFrom_ (cp.toMinusFrom_.size ()),
       projMinusFrom_ (cp.projMinusFrom_.size ()),
       lineSearchType_ (cp.lineSearchType_),

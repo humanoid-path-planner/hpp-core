@@ -335,7 +335,6 @@ namespace hpp {
       DevicePtr_t robot_;
       NumericalConstraints_t functions_;
       LockedJoints_t lockedJoints_;
-      vector_t rightHandSide_;
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
 
