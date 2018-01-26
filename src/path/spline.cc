@@ -204,6 +204,7 @@ namespace hpp {
         void spline_basis_function<BernsteinBasis, Degree>::bound
         (const size_type& order, const value_type& t0, const value_type& t1, Coeffs_t& res)
         {
+          (void)order; // Suppress unused warning when NDEBUG
           assert(order == 1);
           static const Coeffs_t b_up = absBound(true);
           static const Coeffs_t b_um = absBound(false);
