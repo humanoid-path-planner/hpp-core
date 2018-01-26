@@ -236,8 +236,10 @@ namespace hpp {
     (ConfigurationIn_t configuration, vectorOut_t value,
      matrixOut_t reducedJacobian)
     {
-      solver_->computeValue<true>(configuration);
-      solver_->updateJacobian(configuration); // includes the jacobian of the explicit system
+      Configuration_t q (configuration);
+      solver_->explicitSolver().solve(q);
+      solver_->computeValue<true>(q);
+      solver_->updateJacobian(q); // includes the jacobian of the explicit system
       solver_->getValue(value);
       solver_->getReducedJacobian(reducedJacobian);
     }
