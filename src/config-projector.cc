@@ -203,13 +203,13 @@ namespace hpp {
     void ConfigProjector::uncompressVector (vectorIn_t small,
 					    vectorOut_t normal) const
     {
-      solver_->explicitSolver().freeDers().lviewTranspose(normal) = small;
+      solver_->explicitSolver().freeDers().transpose().lview(normal) = small;
     }
 
     void ConfigProjector::compressVector (vectorIn_t normal,
 					  vectorOut_t small) const
     {
-      small = solver_->explicitSolver().freeDers().rviewTranspose(normal);
+      small = solver_->explicitSolver().freeDers().transpose().rview(normal);
     }
 
     void ConfigProjector::compressMatrix (matrixIn_t normal,
