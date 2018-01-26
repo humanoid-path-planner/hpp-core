@@ -212,7 +212,7 @@ namespace hpp {
         if (constraints() && !constraints()->isSatisfied (end())) {
           std::stringstream oss;
           hppDout (error, *constraints());
-          hppDout (error, end().transpose ());
+          hppDout (error, displayConfig (end()));
           oss << "End configuration of path does not satisfy the path "
             "constraints: q=" << displayConfig (initial ()) << "; error=";
           vector_t error;
