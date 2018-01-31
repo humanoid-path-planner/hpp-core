@@ -117,11 +117,12 @@ namespace hpp {
       matrix6_t Jlog_Mf_inverse_Mout;
       constraints::JlogSE3 (Mf_inverse_Mout, Jlog_Mf_inverse_Mout);
       outJacobian_.lview (result_) = Jlog_Mf_inverse_Mout;
-      matrix_t inJ (6, Jf_.cols ());
-      inJ.topRows <3> () =
-        Rout.transpose () * se3::skew (pOut - pf) * Rf * Jf_.bottomRows <3> ()
-        - Rout.transpose () * Rf * Jf_.topRows <3> ();
-      inJ.bottomRows <3> () = -Rout.transpose () * Rf * Jf_.bottomRows <3> ();
+      JointJacobian_t inJ (6, Jf_.cols ());
+      inJ.topRows <3> ().noalias() =
+        (Rout.transpose () * se3::skew (pOut - pf) * Rf ) * Jf_.bottomRows <3> ();
+      inJ.topRows <3> ().noalias() -=
+        ( Rout.transpose () * Rf ) * Jf_.topRows <3> ();
+      inJ.bottomRows <3> ().noalias() = ( - Rout.transpose () * Rf )* Jf_.bottomRows <3> ();
       inJacobian_.lview (result_) = Jlog_Mf_inverse_Mout * inJ;
     }
 
@@ -198,10 +199,10 @@ namespace hpp {
                 function->outputDerivativeSize ());
         computeJacobianBlocks ();
 
-        Eigen::RowBlockIndices (inputConfIntervals_) .lview (activeParameters_.matrix()).setConstant(true);
-        Eigen::RowBlockIndices (inputDerivIntervals_).lview (activeDerivativeParameters_.matrix()).setConstant(true);
-        Eigen::RowBlockIndices (outputConfIntervals_) .lview (activeParameters_.matrix()).setConstant(true);
-        Eigen::RowBlockIndices (outputDerivIntervals_).lview (activeDerivativeParameters_.matrix()).setConstant(true);
+        inputConfIntervals_ .lview (activeParameters_.matrix()).setConstant(true);
+        inputDerivIntervals_.lview (activeDerivativeParameters_.matrix()).setConstant(true);
+        outputConfIntervals_ .lview (activeParameters_.matrix()).setConstant(true);
+        outputDerivIntervals_.lview (activeDerivativeParameters_.matrix()).setConstant(true);
       }
 
       /// Compute q_{output} - f (q_{input})
@@ -210,12 +211,10 @@ namespace hpp {
         using Eigen::MatrixBlocks;
         hppDout (info, "argument=" << argument.transpose ());
         // Store q_{output} in result
-        qOut_.vector () = MatrixBlocks <false, true>
-          (outputConfIntervals_).rview (argument);
+        qOut_.vector () = outputConfIntervals_.rview (argument);
         hppDout (info, "qOut_=" << qOut_);
         // fill in q_{input}
-        qIn_ = MatrixBlocks <false, true>
-          (inputConfIntervals_).rview (argument);
+        qIn_ = inputConfIntervals_.rview (argument);
         hppDout (info, "qIn_=" << qIn_);
         // compute  f (q_{input}) -> output_
 	inputToOutput_->value (f_qIn_, qIn_);
@@ -234,7 +233,6 @@ namespace hpp {
         hppDout (info, "Jf_=" << std::endl << Jf_);
         // Fill Jacobian by set of lines corresponding to the types of Lie group
         // that compose the outputspace of input to output function.
-        segments_t outConfSegments (outputConfIntervals_);
         for (std::vector <LiegroupType>::const_iterator it =
                inputToOutput_->outputSpace ()-> liegroupTypes ().begin ();
              it != inputToOutput_->outputSpace ()-> liegroupTypes ().end ();
@@ -255,7 +253,7 @@ namespace hpp {
     private:
       void computeJacobianBlocks ()
       {
-        segments_t remainingCols (outputDerivIntervals_);
+        segments_t remainingCols (outputDerivIntervals_.indices());
         segments_t cols;
         size_type iv = 0, nv;
         std::size_t rank = 0;
@@ -269,7 +267,7 @@ namespace hpp {
           outJacobian_.push_back (Eigen::MatrixBlocks <false, false>
                                   (rows, cols));
           inJacobian_.push_back (Eigen::MatrixBlocks <false, false>
-                                 (rows, inputDerivIntervals_));
+                                 (rows, inputDerivIntervals_.indices()));
           //
           iv += nv;
           ++rank;
@@ -278,10 +276,10 @@ namespace hpp {
 
       DevicePtr_t robot_;
       DifferentiableFunctionPtr_t inputToOutput_;
-      segments_t inputConfIntervals_;
-      segments_t inputDerivIntervals_;
-      segments_t outputConfIntervals_;
-      segments_t outputDerivIntervals_;
+      Eigen::RowBlockIndices inputConfIntervals_;
+      Eigen::RowBlockIndices inputDerivIntervals_;
+      Eigen::RowBlockIndices outputConfIntervals_;
+      Eigen::RowBlockIndices outputDerivIntervals_;
       std::vector <Eigen::MatrixBlocks <false, false> > outJacobian_;
       std::vector <Eigen::MatrixBlocks <false, false> > inJacobian_;
       mutable vector_t qIn_;
