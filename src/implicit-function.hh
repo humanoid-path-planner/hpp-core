@@ -127,12 +127,9 @@ namespace hpp {
 
     template <typename LgT> void JacobianVisitor::operator () (const LgT&)
     {
-      for (size_type i=0; i<outJacobian_.nbRows (); ++i) {
-        outJacobian_.lview (result_).setIdentity ();
-      }
-      inJacobian_.lview (result_) = -Jf_;
+      outJacobian_.lview (result_).setIdentity ();
+      inJacobian_ .lview (result_) = -Jf_;
     }
-      
 
     HPP_PREDEF_CLASS (ImplicitFunction);
     typedef boost::shared_ptr <ImplicitFunction> ImplicitFunctionPtr_t;
