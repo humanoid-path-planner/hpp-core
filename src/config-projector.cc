@@ -214,6 +214,11 @@ namespace hpp {
             Eigen::ColBlockIndices(enm->inputVelocity()),
             Eigen::RowBlockIndices(enm->outputVelocity()),
             types);
+        if (addedAsExplicit && enm->outputFunction() && enm->outputFunctionInverse()) {
+          bool ok = solver_->explicitSolver().setG (enm->explicitFunction(),
+              enm->outputFunction(), enm->outputFunctionInverse());
+          assert (ok);
+        }
         if (!addedAsExplicit) {
           hppDout (info, "Could not treat " <<
               enm->explicitFunction()->name() << " as an explicit function."

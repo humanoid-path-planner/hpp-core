@@ -109,5 +109,13 @@ namespace hpp {
       outputConf_ (other.outputConf_), outputVelocity_ (other.outputVelocity_)
     {
     }
+
+    void ExplicitNumericalConstraint::setOutputFunctions (
+        const DifferentiableFunctionPtr_t& of,
+        const DifferentiableFunctionPtr_t& ofinv)
+    {
+      g_ = of;
+      ginv_ = ofinv;
+    }
   } // namespace core
 } // namespace hpp

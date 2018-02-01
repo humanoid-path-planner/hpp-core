@@ -156,6 +156,19 @@ namespace hpp {
         return inputToOutput_;
       }
 
+      inline DifferentiableFunctionPtr_t outputFunction() const
+      {
+        return g_;
+      }
+
+      inline DifferentiableFunctionPtr_t outputFunctionInverse() const
+      {
+        return ginv_;
+      }
+
+      void setOutputFunctions (const DifferentiableFunctionPtr_t& of,
+          const DifferentiableFunctionPtr_t& ofinv);
+
       /// Get output configuration variables
       const segments_t& outputConf () const
       {
@@ -216,7 +229,7 @@ namespace hpp {
 	}
     private:
       // Relation between input and output configuration variables
-      DifferentiableFunctionPtr_t inputToOutput_;
+      DifferentiableFunctionPtr_t inputToOutput_, g_, ginv_;
       segments_t inputConf_;
       segments_t inputVelocity_;
       segments_t outputConf_;
