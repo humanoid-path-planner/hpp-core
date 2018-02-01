@@ -260,6 +260,9 @@ namespace hpp {
 #ifndef NDEBUG
         bool success;
         Configuration_t q = (*proj) (proj->timeRange ().second, success);
+        if (!success) {
+          q = (*proj) (proj->timeRange ().second, success);
+        }
         assert (success);
         assert (proj->constraints ()->isSatisfied (q));
 #endif
