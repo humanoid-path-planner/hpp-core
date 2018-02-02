@@ -100,6 +100,13 @@ namespace hpp {
       }
     }
 
+    ConfigProjector::LineSearchType ConfigProjector::defaultLineSearch_ = ConfigProjector::FixedSequence;
+
+    void ConfigProjector::defaultLineSearch (LineSearchType ls)
+    {
+      defaultLineSearch_ = ls;
+    }
+
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
     HPP_DEFINE_REASON_FAILURE (REASON_ERROR_INCREASED, "Error increased");
     HPP_DEFINE_REASON_FAILURE (REASON_INFEASIBLE, "Problem infeasible");
@@ -133,8 +140,7 @@ namespace hpp {
       lockedJoints_ (),
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
-      lineSearchType_ (Default),
-      // lineSearchType_ (Backtracking),
+      lineSearchType_ (defaultLineSearch_),
       solver_ (new HybridSolver (robot->configSize(), robot->numberDof())),
       weak_ (),
       statistics_ ("ConfigProjector " + name)
@@ -512,6 +518,10 @@ namespace hpp {
                                constraints::lineSearch::FixedSequence ls;
                                return solver_->oneStep(config, ls);
                              }
+        case Constant : {
+                          constraints::lineSearch::Constant ls;
+                          return solver_->oneStep(config, ls);
+                        }
       }
       return false;
     }
@@ -532,6 +542,10 @@ namespace hpp {
                                constraints::lineSearch::FixedSequence ls;
                                return solver_->solve(config, ls);
                              }
+        case Constant : {
+                          constraints::lineSearch::Constant ls;
+                          return solver_->solve(config, ls);
+                        }
       }
       throw std::runtime_error ("Unknow line search type");
       return HybridSolver::MAX_ITERATION_REACHED;

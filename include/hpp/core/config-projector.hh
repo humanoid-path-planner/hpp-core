@@ -60,6 +60,13 @@ namespace hpp {
     class HPP_CORE_DLLAPI ConfigProjector : public Constraint
     {
     public:
+      enum LineSearchType {
+        Backtracking,
+        ErrorNormBased,
+        FixedSequence,
+        Constant
+      };
+
       /// Return shared pointer to new object
       /// \param robot robot the constraint applies to.
       /// \param errorThreshold norm of the value of the constraint under which
@@ -307,6 +314,8 @@ namespace hpp {
         return *solver_;
       }
 
+      static void defaultLineSearch (LineSearchType ls);
+
     protected:
       /// Constructor
       /// \param robot robot the constraint applies to.
@@ -338,12 +347,7 @@ namespace hpp {
       mutable vector_t toMinusFrom_;
       mutable vector_t projMinusFrom_;
 
-      enum LineSearchType {
-        Backtracking,
-        ErrorNormBased,
-        FixedSequence,
-        Default = FixedSequence
-      };
+      static LineSearchType defaultLineSearch_;
       LineSearchType lineSearchType_;
       HybridSolver* solver_;
 
