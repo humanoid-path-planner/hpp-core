@@ -148,6 +148,7 @@ namespace hpp {
         // J2_parent_minus_J1_ = - J1;
       }
 
+      matrix3_t R2t_R1 (R2.transpose() * R1);
       // Express velocity of J1 * M1/J1 * M2/J2^{-1} in J2_{parent}.
       if (parentJoint_) {
         const matrix3_t&       R2_parent (parentJoint_->currentTransformation().rotation());
@@ -158,8 +159,8 @@ namespace hpp {
             - cross2_ * omega(J2_parent)
             - trans(J2_parent_minus_J1_));
       } else {
-        tmpJac_.noalias() = R2.transpose() *
-          ( (- cross1_ * R1) * omega(J1) + R1 * trans(J1));
+        tmpJac_.noalias()  = (- R2.transpose() * cross1_ * R1) * omega(J1);
+        tmpJac_.noalias() += R2t_R1 * trans(J1);
       }
 
       jacobian.topRows<3>() = inVel_.rview(tmpJac_);
@@ -173,7 +174,7 @@ namespace hpp {
         tmpJac_.noalias() = ( R2.transpose() * R2_parent ) * omega(J2_parent)
           - (R2.transpose() * R1) * omega(J1);
       } else {
-        tmpJac_.noalias() = ( R2.transpose() * R1 ) * omega(J1);
+        tmpJac_.noalias() = R2t_R1 * omega(J1);
       }
 
       jacobian.bottomRows<3>() = inVel_.rview(tmpJac_);

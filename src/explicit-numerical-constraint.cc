@@ -22,8 +22,6 @@
 
 namespace hpp {
   namespace core {
-    HPP_PREDEF_CLASS (ImplicitFunction);
-    typedef boost::shared_ptr <ImplicitFunction> ImplicitFunctionPtr_t;
     void complement (size_type size, const segments_t& intervals,
 		     segments_t& result)
     {
