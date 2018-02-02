@@ -86,7 +86,7 @@ namespace hpp {
      const segments_t& inputVelocity,
      const segments_t& outputConf,
      const segments_t& outputVelocity) :
-      NumericalConstraint (ImplicitFunction::create
+      NumericalConstraint (BasicImplicitFunction::create
 			   (robot, explicitFunction, inputConf, inputVelocity,
                             outputConf, outputVelocity),
 			   ComparisonTypes_t(Eigen::BlockIndex::cardinal
