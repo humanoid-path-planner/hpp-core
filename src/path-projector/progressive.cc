@@ -159,6 +159,8 @@ namespace hpp {
 
           if (toSplit->length () < threshold) {
             paths.push (toSplit);
+            assert (constraints->isSatisfied (toSplit->initial ()));
+            assert (constraints->isSatisfied (toSplit->end ()));
             totalLength += toSplit->length ();
             pathIsFullyProjected = true;
             break;
@@ -184,7 +186,10 @@ namespace hpp {
             dicC++;
           } while (curLength > threshold || curLength < 1e-3);
           if (dicC >= maxDichotomyTries || c > maxPathSplit) break;
+          // if qi failed to be projected, stop.
+          if (!constraints->isSatisfied (qi)) break;
 	  assert (curLength == d (qb, qi));
+          assert (constraints->isSatisfied (qi));
 
           if (withHessianBound_) {
             /// Update sigma
@@ -195,6 +200,8 @@ namespace hpp {
 
           PathPtr_t part = steer (qb, qi);
           paths.push (part);
+          assert (constraints->isSatisfied (part->initial ()));
+          assert (constraints->isSatisfied (part->end ()));
           totalLength += part->length ();
           min = std::min(min, part->length());
           max = std::max(max, part->length());
@@ -261,7 +268,8 @@ namespace hpp {
         bool success;
         Configuration_t q = (*proj) (proj->timeRange ().second, success);
         assert (success);
-        assert (proj->constraints ()->isSatisfied (q));
+        vector_t error;
+        assert (proj->constraints ()->isSatisfied (q, error));
 #endif
         return pathIsFullyProjected;
       }
