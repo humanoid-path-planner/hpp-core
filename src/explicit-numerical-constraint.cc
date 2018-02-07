@@ -51,6 +51,23 @@ namespace hpp {
 
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
     (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+     const DifferentiableFunctionPtr_t& g,
+     const DifferentiableFunctionPtr_t& ginv,
+     const segments_t& inputConf,
+     const segments_t& inputVelocity,
+     const segments_t& outputConf,
+     const segments_t& outputVelocity)
+    {
+      ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
+	(robot, function, g, ginv, inputConf, inputVelocity, outputConf, outputVelocity);
+      ExplicitNumericalConstraintPtr_t shPtr (ptr);
+      ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
+      ptr->init (wkPtr);
+      return shPtr;
+    }
+
+    ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
+    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
      const segments_t& inputConf,
      const segments_t& inputVelocity,
      const segments_t& outputConf,
@@ -82,6 +99,28 @@ namespace hpp {
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
+     const DifferentiableFunctionPtr_t& g,
+     const DifferentiableFunctionPtr_t& ginv,
+     const segments_t& inputConf,
+     const segments_t& inputVelocity,
+     const segments_t& outputConf,
+     const segments_t& outputVelocity) :
+      NumericalConstraint (GenericImplicitFunction::create
+			   (robot, explicitFunction, g, inputConf, inputVelocity,
+                            outputConf, outputVelocity),
+			   ComparisonTypes_t(Eigen::BlockIndex::cardinal
+                                             (outputVelocity),
+                                             constraints::EqualToZero)),
+      inputToOutput_ (explicitFunction), g_ (g), ginv_ (ginv),
+      inputConf_ (inputConf),
+      inputVelocity_ (inputVelocity),
+      outputConf_ (outputConf),
+      outputVelocity_ (outputVelocity)
+    {
+    }
+
+    ExplicitNumericalConstraint::ExplicitNumericalConstraint
+    (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& explicitFunction,
      const segments_t& inputConf,
      const segments_t& inputVelocity,
      const segments_t& outputConf,
@@ -106,14 +145,6 @@ namespace hpp {
       inputConf_ (other.inputConf_), inputVelocity_ (other.inputVelocity_),
       outputConf_ (other.outputConf_), outputVelocity_ (other.outputVelocity_)
     {
-    }
-
-    void ExplicitNumericalConstraint::setOutputFunctions (
-        const DifferentiableFunctionPtr_t& of,
-        const DifferentiableFunctionPtr_t& ofinv)
-    {
-      g_ = of;
-      ginv_ = ofinv;
     }
   } // namespace core
 } // namespace hpp

@@ -147,6 +147,28 @@ namespace hpp {
 	 const segments_t& outputConf,
 	 const segments_t& outputVelocity);
 
+      /// Create instance and return shared pointer
+      ///
+      /// \param robot Robot for which the constraint is defined.
+      /// \param function relation between input configuration variables and
+      ///        output configuration variables,
+      /// \param g,ginv
+      /// \param outputConf set of integer intervals defining indices
+      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
+      /// \param outputVeclocity set of integer defining indices
+      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
+      /// \param rhs        right hand side.
+      /// \note comparison type for this constraint is always equality
+      static ExplicitNumericalConstraintPtr_t create
+        (const DevicePtr_t& robot,
+         const DifferentiableFunctionPtr_t& function,
+         const DifferentiableFunctionPtr_t& g,
+         const DifferentiableFunctionPtr_t& ginv,
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
+
       /// Create a copy and return shared pointer
       static ExplicitNumericalConstraintPtr_t createCopy
 	(const ExplicitNumericalConstraintPtr_t& other);
@@ -165,9 +187,6 @@ namespace hpp {
       {
         return ginv_;
       }
-
-      void setOutputFunctions (const DifferentiableFunctionPtr_t& of,
-          const DifferentiableFunctionPtr_t& ofinv);
 
       /// Get output configuration variables
       const segments_t& outputConf () const
@@ -203,6 +222,27 @@ namespace hpp {
       /// \note comparison type for this constraint is always equality
       ExplicitNumericalConstraint
 	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
+
+      /// Constructor
+      ///
+      /// \param robot Robot for which the constraint is defined.
+      /// \param function relation between input configuration variables and
+      ///        output configuration variables,
+      /// \param g, ginv
+      /// \param outputConf set of integer intervals defining indices
+      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
+      /// \param outputVeclocity set of integer defining indices
+      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
+      /// \param rhs        right hand side.
+      /// \note comparison type for this constraint is always equality
+      ExplicitNumericalConstraint
+	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+         const DifferentiableFunctionPtr_t& g,
+         const DifferentiableFunctionPtr_t& ginv,
 	 const segments_t& inputConf,
 	 const segments_t& inputVelocity,
 	 const segments_t& outputConf,
