@@ -28,12 +28,47 @@
 namespace hpp {
   namespace core {
 
+    typedef Eigen::Quaternion<value_type> Quat_t;
+    typedef Eigen::Map<Quat_t > QuatMap_t;
+    typedef Eigen::Map<const Quat_t > QuatConstMap_t;
     typedef hpp::pinocchio::liegroup::VectorSpaceOperation <3, false> R3;
     typedef hpp::pinocchio::liegroup::SpecialOrthogonalOperation <3> SO3;
     typedef hpp::pinocchio::liegroup::CartesianProductOperation <R3, SO3>
     R3xSO3;
     typedef se3::SpecialEuclideanOperation <3> SE3;
     typedef hpp::pinocchio::LiegroupType LiegroupType;
+
+    struct ValueVisitor : public boost::static_visitor <>
+    {
+      ValueVisitor (vectorIn_t qOut, vectorIn_t f_qIn, const size_type nv) :
+        qOut_ (qOut), f_qIn_ (f_qIn), result_ (nv)
+      {}
+
+      template <typename LgT> void operator () (const LgT&)
+      {
+        LgT::difference (f_qIn_, qOut_, result_);
+      }
+
+      vectorIn_t qOut_, f_qIn_;
+      vector_t result_;
+    }; // struct JacobianVisitor
+
+    template <> inline void ValueVisitor::operator () <SE3> (const SE3&)
+    {
+      Transform3f Mout (
+          QuatConstMap_t (qOut_.tail <4>().data()).toRotationMatrix (),
+          qOut_.head <3> ());
+      Transform3f Mf   (
+          QuatConstMap_t (f_qIn_.tail <4>().data()).toRotationMatrix (),
+          f_qIn_.head <3> ());
+      // \f$Mf^{-1} M_{out}\f$
+      Transform3f Mf_inverse_Mout (Mf.inverse () * Mout);
+
+      result_.head <3>() = Mf_inverse_Mout.translation();
+
+      value_type theta;
+      constraints::logSO3 (Mf_inverse_Mout.rotation(), theta, result_.tail<3>());
+    }
 
     template <bool GisIdentity> struct JacobianVisitor;
 
@@ -106,32 +141,37 @@ namespace hpp {
         // extract 3 top rows of inJacobian_
         assert (v.qOut_.size () == 7);
         assert (v.f_qIn_.size () == 7);
-        matrix3_t Rout (Eigen::Quaterniond (v.qOut_.template tail <4> ()).
-            toRotationMatrix ());
-        vector3_t pOut (v.qOut_.template head <3> ());
-        Transform3f Mout (Rout, pOut);
-        matrix3_t Rf (Eigen::Quaterniond (v.f_qIn_.template tail <4> ()).
-            toRotationMatrix ());
-        vector3_t pf (v.f_qIn_.template head <3> ());
-        Transform3f Mf (Rf, pf);
+
+        Transform3f Mout (
+            QuatConstMap_t (v.qOut_.template tail <4>().data()).toRotationMatrix (),
+            v.qOut_.template head <3> ());
+        Transform3f Mf (
+            QuatConstMap_t (v.f_qIn_.template tail <4> ().data()).toRotationMatrix (),
+            v.f_qIn_.template head <3> ());
         // \f$Mf^{-1} M_{out}\f$
         Transform3f Mf_inverse_Mout (Mf.inverse () * Mout);
-        matrix6_t Jlog_Mf_inverse_Mout;
-        constraints::JlogSE3 (Mf_inverse_Mout, Jlog_Mf_inverse_Mout);
+        matrix6_t Jout (matrix6_t::Zero());
+        matrix3_t Jlog;
+        vector3_t r;
+        value_type theta;
+        constraints::logSO3 (Mf_inverse_Mout.rotation(), theta, r);
+        constraints::JlogSO3 (theta, r, Jlog);
+        Jout.    topLeftCorner<3,3>() = Mf_inverse_Mout.rotation();
+        Jout.bottomRightCorner<3,3>() = Jlog;
 
         if (GisIdentity)
-          v.outJacobian_.lview (v.result_) = Jlog_Mf_inverse_Mout;
+          v.outJacobian_.lview (v.result_) = Jout;
         else
-          v.outJacobian_.lview (v.result_) = Jlog_Mf_inverse_Mout * v.Jg_;
+          v.outJacobian_.lview (v.result_) = Jout * v.Jg_;
 
+        Jout.    topLeftCorner<3,3>().setIdentity();
         JointJacobian_t inJ (6, v.Jf_.cols ());
         inJ.topRows <3> ().noalias() =
-          (Rout.transpose () * se3::skew (pOut - pf) * Rf ) * v.Jf_.template bottomRows <3> ();
-        inJ.topRows <3> ().noalias() -=
-          ( Rout.transpose () * Rf ) * v.Jf_.template topRows <3> ();
-        inJ.bottomRows <3> ().noalias() = ( - Rout.transpose () * Rf )* v.Jf_.template bottomRows <3> ();
+          se3::skew (Mf_inverse_Mout.translation()) * v.Jf_.template bottomRows <3> ();
+        inJ.topRows <3> ().noalias() -= v.Jf_.template topRows <3> ();
+        inJ.bottomRows <3> ().noalias() = - Mf_inverse_Mout.rotation().transpose() * v.Jf_.template bottomRows <3> ();
 
-        v.inJacobian_.lview (v.result_) = Jlog_Mf_inverse_Mout * inJ;
+        v.inJacobian_.lview (v.result_) = Jout * inJ;
       }
     };
 
@@ -257,6 +297,7 @@ namespace hpp {
         // Store q_{output} in result
         qOut_.vector () = outputConfIntervals_.rview (argument);
         hppDout (info, "qOut_=" << qOut_);
+        gData_.computeValue(qOut_);
         const LiegroupElement& g_qOut (gData_.value(qOut_));
         hppDout (info, "g_qOut_=" << g_qOut);
         // fill in q_{input}
@@ -265,7 +306,24 @@ namespace hpp {
         // compute  f (q_{input}) -> output_
 	inputToOutput_->value (f_qIn_, qIn_);
         hppDout (info, "f_qIn_=" << f_qIn_);
-	result.vector () = g_qOut - f_qIn_;
+        // Fill result
+        size_type iq = 0, iv = 0, nq, nv;
+        std::size_t rank = 0;
+        for (std::vector <LiegroupType>::const_iterator it =
+               f_qIn_.space()-> liegroupTypes ().begin ();
+             it != f_qIn_.space()-> liegroupTypes ().end ();
+             ++it) {
+          nq = f_qIn_.space()->nq (rank);
+          nv = f_qIn_.space()->nv (rank);
+          ValueVisitor v (g_qOut.vector ().segment (iq, nq),
+                          f_qIn_.vector ().segment (iq, nq),
+                          nv);
+          boost::apply_visitor (v, *it);
+          result.vector ().segment (iv, nv) = v.result_;
+          iq += nq;
+          iv += nv;
+          ++rank;
+        }
         hppDout (info, "result=" << result);
       }
 
@@ -279,7 +337,8 @@ namespace hpp {
         impl_compute (result_, arg);
         inputToOutput_->jacobian (Jf_, qIn_);
         hppDout (info, "Jf_=" << std::endl << Jf_);
-        matrix_t& Jg (gData_.jacobian (qOut_));
+        const matrix_t& Jg (gData_.jacobian (qOut_));
+        const LiegroupElement& g_qOut (gData_.value(qOut_));
         // Fill Jacobian by set of lines corresponding to the types of Lie group
         // that compose the outputspace of input to output function.
         for (std::vector <LiegroupType>::const_iterator it =
@@ -288,7 +347,7 @@ namespace hpp {
              ++it) {
           nq = inputToOutput_->outputSpace ()->nq (rank);
           nv = inputToOutput_->outputSpace ()->nv (rank);
-          JV_t v (qOut_.vector ().segment (iq, nq),
+          JV_t v (g_qOut.vector ().segment (iq, nq),
                   f_qIn_.vector ().segment (iq, nq),
                   Jg, Jf_.middleRows (iv, nv), outJacobian_ [rank],
                   inJacobian_ [rank], jacobian.middleRows (iv, nv));
@@ -332,12 +391,15 @@ namespace hpp {
           : g_ (g), g_qOut_ (g->outputSpace()),
           Jg_ (g->outputSpace()->nv(), g->inputDerivativeSize())
         {}
-        LiegroupElement& value (LiegroupElement& qOut)
+        void computeValue (const LiegroupElement& qOut) const
         {
           g_->value (g_qOut_, qOut.vector());
+        }
+        const LiegroupElement& value (const LiegroupElement&) const
+        {
           return g_qOut_;
         }
-        matrix_t& jacobian (LiegroupElement& qOut)
+        matrix_t& jacobian (const LiegroupElement& qOut) const
         {
           g_->jacobian (Jg_, qOut.vector());
           return Jg_;
@@ -347,8 +409,9 @@ namespace hpp {
       struct IdentityData {
         mutable matrix_t Jg_;
         IdentityData (const DifferentiableFunctionPtr_t&) {}
-        LiegroupElement& value (LiegroupElement& qOut) const { return qOut; }
-        matrix_t& jacobian (LiegroupElement&) const { return Jg_; }
+        void computeValue (const LiegroupElement&) const {}
+        const LiegroupElement& value (const LiegroupElement& qOut) const { return qOut; }
+        const matrix_t& jacobian (const LiegroupElement&) const { return Jg_; }
       };
 
       typedef typename boost::conditional<GisIdentity, IdentityData, GenericGData>::type GData;
