@@ -65,23 +65,16 @@ namespace hpp {
         // J_qout.topLeftCorner<3,3>().setIdentity();
 
         // extract 3 top rows of inJacobian_
-        segments_t cols (v.inJacobian_.cols ());
-        MatrixBlocks <false, false> inJacobian
-          (v.inJacobian_.block (0, 0, 3, BlockIndex::cardinal (cols)));
-        inJacobian.lview (v.result_) = - v.Jf_.template topRows <3> ();
+        v.inJacobian_.middleRows(0,3).lview (v.result_) = - v.Jf_.template topRows <3> ();
         hppDout (info, "result_ = " << std::endl << v.result_);
 
         // Fill SO(3) part
-        // extract 3 bottom rows of inJacobian_
-        inJacobian = v.inJacobian_.block (3, 0, 3, BlockIndex::cardinal (cols));
-        // extract 3x3 bottom left part of outJacobian_
-        MatrixBlocks <false, false> outJacobian (v.outJacobian_.block (3, 3, 3, 3));
         assert (v.qOut_.size () == 7);
         assert (v.f_qIn_.size () == 7);
-        matrix3_t R_out
-          (Eigen::Quaterniond (v.qOut_.template tail <4> ()).toRotationMatrix ());
-        matrix3_t R_f
-          (Eigen::Quaterniond (v.f_qIn_.template tail <4> ()).toRotationMatrix ());
+        matrix3_t R_out (QuatConstMap_t (v.qOut_.template tail <4> ().data())
+            .toRotationMatrix ());
+        matrix3_t R_f (QuatConstMap_t (v.f_qIn_.template tail <4> ().data())
+            .toRotationMatrix ());
         // \f$R_f^T R_{out}\f$
         matrix3_t R_f_T_R_out (R_f.transpose () * R_out);
         matrix3_t Jlog_R_f_T_R_out;
@@ -91,8 +84,10 @@ namespace hpp {
         constraints::JlogSO3 (theta, r, Jlog_R_f_T_R_out);
 
         J_qout.bottomRightCorner<3,3>() = Jlog_R_f_T_R_out;
-        inJacobian.lview (v.result_) = -Jlog_R_f_T_R_out * R_out.transpose () *
-          R_f * v.Jf_.template bottomRows <3> ();
+        // extract 3 bottom rows of inJacobian_
+        v.inJacobian_.middleRows(3,3).lview (v.result_) =
+          ( - Jlog_R_f_T_R_out * R_out.transpose () * R_f ) 
+          * v.Jf_.template bottomRows <3> ();
         hppDout (info, "result_ = " << std::endl << v.result_);
 
         if (GisIdentity)
@@ -152,7 +147,7 @@ namespace hpp {
         outJacobian_ (outJacobian), inJacobian_ (inJacobian), result_ (result)
       {}
 
-      template <typename LgT> void operator () (const LgT&)
+      template <typename LgT> inline void operator () (const LgT&)
       {
         JacobianVisitorImpl<GisIdentity, LgT>::run (*this);
       }
