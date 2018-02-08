@@ -26,7 +26,7 @@
 # include <list>
 # include <set>
 # include <hpp/util/pointer.hh>
-# include <hpp/constraints/matrix-view.hh>
+# include <hpp/constraints/fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -174,8 +174,8 @@ namespace hpp {
     typedef std::pair<value_type, value_type> interval_t;
     /// Interval of indices as (first index, number of indices)
     typedef Eigen::BlockIndex BlockIndex;
-    typedef BlockIndex::segment_t segment_t;
-    typedef BlockIndex::segments_t segments_t;
+    typedef constraints::segment_t segment_t;
+    typedef constraints::segments_t segments_t;
     typedef Node* NodePtr_t;
     typedef std::list <NodePtr_t> Nodes_t;
     typedef std::vector <NodePtr_t> NodeVector_t;

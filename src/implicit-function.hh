@@ -28,6 +28,9 @@
 namespace hpp {
   namespace core {
 
+    typedef Eigen::Quaternion<value_type> Quat_t;
+    typedef Eigen::Map<Quat_t > QuatMap_t;
+    typedef Eigen::Map<const Quat_t > QuatConstMap_t;
     typedef hpp::pinocchio::liegroup::VectorSpaceOperation <3, false> R3;
     typedef hpp::pinocchio::liegroup::SpecialOrthogonalOperation <3> SO3;
     typedef hpp::pinocchio::liegroup::CartesianProductOperation <R3, SO3>
@@ -35,107 +38,168 @@ namespace hpp {
     typedef se3::SpecialEuclideanOperation <3> SE3;
     typedef hpp::pinocchio::LiegroupType LiegroupType;
 
+    struct ValueVisitor : public boost::static_visitor <>
+    {
+      ValueVisitor (vectorIn_t qOut, vectorIn_t f_qIn, const size_type nv) :
+        qOut_ (qOut), f_qIn_ (f_qIn), result_ (nv)
+      {}
+
+      template <typename LgT> void operator () (const LgT&)
+      {
+        LgT::difference (f_qIn_, qOut_, result_);
+      }
+
+      vectorIn_t qOut_, f_qIn_;
+      vector_t result_;
+    }; // struct JacobianVisitor
+
+    template <> inline void ValueVisitor::operator () <SE3> (const SE3&)
+    {
+      Transform3f Mout (
+          QuatConstMap_t (qOut_.tail <4>().data()).toRotationMatrix (),
+          qOut_.head <3> ());
+      Transform3f Mf   (
+          QuatConstMap_t (f_qIn_.tail <4>().data()).toRotationMatrix (),
+          f_qIn_.head <3> ());
+      // \f$Mf^{-1} M_{out}\f$
+      Transform3f Mf_inverse_Mout (Mf.inverse () * Mout);
+
+      result_.head <3>() = Mf_inverse_Mout.translation();
+
+      value_type theta;
+      constraints::logSO3 (Mf_inverse_Mout.rotation(), theta, result_.tail<3>());
+    }
+
+    template <bool GisIdentity> struct JacobianVisitor;
+
+    template <bool GisIdentity, typename LgT> struct JacobianVisitorImpl
+    {
+      static void run (JacobianVisitor<GisIdentity>& v)
+      {
+        if (GisIdentity)
+          v.outJacobian_.lview (v.result_).setIdentity ();
+        else
+          v.outJacobian_.lview (v.result_) = v.Jg_;
+        v.inJacobian_ .lview (v.result_) = - v.Jf_;
+      }
+    };
+
+    template <bool GisIdentity> struct JacobianVisitorImpl <GisIdentity, R3xSO3>
+    {
+      static void run (JacobianVisitor<GisIdentity>& v)
+      {
+        using Eigen::MatrixBlocks;
+        using Eigen::BlockIndex;
+        typedef hpp::constraints::BlockIndex BlockIndex;
+        hppDout (info, "result_ = " << std::endl << v.result_);
+
+        assert (v.outJacobian_.nbRows () == 6);
+        matrix6_t J_qout (matrix6_t::Identity());
+
+        // Fill R^3 part
+        // J_qout.topLeftCorner<3,3>().setIdentity();
+
+        // extract 3 top rows of inJacobian_
+        v.inJacobian_.middleRows(0,3).lview (v.result_) = - v.Jf_.template topRows <3> ();
+        hppDout (info, "result_ = " << std::endl << v.result_);
+
+        // Fill SO(3) part
+        assert (v.qOut_.size () == 7);
+        assert (v.f_qIn_.size () == 7);
+        matrix3_t R_out (QuatConstMap_t (v.qOut_.template tail <4> ().data())
+            .toRotationMatrix ());
+        matrix3_t R_f (QuatConstMap_t (v.f_qIn_.template tail <4> ().data())
+            .toRotationMatrix ());
+        // \f$R_f^T R_{out}\f$
+        matrix3_t R_f_T_R_out (R_f.transpose () * R_out);
+        matrix3_t Jlog_R_f_T_R_out;
+        vector3_t r;
+        value_type theta;
+        constraints::logSO3 (R_f_T_R_out, theta, r);
+        constraints::JlogSO3 (theta, r, Jlog_R_f_T_R_out);
+
+        J_qout.bottomRightCorner<3,3>() = Jlog_R_f_T_R_out;
+        // extract 3 bottom rows of inJacobian_
+        v.inJacobian_.middleRows(3,3).lview (v.result_) =
+          ( - Jlog_R_f_T_R_out * R_out.transpose () * R_f ) 
+          * v.Jf_.template bottomRows <3> ();
+        hppDout (info, "result_ = " << std::endl << v.result_);
+
+        if (GisIdentity)
+          v.outJacobian_.lview (v.result_) = J_qout;
+        else
+          v.outJacobian_.lview (v.result_) = J_qout * v.Jg_;
+        hppDout (info, "result_ = " << std::endl << v.result_);
+      }
+    };
+
+    template <bool GisIdentity> struct JacobianVisitorImpl <GisIdentity, SE3>
+    {
+      static void run (JacobianVisitor<GisIdentity>& v)
+      {
+        assert (v.outJacobian_.nbRows () == 6);
+        // extract 3 top rows of inJacobian_
+        assert (v.qOut_.size () == 7);
+        assert (v.f_qIn_.size () == 7);
+
+        Transform3f Mout (
+            QuatConstMap_t (v.qOut_.template tail <4>().data()).toRotationMatrix (),
+            v.qOut_.template head <3> ());
+        Transform3f Mf (
+            QuatConstMap_t (v.f_qIn_.template tail <4> ().data()).toRotationMatrix (),
+            v.f_qIn_.template head <3> ());
+        // \f$Mf^{-1} M_{out}\f$
+        Transform3f Mf_inverse_Mout (Mf.inverse () * Mout);
+        matrix6_t Jout (matrix6_t::Zero());
+        matrix3_t Jlog;
+        vector3_t r;
+        value_type theta;
+        constraints::logSO3 (Mf_inverse_Mout.rotation(), theta, r);
+        constraints::JlogSO3 (theta, r, Jlog);
+        Jout.    topLeftCorner<3,3>() = Mf_inverse_Mout.rotation();
+        Jout.bottomRightCorner<3,3>() = Jlog;
+
+        if (GisIdentity)
+          v.outJacobian_.lview (v.result_) = Jout;
+        else
+          v.outJacobian_.lview (v.result_) = Jout * v.Jg_;
+
+        Jout.    topLeftCorner<3,3>().setIdentity();
+        JointJacobian_t inJ (6, v.Jf_.cols ());
+        inJ.topRows <3> ().noalias() =
+          se3::skew (Mf_inverse_Mout.translation()) * v.Jf_.template bottomRows <3> ();
+        inJ.topRows <3> ().noalias() -= v.Jf_.template topRows <3> ();
+        inJ.bottomRows <3> ().noalias() = - Mf_inverse_Mout.rotation().transpose() * v.Jf_.template bottomRows <3> ();
+
+        v.inJacobian_.lview (v.result_) = Jout * inJ;
+      }
+    };
+
+    template <bool GisIdentity>
     struct JacobianVisitor : public boost::static_visitor <>
     {
       JacobianVisitor (vectorIn_t qOut, vectorIn_t f_qIn,
-                       matrixIn_t Jf, const Eigen::MatrixBlocks <false, false>&
+                       matrixIn_t Jg, matrixIn_t Jf,
+                       const Eigen::MatrixBlocks <false, false>&
                        outJacobian, const Eigen::MatrixBlocks <false, false>&
                        inJacobian, matrixOut_t result) :
-        qOut_ (qOut), f_qIn_ (f_qIn), Jf_ (Jf), outJacobian_ (outJacobian),
-        inJacobian_ (inJacobian), result_ (result)
+        qOut_ (qOut), f_qIn_ (f_qIn), Jg_ (Jg), Jf_ (Jf),
+        outJacobian_ (outJacobian), inJacobian_ (inJacobian), result_ (result)
+      {}
+
+      template <typename LgT> inline void operator () (const LgT&)
       {
+        JacobianVisitorImpl<GisIdentity, LgT>::run (*this);
       }
 
-      template <typename LgT> void operator () (const LgT&);
-
       vectorIn_t qOut_, f_qIn_;
-      matrixIn_t Jf_;
+      matrixIn_t Jg_, Jf_;
       const Eigen::MatrixBlocks <false, false>& outJacobian_;
       const Eigen::MatrixBlocks <false, false>& inJacobian_;
       matrixOut_t result_;
     }; // struct JacobianVisitor
 
-    template <> inline void JacobianVisitor::operator () <R3xSO3 >
-      (const R3xSO3&)
-    {
-      using Eigen::MatrixBlocks;
-      using Eigen::BlockIndex;
-      typedef hpp::constraints::BlockIndex BlockIndex;
-      hppDout (info, "result_ = " << std::endl << result_);
-      // Fill R^3 part
-      assert (outJacobian_.nbRows () == 6);
-      Eigen::MatrixBlocks <false, false> tmp (outJacobian_.block (0, 0, 3, 3));
-      tmp.lview (result_) = matrix3_t::Identity ();
-      hppDout (info, "result_ = " << std::endl << result_);
-      // extract 3 top rows of inJacobian_
-      segments_t cols (inJacobian_.cols ());
-      MatrixBlocks <false, false> inJacobian
-        (inJacobian_.block (0, 0, 3, BlockIndex::cardinal (cols)));
-      inJacobian.lview (result_) = -Jf_.topRows <3> ();
-      hppDout (info, "result_ = " << std::endl << result_);
-      // Fill SO(3) part
-      // extract 3 bottom rows of inJacobian_
-      inJacobian = inJacobian_.block (3, 0, 3, BlockIndex::cardinal (cols));
-      // extract 3x3 bottom left part of outJacobian_
-      MatrixBlocks <false, false> outJacobian (outJacobian_.block (3, 3, 3, 3));
-      assert (qOut_.size () == 7);
-      assert (f_qIn_.size () == 7);
-      matrix3_t R_out
-        (Eigen::Quaterniond (qOut_.tail <4> ()).toRotationMatrix ());
-      matrix3_t R_f
-        (Eigen::Quaterniond (f_qIn_.tail <4> ()).toRotationMatrix ());
-      // \f$R_f^T R_{out}\f$
-      matrix3_t R_f_T_R_out (R_f.transpose () * R_out);
-      matrix3_t Jlog_R_f_T_R_out;
-      vector3_t r;
-      value_type theta;
-      constraints::logSO3 (R_f_T_R_out, theta, r);
-      constraints::JlogSO3 (theta, r, Jlog_R_f_T_R_out);
-      outJacobian.lview (result_) = Jlog_R_f_T_R_out;
-      hppDout (info, "result_ = " << std::endl << result_);
-      inJacobian.lview (result_) = -Jlog_R_f_T_R_out * R_out.transpose () *
-        R_f * Jf_.bottomRows <3> ();
-      hppDout (info, "result_ = " << std::endl << result_);
-    }
-
-    template <> inline void JacobianVisitor::operator () <SE3 > (const SE3&)
-    {
-      assert (outJacobian_.nbRows () == 6);
-      // extract 3 top rows of inJacobian_
-      assert (qOut_.size () == 7);
-      assert (f_qIn_.size () == 7);
-      matrix3_t Rout (Eigen::Quaterniond (qOut_.tail <4> ()).
-                      toRotationMatrix ());
-      vector3_t pOut (qOut_.head <3> ());
-      Transform3f Mout (Rout, pOut);
-      matrix3_t Rf (Eigen::Quaterniond (f_qIn_.tail <4> ()).
-                    toRotationMatrix ());
-      vector3_t pf (f_qIn_.head <3> ());
-      Transform3f Mf (Rf, pf);
-      // \f$Mf^{-1} M_{out}\f$
-      Transform3f Mf_inverse_Mout (Mf.inverse () * Mout);
-      matrix6_t Jlog_Mf_inverse_Mout;
-      constraints::JlogSE3 (Mf_inverse_Mout, Jlog_Mf_inverse_Mout);
-      outJacobian_.lview (result_) = Jlog_Mf_inverse_Mout;
-      matrix_t inJ (6, Jf_.cols ());
-      inJ.topRows <3> () =
-        Rout.transpose () * se3::skew (pOut - pf) * Rf * Jf_.bottomRows <3> ()
-        - Rout.transpose () * Rf * Jf_.topRows <3> ();
-      inJ.bottomRows <3> () = -Rout.transpose () * Rf * Jf_.bottomRows <3> ();
-      inJacobian_.lview (result_) = Jlog_Mf_inverse_Mout * inJ;
-    }
-
-    template <typename LgT> void JacobianVisitor::operator () (const LgT&)
-    {
-      for (size_type i=0; i<outJacobian_.nbRows (); ++i) {
-        outJacobian_.lview (result_).setIdentity ();
-      }
-      inJacobian_.lview (result_) = -Jf_;
-    }
-      
-
-    HPP_PREDEF_CLASS (ImplicitFunction);
-    typedef boost::shared_ptr <ImplicitFunction> ImplicitFunctionPtr_t;
+    template <bool GisIdentity> class ImplicitFunction;
 
     /// Function of the form f (q) = q2 - g (q1)
     ///
@@ -145,18 +209,35 @@ namespace hpp {
     ///  \li q1 is the vector composed of the other configuration variables of
     ///      q,
     ///  g is a differentiable function with values in  a Lie group.
+    template <bool GisIdentity>
     class ImplicitFunction : public DifferentiableFunction
     {
     public:
-      static ImplicitFunctionPtr_t create
+      typedef boost::shared_ptr <ImplicitFunction> Ptr_t;
+
+      static Ptr_t create
       (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
        const segments_t& inputConf, const segments_t& inputVelocity,
        const segments_t& outputConf, const segments_t& outputVelocity)
       {
+        assert (GisIdentity);
 	ImplicitFunction* ptr = new ImplicitFunction
-	  (robot, function, inputConf, inputVelocity, outputConf,
+	  (robot, function, DifferentiableFunctionPtr_t(), inputConf, inputVelocity, outputConf,
            outputVelocity);
-	return ImplicitFunctionPtr_t (ptr);
+	return Ptr_t (ptr);
+      }
+
+      static Ptr_t create
+      (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+       const DifferentiableFunctionPtr_t& g,
+       const segments_t& inputConf, const segments_t& inputVelocity,
+       const segments_t& outputConf, const segments_t& outputVelocity)
+      {
+        assert (!GisIdentity);
+	ImplicitFunction* ptr = new ImplicitFunction
+	  (robot, function, g, inputConf, inputVelocity, outputConf,
+           outputVelocity);
+	return Ptr_t (ptr);
       }
 
       /// Get function that maps input variables to output variables
@@ -168,6 +249,7 @@ namespace hpp {
     protected:
       ImplicitFunction (const DevicePtr_t& robot,
 			const DifferentiableFunctionPtr_t& function,
+                        const DifferentiableFunctionPtr_t& g,
 			const segments_t& inputConf,
 			const segments_t& inputVelocity,
                         const segments_t& outputConf,
@@ -181,7 +263,7 @@ namespace hpp {
 	  inputDerivIntervals_ (inputVelocity),
           outputConfIntervals_ (outputConf),
 	  outputDerivIntervals_ (outputVelocity), outJacobian_ (),
-          inJacobian_ (), f_qIn_ (function->outputSpace ()),
+          inJacobian_ (), gData_ (g), f_qIn_ (function->outputSpace ()),
           qOut_ (function->outputSpace ()), result_ (outputSpace ())
       {
 	// Check input consistency
@@ -200,6 +282,11 @@ namespace hpp {
 	assert (BlockIndex::cardinal (outputVelocity) ==
                 function->outputDerivativeSize ());
         computeJacobianBlocks ();
+
+        inputConfIntervals_ .lview (activeParameters_.matrix()).setConstant(true);
+        inputDerivIntervals_.lview (activeDerivativeParameters_.matrix()).setConstant(true);
+        outputConfIntervals_ .lview (activeParameters_.matrix()).setConstant(true);
+        outputDerivIntervals_.lview (activeDerivativeParameters_.matrix()).setConstant(true);
       }
 
       /// Compute q_{output} - f (q_{input})
@@ -208,41 +295,62 @@ namespace hpp {
         using Eigen::MatrixBlocks;
         hppDout (info, "argument=" << argument.transpose ());
         // Store q_{output} in result
-        qOut_.vector () = MatrixBlocks <false, true>
-          (outputConfIntervals_).rview (argument);
+        qOut_.vector () = outputConfIntervals_.rview (argument);
         hppDout (info, "qOut_=" << qOut_);
+        gData_.computeValue(qOut_);
+        const LiegroupElement& g_qOut (gData_.value(qOut_));
+        hppDout (info, "g_qOut_=" << g_qOut);
         // fill in q_{input}
-        qIn_ = MatrixBlocks <false, true>
-          (inputConfIntervals_).rview (argument);
+        qIn_ = inputConfIntervals_.rview (argument);
         hppDout (info, "qIn_=" << qIn_);
         // compute  f (q_{input}) -> output_
 	inputToOutput_->value (f_qIn_, qIn_);
         hppDout (info, "f_qIn_=" << f_qIn_);
-	result.vector () = qOut_ - f_qIn_;
+        // Fill result
+        size_type iq = 0, iv = 0, nq, nv;
+        std::size_t rank = 0;
+        for (std::vector <LiegroupType>::const_iterator it =
+               f_qIn_.space()-> liegroupTypes ().begin ();
+             it != f_qIn_.space()-> liegroupTypes ().end ();
+             ++it) {
+          nq = f_qIn_.space()->nq (rank);
+          nv = f_qIn_.space()->nv (rank);
+          ValueVisitor v (g_qOut.vector ().segment (iq, nq),
+                          f_qIn_.vector ().segment (iq, nq),
+                          nv);
+          boost::apply_visitor (v, *it);
+          result.vector ().segment (iv, nv) = v.result_;
+          iq += nq;
+          iv += nv;
+          ++rank;
+        }
         hppDout (info, "result=" << result);
       }
 
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const
       {
+        typedef JacobianVisitor<GisIdentity> JV_t;
+
 	jacobian.setZero ();
         size_type iq = 0, iv = 0, nq, nv;
         std::size_t rank = 0;
         impl_compute (result_, arg);
         inputToOutput_->jacobian (Jf_, qIn_);
         hppDout (info, "Jf_=" << std::endl << Jf_);
+        const matrix_t& Jg (gData_.jacobian (qOut_));
+        const LiegroupElement& g_qOut (gData_.value(qOut_));
         // Fill Jacobian by set of lines corresponding to the types of Lie group
         // that compose the outputspace of input to output function.
-        segments_t outConfSegments (outputConfIntervals_);
         for (std::vector <LiegroupType>::const_iterator it =
                inputToOutput_->outputSpace ()-> liegroupTypes ().begin ();
              it != inputToOutput_->outputSpace ()-> liegroupTypes ().end ();
              ++it) {
           nq = inputToOutput_->outputSpace ()->nq (rank);
           nv = inputToOutput_->outputSpace ()->nv (rank);
-          JacobianVisitor v (qOut_.vector ().segment (iq, nq),
-                             f_qIn_.vector ().segment (iq, nq),
-                             Jf_.middleRows (iv, nv), outJacobian_ [rank],
-                             inJacobian_ [rank], jacobian.middleRows (iv, nv));
+          JV_t v (g_qOut.vector ().segment (iq, nq),
+                  f_qIn_.vector ().segment (iq, nq),
+                  Jg, Jf_.middleRows (iv, nv), outJacobian_ [rank],
+                  inJacobian_ [rank], jacobian.middleRows (iv, nv));
           boost::apply_visitor (v, *it);
           iq += nq;
           iv += nv;
@@ -253,7 +361,7 @@ namespace hpp {
     private:
       void computeJacobianBlocks ()
       {
-        segments_t remainingCols (outputDerivIntervals_);
+        segments_t remainingCols (outputDerivIntervals_.indices());
         segments_t cols;
         size_type iv = 0, nv;
         std::size_t rank = 0;
@@ -267,27 +375,65 @@ namespace hpp {
           outJacobian_.push_back (Eigen::MatrixBlocks <false, false>
                                   (rows, cols));
           inJacobian_.push_back (Eigen::MatrixBlocks <false, false>
-                                 (rows, inputDerivIntervals_));
+                                 (rows, inputDerivIntervals_.indices()));
           //
           iv += nv;
           ++rank;
         }
       }
 
+      struct GenericGData {
+        DifferentiableFunctionPtr_t g_;
+        mutable LiegroupElement g_qOut_;
+        mutable matrix_t Jg_;
+
+        GenericGData (const DifferentiableFunctionPtr_t& g)
+          : g_ (g), g_qOut_ (g->outputSpace()),
+          Jg_ (g->outputSpace()->nv(), g->inputDerivativeSize())
+        {}
+        void computeValue (const LiegroupElement& qOut) const
+        {
+          g_->value (g_qOut_, qOut.vector());
+        }
+        const LiegroupElement& value (const LiegroupElement&) const
+        {
+          return g_qOut_;
+        }
+        matrix_t& jacobian (const LiegroupElement& qOut) const
+        {
+          g_->jacobian (Jg_, qOut.vector());
+          return Jg_;
+        }
+      };
+
+      struct IdentityData {
+        mutable matrix_t Jg_;
+        IdentityData (const DifferentiableFunctionPtr_t&) {}
+        void computeValue (const LiegroupElement&) const {}
+        const LiegroupElement& value (const LiegroupElement& qOut) const { return qOut; }
+        const matrix_t& jacobian (const LiegroupElement&) const { return Jg_; }
+      };
+
+      typedef typename boost::conditional<GisIdentity, IdentityData, GenericGData>::type GData;
+
       DevicePtr_t robot_;
       DifferentiableFunctionPtr_t inputToOutput_;
-      segments_t inputConfIntervals_;
-      segments_t inputDerivIntervals_;
-      segments_t outputConfIntervals_;
-      segments_t outputDerivIntervals_;
+      Eigen::RowBlockIndices inputConfIntervals_;
+      Eigen::RowBlockIndices inputDerivIntervals_;
+      Eigen::RowBlockIndices outputConfIntervals_;
+      Eigen::RowBlockIndices outputDerivIntervals_;
       std::vector <Eigen::MatrixBlocks <false, false> > outJacobian_;
       std::vector <Eigen::MatrixBlocks <false, false> > inJacobian_;
+      GData gData_;
       mutable vector_t qIn_;
       mutable LiegroupElement f_qIn_, qOut_;
       mutable LiegroupElement result_;
       // Jacobian of explicit function
       mutable matrix_t Jf_;
     }; // class ImplicitFunction
+
+    typedef ImplicitFunction<true > BasicImplicitFunction;
+    typedef ImplicitFunction<false> GenericImplicitFunction;
 
   } // namespace core
 } // namespace hpp

@@ -26,9 +26,12 @@
 #include <hpp/util/timer.hh>
 
 #include <pinocchio/multibody/liegroup/liegroup.hpp>
+#include <pinocchio/multibody/model.hpp>
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/extra-config-space.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
@@ -54,6 +57,54 @@ namespace hpp {
         return constraints::ActiveSetDifferentiableFunctionPtr_t (new constraints::ActiveSetDifferentiableFunction(function, pdofs));
       }
 
+      bool saturate (const DevicePtr_t& robot, vectorIn_t q, Eigen::VectorXi& sat)
+      {
+        bool ret = false;
+        const se3::Model& model = robot->model();
+
+        for (std::size_t i = 1; i < model.joints.size(); ++i) {
+          const size_type nq = model.joints[i].nq();
+          const size_type nv = model.joints[i].nv();
+          const size_type idx_q = model.joints[i].idx_q();
+          const size_type idx_v = model.joints[i].idx_v();
+          for (size_type j = 0; j < nq; ++j) {
+            const size_type iq = idx_q + j;
+            const size_type iv = idx_v + std::min(j,nv-1);
+            if        (q[iq] >= model.upperPositionLimit[iq]) {
+              sat[iv] =  1;
+              ret = true;
+            } else if (q[iq] <= model.lowerPositionLimit[iq]) {
+              sat[iv] = -1;
+              ret = true;
+            } else
+              sat[iv] =  0;
+          }
+        }
+
+        const hpp::pinocchio::ExtraConfigSpace& ecs = robot->extraConfigSpace();
+        const size_type& d = ecs.dimension();
+
+        for (size_type k = 0; k < d; ++k) {
+          const size_type iq = model.nq + k;
+          const size_type iv = model.nv + k;
+          if        (q[iq] >= ecs.upper(k)) {
+            sat[iv] =  1;
+            ret = true;
+          } else if (q[iq] <= ecs.lower(k)) {
+            sat[iv] = -1;
+            ret = true;
+          } else
+            sat[iv] =  0;
+        }
+        return ret;
+      }
+    }
+
+    ConfigProjector::LineSearchType ConfigProjector::defaultLineSearch_ = ConfigProjector::FixedSequence;
+
+    void ConfigProjector::defaultLineSearch (LineSearchType ls)
+    {
+      defaultLineSearch_ = ls;
     }
 
     HPP_DEFINE_REASON_FAILURE (REASON_MAX_ITER, "Max Iterations reached");
@@ -89,8 +140,7 @@ namespace hpp {
       lockedJoints_ (),
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
-      lineSearchType_ (Default),
-      // lineSearchType_ (Backtracking),
+      lineSearchType_ (defaultLineSearch_),
       solver_ (new HybridSolver (robot->configSize(), robot->numberDof())),
       weak_ (),
       statistics_ ("ConfigProjector " + name)
@@ -98,15 +148,14 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->integration(boost::bind(hpp::pinocchio::integrate<false, se3::LieGroupTpl>, robot_, _1, _2, _3));
-      solver_->saturation(boost::bind(hpp::pinocchio::saturate, robot_, _1, _2));
+      solver_->integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupTpl>, robot_, _1, _2, _3));
+      solver_->saturation(boost::bind(saturate, robot_, _1, _2));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
       Constraint (cp), robot_ (cp.robot_),
       functions_ (cp.functions_),
       lockedJoints_ (),
-      rightHandSide_ (cp.rightHandSide_),
       toMinusFrom_ (cp.toMinusFrom_.size ()),
       projMinusFrom_ (cp.projMinusFrom_.size ()),
       lineSearchType_ (cp.lineSearchType_),
@@ -165,6 +214,11 @@ namespace hpp {
             Eigen::ColBlockIndices(enm->inputVelocity()),
             Eigen::RowBlockIndices(enm->outputVelocity()),
             types);
+        if (addedAsExplicit && enm->outputFunction() && enm->outputFunctionInverse()) {
+          bool ok = solver_->explicitSolver().setG (enm->explicitFunction(),
+              enm->outputFunction(), enm->outputFunctionInverse());
+          assert (ok);
+        }
         if (!addedAsExplicit) {
           hppDout (info, "Could not treat " <<
               enm->explicitFunction()->name() << " as an explicit function."
@@ -193,8 +247,10 @@ namespace hpp {
     (ConfigurationIn_t configuration, vectorOut_t value,
      matrixOut_t reducedJacobian)
     {
-      solver_->computeValue<true>(configuration);
-      solver_->updateJacobian(configuration); // includes the jacobian of the explicit system
+      Configuration_t q (configuration);
+      solver_->explicitSolver().solve(q);
+      solver_->computeValue<true>(q);
+      solver_->updateJacobian(q); // includes the jacobian of the explicit system
       solver_->getValue(value);
       solver_->getReducedJacobian(reducedJacobian);
     }
@@ -204,13 +260,13 @@ namespace hpp {
     void ConfigProjector::uncompressVector (vectorIn_t small,
 					    vectorOut_t normal) const
     {
-      solver_->explicitSolver().freeDers().lviewTranspose(normal) = small;
+      solver_->explicitSolver().freeDers().transpose().lview(normal) = small;
     }
 
     void ConfigProjector::compressVector (vectorIn_t normal,
 					  vectorOut_t small) const
     {
-      small = solver_->explicitSolver().freeDers().rviewTranspose(normal);
+      small = solver_->explicitSolver().freeDers().transpose().rview(normal);
     }
 
     void ConfigProjector::compressMatrix (matrixIn_t normal,
@@ -467,6 +523,10 @@ namespace hpp {
                                constraints::lineSearch::FixedSequence ls;
                                return solver_->oneStep(config, ls);
                              }
+        case Constant : {
+                          constraints::lineSearch::Constant ls;
+                          return solver_->oneStep(config, ls);
+                        }
       }
       return false;
     }
@@ -487,6 +547,10 @@ namespace hpp {
                                constraints::lineSearch::FixedSequence ls;
                                return solver_->solve(config, ls);
                              }
+        case Constant : {
+                          constraints::lineSearch::Constant ls;
+                          return solver_->solve(config, ls);
+                        }
       }
       throw std::runtime_error ("Unknow line search type");
       return HybridSolver::MAX_ITERATION_REACHED;
@@ -504,7 +568,7 @@ namespace hpp {
 
     size_type ConfigProjector::numberNonLockedDof () const
     {
-      return solver_->explicitSolver().inDers().nbIndices();
+      return solver_->explicitSolver().freeDers().nbIndices();
     }
 
     size_type ConfigProjector::dimension () const

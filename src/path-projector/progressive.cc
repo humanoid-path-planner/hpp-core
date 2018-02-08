@@ -267,6 +267,9 @@ namespace hpp {
 #ifndef NDEBUG
         bool success;
         Configuration_t q = (*proj) (proj->timeRange ().second, success);
+        if (!success) {
+          q = (*proj) (proj->timeRange ().second, success);
+        }
         assert (success);
         vector_t error;
         assert (proj->constraints ()->isSatisfied (q, error));

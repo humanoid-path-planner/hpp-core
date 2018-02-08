@@ -39,34 +39,29 @@ namespace hpp {
         m(i0,i1) = m(i1,i0) = t;
       }
 
-      template <typename T> bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
-      {
-        typename T::Ptr_t t = HPP_DYNAMIC_PTR_CAST(T, f);
-        if (t) {
-          i1 = RelativeMotion::idx(t->joint1());
-          i2 = RelativeMotion::idx(t->joint2());
-          return true;
+      template <typename T, typename Ptr_t = typename T::Ptr_t> struct check {
+        static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
+        {
+          Ptr_t t = HPP_DYNAMIC_PTR_CAST(T, f);
+          if (t) {
+            i1 = RelativeMotion::idx(t->joint1());
+            i2 = RelativeMotion::idx(t->joint2());
+            return true;
+          }
+          return false;
         }
-        return false;
-      }
-    }
+      };
 
-    bool isExplicitRelativeTransform (const DifferentiableFunctionPtr_t& f,
-                                      size_type& i1, size_type& i2)
-    {
-      ImplicitFunctionPtr_t implicit (HPP_DYNAMIC_PTR_CAST
-                                      (ImplicitFunction, f));
-      if (implicit) {
-        ExplicitRelativeTransformationPtr_t ert
-          (HPP_DYNAMIC_PTR_CAST (ExplicitRelativeTransformation,
-                                 implicit->inputToOutput ()));
-        if (ert) {
-          i1 = RelativeMotion::idx(ert->joint1());
-          i2 = RelativeMotion::idx(ert->joint2());
-          return true;
+      template <bool GisIdentity> struct check<ImplicitFunction<GisIdentity> > {
+        static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
+        {
+          typename ImplicitFunction<GisIdentity>::Ptr_t implicit (
+              HPP_DYNAMIC_PTR_CAST (ImplicitFunction<GisIdentity>, f));
+          if (implicit)
+            return check<ExplicitRelativeTransformation, ExplicitRelativeTransformationPtr_t>::is (implicit, i1, i2);
+          return false;
         }
-      }
-      return false;
+      };
     }
 
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
@@ -125,9 +120,10 @@ namespace hpp {
         size_type i1, i2;
 
         if (nc.functionPtr()->outputSize() != 6) continue;
-        if (   !is<RelativeTransformation> (nc.functionPtr(), i1, i2)
-            && !is<        Transformation> (nc.functionPtr(), i1, i2)
-            && !isExplicitRelativeTransform (nc.functionPtr(), i1, i2))
+        if (   !check< RelativeTransformation>::is (nc.functionPtr(), i1, i2)
+            && !check<         Transformation>::is (nc.functionPtr(), i1, i2)
+            && !check<  BasicImplicitFunction>::is (nc.functionPtr(), i1, i2)
+            && !check<GenericImplicitFunction>::is (nc.functionPtr(), i1, i2))
           continue;
 
         bool cstRHS = nc.constantRightHandSide();

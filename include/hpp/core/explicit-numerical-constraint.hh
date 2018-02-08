@@ -147,6 +147,28 @@ namespace hpp {
 	 const segments_t& outputConf,
 	 const segments_t& outputVelocity);
 
+      /// Create instance and return shared pointer
+      ///
+      /// \param robot Robot for which the constraint is defined.
+      /// \param function relation between input configuration variables and
+      ///        output configuration variables,
+      /// \param g,ginv
+      /// \param outputConf set of integer intervals defining indices
+      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
+      /// \param outputVeclocity set of integer defining indices
+      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
+      /// \param rhs        right hand side.
+      /// \note comparison type for this constraint is always equality
+      static ExplicitNumericalConstraintPtr_t create
+        (const DevicePtr_t& robot,
+         const DifferentiableFunctionPtr_t& function,
+         const DifferentiableFunctionPtr_t& g,
+         const DifferentiableFunctionPtr_t& ginv,
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
+
       /// Create a copy and return shared pointer
       static ExplicitNumericalConstraintPtr_t createCopy
 	(const ExplicitNumericalConstraintPtr_t& other);
@@ -154,6 +176,16 @@ namespace hpp {
       virtual DifferentiableFunctionPtr_t explicitFunction() const
       {
         return inputToOutput_;
+      }
+
+      inline DifferentiableFunctionPtr_t outputFunction() const
+      {
+        return g_;
+      }
+
+      inline DifferentiableFunctionPtr_t outputFunctionInverse() const
+      {
+        return ginv_;
       }
 
       /// Get output configuration variables
@@ -200,6 +232,27 @@ namespace hpp {
       /// \param robot Robot for which the constraint is defined.
       /// \param function relation between input configuration variables and
       ///        output configuration variables,
+      /// \param g, ginv
+      /// \param outputConf set of integer intervals defining indices
+      ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
+      /// \param outputVeclocity set of integer defining indices
+      ///            \f$(ov_{1}, \cdots, ov_{n_{ov}})\f$.
+      /// \param rhs        right hand side.
+      /// \note comparison type for this constraint is always equality
+      ExplicitNumericalConstraint
+	(const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
+         const DifferentiableFunctionPtr_t& g,
+         const DifferentiableFunctionPtr_t& ginv,
+	 const segments_t& inputConf,
+	 const segments_t& inputVelocity,
+	 const segments_t& outputConf,
+	 const segments_t& outputVelocity);
+
+      /// Constructor
+      ///
+      /// \param robot Robot for which the constraint is defined.
+      /// \param function relation between input configuration variables and
+      ///        output configuration variables,
       /// \param outputConf set of integer intervals defining indices
       ///            \f$(oc_{1}, \cdots, oc_{n_{oc}})\f$,
       /// \param outputVeclocity set of integer defining indices
@@ -216,7 +269,7 @@ namespace hpp {
 	}
     private:
       // Relation between input and output configuration variables
-      DifferentiableFunctionPtr_t inputToOutput_;
+      DifferentiableFunctionPtr_t inputToOutput_, g_, ginv_;
       segments_t inputConf_;
       segments_t inputVelocity_;
       segments_t outputConf_;

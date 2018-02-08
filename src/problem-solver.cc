@@ -541,15 +541,9 @@ namespace hpp {
 	throw std::runtime_error ("No constraints have assigned.");
       }
       // resize value and Jacobian
-      NumericalConstraints_t constraints
-	(configProjector->numericalConstraints ());
-      size_type rows = 0;
-      for (NumericalConstraints_t::const_iterator it = constraints.begin ();
-	   it != constraints.end (); ++it) {
-	rows += (*it)->function ().outputSize ();
-      }
+      value.resize (configProjector->solver().dimension());
+      size_type rows = configProjector->solver().reducedDimension();
       jacobian.resize (rows, configProjector->numberNonLockedDof ());
-      value.resize (rows);
       configProjector->computeValueAndJacobian (configuration, value, jacobian);
     }
 

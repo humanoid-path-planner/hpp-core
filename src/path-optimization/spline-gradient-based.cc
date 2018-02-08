@@ -293,9 +293,9 @@ namespace hpp {
 
             solver.es->inDers().lview(J) =
               solver.es->inDers().lview(J).eval() +
-              solver.es->outDers().rviewTranspose(J).eval()
+              solver.es->outDers().transpose().rview(J).eval()
               * solver.es->viewJacobian(Js).eval(); 
-            solver.es->outDers().lviewTranspose(J).setZero();
+            solver.es->outDers().transpose().lview(J).setZero();
           }
 
           spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);

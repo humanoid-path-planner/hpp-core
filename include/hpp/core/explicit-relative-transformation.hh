@@ -60,16 +60,7 @@ namespace hpp {
 	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
 	 const Transform3f& frame1    , const Transform3f& frame2);
 
-      ExplicitNumericalConstraintPtr_t createNumericalConstraint ()
-      {
-        return ExplicitNumericalConstraint::create (
-            robot_,
-            weak_.lock(),
-            inConf_.indices(),
-            inVel_.indices(),
-            outConf_.indices(),
-            outVel_.indices());
-      }
+      ExplicitNumericalConstraintPtr_t createNumericalConstraint ();
 
       /// Get joint 1
       const JointConstPtr_t& joint1 () const
@@ -94,18 +85,7 @@ namespace hpp {
           const Transform3f& frame1    , const Transform3f& frame2,
           const segments_t inConf , const segments_t outConf,
           const segments_t inVel  , const segments_t outVel ,
-          std::vector <bool> /*mask*/ = std::vector<bool>(6,true))
-        : DifferentiableFunction (
-              BlockIndex::cardinal(inConf),  BlockIndex::cardinal(inVel),
-              pinocchio::LiegroupSpace::SE3 (), name),
-          robot_ (robot),
-          parentJoint_ (joint2->parentJoint ()),
-          joint1_ (joint1), joint2_ (joint2),
-          inConf_ (inConf),   inVel_  (inVel),
-          outConf_ (outConf), outVel_ (outVel),
-          F1inJ1_invF2inJ2_ (frame1 * frame2.inverse())
-      {
-      }
+          std::vector <bool> mask = std::vector<bool>(6,true));
 
       ExplicitRelativeTransformation
 	(const ExplicitRelativeTransformation& other) :
@@ -146,6 +126,7 @@ namespace hpp {
       RowBlockIndices outConf_ , outVel_;
       Transform3f F1inJ1_invF2inJ2_;
 
+      DifferentiableFunctionPtr_t g_, ginv_;
       ExplicitRelativeTransformationWkPtr_t weak_;
 
       // Tmp variables

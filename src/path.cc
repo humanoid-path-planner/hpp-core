@@ -217,7 +217,10 @@ namespace hpp {
             "constraints: q=" << displayConfig (initial ()) << "; error=";
           vector_t error;
           constraints ()->isSatisfied (end (), error);
-          oss << displayConfig (error) << ".";
+          Configuration_t q = end();
+          constraints ()->apply (q);
+          oss << displayConfig (error)
+            << "; qproj=" << displayConfig(q) << ".\n" << *constraints();
           throw projection_error (oss.str ().c_str ());
         }
       }
