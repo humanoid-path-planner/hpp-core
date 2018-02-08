@@ -37,11 +37,11 @@ namespace hpp {
         value_type beta = 0.9;
         try {
           beta = steeringMethod->problem().getParameter<value_type>
-            ("PathProjectionRecursiveHermiteBeta", beta);
+            ("PathProjection/RecursiveHermite/Beta", beta);
           hppDout (info, "beta is " << beta);
         } catch (const boost::bad_any_cast& e) {
           hppDout (error, "Could not cast parameter "
-              "PathProjectionRecursiveHermiteBeta to value_type");
+              "PathProjection/RecursiveHermite/Beta to value_type");
         }
         return RecursiveHermitePtr_t (new RecursiveHermite
             (distance, steeringMethod, step, beta));

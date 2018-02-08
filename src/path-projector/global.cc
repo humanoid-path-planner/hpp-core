@@ -53,14 +53,14 @@ namespace hpp {
         value_type thr_min = 1e-3;
         try {
           hessianBound = steeringMethod->problem().getParameter<value_type>
-            ("PathProjectionHessianBound", hessianBound);
+            ("PathProjection/HessianBound", hessianBound);
           thr_min = steeringMethod->problem().getParameter<value_type>
-            ("PathProjectionMinimalDist", thr_min);
+            ("PathProjection/MinimalDist", thr_min);
           hppDout (info, "Hessian bound is " << hessianBound);
           hppDout (info, "Min Dist is " << thr_min);
         } catch (const boost::bad_any_cast& e) {
           hppDout (error, "Could not cast parameter "
-              "PathProjectionHessianBound or PathProjectionMinimalDist "
+              "PathProjection/HessianBound or PathProjection/MinimalDist "
               "to value_type");
         }
         return GlobalPtr_t (new Global (distance, steeringMethod,
