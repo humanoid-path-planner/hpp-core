@@ -90,7 +90,6 @@ namespace hpp {
       {
         using Eigen::MatrixBlocks;
         using Eigen::BlockIndex;
-        typedef hpp::constraints::BlockIndex BlockIndex;
         hppDout (info, "result_ = " << std::endl << v.result_);
 
         assert (v.outJacobian_.nbRows () == 6);
