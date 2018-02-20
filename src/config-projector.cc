@@ -166,7 +166,7 @@ namespace hpp {
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
 	   it != cp.lockedJoints_.end (); ++it) {
         LockedJointPtr_t lj = HPP_STATIC_PTR_CAST (LockedJoint, (*it)->copy ());
-        if (!solver_->explicitSolver().replace((*it)->function(), lj->function()))
+        if (!solver_->explicitSolver().replace((*it)->explicitFunction(), lj->explicitFunction()))
           throw std::runtime_error("Could not replace lockedJoint function");
 	lockedJoints_.push_back (lj);
       }
@@ -381,7 +381,7 @@ namespace hpp {
 	if (lockedJoint->rankInVelocity () == (*itLock)->rankInVelocity ()) {
 	  *itLock = lockedJoint;
 
-          solver_->explicitSolver().replace((*itLock)->function(), lockedJoint->function());
+          solver_->explicitSolver().replace((*itLock)->explicitFunction(), lockedJoint->explicitFunction());
 
 	  return;
 	}
@@ -389,7 +389,7 @@ namespace hpp {
 
       constraints::ComparisonTypes_t types = lockedJoint->comparisonType();
 
-      bool added = solver_->explicitSolver().add(lockedJoint->function(),
+      bool added = solver_->explicitSolver().add(lockedJoint->explicitFunction(),
           Eigen::RowBlockIndices(lockedJoint->inputConf()),
           Eigen::RowBlockIndices(lockedJoint->outputConf()),
           Eigen::ColBlockIndices(lockedJoint->inputVelocity()),
@@ -401,7 +401,7 @@ namespace hpp {
       }
       if (added) {
         solver_->explicitSolver().rightHandSide (
-            lockedJoint->function(),
+            lockedJoint->explicitFunction(),
             lockedJoint->rightHandSide());
       }
       solver_->explicitSolverHasChanged();
@@ -474,7 +474,7 @@ namespace hpp {
         ConfigurationIn_t config)
     {
       solver_->explicitSolver().rightHandSideFromInput (
-          lj->function(), config);
+          lj->explicitFunction(), config);
     }
 
     void ConfigProjector::rightHandSide (const vector_t& small)
@@ -500,7 +500,7 @@ namespace hpp {
         const LockedJointPtr_t& lj,
         vectorIn_t rhs)
     {
-      solver_->explicitSolver().rightHandSide (lj->function(), rhs);
+      solver_->explicitSolver().rightHandSide (lj->explicitFunction(), rhs);
     }
 
     vector_t ConfigProjector::rightHandSide () const

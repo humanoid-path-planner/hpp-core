@@ -124,7 +124,7 @@ namespace hpp {
       ///         input configuration and locked value.
       bool isSatisfied (ConfigurationIn_t config, vector_t& error);
 
-      DifferentiableFunctionPtr_t function() const
+      DifferentiableFunctionPtr_t explicitFunction() const
       {
         return function_;
       }
