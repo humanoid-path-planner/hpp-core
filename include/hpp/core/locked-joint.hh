@@ -22,7 +22,7 @@
 
 # include <hpp/constraints/affine-function.hh>
 
-# include <hpp/core/equation.hh>
+# include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {
   namespace core {
@@ -34,7 +34,7 @@ namespace hpp {
      The underlying equation is \f$ q_i (q) = rhs \f$.
      The right hand side of the equation is also called value.
      */
-    class HPP_CORE_DLLAPI LockedJoint : public Equation
+    class HPP_CORE_DLLAPI LockedJoint : public ExplicitNumericalConstraint
     {
     public:
       /// Copy object and return shared pointer to copy
@@ -124,11 +124,6 @@ namespace hpp {
       ///         input configuration and locked value.
       bool isSatisfied (ConfigurationIn_t config, vector_t& error);
 
-      DifferentiableFunctionPtr_t explicitFunction() const
-      {
-        return function_;
-      }
-
       /// Return shared pointer to joint
       const JointPtr_t& joint ()
       {
@@ -170,14 +165,12 @@ namespace hpp {
       void init (const LockedJointPtr_t& self);
 
     private:
-      void initFunction ();
+      static constraints::ConstantFunctionPtr_t makeFunction (
+          const LiegroupSpacePtr_t& cs, const std::string& name);
 
       std::string jointName_;
-      size_type rankInConfiguration_;
-      size_type rankInVelocity_;
       JointPtr_t joint_;
       LiegroupSpacePtr_t configSpace_;
-      constraints::ConstantFunctionPtr_t function_;
       /// Weak pointer to itself
       LockedJointWkPtr_t weak_;
 

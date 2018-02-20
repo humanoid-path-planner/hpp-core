@@ -267,7 +267,7 @@ namespace hpp {
 	  NumericalConstraint::init (weak);
 	  weak_ = weak;
 	}
-    private:
+    protected:
       // Relation between input and output configuration variables
       DifferentiableFunctionPtr_t inputToOutput_, g_, ginv_;
       segments_t inputConf_;

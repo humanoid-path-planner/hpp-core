@@ -18,6 +18,8 @@
 
 #include <sstream>
 
+#include <boost/assign/list_of.hpp>
+
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
@@ -25,6 +27,7 @@
 
 namespace hpp {
   namespace core {
+    using boost::assign::list_of;
     namespace {
         template <typename T>
 	std::string numToStr (const T& v) {
@@ -76,12 +79,12 @@ namespace hpp {
 
     std::size_t LockedJoint::rankInConfiguration () const
     {
-      return rankInConfiguration_;
+      return outputConf_[0].first;
     }
 
     std::size_t LockedJoint::rankInVelocity () const
     {
-      return rankInVelocity_;
+      return outputVelocity_[0].first;
     }
 
     std::size_t LockedJoint::configSize () const
@@ -107,7 +110,7 @@ namespace hpp {
 
     bool LockedJoint::isSatisfied (ConfigurationIn_t config, vector_t& error)
     {
-      LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
+      LiegroupElement q (config.segment (rankInConfiguration(), configSize ()),
                          configSpace_);
       error = q - (configSpace_->exp (rightHandSide ()));
       return error.isApprox (vector_t::Zero (joint_->numberDof ()));
@@ -116,7 +119,7 @@ namespace hpp {
     void LockedJoint::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       if (!constantRightHandSide ()) {
-        LiegroupElement q (config.segment (rankInConfiguration_, configSize ()),
+        LiegroupElement q (config.segment (rankInConfiguration(), configSize ()),
                            configSpace_);
         rightHandSide (q - configSpace_->neutral ());
       }
@@ -124,55 +127,68 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const JointPtr_t& joint,
                               const LiegroupElement& value) :
-      Equation (ComparisonTypes_t(joint->numberDof(), constraints::Equality),
-                vector_t::Zero (joint->numberDof ())),
+      ExplicitNumericalConstraint (
+          joint->robot(),
+          makeFunction (value.space(), joint->name()),
+          segments_t(), // input conf
+          segments_t(), // input vel
+          list_of(segment_t (joint->rankInConfiguration(), joint->configSize())), // output conf
+          list_of(segment_t (joint->rankInVelocity     (), joint->numberDof ()))  // output vel
+          ),
       jointName_ (joint->name ()),
-      rankInConfiguration_ (joint->rankInConfiguration ()),
-      rankInVelocity_ (joint->rankInVelocity ()), joint_ (joint),
       configSpace_ (joint->configurationSpace ())
     {
       assert (rhsSize () == joint->numberDof ());
       assert (*(value.space ()) == *configSpace_);
       rightHandSide (value - configSpace_->neutral ());
-      initFunction ();
     }
 
     LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
         vectorIn_t value) :
-      Equation (ComparisonTypes_t(value.size(), constraints::Equality),
-                vector_t::Zero (value.size())),
+      ExplicitNumericalConstraint (
+          joint->robot(),
+          makeFunction (LiegroupSpace::Rn (joint->configSize () - index), "partial_" + joint->name()),
+          segments_t(), // input conf
+          segments_t(), // input vel
+          list_of(segment_t (joint->rankInConfiguration(), joint->configSize()-index)), // output conf
+          list_of(segment_t (joint->rankInVelocity     (), joint->numberDof ()-index))  // output vel
+          ),
       jointName_ ("partial_" + joint->name ()),
-      rankInConfiguration_ (joint->rankInConfiguration () + index),
-      rankInVelocity_ (joint->rankInVelocity () + index),
-      joint_ (joint), configSpace_
-      (LiegroupSpace::Rn (joint->configSize () - index))
+      joint_ (joint),
+      configSpace_ (LiegroupSpace::Rn (joint->configSize () - index))
     {
       assert (joint->numberDof () == joint->configSize ());
       rightHandSide (value);
       assert (rhsSize () == value.size());
-      initFunction ();
     }
 
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
         vectorIn_t value) :
-      Equation (ComparisonTypes_t(value.size(), constraints::Equality),
-                vector_t::Zero (value.size())),
+      ExplicitNumericalConstraint (
+          dev,
+          makeFunction (LiegroupSpace::Rn (value.size ()),
+            dev->name() + "_extraDof" + numToStr (index)),
+          segments_t(), // input conf
+          segments_t(), // input vel
+          list_of(segment_t (
+              dev->configSize () - dev->extraConfigSpace().dimension() + index,
+              value.size())), // output conf
+          list_of(segment_t (
+              dev->numberDof ()  - dev->extraConfigSpace().dimension() + index,
+              value.size()))  // output vel
+          ),
       jointName_ (dev->name() + "_extraDof" + numToStr (index)),
-      rankInConfiguration_
-      (dev->configSize () - dev->extraConfigSpace().dimension() + index),
-      rankInVelocity_
-      (dev->numberDof ()  - dev->extraConfigSpace().dimension() + index),
       joint_ (JointPtr_t ()), configSpace_ (LiegroupSpace::Rn (value.size ()))
     {
       assert (value.size() > 0);
-      assert (rankInConfiguration_ + value.size() <= dev->configSize());
+      assert (rankInConfiguration() + value.size() <= dev->configSize());
       rightHandSide (value);
       assert (rhsSize () == value.size());
-      initFunction ();
     }
 
     void LockedJoint::init (const LockedJointPtr_t& self)
     {
+      ExplicitNumericalConstraint::init(self);
       weak_ = self;
     }
 
@@ -180,17 +196,15 @@ namespace hpp {
     {
       os << "Locked joint " << jointName_
 	 << ", value = " << pinocchio::displayConfig (rightHandSide ())
-        << ": rank in configuration = " << rankInConfiguration_
-        << ": rank in velocity = " << rankInVelocity_
+        << ": rank in configuration = " << rankInConfiguration()
+        << ": rank in velocity = " << rankInVelocity()
         << std::endl;
       return os;
     }
 
     LockedJoint::LockedJoint (const LockedJoint& other) :
-      Equation (other), jointName_ (other.jointName_),
-      rankInConfiguration_ (other.rankInConfiguration_),
-      rankInVelocity_ (other.rankInVelocity_), joint_ (other.joint_),
-      configSpace_ (other.configSpace_), function_ (other.function_), weak_ ()
+      ExplicitNumericalConstraint (other), jointName_ (other.jointName_),
+      joint_ (other.joint_), configSpace_ (other.configSpace_), weak_ ()
     {
     }
 
@@ -201,8 +215,8 @@ namespace hpp {
 	  dynamic_cast <const LockedJoint&> (other);
 	if (!Equation::isEqual (other, false)) return false;
 	if (jointName_ != lj.jointName_) return false;
-	if (rankInConfiguration_ != lj.rankInConfiguration_) return false;
-	if (rankInVelocity_ != lj.rankInVelocity_) return false;
+	if (rankInConfiguration() != lj.rankInConfiguration()) return false;
+	if (rankInVelocity() != lj.rankInVelocity()) return false;
 	if (*configSpace_ != *(lj.configSpace_)) return false;
 	if (swapAndTest) return lj.isEqual (*this, false);
 	return true;
@@ -211,13 +225,12 @@ namespace hpp {
       }
     }
 
-    void LockedJoint::initFunction ()
+    constraints::ConstantFunctionPtr_t makeFunction (
+        const LiegroupSpacePtr_t& cs, const std::string& name)
     {
-      function_ = constraints::ConstantFunctionPtr_t (
+      return constraints::ConstantFunctionPtr_t (
           new constraints::ConstantFunction (
-            configSpace_->neutral(), 0, 0,
-            "LockedJoint " + jointName()
-            ));
+            cs->neutral(), 0, 0, "LockedJoint " + name));
     }
   } // namespace core
 } // namespace hpp
