@@ -55,9 +55,11 @@ namespace hpp {
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param rho The radius of a turn.
+      /// \param extraLength the length of the path due to the non RS DoF
       static ReedsSheppPathPtr_t create (const pinocchio::DevicePtr_t& device,
 				   ConfigurationIn_t init,
 				   ConfigurationIn_t end,
+                                   value_type extraLength,
                                    value_type rho,
                                    size_type xyId, size_type rzId,
                                    const std::vector<JointPtr_t> wheels);
@@ -66,10 +68,12 @@ namespace hpp {
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param rho The radius of a turn.
+      /// \param extraLength the length of the path due to the non RS DoF
       /// \param constraints the path is subject to
       static ReedsSheppPathPtr_t create (const DevicePtr_t& device,
 				   ConfigurationIn_t init,
 				   ConfigurationIn_t end,
+                                   value_type extraLength,
                                    value_type rho,
                                    size_type xyId, size_type rzId,
                                    const std::vector<JointPtr_t> wheels,
@@ -135,14 +139,15 @@ namespace hpp {
       virtual std::ostream& print (std::ostream &os) const;
       /// Constructor
       ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                      ConfigurationIn_t end, value_type rho,
+                      ConfigurationIn_t end, value_type extraLength,
+                      value_type rho,
                       size_type xyId, size_type rzId,
                       const std::vector<JointPtr_t> wheels);
 
       /// Constructor with constraints
       ReedsSheppPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		      ConfigurationIn_t end, value_type rho,
-                      size_type xyId, size_type rzId,
+                      ConfigurationIn_t end, value_type extraLength,
+                      value_type rho, size_type xyId, size_type rzId,
                       const std::vector<JointPtr_t> wheels,
 		      ConstraintSetPtr_t constraints);
 
@@ -184,6 +189,7 @@ namespace hpp {
       std::size_t typeId_;
       Lengths_t lengths_;
       value_type currentLength_;
+      value_type extraLength_;
       value_type rho_;
       ReedsSheppPathWkPtr_t weak_;
     }; // class ReedsSheppPath

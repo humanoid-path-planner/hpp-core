@@ -506,12 +506,13 @@ namespace hpp {
     ReedsSheppPathPtr_t ReedsSheppPath::create (const pinocchio::DevicePtr_t& device,
 				    ConfigurationIn_t init,
 				    ConfigurationIn_t end,
+				    value_type extraLength,
 				    value_type rho,
                                     size_type xyId, size_type rzId,
                                     const std::vector<JointPtr_t> wheels)
     {
-      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, rho, xyId,
-                                                rzId, wheels);
+      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, extraLength,
+                                                rho, xyId, rzId, wheels);
       ReedsSheppPathPtr_t shPtr (ptr);
       try {
 	ptr->init (shPtr);
@@ -524,13 +525,14 @@ namespace hpp {
     ReedsSheppPathPtr_t ReedsSheppPath::create (const DevicePtr_t& device,
 				    ConfigurationIn_t init,
 				    ConfigurationIn_t end,
+				    value_type extraLength,
 				    value_type rho,
                                     size_type xyId, size_type rzId,
                                     const std::vector<JointPtr_t> wheels,
 				    ConstraintSetPtr_t constraints)
     {
-      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, rho, xyId,
-                                                rzId, wheels, constraints);
+      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, extraLength,
+                                                rho, xyId, rzId, wheels, constraints);
       ReedsSheppPathPtr_t shPtr (ptr);
       try {
 	ptr->init (shPtr);
@@ -557,13 +559,15 @@ namespace hpp {
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
                                     ConfigurationIn_t init,
                                     ConfigurationIn_t end,
+                                    value_type extraLength,
                                     value_type rho,
                                     size_type xyId, size_type rzId,
                                     const std::vector<JointPtr_t> wheels) :
       parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
       xyId_ (xyId), rzId_ (rzId), typeId_ (0), lengths_ (),
-      currentLength_ (std::numeric_limits <value_type>::infinity ()), rho_ (rho)
+      currentLength_ (std::numeric_limits <value_type>::infinity ()),
+      extraLength_ (extraLength), rho_ (rho)
     {
       assert (device);
       assert (rho_ > 0);
@@ -574,6 +578,7 @@ namespace hpp {
     ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
                                     ConfigurationIn_t init,
                                     ConfigurationIn_t end,
+                                    value_type extraLength,
                                     value_type rho,
                                     size_type xyId, size_type rzId,
                                     const std::vector<JointPtr_t> wheels,
@@ -581,14 +586,15 @@ namespace hpp {
       parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
       xyId_ (xyId), rzId_ (rzId), typeId_ (0),
-      currentLength_ (std::numeric_limits <value_type>::infinity ()), rho_ (rho)
+      currentLength_ (std::numeric_limits <value_type>::infinity ()),
+      extraLength_ (extraLength), rho_ (rho)
     {
       assert (device);
       assert (rho_ > 0);
       lengths_.setZero ();
       Path::constraints (constraints);
       buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
-      assert (fabs (currentLength_ - paramRange ().second) < 1e-8);
+      assert (fabs (extraLength_ + currentLength_ - paramRange ().second) < 1e-8);
     }
 
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
@@ -596,7 +602,8 @@ namespace hpp {
       end_ (path.end_), xyId_ (path.xyId_), rzId_ (path.rzId_),
       dxyId_ (path.dxyId_), drzId_ (path.drzId_),
       typeId_ (path.typeId_), lengths_(path.lengths_),
-      currentLength_ (path.currentLength_), rho_ (path.rho_)
+      currentLength_ (path.currentLength_),
+      extraLength_ (path.extraLength_), rho_ (path.rho_)
     {
     }
 
@@ -605,7 +612,8 @@ namespace hpp {
       parent_t (path, constraints), device_ (path.device_),
       initial_ (path.initial_), end_ (path.end_),
       xyId_ (path.xyId_), rzId_ (path.rzId_),
-      typeId_ (path.typeId_), lengths_(path.lengths_), rho_ (path.rho_)
+      typeId_ (path.typeId_), lengths_(path.lengths_),
+      extraLength_ (path.extraLength_), rho_ (path.rho_)
     {
       assert (constraints->apply (initial_));
       assert (constraints->apply (end_));
@@ -645,10 +653,11 @@ namespace hpp {
       value_type phi = atan2(csPhi(1), csPhi(0));
 
       Configuration_t qInit (initial_), qEnd (device_->configSize ());
+
       if (xy.squaredNorm () + phi*phi < 1e-8) {
         ConstantCurvaturePtr_t segment
-          (ConstantCurvature::create (device_, qInit, qInit, 0, 0, xyId_,
-                                      rzId_, rz, wheels));
+          (ConstantCurvature::create (device_, qInit, end_, extraLength_, 0,
+                                      xyId_, rzId_, rz, wheels));
         appendPath (segment);
         currentLength_ = 0;
         return;
@@ -662,7 +671,8 @@ namespace hpp {
       value_type L (currentLength_), l (0.);
       for (unsigned int i=0; i<5; ++i) {
         if (fabs (lengths_ [i]) > precision) {
-          l += fabs (lengths_ [i]);
+          value_type extra_l = fabs (lengths_ [i]);
+          l += extra_l;
           value_type curvature;
           switch (types [typeId_][i]) {
           case RS_NOP:
@@ -682,7 +692,8 @@ namespace hpp {
           pinocchio::interpolate (device_, initial_, end_, l/L, qEnd);
           ConstantCurvaturePtr_t segment
             (ConstantCurvature::create (device_, qInit, qEnd,
-                                        rho_ * lengths_ [i],
+                                        rho_ * lengths_ [i] +
+                                        lengths_ [i] * extraLength_ / L,
                                         curvature, xyId_, rzId_, rz, wheels));
           appendPath (segment);
           qInit = segment->end ();

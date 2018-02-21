@@ -21,6 +21,7 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
+#include <hpp/core/distance.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/reeds-shepp-path.hh>
 
@@ -30,8 +31,14 @@ namespace hpp {
       PathPtr_t ReedsShepp::impl_compute (ConfigurationIn_t q1,
           ConfigurationIn_t q2) const
       {
+        Configuration_t qEnd (q2);
+        qEnd.segment<2>(xyId_) = q1.segment<2>(xyId_);
+        qEnd.segment<2>(rzId_) = q1.segment<2>(rzId_);
+        // The length corresponding to the non RS DoF
+        value_type extraL = (*problem().distance()) (q1, qEnd);
+
         ReedsSheppPathPtr_t path =
-          ReedsSheppPath::create (device_.lock (), q1, q2,
+          ReedsSheppPath::create (device_.lock (), q1, q2, extraL,
                                   rho_ , xyId_, rzId_, wheels_, constraints ());
         return path;
       }
