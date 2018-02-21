@@ -139,7 +139,7 @@ namespace hpp {
                               const LiegroupElement& value) :
       ExplicitNumericalConstraint (
           joint->robot(),
-          makeFunction (value.space()->neutral(), joint->name()),
+          makeFunction (value, joint->name()),
           segments_t(), // input conf
           segments_t(), // input vel
           list_of(segment_t (joint->rankInConfiguration(), joint->configSize())), // output conf
@@ -150,7 +150,7 @@ namespace hpp {
     {
       assert (rhsSize () == joint->numberDof ());
       assert (*(value.space ()) == *configSpace_);
-      rightHandSide (value - configSpace_->neutral ());
+      // rightHandSide (value - configSpace_->neutral ());
     }
 
     LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
@@ -158,7 +158,7 @@ namespace hpp {
       ExplicitNumericalConstraint (
           joint->robot(),
           makeFunction (
-            LiegroupSpace::Rn (joint->configSize () - index)->neutral(),
+            LiegroupElement (value, LiegroupSpace::Rn (joint->configSize () - index)),
             "partial_" + joint->name()),
           segments_t(), // input conf
           segments_t(), // input vel
@@ -170,7 +170,7 @@ namespace hpp {
       configSpace_ (LiegroupSpace::Rn (joint->configSize () - index))
     {
       assert (joint->numberDof () == joint->configSize ());
-      rightHandSide (value);
+      // rightHandSide (value);
       assert (rhsSize () == value.size());
     }
 
@@ -178,7 +178,8 @@ namespace hpp {
         vectorIn_t value) :
       ExplicitNumericalConstraint (
           dev,
-          makeFunction (LiegroupSpace::Rn (value.size ())->neutral(),
+          makeFunction (
+            LiegroupElement (value, LiegroupSpace::Rn (value.size ())),
             dev->name() + "_extraDof" + numToStr (index)),
           segments_t(), // input conf
           segments_t(), // input vel
@@ -194,7 +195,7 @@ namespace hpp {
     {
       assert (value.size() > 0);
       assert (rankInConfiguration() + value.size() <= dev->configSize());
-      rightHandSide (value);
+      // rightHandSide (value);
       assert (rhsSize () == value.size());
     }
 
@@ -206,8 +207,11 @@ namespace hpp {
 
     std::ostream& LockedJoint::print (std::ostream& os) const
     {
+      LiegroupElement v; vector_t empty;
+      function().value(v, empty);
+      v += rightHandSide();
       os << "Locked joint " << jointName_
-	 << ", value = " << pinocchio::displayConfig (rightHandSide ())
+	 << ", value = " << pinocchio::displayConfig (v.vector())
         << ": rank in configuration = " << rankInConfiguration()
         << ": rank in velocity = " << rankInVelocity()
         << std::endl;
