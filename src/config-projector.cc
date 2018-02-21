@@ -379,10 +379,10 @@ namespace hpp {
       for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
 	   itLock != lockedJoints_.end (); ++itLock) {
 	if (lockedJoint->rankInVelocity () == (*itLock)->rankInVelocity ()) {
+          if (!solver_->explicitSolver().replace((*itLock)->explicitFunction(), lockedJoint->explicitFunction())) {
+            throw std::runtime_error("Could not replace lockedJoint function " + lockedJoint->jointName_);
+          }
 	  *itLock = lockedJoint;
-
-          solver_->explicitSolver().replace((*itLock)->explicitFunction(), lockedJoint->explicitFunction());
-
 	  return;
 	}
       }
