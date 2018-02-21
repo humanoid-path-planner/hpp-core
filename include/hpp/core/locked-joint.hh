@@ -20,8 +20,6 @@
 
 # include <hpp/pinocchio/joint.hh>
 
-# include <hpp/constraints/affine-function.hh>
-
 # include <hpp/core/explicit-numerical-constraint.hh>
 
 namespace hpp {
@@ -165,9 +163,6 @@ namespace hpp {
       void init (const LockedJointPtr_t& self);
 
     private:
-      static constraints::ConstantFunctionPtr_t makeFunction (
-          const LiegroupSpacePtr_t& cs, const std::string& name);
-
       std::string jointName_;
       JointPtr_t joint_;
       LiegroupSpacePtr_t configSpace_;

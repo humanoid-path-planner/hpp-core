@@ -25,14 +25,24 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
+#include <hpp/constraints/affine-function.hh>
+
 namespace hpp {
   namespace core {
     using boost::assign::list_of;
+    using constraints::ConstantFunction;
     namespace {
         template <typename T>
 	std::string numToStr (const T& v) {
  	  std::stringstream ss; ss<<v; return ss.str ();
 	}
+
+        DifferentiableFunctionPtr_t makeFunction (
+            const LiegroupElement& lge, const std::string& name)
+        {
+          return DifferentiableFunctionPtr_t
+            (new ConstantFunction (lge, 0, 0, "LockedJoint " + name));
+        }
     }
 
     /// Copy object and return shared pointer to copy
@@ -129,7 +139,7 @@ namespace hpp {
                               const LiegroupElement& value) :
       ExplicitNumericalConstraint (
           joint->robot(),
-          makeFunction (value.space(), joint->name()),
+          makeFunction (value.space()->neutral(), joint->name()),
           segments_t(), // input conf
           segments_t(), // input vel
           list_of(segment_t (joint->rankInConfiguration(), joint->configSize())), // output conf
@@ -147,7 +157,9 @@ namespace hpp {
         vectorIn_t value) :
       ExplicitNumericalConstraint (
           joint->robot(),
-          makeFunction (LiegroupSpace::Rn (joint->configSize () - index), "partial_" + joint->name()),
+          makeFunction (
+            LiegroupSpace::Rn (joint->configSize () - index)->neutral(),
+            "partial_" + joint->name()),
           segments_t(), // input conf
           segments_t(), // input vel
           list_of(segment_t (joint->rankInConfiguration(), joint->configSize()-index)), // output conf
@@ -166,7 +178,7 @@ namespace hpp {
         vectorIn_t value) :
       ExplicitNumericalConstraint (
           dev,
-          makeFunction (LiegroupSpace::Rn (value.size ()),
+          makeFunction (LiegroupSpace::Rn (value.size ())->neutral(),
             dev->name() + "_extraDof" + numToStr (index)),
           segments_t(), // input conf
           segments_t(), // input vel
@@ -223,14 +235,6 @@ namespace hpp {
       } catch (const std::bad_cast& err) {
 	return false;
       }
-    }
-
-    constraints::ConstantFunctionPtr_t makeFunction (
-        const LiegroupSpacePtr_t& cs, const std::string& name)
-    {
-      return constraints::ConstantFunctionPtr_t (
-          new constraints::ConstantFunction (
-            cs->neutral(), 0, 0, "LockedJoint " + name));
     }
   } // namespace core
 } // namespace hpp
