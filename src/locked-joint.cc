@@ -143,8 +143,8 @@ namespace hpp {
           segments_t(), // input conf
           segments_t(), // input vel
           list_of(segment_t (joint->rankInConfiguration(), joint->configSize())), // output conf
-          list_of(segment_t (joint->rankInVelocity     (), joint->numberDof ()))  // output vel
-          ),
+          list_of(segment_t (joint->rankInVelocity     (), joint->numberDof ())), // output vel
+          ComparisonTypes_t(joint->numberDof(), constraints::Equality)),
       jointName_ (joint->name ()),
       configSpace_ (joint->configurationSpace ())
     {
@@ -163,8 +163,8 @@ namespace hpp {
           segments_t(), // input conf
           segments_t(), // input vel
           list_of(segment_t (joint->rankInConfiguration(), joint->configSize()-index)), // output conf
-          list_of(segment_t (joint->rankInVelocity     (), joint->numberDof ()-index))  // output vel
-          ),
+          list_of(segment_t (joint->rankInVelocity     (), joint->numberDof ()-index)), // output vel
+          ComparisonTypes_t(joint->numberDof()-index, constraints::Equality)),
       jointName_ ("partial_" + joint->name ()),
       joint_ (joint),
       configSpace_ (LiegroupSpace::Rn (joint->configSize () - index))
@@ -188,8 +188,8 @@ namespace hpp {
               value.size())), // output conf
           list_of(segment_t (
               dev->numberDof ()  - dev->extraConfigSpace().dimension() + index,
-              value.size()))  // output vel
-          ),
+              value.size())), // output vel
+          ComparisonTypes_t(value.size(), constraints::Equality)),
       jointName_ (dev->name() + "_extraDof" + numToStr (index)),
       joint_ (JointPtr_t ()), configSpace_ (LiegroupSpace::Rn (value.size ()))
     {
