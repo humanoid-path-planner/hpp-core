@@ -36,13 +36,11 @@
 #include <hpp/core/basic-configuration-shooter.hh>
 #include <hpp/core/bi-rrt-planner.hh>
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/constraint-set.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
-#include <hpp/core/steering-method/dubins.hh>
-#include <hpp/core/steering-method/snibud.hh>
-#include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/path-projector/global.hh>
@@ -59,9 +57,11 @@
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/steering-method/straight.hh>
-#include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
+#include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/snibud.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 
@@ -547,6 +547,22 @@ namespace hpp {
       configProjector->computeValueAndJacobian (configuration, value, jacobian);
     }
 
+    void ProblemSolver::maxIterProjection (size_type iterations)
+    {
+      maxIterProjection_ = iterations;
+      if (constraints_ && constraints_->configProjector ()) {
+        constraints_->configProjector ()->maxIterations (iterations);
+      }
+    }
+
+    void ProblemSolver::maxIterPathPlanning (size_type iterations)
+    {
+      maxIterPathPlanning_ = iterations;
+      if (constraints_ && constraints_->configProjector ()) {
+        constraints_->configProjector ()->maxIterations (iterations);
+      }
+    }
+
     void ProblemSolver::errorThreshold (const value_type& threshold)
     {
       errorThreshold_ = threshold;
@@ -587,7 +603,6 @@ namespace hpp {
         delete problem_;
       problem_ = problem;
     }
-
 
     void ProblemSolver::resetRoadmap ()
     {

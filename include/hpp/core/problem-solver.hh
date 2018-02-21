@@ -26,10 +26,8 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/config-projector.hh>
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/container.hh>
-# include <hpp/core/constraint-set.hh>
 
 namespace hpp {
   namespace core {
@@ -416,13 +414,7 @@ namespace hpp {
 				    vector_t& value, matrix_t& jacobian) const;
 
       /// Set maximal number of iterations in config projector
-      void maxIterProjection (size_type iterations)
-      {
-	maxIterProjection_ = iterations;
-	if (constraints_ && constraints_->configProjector ()) {
-	  constraints_->configProjector ()->maxIterations (iterations);
-	}
-      }
+      void maxIterProjection (size_type iterations);
       /// Get maximal number of iterations in config projector
       size_type maxIterProjection () const
       {
@@ -430,13 +422,7 @@ namespace hpp {
       }
 
       /// Set maximal number of iterations in config projector
-      void maxIterPathPlanning (size_type iterations)
-      {
-	maxIterPathPlanning_ = iterations;
-	if (constraints_ && constraints_->configProjector ()) {
-	  constraints_->configProjector ()->maxIterations (iterations);
-	}
-      }
+      void maxIterPathPlanning (size_type iterations);
       /// Get maximal number of iterations in config projector
       size_type maxIterPathPlanning () const
       {
