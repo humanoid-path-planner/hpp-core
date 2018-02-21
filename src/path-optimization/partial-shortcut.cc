@@ -157,7 +157,7 @@ namespace hpp {
           if ((*it)->numberDof () > 0) {
             bool lock = false;
             if (parameters.removeLockedJoints && proj) {
-              const std::size_t rkCfg = (*it)->rankInConfiguration ();
+              const size_type rkCfg = (*it)->rankInConfiguration ();
               for (LockedJoints_t::const_iterator itLJ = lj.begin ();
                   itLJ != lj.end (); ++itLJ) {
                 if ((*itLJ)->rankInConfiguration () == rkCfg) {

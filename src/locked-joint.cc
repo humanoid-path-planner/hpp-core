@@ -77,22 +77,22 @@ namespace hpp {
       return shPtr;
     }
 
-    std::size_t LockedJoint::rankInConfiguration () const
+    size_type LockedJoint::rankInConfiguration () const
     {
       return outputConf_[0].first;
     }
 
-    std::size_t LockedJoint::rankInVelocity () const
+    size_type LockedJoint::rankInVelocity () const
     {
       return outputVelocity_[0].first;
     }
 
-    std::size_t LockedJoint::configSize () const
+    size_type LockedJoint::configSize () const
     {
       return configSpace_->nq ();
     }
 
-    std::size_t LockedJoint::numberDof () const
+    size_type LockedJoint::numberDof () const
     {
       return configSpace_->nv ();
     }

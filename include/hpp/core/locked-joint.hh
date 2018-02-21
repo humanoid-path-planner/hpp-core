@@ -70,16 +70,16 @@ namespace hpp {
       static LockedJointPtr_t createCopy (LockedJointConstPtr_t other);
 
       /// Get index of locked degree of freedom in robot configuration vector
-      std::size_t rankInConfiguration () const;
+      size_type rankInConfiguration () const;
 
       /// Get index of locked degree of freedom in robot velocity vector.
-      std::size_t rankInVelocity () const;
+      size_type rankInVelocity () const;
 
       /// Get the configuration size of the joint.
-      std::size_t configSize () const;
+      size_type configSize () const;
 
       /// Get number of degrees of freedom of the joint
-      std::size_t numberDof () const;
+      size_type numberDof () const;
 
       /// Get output configuration variables
       segments_t outputConf () const
