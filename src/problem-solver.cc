@@ -40,6 +40,7 @@
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/diffusing-planner.hh>
+#include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/locked-joint.hh>
@@ -68,6 +69,7 @@
 
 namespace hpp {
   namespace core {
+    using boost::bind;
     using pinocchio::GeomIndex;
 
     using pinocchio::Model;
@@ -180,6 +182,7 @@ namespace hpp {
       // TODO "WeighedDistance" is kept for backward compatibility
       distances.add ("WeighedDistance", WeighedDistance::createFromProblem);
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
+      distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
 
       // TODO "SteeringMethodStraight" is kept for backward compatibility
       steeringMethods.add ("SteeringMethodStraight",
