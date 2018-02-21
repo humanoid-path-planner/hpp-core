@@ -170,51 +170,53 @@ namespace hpp {
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
-      add <RobotBuilder_t> (robotType_, Device_t::create);
-      add <PathPlannerBuilder_t> ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
-      add <PathPlannerBuilder_t> ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
-      add <PathPlannerBuilder_t> ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
+      robots.add (robotType_, Device_t::create);
+      pathPlanners.add ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
+      pathPlanners.add ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
+      pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
 
-      add <ConfigurationShooterBuilder_t> ("BasicConfigurationShooter", BasicConfigurationShooter::create);
+      configurationShooters.add ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 
-      add <DistanceBuilder_t> ("WeighedDistance",
-			       WeighedDistance::createFromProblem);
+      // TODO "WeighedDistance" is kept for backward compatibility
+      distances.add ("WeighedDistance", WeighedDistance::createFromProblem);
+      distances.add ("Weighed",         WeighedDistance::createFromProblem);
+
       // TODO "SteeringMethodStraight" is kept for backward compatibility
-      add <SteeringMethodBuilder_t> ("SteeringMethodStraight",
+      steeringMethods.add ("SteeringMethodStraight",
           Factory<steeringMethod::Straight>::create);
-      add <SteeringMethodBuilder_t> ("Straight",
+      steeringMethods.add ("Straight",
           Factory<steeringMethod::Straight>::create);
-      add <SteeringMethodBuilder_t> ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
-      add <SteeringMethodBuilder_t> ("Dubins", steeringMethod::Dubins::createWithGuess);
-      add <SteeringMethodBuilder_t> ("Snibud", steeringMethod::Snibud::createWithGuess);
-      add <SteeringMethodBuilder_t> ("Hermite", steeringMethod::Hermite::create);
+      steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      steeringMethods.add ("Dubins",     steeringMethod::Dubins::createWithGuess);
+      steeringMethods.add ("Snibud",     steeringMethod::Snibud::createWithGuess);
+      steeringMethods.add ("Hermite",    steeringMethod::Hermite::create);
 
       // Store path optimization methods in map.
-      add <PathOptimizerBuilder_t> ("RandomShortcut",     RandomShortcut::create);
-      add <PathOptimizerBuilder_t> ("GradientBased",      pathOptimization::GradientBased::create);
-      add <PathOptimizerBuilder_t> ("PartialShortcut",    pathOptimization::PartialShortcut::create);
-      add <PathOptimizerBuilder_t> ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
-      add <PathOptimizerBuilder_t> ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
-      add <PathOptimizerBuilder_t> ("None",               NoneOptimizer::create); // TODO: Delete me
+      pathOptimizers.add ("RandomShortcut",     RandomShortcut::create);
+      pathOptimizers.add ("GradientBased",      pathOptimization::GradientBased::create);
+      pathOptimizers.add ("PartialShortcut",    pathOptimization::PartialShortcut::create);
+      pathOptimizers.add ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
+      pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
+      pathOptimizers.add ("None",               NoneOptimizer::create); // TODO: Delete me
 
-      // add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
-      // add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 2>::create);
-      // add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 3>::create);
-      add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create);
-      // add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<path::BernsteinBasis, 2>::create);
-      add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::BernsteinBasis, 3>::create);
+      // pathOptimizers.add ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
+      // pathOptimizers.add ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 2>::create);
+      // pathOptimizers.add ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 3>::create);
+      pathOptimizers.add ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create);
+      // pathOptimizers.add ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<path::BernsteinBasis, 2>::create);
+      pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::BernsteinBasis, 3>::create);
 
       // Store path validation methods in map.
-      add <PathValidationBuilder_t> ("Discretized", DiscretizedCollisionChecking::create);
-      add <PathValidationBuilder_t> ("Progressive", continuousCollisionChecking::Progressive::create);
-      add <PathValidationBuilder_t> ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
+      pathValidations.add ("Discretized", DiscretizedCollisionChecking::create);
+      pathValidations.add ("Progressive", continuousCollisionChecking::Progressive::create);
+      pathValidations.add ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
 
       // Store path projector methods in map.
-      add <PathProjectorBuilder_t> ("None",             NonePathProjector::create);
-      add <PathProjectorBuilder_t> ("Progressive",      FactoryPP<pathProjector::Progressive>::create);
-      add <PathProjectorBuilder_t> ("Dichotomy",        FactoryPP<pathProjector::Dichotomy>::create);
-      add <PathProjectorBuilder_t> ("Global",           FactoryPP<pathProjector::Global>::create);
-      add <PathProjectorBuilder_t> ("RecursiveHermite", FactoryPP<pathProjector::RecursiveHermite>::create);
+      pathProjectors.add ("None",             NonePathProjector::create);
+      pathProjectors.add ("Progressive",      FactoryPP<pathProjector::Progressive>::create);
+      pathProjectors.add ("Dichotomy",        FactoryPP<pathProjector::Dichotomy>::create);
+      pathProjectors.add ("Global",           FactoryPP<pathProjector::Global>::create);
+      pathProjectors.add ("RecursiveHermite", FactoryPP<pathProjector::RecursiveHermite>::create);
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -224,7 +226,7 @@ namespace hpp {
 
     void ProblemSolver::distanceType (const std::string& type)
     {
-      if (!has <DistanceBuilder_t> (type)) {
+      if (!distances.has (type)) {
     throw std::runtime_error (std::string ("No distance method with name ") +
                   type);
       }
@@ -233,7 +235,7 @@ namespace hpp {
 
     void ProblemSolver::steeringMethodType (const std::string& type)
     {
-      if (!has <SteeringMethodBuilder_t> (type)) {
+      if (!steeringMethods.has (type)) {
 	throw std::runtime_error (std::string ("No steering method with name ") +
 				  type);
       }
@@ -243,7 +245,7 @@ namespace hpp {
 
     void ProblemSolver::pathPlannerType (const std::string& type)
     {
-      if (!has <PathPlannerBuilder_t> (type)) {
+      if (!pathPlanners.has (type)) {
 	throw std::runtime_error (std::string ("No path planner with name ") +
 				  type);
       }
@@ -252,7 +254,7 @@ namespace hpp {
 
     void ProblemSolver::configurationShooterType (const std::string& type)
     {
-      if (!has <ConfigurationShooterBuilder_t> (type)) {
+      if (!configurationShooters.has (type)) {
     throw std::runtime_error (std::string ("No configuration shooter with name ") +
                   type);
       }
@@ -261,7 +263,7 @@ namespace hpp {
 
     void ProblemSolver::addPathOptimizer (const std::string& type)
     {
-      if (!has <PathOptimizerBuilder_t> (type)) {
+      if (!pathOptimizers.has (type)) {
 	throw std::runtime_error (std::string ("No path optimizer with name ") +
 				  type);
       }
@@ -287,7 +289,7 @@ namespace hpp {
     void ProblemSolver::pathValidationType (const std::string& type,
 					    const value_type& tolerance)
     {
-      if (!has <PathValidationBuilder_t> (type)) {
+      if (!pathValidations.has (type)) {
 	throw std::runtime_error (std::string ("No path validation method with "
 					       "name ") + type);
       }
@@ -303,7 +305,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       PathValidationPtr_t pathValidation =
-        get <PathValidationBuilder_t> (pathValidationType_)
+        pathValidations.get (pathValidationType_)
         (robot_, pathValidationTolerance_);
       problem_->pathValidation (pathValidation);
     }
@@ -311,7 +313,7 @@ namespace hpp {
     void ProblemSolver::pathProjectorType (const std::string& type,
 					    const value_type& tolerance)
     {
-      if (!has <PathProjectorBuilder_t> (type)) {
+      if (!pathProjectors.has (type)) {
 	throw std::runtime_error (std::string ("No path projector method with "
 					       "name ") + type);
       }
@@ -335,7 +337,7 @@ namespace hpp {
 
     DevicePtr_t ProblemSolver::createRobot (const std::string& name)
     {
-      RobotBuilder_t factory (get <RobotBuilder_t> (robotType_));
+      RobotBuilder_t factory (robots.get (robotType_));
       assert (factory);
       return factory (name);
     }
@@ -474,12 +476,12 @@ namespace hpp {
 	  (robot_, configProjName, errorThreshold_, maxIterProjection_);
 	constraints_->addConstraint (configProjector);
       }
-      if (!has <NumericalConstraintPtr_t> (constraintName)) {
+      if (!numericalConstraints.has (constraintName)) {
         std::stringstream ss; ss << "Function " << constraintName <<
                                 " does not exists";
         throw std::invalid_argument (ss.str());
       }
-      configProjector->add (get<NumericalConstraintPtr_t> (constraintName),
+      configProjector->add (numericalConstraints.get(constraintName),
 			    segments_t (0), priority);
     }
 
@@ -495,22 +497,22 @@ namespace hpp {
 	  (robot_, configProjName, errorThreshold_, maxIterProjection_);
 	constraints_->addConstraint (configProjector);
       }
-      if (!has <LockedJointPtr_t> (lockedJointName)) {
+      if (!lockedJoints.has (lockedJointName)) {
         std::stringstream ss; ss << "Function " << lockedJointName <<
                                 " does not exists";
         throw std::invalid_argument (ss.str());
       }
-      configProjector->add (get<LockedJointPtr_t> (lockedJointName));
+      configProjector->add (lockedJoints.get(lockedJointName));
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
         const ComparisonTypes_t types)
     {
       NumericalConstraintPtr_t nc;
-      if (has <NumericalConstraintPtr_t> (name))
-        nc = get<NumericalConstraintPtr_t> (name);
-      else if (has <LockedJointPtr_t> (name))
-        nc = get<LockedJointPtr_t> (name);
+      if (numericalConstraints.has (name))
+        nc = numericalConstraints.get(name);
+      else if (lockedJoints.has (name))
+        nc = lockedJoints.get(name);
       else
         throw std::runtime_error (name + std::string (" is neither a numerical "
               "constraint nor a locked joint"));
@@ -521,10 +523,10 @@ namespace hpp {
         const ComparisonType &type)
     {
       NumericalConstraintPtr_t nc;
-      if (has <NumericalConstraintPtr_t> (name))
-        nc = get<NumericalConstraintPtr_t> (name);
-      else if (has <LockedJointPtr_t> (name))
-        nc = get<LockedJointPtr_t> (name);
+      if (numericalConstraints.has (name))
+        nc = numericalConstraints.get(name);
+      else if (lockedJoints.has (name))
+        nc = lockedJoints.get(name);
       else
         throw std::runtime_error (name + std::string (" is neither a numerical "
               "constraint nor a locked joint"));
@@ -535,10 +537,10 @@ namespace hpp {
     ComparisonTypes_t ProblemSolver::comparisonType (const std::string& name) const
     {
       NumericalConstraintPtr_t nc;
-      if (has <NumericalConstraintPtr_t> (name))
-        nc = get<NumericalConstraintPtr_t> (name);
-      else if (has <LockedJointPtr_t> (name))
-        nc = get<LockedJointPtr_t> (name);
+      if (numericalConstraints.has (name))
+        nc = numericalConstraints.get(name);
+      else if (lockedJoints.has (name))
+        nc = lockedJoints.get(name);
       else
         throw std::runtime_error (name + std::string (" is neither a numerical "
               "constraint nor a locked joint"));
@@ -601,7 +603,7 @@ namespace hpp {
       problem_->constraints (constraints_);
       // Set path validation method
       PathValidationPtr_t pathValidation =
-	get <PathValidationBuilder_t> (pathValidationType_)
+	pathValidations.get (pathValidationType_)
         (robot_, pathValidationTolerance_);
       problem_->pathValidation (pathValidation);
       // Set obstacles
@@ -633,8 +635,7 @@ namespace hpp {
       for (PathOptimizerTypes_t::const_iterator it =
           pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
           ++it) {
-        PathOptimizerBuilder_t createOptimizer =
-          get<PathOptimizerBuilder_t> (*it);
+        PathOptimizerBuilder_t createOptimizer = pathOptimizers.get (*it);
         pathOptimizers_.push_back (createOptimizer (*problem_));
       }
     }
@@ -642,9 +643,7 @@ namespace hpp {
     void ProblemSolver::initDistance ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
-      DistancePtr_t dist (
-          get <DistanceBuilder_t> (distanceType_) (*problem_)
-          );
+      DistancePtr_t dist (distances.get (distanceType_) (*problem_));
       problem_->distance (dist);
     }
 
@@ -652,7 +651,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       SteeringMethodPtr_t sm (
-          get <SteeringMethodBuilder_t> (steeringMethodType_) (*problem_)
+          steeringMethods.get (steeringMethodType_) (*problem_)
           );
       problem_->steeringMethod (sm);
     }
@@ -661,7 +660,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       PathProjectorBuilder_t createProjector =
-        get <PathProjectorBuilder_t> (pathProjectorType_);
+        pathProjectors.get (pathProjectorType_);
       // The PathProjector will store a copy of the current steering method.
       // This means:
       // - when constraints are relevant, they should have been added before.
@@ -685,11 +684,10 @@ namespace hpp {
 
       // Set shooter
       problem_->configurationShooter
-        (get <ConfigurationShooterBuilder_t> (configurationShooterType_) (robot_));
+        (configurationShooters.get (configurationShooterType_) (robot_));
       // Set steeringMethod
       initSteeringMethod ();
-      PathPlannerBuilder_t createPlanner =
-        get <PathPlannerBuilder_t> (pathPlannerType_);
+      PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       pathPlanner_->maxIterations (maxIterPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();
@@ -747,8 +745,8 @@ namespace hpp {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
       // Create steering method using factory
-      SteeringMethodPtr_t sm (get <SteeringMethodBuilder_t>
-                             (steeringMethodType_) (*problem_));
+      SteeringMethodPtr_t sm (steeringMethods.get (steeringMethodType_)
+          (*problem_));
       problem_->steeringMethod (sm);
       PathPtr_t dp = (*sm) (start, end);
       if (!dp) {

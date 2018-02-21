@@ -51,9 +51,9 @@ namespace hpp {
     {
       resetConfigValidations();
 
-      add<boost::any>("PathOptimizersNumberOfLoops", (std::size_t)5);
-      add<boost::any>("PathProjectionHessianBound", (value_type)-1);
-      add<boost::any>("PathProjectionMinimalDist", (value_type)1e-3);
+      parameters.add("PathOptimizersNumberOfLoops", (std::size_t)5);
+      parameters.add("PathProjectionHessianBound", (value_type)-1);
+      parameters.add("PathProjectionMinimalDist", (value_type)1e-3);
     }
 
     // ======================================================================
@@ -219,15 +219,15 @@ namespace hpp {
     void Problem::setParameter (const std::string& name, const boost::any& value)
       throw (std::invalid_argument)
     {
-      if (has<boost::any>(name)) {
-        const boost::any& val = get<boost::any>(name);
+      if (parameters.has(name)) {
+        const boost::any& val = parameters.get(name);
         if (value.type() != val.type()) {
           std::string ret = "Wrong boost::any type. Expects ";
           ret += val.type().name();
           throw std::invalid_argument (ret.c_str());
         }
       }
-      add<boost::any> (name, value);
+      parameters.add (name, value);
     }
 
     // ======================================================================

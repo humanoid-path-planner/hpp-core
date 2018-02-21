@@ -45,10 +45,7 @@ namespace hpp {
     /// \li a method to validate paths,
     /// \li a set of methods to validate configurations. Default methods are
     /// collision checking and joint bound checking.
-    class HPP_CORE_DLLAPI Problem :
-      /// \cond
-      public Containers < boost::mpl::vector < boost::any > >
-      /// \endcond
+    class HPP_CORE_DLLAPI Problem
     {
     public:
       /// Create a path planning problem.
@@ -255,8 +252,8 @@ namespace hpp {
         (const std::string& name, const T& defaultValue) const
         throw (boost::bad_any_cast)
       {
-        if (has<boost::any>(name)) {
-          const boost::any& val = get<boost::any>(name);
+        if (parameters.has(name)) {
+          const boost::any& val = parameters.get(name);
           return boost::any_cast<T>(val);
         }
         return defaultValue;
@@ -271,12 +268,14 @@ namespace hpp {
       /// \note if you do not want any type checking but would rather erase any
       ///       previous values, use
       ///       \code
-      ///       add<boost::any>(name, (ExpectedType)value);
+      ///       parameters.add(name, (ExpectedType)value);
       ///       \endcode
       ///       If there is an ambiguity on the type, it is recommended to
       ///       explicitely write it.
       void setParameter (const std::string& name, const boost::any& value)
         throw (std::invalid_argument);
+
+      Container < boost::any > parameters;
 
     private :
       /// The robot

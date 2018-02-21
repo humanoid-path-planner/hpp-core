@@ -57,24 +57,7 @@ namespace hpp {
     /// This class is a container that does the interface between
     /// hpp-core library and component to be running in a middleware
     /// like CORBA or ROS.
-    class HPP_CORE_DLLAPI ProblemSolver :
-      /// \cond
-      public Containers <
-        boost::mpl::vector < RobotBuilder_t,
-                             PathPlannerBuilder_t,
-                             PathOptimizerBuilder_t,
-                             PathValidationBuilder_t,
-                             PathProjectorBuilder_t,
-                             ConfigurationShooterBuilder_t,
-                             NumericalConstraintPtr_t,
-                             LockedJointPtr_t,
-                             CenterOfMassComputationPtr_t,
-                             DistanceBuilder_t,
-                             SteeringMethodBuilder_t,
-                             AffordanceObjects_t,
-                             AffordanceConfig_t,
-                             JointAndShapes_t> >
-      /// \endcond
+    class HPP_CORE_DLLAPI ProblemSolver
     {
     public:
 
@@ -154,52 +137,10 @@ namespace hpp {
       const std::string& steeringMethodType () const {
         return steeringMethodType_;
       }
-      /// Add a distance type
-      /// \param type name of the distance type
-      /// \param static method that creates a distance
-      /// with robot as input
-      /// \deprecated use add <DistanceBuilder_t> (type, builder) instead
-      void addDistanceType (const std::string& type,
-                   const DistanceBuilder_t& builder) HPP_CORE_DEPRECATED
-      {
-    add <DistanceBuilder_t> (type, builder);
-      }
-      /// Add a SteeringMethod type
-      /// \param type name of the SteeringMethod type
-      /// \param static method that creates a SteeringMethod
-      /// with robot as input
-      void addSteeringMethodType (const std::string& type,
-			       const SteeringMethodBuilder_t& builder)
-      {
-	add <SteeringMethodBuilder_t> (type, builder);
-      }
       /// Set configuration shooter type
       void configurationShooterType (const std::string& type);
       const std::string& configurationShooterType () const {
         return configurationShooterType_;
-      }
-      /// Add a ConfigurationShooter type
-      /// \param type name of the ConfigurationShooter type
-      /// \param static method that creates a ConfigurationShooter
-      /// with robot as input
-      /// \deprecated use add <ConfigurationShooterBuilder_t> (type, builder)
-      /// instead.
-      void addConfigurationShooterType (const std::string& type,
-			       const ConfigurationShooterBuilder_t& builder)
-        HPP_CORE_DEPRECATED
-      {
-	add <ConfigurationShooterBuilder_t> (type, builder);
-      }
-      /// Add a path planner type
-      /// \param type name of the new path planner type
-      /// \param static method that creates a path planner with a problem
-      /// and a roadmap as input
-      /// \deprecated use add <PathPlannerBuilder_t> (type, builder) instead
-      void addPathPlannerType (const std::string& type,
-			       const PathPlannerBuilder_t& builder)
-        HPP_CORE_DEPRECATED
-      {
-	add <PathPlannerBuilder_t> (type, builder);
       }
       /// Get path planner
       const PathPlannerPtr_t& pathPlanner () const
@@ -221,17 +162,6 @@ namespace hpp {
       {
 	return pathOptimizers_ [rank];
       }
-      /// Add a path optimizer type
-      /// \param type name of the new path optimizer type
-      /// \param static method that creates a path optimizer with a problem
-      /// as input
-      /// \deprecated use add <PathOptimizerBuilder_t> (type, builder) instead.
-      void addPathOptimizerType (const std::string& type,
-				 const PathOptimizerBuilder_t& builder)
-        HPP_CORE_DEPRECATED
-      {
-        add (type, builder);
-      }
 
       /// Optimize path
       ///
@@ -252,18 +182,6 @@ namespace hpp {
         return pathValidationType_;
       }
 
-      /// Add a path validation type
-      /// \param type name of the new path validation method,
-      /// \param static method that creates a path validation with a robot
-      /// and tolerance as input.
-      /// \deprecated use add <PathValidationBuilder_t> (type, builder) instead.
-      void addPathValidationType (const std::string& type,
-				 const PathValidationBuilder_t& builder)
-        HPP_CORE_DEPRECATED
-      {
-	add (type, builder);
-      }
-
       /// Set path projector method
       /// \param type name of new path validation method
       /// \param step discontinuity tolerance
@@ -274,18 +192,6 @@ namespace hpp {
       const std::string& pathProjectorType (value_type& tolerance) const {
         tolerance = pathProjectorTolerance_;
         return pathProjectorType_;
-      }
-
-      /// Add a path projector type
-      /// \param type name of the new path projector method,
-      /// \param static method that creates a path projector with a distance
-      /// and tolerance as input.
-      /// \deprecated use add <PathProjectorBuilder_t> (type, builder) instead.
-      void addPathProjectorType (const std::string& type,
-				 const PathProjectorBuilder_t& builder)
-        HPP_CORE_DEPRECATED
-      {
-	add (type, builder);
       }
 
       const RoadmapPtr_t& roadmap () const
@@ -313,24 +219,6 @@ namespace hpp {
 
       /// Reset constraint set
       virtual void resetConstraints ();
-
-      /// Add a CenterOfMassComputation object to the local map
-      /// \param name key of the object in the map
-      /// \param comc the object to insert.
-      void addCenterOfMassComputation (const std::string& name,
-          CenterOfMassComputationPtr_t comc)
-      {
-        add <CenterOfMassComputationPtr_t> (name, comc);
-      }
-
-      /// Get the CenterOfMassComputation object from the local map
-      /// \param name key of the object in the map
-      /// \return the corresponding object.
-      /// \note a null shared pointer is returned if the object was not found
-      CenterOfMassComputationPtr_t centerOfMassComputation (const std::string& name) const
-      {
-        return get<CenterOfMassComputationPtr_t> (name);
-      }
 
       /// Add numerical constraint to the config projector
       /// \param configProjName Name given to config projector if created by
@@ -360,26 +248,7 @@ namespace hpp {
 				   const NumericalConstraintPtr_t&
 				   constraint)
       {
-        add (name, constraint);
-      }
-
-      /// Add a vector of passive dofs in a local map.
-      /// \param name the key of the vector in the map.
-      /// \param passiveDofs a vector of segment_t interpreted as
-      ///                    (index_start, interval_length).
-      void addPassiveDofs (const std::string& name,
-                           const segments_t& passiveDofs)
-      {
-        passiveDofsMap_ [name] = passiveDofs;
-      }
-
-      /// Get the vector of passive dofs associated with this name.
-      segments_t passiveDofs (const std::string& name) const
-      {
-        segmentsMap_t::const_iterator it = passiveDofsMap_.find (name);
-        if (it == passiveDofsMap_.end ())
-          return segments_t ();
-        return it->second;
+        numericalConstraints.add (name, constraint);
       }
 
       /// Set the comparison types of a constraint.
@@ -395,9 +264,7 @@ namespace hpp {
       /// Get constraint with given name
       NumericalConstraintPtr_t numericalConstraint (const std::string& name)
       {
-        if (!has <NumericalConstraintPtr_t> (name))
-          return NumericalConstraintPtr_t ();
-        return get <NumericalConstraintPtr_t> (name);
+        return numericalConstraints.get(name, NumericalConstraintPtr_t());
       }
 
       /// Compute value and Jacobian of numerical constraints
@@ -620,6 +487,46 @@ namespace hpp {
 
       /// Initialize the problem target by calling the path validation factory
       virtual void initProblemTarget ();
+
+      /// Container of static method that creates a Robot
+      /// with string as input
+      Container <RobotBuilder_t>                robots;
+      /// Container of static method that creates a ConfigurationShooter
+      /// with a robot as input
+      Container <ConfigurationShooterBuilder_t> configurationShooters;
+      /// Container of static method that creates a SteeringMethod
+      /// with a problem as input
+      Container <SteeringMethodBuilder_t>       steeringMethods;
+      /// Container of static method that creates a Distance
+      /// with problem as input
+      Container <DistanceBuilder_t>             distances;
+      /// Container of static method that creates a PathValidation
+      /// with a robot and a tolerance as input.
+      Container <PathValidationBuilder_t>       pathValidations;
+      /// Container of static method that creates a PathProjection
+      /// with a problem and a tolerance as input.
+      Container <PathProjectorBuilder_t>        pathProjectors;
+      /// Container of static method that creates a PathPlanner
+      /// with a problem and a roadmap as input
+      Container <PathPlannerBuilder_t>          pathPlanners;
+      /// Container of static method that creates a PathOptimizer
+      /// with a problem as input
+      Container <PathOptimizerBuilder_t>        pathOptimizers;
+
+      /// Container of NumericalConstraint
+      Container <NumericalConstraintPtr_t>      numericalConstraints;
+      /// Container of LockedJoint
+      Container <LockedJointPtr_t>              lockedJoints;
+      /// Container of CenterOfMassComputation
+      Container <CenterOfMassComputationPtr_t>  centerOfMassComputations;
+      /// Container of passive DoFs (as segments_t)
+      Container <segments_t>                    passiveDofs;
+      /// Container of JointAndShapes_t
+      Container <JointAndShapes_t>              jointAndShapes;
+      /// Container of AffordanceObjects_t
+      Container <AffordanceObjects_t>           affordanceObjects;
+      /// Container of AffordanceConfig_t
+      Container <AffordanceConfig_t>            affordanceConfigs;
 
     protected:
       /// Constructor
