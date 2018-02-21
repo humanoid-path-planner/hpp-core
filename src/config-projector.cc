@@ -204,6 +204,9 @@ namespace hpp {
       }
       constraints::ComparisonTypes_t types = nm->comparisonType();
 
+      LockedJointPtr_t lj = HPP_DYNAMIC_PTR_CAST (LockedJoint, nm);
+      assert (!lj);
+
       bool addedAsExplicit = false;
       ExplicitNumericalConstraintPtr_t enm =
         HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
@@ -397,7 +400,7 @@ namespace hpp {
           types);
 
       if (!added) {
-        hppDout (error, "Could not add LockedJoint " << lockedJoint->jointName_);
+        throw std::runtime_error("Could not add lockedJoint function " + lockedJoint->jointName_);
       }
       if (added) {
         solver_->explicitSolver().rightHandSide (
