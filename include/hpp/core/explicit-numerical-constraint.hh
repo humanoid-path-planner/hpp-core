@@ -145,7 +145,8 @@ namespace hpp {
 	 const segments_t& inputConf,
 	 const segments_t& inputVelocity,
 	 const segments_t& outputConf,
-	 const segments_t& outputVelocity);
+	 const segments_t& outputVelocity,
+         const ComparisonTypes_t& comp = ComparisonTypes_t());
 
       /// Create instance and return shared pointer
       ///
@@ -167,7 +168,8 @@ namespace hpp {
 	 const segments_t& inputConf,
 	 const segments_t& inputVelocity,
 	 const segments_t& outputConf,
-	 const segments_t& outputVelocity);
+	 const segments_t& outputVelocity,
+         const ComparisonTypes_t& comp = ComparisonTypes_t());
 
       /// Create a copy and return shared pointer
       static ExplicitNumericalConstraintPtr_t createCopy
@@ -225,7 +227,8 @@ namespace hpp {
 	 const segments_t& inputConf,
 	 const segments_t& inputVelocity,
 	 const segments_t& outputConf,
-	 const segments_t& outputVelocity);
+	 const segments_t& outputVelocity,
+         const ComparisonTypes_t& comp);
 
       /// Constructor
       ///
@@ -246,7 +249,8 @@ namespace hpp {
 	 const segments_t& inputConf,
 	 const segments_t& inputVelocity,
 	 const segments_t& outputConf,
-	 const segments_t& outputVelocity);
+	 const segments_t& outputVelocity,
+         const ComparisonTypes_t& comp);
 
       /// Constructor
       ///

@@ -49,6 +49,18 @@ namespace hpp {
       }
     }
 
+    inline ComparisonTypes_t defaultCompTypes (
+        const segments_t& outputVelocity,
+        const ComparisonTypes_t& comp)
+    {
+      if (comp.size() == 0) {
+        size_type n = Eigen::BlockIndex::cardinal (outputVelocity);
+        if (n > 0)
+          return ComparisonTypes_t(n, constraints::EqualToZero);
+      }
+      return comp;
+    }
+
     ExplicitNumericalConstraintPtr_t ExplicitNumericalConstraint::create
     (const DevicePtr_t& robot, const DifferentiableFunctionPtr_t& function,
      const DifferentiableFunctionPtr_t& g,
@@ -56,10 +68,12 @@ namespace hpp {
      const segments_t& inputConf,
      const segments_t& inputVelocity,
      const segments_t& outputConf,
-     const segments_t& outputVelocity)
+     const segments_t& outputVelocity,
+     const ComparisonTypes_t& comp)
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
-	(robot, function, g, ginv, inputConf, inputVelocity, outputConf, outputVelocity);
+	(robot, function, g, ginv, inputConf, inputVelocity, outputConf, outputVelocity,
+         defaultCompTypes(outputVelocity,comp));
       ExplicitNumericalConstraintPtr_t shPtr (ptr);
       ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
       ptr->init (wkPtr);
@@ -71,10 +85,12 @@ namespace hpp {
      const segments_t& inputConf,
      const segments_t& inputVelocity,
      const segments_t& outputConf,
-     const segments_t& outputVelocity)
+     const segments_t& outputVelocity,
+     const ComparisonTypes_t& comp)
     {
       ExplicitNumericalConstraint* ptr = new ExplicitNumericalConstraint
-	(robot, function, inputConf, inputVelocity, outputConf, outputVelocity);
+	(robot, function, inputConf, inputVelocity, outputConf, outputVelocity,
+         defaultCompTypes(outputVelocity,comp));
       ExplicitNumericalConstraintPtr_t shPtr (ptr);
       ExplicitNumericalConstraintWkPtr_t wkPtr (shPtr);
       ptr->init (wkPtr);
@@ -104,13 +120,12 @@ namespace hpp {
      const segments_t& inputConf,
      const segments_t& inputVelocity,
      const segments_t& outputConf,
-     const segments_t& outputVelocity) :
+     const segments_t& outputVelocity,
+     const ComparisonTypes_t& comp) :
       NumericalConstraint (GenericImplicitFunction::create
 			   (robot, explicitFunction, g, inputConf, inputVelocity,
                             outputConf, outputVelocity),
-			   ComparisonTypes_t(Eigen::BlockIndex::cardinal
-                                             (outputVelocity),
-                                             constraints::EqualToZero)),
+                           comp),
       inputToOutput_ (explicitFunction), g_ (g), ginv_ (ginv),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),
@@ -124,13 +139,12 @@ namespace hpp {
      const segments_t& inputConf,
      const segments_t& inputVelocity,
      const segments_t& outputConf,
-     const segments_t& outputVelocity) :
+     const segments_t& outputVelocity,
+     const ComparisonTypes_t& comp) :
       NumericalConstraint (BasicImplicitFunction::create
 			   (robot, explicitFunction, inputConf, inputVelocity,
                             outputConf, outputVelocity),
-			   ComparisonTypes_t(Eigen::BlockIndex::cardinal
-                                             (outputVelocity),
-                                             constraints::EqualToZero)),
+                           comp),
       inputToOutput_ (explicitFunction),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),
