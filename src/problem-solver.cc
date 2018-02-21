@@ -42,6 +42,7 @@
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/locked-joint.hh>
 #include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
@@ -505,29 +506,43 @@ namespace hpp {
     void ProblemSolver::comparisonType (const std::string& name,
         const ComparisonTypes_t types)
     {
-      if (!has <NumericalConstraintPtr_t> (name))
-        throw std::logic_error (std::string ("Numerical constraint ") +
-            name + std::string (" not defined."));
-      get<NumericalConstraintPtr_t> (name)->comparisonType (types);
+      NumericalConstraintPtr_t nc;
+      if (has <NumericalConstraintPtr_t> (name))
+        nc = get<NumericalConstraintPtr_t> (name);
+      else if (has <LockedJointPtr_t> (name))
+        nc = get<LockedJointPtr_t> (name);
+      else
+        throw std::runtime_error (name + std::string (" is neither a numerical "
+              "constraint nor a locked joint"));
+      nc->comparisonType (types);
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
         const ComparisonType &type)
     {
-      if (!has <NumericalConstraintPtr_t> (name))
-        throw std::logic_error (std::string ("Numerical constraint ") +
-            name + std::string (" not defined."));
-      NumericalConstraintPtr_t nc = get<NumericalConstraintPtr_t> (name);
-      ComparisonTypes_t eqtypes (nc->function().outputSize(), type);
-      get<NumericalConstraintPtr_t> (name)->comparisonType (eqtypes);
+      NumericalConstraintPtr_t nc;
+      if (has <NumericalConstraintPtr_t> (name))
+        nc = get<NumericalConstraintPtr_t> (name);
+      else if (has <LockedJointPtr_t> (name))
+        nc = get<LockedJointPtr_t> (name);
+      else
+        throw std::runtime_error (name + std::string (" is neither a numerical "
+              "constraint nor a locked joint"));
+      ComparisonTypes_t eqtypes (nc->function().outputDerivativeSize(), type);
+      nc->comparisonType (eqtypes);
     }
 
     ComparisonTypes_t ProblemSolver::comparisonType (const std::string& name) const
     {
-      if (!has <NumericalConstraintPtr_t> (name))
-        throw std::logic_error (std::string ("Numerical constraint ") +
-            name + std::string (" not defined."));
-      return get<NumericalConstraintPtr_t> (name)->comparisonType ();
+      NumericalConstraintPtr_t nc;
+      if (has <NumericalConstraintPtr_t> (name))
+        nc = get<NumericalConstraintPtr_t> (name);
+      else if (has <LockedJointPtr_t> (name))
+        nc = get<LockedJointPtr_t> (name);
+      else
+        throw std::runtime_error (name + std::string (" is neither a numerical "
+              "constraint nor a locked joint"));
+      return nc->comparisonType ();
     }
 
     void ProblemSolver::computeValueAndJacobian
