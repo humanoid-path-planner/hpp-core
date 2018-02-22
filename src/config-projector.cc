@@ -216,7 +216,7 @@ namespace hpp {
             Eigen::RowBlockIndices(enm->outputConf()),
             Eigen::ColBlockIndices(enm->inputVelocity()),
             Eigen::RowBlockIndices(enm->outputVelocity()),
-            types);
+            types) >= 0;
         if (addedAsExplicit && enm->outputFunction() && enm->outputFunctionInverse()) {
           bool ok = solver_->explicitSolver().setG (enm->explicitFunction(),
               enm->outputFunction(), enm->outputFunctionInverse());
@@ -397,7 +397,7 @@ namespace hpp {
           Eigen::RowBlockIndices(lockedJoint->outputConf()),
           Eigen::ColBlockIndices(lockedJoint->inputVelocity()),
           Eigen::RowBlockIndices(lockedJoint->outputVelocity()),
-          types);
+          types) >= 0;
 
       if (!added) {
         throw std::runtime_error("Could not add lockedJoint function " + lockedJoint->jointName_);
