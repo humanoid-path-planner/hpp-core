@@ -163,6 +163,7 @@ namespace hpp {
       weak_ (),
       statistics_ (cp.statistics_)
     {
+      // TODO remove me
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
 	   it != cp.lockedJoints_.end (); ++it) {
         LockedJointPtr_t lj = HPP_STATIC_PTR_CAST (LockedJoint, (*it)->copy ());

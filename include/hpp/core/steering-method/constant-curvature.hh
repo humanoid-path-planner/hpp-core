@@ -27,6 +27,10 @@ namespace hpp {
   namespace core {
     namespace steeringMethod {
       /// Path of constant curvature for a carlike robot
+      /// \todo this class ought to be replaced by a straight using a different
+      ///       LiegroupSpace (as an interpolation and differentiation method).
+      ///       This would remove the need for the two lengths
+      ///       (pathLength and curveLength)
       class ConstantCurvature : public Path {
       public:
         typedef Path parent_t;
