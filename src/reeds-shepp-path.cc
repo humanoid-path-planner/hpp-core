@@ -592,7 +592,10 @@ namespace hpp {
       assert (device);
       assert (rho_ > 0);
       lengths_.setZero ();
-      Path::constraints (constraints);
+      if (constraints) {
+        Path::constraints (
+            HPP_STATIC_PTR_CAST (ConstraintSet, constraints->copy ()));
+      }
       buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
       assert (fabs (extraLength_ + currentLength_ - paramRange ().second) < 1e-8);
     }
