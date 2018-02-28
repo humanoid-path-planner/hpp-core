@@ -728,7 +728,7 @@ namespace hpp {
       else if (order == 1) {
 	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
 	  (device_, end_, initial_, result);
-	result = (1/L) * result;
+	result *= (1/L);
       } else {
         assert (order > 0);
         result.setZero ();
