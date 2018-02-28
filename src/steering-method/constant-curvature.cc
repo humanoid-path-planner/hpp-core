@@ -201,8 +201,10 @@ namespace hpp {
         }
 
         value_type t (u * curveLength_);
-        value_type alpha (1);
-        if (forward_ == -1 && order%2 == 1) alpha = -1;
+        value_type beta (curveLength_ / L);
+        if (L == 0) beta = 1;
+        value_type alpha (fabs(beta));
+        if (forward_ == -1 && order%2 == 1) alpha *= -1;
         value_type c0 (initial_ [rzId_ + 0]), s0 (initial_ [rzId_ + 1]);
         value_type dx, dy, dtheta = 0;
         value_type c (cos (curvature_ * t)), s (sin (curvature_ * t));
@@ -217,30 +219,35 @@ namespace hpp {
           dy = alpha * (c0 * s + s0 * c);
           dtheta = alpha * curvature_;
         } else if (order % 4 == 2) {
-          dx =  alpha * pow (curvature_, (value_type) (order - 1)) *
+          dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * s + s0 * c);
-          dy = -alpha * pow (curvature_, (value_type) (order - 1)) *
+          dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * c - s0 * s);
         } else if (order % 4 == 3) {
-          dx = -alpha * pow (curvature_, (value_type) (order - 1)) *
+          dx = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * c - s0 * s);
-          dy = -alpha * pow (curvature_, (value_type) (order - 1)) *
+          dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * s + s0 * c);
         } else if (order % 4 == 0) {
-          dx =  alpha * pow (curvature_, (value_type) (order - 1)) *
+          dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * s + s0 * c);
-          dy = -alpha * pow (curvature_, (value_type) (order - 1)) *
+          dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * c - s0 * s);
         } else if (order % 4 == 1) {
-          dx =  alpha * pow (curvature_, (value_type) (order - 1)) *
+          dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * c - s0 * s);
-          dy =  alpha * pow (curvature_, (value_type) (order - 1)) *
+          dy =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
             (c0 * s + s0 * c);
         }
 
         result [dxyId_ + 0] = dx;
         result [dxyId_ + 1] = dy;
         result [rzId_] = dtheta;
+        // Express velocity in local frame
+        Eigen::Matrix<value_type, 2, 2> R;
+        R.col(0) << c0 * c - s0 * s, c0 * s + s0 * c;
+        R.col(1) << - R(1,0), R(0,0);
+        result.segment<2>(dxyId_) = R.transpose() * result.segment<2>(dxyId_);
 
         // Set wheel joint velocities
         for (std::vector<Wheels_t>::const_iterator w = wheels_.begin ();
