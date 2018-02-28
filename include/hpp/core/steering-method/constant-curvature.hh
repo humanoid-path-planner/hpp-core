@@ -45,7 +45,8 @@ namespace hpp {
         /// \param vector of joints corresponding to wheels.
         static ConstantCurvaturePtr_t create
         (const DevicePtr_t& robot, ConfigurationIn_t init,
-         ConfigurationIn_t end, value_type length,
+         ConfigurationIn_t end,
+         value_type curveLength, value_type pathLength,
          value_type curvature, size_type xyId, size_type rzId,
          const JointPtr_t rz, const std::vector<JointPtr_t> wheels);
 
@@ -98,7 +99,8 @@ namespace hpp {
         /// \param rz joint corresponding to orientation of robot,
         /// \param vector of joints corresponding to wheels.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
-                           ConfigurationIn_t end, value_type length,
+                           ConfigurationIn_t end,
+                           value_type curveLength, value_type pathLength,
                            value_type curvature, size_type xyId,
                            size_type rzId, const JointPtr_t rz,
                            const std::vector<JointPtr_t> wheels);
@@ -117,7 +119,8 @@ namespace hpp {
         /// \param vector of joints corresponding to wheels,
         /// \param constraints set of contraints the path is suject to.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
-                           ConfigurationIn_t end, value_type length,
+                           ConfigurationIn_t end,
+                           value_type curveLength, value_type pathLength,
                            value_type curvature, size_type xyId, size_type rzId,
                            const JointPtr_t rz,
                            const std::vector<JointPtr_t> wheels,
@@ -153,7 +156,7 @@ namespace hpp {
         const DevicePtr_t robot_;
         const Configuration_t initial_;
         Configuration_t end_;
-        const value_type curvature_;
+        const value_type curveLength_, curvature_;
         const size_type xyId_,rzId_;
         size_type dxyId_,drzId_;
         const value_type forward_;

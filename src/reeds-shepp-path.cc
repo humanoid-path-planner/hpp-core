@@ -659,7 +659,7 @@ namespace hpp {
 
       if (xy.squaredNorm () + phi*phi < 1e-8) {
         ConstantCurvaturePtr_t segment
-          (ConstantCurvature::create (device_, qInit, end_, extraLength_, 0,
+          (ConstantCurvature::create (device_, qInit, end_, 0, extraLength_, 0,
                                       xyId_, rzId_, rz, wheels));
         appendPath (segment);
         currentLength_ = 0;
@@ -695,6 +695,7 @@ namespace hpp {
           pinocchio::interpolate (device_, initial_, end_, l/L, qEnd);
           ConstantCurvaturePtr_t segment
             (ConstantCurvature::create (device_, qInit, qEnd,
+                                        rho_ * lengths_ [i],
                                         rho_ * lengths_ [i] +
                                         lengths_ [i] * extraLength_ / L,
                                         curvature, xyId_, rzId_, rz, wheels));
