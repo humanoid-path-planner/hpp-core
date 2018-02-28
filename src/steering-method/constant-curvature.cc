@@ -33,11 +33,18 @@ namespace hpp {
       (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
        value_type curveLength, value_type pathLength, value_type curvature,
        size_type xyId, size_type rzId,
-       const JointPtr_t rz, const std::vector<JointPtr_t> wheels)
+       const JointPtr_t rz, const std::vector<JointPtr_t> wheels,
+       const ConstraintSetPtr_t& constraints)
       {
-        ConstantCurvature* ptr (new ConstantCurvature
-                                (robot, init, end, curveLength, pathLength,
-                                 curvature, xyId, rzId, rz, wheels));
+        ConstantCurvature* ptr;
+        if (constraints)
+          ptr = new ConstantCurvature (
+              robot, init, end, curveLength, pathLength,
+              curvature, xyId, rzId, rz, wheels, constraints);
+        else
+          ptr = new ConstantCurvature (
+              robot, init, end, curveLength, pathLength,
+              curvature, xyId, rzId, rz, wheels);
         ConstantCurvaturePtr_t shPtr (ptr);
         ptr->init (shPtr);
         return shPtr;

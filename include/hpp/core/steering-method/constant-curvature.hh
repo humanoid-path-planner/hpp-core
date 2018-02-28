@@ -52,7 +52,8 @@ namespace hpp {
          ConfigurationIn_t end,
          value_type curveLength, value_type pathLength,
          value_type curvature, size_type xyId, size_type rzId,
-         const JointPtr_t rz, const std::vector<JointPtr_t> wheels);
+         const JointPtr_t rz, const std::vector<JointPtr_t> wheels,
+         const ConstraintSetPtr_t& constraints);
 
          /// Create instance and return shared pointer.
         static ConstantCurvaturePtr_t createCopy

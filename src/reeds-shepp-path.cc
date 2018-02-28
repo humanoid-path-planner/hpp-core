@@ -592,11 +592,7 @@ namespace hpp {
       assert (device);
       assert (rho_ > 0);
       lengths_.setZero ();
-      if (constraints) {
-        Path::constraints (
-            HPP_STATIC_PTR_CAST (ConstraintSet, constraints->copy ()));
-      }
-      buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
+      buildReedsShepp (device->getJointAtConfigRank (rzId), wheels, constraints);
       assert (fabs (extraLength_ + currentLength_ - paramRange ().second) < 1e-8);
     }
 
@@ -635,7 +631,8 @@ namespace hpp {
     }
 
     void ReedsSheppPath::buildReedsShepp(const JointPtr_t rz,
-                                         const std::vector<JointPtr_t> wheels)
+                                         const std::vector<JointPtr_t> wheels,
+                                         const ConstraintSetPtr_t constraints)
     {
       // Find rank of translation and rotation in velocity vectors
       // Hypothesis: degrees of freedom all belong to a planar joint or
@@ -660,7 +657,7 @@ namespace hpp {
       if (xy.squaredNorm () + phi*phi < 1e-8) {
         ConstantCurvaturePtr_t segment
           (ConstantCurvature::create (device_, qInit, end_, 0, extraLength_, 0,
-                                      xyId_, rzId_, rz, wheels));
+                                      xyId_, rzId_, rz, wheels, constraints));
         appendPath (segment);
         currentLength_ = 0;
         return;
@@ -698,7 +695,8 @@ namespace hpp {
                                         rho_ * lengths_ [i],
                                         rho_ * lengths_ [i] +
                                         lengths_ [i] * extraLength_ / L,
-                                        curvature, xyId_, rzId_, rz, wheels));
+                                        curvature, xyId_, rzId_, rz, wheels,
+                                        constraints));
           appendPath (segment);
           qInit = segment->end ();
         }

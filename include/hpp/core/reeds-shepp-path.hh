@@ -169,7 +169,8 @@ namespace hpp {
 
       // Compute path
       void buildReedsShepp (const JointPtr_t rz,
-                            const std::vector<JointPtr_t> wheels);
+                            const std::vector<JointPtr_t> wheels,
+                            const ConstraintSetPtr_t constraints = ConstraintSetPtr_t());
       // Setup path
       void setupPath (const std::size_t& typeId, double t, double u=0.,
                       double v=0., double w=0., double x=0.);
