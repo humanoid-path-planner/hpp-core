@@ -22,20 +22,21 @@
 typedef std::string Type1;
 typedef boost::shared_ptr<std::string> Type2;
 
-typedef typename hpp::core::Containers <boost::mpl::vector<Type1, Type2> >Containers_t;
+using hpp::core::Container;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core_container )
 
 BOOST_AUTO_TEST_CASE (containers) {
-  Containers_t c;
-  c.add ("key1", Type1 ("type1_1"));
-  c.add ("key1", Type2 (new std::string ("type2_1")));
+  Container<Type1> c1;
+  Container<Type2> c2;
+  c1.add ("key1", Type1 ("type1_1"));
+  c2.add ("key1", Type2 (new std::string ("type2_1")));
 
-  c.print <Type1> (std::cout);
-  c.print <Type2> (std::cout);
+  c1.print (std::cout);
+  c2.print (std::cout);
 
-  c.add ("key1", Type2 (new std::string ("type2_2")));
-  c.print <Type2> (std::cout);
+  c2.add ("key1", Type2 (new std::string ("type2_2")));
+  c2.print (std::cout);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
