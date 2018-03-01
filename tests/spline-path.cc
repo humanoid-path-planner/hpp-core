@@ -30,6 +30,8 @@
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/steering-method/spline.hh>
 
+#include <../tests/util.hh>
+
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
 
 using namespace hpp::core;
@@ -127,18 +129,18 @@ template <int SplineType> void compare_to_straight_path ()
 
   // Check integral value
   BOOST_CHECK_EQUAL(ls->squaredNormIntegral(2), 0);
-  BOOST_CHECK_CLOSE(ls->squaredNormIntegral(1), v.squaredNorm(), 1e-12);
+  BOOST_CHECK_CLOSE(ls->squaredNormIntegral(1), v.squaredNorm() / sp->length(), 1e-12);
 
   vector_t derivative (dev->numberDof() * 2);
   ls->squaredNormIntegralDerivative(1, derivative);
   switch (SplineType) {
     case path::CanonicalPolynomeBasis:
       BOOST_CHECK( derivative.head(dev->numberDof()).isZero());
-      BOOST_CHECK_SMALL((derivative.tail(dev->numberDof()) - 2 * v).squaredNorm(), 1e-12);
+      EIGEN_VECTOR_IS_APPROX(derivative.tail(dev->numberDof()), (2./sp->length()) * v , 1e-6);
       break;
     case path::BernsteinBasis:
-      BOOST_CHECK_SMALL((derivative.head(dev->numberDof()) + 2 * v).squaredNorm(), 1e-12);
-      BOOST_CHECK_SMALL((derivative.tail(dev->numberDof()) - 2 * v).squaredNorm(), 1e-12);
+      EIGEN_VECTOR_IS_APPROX(derivative.head(dev->numberDof()), (-2./sp->length()) * v, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(derivative.tail(dev->numberDof()), ( 2./sp->length()) * v, 1e-6);
       break;
   } 
 }
