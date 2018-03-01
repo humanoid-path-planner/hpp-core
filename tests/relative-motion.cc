@@ -147,13 +147,13 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   // root, x, a0, a1, b0, b1, b2
   // 0,    1,  2,  3,  4,  5,  6
-  BOOST_CHECK(jointid("universe") == 0);
-  BOOST_CHECK(jointid("test_x")   == 1);
-  BOOST_CHECK(jointid("joint_a0") == 2);
-  BOOST_CHECK(jointid("joint_a1") == 3);
-  BOOST_CHECK(jointid("joint_b0") == 4);
-  BOOST_CHECK(jointid("joint_b1") == 5);
-  BOOST_CHECK(jointid("joint_b2") == 6);
+  BOOST_CHECK_EQUAL(jointid("universe"), 0);
+  BOOST_CHECK_EQUAL(jointid("test_x")  , 1);
+  BOOST_CHECK_EQUAL(jointid("joint_a0"), 2);
+  BOOST_CHECK_EQUAL(jointid("joint_a1"), 3);
+  BOOST_CHECK_EQUAL(jointid("joint_b0"), 4);
+  BOOST_CHECK_EQUAL(jointid("joint_b1"), 5);
+  BOOST_CHECK_EQUAL(jointid("joint_b2"), 6);
 
   // Lock some joints
   lockJoint (proj, dev, "joint_b1");
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
 
-  BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_b1")) == RelativeMotion::Parameterized); // lock b1
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_b1")), RelativeMotion::Parameterized); // lock b1
 
   if (verbose) std::cout << '\n' << m << std::endl;
 
@@ -172,11 +172,11 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
 
-  BOOST_CHECK(m(jointid("joint_a0"),jointid("joint_a1")) == RelativeMotion::Parameterized); // lock a1
-  BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_b1")) == RelativeMotion::Parameterized); // lock b1
-  BOOST_CHECK(m(jointid("joint_b1"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock b2
+  BOOST_CHECK_EQUAL(m(jointid("joint_a0"),jointid("joint_a1")), RelativeMotion::Parameterized); // lock a1
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_b1")), RelativeMotion::Parameterized); // lock b1
+  BOOST_CHECK_EQUAL(m(jointid("joint_b1"),jointid("joint_b2")), RelativeMotion::Parameterized); // lock b2
 
-  BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock b1+b2
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_b2")), RelativeMotion::Parameterized); // lock b1+b2
 
   if (verbose) std::cout << '\n' << m << std::endl;
 
@@ -194,10 +194,10 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   if (verbose) std::cout << '\n' << m << std::endl;
 
-  BOOST_CHECK(m(jointid("joint_a1"),jointid("joint_b2")) == RelativeMotion::Constrained);   // lock rt
-  BOOST_CHECK(m(jointid("joint_a0"),jointid("joint_b2")) == RelativeMotion::Parameterized); // lock a1 + rt
-  BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a1")) == RelativeMotion::Parameterized); // lock b1+b2+rt
-  BOOST_CHECK(m(jointid("joint_b0"),jointid("joint_a0")) == RelativeMotion::Parameterized); // lock b1+b2+rt+a1
+  BOOST_CHECK_EQUAL(m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Constrained);   // lock rt
+  BOOST_CHECK_EQUAL(m(jointid("joint_a0"),jointid("joint_b2")), RelativeMotion::Parameterized); // lock a1 + rt
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_a1")), RelativeMotion::Parameterized); // lock b1+b2+rt
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_a0")), RelativeMotion::Parameterized); // lock b1+b2+rt+a1
 
   if (verbose) std::cout << '\n' << m << std::endl;
 
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   proj->add (ExplicitRelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2)->createNumericalConstraint());
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
-  BOOST_CHECK(m(jointid("joint_a1"),jointid("joint_b2")) == RelativeMotion::Constrained);   // lock ert
+  BOOST_CHECK_EQUAL (m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Constrained);   // lock ert
 
   if (verbose) std::cout << '\n' << m << std::endl;
 }
