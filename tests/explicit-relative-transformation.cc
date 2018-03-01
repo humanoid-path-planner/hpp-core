@@ -351,7 +351,8 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   g   ->value    (q_out , q_obj2.vector());
   g   ->jacobian (Jg    , q_obj2.vector());
 
-  EIGEN_VECTOR_IS_APPROX (q_in.vector(), q_out.vector(), value_type_prec);
+  EIGEN_VECTOR_IS_APPROX (q_in.vector().head<3>(), q_out.vector().head<3>(), value_type_prec);
+  EIGEN_QUAT_IS_APPROX (q_in.vector().tail<4>(), q_out.vector().tail<4>(), value_type_prec);
   BOOST_CHECK ((Jg * Jginv).eval().isIdentity(value_type_prec));
 
   // Second at random configurations
@@ -371,7 +372,8 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
     g   ->value    (q_out , q_obj2.vector());
     g   ->jacobian (Jg    , q_obj2.vector());
 
-    EIGEN_VECTOR_IS_APPROX (q_in.vector(), q_out.vector(), value_type_prec);
+    EIGEN_VECTOR_IS_APPROX (q_in.vector().head<3>(), q_out.vector().head<3>(), value_type_prec);
+    EIGEN_QUAT_IS_APPROX (q_in.vector().tail<4>(), q_out.vector().tail<4>(), value_type_prec);
     BOOST_CHECK ((Jg * Jginv).eval().isIdentity(value_type_prec));
   }
 }
