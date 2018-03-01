@@ -39,7 +39,7 @@ namespace hpp {
         m(i0,i1) = m(i1,i0) = t;
       }
 
-      template <typename T, typename Ptr_t = typename T::Ptr_t> struct check {
+      template <typename T, typename Ptr_t = boost::shared_ptr<T> > struct check {
         static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
         {
           Ptr_t t = HPP_DYNAMIC_PTR_CAST(T, f);
@@ -58,7 +58,7 @@ namespace hpp {
           typename ImplicitFunction<GisIdentity>::Ptr_t implicit (
               HPP_DYNAMIC_PTR_CAST (ImplicitFunction<GisIdentity>, f));
           if (implicit)
-            return check<ExplicitRelativeTransformation, ExplicitRelativeTransformationPtr_t>::is (implicit, i1, i2);
+            return check<ExplicitRelativeTransformation>::is (implicit->inputToOutput(), i1, i2);
           return false;
         }
       };
