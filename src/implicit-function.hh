@@ -285,6 +285,8 @@ namespace hpp {
                 function->outputDerivativeSize ());
         computeJacobianBlocks ();
 
+        activeParameters_          .setConstant(false);
+        activeDerivativeParameters_.setConstant(false);
         inputConfIntervals_ .lview (activeParameters_.matrix()).setConstant(true);
         inputDerivIntervals_.lview (activeDerivativeParameters_.matrix()).setConstant(true);
         outputConfIntervals_ .lview (activeParameters_.matrix()).setConstant(true);
