@@ -18,6 +18,9 @@
 # define HPP_CORE_SRC_IMPLICIT_FUNCTION_HH
 
 #include <Eigen/Geometry>
+
+#include <boost/type_traits/conditional.hpp>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup-space.hh>
 #include <hpp/constraints/differentiable-function.hh>
