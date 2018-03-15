@@ -50,7 +50,7 @@ namespace hpp {
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
     {
-      PathPtr_t tempPath = path->copy();
+      PathPtr_t tempPath = path;
       PathPtr_t tempValidPart;
       PathValidationReportPtr_t tempValidationReport;
 
@@ -65,7 +65,7 @@ namespace hpp {
           t = tempValidationReport->getParameter();
           if ( t < lastValidTime ) {
               lastValidTime = t;
-              tempPath = tempValidPart->copy();
+              tempPath = tempValidPart;
           }
           result = false;
         }
