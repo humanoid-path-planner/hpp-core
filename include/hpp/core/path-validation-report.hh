@@ -50,6 +50,17 @@ namespace hpp {
         else os << *configurationReport;
 	return os;
       }
+
+      value_type getParameter()
+      {
+        return parameter;
+      }
+
+      void setParameter (value_type p)
+      {
+        parameter = p;
+      }
+
       /// Parameter of the path where a invalid configuration has been found
       value_type parameter;
       ValidationReportPtr_t configurationReport;
