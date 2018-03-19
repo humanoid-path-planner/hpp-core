@@ -66,6 +66,8 @@
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
+#include <hpp/core/collision-validation.hh>
+#include <hpp/core/joint-bound-validation.hh>
 
 namespace hpp {
   namespace core {
@@ -163,6 +165,7 @@ namespace hpp {
       steeringMethodType_ ("Straight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
+      configValidationTypes_ (),
       collisionObstacles_ (), distanceObstacles_ (),
       obstacleModel_ (new GeomModel()), obstacleData_
       (new GeomData(*obstacleModel_)),
@@ -213,6 +216,14 @@ namespace hpp {
       pathValidations.add ("Discretized", DiscretizedCollisionChecking::create);
       pathValidations.add ("Progressive", continuousCollisionChecking::Progressive::create);
       pathValidations.add ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
+
+      // Store config validation methods in map.
+      configValidations.add ("CollisionValidation", CollisionValidation::create);
+      configValidations.add ("JointBoundValidation", JointBoundValidation::create);
+
+      // Set default config validation methods.
+      configValidationTypes_.push_back("CollisionValidation");
+      configValidationTypes_.push_back("JointBoundValidation");
 
       // Store path projector methods in map.
       pathProjectors.add ("None",             NonePathProjector::create);
@@ -326,6 +337,34 @@ namespace hpp {
       if (robot_ && problem_) {
 	initPathProjector ();
       }
+    }
+
+    void ProblemSolver::addConfigValidationBuilder
+    (const std::string& type, const ConfigValidationBuilder_t& builder)
+    {
+      configValidations.add (type, builder);
+    }
+
+    void ProblemSolver::addConfigValidation (const std::string& type)
+    {
+      if (!configValidations.has (type)) {
+	throw std::runtime_error (std::string ("No config validation method with "
+					       "name ") + type);
+      }
+      configValidationTypes_.push_back (type);
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      // If a robot is present, set config validation methods
+      if (robot_) {
+        ConfigValidationPtr_t configValidation =
+	      configValidations.get (type) (robot_);
+        problem_->addConfigValidation (configValidation);
+      }
+    }
+
+    void ProblemSolver::clearConfigValidations ()
+    {
+      configValidationTypes_.clear ();
+      problem_->clearConfigValidations ();
     }
 
     void ProblemSolver::robotType (const std::string& type)
@@ -609,6 +648,15 @@ namespace hpp {
 	pathValidations.get (pathValidationType_)
         (robot_, pathValidationTolerance_);
       problem_->pathValidation (pathValidation);
+      // Set config validation methods
+      for (ConfigValidationTypes_t::const_iterator it =
+          configValidationTypes_.begin (); it != configValidationTypes_.end ();
+          ++it)
+      {
+        ConfigValidationPtr_t configValidation =
+	      configValidations.get (*it) (robot_);
+        problem_->addConfigValidation (configValidation);
+      }
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
       // Distance to obstacles

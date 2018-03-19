@@ -40,6 +40,8 @@ namespace hpp {
     typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
         const value_type&) >
       PathValidationBuilder_t;
+    typedef boost::function < ConfigValidationPtr_t (const DevicePtr_t&) >
+      ConfigValidationBuilder_t;
     typedef boost::function <PathProjectorPtr_t (const Problem&,
         const value_type&) >
       PathProjectorBuilder_t;
@@ -63,6 +65,7 @@ namespace hpp {
 
       typedef std::vector <PathOptimizerPtr_t> PathOptimizers_t;
       typedef std::vector <std::string> PathOptimizerTypes_t;
+      typedef std::vector <std::string> ConfigValidationTypes_t;
 
       /// Create instance and return pointer
       static ProblemSolverPtr_t create ();
@@ -193,6 +196,24 @@ namespace hpp {
         tolerance = pathProjectorTolerance_;
         return pathProjectorType_;
       }
+
+      /// Add a config validation method
+      /// \param type name of new config validation method
+      /// Config validation methods are used to validate individual
+      /// configurations of the robot.
+      virtual void addConfigValidation (const std::string& type);
+
+      /// Get config validation current types
+      const ConfigValidationTypes_t configValidationTypes () {
+        return configValidationTypes_;
+      }
+
+      // Clear the vector of config validations
+      void clearConfigValidations ();
+
+      /// Add a new available config validation method
+      void addConfigValidationBuilder (const std::string& type,
+            const ConfigValidationBuilder_t& builder);
 
       const RoadmapPtr_t& roadmap () const
       {
@@ -503,6 +524,9 @@ namespace hpp {
       /// Container of static method that creates a PathValidation
       /// with a robot and a tolerance as input.
       Container <PathValidationBuilder_t>       pathValidations;
+      /// Container of static method that creates a ConfigValidation
+      /// with a robot as input.
+      Container <ConfigValidationBuilder_t>     configValidations;
       /// Container of static method that creates a PathProjection
       /// with a problem and a tolerance as input.
       Container <PathProjectorBuilder_t>        pathProjectors;
@@ -588,6 +612,8 @@ namespace hpp {
       std::string pathValidationType_;
       /// Tolerance of path validation
       value_type pathValidationTolerance_;
+      // Config validation methods
+      ConfigValidationTypes_t configValidationTypes_;
       /// Store obstacles until call to solve.
       ObjectStdVector_t collisionObstacles_; // FIXME should be removed?
       ObjectStdVector_t distanceObstacles_;  // FIXME should be removed?

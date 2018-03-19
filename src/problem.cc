@@ -95,8 +95,13 @@ namespace hpp {
     void Problem::resetConfigValidations ()
     {
       configValidations_ = ConfigValidations::create ();
-      configValidations_->add ( CollisionValidation::create (robot_));
-      configValidations_->add (JointBoundValidation::create (robot_));
+    }
+
+    // ======================================================================
+
+    void Problem::clearConfigValidations ()
+    {
+      configValidations_->clear ();
     }
 
     // ======================================================================
@@ -171,6 +176,13 @@ namespace hpp {
 	   it != collisionObstacles_.end (); ++it) {
 	pathValidation_->addObstacle (*it);
       }
+    }
+
+    // ======================================================================
+
+    void Problem::addConfigValidation (const ConfigValidationPtr_t& configValidation)
+    {
+      configValidations_->add ( configValidation );
     }
 
     // ======================================================================
