@@ -65,6 +65,7 @@ ADD_TESTCASE (paths FALSE)
 ADD_TESTCASE (relative-motion FALSE)
 ADD_TESTCASE (test-path-extraction FALSE)
 ADD_TESTCASE (test-continuous-collision-checking FALSE)
+ADD_TESTCASE (test-config-validations FALSE)
 
 ADD_TESTCASE (explicit-relative-transformation FALSE)
 SET_PROPERTY(TARGET explicit-relative-transformation APPEND_STRING PROPERTY COMPILE_FLAGS " -DDATA_DIR=\\\"${CMAKE_CURRENT_SOURCE_DIR}/data\\\"")

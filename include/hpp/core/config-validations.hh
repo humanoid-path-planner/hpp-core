@@ -60,6 +60,13 @@ namespace hpp {
 	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
       void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
+
+      /// Return the number of config validations
+      size_type numberConfigValidations() const;
+
+      // Clear the vector of config validations
+      void clear ();
+
     protected:
       ConfigValidations ();
     private:

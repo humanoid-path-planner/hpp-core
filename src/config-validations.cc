@@ -71,6 +71,16 @@ namespace hpp {
       }
     }
 
+    size_type ConfigValidations::numberConfigValidations () const
+    {
+      return (size_type) validations_.size ();
+    }
+
+    void ConfigValidations::clear ()
+    {
+      validations_.clear ();
+    }
+
     ConfigValidations::ConfigValidations () : validations_ ()
     {
     }

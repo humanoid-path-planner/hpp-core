@@ -138,8 +138,14 @@ namespace hpp {
 	return configValidations_;
       }
 
-      /// Reset the configuration validation to their default values.
+      /// Reset the ConfigValidations
       void resetConfigValidations ();
+
+      // Clear the ConfigValidations
+      void clearConfigValidations ();
+
+      /// Add a config validation method
+      void addConfigValidation (const ConfigValidationPtr_t& configValidation);
 
       /// \name Path validation
       /// \{
