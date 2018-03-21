@@ -41,12 +41,6 @@ namespace hpp {
 
       void GoalConfigurations::check (const RoadmapPtr_t& roadmap) const
       {
-        const NodeVector_t& goals = roadmap->goalNodes();
-        if (goals.empty ()) {
-          std::string msg ("No goal configurations.");
-          hppDout (error, msg);
-          throw std::runtime_error (msg);
-        }
       }
 
       bool GoalConfigurations::reached (const RoadmapPtr_t& roadmap) const
