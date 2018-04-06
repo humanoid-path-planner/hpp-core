@@ -66,6 +66,7 @@ path-validations.cc
   path-optimization/config-optimization.cc#
   path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
+  path-planner/k-prm-star.cc
   path-vector.cc #
   path/spline.cc
   path/hermite.cc

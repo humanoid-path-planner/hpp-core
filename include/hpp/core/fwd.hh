@@ -284,6 +284,11 @@ namespace hpp {
         ConfigOptimizationPtr_t;
     } // namespace pathOptimization
 
+    namespace pathPlanner {
+      HPP_PREDEF_CLASS (kPrmStar);
+      typedef boost::shared_ptr <kPrmStar> kPrmStarPtr_t;
+    } // namespace pathPlanner
+
     HPP_PREDEF_CLASS (PathProjector);
     typedef boost::shared_ptr <PathProjector> PathProjectorPtr_t;
     namespace pathProjector {

@@ -98,6 +98,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/spline-gradient-based-abstract.hh
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
+  include/hpp/core/path-planner/k-prm-star.hh
   include/hpp/core/path-validation.hh
   include/hpp/core/path-validation-report.hh
   include/hpp/core/path-vector.hh

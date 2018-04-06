@@ -45,6 +45,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/numerical-constraint.hh>
+#include <hpp/core/path-planner/k-prm-star.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
@@ -179,6 +180,7 @@ namespace hpp {
       pathPlanners.add ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
       pathPlanners.add ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
+      pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
 
       configurationShooters.add ("BasicConfigurationShooter", BasicConfigurationShooter::create);
 

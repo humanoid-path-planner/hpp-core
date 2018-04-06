@@ -54,6 +54,7 @@ namespace hpp {
       parameters.add("PathOptimizersNumberOfLoops", (std::size_t)5);
       parameters.add("PathProjectionHessianBound", (value_type)-1);
       parameters.add("PathProjectionMinimalDist", (value_type)1e-3);
+      parameters.add("kPRMstar/numberOfNodes", (size_type)100);
     }
 
     // ======================================================================
