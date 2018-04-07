@@ -71,6 +71,16 @@ namespace hpp {
                                       const std::size_t K,
                                       value_type& distance);
 
+      /// Return the K nearest nodes in the whole roadmap
+      /// \param configuration, the configuration to which distance is computed,
+      /// \param roadmap in which nodes are searched,
+      /// \param K the number of nearest neighbors to return
+      /// \retval distance to the Kth closest neighbor
+      /// \return the K nearest neighbors
+      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+                                      const RoadmapPtr_t& roadmap,
+                                      const std::size_t K,
+			              value_type& distance);
 
       // merge two connected components in the whole tree
       void merge(ConnectedComponentPtr_t cc1, ConnectedComponentPtr_t cc2);

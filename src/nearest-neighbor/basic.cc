@@ -22,6 +22,7 @@
 
 # include <hpp/core/distance.hh>
 # include <hpp/core/connected-component.hh>
+# include <hpp/core/roadmap.hh>
 
 namespace hpp {
   namespace core {
@@ -126,6 +127,33 @@ namespace hpp {
             connectedComponent->nodes ().begin ();
             itNode != connectedComponent->nodes ().end (); ++itNode) {
           value_type d = dist (*itNode, node);
+          if (ns.size () < K)
+            ns.push (DistAndNode_t (d, (*itNode)));
+          else if (ns.top().first > d) {
+            ns.pop ();
+            ns.push (DistAndNode_t (d, (*itNode)));
+          }
+        }
+        Nodes_t nodes;
+        if (ns.size() > 0) distance = ns.top ().first;
+        while (ns.size () > 0) {
+          nodes.push_front (ns.top().second); ns.pop ();
+        }
+        return nodes;
+      }
+
+      Nodes_t Basic::KnearestSearch (const ConfigurationPtr_t& configuration,
+                                     const RoadmapPtr_t& roadmap,
+                                     const std::size_t K, value_type& distance)
+      {
+        Queue_t ns;
+        distance = std::numeric_limits <value_type>::infinity ();
+        const Distance& dist = *distance_;
+        const Configuration_t& q = *configuration;
+        for (Nodes_t::const_iterator itNode =
+            roadmap->nodes ().begin ();
+            itNode != roadmap->nodes ().end (); ++itNode) {
+          value_type d = dist (*(*itNode)->configuration (), q);
           if (ns.size () < K)
             ns.push (DistAndNode_t (d, (*itNode)));
           else if (ns.top().first > d) {

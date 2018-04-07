@@ -39,7 +39,9 @@ namespace hpp {
 				  const DevicePtr_t& robot)
     {
       Roadmap* ptr = new Roadmap (distance, robot);
-      return RoadmapPtr_t (ptr);
+      RoadmapPtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
     }
 
     Roadmap::Roadmap (const DistancePtr_t& distance, const DevicePtr_t&) :
@@ -208,7 +210,25 @@ namespace hpp {
   nearestNeighbor_->search(configuration, connectedComponent, minDistance,reverse);
       return closest;
     }
-    
+
+    Nodes_t Roadmap::nearestNodes (const ConfigurationPtr_t& configuration,
+                                   size_type k)
+    {
+      value_type d;
+      return nearestNeighbor_->KnearestSearch (configuration, weak_.lock (), k,
+                                               d);
+    }
+
+    Nodes_t Roadmap::nearestNodes (const ConfigurationPtr_t& configuration,
+                                   const ConnectedComponentPtr_t&
+                                   connectedComponent,
+                                   size_type k)
+    {
+      value_type d;
+      return nearestNeighbor_->KnearestSearch
+        (configuration, connectedComponent, k, d);
+    }
+
     NodePtr_t Roadmap::addGoalNode (const ConfigurationPtr_t& config)
     {
       NodePtr_t node = addNode (config);
@@ -242,6 +262,11 @@ namespace hpp {
       const
     {
       return NodePtr_t (new Node (configuration));
+    }
+
+    void Roadmap::init (RoadmapWkPtr_t weak)
+    {
+      weak_ = weak;
     }
 
     void Roadmap::connect (const ConnectedComponentPtr_t& cc1,
