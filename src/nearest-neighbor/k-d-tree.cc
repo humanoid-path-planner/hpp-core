@@ -280,6 +280,13 @@ namespace hpp {
       assert (false && "K-nearest neighbor in KD-tree: unimplemented features");
     }
 
+    Nodes_t KDTree::KnearestSearch (const ConfigurationPtr_t& configuration,
+                                    const RoadmapPtr_t& roadmap,
+                                    const std::size_t K, value_type& distance)
+    {
+      assert (false && "K-nearest neighbor in KD-tree: unimplemented features");
+    }
+
     void KDTree::search (value_type boxDistance, value_type& minDistance,
 			 const ConfigurationPtr_t& configuration,
 			 const ConnectedComponentPtr_t& connectedComponent,

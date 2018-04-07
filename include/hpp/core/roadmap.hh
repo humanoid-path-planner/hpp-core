@@ -66,6 +66,25 @@ namespace hpp {
 			     const ConnectedComponentPtr_t& connectedComponent,
            value_type& minDistance, bool reverse = false);
 
+      /// Get nearest node to a configuration in the roadmap.
+      /// \param configuration configuration
+      /// \param k number of nearest nodes to return
+      /// if false from nodes in roadmap to given configuration
+      /// \retval distance to the nearest node.
+      Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
+                            size_type k);
+
+      /// Get nearest node to a configuration in a connected component.
+      /// \param configuration configuration
+      /// \param k number of nearest nodes to return
+      /// \param connectedComponent the connected component
+      /// if false from nodes in roadmap to given configuration
+      /// \retval distance to the nearest node.
+      Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
+                            const ConnectedComponentPtr_t&
+                            connectedComponent,
+                            size_type k);
+
       /// Add a node and two edges
       /// \param from node from which the edge starts,
       /// \param to configuration to which the edge stops
@@ -195,6 +214,9 @@ namespace hpp {
       /// child class of Node
       virtual NodePtr_t createNode (const ConfigurationPtr_t& configuration) const;
 
+      /// Store weak pointer to itself
+      void init (RoadmapWkPtr_t weak);
+
     private:
       /// Add a node with given configuration
       /// \param config configuration
@@ -234,7 +256,7 @@ namespace hpp {
       NodePtr_t initNode_;
       NodeVector_t goalNodes_;
       NearestNeighborPtr_t nearestNeighbor_;
-
+      RoadmapWkPtr_t weak_;
     }; // class Roadmap
     std::ostream& operator<< (std::ostream& os, const Roadmap& r);
     /// \}
