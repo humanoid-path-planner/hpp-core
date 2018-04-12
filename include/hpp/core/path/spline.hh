@@ -78,11 +78,11 @@ namespace hpp {
           }
 
           /** The partial derivative with respects to the parameters is of the form
-          /// \f{eqnarray*}{
-          /// \frac{\partial S}{\partial p_{k}} (q, p, t)    &=& B_k(t) \times I \\
-          /// \frac{\partial S}{\partial q_{base}} (q, p, t) &=& I
-          /// \f}
-          /// This method returns the coefficients \f$ (B_k(t))_{k} \f$
+           *  \f{eqnarray*}{
+           *  \frac{\partial S}{\partial p_{k}} (q, p, t)    &=& B_k(t) \times I \\
+           *  \frac{\partial S}{\partial q_{base}} (q, p, t) &=& I
+           *  \f}
+           *  This method returns the coefficients \f$ (B_k(t))_{k} \f$
           **/
           void parameterDerivativeCoefficients (vectorOut_t res, const value_type& t) const
           {
@@ -90,16 +90,28 @@ namespace hpp {
             impl_paramDerivative (res, t);
           }
 
+          /// Adds dParam to the parameters
           void parameterIntegrate (vectorIn_t dParam)
           {
             assert (dParam.size() == NbCoeffs * parameterSize_);
             impl_paramIntegrate (dParam);
           }
 
+          /// Returns \f$ \int S^{(k)}(t)^T \times S^{(k)}(t) dt \f$
+          ///
+          /// where k is the argument
           value_type squaredNormIntegral (const size_type order);
 
+          /// Returns the derivative of \ref squaredNormIntegral wrt the parameters.
+          ///
+          /// \f[ res(j) \gets 2 \sum_i P_i^T \times m_{i,j} \f]
           void squaredNormIntegralDerivative (const size_type order, vectorOut_t res);
 
+          /** Returns a vector \f$ (v_i) \f$ as
+           *  \f[
+           *  v_i = T^{-k} b_i^{(k)}(\frac{t - t_0}{T})
+           *  \f]
+          **/
           void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const;
 
           void basisFunctionDerivative (const size_type order, const value_type& u, vectorOut_t res) const
@@ -110,8 +122,15 @@ namespace hpp {
             res = tmp;
           }
 
+          /// Returns an upper bound of the velocity on the complete interval.
+          /// \sa Path::velocityBound
           void maxVelocity (vectorOut_t res) const;
 
+          /** Returns a matrix \f$ (m_{i,j}) \f$ as
+           *  \f[
+           *  m_{i,j} = T^{1-2k} \int_0^1 b_i^{(k)}(u) b_j^{(k)}(u) du
+           *  \f]
+          **/
           void squaredNormBasisFunctionIntegral (const size_type order, BasisFunctionIntegralMatrix_t& res) const;
 
           void squaredNormBasisFunctionIntegral (const size_type order, matrixOut_t res) const
@@ -138,11 +157,15 @@ namespace hpp {
             return q;
           }
 
+          /// Get the base configuration.
+          /// The parameters are velocities to be integrated from this
+          /// configuration.
           const Configuration_t& base () const
           {
             return base_;
           }
 
+          /// \sa base() const
           void base (const Configuration_t& q)
           {
             base_ = q;
@@ -154,16 +177,20 @@ namespace hpp {
             return parameters_;
           }
 
+          /// Returns the \f$ (P_i^T) \f$.
+          /// Each row contains one parameter.
           void parameters (const ParameterMatrix_t& m)
           {
             parameters_ = m;
           }
 
+          /// Concatenate the parameters as one vector (P_0^T, ..., P_n^T).
           ConstParameterVector_t rowParameters () const
           {
             return ConstParameterVector_t (parameters_.data(), parameters_.size());
           }
 
+          /// Set the parameters
           void rowParameters (vectorIn_t p)
           {
             ParameterVector_t(parameters_.data(), parameters_.size()) = p;
