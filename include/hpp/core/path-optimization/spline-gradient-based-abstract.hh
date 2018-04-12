@@ -95,8 +95,6 @@ namespace hpp {
           /// \name Constraint creation
           /// \{
 
-          /// Unused
-          struct ContinuityConstraint;
           typedef constraints::ExplicitSolver ExplicitSolver;
           typedef Eigen::RowBlockIndices RowBlockIndices;
           typedef std::vector <bool> Bools_t;
@@ -128,9 +126,6 @@ namespace hpp {
 
           /// Add the linear constraint to connect consecutive splines together.
           void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const SplineOptimizationDatas_t& ess, LinearConstraint& continuity);
-
-          /// Unused
-          bool isContinuous (const Splines_t& splines, const size_type maxOrder, const ContinuityConstraint& continuity) const;
 
           /// \}
 

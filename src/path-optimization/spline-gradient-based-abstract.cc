@@ -66,76 +66,54 @@ namespace hpp {
 
       // ----------- Convenience class -------------------------------------- //
 
-      template <int _PB, int _SO>
-      struct SplineGradientBasedAbstract<_PB, _SO>::ContinuityConstraint
+      /// \param lc the constraint to be updated.
+      /// \param row the row into \c lc.J and \c lc.b where to write.
+      /// \param col the index of the first DoF.
+      /// \param rDoF the number of DoF of the robot.
+      /// \param select the DoF indices onto which we optimize (the others
+      ///               being explicitely computed.)
+      /// \param Bl, Br the Spline::basisFunctionDerivative on the left and right.
+      /// \param splineL, splineR the left and right spline.
+      /// \param Czero true for continuity of the path, false for any of its
+      ///              derivative.
+      ///
+      /// \c select.nbIndices() rows will be written in \c lc.J and \c lc.b .
+      /// \c select.nbIndices() rows will be written in \c lc.J and \c lc.b .
+      template <typename SplineType>
+      static inline void setContinuityConstraint (LinearConstraint& lc, const size_type& row,
+          const size_type& col,
+          const size_type& rDof,
+          const Eigen::RowBlockIndices select,
+          const typename SplineType::BasisFunctionVector_t& Bl,
+          const typename SplineType::BasisFunctionVector_t& Br,
+          const typename SplineType::Ptr_t& splineL,
+          const typename SplineType::Ptr_t& splineR,
+          bool Czero)
       {
-        ContinuityConstraint (size_type inputRows, size_type inputCols, size_type outputSize) :
-          J (outputSize, inputRows), b (outputSize, inputCols)
-        {
-          J.setZero();
-          b.setZero();
-        }
-
-        template <typename Derived>
-        static void expand (const Eigen::MatrixBase<Derived>& in, matrix_t& out, const size_type pSize)
-        {
-          out.setZero();
-          for (size_type i = 0; i < in.rows(); ++i) {
-            for (size_type j = 0; j < in.cols(); ++j) {
-              out.block(i*pSize, j*pSize, pSize, pSize).diagonal().setConstant(in(i,j));
-            }
+        const size_type& rows = select.nbIndices();
+        size_type c = col;
+        lc.b.segment(row, rows).setZero();
+        if (splineL) {
+          for (size_type i = 0; i < SplineType::NbCoeffs; ++i) {
+            lc.J.block (row, c, rows, rDof).noalias()
+              = select.rview ( - Bl(i) * matrix_t::Identity(rDof, rDof));
+            c += rDof;
           }
+          if (Czero)
+            lc.b.segment(row, rows).noalias()
+              = select.rview (splineL->parameters ().transpose() * (-Bl));
         }
-
-        LinearConstraint linearConstraint () const
-        {
-          LinearConstraint lc (J.cols() * b.cols(), b.size());
-          expand (J, lc.J, b.cols());
-          Eigen::Map<RowMajorMatrix_t> (lc.b.data(), b.rows(), b.cols()) = b;
-          return lc;
-        }
-
-        typedef typename Spline::BasisFunctionVector_t BasisFunctionVector_t;
-
-        static inline void setRows (LinearConstraint& lc, const size_type& row,
-            const size_type& col,
-            const size_type& rDof,
-            const RowBlockIndices select,
-            const BasisFunctionVector_t& Bl,
-            const BasisFunctionVector_t& Br,
-            const SplinePtr_t& splineL,
-            const SplinePtr_t& splineR,
-            bool Czero)
-        {
-          const size_type& rows = select.nbIndices();
-          size_type c = col;
-          lc.b.segment(row, rows).setZero();
-          if (splineL) {
-            for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
-              lc.J.block (row, c, rows, rDof).noalias()
-                = select.rview ( - Bl(i) * matrix_t::Identity(rDof, rDof));
-              c += rDof;
-            }
-            if (Czero)
-              lc.b.segment(row, rows).noalias()
-                = select.rview (splineL->parameters ().transpose() * (-Bl));
+        if (splineR) {
+          for (size_type i = 0; i < SplineType::NbCoeffs; ++i) {
+            lc.J.block (row, c, rows, rDof).noalias()
+              = select.rview ( Br(i) * matrix_t::Identity(rDof, rDof));
+            c += rDof;
           }
-          if (splineR) {
-            for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
-              lc.J.block (row, c, rows, rDof).noalias()
-                = select.rview ( Br(i) * matrix_t::Identity(rDof, rDof));
-              c += rDof;
-            }
-            if (Czero)
-              lc.b.segment(row, rows).noalias()
-                += select.rview (splineR->parameters ().transpose() * Br).eval();
-          }
+          if (Czero)
+            lc.b.segment(row, rows).noalias()
+              += select.rview (splineR->parameters ().transpose() * Br).eval();
         }
-
-        // model
-        matrix_t J;
-        matrix_t b;
-      };
+      }
 
       // ----------- Resolution steps --------------------------------------- //
 
@@ -241,8 +219,12 @@ namespace hpp {
         size_type nbRows = 0;
         std::vector<RowBlockIndices> rbis (splines.size() + 1);
         BlockIndex::segment_t space (0, rDof);
+
+        // 1. Constrain the starting position.
         rbis[0] = sods[0].activeParameters;
         nbRows += rbis[0].nbIndices();
+
+        // 2. For each consecutive splines, constrain the intersection.
         for (std::size_t i = 1; i < sods.size(); ++i) {
           // Compute union between A = sods[i-1].activeParameters.indices()
           // and B = sods[i].activeParameters.indices()
@@ -253,6 +235,8 @@ namespace hpp {
           hppDout (info, "Optimize waypoint " << i << " over " << rbis[i]);
           nbRows += rbis[i].nbIndices();
         }
+
+        // 3. Constrain the final position.
         rbis[sods.size()] = sods[sods.size()-1].activeParameters;
         nbRows += rbis[sods.size()].nbIndices();
 
@@ -269,7 +253,7 @@ namespace hpp {
           splines[0]->basisFunctionDerivative(k, 0, B0);
           size_type indexParam = 0;
 
-          ContinuityConstraint::setRows
+          setContinuityConstraint <Spline>
             (lc, row, indexParam, rDof, rbis[0],
              B1, B0, SplinePtr_t(), splines[0], Czero);
           row += rbis[0].nbIndices();
@@ -279,7 +263,7 @@ namespace hpp {
             splines[j+1]->basisFunctionDerivative(k, 0, B0);
 
             // Continuity between spline i and j
-            ContinuityConstraint::setRows
+            setContinuityConstraint <Spline>
               (lc, row, indexParam, rDof, rbis[j+1],
                B1, B0, splines[j], splines[j+1], Czero);
 
@@ -289,7 +273,7 @@ namespace hpp {
 
           // Continuity at the end
           splines.back()->basisFunctionDerivative(k, 1, B1);
-          ContinuityConstraint::setRows
+          setContinuityConstraint <Spline>
             (lc, row, indexParam, rDof, rbis.back(),
              B1, B0, splines.back(), SplinePtr_t(), Czero);
           row += rbis.back().nbIndices();
@@ -416,46 +400,6 @@ namespace hpp {
             lc.b.segment (row, rows)          = -b;
           }
         }
-      }
-
-      template <int _PB, int _SO>
-      bool SplineGradientBasedAbstract<_PB, _SO>::isContinuous
-      (const Splines_t& splines, const size_type maxOrder, const ContinuityConstraint& lc) const
-      {
-        typename Spline::BasisFunctionVector_t B0, B1;
-        enum { NbCoeffs = Spline::NbCoeffs };
-
-        matrix_t P (lc.J.cols(), lc.b.cols());
-
-        size_type row = 0;
-        for (std::size_t j = 0; j < splines.size(); ++j) {
-          P.middleRows<NbCoeffs> (row) = splines[j]->parameters();
-          row += NbCoeffs;
-        }
-
-        matrix_t error = lc.J * P - lc.b;
-
-        bool result = true;
-        row = 0;
-        for (size_type k = 0; k <= maxOrder; ++k) {
-          for (size_type j = -1; j < (size_type)splines.size(); ++j) {
-            if (!error.row (row).isZero ()) {
-              hppDout (error, "Continuity constraint " << row << " not satisfied. Order = " << k);
-              if (j < 0) {
-                hppDout (error, "Start position");
-              } else if (j == (size_type)(splines.size() - 1)) {
-                hppDout (error, "End position");
-              } else {
-                hppDout (error, "Between path " << j << " and " << j+1);
-              }
-              hppDout(error, "Error is " << error.row(row));
-              result = false;
-            }
-            ++row;
-          }
-        }
-
-        return result;
       }
 
       // ----------- Instanciate -------------------------------------------- //
