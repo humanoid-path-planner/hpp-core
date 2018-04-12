@@ -17,15 +17,15 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_LINEAR_CONSTRAINT_HH
 #define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_LINEAR_CONSTRAINT_HH
 
-#include <hpp/constraints/svd.hh>
+#include <hpp/core/fwd.hh>
 
-// #define USE_SVD
+#include <hpp/util/debug.hh>
 
 namespace hpp {
   namespace core {
     namespace pathOptimization {
-      template <int _PB, int _SO>
-      struct SplineGradientBased<_PB, _SO>::LinearConstraint
+      /// A linear constraint \f$ J * x = b \f$
+      struct LinearConstraint
       {
         LinearConstraint (size_type inputSize, size_type outputSize) :
           J (outputSize, inputSize), b (outputSize),
@@ -46,56 +46,10 @@ namespace hpp {
 
         /// Compute one solution and a base of the kernel of matrix J.
         /// rank is also updated.
-        bool decompose (bool check = false)
-        {
-          // HPP_START_TIMECOUNTER(SGB_constraintDecomposition);
-          if (J.rows() == 0) { // No constraint
-            PK = matrix_t::Identity (J.cols(), J.cols());
-            xStar = vector_t::Zero (PK.rows());
-            return true;
-          }
-
-#ifdef USE_SVD
-          typedef Eigen::JacobiSVD < matrix_t > Decomposition_t; 
-          Decomposition_t dec (J, Eigen::ComputeThinU | Eigen::ComputeFullV);
-          rank = dec.rank();
-
-          PK.resize(J.cols(), J.cols() - rank);
-          xStar.resize (PK.rows());
-
-          xStar = dec.solve (b);
-
-          PK.noalias() = constraints::getV2(dec);
-#else // USE_SVD
-          Eigen::ColPivHouseholderQR < matrix_t > qr (J.transpose());
-          rank = qr.rank();
-
-          PK.resize(J.cols(), J.cols() - rank);
-          xStar.resize (PK.rows());
-
-          vector_t rhs ((qr.colsPermutation().inverse() * b).head(rank));
-
-          vector_t z (J.cols());
-          z.head(rank).noalias() = 
-            qr.matrixR().topLeftCorner(rank, rank).template triangularView<Eigen::Upper>()
-            .transpose().solve (rhs);
-          z.tail(J.cols() - rank).setZero();
-          xStar.noalias() = qr.householderQ() * z;
-
-          PK.noalias() = qr.householderQ() * matrix_t::Identity(J.cols(), J.cols()).rightCols(J.cols() - rank);
-#endif // USE_SVD
-
-          if (check) {
-            // check that the constraints are feasible
-            matrix_t error = J * xStar - b;
-            if (!error.isZero(1e-7)) {
-              hppDout (warning, "Constraint not feasible: "
-                  << error.norm() << '\n' << error.transpose());
-              return false;
-            }
-          }
-          return true;
-        }
+        /// \param check If true, checks whether the constraint is feasible.
+        /// \return whether the constraint is feasible
+        ///                 (alwys true when check is false)
+        bool decompose (bool check = false);
 
         /// Compute rank of the constraint using a LU decomposition
         void computeRank ()
@@ -105,17 +59,6 @@ namespace hpp {
             Eigen::FullPivLU <matrix_t> lu (J);
             rank = lu.rank();
           }
-        }
-
-        void reduceProblem (const QuadraticProblem& QP, QuadraticProblem& QPr) const
-        {
-          matrix_t H_PK (QP.H * PK);
-          QPr.H.noalias() = PK.transpose() * H_PK;
-          QPr.b.noalias() = H_PK.transpose() * xStar;
-          if (!QP.bIsZero) {
-            QPr.b.noalias() += PK.transpose() * QP.b;
-          }
-          QPr.bIsZero = false;
         }
 
         /// Reduced constraint into the set of solutions of this constraint.
@@ -136,18 +79,20 @@ namespace hpp {
           } else return true;
         }
 
-        /// Write the unique solution derived from v into xSol
+        /// Compute the unique solution derived from v into xSol
         /// \param v an element of the kernel of matrix J.
+        /// \return this->xSol
         void computeSolution (const vector_t& v)
         {
           xSol.noalias() = xStar + PK * v;
           assert (isSatisfied(xSol));
         }
 
-        bool isSatisfied (const vector_t& x)
+        /// Returns \f$ ( J * x - b ).isZero (threshold) \f$
+        bool isSatisfied (const vector_t& x, const value_type& threshold = Eigen::NumTraits<value_type>::dummy_precision())
         {
           vector_t err (J * x - b);
-          if (err.isZero()) return true;
+          if (err.isZero(threshold)) return true;
           hppDout (error, "constraints could not be satisfied: " << err.norm() << '\n' << err);
           return false;
         }
@@ -162,25 +107,28 @@ namespace hpp {
           }
         }
 
-        // model
+        /// \name Model
+        /// \{
         matrix_t J;
         vector_t b;
+        /// \}
 
-        // Data
+        /// \name Data
+        ///       Solutions are \f$ x = xStar + PK * v, v \in \mathcal(R)^{nCols(J) - rank} \f$
+        /// \{ 
+
+        /// Rank of \ref J
         size_type rank;
 
-        // Data for vectorized input
-        // Solutions are x = xStar + PK * v, v \in kernel(J)
+        // Projector onto \f$ kernel(J) \f$
         matrix_t PK;
         // matrix_t PK_linv;
         vector_t xStar, xSol;
+
+        /// \}
       };
     } // namespace pathOptimization
   }  // namespace core
 } // namespace hpp
-
-#ifdef USE_SVD
-# undef USE_SVD
-#endif // USE_SVD
 
 #endif // HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_LINEAR_CONSTRAINT_HH
