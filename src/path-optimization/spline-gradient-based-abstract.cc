@@ -44,10 +44,6 @@ namespace hpp {
       typedef Eigen::BlockIndex BlockIndex;
 
       HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
-      HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
-      HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
-      HPP_DEFINE_TIMECOUNTER(SGB_findNewConstraint);
-      HPP_DEFINE_TIMECOUNTER(SGB_qpSolve);
 
       template <int NbRows>
       VectorMap_t reshape (Eigen::Matrix<value_type, NbRows, Eigen::Dynamic, Eigen::RowMajor>& parameters)
@@ -227,6 +223,7 @@ namespace hpp {
             if (stopAtFirst) break;
 	  }
 	}
+        HPP_DISPLAY_TIMECOUNTER(SGB_validatePath);
         return reports;
       }
 

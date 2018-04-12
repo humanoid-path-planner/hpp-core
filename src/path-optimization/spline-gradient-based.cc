@@ -15,7 +15,6 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
-#include <hpp/core/path-optimization/spline-gradient-based/linear-constraint.hh>
 
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
@@ -43,7 +42,6 @@ namespace hpp {
 
       typedef Eigen::BlockIndex BlockIndex;
 
-      HPP_DEFINE_TIMECOUNTER(SGB_validatePath);
       HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_findNewConstraint);
@@ -661,7 +659,6 @@ namespace hpp {
         }
 
         // 7
-        HPP_DISPLAY_TIMECOUNTER(SGB_validatePath);
         HPP_DISPLAY_TIMECOUNTER(SGB_constraintDecomposition);
         HPP_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
         HPP_DISPLAY_TIMECOUNTER(SGB_findNewConstraint);

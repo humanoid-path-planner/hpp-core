@@ -24,7 +24,7 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
-      /// A linear constraint \f$ J * x = b \f$
+      /// A linear constraint \f$ J \times x = b \f$
       struct LinearConstraint
       {
         LinearConstraint (size_type inputSize, size_type outputSize) :
@@ -79,16 +79,17 @@ namespace hpp {
           } else return true;
         }
 
-        /// Compute the unique solution derived from v into xSol
-        /// \param v an element of the kernel of matrix J.
-        /// \return this->xSol
+        /// Compute the unique solution derived from v into \ref xSol.
+        /// \f$ xSol \gets x^* + PK \times v \f$
+        /// \param v an element of the kernel of matrix \ref J.
+        /// \retval this->xSol
         void computeSolution (const vector_t& v)
         {
           xSol.noalias() = xStar + PK * v;
           assert (isSatisfied(xSol));
         }
 
-        /// Returns \f$ ( J * x - b ).isZero (threshold) \f$
+        /// Returns \f$ ( J \times x - b ).isZero (threshold) \f$
         bool isSatisfied (const vector_t& x, const value_type& threshold = Eigen::NumTraits<value_type>::dummy_precision())
         {
           vector_t err (J * x - b);
@@ -114,15 +115,15 @@ namespace hpp {
         /// \}
 
         /// \name Data
-        ///       Solutions are \f$ x = xStar + PK * v, v \in \mathcal(R)^{nCols(J) - rank} \f$
+        ///       Solutions are \f$ \left\{ x^* + PK \times v, v \in \mathbb{R}^{nCols(J) - rank} \right\} \f$
         /// \{ 
 
         /// Rank of \ref J
         size_type rank;
 
-        // Projector onto \f$ kernel(J) \f$
+        /// Projector onto \f$ kernel(J) \f$
         matrix_t PK;
-        // matrix_t PK_linv;
+        /// \f$ x^* \f$ is a particular solution.
         vector_t xStar, xSol;
 
         /// \}

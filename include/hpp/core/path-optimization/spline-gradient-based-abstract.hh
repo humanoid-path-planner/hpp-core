@@ -60,6 +60,8 @@ namespace hpp {
 
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
+          /// If the interpolated path as only two waypoint, treat it as a
+          /// straight path. Otherwise, throw an exception.
           void appendEquivalentSpline (const InterpolatedPathPtr_t& path, Splines_t& splines) const;
 
           /// For each subpath of path, cast it to a know path and calls 
