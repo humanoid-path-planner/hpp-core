@@ -39,7 +39,7 @@ namespace hpp {
         return shPtr;
       }
 
-      void GoalConfigurations::check (const RoadmapPtr_t& roadmap) const
+      void GoalConfigurations::check (const RoadmapPtr_t& /*roadmap*/) const
       {
       }
 

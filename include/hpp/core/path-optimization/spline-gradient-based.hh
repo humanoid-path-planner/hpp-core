@@ -22,7 +22,7 @@
 
 #include <hpp/constraints/hybrid-solver.hh>
 
-#include <hpp/core/path-optimizer.hh>
+#include <hpp/core/path-optimization/spline-gradient-based-abstract.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path/spline.hh>
 
@@ -34,18 +34,19 @@ namespace hpp {
     /// \{
     namespace pathOptimization {
       template <int _PolynomeBasis, int _SplineOrder>
-      class HPP_CORE_DLLAPI SplineGradientBased : public PathOptimizer
+      class HPP_CORE_DLLAPI SplineGradientBased : public SplineGradientBasedAbstract<_PolynomeBasis, _SplineOrder>
       {
         public:
+          typedef SplineGradientBasedAbstract<_PolynomeBasis, _SplineOrder> Base;
           enum {
             PolynomeBasis = _PolynomeBasis,
             SplineOrder = _SplineOrder
           };
           typedef boost::shared_ptr<SplineGradientBased> Ptr_t;
 
-          typedef path::Spline<PolynomeBasis, SplineOrder> Spline;
-          typedef typename Spline::Ptr_t SplinePtr_t;
-          typedef std::vector<SplinePtr_t> Splines_t;
+          using typename Base::Spline;
+          using typename Base::SplinePtr_t;
+          using typename Base::Splines_t;
 
           /// Return shared pointer to new object.
           /// Default cost is path length.
@@ -67,36 +68,20 @@ namespace hpp {
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
         protected:
-          typedef steeringMethod::Spline<PolynomeBasis, SplineOrder> SM_t;
+          using typename Base::ExplicitSolver;
+          using typename Base::RowBlockIndices;
+          using typename Base::SplineOptimizationData;
+          using typename Base::SplineOptimizationDatas_t;
+          using Base::robot_;
+          using Base::problem;
 
           SplineGradientBased (const Problem& problem);
 
-          // Path validation
-          std::vector<PathValidationPtr_t> validations_;
-
-          virtual void initializePathValidation(const Splines_t& splines);
-
           // Constraint creation
 
-          struct LinearConstraint;
-          typedef constraints::ExplicitSolver Solver_t;
-          typedef Eigen::RowBlockIndices RowBlockIndices;
-          struct SolverPtr_t {
-            SolverPtr_t () {}
-            SolverPtr_t (size_type rDof) { av.addRow (0, rDof); }
+          virtual void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, SplineOptimizationDatas_t& sods) const;
 
-            ConstraintSetPtr_t set;
-            boost::shared_ptr<Solver_t> es;
-
-            /// Variable on which we can optimize.
-            /// Other variables are fully constrained.
-            RowBlockIndices av;
-          };
-          typedef std::vector <SolverPtr_t> Solvers_t;
-
-          virtual void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ess) const;
-
-          void addProblemConstraintOnPath (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SolverPtr_t& es) const;
+          void addProblemConstraintOnPath (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SplineOptimizationData& sod) const;
 
           /// \param guessThr Threshold used to check whether the Jacobian
           ///                 contains rows of zeros, in which case the
@@ -106,50 +91,24 @@ namespace hpp {
               const value_type& guessThr = -1,
               const bool& useExplicitInput = false) const;
 
-          DevicePtr_t robot_;
           bool checkOptimum_;
 
         private:
-          struct ContinuityConstraint;
           struct QuadraticProblem;
           typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
                   std::size_t> > Reports_t;
-          typedef std::vector <bool> Bools_t;
-          typedef std::vector <size_type> Indices_t;
           struct CollisionFunctions;
-
-          void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
-
-          void appendEquivalentSpline (const InterpolatedPathPtr_t& path, Splines_t& splines) const;
-
-          void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
-
-          void addContinuityConstraints (const Splines_t& splines, const size_type maxOrder, const Solvers_t& ess, LinearConstraint& continuity);
-
-          Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
-
-          Indices_t validateBounds (const Splines_t& splines, const LinearConstraint& lc) const;
-
-          std::size_t addBoundConstraints (const Indices_t& bci, const LinearConstraint& bc,
-              Bools_t& activeConstraint, LinearConstraint& constraint) const;
 
           void addCollisionConstraint (const std::size_t idxSpline,
               const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
-              const SolverPtr_t& solver,
+              const SplineOptimizationData& sod,
               const CollisionPathValidationReportPtr_t& report,
               LinearConstraint& collision, CollisionFunctions& functions) const;
 
           bool findNewConstraint (LinearConstraint& constraint,
               LinearConstraint& collision, LinearConstraint& collisionReduced,
               CollisionFunctions& functions, const std::size_t iF,
-              const SplinePtr_t& spline, const SolverPtr_t& solver) const;
-
-
-          PathVectorPtr_t buildPathVector (const Splines_t& splines) const;
-
-          void jointBoundConstraint (const Splines_t& splines, LinearConstraint& lc) const;
-
-          bool isContinuous (const Splines_t& splines, const size_type maxOrder, const ContinuityConstraint& continuity) const;
+              const SplinePtr_t& spline, const SplineOptimizationData& sod) const;
 
           template <typename Cost_t> bool checkHessian (const Cost_t& cost, const matrix_t& H, const Splines_t& splines) const;
 
@@ -165,8 +124,6 @@ namespace hpp {
               const value_type& alpha, Splines_t& res) const;
 
           void copyParam (const Splines_t& in, Splines_t& out) const;
-
-          typename SM_t::Ptr_t steeringMethod_;
 
           // Continuity constraints
           // matrix_t Jcontinuity_;

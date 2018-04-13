@@ -25,6 +25,10 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
+      /// TODO
+      /// The derivative of the cost is wrong when for freeflyer and planar
+      /// joints. It lacks the derivative of the difference operator. The issue
+      /// is that it is not a quadratic cost anymore.
       template <typename _Spline, int DerivativeOrder>
       struct HPP_CORE_LOCAL SquaredLength // : Cost
       {

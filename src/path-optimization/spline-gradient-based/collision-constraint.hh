@@ -25,6 +25,7 @@
 # include <hpp/fcl/collision.h>
 # include <hpp/fcl/distance.h>
 
+# include <hpp/pinocchio/util.hh>
 # include <hpp/pinocchio/configuration.hh>
 # include <pinocchio/multibody/liegroup/liegroup.hpp>
 
@@ -130,8 +131,9 @@ namespace hpp {
            HPP_THROW(std::invalid_argument,
                "Object " << object1->name() << " and " << object2->name()
                << " are not in collision in configuration\n"
-               << qColl.transpose().format(IPythonFormat)
-               << "\nqFree is\n" << qFree.transpose().format(IPythonFormat));
+               << setpyformat << one_line(qColl)
+               << "\nqFree is\n" << one_line(qFree)
+               << unsetpyformat);
          }
          contactPoint_ = result.getContact (0).pos;
          hppDout (info, "contact point = " << contactPoint_.transpose());
