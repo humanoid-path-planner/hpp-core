@@ -70,16 +70,16 @@ namespace hpp {
       /// \param configuration configuration
       /// \param k number of nearest nodes to return
       /// if false from nodes in roadmap to given configuration
-      /// \retval distance to the nearest node.
+      /// \return k nearest nodes
       Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
                             size_type k);
 
       /// Get nearest node to a configuration in a connected component.
       /// \param configuration configuration
-      /// \param k number of nearest nodes to return
       /// \param connectedComponent the connected component
+      /// \param k number of nearest nodes to return
       /// if false from nodes in roadmap to given configuration
-      /// \retval distance to the nearest node.
+      /// \return k nearest nodes in the connected component
       Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
                             const ConnectedComponentPtr_t&
                             connectedComponent,
