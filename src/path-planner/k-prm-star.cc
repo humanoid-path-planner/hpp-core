@@ -141,7 +141,7 @@ namespace hpp {
         for (Nodes_t::iterator it = neighbors.begin ();
              it != neighbors.end (); ++it) {
           // Connect only nodes that are not already connected
-          if (!(*it)->isOutNeighbor (node)) {
+          if (!(*it)->isOutNeighbor (node) && (node != *it)) {
             PathPtr_t p ((*sm) (*node->configuration (),
                                 *(*it)->configuration ()));
             PathValidationReportPtr_t report;
