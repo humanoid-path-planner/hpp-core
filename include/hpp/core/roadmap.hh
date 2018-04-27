@@ -125,6 +125,18 @@ namespace hpp {
                       const PathPtr_t path);
 
 
+      /// Add an edge between two nodes.
+      EdgePtr_t addEdge (const NodePtr_t& n1, const NodePtr_t& n2,
+			 const PathPtr_t& path);
+
+      /// Add two edges between two nodes
+      /// \param from first node
+      /// \param to second node
+      /// \param path path going from <c>from</c> to <c>to</c>.
+      /// the reverse edge is added with the reverse path.
+      void addEdges (const NodePtr_t from, const NodePtr_t& to,
+		     const PathPtr_t& path);
+
       /// Add a goal configuration
       /// \param config configuration
       /// If configuration is already in the roadmap, tag corresponding node
@@ -174,10 +186,6 @@ namespace hpp {
       /// Get distance function
       const DistancePtr_t& distance () const;
       /// \}
-      /// Add an edge between two nodes.
-      EdgePtr_t addEdge (const NodePtr_t& n1, const NodePtr_t& n2,
-			 const PathPtr_t& path);
-
       /// Print roadmap in a stream
       std::ostream& print (std::ostream& os) const;
 
@@ -228,14 +236,6 @@ namespace hpp {
       /// connected component.
       NodePtr_t addNode (const ConfigurationPtr_t& config,
 			 ConnectedComponentPtr_t connectedComponent);
-
-      /// Add two edges between two nodes
-      /// \param from first node
-      /// \param to second node
-      /// \param path path going from <c>from</c> to <c>to</c>.
-      /// the reverse edge is added with the reverse path.
-      void addEdges (const NodePtr_t from, const NodePtr_t& to,
-		     const PathPtr_t& path);
 
       /// Update the graph of connected components after new connection
       /// \param cc1, cc2 the two connected components that have just been
