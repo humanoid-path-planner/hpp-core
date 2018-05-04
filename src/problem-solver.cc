@@ -865,6 +865,23 @@ namespace hpp {
       }
     }
 
+    void ProblemSolver::addObstacle (const DevicePtr_t& device,
+				     bool collision, bool distance)
+    {
+      device->computeForwardKinematics();
+      device->updateGeometryPlacements();
+      const std::string& prefix = device->name();
+
+      // Detach objects from joints
+      pinocchio::DeviceObjectVector& objects = device->objectVector();
+      for (pinocchio::DeviceObjectVector::iterator itObj = objects.begin();
+          itObj != objects.end(); ++itObj) {
+        addObstacle (prefix + (*itObj)->name (),
+            *(*itObj)->fcl (),
+            collision, distance);
+      }
+    }
+
     void ProblemSolver::addObstacle (const CollisionObjectPtr_t& object,
 				     bool collision, bool distance)
     {
