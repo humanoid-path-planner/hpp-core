@@ -419,6 +419,15 @@ namespace hpp {
       /// \name Obstacles
       /// \{
 
+      /// Add collision objects of a device as obstacles to the list.
+      /// \param device the Device to be added.
+      /// \param collision whether collision checking should be performed
+      ///        for this object.
+      /// \param distance whether distance computation should be performed
+      ///        for this object.
+      virtual void addObstacle (const DevicePtr_t& device, bool collision,
+            bool distance);
+
       /// Add obstacle to the list.
       /// \param inObject a new object.
       /// \param collision whether collision checking should be performed
