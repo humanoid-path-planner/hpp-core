@@ -77,8 +77,18 @@ namespace hpp {
 
           SplineGradientBased (const Problem& problem);
 
-          // Constraint creation
+          /// \name Constraint creation
+          /// \{
 
+          /// Compute a conservative linear representation of the constraints.
+          ///
+          /// It determines:
+          /// \li which DoFs can be computed explicitely. These DoFs are removed
+          ///     from the variables and computed explicitely.
+          /// \li which DoFs are constrained implicitely. These DoFs are removed
+          ///     from the variables and are set constant.
+          /// \li which DoFs are not constrained. These DoFs are kept as
+          ///     variables for optimization.
           virtual void addProblemConstraints (const PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, SplineOptimizationDatas_t& sods) const;
 
           void addProblemConstraintOnPath (const PathPtr_t& path, const size_type& idxSpline, const SplinePtr_t& spline, LinearConstraint& lc, SplineOptimizationData& sod) const;
@@ -90,6 +100,8 @@ namespace hpp {
               const constraints::HybridSolver& hs,
               const value_type& guessThr = -1,
               const bool& useExplicitInput = false) const;
+
+          /// \}
 
           bool checkOptimum_;
 
