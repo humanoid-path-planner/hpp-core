@@ -419,7 +419,7 @@ namespace hpp {
       /// \name Obstacles
       /// \{
 
-      /// Add collision object of device as obstacles to the list.
+      /// Add collision objects of a device as obstacles to the list.
       /// \param device the Device to be added.
       /// \param collision whether collision checking should be performed
       ///        for this object.
