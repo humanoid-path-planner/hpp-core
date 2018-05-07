@@ -62,11 +62,6 @@ namespace hpp {
 	return robot_;
       }
 
-      /// set robot
-      /// Set steering method, distance function and path validation to
-      /// default values
-      void robot (const DevicePtr_t& device);
-
       /// Get shared pointer to initial configuration.
       const ConfigurationPtr_t& initConfig () const
       {
