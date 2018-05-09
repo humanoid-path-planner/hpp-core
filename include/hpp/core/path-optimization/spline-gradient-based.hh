@@ -106,7 +106,6 @@ namespace hpp {
           bool checkOptimum_;
 
         private:
-          struct QuadraticProblem;
           typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
                   std::size_t> > Reports_t;
           struct CollisionFunctions;

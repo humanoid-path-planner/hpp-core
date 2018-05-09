@@ -63,6 +63,7 @@ path-validations.cc
   path-optimization/spline-gradient-based-abstract.cc #
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
+  path-optimization/quadratic-program.cc
   path-optimization/config-optimization.cc#
   path-optimization/simple-time-parameterization.cc#
   path-planner.cc #

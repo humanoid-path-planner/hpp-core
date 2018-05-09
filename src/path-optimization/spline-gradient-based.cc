@@ -26,10 +26,10 @@
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/collision-path-validation-report.hh>
+#include <hpp/core/path-optimization/quadratic-program.hh>
 
 #include <path-optimization/spline-gradient-based/cost.hh>
 #include <path-optimization/spline-gradient-based/collision-constraint.hh>
-#include <path-optimization/spline-gradient-based/eiquadprog_2011.hpp>
 
 namespace hpp {
   namespace core {
@@ -42,9 +42,7 @@ namespace hpp {
 
       typedef Eigen::BlockIndex BlockIndex;
 
-      HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_findNewConstraint);
-      HPP_DEFINE_TIMECOUNTER(SGB_qpSolve);
 
       template <int NbRows>
       VectorMap_t reshape (Eigen::Matrix<value_type, NbRows, Eigen::Dynamic, Eigen::RowMajor>& parameters)
@@ -65,112 +63,6 @@ namespace hpp {
       {}
 
       // ----------- Convenience class -------------------------------------- //
-
-      /** \f{eqnarray*}{
-       *  min & 0.5 * x^T H x + b^T x \\
-       *      & lc.J * x = lc.b
-       *  \f}
-      **/
-      template <int _PB, int _SO>
-      struct SplineGradientBased<_PB, _SO>::QuadraticProblem
-      {
-        typedef Eigen::JacobiSVD < matrix_t > Decomposition_t;
-        typedef Eigen::LLT <matrix_t, Eigen::Lower> LLT_t;
-
-        QuadraticProblem (size_type inputSize) :
-          H (inputSize, inputSize), b (inputSize),
-          dec (inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
-          xStar (inputSize)
-        {
-          H.setZero();
-          b.setZero();
-          bIsZero = true;
-        }
-
-        QuadraticProblem (const QuadraticProblem& QP, const LinearConstraint& lc) :
-          H (lc.PK.cols(), lc.PK.cols()), b (lc.PK.cols()), bIsZero (false),
-          dec (lc.PK.cols(), lc.PK.cols(), Eigen::ComputeThinU | Eigen::ComputeThinV),
-          xStar (lc.PK.cols())
-        {
-          QP.reduced (lc, *this);
-        }
-
-        QuadraticProblem (const QuadraticProblem& QP) :
-          H (QP.H), b (QP.b), bIsZero (QP.bIsZero),
-          dec (QP.dec), xStar (QP.xStar)
-        {}
-
-        void addRows (const std::size_t& nbRows)
-        {
-          H.conservativeResize(H.rows() + nbRows, H.cols());
-          b.conservativeResize(b.rows() + nbRows, b.cols());
-
-          H.bottomRows(nbRows).setZero();
-        }
-
-        /*/ Compute the problem
-         *  \f{eqnarray*}{
-         *  min & 0.5 * x^T H x + b^T x \\
-         *      & lc.J * x = lc.b
-         *  \f}
-        **/
-        void reduced (const LinearConstraint& lc, QuadraticProblem& QPr) const
-        {
-          matrix_t H_PK (H * lc.PK);
-          QPr.H.noalias() = lc.PK.transpose() * H_PK;
-          QPr.b.noalias() = H_PK.transpose() * lc.xStar;
-          if (!bIsZero) {
-            QPr.b.noalias() += lc.PK.transpose() * b;
-          }
-          QPr.bIsZero = false;
-        }
-
-        void decompose ()
-        {
-          HPP_SCOPE_TIMECOUNTER(SGB_qpDecomposition);
-          dec.compute(H);
-          assert(dec.rank() == H.rows());
-        }
-
-        void solve ()
-        {
-          xStar.noalias() = - dec.solve(b);
-        }
-
-        void computeLLT()
-        {
-          HPP_SCOPE_TIMECOUNTER(SGB_qpDecomposition);
-          trace = H.trace();
-          llt.compute(H);
-        }
-
-        double solve(const LinearConstraint& ce, const LinearConstraint& ci)
-        {
-          HPP_SCOPE_TIMECOUNTER(SGB_qpSolve);
-          // min   0.5 * x G x + g0 x
-          // s.t.  CE^T x + ce0 = 0
-          //       CI^T x + ci0 >= 0
-          return solve_quadprog2 (llt, trace, b,
-              ce.J.transpose(), - ce.b,
-              ci.J.transpose(), - ci.b,
-              xStar, activeConstraint, activeSetSize);
-        }
-
-        // model
-        matrix_t H;
-        vector_t b;
-        bool bIsZero;
-
-        // Data
-        LLT_t llt;
-        value_type trace;
-        Eigen::VectorXi activeConstraint;
-        int activeSetSize;
-
-        // Data
-        Decomposition_t dec;
-        vector_t xStar;
-      };
 
       /// TODO Two options:
       /// - Split this class into two classes:
@@ -542,7 +434,7 @@ namespace hpp {
         Base::copy(splines, alphaSplines); Base::copy(splines, collSplines);
         Reports_t reports;
 
-        QuadraticProblem QP(cost.inputDerivativeSize_);
+        QuadraticProgram QP(cost.inputDerivativeSize_);
         value_type optimalCost, costLowerBound = 0;
         cost.value(optimalCost, splines);
         hppDout (info, "Initial cost is " << optimalCost);
@@ -551,7 +443,7 @@ namespace hpp {
         checkHessian(cost, QP.H, splines);
 #endif // NDEBUG
 
-        QuadraticProblem QPc (QP, constraint);
+        QuadraticProgram QPc (QP, constraint);
         QPc.computeLLT();
         QPc.solve(collisionReduced, boundConstraintReduced);
 
@@ -660,9 +552,7 @@ namespace hpp {
         }
 
         // 7
-        HPP_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
         HPP_DISPLAY_TIMECOUNTER(SGB_findNewConstraint);
-        HPP_DISPLAY_TIMECOUNTER(SGB_qpSolve);
         return this->buildPathVector (splines);
       }
 
