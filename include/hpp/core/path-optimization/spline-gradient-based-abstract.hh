@@ -47,6 +47,23 @@ namespace hpp {
           typedef typename Spline::Ptr_t SplinePtr_t;
           typedef std::vector<SplinePtr_t> Splines_t;
 
+          /// \name Spline convinience functions
+          /// \{
+
+          /// Copy a vector of Spline
+          static void copy (const Splines_t& in, Splines_t& out);
+
+          /// Sets the parameters each spline.
+          /// \todo make this function static (currently, it only needs the
+          ///       robot number dof.
+          void updateSplines (Splines_t& spline, const vector_t& param) const;
+
+          /// Returns res = (1 - alpha) * a + alpha * b
+          static void interpolate (const Splines_t& a, const Splines_t& b,
+              const value_type& alpha, Splines_t& res);
+
+          /// \}
+
         protected:
 
           SplineGradientBasedAbstract (const Problem& problem);
@@ -131,23 +148,6 @@ namespace hpp {
 
 
           PathVectorPtr_t buildPathVector (const Splines_t& splines) const;
-
-          /// \name Spline convinience functions
-          /// \{
-
-          /// Copy a vector of Spline
-          static void copy (const Splines_t& in, Splines_t& out);
-
-          /// Sets the parameters each spline.
-          /// \todo make this function static (currently, it only needs the
-          ///       robot number dof.
-          void updateSplines (Splines_t& spline, const vector_t& param) const;
-
-          /// Returns res = (1 - alpha) * a + alpha * b
-          static void interpolate (const Splines_t& a, const Splines_t& b,
-              const value_type& alpha, Splines_t& res);
-
-          /// \}
 
           DevicePtr_t robot_;
 
