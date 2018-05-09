@@ -35,6 +35,8 @@ namespace hpp {
           b.setZero();
         }
 
+        ~LinearConstraint ();
+
         void concatenate (const LinearConstraint& oc)
         {
           assert(oc.J.cols() == J.cols());

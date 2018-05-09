@@ -42,7 +42,6 @@ namespace hpp {
 
       typedef Eigen::BlockIndex BlockIndex;
 
-      HPP_DEFINE_TIMECOUNTER(SGB_constraintDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_qpDecomposition);
       HPP_DEFINE_TIMECOUNTER(SGB_findNewConstraint);
       HPP_DEFINE_TIMECOUNTER(SGB_qpSolve);
@@ -515,10 +514,7 @@ namespace hpp {
         SquaredLength<Spline, 1> cost (splines, rDof, rDof);
 
         // 5
-        bool feasible;
-        { HPP_SCOPE_TIMECOUNTER(SGB_constraintDecomposition);
-          feasible = constraint.decompose (true); // true = check that the constraint is feasible
-        }
+        bool feasible = constraint.decompose (true); // true = check that the constraint is feasible
         if (!feasible) throw std::invalid_argument("Constraints are not feasible");
 
         LinearConstraint collisionReduced (constraint.PK.rows(), 0);
@@ -664,7 +660,6 @@ namespace hpp {
         }
 
         // 7
-        HPP_DISPLAY_TIMECOUNTER(SGB_constraintDecomposition);
         HPP_DISPLAY_TIMECOUNTER(SGB_qpDecomposition);
         HPP_DISPLAY_TIMECOUNTER(SGB_findNewConstraint);
         HPP_DISPLAY_TIMECOUNTER(SGB_qpSolve);

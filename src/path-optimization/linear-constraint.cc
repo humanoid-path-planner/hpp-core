@@ -16,6 +16,8 @@
 
 #include <hpp/core/path-optimization/linear-constraint.hh>
 
+#include <hpp/util/timer.hh>
+
 // #define USE_SVD
 #ifdef USE_SVD
 # include <hpp/constraints/svd.hh>
@@ -24,8 +26,17 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
+      HPP_DEFINE_TIMECOUNTER(LinearConstraint_decompose);
+
+      LinearConstraint::~LinearConstraint ()
+      {
+        HPP_DISPLAY_TIMECOUNTER(LinearConstraint_decompose);
+      }
+
       bool LinearConstraint::decompose (bool check)
       {
+        HPP_SCOPE_TIMECOUNTER(LinearConstraint_decompose);
+
         if (J.rows() == 0) { // No constraint
           PK = matrix_t::Identity (J.cols(), J.cols());
           xStar = vector_t::Zero (PK.rows());
