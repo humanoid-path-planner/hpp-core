@@ -376,7 +376,7 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      value_type Spline<_SplineType, _Order>::squaredNormIntegral (const size_type order)
+      value_type Spline<_SplineType, _Order>::squaredNormIntegral (const size_type order) const
       {
         typename sbf_traits::IntegralCoeffs_t Ic;
         squaredNormBasisFunctionIntegral(order, Ic);
@@ -385,7 +385,7 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      void Spline<_SplineType, _Order>::squaredNormIntegralDerivative (const size_type order, vectorOut_t res)
+      void Spline<_SplineType, _Order>::squaredNormIntegralDerivative (const size_type order, vectorOut_t res) const
       {
         typename BasisFunction_t::IntegralCoeffs_t Ic;
         squaredNormBasisFunctionIntegral(order, Ic);

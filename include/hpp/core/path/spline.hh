@@ -100,12 +100,12 @@ namespace hpp {
           /// Returns \f$ \int S^{(k)}(t)^T \times S^{(k)}(t) dt \f$
           ///
           /// where k is the argument
-          value_type squaredNormIntegral (const size_type order);
+          value_type squaredNormIntegral (const size_type order) const;
 
           /// Returns the derivative of \ref squaredNormIntegral wrt the parameters.
           ///
           /// \f[ res(j) \gets 2 \sum_i P_i^T \times m_{i,j} \f]
-          void squaredNormIntegralDerivative (const size_type order, vectorOut_t res);
+          void squaredNormIntegralDerivative (const size_type order, vectorOut_t res) const;
 
           /** Returns a vector \f$ (v_i) \f$ as
            *  \f[
