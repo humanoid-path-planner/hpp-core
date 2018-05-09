@@ -538,7 +538,7 @@ namespace hpp {
 
         Splines_t alphaSplines, collSplines;
         Splines_t* currentSplines;
-        copy(splines, alphaSplines); copy(splines, collSplines);
+        Base::copy(splines, alphaSplines); Base::copy(splines, collSplines);
         Reports_t reports;
 
         QuadraticProblem QP(cost.inputDerivativeSize_);
@@ -559,7 +559,7 @@ namespace hpp {
           if (computeOptimum) {
             // 6.2
             constraint.computeSolution(QPc.xStar);
-            updateSplines(collSplines, constraint.xSol);
+            Base::updateSplines(collSplines, constraint.xSol);
             cost.value(costLowerBound, collSplines);
             hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             currentSplines = &collSplines;
@@ -567,7 +567,7 @@ namespace hpp {
             computeOptimum = false;
           }
           if (computeInterpolatedSpline) {
-            interpolate(splines, collSplines, alpha, alphaSplines);
+            Base::interpolate(splines, collSplines, alpha, alphaSplines);
             currentSplines = &alphaSplines;
             minimumReached = false;
             computeInterpolatedSpline = false;
@@ -688,39 +688,6 @@ namespace hpp {
           hppDout (error, "Hessian of the cost is not correct: " << expected << " - " << result << " = " << expected - result);
         }
         return ret;
-      }
-
-      template <int _PB, int _SO>
-      void SplineGradientBased<_PB, _SO>::copy
-      (const Splines_t& in, Splines_t& out) const
-      {
-        out.resize(in.size());
-        for (std::size_t i = 0; i < in.size(); ++i)
-          out[i] = HPP_STATIC_PTR_CAST(Spline, in[i]->copy());
-      }
-
-      template <int _PB, int _SO>
-      void SplineGradientBased<_PB, _SO>::updateSplines
-      (Splines_t& splines, const vector_t& param) const
-      {
-        size_type row = 0, size = robot_->numberDof() * Spline::NbCoeffs;
-        for (std::size_t i = 0; i < splines.size(); ++i) {
-          splines[i]->rowParameters(param.segment(row, size));
-          row += size;
-        }
-      }
-
-      template <int _PB, int _SO>
-      void SplineGradientBased<_PB, _SO>::interpolate
-      (const Splines_t& a, const Splines_t& b, const value_type& alpha, Splines_t& res) const
-      {
-        assert (a.size() == b.size() && b.size() == res.size());
-        assert (alpha >= 0 && alpha <= 1);
-
-        for (std::size_t i = 0; i < a.size(); ++i)
-          res[i]->rowParameters(
-              (1 - alpha) * a[i]->rowParameters()
-              + alpha     * b[i]->rowParameters());
       }
 
       // ----------- Instanciate -------------------------------------------- //

@@ -124,19 +124,6 @@ namespace hpp {
 
           template <typename Cost_t> bool checkHessian (const Cost_t& cost, const matrix_t& H, const Splines_t& splines) const;
 
-          /// \todo static
-          void copy (const Splines_t& in, Splines_t& out) const;
-
-          /// Returns res = (1 - alpha) * a + alpha * b
-          void updateSplines (Splines_t& spline, const vector_t& param) const;
-
-          /// Returns res = (1 - alpha) * a + alpha * b
-          /// \todo static
-          void interpolate (const Splines_t& a, const Splines_t& b,
-              const value_type& alpha, Splines_t& res) const;
-
-          void copyParam (const Splines_t& in, Splines_t& out) const;
-
           // Continuity constraints
           // matrix_t Jcontinuity_;
           // vector_t rhsContinuity_;
