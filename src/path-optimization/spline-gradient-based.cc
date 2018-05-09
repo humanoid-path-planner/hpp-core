@@ -173,6 +173,11 @@ namespace hpp {
         vector_t xStar;
       };
 
+      /// TODO Two options:
+      /// - Split this class into two classes:
+      ///   - Move generic part outside of this class
+      ///   - Keep linearization
+      /// - Move all the code outside
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::CollisionFunctions
       {
