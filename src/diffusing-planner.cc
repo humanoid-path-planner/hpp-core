@@ -28,6 +28,7 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path-projector.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
@@ -102,13 +103,22 @@ namespace hpp {
 	} else {
 	  qProj_ = *target;
 	}
-	if (constraints->apply (qProj_)) {
-	  return (*sm) (*(near->configuration ()), qProj_);
-	} else {
+	if (!constraints->apply (qProj_)) {
 	  return PathPtr_t ();
 	}
+      } else {
+        qProj_ = *target;
       }
-      return (*sm) (*(near->configuration ()), *target);
+      // Here, qProj_ is a configuration that satisfies the constraints
+      // or *target if there are no constraints.
+      PathPtr_t path = (*sm) (*(near->configuration ()), qProj_);
+      PathProjectorPtr_t pp = problem ().pathProjector();
+      if (pp) {
+        PathPtr_t proj;
+        pp->apply (path, proj);
+        return proj;
+      }
+      return path;
     }
 
 
@@ -213,8 +223,17 @@ namespace hpp {
 	  ConfigurationPtr_t q2 ((*itn2)->configuration ());
 	  assert (*q1 != *q2);
 	  path = (*sm) (*q1, *q2);
-	  PathValidationReportPtr_t report;
           if (!path) continue;
+
+          PathProjectorPtr_t pp = problem ().pathProjector();
+          if (pp) {
+            PathPtr_t proj;
+            // If projection failed, continue
+            if (!pp->apply (path, proj)) continue;
+            path = proj;
+          }
+
+	  PathValidationReportPtr_t report;
           HPP_START_TIMECOUNTER(validatePath);
 	  bool valid = pathValidation->validate (path, false, validPath, report);
           HPP_STOP_TIMECOUNTER(validatePath);
@@ -237,6 +256,15 @@ namespace hpp {
 	  assert (*q1 != *q2);
 	  path = (*sm) (*q1, *q2);
           if (!path) continue;
+
+          PathProjectorPtr_t pp = problem ().pathProjector();
+          if (pp) {
+            PathPtr_t proj;
+            // If projection failed, continue
+            if (!pp->apply (path, proj)) continue;
+            path = proj;
+          }
+
 	  PathValidationReportPtr_t report;
           HPP_START_TIMECOUNTER(validatePath);
 	  bool valid = pathValidation->validate (path, false, validPath, report);
