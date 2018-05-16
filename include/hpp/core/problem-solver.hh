@@ -180,7 +180,7 @@ namespace hpp {
       /// path optimization methods.
       virtual void pathValidationType (const std::string& type,
                                        const value_type& tolerance);
-      const std::string& pathValidationType (value_type& tolerance) {
+      const std::string& pathValidationType (value_type& tolerance) const {
         tolerance = pathValidationTolerance_;
         return pathValidationType_;
       }
