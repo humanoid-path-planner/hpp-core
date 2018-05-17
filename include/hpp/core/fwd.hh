@@ -162,7 +162,7 @@ namespace hpp {
     typedef boost::shared_ptr <Equation> EquationPtr_t;
     typedef boost::shared_ptr <const LockedJoint> LockedJointConstPtr_t;
     typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
-    typedef std::list <LockedJointPtr_t> LockedJoints_t;
+    typedef std::vector <LockedJointPtr_t> LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
     typedef pinocchio::matrix3_t matrix3_t;
     typedef constraints::matrix6_t matrix6_t;
