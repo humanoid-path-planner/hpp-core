@@ -1,70 +1,17 @@
-2013/10/08 Release 2.7.0
+                                                                -*- outline -*-
 
-	1. Add hpp-util dependency.
-	2. Use hpp-util KiteLab replacement macros to prevent
-	-pedantic warnings.
-	3. Fix warnings.
-
-2012/06/18 Release 2.5
-
-        1. Add a method to clear all the roadmaps,
-        2. fix bug in parser,
-	3. do not set stable ends when planning with path optimizer,
-	4. fix bug in method Problem::resetGoalConfig,
-	5. update documentation.
-
-2012/02/11 Release 2.4
-
-	1. Enable users to define several goal configurations.
-	2. Some methods that used to return ktStatus now assert and return void.
-	See porting notes in the documentation.
-
-2012/02/03 Release 2.3
-
-	1. Fix parser to handle devices that are not of type hpp::model::Device.
-	2. addHppProblem, removeHppProblem, addHppProblemAtBeginning and
-	   removeHppProblemAtBeginning are now virtual.
-
-2012/01/27 Release 2.2
-
-	1. Replace CkwsPathOptimizer by CkwsPathPlanner
-	  CkwsPathPlanner is a more general class than CkwsPathOptimizer. This
-          modification allows to post-process the solution of a path planning
-	  problem with greater variety of algorithms.
-
-2011/12/18 Release 2.1
-        1. Use steering method component instead of simple steering methods.
-
-2011/12/21 Release 2.0
-
-        1. Compatibility with Kitelab 2.06.
-
-2010/10/01 Release 1.12.1
-	1. Use same guards for deprecated and new headers
-
-2010/08/18 Release 1.12
-	1. headers have been installed in include/hpp/core
-	2. package is now managed by cmake
-  	3. implementation of an extension of Kineo parser for ChppHumanoidRobot.
-2009/08/28 Release 1.10.0
-
-	1. Class ChppBody has been synchronized with hppModel implementation.
-
-2009/07/11 Release 1.9.0
-
-	1. Class ChppProblem has been  modified.
-	  - a method solve has been added and some code has been moved from 
-	    ChppPlanner::solveOneProblem to ChppProblem::solve.
-	  - By default, when solving a path planning problem, the path 
-            optimizer is not called if the path resulting from planning 
-            contains only one direct path. This default behavior can now be 
-            overriden by calling method ChppProblem::alwaysOptimize(true);
-
-	2. The internal structure of the package has been changed in order to 
-           use autotools in a more robust way. 
-
-	
-2009-05-29 Release 1.8.2
-2009-05-28 Release 1.8.1
-2009-04-18 Release 1.8
-2009-03-14 Release 1.7
+New in 4.1, 2018-05-17
+* ProblemSolver::directPath now calls path projector if defined.
+* Implement Dubins, reverse Dubins (Snibud) steering methods
+* Rewrite Reeds and Shepp steering method.
+* In ProblemSolver, when loading new robot, reset obstacles.
+* Move LockedJointPtr_t and JointAndShapes_t from hpp::manipulation::ProblemSolver
+* Use MATHJAX for documentation generation.
+* Explicit relative transformation takes values in SE3.
+* Add getter to joint1 and joint2 in ExplicitRelativeTransform.
+* Add k nearest neightbor search in whole roadmap.
+* Implement k-PRM*.
+* Implement continuousCollisionChecking::Progressive::filterCollisionPairs.
+* Add accessor to the SteeringMethod::problem_.
+* Add TimeParameterization and add it to Path.
+* Fix loop of shared ptr of ConnectedComponent.
