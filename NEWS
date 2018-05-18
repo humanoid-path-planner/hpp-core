@@ -1,6 +1,7 @@
                                                                 -*- outline -*-
 
 New in 4.1, 2018-05-17
+* Diffusing Planner calls path projector if defined.
 * ProblemSolver::directPath now calls path projector if defined.
 * Implement Dubins, reverse Dubins (Snibud) steering methods
 * Rewrite Reeds and Shepp steering method.
