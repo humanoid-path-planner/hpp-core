@@ -372,7 +372,7 @@ namespace hpp {
       {
         BasisFunctionVector_t ub;
         BasisFunction_t::bound (1, t0, t1, ub);
-        res.transpose() = ub.transpose() * parameters_.cwiseAbs();
+        res.noalias() = parameters_.cwiseAbs().transpose() * ub;
       }
 
       template <int _SplineType, int _Order>
