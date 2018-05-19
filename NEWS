@@ -16,3 +16,4 @@ New in 4.1, 2018-05-17
 * Add accessor to the SteeringMethod::problem_.
 * Add TimeParameterization and add it to Path.
 * Fix loop of shared ptr of ConnectedComponent.
+* member BasicConfigurationShooter is not a const reference anymore.

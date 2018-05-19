@@ -60,7 +60,7 @@ namespace hpp {
       }
 
     private:
-      const DevicePtr_t& robot_;
+      DevicePtr_t robot_;
       BasicConfigurationShooterWkPtr_t weak_;
     }; // class BasicConfigurationShooter
     /// \}
