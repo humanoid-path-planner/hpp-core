@@ -26,8 +26,8 @@ namespace hpp {
       size_type extraDim = robot_->extraConfigSpace ().dimension ();
       size_type offset = robot_->configSize () - extraDim;
 
-      ConfigurationPtr_t config (new Configuration_t (robot_->configSize ()));
-      (*config).head(offset) = se3::randomConfiguration(robot_->model());
+      Configuration_t config(robot_->configSize ());
+      config.head (offset) = se3::randomConfiguration(robot_->model());
 
       // Shoot extra configuration variables
       for (size_type i=0; i<extraDim; ++i) {
@@ -41,9 +41,9 @@ namespace hpp {
           oss << i << ". min = " <<lower<< ", max = " << upper << std::endl;
           throw std::runtime_error (oss.str ());
         }
-        (*config) [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
+        config [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
       }
-      return config;
+      return boost::make_shared<Configuration_t> (config);
     }
 
   } //   namespace core
