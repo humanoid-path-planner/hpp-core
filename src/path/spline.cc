@@ -19,27 +19,12 @@
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
+#include <path/math.hh>
+
 namespace hpp {
   namespace core {
     namespace path {
       namespace internal {
-        template <int N>
-        inline Eigen::Matrix<size_type, N, 1> factorials ()
-        {
-          Eigen::Matrix<size_type, N, 1> ret;
-          ret (0) = 1;
-          for (size_type i = 1; i < N; ++i) ret(i) = ret(i-1) * i;
-          return ret;
-        }
-        template <int N>
-        inline size_type binomial (size_type n, size_type k, const Eigen::Matrix<size_type, N, 1> factors)
-        {
-          assert (n >= k && k >= 0);
-          assert (n < N);
-          size_type denom = factors(k) * factors(n - k);
-          return factors (n) / denom;
-        }
-
         /// Spline basis functions input set is [0, 1]
         template <int Degree> struct spline_basis_function <CanonicalPolynomeBasis, Degree>
         {
@@ -66,7 +51,7 @@ namespace hpp {
         void spline_basis_function<CanonicalPolynomeBasis, Degree>::derivative
         (const size_type order, const value_type& t, Coeffs_t& res)
         {
-          static Factorials_t factors = factorials<NbCoeffs>();
+          static Factorials_t factors = binomials<NbCoeffs>::factorials();
           value_type powerOfT = 1;
           res.head(order).setZero();
           for (size_type i = order; i < NbCoeffs; ++i) {
@@ -78,7 +63,7 @@ namespace hpp {
         void spline_basis_function<CanonicalPolynomeBasis, Degree>::integral
         (const size_type order, IntegralCoeffs_t& res)
         {
-          static Factorials_t factors = factorials<NbCoeffs>();
+          static Factorials_t factors = binomials<NbCoeffs>::factorials();
 
           // TODO the output matrix is symmetric
           if (order > 0) {
@@ -133,7 +118,7 @@ namespace hpp {
         {
           res.setZero();
           if (k > Degree) return;
-          static Factorials_t factors = factorials<NbCoeffs>();
+          static Factorials_t factors = binomials<NbCoeffs>::factorials();
           Coeffs_t powersOfT, powersOfOneMinusT;
           powersOfT        (0) = 1;
           powersOfOneMinusT(0) = 1;
@@ -147,7 +132,7 @@ namespace hpp {
             for (size_type p = std::max((size_type)0, k + i - Degree); p <= std::min(i, k); ++p) {
               size_type ip = i - p;
               res(i) += value_type (( (k - p) % 2 == 0 ? 1 : -1 )
-                * binomial (k, p, factors))
+                * binomials<NbCoeffs>::binomial (k, p))
                 *   powersOfT(ip) * powersOfOneMinusT(Degree - k - ip)
                 / value_type( factors  (ip) * factors  (Degree - k - ip) );
             }
@@ -160,11 +145,12 @@ namespace hpp {
         {
           res.setZero();
           if (k > Degree) return;
-          static Eigen::Matrix<size_type, 2*NbCoeffs - 1, 1> factors = factorials<2*NbCoeffs-1>();
+          const size_type N = 2*NbCoeffs-1;
+          static const typename binomials<N>::Factorials_t& factors = binomials<2*NbCoeffs-1>::factorials();
 
           Factorials_t among_k, among_n_minus_k;
-          for (size_type i = 0; i <= k; ++i) among_k(i) = binomial(k, i, factors);
-          for (size_type i = 0; i <= Degree-k; ++i) among_n_minus_k(i) = binomial(Degree-k, i, factors);
+          for (size_type i = 0; i <= k; ++i) among_k(i) = binomials<N>::binomial(k, i);
+          for (size_type i = 0; i <= Degree-k; ++i) among_n_minus_k(i) = binomials<N>::binomial(Degree-k, i);
 
           for (size_type i = 0; i < NbCoeffs; ++i) {
             size_type I_i_min = std::max((size_type)0, k + i - Degree);
@@ -179,7 +165,7 @@ namespace hpp {
                   value_type alpha_0 =
                     value_type (among_n_minus_k (i-p) * among_n_minus_k (j-q))
                     / value_type(
-                        binomial(2*(Degree-k), i-p+j-q, factors)
+                        binomials<N>::binomial(2*(Degree-k), i-p+j-q)
                         * (2*(Degree-k) + 1)
                       );
 
@@ -242,7 +228,6 @@ namespace hpp {
         typename spline_basis_function<BernsteinBasis, Degree>::Coeffs_t spline_basis_function<BernsteinBasis, Degree>::absBound (bool up)
         {
           Coeffs_t res;
-          const Factorials_t factors = factorials<NbCoeffs>();
           Factorials_t iToThePowerOfI (Factorials_t::Ones());
           for (size_type i = 1; i < Degree; ++i) {
             for (size_type j = 0; j < i; ++j)
@@ -257,7 +242,7 @@ namespace hpp {
               const size_type p = (up
                   ? iToThePowerOfI(i) * iToThePowerOfI(Degree - i - 1)
                   : iToThePowerOfI(Degree - i) * iToThePowerOfI(i - 1));
-              res(i) = value_type(binomial(Degree, i, factors) * p) / value_type(iToThePowerOfI(Degree - 1));
+              res(i) = value_type(binomials<NbCoeffs>::binomial(Degree, i) * p) / value_type(iToThePowerOfI(Degree - 1));
             }
           }
           return res;
@@ -292,6 +277,14 @@ namespace hpp {
         parameters_ (path.parameters_),
         powersOfT_ (path.powersOfT_)
       {}
+
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::timeFreeBasisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res)
+      {
+        // TODO: add a cache.
+        assert (u >= 0 && u <= 1);
+        BasisFunction_t::derivative (order, u, res);
+      }
 
       template <int _SplineType, int _Order>
       void Spline<_SplineType, _Order>::basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const
