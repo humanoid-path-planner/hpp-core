@@ -23,6 +23,8 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/time-parameterization.hh>
 
+# include <path/math.hh>
+
 namespace hpp {
   namespace core {
     namespace timeParameterization {
@@ -48,9 +50,9 @@ namespace hpp {
           }
 
           /// Computes \f$ \sum_{i=1}^n i a_i t^{i-1} \f$
-          value_type derivative (const value_type& t) const
+          value_type derivative (const value_type& t, const size_type& order) const
           {
-            return Jac(t);
+            return Jac(t, order);
           }
 
           /// Compute the bound of the derivative on \f$ [ low, up ] \f$.
@@ -105,12 +107,24 @@ namespace hpp {
 
           value_type Jac (const value_type& t) const
           {
-            value_type res = a[1];
+            return Jac(t,1);
+          }
+
+          value_type Jac (const value_type& t, const size_type& order) const
+          {
+            if (order >= a.size()) return 0;
+            const size_type MaxOrder = 10;
+            if (a.size() > MaxOrder)
+              throw std::invalid_argument ("Cannot compute the derivative of order greater than 10.");
+            typedef path::binomials<MaxOrder> Binomials_t;
+            const Binomials_t::Factorials_t& factors = Binomials_t::factorials();
+
+            value_type res = 0;
             value_type tn = 1;
-            for (size_type i = 2; i < a.size(); ++i)
+            for (size_type i = order; i < a.size(); ++i)
             {
+              res += value_type(factors[i]/factors[i-order]) * a[i] * tn;
               tn *= t;
-              res += a[i] * tn * (value_type)i;
             }
             return res;
           }

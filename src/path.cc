@@ -53,9 +53,9 @@ namespace hpp {
           {
             return tp_->value (t + t_) + s_;
           }
-          value_type derivative (const value_type& t) const
+          value_type derivative (const value_type& t, const size_type& order) const
           {
-            return tp_->derivative (t + t_);
+            return tp_->derivative (t + t_, order);
           }
           value_type impl_derivativeBound (const value_type& l, const value_type& u) const
           {

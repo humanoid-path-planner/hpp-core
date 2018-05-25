@@ -26,7 +26,7 @@ namespace hpp {
     {
       public:
         virtual value_type value (const value_type& t) const = 0;
-        virtual value_type derivative (const value_type& t) const = 0;
+        virtual value_type derivative (const value_type& t, const size_type& order) const = 0;
         virtual value_type derivativeBound (const value_type& low, const value_type& up) const
         {
           (void) low;

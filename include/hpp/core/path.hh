@@ -158,7 +158,7 @@ namespace hpp {
         if (timeParam_) {
           assert (order == 1);
           impl_derivative (result, timeParam_->value(time), order);
-          result *= timeParam_->derivative(time);
+          result *= timeParam_->derivative(time, 1);
         } else {
           impl_derivative (result, time, order);
         }
