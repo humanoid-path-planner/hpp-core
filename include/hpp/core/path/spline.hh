@@ -23,6 +23,7 @@
 # include <hpp/pinocchio/device.hh>
 
 # include <hpp/core/fwd.hh>
+# include <hpp/core/steering-method/fwd.hh>
 # include <hpp/core/config.hh>
 
 namespace hpp {
@@ -109,7 +110,22 @@ namespace hpp {
 
           /** Returns a vector \f$ (v_i) \f$ as
            *  \f[
-           *  v_i = T^{-k} b_i^{(k)}(\frac{t - t_0}{T})
+           *  v_i = b_i^{(k)}(u)
+           *  \f]
+          **/
+          static void timeFreeBasisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res);
+
+          static void timeFreeBasisFunctionDerivative (const size_type order, const value_type& u, vectorOut_t res)
+          {
+            assert (res.size() == NbCoeffs);
+            BasisFunctionVector_t tmp;
+            timeFreeBasisFunctionDerivative(order, u, tmp);
+            res = tmp;
+          }
+
+          /** Returns a vector \f$ (v_i) \f$ as
+           *  \f[
+           *  v_i = T^{-k} b_i^{(k)}(u)
            *  \f]
           **/
           void basisFunctionDerivative (const size_type order, const value_type& u, BasisFunctionVector_t& res) const;
@@ -264,6 +280,8 @@ namespace hpp {
 
           mutable vector_t velocity_;
           mutable PowersOfT_t powersOfT_;
+
+          friend class steeringMethod::Spline<_PolynomeBasis, _Order>;
       }; // class Spline
       /// \}
     } //   namespace path
