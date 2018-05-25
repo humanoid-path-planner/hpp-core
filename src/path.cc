@@ -126,6 +126,33 @@ namespace hpp {
       weak_ = self;
     }
 
+    void Path::derivative (vectorOut_t result, const value_type& time,
+        size_type order) const
+    {
+      if (timeParam_) {
+        switch (order) {
+          case 1:
+            impl_derivative (result, timeParam_->value(time), 1);
+            result *= timeParam_->derivative(time, 1);
+            break;
+          case 2: {
+                    vector_t tmp (outputDerivativeSize());
+                    impl_derivative (tmp, timeParam_->value(time), 2);
+                    value_type der = timeParam_->derivative(time, 1);
+                    result.noalias() = tmp * (der*der);
+
+                    impl_derivative (tmp, timeParam_->value(time), 1);
+                    result.noalias() += tmp * timeParam_->derivative(time, 2);
+                    break;
+                  }
+          default:
+                  throw std::invalid_argument ("Cannot compute the derivative of order greater than 2.");
+        }
+      } else {
+        impl_derivative (result, time, order);
+      }
+    }
+
     PathPtr_t Path::extract (const interval_t& subInterval) const
         throw (projection_error)
     {

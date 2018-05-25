@@ -153,16 +153,7 @@ namespace hpp {
       ///       constraints. The derivative of the non-constrained path will
       ///       be computed.
       void derivative (vectorOut_t result, const value_type& time,
-          size_type order) const
-      {
-        if (timeParam_) {
-          assert (order == 1);
-          impl_derivative (result, timeParam_->value(time), order);
-          result *= timeParam_->derivative(time, 1);
-        } else {
-          impl_derivative (result, time, order);
-        }
-      }
+          size_type order) const;
 
       /// Get an upper bound of the velocity on a sub-interval.
       /// The result is a coefficient-wise.
