@@ -62,8 +62,28 @@ namespace hpp {
           return TimeParameterizationPtr_t (new Polynomial (a));
         }
 
+        TimeParameterizationPtr_t computeTimeParameterizationFifthOrder (
+            const value_type& s0, const value_type& s1, const value_type& B,
+            value_type& T) 
+        {
+          vector_t a(6);
+          T = 30 * (s1 - s0) / (16 * B);
+          value_type Tpow = T*T*T;
+          a[0] = s0;
+          a[1] = 0;
+          a[2] = 0;
+          a[3] =  10 * (s1 - s0) / Tpow;
+          Tpow *= T;
+          a[4] = -15 * (s1 - s0) / Tpow;
+          Tpow *= T;
+          a[5] =   6 * (s1 - s0) / Tpow;
+          hppDout (info, "Time parametrization returned " << a.transpose()
+              << ", " << T);
+          return TimeParameterizationPtr_t (new Polynomial (a));
+        }
+
         void checkTimeParameterization (const TimeParameterizationPtr_t tp,
-            const bool velocity, const interval_t sr, const value_type B, const value_type T)
+            const size_type order, const interval_t sr, const value_type B, const value_type T)
         {
           using std::fabs;
           const value_type thr = Eigen::NumTraits<value_type>::dummy_precision();
@@ -71,7 +91,7 @@ namespace hpp {
               || fabs(tp->value(T) - sr.second) >= thr) {
             throw std::logic_error("Boundaries of TimeParameterization are not correct.");
           }
-          if (velocity
+          if (order >= 1
               && (fabs(tp->derivative(0, 1)) > thr
               ||  fabs(tp->derivative(T, 1)) > thr
               ||  fabs(tp->derivative(T/2, 1) - B) > thr)
@@ -83,6 +103,17 @@ namespace hpp {
                 << "\ntp->derivative(T/2, 1) - B = " << tp->derivative(T/2, 1) - B
                 << "\nT = " << T
                 << "\nB = " << B
+                );
+          }
+          if (order >= 2
+              && (fabs(tp->derivative(0, 2)) > thr
+              ||  fabs(tp->derivative(T, 2)) > thr)
+             ) {
+            HPP_THROW(std::logic_error,
+                "Derivative of TimeParameterization are not correct:"
+                << "\ntp->derivative(0, 2) = " << tp->derivative(0, 2)
+                << "\ntp->derivative(T, 2) = " << tp->derivative(T, 2)
+                << "\nT = " << T
                 );
           }
         }
@@ -99,7 +130,7 @@ namespace hpp {
         const value_type infinity = std::numeric_limits<value_type>::infinity();
 
         const value_type safety = problem().getParameter("SimpleTimeParameterization/safety", (value_type)1);
-        const bool velocity = problem().getParameter("SimpleTimeParameterization/velocity", false);
+        const size_type order = problem().getParameter("SimpleTimeParameterization/order", (size_type)0);
 
         // Retrieve velocity limits
         const DevicePtr_t& robot = problem().robot();
@@ -147,12 +178,22 @@ namespace hpp {
           // Compute the polynom and total time
           value_type T;
           TimeParameterizationPtr_t tp;
-          if (velocity)
-            tp = computeTimeParameterizationThirdOrder (paramRange.first, paramRange.second, B, T);
-          else
-            tp = computeTimeParameterizationFirstOrder (paramRange.first, paramRange.second, B, T);
+          switch (order) {
+            case 0:
+              tp = computeTimeParameterizationFirstOrder (paramRange.first, paramRange.second, B, T);
+              break;
+            case 1:
+              tp = computeTimeParameterizationThirdOrder (paramRange.first, paramRange.second, B, T);
+              break;
+            case 2:
+              tp = computeTimeParameterizationFifthOrder (paramRange.first, paramRange.second, B, T);
+              break;
+            default:
+              throw std::invalid_argument ("Parameter SimpleTimeParameterization/order should be in { 0, 1, 2 }");
+              break;
+          }
 
-          checkTimeParameterization (tp, velocity, paramRange, B, T);
+          checkTimeParameterization (tp, order, paramRange, B, T);
 
           PathPtr_t pp = p->copy();
           pp->timeParameterization (tp, interval_t (0, T));

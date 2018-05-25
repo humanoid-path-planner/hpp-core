@@ -61,9 +61,11 @@ namespace hpp {
        *  The constraints on \f$ P_n \f$ are:
        *  - \f$ P_n(0) = s_0 \f$
        *  - \f$ P_n(T) = s_1 \f$
-       *  - \f$ P'_n(t) \le B \f$
-       *  - \f$ P'_n(0) = 0 \f$ (in the third order case only)
-       *  - \f$ P'_n(T) = 0 \f$ (in the third order case only)
+       *  - \f$ P^{(1)}_n(t) \le B \f$
+       *  - \f$ P^{(1)}_n(0) = 0 \f$ (from the third order case only)
+       *  - \f$ P^{(1)}_n(T) = 0 \f$ (from the third order case only)
+       *  - \f$ P^{(2)}_n(0) = 0 \f$ (from the fifth order case only)
+       *  - \f$ P^{(2)}_n(T) = 0 \f$ (from the fifth order case only)
        * 
        *  The solutions are:
        *  \li First order case:
@@ -80,6 +82,71 @@ namespace hpp {
        *    a_1 &= 0                \\
        *    a_2 &= 3 \frac{s_1 - s_0}{T^2} \\
        *    a_3 &= - \frac{2 a_2}{3 T} \\
+       *    \end{align*} \f]
+       *    In this case, \f$ P^{(1)}_3(t) = 6 \frac{s_1-s_0}{T} \frac{t}{T}
+       *    \left(1 - \frac{t}{T}\right) \ge 0 \f$.
+       * 
+       *  \li Fifth order case:\n
+       *    Let \f$ P_5(t) = \sum_i a_i t^i \f$.
+       *    Trivially, \f$ a_0 = s_0 \f$, \f$ a_1 = 0 \f$ and \f$ a_2 = 0 \f$. \n
+       *    Then, \f$ P_5(T) = s_1 \f$, \f$ P^{(1)}_5(T) = 0 \f$ and
+       *    \f$ P^{(2)}_5(T) = 0 \f$ implies:
+       *    \f[
+       *    \left(\begin{array}{ccc}
+       *       T^3 &    T^4 &    T^5 \\
+       *     3 T^2 &  4 T^3 &  5 T^4 \\
+       *     6 T   & 12 T^2 & 20 T^3 \\
+       *    \end{array}\right)
+       *    \times
+       *    \left(\begin{array}{c}
+       *     a_3 \\
+       *     a_4 \\
+       *     a_5 \\
+       *    \end{array}\right)
+       *    =
+       *    \left(\begin{array}{c}
+       *     s_1 - s_0 \\
+       *     0         \\
+       *     0         \\
+       *    \end{array}\right)
+       *    \f]
+       *    \f[
+       *    \left(\begin{array}{c}
+       *     a_3 \\
+       *     a_4 \\
+       *     a_5 \\
+       *    \end{array}\right)
+       *    =
+       *    \frac{s_1-s_0}{\det(M)}
+       *    \times
+       *    \left(\begin{array}{c}
+       *     80 T^6 - 60 T^6 \\
+       *     30 T^5 - 60 T^5 \\
+       *     36 T^4 - 24 T^4 \\
+       *    \end{array}\right)
+       *    \f]
+       *    And thus:
+       *    \f[
+       *    \left(\begin{array}{c}
+       *     a_3 \\
+       *     a_4 \\
+       *     a_5 \\
+       *    \end{array}\right)
+       *    =
+       *    \frac{s_1-s_0}{T^5}
+       *    \times
+       *    \left(\begin{array}{c}
+       *     10 T^2 \\
+       *     -15  T \\
+       *       6    \\
+       *    \end{array}\right)
+       *    \f]
+       *    Then \f$ P^{(1)}(t) = 30 \frac{s_1-s_0}{T}
+       *    \left(\frac{t}{T}\right)^2
+       *    \left(1 - \frac{t}{T}\right)^2 \ge 0 \f$ so
+       *    \f[ \begin{align*}
+       *    B &= \max{P^{(1)}(t)} = P^{(1)}(\frac{T}{2}) = \frac{30 (s_1 - s_0)}{16 T} \\
+       *    T &= \frac{30 (s_1 - s_0)}{16 B}
        *    \end{align*} \f]
        */
 
