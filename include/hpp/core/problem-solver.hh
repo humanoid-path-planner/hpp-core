@@ -155,7 +155,7 @@ namespace hpp {
       ///
       /// \param name of the type of path optimizer that should be added
       void addPathOptimizer (const std::string& type);
-      PathOptimizerTypes_t pathOptimizerTypes () const {
+      const PathOptimizerTypes_t& pathOptimizerTypes () const {
         return pathOptimizerTypes_;
       }
       /// Clear the vector of path optimizers
