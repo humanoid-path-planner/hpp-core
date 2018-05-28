@@ -423,6 +423,18 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
+      void SplineGradientBasedAbstract<_PB, _SO>::updateParameters
+      (vector_t& param, const Splines_t& splines) const
+      {
+        param.resize(robot_->numberDof() * Spline::NbCoeffs * splines.size());
+        size_type row = 0, size = robot_->numberDof() * Spline::NbCoeffs;
+        for (std::size_t i = 2; i < splines.size(); ++i) {
+          param.segment(row, size) = splines[i]->rowParameters();
+          row += size;
+        }
+      }
+
+      template <int _PB, int _SO>
       void SplineGradientBasedAbstract<_PB, _SO>::interpolate
       (const Splines_t& a, const Splines_t& b, const value_type& alpha, Splines_t& res)
       {

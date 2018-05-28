@@ -58,6 +58,11 @@ namespace hpp {
           ///       robot number dof.
           void updateSplines (Splines_t& spline, const vector_t& param) const;
 
+          /// Gets the parameters each spline.
+          /// \todo make this function static (currently, it only needs the
+          ///       robot number dof.
+          void updateParameters (vector_t& param, const Splines_t& spline) const;
+
           /// Returns res = (1 - alpha) * a + alpha * b
           static void interpolate (const Splines_t& a, const Splines_t& b,
               const value_type& alpha, Splines_t& res);
