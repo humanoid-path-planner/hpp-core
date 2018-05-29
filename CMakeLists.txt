@@ -52,7 +52,7 @@ SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in th
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
-  include/hpp/core/basic-configuration-shooter.hh
+  include/hpp/core/basic-configuration-shooter.hh # DEPRECATED
   include/hpp/core/bi-rrt-planner.hh
   include/hpp/core/collision-path-validation-report.hh
   include/hpp/core/collision-validation.hh
@@ -60,6 +60,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/collision-validation-report.hh
   include/hpp/core/projection-error.hh
   include/hpp/core/configuration-shooter.hh
+  include/hpp/core/configuration-shooter/uniform.hh
+  include/hpp/core/configuration-shooter/gaussian.hh
   include/hpp/core/config-projector.hh
   include/hpp/core/config-validation.hh
   include/hpp/core/config-validations.hh

@@ -30,7 +30,6 @@
 
 namespace hpp {
   namespace core {
-    HPP_PREDEF_CLASS (BasicConfigurationShooter);
     HPP_PREDEF_CLASS (BiRRTPlanner);
     HPP_PREDEF_CLASS (CollisionPathValidation);
     struct CollisionPathValidationReport;
@@ -87,8 +86,6 @@ namespace hpp {
     typedef constraints::ComparisonTypes_t ComparisonTypes_t;
     typedef constraints::ComparisonType ComparisonType;
 
-    typedef boost::shared_ptr < BasicConfigurationShooter >
-    BasicConfigurationShooterPtr_t;
     typedef boost::shared_ptr <BiRRTPlanner> BiRRTPlannerPtr_t;
     typedef hpp::pinocchio::Body Body;
     typedef hpp::pinocchio::BodyPtr_t BodyPtr_t;
@@ -308,6 +305,13 @@ namespace hpp {
       typedef boost::shared_ptr <GoalConfigurations> GoalConfigurationsPtr_t;
       typedef boost::shared_ptr <TaskTarget> TaskTargetPtr_t;
     } // namespace problemTarget
+
+    namespace configurationShooter {
+      HPP_PREDEF_CLASS (Uniform);
+      typedef boost::shared_ptr < Uniform > UniformPtr_t;
+      HPP_PREDEF_CLASS (Gaussian);
+      typedef boost::shared_ptr < Gaussian > GaussianPtr_t;
+    } // namespace configurationShooter
 
     typedef std::vector<core::vector3_t> Shape_t;
     typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;

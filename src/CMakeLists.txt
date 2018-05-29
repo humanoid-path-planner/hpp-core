@@ -21,9 +21,10 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 
 SET(${LIBRARY_NAME}_SOURCES
 astar.hh
-basic-configuration-shooter.cc
 bi-rrt-planner.cc
 collision-validation.cc
+configuration-shooter/uniform.cc
+configuration-shooter/gaussian.cc
 config-projector.cc
 config-validations.cc
 connected-component.cc

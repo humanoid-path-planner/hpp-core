@@ -33,8 +33,9 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/bi-rrt-planner.hh>
+#include <hpp/core/configuration-shooter/gaussian.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
@@ -152,7 +153,7 @@ namespace hpp {
       target_ (problemTarget::GoalConfigurations::create(NULL)),
       initConf_ (), goalConfigurations_ (),
       robotType_ ("hpp::pinocchio::Device"),
-      configurationShooterType_ ("BasicConfigurationShooter"),
+      configurationShooterType_ ("Uniform"),
       distanceType_("WeighedDistance"),
       steeringMethodType_ ("Straight"),
       pathOptimizerTypes_ (), pathOptimizers_ (),
@@ -173,7 +174,8 @@ namespace hpp {
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
 
-      configurationShooters.add ("BasicConfigurationShooter", BasicConfigurationShooter::create);
+      configurationShooters.add ("Uniform" , configurationShooter::Uniform ::create);
+      configurationShooters.add ("Gaussian", configurationShooter::Gaussian::create);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
       distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));

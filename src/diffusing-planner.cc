@@ -19,6 +19,8 @@
 #include <hpp/core/diffusing-planner.hh>
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/next_prior.hpp>
+
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -33,7 +35,7 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method.hh>
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter.hh>
 
 namespace hpp {
   namespace core {

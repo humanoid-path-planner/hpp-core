@@ -19,50 +19,16 @@
 #ifndef HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 # define HPP_CORE_BASIC_CONFIGURATION_SHOOTER_HH
 
-# include <sstream>
+# warning "This file is deprecated. You should only include hpp/core/configuration-shooter/uniform.hh"
 
-# include <pinocchio/algorithm/joint-configuration.hpp>
-
-# include <hpp/pinocchio/device.hh>
-
-# include <hpp/core/configuration-shooter.hh>
+# include <hpp/core/configuration-shooter/uniform.hh>
 
 namespace hpp {
   namespace core {
     /// \addtogroup configuration_sampling
     /// \{
-
-    /// Uniformly sample with bounds of degrees of freedom.
-    class HPP_CORE_DLLAPI BasicConfigurationShooter :
-      public ConfigurationShooter
-    {
-    public:
-      static BasicConfigurationShooterPtr_t create (const DevicePtr_t& robot)
-      {
-	BasicConfigurationShooter* ptr = new BasicConfigurationShooter (robot);
-	BasicConfigurationShooterPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
-      }
-      virtual ConfigurationPtr_t shoot () const;
-
-    protected:
-      /// Uniformly sample configuration space
-      ///
-      /// Note that translation joints have to be bounded.
-      BasicConfigurationShooter (const DevicePtr_t& robot) : robot_ (robot)
-      {
-      }
-      void init (const BasicConfigurationShooterPtr_t& self)
-      {
-	ConfigurationShooter::init (self);
-	weak_ = self;
-      }
-
-    private:
-      DevicePtr_t robot_;
-      BasicConfigurationShooterWkPtr_t weak_;
-    }; // class BasicConfigurationShooter
+    typedef configurationShooter::Uniform      BasicConfigurationShooter;
+    typedef configurationShooter::UniformPtr_t BasicConfigurationShooterPtr_t;
     /// \}
   } //   namespace core
 } // namespace hpp

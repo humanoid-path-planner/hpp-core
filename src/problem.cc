@@ -31,7 +31,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 
 namespace hpp {
   namespace core {
@@ -47,7 +47,7 @@ namespace hpp {
       pathValidation_ (DiscretizedCollisionChecking::create
 		       (robot, 0.05)),
       collisionObstacles_ (), constraints_ (),
-      configurationShooter_(BasicConfigurationShooter::create (robot))
+      configurationShooter_(configurationShooter::Uniform::create (robot))
     {
       resetConfigValidations();
 
