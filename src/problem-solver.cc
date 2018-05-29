@@ -261,6 +261,10 @@ namespace hpp {
                   type);
       }
       configurationShooterType_ = type;
+      if (robot_ && problem_) {
+        problem_->configurationShooter
+          (configurationShooters.get (configurationShooterType_) (robot_));
+      }
     }
 
     void ProblemSolver::addPathOptimizer (const std::string& type)

@@ -109,7 +109,7 @@ namespace hpp {
 
       ConfigurationPtr_t Gaussian::shoot () const
       {
-        boost::random::mt19937 eng;
+        static boost::random::mt19937 eng;
         vector_t velocity (robot_->numberDof());
         for (size_type i = 0; i < velocity.size(); ++i)
         {
