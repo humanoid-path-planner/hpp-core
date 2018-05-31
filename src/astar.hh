@@ -48,7 +48,7 @@ namespace hpp {
       {
       }
 
-      PathVectorPtr_t solution ()
+      void solution (PathVectorPtr_t sol)
       {
 	NodePtr_t node = findPath ();
 	Edges_t edges;
@@ -62,16 +62,11 @@ namespace hpp {
 	  }
 	  else node = NodePtr_t (0x0);
 	}
-	PathVectorPtr_t pathVector;
-	for (Edges_t::const_iterator itEdge = edges.begin ();
-	     itEdge != edges.end (); ++itEdge) {
-	  const PathPtr_t& path ((*itEdge)->path ());
-	  if (!pathVector)
-	    pathVector = PathVector::create (path->outputSize (),
-					     path->outputDerivativeSize ());
-	  pathVector->appendPath (path);
-	}
-	return pathVector;
+        for (Edges_t::const_iterator itEdge = edges.begin ();
+             itEdge != edges.end (); ++itEdge) {
+          const PathPtr_t& path ((*itEdge)->path ());
+          sol->appendPath (path);
+        }
       }
 
     private:

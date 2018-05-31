@@ -58,7 +58,17 @@ namespace hpp {
       PathVectorPtr_t GoalConfigurations::computePath(const RoadmapPtr_t& roadmap) const
       {
         Astar astar (roadmap, problem_->distance ());
-        return astar.solution ();
+        PathVectorPtr_t sol = PathVector::create (
+            problem_->robot()->configSize(), problem_->robot()->numberDof());
+        astar.solution (sol);
+        // This happens when q_init == q_goal
+        if (sol->numberPaths() == 0) {
+          ConfigurationPtr_t q (roadmap->initNode()->configuration ());
+          sol->appendPath(
+              (*problem_->steeringMethod()) (*q, *q)
+              );
+        }
+        return sol;
       }
     } // namespace problemTarget
   } // namespace core
