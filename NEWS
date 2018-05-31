@@ -2,6 +2,7 @@
 
 * Add Gaussian configuration shooter
 * Enable computation of path derivative up to order 2 for path with time parameterization
+* Improve parameters in problem
 
 New in 4.1, 2018-05-17
 * Diffusing Planner calls path projector if defined.
