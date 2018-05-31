@@ -29,6 +29,7 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/steering-method.hh>
 # include <hpp/core/container.hh>
+# include <hpp/core/parameter.hh>
 
 namespace hpp {
   namespace core {
@@ -245,19 +246,13 @@ namespace hpp {
       /// Get a parameter named name.
       ///
       /// \param name of the parameter.
-      /// \param defaultValue value returned if there is no parameter of this
-      ///        name
-      /// \throw boost::bad_any_cast if a parameter exists but has the wrong
-      ///        type.
-      template <typename T> T getParameter
-        (const std::string& name, const T& defaultValue) const
-        throw (boost::bad_any_cast)
+      const Parameter& getParameter (const std::string& name) const
+        throw (std::invalid_argument)
       {
-        if (parameters.has(name)) {
-          const boost::any& val = parameters.get(name);
-          return boost::any_cast<T>(val);
-        }
-        return defaultValue;
+        if (parameters.has(name))
+          return parameters.get(name);
+        else
+          return parameterDescription(name).defaultValue();
       }
 
       /// Set a parameter named name.
@@ -266,17 +261,29 @@ namespace hpp {
       /// \param value value of the parameter
       /// \throw std::invalid_argument if a parameter exists but has a different
       ///        type.
-      /// \note if you do not want any type checking but would rather erase any
-      ///       previous values, use
-      ///       \code
-      ///       parameters.add(name, (ExpectedType)value);
-      ///       \endcode
-      ///       If there is an ambiguity on the type, it is recommended to
-      ///       explicitely write it.
-      void setParameter (const std::string& name, const boost::any& value)
+      void setParameter (const std::string& name, const Parameter& value)
         throw (std::invalid_argument);
 
-      Container < boost::any > parameters;
+      /// Declare a parameter
+      /// In shared library, use the following snippet in your cc file:
+      /// \code{.cpp}
+      /// HPP_START_PARAMETER_DECLARATION(name)
+      /// Problem::declareParameter (ParameterDescription (
+      ///       Parameter::FLOAT,
+      ///       "name",
+      ///       "doc",
+      ///       Parameter(value)));
+      /// HPP_END_PARAMETER_DECLARATION(name)
+      /// \endcode
+      static void declareParameter (const ParameterDescription& desc);
+
+      /// Get all the parameter descriptions
+      static const Container<ParameterDescription>& parameterDescriptions ();
+
+      /// Access one parameter description
+      static const ParameterDescription& parameterDescription (const std::string& name);
+
+      Container < Parameter > parameters;
 
     private :
       /// The robot
@@ -307,4 +314,12 @@ namespace hpp {
     /// \}
   } // namespace core
 } // namespace hpp
+
+#define HPP_START_PARAMETER_DECLARATION(name)                                  \
+  class HPP_CORE_LOCAL __initializer_class_##name {                            \
+    __initializer_class_##name () {
+
+#define HPP_END_PARAMETER_DECLARATION(name)                                    \
+  } }; __initializer_class_##name __instance_##name ();
+
 #endif // HPP_CORE_PROBLEM_HH

@@ -76,7 +76,7 @@ namespace hpp {
       PathVectorPtr_t tmpPath = path;
 
       // Maximal number of iterations without improvements
-      const std::size_t n = problem().getParameter<size_type>("PathOptimization/NumberOfLoops", 5);
+      const std::size_t n = problem().getParameter("PathOptimization/NumberOfLoops").intValue();
       std::size_t projectionError = n;
       std::deque <value_type> length (n-1,
 				      numeric_limits <value_type>::infinity ());
@@ -168,5 +168,14 @@ namespace hpp {
       }
       return result;
     }
+
+    // ----------- Declare parameters ------------------------------------- //
+
+    HPP_START_PARAMETER_DECLARATION(RandomShortcut)
+    Problem::declareParameter(ParameterDescription (Parameter::INT,
+          "RandomShortcut/NumberOfLoops",
+          "Number of loops.",
+          Parameter((size_type)5)));
+    HPP_END_PARAMETER_DECLARATION(RandomShortcut)
   } // namespace core
 } // namespace hpp

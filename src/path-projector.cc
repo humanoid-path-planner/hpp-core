@@ -21,6 +21,7 @@
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/distance.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/steering-method.hh>
 
 namespace hpp {
@@ -70,5 +71,22 @@ namespace hpp {
       HPP_STOP_TIMECOUNTER (PathProjection);
       return ret;
     }
+
+    // ----------- Declare parameters ------------------------------------- //
+
+    HPP_START_PARAMETER_DECLARATION(pathProjection)
+    Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+          "PathProjection/HessianBound",
+          "A bound on the norm of the hessian of the constraints. Not considered if negative.",
+          Parameter(-1.)));
+    Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+          "PathProjection/MinimalDist",
+          "The threshold which stops the projection (distance between consecutive interpolation points.)",
+          Parameter(1e-3)));
+    Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+          "PathProjection/RecursiveHermite/Beta",
+          "See \"Fast Interpolation and Time-Optimization on Implicit Contact Submanifolds\" from Kris Hauser.",
+          Parameter(0.9)));
+    HPP_END_PARAMETER_DECLARATION(pathProjection)
   } // namespace core
 } // namespace hpp

@@ -89,6 +89,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/numerical-constraint.hh
   include/hpp/core/locked-joint.hh
   include/hpp/core/node.hh
+  include/hpp/core/parameter.hh
   include/hpp/core/path.hh
   include/hpp/core/path-optimization/path-length.hh
   include/hpp/core/path-optimization/gradient-based.hh

@@ -197,7 +197,7 @@ namespace hpp {
             const constraints::ExplicitSolver& es = hs.explicitSolver();
 
             // Get the active parameter row selection.
-            value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
+            value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
             Eigen::RowBlockIndices select = computeActiveParameters (path, hs, guessThreshold);
 
             const size_type rDof = robot_->numberDof(),
@@ -361,12 +361,12 @@ namespace hpp {
       PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize (const PathVectorPtr_t& path)
       {
         // Get some parameters
-        value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit", value_type(0.2));
-        bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst", true);
-        bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep", false);
-        bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound", true);
-        bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum", false);
-        value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold", value_type(0.01));
+        value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit").floatValue();
+        bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst").boolValue();
+        bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep").boolValue();
+        bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound").boolValue();
+        bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum").boolValue();
+        value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold").floatValue();
 
         PathVectorPtr_t tmp = PathVector::create (robot_->configSize(), robot_->numberDof());
         path->flatten(tmp);
@@ -588,6 +588,36 @@ namespace hpp {
       template class SplineGradientBased<path::BernsteinBasis, 1>; // equivalent to StraightPath
       // template class SplineGradientBased<path::BernsteinBasis, 2>;
       template class SplineGradientBased<path::BernsteinBasis, 3>;
+
+      // ----------- Declare parameters ------------------------------------- //
+
+      HPP_START_PARAMETER_DECLARATION(SplineGradientBased)
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "SplineGradientBased/alphaInit",
+            "In [0,1]. The initial value used when interpolating between non-colliding current solution and"
+            " the optimal colliding trajector.",
+            Parameter(0.2)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "SplineGradientBased/alwaysStopAtFirst",
+            "If true, consider only one (not all) collision constraint at each iteration.",
+            Parameter(true)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "SplineGradientBased/linearizeAtEachStep",
+            "If true, collision constraint will be re-linearized at each iteration.",
+            Parameter(false)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "SplineGradientBased/checkJointBound",
+            "If true, joint bounds are enforced.",
+            Parameter(true)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "SplineGradientBased/returnOptimum",
+            "(for debugging purpose) If true, returns the optimum regardless of collision.",
+            Parameter(false)));
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "SplineGradientBased/costThreshold",
+            "Stop optimizing if the cost improves less than this threshold between two iterations.",
+            Parameter(0.01)));
+      HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
     } // namespace pathOptimization
   }  // namespace core
 } // namespace hpp

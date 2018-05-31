@@ -51,8 +51,7 @@ namespace hpp {
       void kPrmStar::startSolve ()
       {
         Parent_t::startSolve ();
-        numberNodes_ = problem().getParameter <size_type>
-          ("kPRMstar/numberOfNodes", 100);
+        numberNodes_ = problem().getParameter ("kPRMstar/numberOfNodes").intValue();
         if (numberNodes_ == 0) {
           std::ostringstream oss;
           oss << "kPrmStar: Number nodes should be positive, got "
@@ -185,6 +184,15 @@ namespace hpp {
         Parent_t::init (weak);
         weak_ = weak;
       }
+
+      // ----------- Declare parameters ------------------------------------- //
+
+      HPP_START_PARAMETER_DECLARATION(kPrmStar)
+      Problem::declareParameter(ParameterDescription (Parameter::INT,
+            "kPrmStar/numberOfNodes",
+            "The desired number of nodes in the roadmap.",
+            Parameter((size_type)100)));
+      HPP_END_PARAMETER_DECLARATION(kPrmStar)
     } // namespace pathPlanner
   } // namespace core
 } // namespace hpp

@@ -129,8 +129,8 @@ namespace hpp {
       {
         const value_type infinity = std::numeric_limits<value_type>::infinity();
 
-        const value_type safety = problem().getParameter("SimpleTimeParameterization/safety", (value_type)1);
-        const size_type order = problem().getParameter("SimpleTimeParameterization/order", (size_type)0);
+        const value_type safety = problem().getParameter("SimpleTimeParameterization/safety").floatValue();
+        const size_type order = problem().getParameter("SimpleTimeParameterization/order").intValue();
 
         // Retrieve velocity limits
         const DevicePtr_t& robot = problem().robot();
@@ -205,6 +205,19 @@ namespace hpp {
 
       SimpleTimeParameterization::SimpleTimeParameterization (const Problem& problem):
         PathOptimizer(problem) {}
+
+      // ----------- Declare parameters ------------------------------------- //
+
+      HPP_START_PARAMETER_DECLARATION(SimpleTimeParameterization)
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "SimpleTimeParameterization/safety",
+            "A scaling factor for the joint bounds.",
+            Parameter(1.)));
+      Problem::declareParameter(ParameterDescription (Parameter::INT,
+            "SimpleTimeParameterization/order",
+            "The desired continuity order.",
+            Parameter((size_type)0)));
+      HPP_END_PARAMETER_DECLARATION(SimpleTimeParameterization)
     } // namespace pathOptimization
   } // namespace core
 } // namespace hpp

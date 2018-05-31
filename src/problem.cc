@@ -35,6 +35,23 @@
 
 namespace hpp {
   namespace core {
+    static Container <ParameterDescription> _parameterDescriptions;
+
+    // ======================================================================
+
+    void Problem::declareParameter (const ParameterDescription& desc)
+    {
+      _parameterDescriptions.add (desc.name(), desc);
+    }
+
+    // ======================================================================
+
+    const ParameterDescription& Problem::parameterDescription (const std::string& name)
+    {
+      if (_parameterDescriptions.has(name))
+        return _parameterDescriptions.get(name);
+      throw std::runtime_error ("No parameter description with name " + name);
+    }
 
     // ======================================================================
 
@@ -50,11 +67,6 @@ namespace hpp {
       configurationShooter_(configurationShooter::Uniform::create (robot))
     {
       resetConfigValidations();
-
-      parameters.add("PathOptimizersNumberOfLoops", (std::size_t)5);
-      parameters.add("PathProjectionHessianBound", (value_type)-1);
-      parameters.add("PathProjectionMinimalDist", (value_type)1e-3);
-      parameters.add("kPRMstar/numberOfNodes", (size_type)100);
     }
 
     // ======================================================================
@@ -229,17 +241,12 @@ namespace hpp {
 
     // ======================================================================
 
-    void Problem::setParameter (const std::string& name, const boost::any& value)
+    void Problem::setParameter (const std::string& name, const Parameter& value)
       throw (std::invalid_argument)
     {
-      if (parameters.has(name)) {
-        const boost::any& val = parameters.get(name);
-        if (value.type() != val.type()) {
-          std::string ret = "Wrong boost::any type. Expects ";
-          ret += val.type().name();
-          throw std::invalid_argument (ret.c_str());
-        }
-      }
+      const ParameterDescription& desc = parameterDescription(name);
+      if (desc.type() != value.type())
+        throw std::invalid_argument ("value is not a " + Parameter::typeName (desc.type()));
       parameters.add (name, value);
     }
 

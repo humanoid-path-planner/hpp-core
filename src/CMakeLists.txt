@@ -56,6 +56,7 @@ path-validations.cc
   # nearest-neighbor/k-d-tree.hh #
   numerical-constraint.cc #
   node.cc #
+  parameter.cc #
   path.cc #
   path-optimizer.cc #
   path-optimization/collision-constraints-result.hh #
