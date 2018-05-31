@@ -88,7 +88,9 @@ namespace hpp {
         void computeSolution (const vector_t& v)
         {
           xSol.noalias() = xStar + PK * v;
-          assert (isSatisfied(xSol));
+#ifdef HPP_DEBUG
+          isSatisfied(xSol);
+#endif // HPP_DEBUG
         }
 
         /// Returns \f$ ( J \times x - b ).isZero (threshold) \f$
