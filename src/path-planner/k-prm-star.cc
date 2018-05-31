@@ -16,11 +16,12 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/path-planner/k-prm-star.hh>
+
 #include <cmath>
 
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/config-validations.hh>
-#include <hpp/core/path-planner/k-prm-star.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem.hh>
@@ -96,6 +97,7 @@ namespace hpp {
 	// Configuration validation methods associated to the problem
 	ConfigValidationsPtr_t configValidations
           (problem ().configValidations ());
+        ConfigurationShooterPtr_t shooter = problem().configurationShooter();
 	// Get roadmap
 	RoadmapPtr_t r (roadmap ());
         while (r->nodes ().size () < numberNodes_) {
@@ -103,7 +105,7 @@ namespace hpp {
           bool valid;
           // After 10000 trials throw if no valid configuration has been found.
           do {
-            qrand = shooter_->shoot ();
+            qrand = shooter->shoot ();
             valid = configValidations->validate (*qrand, validationReport);
           } while (!valid && nbTry < 10000);
           if (!valid) {
@@ -170,17 +172,13 @@ namespace hpp {
 
       kPrmStar::kPrmStar (const Problem& problem) :
         Parent_t (problem),
-        state_ (BUILD_ROADMAP),
-        shooter_ (BasicConfigurationShooter::create (problem.robot ()))
-      {
-      }
+        state_ (BUILD_ROADMAP)
+      {}
 
       kPrmStar::kPrmStar (const Problem& problem, const RoadmapPtr_t& roadmap) :
         Parent_t (problem, roadmap),
-        state_ (BUILD_ROADMAP),
-        shooter_ (BasicConfigurationShooter::create (problem.robot ()))
-      {
-      }
+        state_ (BUILD_ROADMAP)
+      {}
 
       void kPrmStar::init (const kPrmStarWkPtr_t& weak)
       {

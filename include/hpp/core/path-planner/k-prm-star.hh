@@ -73,8 +73,6 @@ namespace hpp {
         void connectInitAndGoal ();
         /// Connect node to k closest neighbors in the roadmap
         void connectNodeToClosestNeighbors (const NodePtr_t& node);
-        /// Configuration shooter to uniformly shoot random configurations
-        ConfigurationShooterPtr_t shooter_;
         /// Number of nodes to create
         std::size_t numberNodes_;
         /// Weak pointer to itself
