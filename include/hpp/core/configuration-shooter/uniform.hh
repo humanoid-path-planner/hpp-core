@@ -16,8 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_CONFIGURATION_SHOOTER_BASIC_HH
-# define HPP_CORE_CONFIGURATION_SHOOTER_BASIC_HH
+#ifndef HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
+# define HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
 
 # include <sstream>
 
@@ -68,4 +68,4 @@ namespace hpp {
   } //   namespace core
 } // namespace hpp
 
-#endif // HPP_CORE_CONFIGURATION_SHOOTER_BASIC_HH
+#endif // HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
