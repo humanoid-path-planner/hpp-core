@@ -41,9 +41,9 @@ BOOST_AUTO_TEST_CASE (linear)
   BOOST_CHECK_EQUAL(P.value( 0), 1);
   BOOST_CHECK_EQUAL(P.value( 1), 2);
 
-  BOOST_CHECK_EQUAL(P.derivative(-1), 1);
-  BOOST_CHECK_EQUAL(P.derivative( 0), 1);
-  BOOST_CHECK_EQUAL(P.derivative( 1), 1);
+  BOOST_CHECK_EQUAL(P.derivative(-1, 1), 1);
+  BOOST_CHECK_EQUAL(P.derivative( 0, 1), 1);
+  BOOST_CHECK_EQUAL(P.derivative( 1, 1), 1);
 
   BOOST_CHECK_EQUAL(P.derivativeBound( 0, 1), 1);
   BOOST_CHECK_EQUAL(P.derivativeBound(-1, 1), 1);
@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE (cubic1)
   BOOST_CHECK_EQUAL(P.value( 0), 1);
   BOOST_CHECK_EQUAL(P.value( 1), 4);
 
-  BOOST_CHECK_EQUAL(P.derivative(-2), 9);
-  BOOST_CHECK_EQUAL(P.derivative(-1), 2);
-  BOOST_CHECK_EQUAL(P.derivative( 0), 1);
-  BOOST_CHECK_EQUAL(P.derivative( 1), 6);
+  BOOST_CHECK_EQUAL(P.derivative(-2, 1), 9);
+  BOOST_CHECK_EQUAL(P.derivative(-1, 1), 2);
+  BOOST_CHECK_EQUAL(P.derivative( 0, 1), 1);
+  BOOST_CHECK_EQUAL(P.derivative( 1, 1), 6);
 
   // x_m = - 1 / 3, P'(x_m) = 2/3
   BOOST_CHECK_EQUAL(P.derivativeBound( 0, 1), 6);
@@ -80,9 +80,9 @@ BOOST_AUTO_TEST_CASE (cubic2)
   BOOST_CHECK_EQUAL(P.value( 0), 1);
   BOOST_CHECK_EQUAL(P.value( 1), 2);
 
-  BOOST_CHECK_EQUAL(P.derivative(-1),-4);
-  BOOST_CHECK_EQUAL(P.derivative( 0), 1);
-  BOOST_CHECK_EQUAL(P.derivative( 1), 0);
+  BOOST_CHECK_EQUAL(P.derivative(-1, 1),-4);
+  BOOST_CHECK_EQUAL(P.derivative( 0, 1), 1);
+  BOOST_CHECK_EQUAL(P.derivative( 1, 1), 0);
 
   // x_m = 1 / 3, P'(x_m) = 4 / 3
   BOOST_CHECK_EQUAL(P.derivativeBound( 0, 1), 4./3);

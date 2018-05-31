@@ -349,9 +349,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 
   for (int c = 0; c < 2; ++c) {
     if (c == 0)
-      problem.parameters.add ("PathProjectionHessianBound", (value_type)-1);
+      problem.setParameter ("PathProjection/HessianBound", Parameter((value_type)-1));
     else
-      problem.parameters.add ("PathProjectionHessianBound", traits::K);
+      problem.setParameter ("PathProjection/HessianBound", Parameter(traits::K));
 
     typename traits::ProjPtr_t projector =
       traits::Proj_t::create (problem, traits::projection_step);
