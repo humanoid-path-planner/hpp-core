@@ -45,7 +45,7 @@ namespace hpp {
     typedef boost::function <PathProjectorPtr_t (const Problem&,
         const value_type&) >
       PathProjectorBuilder_t;
-    typedef boost::function <ConfigurationShooterPtr_t (const DevicePtr_t&) >
+    typedef boost::function <ConfigurationShooterPtr_t (const Problem&) >
       ConfigurationShooterBuilder_t;
   typedef boost::function <DistancePtr_t (const Problem&) >
     DistanceBuilder_t;

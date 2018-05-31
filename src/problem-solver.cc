@@ -133,6 +133,21 @@ namespace hpp {
       static boost::shared_ptr<Derived> create (const Problem& problem, const value_type& value) { return Derived::create (problem, value); }
     };
 
+    template <typename T>
+    boost::shared_ptr<T> createFromRobot (const Problem& p) { return T::create(p.robot()); }
+
+    configurationShooter::GaussianPtr_t createGaussianConfigShooter (const Problem& p)
+    {
+      configurationShooter::GaussianPtr_t ptr = configurationShooter::Gaussian::create(p.robot());
+      static const std::string useVel = "ConfigurationShooter/Gaussian/useRobotVelocity";
+      static const std::string stdDev = "ConfigurationShooter/Gaussian/standardDeviation";
+      if (p.getParameter(useVel).boolValue())
+        ptr->sigmas (p.robot()->currentVelocity());
+      else if (p.parameters.has(stdDev))
+        ptr->sigma (p.getParameter (stdDev).floatValue());
+      return ptr;
+    }
+
     ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
     ProblemSolverPtr_t ProblemSolver::create ()
     {
@@ -174,8 +189,8 @@ namespace hpp {
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
 
-      configurationShooters.add ("Uniform" , configurationShooter::Uniform ::create);
-      configurationShooters.add ("Gaussian", configurationShooter::Gaussian::create);
+      configurationShooters.add ("Uniform" , createFromRobot<configurationShooter::Uniform>);
+      configurationShooters.add ("Gaussian", createGaussianConfigShooter);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
       distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
@@ -263,7 +278,7 @@ namespace hpp {
       configurationShooterType_ = type;
       if (robot_ && problem_) {
         problem_->configurationShooter
-          (configurationShooters.get (configurationShooterType_) (robot_));
+          (configurationShooters.get (configurationShooterType_) (*problem_));
       }
     }
 
@@ -727,7 +742,7 @@ namespace hpp {
 
       // Set shooter
       problem_->configurationShooter
-        (configurationShooters.get (configurationShooterType_) (robot_));
+        (configurationShooters.get (configurationShooterType_) (*problem_));
       // Set steeringMethod
       initSteeringMethod ();
       PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
@@ -1039,5 +1054,17 @@ namespace hpp {
       return distanceObstacles_;
     }
 
+    // ----------- Declare parameters ------------------------------------- //
+
+    HPP_START_PARAMETER_DECLARATION(ProblemSolver)
+    Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+          "ConfigurationShooter/Gaussian/useRobotVelocity",
+          "Use robot current velocity as standard velocity.",
+          Parameter(false)));
+    Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+          "ConfigurationShooter/Gaussian/standardDeviation",
+          "Scale the default standard deviation with this factor.",
+          Parameter(0.25)));
+    HPP_END_PARAMETER_DECLARATION(ProblemSolver)
   } //   namespace core
 } // namespace hpp
