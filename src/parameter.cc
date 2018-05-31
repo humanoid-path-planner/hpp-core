@@ -137,6 +137,7 @@ namespace hpp {
       switch(value.type()) {
       case Parameter::NONE:
 	copy = NULL;
+        break;
       case Parameter::BOOL:
 	copy = new bool(value.boolValue());
 	break;
@@ -156,7 +157,8 @@ namespace hpp {
 	copy = new matrix_t(value.matrixValue());
 	break;
       default:
-	abort();
+        throw std::invalid_argument ("value type is unknown.");
+        break;
       }
       return copy;
     }

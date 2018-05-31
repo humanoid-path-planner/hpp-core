@@ -617,6 +617,12 @@ namespace hpp {
             "SplineGradientBased/costThreshold",
             "Stop optimizing if the cost improves less than this threshold between two iterations.",
             Parameter(0.01)));
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "SplineGradientBased/guessThreshold",
+            "Threshold used to check whether the Jacobian "
+            "contains rows of zeros, in which case the "
+            "corresponding DoF is considered passive.",
+            Parameter(0.01)));
       HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
     } // namespace pathOptimization
   }  // namespace core

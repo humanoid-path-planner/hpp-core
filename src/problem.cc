@@ -35,21 +35,36 @@
 
 namespace hpp {
   namespace core {
-    static Container <ParameterDescription> _parameterDescriptions;
+    Container <ParameterDescription>& pds ()
+    {
+      static Container <ParameterDescription> _parameterDescriptions;
+      return _parameterDescriptions;
+    }
 
     // ======================================================================
 
     void Problem::declareParameter (const ParameterDescription& desc)
     {
-      _parameterDescriptions.add (desc.name(), desc);
+      typedef Container<ParameterDescription> CPD_t;
+      std::pair<CPD_t::iterator, bool> ret = 
+        pds().map.insert( CPD_t::value_type (desc.name(), desc));
+      if (!ret.second)
+        ret.first->second = desc;
+    }
+
+    // ======================================================================
+
+    const Container<ParameterDescription>& Problem::parameterDescriptions ()
+    {
+      return pds();
     }
 
     // ======================================================================
 
     const ParameterDescription& Problem::parameterDescription (const std::string& name)
     {
-      if (_parameterDescriptions.has(name))
-        return _parameterDescriptions.get(name);
+      if (pds().has(name))
+        return pds().get(name);
       throw std::runtime_error ("No parameter description with name " + name);
     }
 

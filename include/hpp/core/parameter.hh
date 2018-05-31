@@ -127,8 +127,7 @@ namespace hpp {
           , defaultValue_ (defaultValue)
         {}
 
-        ParameterDescription ()
-        {}
+        ParameterDescription () : type_ (Parameter::NONE) {}
 
         const std::string&     name () const { return name_; }
         const Parameter::Type& type () const { return type_; }

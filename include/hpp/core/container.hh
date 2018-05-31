@@ -68,7 +68,12 @@ namespace hpp {
       /// Clear content of container
       void clear () { map.clear (); }
       /// Add an element
-      void add (const key_type& name, const mapped_type& element) { map [name] = element; }
+      void add (const key_type& name, const mapped_type& element)
+      {
+        std::pair<iterator, bool> ret = map.insert( value_type(name, element));
+        if (!ret.second)
+          ret.first->second = element;
+      }
       /// Return the element named name
       bool has (const key_type& name) const { return (map.find (name) != map.end ()); }
 

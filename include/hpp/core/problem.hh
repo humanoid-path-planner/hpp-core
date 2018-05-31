@@ -21,7 +21,6 @@
 # define HPP_CORE_PROBLEM_HH
 
 # include <stdexcept>
-# include <boost/any.hpp>
 
 # include <hpp/pinocchio/device.hh>
 # include <hpp/util/pointer.hh>
@@ -316,10 +315,14 @@ namespace hpp {
 } // namespace hpp
 
 #define HPP_START_PARAMETER_DECLARATION(name)                                  \
-  class HPP_CORE_LOCAL __initializer_class_##name {                            \
-    __initializer_class_##name () {
+  struct HPP_CORE_DLLAPI __InitializerClass_##name {                           \
+    __InitializerClass_##name () {
 
 #define HPP_END_PARAMETER_DECLARATION(name)                                    \
-  } }; __initializer_class_##name __instance_##name ();
+    }                                                                          \
+  };                                                                           \
+  extern "C" {                                                                 \
+    __InitializerClass_##name __instance_##name;                               \
+  }
 
 #endif // HPP_CORE_PROBLEM_HH
