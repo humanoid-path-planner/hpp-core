@@ -65,7 +65,7 @@ namespace hpp {
     {
       if (pds().has(name))
         return pds().get(name);
-      throw std::runtime_error ("No parameter description with name " + name);
+      throw std::invalid_argument ("No parameter description with name " + name);
     }
 
     // ======================================================================
