@@ -66,6 +66,7 @@ namespace hpp {
        *  - \f$ P^{(1)}_n(T) = 0 \f$ (from the third order case only)
        *  - \f$ P^{(2)}_n(0) = 0 \f$ (from the fifth order case only)
        *  - \f$ P^{(2)}_n(T) = 0 \f$ (from the fifth order case only)
+       *  - \f$ |P^{(2)}_n(t)| \le C \f$ (from the fifth order case only)
        * 
        *  The solutions are:
        *  \li First order case:
@@ -141,13 +142,34 @@ namespace hpp {
        *       6    \\
        *    \end{array}\right)
        *    \f]
-       *    Then \f$ P^{(1)}(t) = 30 \frac{s_1-s_0}{T}
+       *    Then \f$ P_5^{(1)}(t) = 30 \frac{s_1-s_0}{T}
        *    \left(\frac{t}{T}\right)^2
-       *    \left(1 - \frac{t}{T}\right)^2 \ge 0 \f$ so
+       *    \left(1 - \frac{t}{T}\right)^2 \ge 0 \f$ and
+       *    \f$ P_5^{(2)}(t) = 60 \frac{s_1-s_0}{T^2}
+       *    \left(\frac{t}{T}\right)
+       *    \left(1 - \frac{t}{T}\right)
+       *    \left(1 - 2\frac{t}{T}\right) \f$.
+       *    We have \f$ \max{P_5^{(1)}(t)} = P_5^{(1)}(\frac{T}{2}) = \frac{30 (s_1 - s_0)}{16 T} \f$.
+       *    Let us compute \f$ \max{P_5^{(2)}(t)} \f$.
+       *
+       *    Let \f$ q(u) = 2u (u+\frac{1}{2})(u-\frac{1}{2})\f$.
+       *    Then \f$ P_5^{(2)}(t) = 60 \frac{s_1-s_0}{T^2} q(\frac{t}{T}-\frac{1}{2}) \f$.
+       *    For \f$ u \in [0,\frac{1}{2}]\f$, we have \f$ q(-u) = -q(u) \f$ and
+       *    \f$ |q(u)| = -q(u) \le -q(\frac{1}{2\sqrt{3}}) = \frac{1}{6\sqrt{3}}\f$. So
+       *    \f[ \max{P_5^{(2)}(t)} = \frac{10}{\sqrt{3}} \frac{s_1-s_0}{T^2} \f]
+       *
+       *    So
        *    \f[ \begin{align*}
-       *    B &= \max{P^{(1)}(t)} = P^{(1)}(\frac{T}{2}) = \frac{30 (s_1 - s_0)}{16 T} \\
-       *    T &= \frac{30 (s_1 - s_0)}{16 B}
+       *    \frac{15 (s_1 - s_0)}{8 T}             &\le B \\
+       *    \frac{10}{\sqrt{3}} \frac{s_1-s_0}{T^2} &\le C \\
        *    \end{align*} \f]
+       *
+       *    \f[ T = \max{
+       *      \left\{
+       *        \frac{15 (s_1 - s_0)}{8 B},
+       *        \sqrt{\frac{10 (s_1 - s_0)}{\sqrt{3} B}}
+       *      \right\}
+       *      } \f]
        */
 
       class HPP_CORE_DLLAPI SimpleTimeParameterization : public PathOptimizer

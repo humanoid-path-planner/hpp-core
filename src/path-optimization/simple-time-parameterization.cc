@@ -36,7 +36,7 @@ namespace hpp {
       namespace {
         TimeParameterizationPtr_t computeTimeParameterizationFirstOrder (
             const value_type& s0, const value_type& s1, const value_type& B,
-            value_type& T) 
+            value_type& T)
         {
           vector_t a(2);
           T = (s1 - s0) / B;
@@ -49,7 +49,7 @@ namespace hpp {
 
         TimeParameterizationPtr_t computeTimeParameterizationThirdOrder (
             const value_type& s0, const value_type& s1, const value_type& B,
-            value_type& T) 
+            value_type& T)
         {
           vector_t a(4);
           T = 3 * (s1 - s0) / (2 * B);
@@ -64,10 +64,18 @@ namespace hpp {
 
         TimeParameterizationPtr_t computeTimeParameterizationFifthOrder (
             const value_type& s0, const value_type& s1, const value_type& B,
-            value_type& T) 
+            const value_type& C, value_type& T)
         {
           vector_t a(6);
-          T = 30 * (s1 - s0) / (16 * B);
+          if (C > 0) {
+            T = std::max(
+                15 * (s1 - s0) / (8 * B)                     , // Velocity limit
+                sqrt((10./std::sqrt(3))) * sqrt((s1 - s0) / C) // Acceleration limit
+                );
+          } else {
+            T = 15 * (s1 - s0) / (8 * B);
+          }
+
           value_type Tpow = T*T*T;
           a[0] = s0;
           a[1] = 0;
@@ -83,10 +91,10 @@ namespace hpp {
         }
 
         void checkTimeParameterization (const TimeParameterizationPtr_t tp,
-            const size_type order, const interval_t sr, const value_type B, const value_type T)
+            const size_type order, const interval_t sr, const value_type B, const value_type& C, const value_type T)
         {
           using std::fabs;
-          const value_type thr = Eigen::NumTraits<value_type>::dummy_precision();
+          const value_type thr = std::sqrt(Eigen::NumTraits<value_type>::dummy_precision());
           if (   fabs(tp->value(0) - sr.first) >= thr
               || fabs(tp->value(T) - sr.second) >= thr) {
             throw std::logic_error("Boundaries of TimeParameterization are not correct.");
@@ -94,7 +102,7 @@ namespace hpp {
           if (order >= 1
               && (fabs(tp->derivative(0, 1)) > thr
               ||  fabs(tp->derivative(T, 1)) > thr
-              ||  fabs(tp->derivative(T/2, 1) - B) > thr)
+              ||  ((C <= 0) && fabs(tp->derivative(T/2, 1) - B) > thr))
              ) {
             HPP_THROW(std::logic_error,
                 "Derivative of TimeParameterization are not correct:"
@@ -103,6 +111,7 @@ namespace hpp {
                 << "\ntp->derivative(T/2, 1) - B = " << tp->derivative(T/2, 1) - B
                 << "\nT = " << T
                 << "\nB = " << B
+                << "\nC = " << C
                 );
           }
           if (order >= 2
@@ -131,6 +140,10 @@ namespace hpp {
 
         const value_type safety = problem().getParameter("SimpleTimeParameterization/safety").floatValue();
         const size_type order = problem().getParameter("SimpleTimeParameterization/order").intValue();
+        const value_type maxAcc = problem().getParameter("SimpleTimeParameterization/maxAcceleration").floatValue();
+        if (order <= 1 && maxAcc) {
+          throw std::invalid_argument ("Maximum acceleration cannot be set when order is <= to 1. Please set parameter SimpleTimeParameterization/maxAcceleration to a negative value.");
+        }
 
         // Retrieve velocity limits
         const DevicePtr_t& robot = problem().robot();
@@ -186,14 +199,14 @@ namespace hpp {
               tp = computeTimeParameterizationThirdOrder (paramRange.first, paramRange.second, B, T);
               break;
             case 2:
-              tp = computeTimeParameterizationFifthOrder (paramRange.first, paramRange.second, B, T);
+              tp = computeTimeParameterizationFifthOrder (paramRange.first, paramRange.second, B, maxAcc, T);
               break;
             default:
               throw std::invalid_argument ("Parameter SimpleTimeParameterization/order should be in { 0, 1, 2 }");
               break;
           }
 
-          checkTimeParameterization (tp, order, paramRange, B, T);
+          checkTimeParameterization (tp, order, paramRange, B, maxAcc, T);
 
           PathPtr_t pp = p->copy();
           pp->timeParameterization (tp, interval_t (0, T));
@@ -217,6 +230,10 @@ namespace hpp {
             "SimpleTimeParameterization/order",
             "The desired continuity order.",
             Parameter((size_type)0)));
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "SimpleTimeParameterization/maxAcceleration",
+            "The maximum acceleration for each degree of freedom. Not considered if negative.",
+            Parameter((value_type)-1)));
       HPP_END_PARAMETER_DECLARATION(SimpleTimeParameterization)
     } // namespace pathOptimization
   } // namespace core
