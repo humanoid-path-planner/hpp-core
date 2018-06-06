@@ -156,8 +156,8 @@ namespace hpp {
             const value_type & w,
             value_type & distance)
         {
-          distance = ::hpp::pinocchio::LieGroupTpl::template operation<JointModel>::type
-            ::squaredDistance(
+          typedef typename ::hpp::pinocchio::LieGroupTpl::template operation<JointModel>::type LG_t;
+          distance = LG_t().squaredDistance(
                 jmodel.jointConfigSelector(q0),
                 jmodel.jointConfigSelector(q1),
                 w);

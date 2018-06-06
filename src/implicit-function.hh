@@ -49,7 +49,7 @@ namespace hpp {
 
       template <typename LgT> void operator () (const LgT&)
       {
-        LgT::difference (f_qIn_, qOut_, result_);
+        LgT().difference (f_qIn_, qOut_, result_);
       }
 
       vectorIn_t qOut_, f_qIn_;
