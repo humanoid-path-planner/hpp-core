@@ -1,5 +1,5 @@
                                                                 -*- outline -*-
-
+* Keep frames of obstacles.
 * Add Gaussian configuration shooter
 * Enable computation of path derivative up to order 2 for path with time parameterization
 * Improve parameters in problem
