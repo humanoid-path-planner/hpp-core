@@ -172,7 +172,7 @@ namespace hpp {
       configValidationTypes_ (),
       collisionObstacles_ (), distanceObstacles_ (),
       obstacleRModel_ (new Model()),
-      obstacleRData_ (new Data (*obstacleRModel_)),
+      obstacleRData_ (),
       obstacleModel_ (new GeomModel()),
       obstacleData_ (new GeomData(*obstacleModel_)),
       errorThreshold_ (1e-4), maxIterProjection_ (20),
@@ -181,6 +181,10 @@ namespace hpp {
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
+      obstacleRModel_->addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
+      obstacleRData_.reset (new Data (*obstacleRModel_));
+
+
       robots.add (robotType_, Device_t::create);
       pathPlanners.add ("DiffusingPlanner",     DiffusingPlanner::createWithRoadmap);
       pathPlanners.add ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
@@ -395,6 +399,7 @@ namespace hpp {
       constraints_ = ConstraintSet::create (robot_, "Default constraint set");
       // Reset obstacles
       obstacleRModel_.reset(new Model());
+      obstacleRModel_->addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
       obstacleRData_.reset (new Data(*obstacleRModel_));
       obstacleModel_.reset (new GeomModel());
       obstacleData_ .reset (new GeomData(*obstacleModel_));
@@ -876,6 +881,7 @@ namespace hpp {
 				     bool collision, bool distance)
     {
       device->computeForwardKinematics();
+      device->computeFramesForwardKinematics();
       device->updateGeometryPlacements();
       const std::string& prefix = device->name();
 
@@ -924,7 +930,7 @@ namespace hpp {
       }
 
       se3::GeomIndex id = obstacleModel_->addGeometryObject(se3::GeometryObject(
-            name, 0, 0,
+            name, 1, 0,
             inObject.collisionGeometry(),
             se3::toPinocchioSE3(inObject.getTransform()),
             "",
