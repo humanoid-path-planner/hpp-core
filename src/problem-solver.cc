@@ -1043,6 +1043,15 @@ namespace hpp {
       HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
     }
 
+    const Transform3f& ProblemSolver::obstacleFramePosition (const std::string& name) const
+    {
+      if (!obstacleRModel_->existFrame(name)) {
+        HPP_THROW(std::invalid_argument, "No obstacle frame with name " << name);
+      }
+      se3::FrameIndex id = obstacleRModel_->getFrameId(name);
+      return obstacleRData_->oMf[id];
+    }
+
     std::list <std::string> ProblemSolver::obstacleNames
     (bool collision, bool distance) const
     {

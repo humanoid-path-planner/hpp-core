@@ -471,6 +471,10 @@ namespace hpp {
       /// Throws if obstacle does not exists.
       CollisionObjectPtr_t obstacle (const std::string& name) const;
 
+      /// Get obstacle frame position by name
+      /// Throws if obstacle frame does not exists.
+      const Transform3f& obstacleFramePosition (const std::string& name) const;
+
       /// Get list of obstacle names
       ///
       /// \param collision whether to return collision obstacle names
