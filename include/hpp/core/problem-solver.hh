@@ -626,6 +626,8 @@ namespace hpp {
       /// Store obstacles until call to solve.
       ObjectStdVector_t collisionObstacles_; // FIXME should be removed?
       ObjectStdVector_t distanceObstacles_;  // FIXME should be removed?
+      pinocchio::ModelPtr_t obstacleRModel_; // Contains the frames
+      pinocchio::DataPtr_t  obstacleRData_;  // Contains the frames
       pinocchio::GeomModelPtr_t obstacleModel_;
       pinocchio::GeomDataPtr_t  obstacleData_;
       // Tolerance for numerical constraint resolution

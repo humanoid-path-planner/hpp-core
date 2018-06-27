@@ -23,6 +23,7 @@
 
 #include <hpp/fcl/collision_utility.h>
 
+#include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/multibody/fcl.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 
@@ -77,6 +78,9 @@ namespace hpp {
     using pinocchio::GeomIndex;
 
     using pinocchio::Model;
+    using pinocchio::ModelPtr_t;
+    using pinocchio::Data;
+    using pinocchio::DataPtr_t;
     using pinocchio::GeomModel;
     using pinocchio::GeomModelPtr_t;
     using pinocchio::GeomData;
@@ -84,12 +88,6 @@ namespace hpp {
     using pinocchio::CollisionObject;
 
     namespace {
-      Model initObstacleModel () {
-        Model model;
-        model.addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
-        return model;
-      }
-
       template<typename Container> void remove(Container& vector, std::size_t pos)
       {
         assert (pos < vector.size());
@@ -112,8 +110,6 @@ namespace hpp {
           std::find_if(vector.begin(), vector.end(), FindCollisionObject(i));
         if (it != vector.end()) vector.erase(it);
       }
-
-      const Model obsModel = initObstacleModel();
     }
 
     // Struct that constructs an empty shared pointer to PathProjector.
@@ -175,8 +171,10 @@ namespace hpp {
       pathValidationType_ ("Discretized"), pathValidationTolerance_ (0.05),
       configValidationTypes_ (),
       collisionObstacles_ (), distanceObstacles_ (),
-      obstacleModel_ (new GeomModel()), obstacleData_
-      (new GeomData(*obstacleModel_)),
+      obstacleRModel_ (new Model()),
+      obstacleRData_ (new Data (*obstacleRModel_)),
+      obstacleModel_ (new GeomModel()),
+      obstacleData_ (new GeomData(*obstacleModel_)),
       errorThreshold_ (1e-4), maxIterProjection_ (20),
       maxIterPathPlanning_ (std::numeric_limits
 			    <unsigned long int>::max ()),
@@ -396,8 +394,10 @@ namespace hpp {
       robot_ = robot;
       constraints_ = ConstraintSet::create (robot_, "Default constraint set");
       // Reset obstacles
-      obstacleModel_ = pinocchio::GeomModelPtr_t (new GeomModel());
-      obstacleData_ = pinocchio::GeomDataPtr_t (new GeomData(*obstacleModel_));
+      obstacleRModel_.reset(new Model());
+      obstacleRData_.reset (new Data(*obstacleRModel_));
+      obstacleModel_.reset (new GeomModel());
+      obstacleData_ .reset (new GeomData(*obstacleModel_));
       resetProblem ();
     }
 
@@ -879,6 +879,24 @@ namespace hpp {
       device->updateGeometryPlacements();
       const std::string& prefix = device->name();
 
+      const Model& m = device->model();
+      const Data & d = device->data ();
+      for (std::size_t i = 1; i < m.frames.size(); ++i)
+      {
+        const se3::Frame& frame = m.frames[i];
+        // se3::FrameType type = (frame.type == se3::JOINT ? se3::FIXED_JOINT : frame.type);
+        obstacleRModel_->addFrame (se3::Frame (
+              prefix + frame.name,
+              0,
+              0, // TODO Keep frame hierarchy
+              d.oMf[i],
+              // type
+              frame.type
+              ));
+      }
+      obstacleRData_.reset (new Data(*obstacleRModel_));
+      se3::framesForwardKinematics (*obstacleRModel_, *obstacleRData_, vector_t::Zero(0));
+
       // Detach objects from joints
       pinocchio::DeviceObjectVector& objects = device->objectVector();
       for (pinocchio::DeviceObjectVector::iterator itObj = objects.begin();
@@ -906,12 +924,12 @@ namespace hpp {
       }
 
       se3::GeomIndex id = obstacleModel_->addGeometryObject(se3::GeometryObject(
-            name, obsModel.getFrameId("obstacle_frame", se3::BODY), 0,
+            name, 0, 0,
             inObject.collisionGeometry(),
             se3::toPinocchioSE3(inObject.getTransform()),
             "",
             vector3_t::Ones()),
-          obsModel);
+          *obstacleRModel_);
       // Update obstacleData_
       // FIXME This should be done in Pinocchio
       {
