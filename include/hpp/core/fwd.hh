@@ -97,7 +97,9 @@ namespace hpp {
     typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef pinocchio::CollisionObjectConstPtr_t CollisionObjectConstPtr_t;
     typedef pinocchio::FclCollisionObject FclCollisionObject;
-    typedef boost::shared_ptr<pinocchio::FclCollisionObject> FclCollisionObjectSharePtr_t;
+    typedef FclCollisionObject * FclCollisionObjectPtr_t;
+    typedef const FclCollisionObject * FclConstCollisionObjectPtr_t;
+    typedef boost::shared_ptr <FclCollisionObject> FclCollisionObjectSharePtr_t;
 
     typedef pinocchio::Configuration_t Configuration_t;
     typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;

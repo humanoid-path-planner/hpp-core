@@ -51,7 +51,7 @@ namespace hpp {
     DistanceBuilder_t;
     typedef boost::function <SteeringMethodPtr_t (const Problem&) >
       SteeringMethodBuilder_t;
-    typedef std::vector<std::pair<std::string, FclCollisionObjectSharePtr_t > > AffordanceObjects_t;
+    typedef std::vector<std::pair < std::string, FclCollisionObjectSharePtr_t > > AffordanceObjects_t;
     typedef vector3_t AffordanceConfig_t;
 
     /// Set and solve a path planning problem
