@@ -299,6 +299,8 @@ namespace hpp {
 
     bool ConfigProjector::impl_compute (ConfigurationOut_t configuration)
     {
+      // If configuration satisfies the constraint, do not modify it
+      if (isSatisfied (configuration)) return true;
       HybridSolver::Status status = (HybridSolver::Status)solverSolve (configuration);
       switch (status) {
         case HybridSolver::ERROR_INCREASED:
