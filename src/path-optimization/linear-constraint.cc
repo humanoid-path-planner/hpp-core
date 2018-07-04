@@ -53,7 +53,7 @@ namespace hpp {
 
         xStar = dec.solve (b);
 
-        PK.noalias() = constraints::getV2(dec);
+        PK.noalias() = constraints::getV2(dec, rank);
 #else // USE_SVD
         Eigen::ColPivHouseholderQR < matrix_t > qr (J.transpose());
         rank = qr.rank();
