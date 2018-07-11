@@ -120,7 +120,7 @@ namespace hpp {
 	vector_t u1 (numberDofs_);
 
 	// Prepare first waypoint gradient computation
-	hpp::pinocchio::difference<se3::LieGroupTpl> (robot_,
+	hpp::pinocchio::difference<se3::LieGroupMap> (robot_,
 				argument.segment (indexConfig, configSize_),
 				initial_, u1);
 	std::size_t rank = 0;
@@ -138,7 +138,7 @@ namespace hpp {
 
 	// Prepare and compute first and other waypoints gradients
 	for (std::size_t i=0; i < nbPaths_ - 2; ++i) {
-	  hpp::pinocchio::difference<se3::LieGroupTpl> (robot_,
+	  hpp::pinocchio::difference<se3::LieGroupMap> (robot_,
 				  argument.segment (indexConfig + configSize_,
 						    configSize_),
 				  argument.segment (indexConfig, configSize_),
@@ -163,7 +163,7 @@ namespace hpp {
 	}//forStraightPaths
 
 	// Prepare last waypoint gradient computation
-	hpp::pinocchio::difference<se3::LieGroupTpl> (robot_, end_,
+	hpp::pinocchio::difference<se3::LieGroupMap> (robot_, end_,
 				argument.segment (indexConfig, configSize_),
 				u2);
 	rank = 0;
