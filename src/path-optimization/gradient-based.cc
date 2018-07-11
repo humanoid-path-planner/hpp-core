@@ -364,7 +364,7 @@ namespace hpp {
 	// uncompress step
 	uncompressVector (step, stepNormal_);
 	while (indexConfig < x0.size ()) {
-          pinocchio::integrate<true, se3::LieGroupTpl> (robot_, x0.segment (indexConfig, configSize_),
+          pinocchio::integrate<true, se3::LieGroupMap> (robot_, x0.segment (indexConfig, configSize_),
 			    stepNormal_.segment
 			    (indexVelocity, robotNumberDofs_),
 			    x1.segment (indexConfig, configSize_));
