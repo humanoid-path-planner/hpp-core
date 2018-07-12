@@ -76,6 +76,7 @@ namespace hpp {
     HPP_PREDEF_CLASS (InterpolatedPath);
     HPP_PREDEF_CLASS (DubinsPath);
     HPP_PREDEF_CLASS (ReedsSheppPath);
+    HPP_PREDEF_CLASS (KinodynamicPath);    
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
@@ -202,6 +203,8 @@ namespace hpp {
     typedef boost::shared_ptr <const ReedsSheppPath> ReedsSheppPathConstPtr_t;
     typedef boost::shared_ptr <DubinsPath> DubinsPathPtr_t;
     typedef boost::shared_ptr <const DubinsPath> DubinsPathConstPtr_t;
+    typedef boost::shared_ptr <KinodynamicPath> KinodynamicPathPtr_t;
+    typedef boost::shared_ptr <const KinodynamicPath> KinodynamicPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
@@ -296,6 +299,15 @@ namespace hpp {
       HPP_PREDEF_CLASS (RecursiveHermite);
       typedef boost::shared_ptr <RecursiveHermite> RecursiveHermitePtr_t;
     } // namespace pathProjector
+
+    namespace steeringMethod {
+      HPP_PREDEF_CLASS (Interpolated);
+      typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
+      HPP_PREDEF_CLASS (ReedsShepp);
+      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+      HPP_PREDEF_CLASS (Kinodynamic);
+      typedef boost::shared_ptr <Kinodynamic> KinodynamicPtr_t;
+    } // namespace steeringMethod
 
     namespace problemTarget {
       HPP_PREDEF_CLASS (GoalConfigurations);

@@ -20,8 +20,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET(CXX_DISABLE_WERROR TRUE)
+SET(DOXYGEN_USE_MATHJAX YES)
+
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
+INCLUDE(cmake/test.cmake)
 
 SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
@@ -60,7 +63,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/configuration-shooter/uniform.hh
   include/hpp/core/configuration-shooter/gaussian.hh
   include/hpp/core/config-projector.hh
-  include/hpp/core/comparison-type.hh
   include/hpp/core/config-validation.hh
   include/hpp/core/config-validations.hh
   include/hpp/core/connected-component.hh
@@ -107,6 +109,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path/spline.hh
   include/hpp/core/path/hermite.hh
   include/hpp/core/reeds-shepp-path.hh
+  include/hpp/core/kinodynamic-path.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
@@ -124,6 +127,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method/snibud.hh
   include/hpp/core/steering-method-straight.hh
   include/hpp/core/steering-method/reeds-shepp.hh
+  include/hpp/core/steering-method/steering-kinodynamic.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/interpolated-path.hh
   include/hpp/core/validation-report.hh

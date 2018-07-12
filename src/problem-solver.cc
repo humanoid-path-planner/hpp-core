@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
@@ -44,6 +43,7 @@
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
@@ -65,6 +65,7 @@
 #include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/steering-kinodynamic.hh>
 #include <hpp/core/steering-method/snibud.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
@@ -199,6 +200,7 @@ namespace hpp {
 
       steeringMethods.add ("Straight",   Factory<steeringMethod::Straight>::create);
       steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      steeringMethods.add ("Kynodynamic", steeringMethod::Kinodynamic::create);
       steeringMethods.add ("Dubins",     steeringMethod::Dubins::createWithGuess);
       steeringMethods.add ("Snibud",     steeringMethod::Snibud::createWithGuess);
       steeringMethods.add ("Hermite",    steeringMethod::Hermite::create);
@@ -710,6 +712,7 @@ namespace hpp {
       problem_->distance (dist);
     }
 
+
     void ProblemSolver::initSteeringMethod ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -744,6 +747,7 @@ namespace hpp {
     void ProblemSolver::initProblem ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
+
 
       // Set shooter
       problem_->configurationShooter
