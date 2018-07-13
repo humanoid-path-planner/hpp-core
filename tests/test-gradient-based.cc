@@ -25,12 +25,13 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
 
 #include <hpp/core/steering-method/straight.hh>
-#include <hpp/core/path-optimization/gradient-based.hh>
+#include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
@@ -71,6 +72,7 @@ using ::se3::FrameIndex;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
+// Build a box robot moving in the plane
 DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = Device::create ("test");
@@ -113,27 +115,14 @@ DevicePtr_t createRobot ()
   robot->createData();
   robot->createGeomData();
   return robot;
-  /*
-  DevicePtr_t robot = Device::create ("planar-robot");
-  Transform3f position; position.setIdentity ();
-  ObjectFactory factory;
-
-  // planar root joint
-  JointPtr_t root = factory.createJointTranslation2 (position);
-  robot->rootJoint (root);
-  // Rotation around z
-  position.setQuatRotation (Quaternion3f (sqrt (2)/2, 0, -sqrt (2)/2, 0));
-  JointPtr_t joint = factory.createUnBoundedJointRotation (position);
-  root->addChildJoint (joint);
-  position.setIdentity ();
-  boost::shared_ptr <Box> box (new Box (1,2,1));
-  CollisionObjectPtr_t object = CollisionObject::create (box, position, "box");
-  BodyPtr_t body = new Body ();
-  joint->setLinkedBody (body);
-  body->addInnerObject (object, true, true);
-
-  return robot;*/
 }
+
+// Build a box robot moving in the plane
+//
+// Create a circular path from (-1,0) to (1,0) with nominal orientation
+// with 3 waypoints of various orientations.
+// Optimal path should be a straight line: all waypoints aligned.
+// Check waypoints with expected value
 
 BOOST_AUTO_TEST_CASE (BFGS)
 {
@@ -158,8 +147,46 @@ BOOST_AUTO_TEST_CASE (BFGS)
   path->appendPath ((*sm) (q1, q2));
   path->appendPath ((*sm) (q2, q3));
   path->appendPath ((*sm) (q3, q4));
+  problem.setParameter ("SplineGradientBased/alphaInit",
+                        hpp::core::Parameter (1.));
+  problem.setParameter ("SplineGradientBased/costThreshold",
+                        hpp::core::Parameter (1e-6));
+  PathOptimizerPtr_t pathOptimizer
+    (pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create
+     (problem));
+  PathVectorPtr_t optimizedPath (pathOptimizer->optimize (path));
+  Configuration_t p0 (robot->configSize ());
+  Configuration_t p1 (robot->configSize ());
+  Configuration_t p2 (robot->configSize ());
+  Configuration_t p3 (robot->configSize ());
+  Configuration_t p4 (robot->configSize ());
+  BOOST_CHECK (optimizedPath->numberPaths () == 4);
+  p0 = optimizedPath->initial ();
+  p1 = optimizedPath->pathAtRank (0)->end ();
+  p2 = optimizedPath->pathAtRank (1)->end ();
+  p3 = optimizedPath->pathAtRank (2)->end ();
+  p4 = optimizedPath->pathAtRank (3)->end ();
+  Configuration_t r0 (robot->configSize ());
+  Configuration_t r1 (robot->configSize ());
+  Configuration_t r2 (robot->configSize ());
+  Configuration_t r3 (robot->configSize ());
+  Configuration_t r4 (robot->configSize ());
+  r0 << -1,  0,1,0;
+  r1 << -0.5,0,1,0;
+  r2 <<  0.0,0,1,0;
+  r3 <<  0.5,0,1,0;
+  r4 <<  1,  0,1,0;
 
-  PathOptimizerPtr_t pathOptimizer (GradientBased::create (problem));
-  pathOptimizer->optimize (path);
+  BOOST_CHECK ((p0 - r0).norm () < 1e-10);
+  BOOST_CHECK ((p1 - r1).norm () < 1e-10);
+  BOOST_CHECK ((p2 - r2).norm () < 1e-10);
+  BOOST_CHECK ((p3 - r3).norm () < 1e-10);
+  BOOST_CHECK ((p4 - r4).norm () < 1e-10);
+
+  hppDout (info, (p0 - r0).norm ());
+  hppDout (info, (p1 - r1).norm ());
+  hppDout (info, (p2 - r2).norm ());
+  hppDout (info, (p3 - r3).norm ());
+  hppDout (info, (p4 - r4).norm ());
 }
 BOOST_AUTO_TEST_SUITE_END()
