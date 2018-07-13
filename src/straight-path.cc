@@ -84,7 +84,7 @@ namespace hpp {
       }
       value_type u = (param - paramRange().first) / L;
       if (L == 0) u = 0;
-      pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, initial_, end_, u, result);
+      pinocchio::interpolate<pinocchio::RnxSOnLieGroupMap> (device_, initial_, end_, u, result);
       return true;
     }
 
@@ -100,7 +100,7 @@ namespace hpp {
 	  result.setZero ();
 	  return;
 	}
-	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	pinocchio::difference <pinocchio::RnxSOnLieGroupMap>
 	  (device_, end_, initial_, result);
 	result /= length();
 	return;
@@ -117,7 +117,7 @@ namespace hpp {
         result.setZero();
         return;
       }
-      pinocchio::difference <hpp::pinocchio::LieGroupTpl> (device_, end_, initial_, result);
+      pinocchio::difference <pinocchio::RnxSOnLieGroupMap> (device_, end_, initial_, result);
       result.noalias() = result.cwiseAbs() / paramLength();
     }
 

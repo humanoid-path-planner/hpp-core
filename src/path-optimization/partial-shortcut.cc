@@ -117,7 +117,7 @@ namespace hpp {
           q_inter = path->pathAtRank (i)->end ();
           // q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate ( q1, q2,
               // t / (t2-t1));
-          typedef hpp::pinocchio::LieGroupTpl LG_t;
+          typedef pinocchio::RnxSOnLieGroupMap LG_t;
           typedef se3::InterpolateStep<LG_t> IS_t;
           value_type u = t / (t2-t1);
           IS_t::run (j->jointModel(), IS_t::ArgsType (q1, q2, u, q_inter));

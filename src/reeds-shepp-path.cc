@@ -724,7 +724,7 @@ namespace hpp {
 	result.setZero ();
       }
       else if (order == 1) {
-	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	pinocchio::difference <hpp::pinocchio::RnxSOnLieGroupMap>
 	  (device_, end_, initial_, result);
 	result *= (1/L);
       } else {

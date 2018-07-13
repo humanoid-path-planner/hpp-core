@@ -157,7 +157,7 @@ namespace hpp {
         const value_type L = paramLength();
         // Does a linear interpolation on all the joints.
         const value_type u = (L == 0) ? 0 : ((param - paramRange ().first) / L );
-        pinocchio::interpolate <hpp::pinocchio::LieGroupTpl>(robot_, initial_, end_, u, result);
+        pinocchio::interpolate <pinocchio::RnxSOnLieGroupMap>(robot_, initial_, end_, u, result);
 
         value_type t (u * curveLength_);
         value_type x0 (initial_ [xyId_ + 0]), y0 (initial_ [xyId_ + 1]);
@@ -193,7 +193,7 @@ namespace hpp {
         // Does a linear interpolation on all the joints.
         const value_type u = (L == 0) ? 0 : ((param - paramRange ().first) / L );
         if (order == 1) {
-          pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+          pinocchio::difference <pinocchio::RnxSOnLieGroupMap>
             (robot_, end_, initial_, result);
           result /= L;
         } else if (order > 1) {

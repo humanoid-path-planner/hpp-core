@@ -26,7 +26,7 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
-      using hpp::pinocchio::LieGroupTpl;
+      using hpp::pinocchio::RnxSOnLieGroupMap;
       using hpp::pinocchio::liegroup::CartesianProductOperation;
       using hpp::pinocchio::liegroup::SpecialOrthogonalOperation;
       using hpp::pinocchio::liegroup::VectorSpaceOperation;
@@ -126,7 +126,7 @@ namespace hpp {
             vector_t& b,
             size_type& row)
         {
-          typedef typename LieGroupTpl::operation<JointModel>::type LG_t;
+          typedef typename RnxSOnLieGroupMap::operation<JointModel>::type LG_t;
           JointBoundConstraintAlgo<LG_t>::run (
               jmodel.idx_v(),
               jmodel.jointConfigSelector(low),

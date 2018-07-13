@@ -103,7 +103,7 @@ namespace hpp {
           value_type sigma;
           for (se3::JointIndex j = i; j <= (se3::JointIndex)data.lastChild[i]; ++j)
           {
-            se3::getJacobian<se3::LOCAL>(model, data, j, jacobian);
+            se3::getJointJacobian<se3::LOCAL>(model, data, j, jacobian);
             getRotationSubJacobian(jmodel, data, jacobian, j, rBlock);
             const value_type radius = geomData.radius[j]
               + (data.oMi[j].translation() - data.oMi[i].translation()).squaredNorm();

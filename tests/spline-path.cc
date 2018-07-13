@@ -87,7 +87,7 @@ template <int SplineType> void compare_to_straight_path ()
   Configuration_t q2 (se3::randomConfiguration(dev->model()));
 
   vector_t v (dev->numberDof());
-  difference<LieGroupTpl> (dev, q2, q1, v);
+  difference<RnxSOnLieGroupMap> (dev, q2, q1, v);
 
   // create StraightPath
   PathPtr_t sp = (*problem.steeringMethod()) (q1, q2);

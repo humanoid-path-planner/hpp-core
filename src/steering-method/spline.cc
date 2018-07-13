@@ -78,21 +78,21 @@ namespace hpp {
         p->base(q1); // TODO use the center ?
         // p->base(device_.lock()->neutralConfiguration()); // TODO use the center ?
         // Configuration_t qmiddle (q1.size());
-        // pinocchio::interpolate<hpp::pinocchio::LieGroupTpl>(device_.lock(), q1, q2, 0.5, qmiddle);
+        // pinocchio::interpolate<pinocchio::RnxSOnLieGroupMap>(device_.lock(), q1, q2, 0.5, qmiddle);
         // p->base(qmiddle);
 
         // Compute the matrices
         // TODO calls to basisFunctionDerivative could be cached as they do not
         // depend on the inputs.
         SplinePath::timeFreeBasisFunctionDerivative(0, 0, coeffs.row(0));
-        pinocchio::difference<hpp::pinocchio::LieGroupTpl>(device_.lock(), q1, p->base(), rhs.row(0));
+        pinocchio::difference<pinocchio::RnxSOnLieGroupMap>(device_.lock(), q1, p->base(), rhs.row(0));
         for (std::size_t i = 0; i < order1.size(); ++i)
           SplinePath::timeFreeBasisFunctionDerivative(order1[i], 0, coeffs.row(i+1));
         rhs.middleRows(1, order1.size()).transpose() = derivatives1;
 
         size_type row = 1 + order1.size();
         SplinePath::timeFreeBasisFunctionDerivative(0, 1, coeffs.row(row));
-        pinocchio::difference<hpp::pinocchio::LieGroupTpl>(device_.lock(), q2, p->base(), rhs.row(row));
+        pinocchio::difference<pinocchio::RnxSOnLieGroupMap>(device_.lock(), q2, p->base(), rhs.row(row));
         ++row;
         for (std::size_t i = 0; i < order2.size(); ++i)
           SplinePath::timeFreeBasisFunctionDerivative(order2[i], 1, coeffs.row(i+row));

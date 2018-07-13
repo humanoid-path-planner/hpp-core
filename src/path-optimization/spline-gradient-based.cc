@@ -342,7 +342,7 @@ namespace hpp {
           }
           hppDout (info, "Looking for collision which does not make the constraint rank deficient.");
           // interpolate at alpha
-          pinocchio::interpolate<hpp::pinocchio::LieGroupTpl>
+          pinocchio::interpolate<pinocchio::RnxSOnLieGroupMap>
             (robot_, function->qFree_, function->qColl_, 0.5, q);
           hppDout (info, "New q: " << q.transpose());
           // update the constraint

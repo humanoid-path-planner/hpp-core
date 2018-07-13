@@ -326,7 +326,7 @@ namespace hpp {
         basisFunctionDerivative(0, u, basisFunc);
         velocity_.noalias() = parameters_.transpose() * basisFunc;
 
-        pinocchio::integrate<false, hpp::pinocchio::LieGroupTpl> (robot_, base_, velocity_, res);
+        pinocchio::integrate<false, hpp::pinocchio::RnxSOnLieGroupMap> (robot_, base_, velocity_, res);
         return true;
       }
 

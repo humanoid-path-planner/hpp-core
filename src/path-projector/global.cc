@@ -373,7 +373,7 @@ namespace hpp {
         for (Configs_t::iterator it = begin; it != last; ++it) {
           if (*itL > maxDist) {
             ++nbNewC;
-            hpp::pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (robot, *itCp, *it, 0.5, newQ);
+            pinocchio::interpolate<pinocchio::RnxSOnLieGroupMap> (robot, *itCp, *it, 0.5, newQ);
             // FIXME: make sure the iterator are valid after insertion
             // Insert new respective elements
             it  = q.insert (it, newQ);
@@ -442,7 +442,7 @@ namespace hpp {
             // const value_type t = ( 1 + (_dPrev->sigma - _d->sigma) / (K * _d->length) ) / 2;
             const value_type t = _dPrev->sigma / (K * _d->length);
             assert (t < 1 && t > 0);
-            hpp::pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (robot, _dPrev->q, _d->q, t, newD.q);
+            pinocchio::interpolate<pinocchio::RnxSOnLieGroupMap> (robot, _dPrev->q, _d->q, t, newD.q);
             hppDout (info, "Add config " << newD.q.transpose());
 
             // Insert new respective elements

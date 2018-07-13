@@ -144,7 +144,7 @@ namespace hpp {
       const value_type T = itA->first - itB->first;
       const value_type u = (param - itB->first) / T;
 
-      pinocchio::interpolate<hpp::pinocchio::LieGroupTpl> (device_, itB->second, itA->second, u, result);
+      pinocchio::interpolate<hpp::pinocchio::RnxSOnLieGroupMap> (device_, itB->second, itA->second, u, result);
       return true;
     }
 
@@ -183,7 +183,7 @@ namespace hpp {
 	return;
       }
       if (order == 1) {
-	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	pinocchio::difference <hpp::pinocchio::RnxSOnLieGroupMap>
 	  (device_, itA->second, itB->second, result);
 	result = (1/T) * result;
       }
@@ -198,7 +198,7 @@ namespace hpp {
       result.setZero();
       vector_t tmp (result.size());
       while (t1 > current->first) {
-	pinocchio::difference <hpp::pinocchio::LieGroupTpl>
+	pinocchio::difference <hpp::pinocchio::RnxSOnLieGroupMap>
 	  (device_, next->second, current->second, tmp);
         const value_type T = next->first - current->first;
         result.noalias() = result.cwiseMax(tmp.cwiseAbs() / T);

@@ -148,7 +148,7 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->integration(boost::bind(hpp::pinocchio::integrate<true, se3::LieGroupMap>, robot_, _1, _2, _3));
+      solver_->integration(boost::bind(hpp::pinocchio::integrate<true, hpp::pinocchio::DefaultLieGroupMap>, robot_, _1, _2, _3));
       solver_->saturation(boost::bind(saturate, robot_, _1, _2));
     }
 
@@ -373,9 +373,9 @@ namespace hpp {
         result = to;
         return;
       }
-      pinocchio::difference<se3::LieGroupMap> (robot_, to, from, toMinusFrom_);
+      pinocchio::difference<pinocchio::DefaultLieGroupMap> (robot_, to, from, toMinusFrom_);
       projectVectorOnKernel (from, toMinusFrom_, projMinusFrom_);
-      pinocchio::integrate<true, se3::LieGroupMap> (robot_, from, projMinusFrom_, result);
+      pinocchio::integrate<true, pinocchio::DefaultLieGroupMap> (robot_, from, projMinusFrom_, result);
     }
 
     void ConfigProjector::add (const LockedJointPtr_t& lockedJoint)

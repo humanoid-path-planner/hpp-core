@@ -131,7 +131,7 @@ namespace hpp {
        virtual void impl_compute (LiegroupElement& result, vectorIn_t argument)
          const
        {
-         pinocchio::difference<se3::LieGroupMap> (robot_, argument, qFree_, difference_);
+         pinocchio::difference<pinocchio::DefaultLieGroupMap> (robot_, argument, qFree_, difference_);
          result.vector () = J_ * difference_;
          result.check ();
        }
