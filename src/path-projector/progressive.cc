@@ -18,7 +18,7 @@
 
 #include <hpp/util/timer.hh>
 
-#include <hpp/constraints/hybrid-solver.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/interpolated-path.hh>
@@ -37,7 +37,7 @@
 namespace hpp {
   namespace core {
     namespace pathProjector {
-      constraints::lineSearch::Constant lineSearch;
+      constraints::solver::lineSearch::Constant lineSearch;
 
       ProgressivePtr_t Progressive::create (const DistancePtr_t& distance,
           const SteeringMethodPtr_t& steeringMethod, value_type step)

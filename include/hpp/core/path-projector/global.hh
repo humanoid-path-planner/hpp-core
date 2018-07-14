@@ -18,7 +18,8 @@
 #ifndef HPP_CORE_PATHPROJECTOR_GLOBAL_HH
 # define HPP_CORE_PATHPROJECTOR_GLOBAL_HH
 
-# include <hpp/constraints/iterative-solver.hh> // lineSearch::FixedSequence
+// lineSearch::FixedSequence
+# include <hpp/constraints/solver/hierarchical-iterative.hh>
 
 # include <hpp/core/path-projector.hh>
 # include <hpp/core/config-projector.hh>
@@ -56,7 +57,7 @@ namespace hpp {
           const value_type hessianBound_;
           const value_type thresholdMin_;
 
-          typedef constraints::lineSearch::FixedSequence LineSearch_t;
+          typedef constraints::solver::lineSearch::FixedSequence LineSearch_t;
           struct Data {
             Configuration_t q;
             value_type length; // Length between this config and the previous one

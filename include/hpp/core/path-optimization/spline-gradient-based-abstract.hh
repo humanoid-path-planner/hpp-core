@@ -18,9 +18,9 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_ABSTRACT_HH
 # define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_ABSTRACT_HH
 
-#include <hpp/constraints/explicit-solver.hh>
+#include <hpp/constraints/explicit-constraint-set.hh>
 
-#include <hpp/constraints/hybrid-solver.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/path-optimizer.hh>
 #include <hpp/core/path-vector.hh>
@@ -117,7 +117,7 @@ namespace hpp {
           /// \name Constraint creation
           /// \{
 
-          typedef constraints::ExplicitSolver ExplicitSolver;
+          typedef constraints::ExplicitConstraintSet ExplicitConstraintSet;
           typedef Eigen::RowBlockIndices RowBlockIndices;
           typedef std::vector <bool> Bools_t;
           typedef std::vector <size_type> Indices_t;
@@ -129,7 +129,7 @@ namespace hpp {
             /// The set of constraint of the corresponding path.
             ConstraintSetPtr_t set;
             /// A copy of the explicit solver included in \ref set
-            boost::shared_ptr<ExplicitSolver> es;
+            boost::shared_ptr<ExplicitConstraintSet> es;
 
             /// Variable on which we can optimize.
             /// Other variables are fully constrained.

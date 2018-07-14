@@ -18,9 +18,9 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_HH
 # define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_HH
 
-#include <hpp/constraints/explicit-solver.hh>
+#include <hpp/constraints/explicit-constraint-set.hh>
 
-#include <hpp/constraints/hybrid-solver.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/path-optimization/spline-gradient-based-abstract.hh>
 #include <hpp/core/path-vector.hh>
@@ -68,7 +68,7 @@ namespace hpp {
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
         protected:
-          using typename Base::ExplicitSolver;
+          using typename Base::ExplicitConstraintSet;
           using typename Base::RowBlockIndices;
           using typename Base::SplineOptimizationData;
           using typename Base::SplineOptimizationDatas_t;
@@ -96,8 +96,9 @@ namespace hpp {
           /// \param guessThr Threshold used to check whether the Jacobian
           ///                 contains rows of zeros, in which case the
           ///                 corresponding DoF is considered passive.
-          Eigen::RowBlockIndices computeActiveParameters (const PathPtr_t& path,
-              const constraints::HybridSolver& hs,
+          Eigen::RowBlockIndices computeActiveParameters
+            (const PathPtr_t& path,
+             const constraints::solver::BySubstitution& hs,
               const value_type& guessThr = -1,
               const bool& useExplicitInput = false) const;
 

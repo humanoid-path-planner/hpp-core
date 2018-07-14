@@ -36,7 +36,7 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/active-set-differentiable-function.hh>
-#include <hpp/constraints/hybrid-solver.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
@@ -45,7 +45,7 @@
 
 namespace hpp {
   namespace core {
-    using constraints::HybridSolver;
+    using constraints::solver::BySubstitution;
 
     namespace {
 
@@ -141,7 +141,7 @@ namespace hpp {
       toMinusFrom_ (robot->numberDof ()),
       projMinusFrom_ (robot->numberDof ()),
       lineSearchType_ (defaultLineSearch_),
-      solver_ (new HybridSolver (robot->configSize(), robot->numberDof())),
+      solver_ (new BySubstitution (robot->configSize(), robot->numberDof())),
       weak_ (),
       statistics_ ("ConfigProjector " + name)
     {
@@ -159,7 +159,7 @@ namespace hpp {
       toMinusFrom_ (cp.toMinusFrom_.size ()),
       projMinusFrom_ (cp.projMinusFrom_.size ()),
       lineSearchType_ (cp.lineSearchType_),
-      solver_ (new HybridSolver(*cp.solver_)),
+      solver_ (new BySubstitution(*cp.solver_)),
       weak_ (),
       statistics_ (cp.statistics_)
     {
@@ -167,7 +167,8 @@ namespace hpp {
       for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
 	   it != cp.lockedJoints_.end (); ++it) {
         LockedJointPtr_t lj = HPP_STATIC_PTR_CAST (LockedJoint, (*it)->copy ());
-        if (!solver_->explicitSolver().replace((*it)->explicitFunction(), lj->explicitFunction()))
+        if (!solver_->explicitConstraintSet().replace((*it)->explicitFunction(),
+                                                      lj->explicitFunction()))
           throw std::runtime_error("Could not replace lockedJoint function");
 	lockedJoints_.push_back (lj);
       }
@@ -212,14 +213,16 @@ namespace hpp {
       ExplicitNumericalConstraintPtr_t enm =
         HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
       if (enm) {
-        addedAsExplicit = solver_->explicitSolver().add(enm->explicitFunction(),
+        addedAsExplicit = solver_->explicitConstraintSet().add
+          (enm->explicitFunction(),
             Eigen::RowBlockIndices(enm->inputConf()),
             Eigen::RowBlockIndices(enm->outputConf()),
             Eigen::ColBlockIndices(enm->inputVelocity()),
             Eigen::RowBlockIndices(enm->outputVelocity()),
             types) >= 0;
         if (addedAsExplicit && enm->outputFunction() && enm->outputFunctionInverse()) {
-          bool ok = solver_->explicitSolver().setG (enm->explicitFunction(),
+          bool ok = solver_->explicitConstraintSet().setG
+            (enm->explicitFunction(),
               enm->outputFunction(), enm->outputFunctionInverse());
           assert (ok);
         }
@@ -239,7 +242,7 @@ namespace hpp {
             << "input vel" << Eigen::RowBlockIndices(enm->inputVelocity())
             << "output conf " << Eigen::RowBlockIndices(enm->outputConf())
             << "output vel " << Eigen::RowBlockIndices(enm->outputVelocity()));
-        solver_->explicitSolverHasChanged();
+        solver_->explicitConstraintSetHasChanged();
       }
       hppDout (info, "Constraints " << name() << " has dimension " << solver_->dimension());
 
@@ -252,7 +255,7 @@ namespace hpp {
      matrixOut_t reducedJacobian)
     {
       Configuration_t q (configuration);
-      solver_->explicitSolver().solve(q);
+      solver_->explicitConstraintSet().solve(q);
       solver_->computeValue<true>(q);
       solver_->updateJacobian(q); // includes the jacobian of the explicit system
       solver_->getValue(value);
@@ -264,13 +267,15 @@ namespace hpp {
     void ConfigProjector::uncompressVector (vectorIn_t small,
 					    vectorOut_t normal) const
     {
-      solver_->explicitSolver().freeDers().transpose().lview(normal) = small;
+      solver_->explicitConstraintSet().freeDers().transpose().lview(normal) =
+        small;
     }
 
     void ConfigProjector::compressVector (vectorIn_t normal,
 					  vectorOut_t small) const
     {
-      small = solver_->explicitSolver().freeDers().transpose().rview(normal);
+      small = solver_->explicitConstraintSet().freeDers().transpose().rview
+        (normal);
     }
 
     void ConfigProjector::compressMatrix (matrixIn_t normal,
@@ -278,10 +283,11 @@ namespace hpp {
     {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixIn_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
-        const Eigen::ColBlockIndices& cols = solver_->explicitSolver().freeDers();
+        const Eigen::ColBlockIndices& cols =
+          solver_->explicitConstraintSet().freeDers();
         small = View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices());
       } else {
-        small = solver_->explicitSolver().freeDers().rview(normal);
+        small = solver_->explicitConstraintSet().freeDers().rview(normal);
       }
     }
 
@@ -290,10 +296,11 @@ namespace hpp {
     {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixOut_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
-        const Eigen::ColBlockIndices& cols = solver_->explicitSolver().freeDers();
+        const Eigen::ColBlockIndices& cols =
+          solver_->explicitConstraintSet().freeDers();
         View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices()) = small;
       } else {
-        solver_->explicitSolver().freeDers().lview(normal) = small;
+        solver_->explicitConstraintSet().freeDers().lview(normal) = small;
       }
     }
 
@@ -301,21 +308,22 @@ namespace hpp {
     {
       // If configuration satisfies the constraint, do not modify it
       if (isSatisfied (configuration)) return true;
-      HybridSolver::Status status = (HybridSolver::Status)solverSolve (configuration);
+      BySubstitution::Status status = (BySubstitution::Status)
+        solverSolve (configuration);
       switch (status) {
-        case HybridSolver::ERROR_INCREASED:
+        case BySubstitution::ERROR_INCREASED:
           statistics_.addFailure (REASON_ERROR_INCREASED);
           return false;
           break;
-        case HybridSolver::MAX_ITERATION_REACHED:
+        case BySubstitution::MAX_ITERATION_REACHED:
           statistics_.addFailure (REASON_MAX_ITER);
           return false;
           break;
-        case HybridSolver::INFEASIBLE:
+        case BySubstitution::INFEASIBLE:
           statistics_.addFailure (REASON_INFEASIBLE);
           return false;
           break;
-        case HybridSolver::SUCCESS:
+        case BySubstitution::SUCCESS:
           statistics_.addSuccess();
           return true;
           break;
@@ -340,11 +348,12 @@ namespace hpp {
       if (maxIter != 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
       lastIsOptional(false);
-      HybridSolver::Status status = (HybridSolver::Status)solverSolve (configuration);
+      BySubstitution::Status status = (BySubstitution::Status)
+        solverSolve (configuration);
       lastIsOptional(true);
       maxIterations(maxIterSave);
       hppDout (info, "After optimization: " << configuration.transpose ());
-      if (status == HybridSolver::SUCCESS)
+      if (status == BySubstitution::SUCCESS)
         return true;
       else {
 	hppDout (info, "Optimization failed.");
@@ -385,9 +394,13 @@ namespace hpp {
       for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
 	   itLock != lockedJoints_.end (); ++itLock) {
 	if (lockedJoint->rankInVelocity () == (*itLock)->rankInVelocity ()) {
-          if (!solver_->explicitSolver().replace((*itLock)->explicitFunction(), lockedJoint->explicitFunction())) {
-            throw std::runtime_error("Could not replace lockedJoint function " + lockedJoint->jointName_);
-          }
+          if (!solver_->explicitConstraintSet().replace
+              ((*itLock)->explicitFunction(), lockedJoint->explicitFunction()))
+            {
+              throw std::runtime_error
+                ("Could not replace lockedJoint function " +
+                 lockedJoint->jointName_);
+            }
 	  *itLock = lockedJoint;
 	  return;
 	}
@@ -395,7 +408,8 @@ namespace hpp {
 
       constraints::ComparisonTypes_t types = lockedJoint->comparisonType();
 
-      bool added = solver_->explicitSolver().add(lockedJoint->explicitFunction(),
+      bool added = solver_->explicitConstraintSet().add
+        (lockedJoint->explicitFunction(),
           Eigen::RowBlockIndices(lockedJoint->inputConf()),
           Eigen::RowBlockIndices(lockedJoint->outputConf()),
           Eigen::ColBlockIndices(lockedJoint->inputVelocity()),
@@ -406,17 +420,18 @@ namespace hpp {
         throw std::runtime_error("Could not add lockedJoint function " + lockedJoint->jointName_);
       }
       if (added) {
-        solver_->explicitSolver().rightHandSide (
+        solver_->explicitConstraintSet().rightHandSide (
             lockedJoint->explicitFunction(),
             lockedJoint->rightHandSide());
       }
-      solver_->explicitSolverHasChanged();
+      solver_->explicitConstraintSetHasChanged();
 
       lockedJoints_.push_back (lockedJoint);
       hppDout (info, "add locked joint " << lockedJoint->jointName_
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
-      hppDout (info, "Intervals: " << solver_->explicitSolver().outDers());
+      hppDout (info, "Intervals: "
+               << solver_->explicitConstraintSet().outDers());
       hppDout (info, "Constraints " << name() << " has dimension " << solver_->dimension());
     }
 
@@ -451,7 +466,8 @@ namespace hpp {
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config,
 				       vector_t& error)
     {
-      error.resize (solver_->dimension() + solver_->explicitSolver().outDers().nbIndices());
+      error.resize (solver_->dimension() +
+                    solver_->explicitConstraintSet().outDers().nbIndices());
       return solver_->isSatisfied (config, error);
     }
 
@@ -479,8 +495,8 @@ namespace hpp {
         const LockedJointPtr_t& lj,
         ConfigurationIn_t config)
     {
-      solver_->explicitSolver().rightHandSideFromInput (
-          lj->explicitFunction(), config);
+      solver_->explicitConstraintSet().rightHandSideFromInput
+        (lj->explicitFunction(), config);
     }
 
     void ConfigProjector::rightHandSide (const vector_t& small)
@@ -506,7 +522,8 @@ namespace hpp {
         const LockedJointPtr_t& lj,
         vectorIn_t rhs)
     {
-      solver_->explicitSolver().rightHandSide (lj->explicitFunction(), rhs);
+      solver_->explicitConstraintSet().rightHandSide (lj->explicitFunction(),
+                                                      rhs);
     }
 
     vector_t ConfigProjector::rightHandSide () const
@@ -518,19 +535,19 @@ namespace hpp {
     {
       switch (lineSearchType_) {
         case Backtracking  : {
-                               constraints::lineSearch::Backtracking ls;
+                               constraints::solver::lineSearch::Backtracking ls;
                                return solver_->oneStep(config, ls);
                              }
         case ErrorNormBased: {
-                               constraints::lineSearch::ErrorNormBased ls;
+                               constraints::solver::lineSearch::ErrorNormBased ls;
                                return solver_->oneStep(config, ls);
                              }
         case FixedSequence : {
-                               constraints::lineSearch::FixedSequence ls;
+                               constraints::solver::lineSearch::FixedSequence ls;
                                return solver_->oneStep(config, ls);
                              }
         case Constant : {
-                          constraints::lineSearch::Constant ls;
+                          constraints::solver::lineSearch::Constant ls;
                           return solver_->oneStep(config, ls);
                         }
       }
@@ -540,26 +557,31 @@ namespace hpp {
     inline int ConfigProjector::solverSolve (
         ConfigurationOut_t config) const
     {
+      typedef constraints::solver::lineSearch::Backtracking Backtracking_t;
+      typedef constraints::solver::lineSearch::ErrorNormBased ErrorNormBased_t;
+      typedef constraints::solver::lineSearch::FixedSequence FixedSequence_t;
+      typedef constraints::solver::lineSearch::Constant Constant_t;
+
       switch (lineSearchType_) {
         case Backtracking  : {
-                               constraints::lineSearch::Backtracking ls;
+                               Backtracking_t ls;
                                return solver_->solve(config, ls);
                              }
         case ErrorNormBased: {
-                               constraints::lineSearch::ErrorNormBased ls;
+                               ErrorNormBased_t ls;
                                return solver_->solve(config, ls);
                              }
         case FixedSequence : {
-                               constraints::lineSearch::FixedSequence ls;
+                               FixedSequence_t ls;
                                return solver_->solve(config, ls);
                              }
         case Constant : {
-                          constraints::lineSearch::Constant ls;
+                          Constant_t ls;
                           return solver_->solve(config, ls);
                         }
       }
       throw std::runtime_error ("Unknow line search type");
-      return HybridSolver::MAX_ITERATION_REACHED;
+      return BySubstitution::MAX_ITERATION_REACHED;
     }
 
     void ConfigProjector::lastIsOptional (bool optional)
@@ -574,7 +596,7 @@ namespace hpp {
 
     size_type ConfigProjector::numberNonLockedDof () const
     {
-      return solver_->explicitSolver().freeDers().nbIndices();
+      return solver_->explicitConstraintSet().freeDers().nbIndices();
     }
 
     size_type ConfigProjector::dimension () const

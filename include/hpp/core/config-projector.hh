@@ -31,7 +31,7 @@
 
 namespace hpp {
   namespace core {
-    typedef constraints::HybridSolver HybridSolver;
+    typedef constraints::solver::BySubstitution BySubstitution;
 
     /// \addtogroup constraints
     /// \{
@@ -309,7 +309,7 @@ namespace hpp {
         return lockedJoints_;
       }
 
-      const HybridSolver& solver () const
+      const BySubstitution& solver () const
       {
         return *solver_;
       }
@@ -349,7 +349,7 @@ namespace hpp {
 
       static LineSearchType defaultLineSearch_;
       LineSearchType lineSearchType_;
-      HybridSolver* solver_;
+      BySubstitution* solver_;
 
       bool solverOneStep (ConfigurationOut_t config) const;
       int  solverSolve   (ConfigurationOut_t config) const;

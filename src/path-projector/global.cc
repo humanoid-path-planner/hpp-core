@@ -22,7 +22,7 @@
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
-#include <hpp/constraints/hybrid-solver.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/interpolated-path.hh>

@@ -193,8 +193,9 @@ namespace hpp {
         if (cs) {
           ConfigProjectorPtr_t cp = cs->configProjector();
           if (cp) {
-            const HybridSolver& hs = cp->solver();
-            const constraints::ExplicitSolver& es = hs.explicitSolver();
+            const constraints::solver::BySubstitution& hs = cp->solver();
+            const constraints::ExplicitConstraintSet& es =
+              hs.explicitConstraintSet();
 
             // Get the active parameter row selection.
             value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
@@ -206,7 +207,7 @@ namespace hpp {
                             nOutVar = select.nbIndices();
 
             sod.set = cs;
-            sod.es.reset(new ExplicitSolver(es));
+            sod.es.reset(new ExplicitConstraintSet(es));
             sod.activeParameters = RowBlockIndices (BlockIndex::difference
                                          (BlockIndex::segment_t(0, rDof),
                                           select.indices()));
@@ -229,9 +230,11 @@ namespace hpp {
 
       template <int _PB, int _SO>
       Eigen::RowBlockIndices SplineGradientBased<_PB, _SO>::computeActiveParameters
-      (const PathPtr_t& path, const HybridSolver& hs, const value_type& guessThr, const bool& useExplicitInput) const
+      (const PathPtr_t& path, const constraints::solver::BySubstitution& hs,
+       const value_type& guessThr, const bool& useExplicitInput) const
       {
-        const constraints::ExplicitSolver& es = hs.explicitSolver();
+        const constraints::ExplicitConstraintSet& es =
+          hs.explicitConstraintSet();
 
         BlockIndex::segments_t implicitBI, explicitBI;
 
