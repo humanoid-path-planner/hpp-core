@@ -384,10 +384,15 @@ namespace hpp {
         const size_type rDof = robot_->numberDof();
 
         // 1
+        // Replace each path of the vector by a spline with 0 derivatives at
+        // start and end.
         Splines_t splines;
         this->appendEquivalentSpline (input, splines);
         const size_type nParameters = splines.size() * Spline::NbCoeffs;
 
+        // Initialize one path validation method for each spline.
+        // Path validation methods are retrieve in the transition of the
+        // constraint graph that produced the initial part of the path.
         this->initializePathValidation(splines);
 
         // 2

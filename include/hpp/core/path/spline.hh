@@ -49,6 +49,32 @@ namespace hpp {
       /// \endcond
 
       /// Base class for spline paths
+      ///
+      /// Splines are polynomials with various possible representations.
+      /// \param _PolynomeBasis basis of polynomials used among
+      ///    \li CanonicalPolynomeBasis for the canonical basis,
+      ///    \li BernsteinBasis for Bernstein basis
+      /// \param _Order degree of the polynomial representation.
+      /// \sa hpp::core::path::PolynomeBasisType.
+      ///
+      /// Splines represent a curve in the tangent space of a given
+      /// robot (hpp::core::Device) at a configuration called \b base.
+      ///
+      /// \f{eqnarray*}
+      /// spline (u) &=& base + PM^{T} B (u)
+      /// \f}
+      ///
+      /// where*
+      /// \li \f$u\in [0,1]\f$,
+      /// \li operator "+" should be understood as Lie group integration,
+      /// \li \f$PM\f$ is the matrix of parameters the rows of
+      /// which are the spline control points. This matrix is
+      /// accessible via setter and getter Spline::parameters,
+      /// \li \f$B (t)\f$ is the vector containing the values of the basis
+      /// functions at parameter \f$t\f$.
+      ///
+      /// The dimension of control points, corresponding to the robot number of
+      /// degrees of freedom can be retrieved by getter Spline::parameterSize.
       template <int _PolynomeBasis, int _Order>
       class HPP_CORE_DLLAPI Spline : public Path
       {
@@ -270,9 +296,16 @@ namespace hpp {
 
           void impl_velocityBound (vectorOut_t result, const value_type& t0, const value_type& t1) const;
 
+          /// Robot number of degrees of freedom.
           size_type parameterSize_;
           DevicePtr_t robot_;
+          /// Base of the spline path.
+          /// The spline is a curve in the tangent space of the robot at this
+          /// configuration.
           Configuration_t base_;
+          /// Parameters of the spline are stored in a matrix
+          ///   number of rows = degree of polynomial + 1
+          ///   number of columns = robot number of degrees of freedom.
           ParameterMatrix_t parameters_;
 
         private:

@@ -53,18 +53,18 @@ namespace hpp {
           static Ptr_t create (const Problem& problem);
 
           /// Optimize path
-          /// 1* - Transform straight paths into splines
-          /// 2* - Add continuity constraints
-          /// 3  - Add problem constraints
-          /// 4* - Make cost function
-          /// 5* - Compute explicit representation of linear constraints.
-          /// 6* :
-          ///    1 - Compute cost hessian
-          ///    2 - Compute optimum
-          ///    3 - Check path for collision. If no collision, return solution
-          ///    4 - add collision constraint
-          ///    5 - re-compute explicit representation of linear constraints.
-          /// 7* - Build result path.
+          /// \li 1) Transform straight paths into splines
+          /// \li 2) Add continuity constraints
+          /// \li 3) Add problem constraints
+          /// \li 4) Make cost function
+          /// \li 5) Compute explicit representation of linear constraints.
+          /// \li 6)
+          /// \li - 6.1) Compute cost hessian
+          /// \li - 6.2) Compute optimum
+          /// \li - 6.3) Check path for collision. If no collision, return solution
+          /// \li - 6.4) add collision constraint
+          /// \li - 6.5) re-compute explicit representation of linear constraints.
+          /// \li 7) - Build result path.
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
         protected:

@@ -227,7 +227,7 @@ namespace hpp {
       void addConstraint (const ConstraintPtr_t& constraint);
 
       /// Add a LockedJoint
-      /// \deprecated use createLockedJoint and addLockedJointToConfigProjector
+      /// \deprecated use lockedJoints.add and addLockedJointToConfigProjector
       ///             instead
       void addLockedJoint (const LockedJointPtr_t& lockedJoint)
         HPP_CORE_DEPRECATED;

@@ -80,13 +80,31 @@ namespace hpp {
           typedef steeringMethod::Spline<PolynomeBasis, SplineOrder> SSM_t;
           typename SSM_t::Ptr_t steeringMethod_;
 
+          /// Convert a straight path into a spline and append to vector
+          ///
+          /// \param path straight path,
+          /// \retval splines vector of splines
+          ///
+          /// Build a spline starting from straight path initial configuration
+          /// and ending at straight path final configuration.
+          /// derivatives (up to an order depending on the spline degree) at
+          /// start and end are set to zero.
           void appendEquivalentSpline (const StraightPathPtr_t& path, Splines_t& splines) const;
 
-          /// If the interpolated path as only two waypoint, treat it as a
-          /// straight path. Otherwise, throw an exception.
+          /// Convert an interpolated path into a spline and append to vector
+          ///
+          /// \param path interpolated path,
+          /// \retval splines vector of splines
+          ///
+          /// Build a spline starting from interpolated path initial
+          /// configuration and ending at interpolated path final
+          /// configuration.  derivatives (up to an order depending on
+          /// the spline degree) at start and end are set to zero.  If
+          /// the interpolated path as only two waypoint, treat it as
+          /// a straight path. Otherwise, throw an exception.
           void appendEquivalentSpline (const InterpolatedPathPtr_t& path, Splines_t& splines) const;
 
-          /// For each subpath of path, cast it to a know path and calls 
+          /// For each subpath of path, cast it into a known path and calls 
           /// appropriate appendEquivalentSpline.
           /// \param splines the output will be pushed back into this vector.
           void appendEquivalentSpline (const PathVectorPtr_t& path, Splines_t& splines) const;
