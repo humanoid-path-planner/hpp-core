@@ -266,7 +266,7 @@ namespace hpp {
       /// Numerical constraints are to be inserted in the ConfigProjector of
       /// the constraint set.
       void addNumericalConstraint (const std::string& name,
-				   const NumericalConstraintPtr_t&
+				   const constraints::ImplicitPtr_t&
 				   constraint)
       {
         numericalConstraints.add (name, constraint);
@@ -283,9 +283,9 @@ namespace hpp {
       ComparisonTypes_t comparisonType (const std::string& name) const;
 
       /// Get constraint with given name
-      NumericalConstraintPtr_t numericalConstraint (const std::string& name)
+      constraints::ImplicitPtr_t numericalConstraint (const std::string& name)
       {
-        return numericalConstraints.get(name, NumericalConstraintPtr_t());
+        return numericalConstraints.get(name, constraints::ImplicitPtr_t());
       }
 
       /// Compute value and Jacobian of numerical constraints
@@ -550,8 +550,8 @@ namespace hpp {
       /// with a problem as input
       Container <PathOptimizerBuilder_t>        pathOptimizers;
 
-      /// Container of NumericalConstraint
-      Container <NumericalConstraintPtr_t>      numericalConstraints;
+      /// Container of constraints::Implicit
+      Container <constraints::ImplicitPtr_t>      numericalConstraints;
       /// Container of LockedJoint
       Container <LockedJointPtr_t>              lockedJoints;
       /// Container of CenterOfMassComputation

@@ -33,7 +33,7 @@
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 #include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-optimization/path-length.hh>
 #include <hpp/core/path-validation.hh>

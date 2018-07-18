@@ -31,7 +31,7 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/steering-method.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 
 namespace hpp {
   namespace core {
@@ -150,7 +150,7 @@ namespace hpp {
         }
       }
 
-      NumericalConstraintPtr_t ConfigOptimization::createNumConstraint
+      constraints::ImplicitPtr_t ConfigOptimization::createNumConstraint
         (const PathVector& path) const
       {
         std::vector <bool> mask (problem().robot()->numberDof(), true);
@@ -166,7 +166,7 @@ namespace hpp {
               mask[(*it)->rankInVelocity () + i] = false;
         }
         Configuration_t goal = parameters.getGoal (path);
-        NumericalConstraintPtr_t cc = NumericalConstraint::create
+        constraints::ImplicitPtr_t cc = constraints::Implicit::create
           (constraints::ConfigurationConstraint::create
            ("Optimization constraint", problem().robot(), goal, mask)
            );
@@ -205,7 +205,7 @@ namespace hpp {
       std::size_t ConfigOptimization::buildOptimizers (const PathVector& pv,
           Optimizers_t& projectors)
       {
-        NumericalConstraintPtr_t cc = createNumConstraint (pv);
+        constraints::ImplicitPtr_t cc = createNumConstraint (pv);
 
         const std::size_t P = pv.numberPaths ();
         projectors.resize (P - 1);

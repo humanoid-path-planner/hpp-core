@@ -94,7 +94,7 @@ namespace hpp {
         protected:
           ConfigOptimization (const Problem& problem);
 
-          virtual NumericalConstraintPtr_t createNumConstraint
+          virtual constraints::ImplicitPtr_t createNumConstraint
             (const PathVector& path) const;
 
           struct Optimizer {

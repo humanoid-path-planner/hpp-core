@@ -46,7 +46,7 @@
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/locked-joint.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
@@ -435,7 +435,7 @@ namespace hpp {
     /* Setting goal constraint is disabled for now.
      * To re-enable it :
      * - add a function called setGoalConstraints that:
-     *   - takes all the NumericalConstraintPtr_t and LockedJointPtr_t
+     *   - takes all the constraints::ImplicitPtr_t and LockedJointPtr_t
      *   - creates a TaskTarget and fills it.
      * - remove all the addGoalConstraint
     void ProblemSolver::addGoalConstraint (const ConstraintPtr_t& constraint)
@@ -562,7 +562,7 @@ namespace hpp {
     void ProblemSolver::comparisonType (const std::string& name,
         const ComparisonTypes_t types)
     {
-      NumericalConstraintPtr_t nc;
+      constraints::ImplicitPtr_t nc;
       if (numericalConstraints.has (name))
         nc = numericalConstraints.get(name);
       else if (lockedJoints.has (name))
@@ -576,7 +576,7 @@ namespace hpp {
     void ProblemSolver::comparisonType (const std::string& name,
         const ComparisonType &type)
     {
-      NumericalConstraintPtr_t nc;
+      constraints::ImplicitPtr_t nc;
       if (numericalConstraints.has (name))
         nc = numericalConstraints.get(name);
       else if (lockedJoints.has (name))
@@ -590,7 +590,7 @@ namespace hpp {
 
     ComparisonTypes_t ProblemSolver::comparisonType (const std::string& name) const
     {
-      NumericalConstraintPtr_t nc;
+      constraints::ImplicitPtr_t nc;
       if (numericalConstraints.has (name))
         nc = numericalConstraints.get(name);
       else if (lockedJoints.has (name))

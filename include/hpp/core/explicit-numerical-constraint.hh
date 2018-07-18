@@ -17,10 +17,14 @@
 #ifndef HPP_CORE_EXPLICIT_NUMERICAL_CONSTRAINT_HH
 # define HPP_CORE_EXPLICIT_NUMERICAL_CONSTRAINT_HH
 
-# include <hpp/core/numerical-constraint.hh>
+# include <hpp/constraints/implicit.hh>
+# include <hpp/core/config.hh>
+# include <hpp/core/fwd.hh>
 
 namespace hpp {
   namespace core {
+    typedef constraints::Implicit Implicit;
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     /// \addtogroup constraints
     /// \{
 
@@ -76,7 +80,7 @@ namespace hpp {
         where \f$\mathbf{q}\f$ is a Lie group element and \f$\mathbf{v}\f$ is a
         tangent vector.
 
-        Considered as a NumericalConstraint, the expression of the Jacobian of
+        Considered as a Implicit instance, the expression of the Jacobian of
         the DifferentiableFunction above depends on the output space of function
         \f$f\f$. The rows corresponding to values in a vector space are
         expressed as follows.
@@ -121,12 +125,11 @@ namespace hpp {
 
 
     **/
-    class HPP_CORE_DLLAPI ExplicitNumericalConstraint :
-      public constraints::Implicit
+    class HPP_CORE_DLLAPI ExplicitNumericalConstraint : public Implicit
     {
     public:
       /// Copy object and return shared pointer to copy
-      virtual EquationPtr_t copy () const;
+      virtual ImplicitPtr_t copy () const;
 
       /// Create instance and return shared pointer
       ///
@@ -268,7 +271,7 @@ namespace hpp {
       // Store weak pointer to itself
       void init (const ExplicitNumericalConstraintWkPtr_t& weak)
 	{
-	  NumericalConstraint::init (weak);
+	  Implicit::init (weak);
 	  weak_ = weak;
 	}
     protected:

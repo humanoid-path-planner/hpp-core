@@ -26,7 +26,7 @@
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 #include <hpp/core/locked-joint.hh>
 
 #include "../src/implicit-function.hh"
@@ -116,7 +116,7 @@ namespace hpp {
       const NumericalConstraints_t& ncs = proj->numericalConstraints ();
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
-        const NumericalConstraint& nc = **_ncs;
+        const constraints::Implicit& nc = **_ncs;
         size_type i1, i2;
 
         if (nc.functionPtr()->outputSize() != 6) continue;

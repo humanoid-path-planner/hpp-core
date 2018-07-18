@@ -42,7 +42,7 @@
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/interpolated-path.hh>
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 
   ConstraintSetPtr_t c = createConstraints (dev);
   DifferentiableFunctionPtr_t func = traits::func (dev);
-  c->configProjector ()->add (NumericalConstraint::create (func));
+  c->configProjector ()->add (constraints::Implicit::create (func));
   problem.steeringMethod(traits::SM_t::create (problem));
   problem.steeringMethod ()->constraints (c);
 

@@ -41,7 +41,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/explicit-numerical-constraint.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 
 namespace hpp {
   namespace core {
@@ -185,7 +185,7 @@ namespace hpp {
     }
 
     bool ConfigProjector::contains
-    (const NumericalConstraintPtr_t& numericalConstraint) const
+    (const constraints::ImplicitPtr_t& numericalConstraint) const
     {
       for (NumericalConstraints_t::const_iterator it = functions_.begin ();
 	   it != functions_.end (); ++it) {
@@ -195,7 +195,7 @@ namespace hpp {
       return false;
     }
 
-    bool ConfigProjector::add (const NumericalConstraintPtr_t& nm,
+    bool ConfigProjector::add (const constraints::ImplicitPtr_t& nm,
 			       const segments_t& passiveDofs,
 			       const std::size_t priority)
     {
@@ -477,7 +477,7 @@ namespace hpp {
     }
 
     void ConfigProjector::rightHandSideFromConfig (
-        const NumericalConstraintPtr_t& nm,
+        const constraints::ImplicitPtr_t& nm,
         ConfigurationIn_t config)
     {
       ExplicitNumericalConstraintPtr_t enm =
@@ -505,7 +505,7 @@ namespace hpp {
     }
 
     void ConfigProjector::rightHandSide (
-        const NumericalConstraintPtr_t& nm,
+        const constraints::ImplicitPtr_t& nm,
         vectorIn_t rhs)
     {
       ExplicitNumericalConstraintPtr_t enm =

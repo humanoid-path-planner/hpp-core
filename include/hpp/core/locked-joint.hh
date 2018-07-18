@@ -24,11 +24,13 @@
 
 namespace hpp {
   namespace core {
+    typedef constraints::Implicit Implicit;
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     /// \addtogroup constraints
     /// \{
 
      /**
-     Implementation of Equation specific to locked joint.
+     Implementation of constraint specific to locked joint.
      The underlying equation is \f$ q_i (q) = rhs \f$.
      The right hand side of the equation is also called value.
      */
@@ -36,7 +38,7 @@ namespace hpp {
     {
     public:
       /// Copy object and return shared pointer to copy
-      virtual EquationPtr_t copy () const;
+      virtual ImplicitPtr_t copy () const;
 
       /// Create locked joint and return shared pointer
       /// \param joint joint that is locked,
@@ -158,7 +160,7 @@ namespace hpp {
       /// Test equality with other instance
       /// \param other object to copy
       /// \param swapAndTest whether we should also check other == this
-      virtual bool isEqual (const Equation& other, bool swapAndTest) const;
+      virtual bool isEqual (const Implicit& other, bool swapAndTest) const;
 
       void init (const LockedJointPtr_t& self);
 

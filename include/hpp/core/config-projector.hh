@@ -92,7 +92,8 @@ namespace hpp {
       /// \param numericalConstraint numerical constraint
       /// \return true if numerical constraint is already in config projector
       ///         whatever the passive dofs are.
-      bool contains (const NumericalConstraintPtr_t& numericalConstraint) const;
+      bool contains (const constraints::ImplicitPtr_t& numericalConstraint)
+        const;
 
       /// Add a numerical constraint
       /// \param numericalConstraint The numerical constraint.
@@ -104,7 +105,7 @@ namespace hpp {
       ///
       /// \note The intervals are interpreted as a list of couple
       /// (index_start, length) and NOT as (index_start, index_end).
-      bool add (const NumericalConstraintPtr_t& numericalConstraint,
+      bool add (const constraints::ImplicitPtr_t& numericalConstraint,
 		const segments_t& passiveDofs = segments_t (0),
 		const std::size_t priority = 0);
 
@@ -255,8 +256,9 @@ namespace hpp {
       vector_t rightHandSideFromConfig (ConfigurationIn_t config);
 
       /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
-      /// the specified NumericalConstraint
-      void rightHandSideFromConfig (const NumericalConstraintPtr_t& nm, ConfigurationIn_t config);
+      /// the specified constraints::Implicit
+      void rightHandSideFromConfig (const constraints::ImplicitPtr_t& nm,
+                                    ConfigurationIn_t config);
 
       /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
       /// the specified LockedJoint
@@ -267,8 +269,8 @@ namespace hpp {
       void rightHandSide (const vector_t& param);
 
       /// Same as rightHandSide(vectorIn_t) but only for
-      /// the specified NumericalConstraint
-      void rightHandSide (const NumericalConstraintPtr_t& nm, vectorIn_t rhs);
+      /// the specified constraints::Implicit
+      void rightHandSide (const constraints::ImplicitPtr_t& nm, vectorIn_t rhs);
 
       /// Same as rightHandSide(vectorIn_t) but only for
       /// the specified LockedJoint

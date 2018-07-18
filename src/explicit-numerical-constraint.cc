@@ -22,6 +22,8 @@
 
 namespace hpp {
   namespace core {
+    typedef constraints::Implicit Implicit;
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     void complement (size_type size, const segments_t& intervals,
 		     segments_t& result)
     {
@@ -108,7 +110,7 @@ namespace hpp {
       return shPtr;
     }
 
-    EquationPtr_t ExplicitNumericalConstraint::copy () const
+    ImplicitPtr_t ExplicitNumericalConstraint::copy () const
     {
       return createCopy (weak_.lock ());
     }
@@ -122,10 +124,10 @@ namespace hpp {
      const segments_t& outputConf,
      const segments_t& outputVelocity,
      const ComparisonTypes_t& comp) :
-      NumericalConstraint (GenericImplicitFunction::create
-			   (robot, explicitFunction, g, inputConf, inputVelocity,
-                            outputConf, outputVelocity),
-                           comp),
+      Implicit (GenericImplicitFunction::create
+                (robot, explicitFunction, g, inputConf, inputVelocity,
+                 outputConf, outputVelocity),
+                comp),
       inputToOutput_ (explicitFunction), g_ (g), ginv_ (ginv),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),
@@ -141,10 +143,10 @@ namespace hpp {
      const segments_t& outputConf,
      const segments_t& outputVelocity,
      const ComparisonTypes_t& comp) :
-      NumericalConstraint (BasicImplicitFunction::create
-			   (robot, explicitFunction, inputConf, inputVelocity,
-                            outputConf, outputVelocity),
-                           comp),
+      Implicit (BasicImplicitFunction::create
+                (robot, explicitFunction, inputConf, inputVelocity,
+                 outputConf, outputVelocity),
+                comp),
       inputToOutput_ (explicitFunction),
       inputConf_ (inputConf),
       inputVelocity_ (inputVelocity),
@@ -155,7 +157,7 @@ namespace hpp {
 
     ExplicitNumericalConstraint::ExplicitNumericalConstraint
     (const ExplicitNumericalConstraint& other) :
-      NumericalConstraint (other), inputToOutput_ (other.inputToOutput_),
+      Implicit (other), inputToOutput_ (other.inputToOutput_),
       inputConf_ (other.inputConf_), inputVelocity_ (other.inputVelocity_),
       outputConf_ (other.outputConf_), outputVelocity_ (other.outputVelocity_)
     {

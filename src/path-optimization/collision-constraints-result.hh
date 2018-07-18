@@ -199,7 +199,7 @@ namespace hpp {
 	    configProjector_ = ConfigProjector::create (robot_,
 							"collision constraint",
 							1e-6, 30);
-	    configProjector_->add (NumericalConstraint::create (f_));
+	    configProjector_->add (constraints::Implicit::create (f_));
 	  }
 
 	value_type distance () const { return distance_;}

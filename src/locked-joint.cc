@@ -31,6 +31,8 @@ namespace hpp {
   namespace core {
     using boost::assign::list_of;
     using constraints::ConstantFunction;
+    typedef constraints::Implicit Implicit;
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace {
         template <typename T>
 	std::string numToStr (const T& v) {
@@ -46,7 +48,7 @@ namespace hpp {
     }
 
     /// Copy object and return shared pointer to copy
-    EquationPtr_t LockedJoint::copy () const
+    ImplicitPtr_t LockedJoint::copy () const
     {
       return createCopy (weak_.lock ());
     }
@@ -224,12 +226,12 @@ namespace hpp {
     {
     }
 
-    bool LockedJoint::isEqual (const Equation& other, bool swapAndTest) const
+    bool LockedJoint::isEqual (const Implicit& other, bool swapAndTest) const
     {
       try {
 	const LockedJoint& lj =
 	  dynamic_cast <const LockedJoint&> (other);
-	if (!Equation::isEqual (other, false)) return false;
+	if (!Implicit::isEqual (other, false)) return false;
 	if (jointName_ != lj.jointName_) return false;
 	if (rankInConfiguration() != lj.rankInConfiguration()) return false;
 	if (rankInVelocity() != lj.rankInVelocity()) return false;

@@ -31,7 +31,7 @@
 #include <hpp/core/relative-motion.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 #include <hpp/core/explicit-relative-transformation.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   dev->computeForwardKinematics ();
   Transform3f tf1 (ja1->currentTransformation ());
   Transform3f tf2 (jb2->currentTransformation ());
-  proj->add (NumericalConstraint::create (
+  proj->add (constraints::Implicit::create (
         RelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2)));
 
   m = RelativeMotion::matrix(dev);

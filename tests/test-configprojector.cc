@@ -30,7 +30,7 @@
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE (ref_zero)
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
 
-  projector->add (NumericalConstraint::create (position, ineq));
+  projector->add (constraints::Implicit::create (position, ineq));
   // Constraints are
   // q [0] > 0
   // q [1] < 0
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   ineq[1] = constraints::Inferior;
   ConfigProjectorPtr_t projector =
     ConfigProjector::create (dev, "test", 1e-4, 20);
-  projector->add (NumericalConstraint::create (position, ineq));
+  projector->add (constraints::Implicit::create (position, ineq));
   Configuration_t cfg(dev->neutralConfiguration ());
 
   ref[0] = 2; 
