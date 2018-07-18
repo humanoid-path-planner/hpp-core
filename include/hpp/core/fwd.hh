@@ -27,6 +27,8 @@
 # include <set>
 # include <hpp/util/pointer.hh>
 # include <hpp/constraints/fwd.hh>
+# include <hpp/core/config.hh>
+# include <hpp/core/deprecated.hh>
 
 namespace hpp {
   namespace core {
@@ -48,10 +50,8 @@ namespace hpp {
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
     HPP_PREDEF_CLASS (DiscretizedPathValidation);
     HPP_PREDEF_CLASS (PathValidations);
-    HPP_PREDEF_CLASS (Equation);
     HPP_PREDEF_CLASS (ExplicitNumericalConstraint);
     HPP_PREDEF_CLASS (ExplicitRelativeTransformation);
-    HPP_PREDEF_CLASS (NumericalConstraint);
     HPP_PREDEF_CLASS (LockedJoint);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
@@ -157,9 +157,7 @@ namespace hpp {
     typedef pinocchio::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
     typedef boost::shared_ptr <LockedJoint> LockedJointPtr_t;
-    typedef boost::shared_ptr <Equation> EquationPtr_t;
     typedef boost::shared_ptr <const LockedJoint> LockedJointConstPtr_t;
-    typedef boost::shared_ptr <NumericalConstraint> NumericalConstraintPtr_t;
     typedef std::vector <LockedJointPtr_t> LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
     typedef pinocchio::matrix3_t matrix3_t;
@@ -221,11 +219,11 @@ namespace hpp {
     typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
     typedef boost::shared_ptr <ValidationReport> ValidationReportPtr_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
-    typedef std::map <std::string, NumericalConstraintPtr_t>
+    typedef std::map <std::string, constraints::ImplicitPtr_t>
     NumericalConstraintMap_t;
     typedef std::map <std::string, ComparisonTypes_t> ComparisonTypeMap_t;
     typedef std::map <std::string, segments_t> segmentsMap_t;
-    typedef std::vector < NumericalConstraintPtr_t > NumericalConstraints_t;
+    typedef std::vector < constraints::ImplicitPtr_t > NumericalConstraints_t;
     typedef std::map <std::string, CenterOfMassComputationPtr_t>
     CenterOfMassComputationMap_t;
 
@@ -317,6 +315,12 @@ namespace hpp {
     typedef std::vector<core::vector3_t> Shape_t;
     typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
     typedef std::list <JointAndShape_t> JointAndShapes_t;
+
+    typedef constraints::Implicit NumericalConstraint HPP_CORE_DEPRECATED;
+    typedef constraints::ImplicitPtr_t NumericalConstraintPtr_t
+    HPP_CORE_DEPRECATED;
+    typedef constraints::Implicit Equation HPP_CORE_DEPRECATED;
+    typedef constraints::ImplicitPtr_t EquationPtr_t HPP_CORE_DEPRECATED;
   } // namespace core
 } // namespace hpp
 

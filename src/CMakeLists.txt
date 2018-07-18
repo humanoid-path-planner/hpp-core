@@ -45,7 +45,6 @@ distance-between-objects.cc
 explicit-numerical-constraint.cc
 explicit-relative-transformation.cc
 extracted-path.hh
-equation.cc
 interpolated-path.cc
 joint-bound-validation.cc
 locked-joint.cc
@@ -54,7 +53,6 @@ path-validations.cc
   nearest-neighbor/basic.cc #
   # nearest-neighbor/k-d-tree.cc #
   # nearest-neighbor/k-d-tree.hh #
-  numerical-constraint.cc #
   node.cc #
   parameter.cc #
   path.cc #

@@ -122,7 +122,7 @@ namespace hpp {
 
     **/
     class HPP_CORE_DLLAPI ExplicitNumericalConstraint :
-      public NumericalConstraint
+      public constraints::Implicit
     {
     public:
       /// Copy object and return shared pointer to copy
