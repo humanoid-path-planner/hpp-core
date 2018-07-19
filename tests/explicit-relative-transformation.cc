@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
   ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
       "explicit_relative_transformation", robot,
       object1, object2, M1inO1, M2inO2);
-  constraints::ExplicitPtr_t enm = ert->createNumericalConstraint();
+  ExplicitPtr_t enm = ert->createNumericalConstraint();
 
   Configuration_t q     = robot->currentConfiguration (),
                   qrand = se3::randomConfiguration(robot->model()),
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
   ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
       "explicit_relative_transformation", robot,
       object1, object2, M1inO1, M2inO2);
-  constraints::ExplicitPtr_t enm = ert->createNumericalConstraint();
+  ExplicitPtr_t enm = ert->createNumericalConstraint();
 
   Configuration_t q     = robot->currentConfiguration (),
                   qrand = se3::randomConfiguration(robot->model()),
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
       "explicit_relative_transformation", robot,
       object1, object2, M1inO1, M2inO2);
-  constraints::ExplicitPtr_t enm = ert->createNumericalConstraint();
+  ExplicitPtr_t enm = ert->createNumericalConstraint();
 
   DifferentiableFunctionPtr_t irt = enm->functionPtr();
   RelativeTransformation::Ptr_t rt = RelativeTransformation::create (

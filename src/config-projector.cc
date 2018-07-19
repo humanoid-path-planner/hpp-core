@@ -39,7 +39,7 @@
 #include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/locked-joint.hh>
+#include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/explicit.hh>
 #include <hpp/constraints/implicit.hh>
 
@@ -399,7 +399,7 @@ namespace hpp {
             {
               throw std::runtime_error
                 ("Could not replace lockedJoint function " +
-                 lockedJoint->jointName_);
+                 lockedJoint->jointName ());
             }
 	  *itLock = lockedJoint;
 	  return;
@@ -417,7 +417,8 @@ namespace hpp {
           types) >= 0;
 
       if (!added) {
-        throw std::runtime_error("Could not add lockedJoint function " + lockedJoint->jointName_);
+        throw std::runtime_error("Could not add lockedJoint function " +
+                                 lockedJoint->jointName ());
       }
       if (added) {
         solver_->explicitConstraintSet().rightHandSide (
@@ -427,7 +428,7 @@ namespace hpp {
       solver_->explicitConstraintSetHasChanged();
 
       lockedJoints_.push_back (lockedJoint);
-      hppDout (info, "add locked joint " << lockedJoint->jointName_
+      hppDout (info, "add locked joint " << lockedJoint->jointName ()
 	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
 	       << ", size: " << lockedJoint->numberDof ());
       hppDout (info, "Intervals: "

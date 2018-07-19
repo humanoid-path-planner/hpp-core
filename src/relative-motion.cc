@@ -27,7 +27,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/constraints/implicit.hh>
-#include <hpp/core/locked-joint.hh>
+#include <hpp/constraints/locked-joint.hh>
 
 #include <hpp/constraints/explicit/function.hh>
 

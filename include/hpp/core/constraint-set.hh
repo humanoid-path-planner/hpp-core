@@ -157,7 +157,7 @@ namespace hpp {
       Constraints_t::iterator trivialOrNotConfigProjectorIt_;
       ConstraintSetWkPtr_t weak_;
 
-      friend class LockedJoint;
+      friend class constraints::LockedJoint;
       friend class Constraint;
       friend class ConfigProjector;
     }; // class ConstraintSet

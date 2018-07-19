@@ -91,7 +91,7 @@ namespace hpp {
       std::string name_;
       ConstraintWkPtr_t weak_;
       friend class ConstraintSet;
-      friend class LockedJoint;
+      friend class constraints::LockedJoint;
       friend class ConfigProjector;
       friend std::ostream& operator<< (std::ostream& os, const Constraint&);
     }; // class Constraint

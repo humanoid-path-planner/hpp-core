@@ -61,6 +61,8 @@ using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
 using hpp::pinocchio::JointPtr_t;
 
+using hpp::constraints::Implicit;
+
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
@@ -343,7 +345,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 
   ConstraintSetPtr_t c = createConstraints (dev);
   DifferentiableFunctionPtr_t func = traits::func (dev);
-  c->configProjector ()->add (constraints::Implicit::create (func));
+  c->configProjector ()->add (Implicit::create (func));
   problem.steeringMethod(traits::SM_t::create (problem));
   problem.steeringMethod ()->constraints (c);
 

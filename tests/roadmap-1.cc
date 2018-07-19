@@ -26,7 +26,6 @@
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/weighed-distance.hh>
-#include "hpp/core/basic-configuration-shooter.hh"
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/nearest-neighbor.hh>

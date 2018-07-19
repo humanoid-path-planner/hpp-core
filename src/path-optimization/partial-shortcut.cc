@@ -30,7 +30,7 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/locked-joint.hh>
+#include <hpp/constraints/locked-joint.hh>
 
 namespace hpp {
   namespace core {

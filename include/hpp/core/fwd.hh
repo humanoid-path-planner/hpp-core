@@ -51,7 +51,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (DiscretizedPathValidation);
     HPP_PREDEF_CLASS (PathValidations);
     HPP_PREDEF_CLASS (ExplicitRelativeTransformation);
-    HPP_PREDEF_CLASS (LockedJoint);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
     HPP_PREDEF_CLASS (SubchainPath);
@@ -153,8 +152,9 @@ namespace hpp {
     typedef pinocchio::HalfJointJacobian_t HalfJointJacobian_t;
     typedef pinocchio::JointVector_t JointVector_t;
     typedef KDTree* KDTreePtr_t;
-    typedef boost::shared_ptr <LockedJoint> LockedJointPtr_t;
-    typedef boost::shared_ptr <const LockedJoint> LockedJointConstPtr_t;
+    typedef constraints::LockedJoint LockedJoint;
+    typedef constraints::LockedJointPtr_t LockedJointPtr_t;
+    typedef constraints::LockedJointConstPtr_t LockedJointConstPtr_t;
     typedef std::vector <LockedJointPtr_t> LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
     typedef pinocchio::matrix3_t matrix3_t;

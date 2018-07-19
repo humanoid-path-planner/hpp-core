@@ -46,7 +46,6 @@ explicit-relative-transformation.cc
 extracted-path.hh
 interpolated-path.cc
 joint-bound-validation.cc
-locked-joint.cc
 path-validations.cc
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #

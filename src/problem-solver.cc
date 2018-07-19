@@ -45,7 +45,7 @@
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/discretized-collision-checking.hh>
-#include <hpp/core/locked-joint.hh>
+#include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
 #include <hpp/core/path-projector/global.hh>
