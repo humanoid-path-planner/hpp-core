@@ -19,8 +19,9 @@
 
 # include <hpp/constraints/matrix-view.hh>
 # include <hpp/constraints/generic-transformation.hh>
-
-# include <hpp/core/explicit-numerical-constraint.hh>
+# include <hpp/constraints/explicit.hh>
+# include <hpp/core/config.hh>
+# include <hpp/core/fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -60,7 +61,7 @@ namespace hpp {
 	 const JointConstPtr_t& joint1, const JointConstPtr_t& joint2,
 	 const Transform3f& frame1    , const Transform3f& frame2);
 
-      ExplicitNumericalConstraintPtr_t createNumericalConstraint ();
+      constraints::ExplicitPtr_t createNumericalConstraint ();
 
       /// Get joint 1
       const JointConstPtr_t& joint1 () const

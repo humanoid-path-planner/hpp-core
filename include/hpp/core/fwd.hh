@@ -50,7 +50,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
     HPP_PREDEF_CLASS (DiscretizedPathValidation);
     HPP_PREDEF_CLASS (PathValidations);
-    HPP_PREDEF_CLASS (ExplicitNumericalConstraint);
     HPP_PREDEF_CLASS (ExplicitRelativeTransformation);
     HPP_PREDEF_CLASS (LockedJoint);
     class Edge;
@@ -139,8 +138,6 @@ namespace hpp {
     typedef pinocchio::DistanceResults_t DistanceResults_t;
     typedef Edge* EdgePtr_t;
     typedef std::list <Edge*> Edges_t;
-    typedef boost::shared_ptr <ExplicitNumericalConstraint>
-    ExplicitNumericalConstraintPtr_t;
     typedef boost::shared_ptr <ExplicitRelativeTransformation>
     ExplicitRelativeTransformationPtr_t;
     typedef boost::shared_ptr <ExtractedPath> ExtractedPathPtr_t;
@@ -321,6 +318,10 @@ namespace hpp {
     HPP_CORE_DEPRECATED;
     typedef constraints::Implicit Equation HPP_CORE_DEPRECATED;
     typedef constraints::ImplicitPtr_t EquationPtr_t HPP_CORE_DEPRECATED;
+    typedef constraints::Explicit ExplicitNumericalConstraint
+    HPP_CORE_DEPRECATED;
+    typedef constraints::ExplicitPtr_t ExplicitNumericalConstraintPtr_t
+    HPP_CORE_DEPRECATED;
   } // namespace core
 } // namespace hpp
 

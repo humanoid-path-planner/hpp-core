@@ -29,7 +29,7 @@
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/locked-joint.hh>
 
-#include "../src/implicit-function.hh"
+#include <hpp/constraints/explicit/function.hh>
 
 namespace hpp {
   namespace core {
@@ -52,11 +52,13 @@ namespace hpp {
         }
       };
 
-      template <bool GisIdentity> struct check<ImplicitFunction<GisIdentity> > {
-        static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
+      using constraints::explicit_::Function;
+      template <bool GisIdentity> struct check <Function<GisIdentity> > {
+        static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1,
+                        size_type& i2)
         {
-          typename ImplicitFunction<GisIdentity>::Ptr_t implicit (
-              HPP_DYNAMIC_PTR_CAST (ImplicitFunction<GisIdentity>, f));
+          typename Function<GisIdentity>::Ptr_t
+            implicit (HPP_DYNAMIC_PTR_CAST (Function<GisIdentity>, f));
           if (implicit)
             return check<ExplicitRelativeTransformation>::is (implicit->inputToOutput(), i1, i2);
           return false;
@@ -116,14 +118,16 @@ namespace hpp {
       const NumericalConstraints_t& ncs = proj->numericalConstraints ();
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
+        using hpp::constraints::explicit_::BasicFunction;
+        using hpp::constraints::explicit_::GenericFunction;
         const constraints::Implicit& nc = **_ncs;
         size_type i1, i2;
 
         if (nc.functionPtr()->outputSize() != 6) continue;
         if (   !check< RelativeTransformation>::is (nc.functionPtr(), i1, i2)
             && !check<         Transformation>::is (nc.functionPtr(), i1, i2)
-            && !check<  BasicImplicitFunction>::is (nc.functionPtr(), i1, i2)
-            && !check<GenericImplicitFunction>::is (nc.functionPtr(), i1, i2))
+            && !check<          BasicFunction>::is (nc.functionPtr(), i1, i2)
+            && !check<        GenericFunction>::is (nc.functionPtr(), i1, i2))
           continue;
 
         bool cstRHS = nc.constantRightHandSide();

@@ -20,7 +20,9 @@
 
 # include <hpp/pinocchio/joint.hh>
 
-# include <hpp/core/explicit-numerical-constraint.hh>
+# include <hpp/constraints/explicit.hh>
+
+# include <hpp/core/fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -34,7 +36,7 @@ namespace hpp {
      The underlying equation is \f$ q_i (q) = rhs \f$.
      The right hand side of the equation is also called value.
      */
-    class HPP_CORE_DLLAPI LockedJoint : public ExplicitNumericalConstraint
+    class HPP_CORE_DLLAPI LockedJoint : public constraints::Explicit
     {
     public:
       /// Copy object and return shared pointer to copy

@@ -207,10 +207,10 @@ namespace hpp {
       jacobian.bottomRows<3>() = inVel_.rview(tmpJac_);
     }
 
-    ExplicitNumericalConstraintPtr_t ExplicitRelativeTransformation::createNumericalConstraint ()
+    constraints::ExplicitPtr_t ExplicitRelativeTransformation::createNumericalConstraint ()
     {
       if (g_)
-        return ExplicitNumericalConstraint::create (
+        return constraints::Explicit::create (
             robot_,
             weak_.lock(),
             g_, ginv_,
@@ -219,7 +219,7 @@ namespace hpp {
             outConf_.indices(),
             outVel_.indices());
       else
-        return ExplicitNumericalConstraint::create (
+        return constraints::Explicit::create (
             robot_,
             weak_.lock(),
             inConf_.indices(),

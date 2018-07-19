@@ -139,7 +139,7 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const JointPtr_t& joint,
                               const LiegroupElement& value) :
-      ExplicitNumericalConstraint (
+      constraints::Explicit (
           joint->robot(),
           makeFunction (value, joint->name()),
           segments_t(), // input conf
@@ -157,7 +157,7 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const JointPtr_t& joint, const size_type index,
         vectorIn_t value) :
-      ExplicitNumericalConstraint (
+      constraints::Explicit (
           joint->robot(),
           makeFunction (
             LiegroupElement (value, LiegroupSpace::Rn (joint->configSize () - index)),
@@ -178,7 +178,7 @@ namespace hpp {
 
     LockedJoint::LockedJoint (const DevicePtr_t& dev, const size_type index,
         vectorIn_t value) :
-      ExplicitNumericalConstraint (
+      constraints::Explicit (
           dev,
           makeFunction (
             LiegroupElement (value, LiegroupSpace::Rn (value.size ())),
@@ -203,7 +203,7 @@ namespace hpp {
 
     void LockedJoint::init (const LockedJointPtr_t& self)
     {
-      ExplicitNumericalConstraint::init(self);
+      constraints::Explicit::init(self);
       weak_ = self;
     }
 
@@ -221,7 +221,7 @@ namespace hpp {
     }
 
     LockedJoint::LockedJoint (const LockedJoint& other) :
-      ExplicitNumericalConstraint (other), jointName_ (other.jointName_),
+      constraints::Explicit (other), jointName_ (other.jointName_),
       joint_ (other.joint_), configSpace_ (other.configSpace_), weak_ ()
     {
     }

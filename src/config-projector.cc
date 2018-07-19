@@ -40,7 +40,7 @@
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
-#include <hpp/core/explicit-numerical-constraint.hh>
+#include <hpp/constraints/explicit.hh>
 #include <hpp/constraints/implicit.hh>
 
 namespace hpp {
@@ -210,8 +210,8 @@ namespace hpp {
       assert (!lj);
 
       bool addedAsExplicit = false;
-      ExplicitNumericalConstraintPtr_t enm =
-        HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
+      constraints::ExplicitPtr_t enm =
+        HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nm);
       if (enm) {
         addedAsExplicit = solver_->explicitConstraintSet().add
           (enm->explicitFunction(),
@@ -480,8 +480,8 @@ namespace hpp {
         const constraints::ImplicitPtr_t& nm,
         ConfigurationIn_t config)
     {
-      ExplicitNumericalConstraintPtr_t enm =
-        HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
+      constraints::ExplicitPtr_t enm =
+        HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nm);
       DifferentiableFunctionPtr_t fImplicit = nm->functionPtr(), fExplicit;
       if (enm) fExplicit = enm->explicitFunction();
 
@@ -508,8 +508,8 @@ namespace hpp {
         const constraints::ImplicitPtr_t& nm,
         vectorIn_t rhs)
     {
-      ExplicitNumericalConstraintPtr_t enm =
-        HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nm);
+      constraints::ExplicitPtr_t enm =
+        HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nm);
       DifferentiableFunctionPtr_t fImplicit = nm->functionPtr(), fExplicit;
       if (enm) fExplicit = enm->explicitFunction();
 

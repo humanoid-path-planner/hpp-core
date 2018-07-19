@@ -42,7 +42,6 @@ distance-between-objects.cc
   dubins.hh
   dubins.cc
   dubins-path.cc
-explicit-numerical-constraint.cc
 explicit-relative-transformation.cc
 extracted-path.hh
 interpolated-path.cc
