@@ -155,7 +155,7 @@ namespace hpp {
     typedef constraints::LockedJoint LockedJoint;
     typedef constraints::LockedJointPtr_t LockedJointPtr_t;
     typedef constraints::LockedJointConstPtr_t LockedJointConstPtr_t;
-    typedef std::vector <LockedJointPtr_t> LockedJoints_t;
+    typedef constraints::LockedJoints_t LockedJoints_t;
     typedef pinocchio::matrix_t matrix_t;
     typedef pinocchio::matrix3_t matrix3_t;
     typedef constraints::matrix6_t matrix6_t;
@@ -220,7 +220,7 @@ namespace hpp {
     NumericalConstraintMap_t;
     typedef std::map <std::string, ComparisonTypes_t> ComparisonTypeMap_t;
     typedef std::map <std::string, segments_t> segmentsMap_t;
-    typedef std::vector < constraints::ImplicitPtr_t > NumericalConstraints_t;
+    typedef constraints::NumericalConstraints_t NumericalConstraints_t;
     typedef std::map <std::string, CenterOfMassComputationPtr_t>
     CenterOfMassComputationMap_t;
 

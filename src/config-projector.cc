@@ -35,13 +35,11 @@
 #include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
-#include <hpp/constraints/active-set-differentiable-function.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/constraint-set.hh>
-#include <hpp/constraints/locked-joint.hh>
-#include <hpp/constraints/explicit.hh>
-#include <hpp/constraints/implicit.hh>
+// #include <hpp/constraints/explicit.hh>
+// #include <hpp/constraints/implicit.hh>
 
 namespace hpp {
   namespace core {
@@ -49,15 +47,8 @@ namespace hpp {
 
     namespace {
 
-      DifferentiableFunctionPtr_t activeSetFunction (
-          const DifferentiableFunctionPtr_t& function,
-          const segments_t& pdofs)
-      {
-        if (pdofs.empty()) return function;
-        return constraints::ActiveSetDifferentiableFunctionPtr_t (new constraints::ActiveSetDifferentiableFunction(function, pdofs));
-      }
-
-      bool saturate (const DevicePtr_t& robot, vectorIn_t q, Eigen::VectorXi& sat)
+      bool saturate (const DevicePtr_t& robot, vectorIn_t q, vectorOut_t qSat,
+                     Eigen::VectorXi& sat)
       {
         bool ret = false;
         const se3::Model& model = robot->model();
@@ -71,13 +62,17 @@ namespace hpp {
             const size_type iq = idx_q + j;
             const size_type iv = idx_v + std::min(j,nv-1);
             if        (q[iq] >= model.upperPositionLimit[iq]) {
+              qSat [iq] = model.upperPositionLimit[iq];
               sat[iv] =  1;
               ret = true;
             } else if (q[iq] <= model.lowerPositionLimit[iq]) {
+              qSat [iq] = model.lowerPositionLimit[iq];
               sat[iv] = -1;
               ret = true;
-            } else
+            } else {
+              qSat [iq] = q [iq];
               sat[iv] =  0;
+            }
           }
         }
 
@@ -89,12 +84,16 @@ namespace hpp {
           const size_type iv = model.nv + k;
           if        (q[iq] >= ecs.upper(k)) {
             sat[iv] =  1;
+            qSat [iq] = ecs.upper(k);
             ret = true;
           } else if (q[iq] <= ecs.lower(k)) {
+            qSat [iq] = ecs.lower(k);
             sat[iv] = -1;
             ret = true;
-          } else
+          } else {
+            qSat [iq] = q [iq];
             sat[iv] =  0;
+          }
         }
         return ret;
       }
@@ -136,42 +135,25 @@ namespace hpp {
 				      const std::string& name,
 				      value_type _errorThreshold,
 				      size_type _maxIterations) :
-      Constraint (name), robot_ (robot), functions_ (),
-      lockedJoints_ (),
-      toMinusFrom_ (robot->numberDof ()),
-      projMinusFrom_ (robot->numberDof ()),
+      Constraint (name), robot_ (robot),
       lineSearchType_ (defaultLineSearch_),
-      solver_ (new BySubstitution (robot->configSize(), robot->numberDof())),
+      solver_ (new BySubstitution (robot->configSpace())),
       weak_ (),
       statistics_ ("ConfigProjector " + name)
     {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->integration(boost::bind(hpp::pinocchio::integrate<true, hpp::pinocchio::DefaultLieGroupMap>, robot_, _1, _2, _3));
-      solver_->saturation(boost::bind(saturate, robot_, _1, _2));
+      solver_->saturation(boost::bind(saturate, robot_, _1, _2, _3));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
       Constraint (cp), robot_ (cp.robot_),
-      functions_ (cp.functions_),
-      lockedJoints_ (),
-      toMinusFrom_ (cp.toMinusFrom_.size ()),
-      projMinusFrom_ (cp.projMinusFrom_.size ()),
       lineSearchType_ (cp.lineSearchType_),
       solver_ (new BySubstitution(*cp.solver_)),
       weak_ (),
       statistics_ (cp.statistics_)
     {
-      // TODO remove me
-      for (LockedJoints_t::const_iterator it = cp.lockedJoints_.begin ();
-	   it != cp.lockedJoints_.end (); ++it) {
-        LockedJointPtr_t lj = HPP_STATIC_PTR_CAST (LockedJoint, (*it)->copy ());
-        if (!solver_->explicitConstraintSet().replace((*it)->explicitFunction(),
-                                                      lj->explicitFunction()))
-          throw std::runtime_error("Could not replace lockedJoint function");
-	lockedJoints_.push_back (lj);
-      }
     }
 
     ConfigProjector::~ConfigProjector ()
@@ -187,67 +169,14 @@ namespace hpp {
     bool ConfigProjector::contains
     (const constraints::ImplicitPtr_t& numericalConstraint) const
     {
-      for (NumericalConstraints_t::const_iterator it = functions_.begin ();
-	   it != functions_.end (); ++it) {
-	if (numericalConstraint == *it || *numericalConstraint == **it)
-	  return true;
-      }
-      return false;
+      return solver_->contains (numericalConstraint);
     }
 
     bool ConfigProjector::add (const constraints::ImplicitPtr_t& nm,
 			       const segments_t& passiveDofs,
 			       const std::size_t priority)
     {
-      if (contains (nm)) {
-	hppDout (error, "Constraint " << nm->functionPtr()->name ()
-		 << " already in " << this->name () << "." << std::endl);
-	return false;
-      }
-      constraints::ComparisonTypes_t types = nm->comparisonType();
-
-      LockedJointPtr_t lj = HPP_DYNAMIC_PTR_CAST (LockedJoint, nm);
-      assert (!lj);
-
-      bool addedAsExplicit = false;
-      constraints::ExplicitPtr_t enm =
-        HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nm);
-      if (enm) {
-        addedAsExplicit = solver_->explicitConstraintSet().add
-          (enm->explicitFunction(),
-            Eigen::RowBlockIndices(enm->inputConf()),
-            Eigen::RowBlockIndices(enm->outputConf()),
-            Eigen::ColBlockIndices(enm->inputVelocity()),
-            Eigen::RowBlockIndices(enm->outputVelocity()),
-            types) >= 0;
-        if (addedAsExplicit && enm->outputFunction() && enm->outputFunctionInverse()) {
-          bool ok = solver_->explicitConstraintSet().setG
-            (enm->explicitFunction(),
-              enm->outputFunction(), enm->outputFunctionInverse());
-          assert (ok);
-        }
-        if (!addedAsExplicit) {
-          hppDout (info, "Could not treat " <<
-              enm->explicitFunction()->name() << " as an explicit function."
-              );
-        }
-      }
-
-      if (!addedAsExplicit) {
-        solver_->add(activeSetFunction(nm->functionPtr(), passiveDofs), priority, types);
-      } else {
-        hppDout (info, "Numerical constraint added as explicit function: "
-            << enm->explicitFunction()->name() << "with "
-            << "input conf " << Eigen::RowBlockIndices(enm->inputConf())
-            << "input vel" << Eigen::RowBlockIndices(enm->inputVelocity())
-            << "output conf " << Eigen::RowBlockIndices(enm->outputConf())
-            << "output vel " << Eigen::RowBlockIndices(enm->outputVelocity()));
-        solver_->explicitConstraintSetHasChanged();
-      }
-      hppDout (info, "Constraints " << name() << " has dimension " << solver_->dimension());
-
-      functions_.push_back (nm);
-      return true;
+      return solver_->add (nm, passiveDofs, priority);
     }
 
     void ConfigProjector::computeValueAndJacobian
@@ -255,6 +184,7 @@ namespace hpp {
      matrixOut_t reducedJacobian)
     {
       Configuration_t q (configuration);
+      // q_{out} = f (q_{in})
       solver_->explicitConstraintSet().solve(q);
       solver_->computeValue<true>(q);
       solver_->updateJacobian(q); // includes the jacobian of the explicit system
@@ -365,75 +295,19 @@ namespace hpp {
 						 vectorIn_t velocity,
 						 vectorOut_t result)
     {
-      // TODO equivalent
-      if (functions_.empty ()) {
-        result = velocity;
-        return;
-      }
-      solver_->projectOnKernel(from, velocity, result);
+      solver_->projectVectorOnKernel(from, velocity, result);
     }
 
     void ConfigProjector::projectOnKernel (ConfigurationIn_t from,
 					   ConfigurationIn_t to,
 					   ConfigurationOut_t result)
     {
-      // TODO equivalent
-      if (functions_.empty ()) {
-        result = to;
-        return;
-      }
-      pinocchio::difference<pinocchio::DefaultLieGroupMap> (robot_, to, from, toMinusFrom_);
-      projectVectorOnKernel (from, toMinusFrom_, projMinusFrom_);
-      pinocchio::integrate<true, pinocchio::DefaultLieGroupMap> (robot_, from, projMinusFrom_, result);
+      solver_->projectOnKernel (from, to, result);
     }
 
     void ConfigProjector::add (const LockedJointPtr_t& lockedJoint)
     {
-      if (lockedJoint->numberDof () == 0) return;
-      // If the same dof is already locked, replace by new value
-      for (LockedJoints_t::iterator itLock = lockedJoints_.begin ();
-	   itLock != lockedJoints_.end (); ++itLock) {
-	if (lockedJoint->rankInVelocity () == (*itLock)->rankInVelocity ()) {
-          if (!solver_->explicitConstraintSet().replace
-              ((*itLock)->explicitFunction(), lockedJoint->explicitFunction()))
-            {
-              throw std::runtime_error
-                ("Could not replace lockedJoint function " +
-                 lockedJoint->jointName ());
-            }
-	  *itLock = lockedJoint;
-	  return;
-	}
-      }
-
-      constraints::ComparisonTypes_t types = lockedJoint->comparisonType();
-
-      bool added = solver_->explicitConstraintSet().add
-        (lockedJoint->explicitFunction(),
-          Eigen::RowBlockIndices(lockedJoint->inputConf()),
-          Eigen::RowBlockIndices(lockedJoint->outputConf()),
-          Eigen::ColBlockIndices(lockedJoint->inputVelocity()),
-          Eigen::RowBlockIndices(lockedJoint->outputVelocity()),
-          types) >= 0;
-
-      if (!added) {
-        throw std::runtime_error("Could not add lockedJoint function " +
-                                 lockedJoint->jointName ());
-      }
-      if (added) {
-        solver_->explicitConstraintSet().rightHandSide (
-            lockedJoint->explicitFunction(),
-            lockedJoint->rightHandSide());
-      }
-      solver_->explicitConstraintSetHasChanged();
-
-      lockedJoints_.push_back (lockedJoint);
-      hppDout (info, "add locked joint " << lockedJoint->jointName ()
-	       << " rank in velocity: " << lockedJoint->rankInVelocity ()
-	       << ", size: " << lockedJoint->numberDof ());
-      hppDout (info, "Intervals: "
-               << solver_->explicitConstraintSet().outDers());
-      hppDout (info, "Constraints " << name() << " has dimension " << solver_->dimension());
+      return solver_->add (lockedJoint);
     }
 
     void ConfigProjector::addToConstraintSet
