@@ -197,14 +197,14 @@ namespace hpp {
     void ConfigProjector::uncompressVector (vectorIn_t small,
 					    vectorOut_t normal) const
     {
-      solver_->explicitConstraintSet().freeDers().transpose().lview(normal) =
-        small;
+      solver_->explicitConstraintSet ().notOutDers ().transpose ().lview
+        (normal) = small;
     }
 
     void ConfigProjector::compressVector (vectorIn_t normal,
 					  vectorOut_t small) const
     {
-      small = solver_->explicitConstraintSet().freeDers().transpose().rview
+      small = solver_->explicitConstraintSet ().notOutDers ().transpose ().rview
         (normal);
     }
 
@@ -214,10 +214,10 @@ namespace hpp {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixIn_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
         const Eigen::ColBlockIndices& cols =
-          solver_->explicitConstraintSet().freeDers();
+          solver_->explicitConstraintSet().notOutDers();
         small = View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices());
       } else {
-        small = solver_->explicitConstraintSet().freeDers().rview(normal);
+        small = solver_->explicitConstraintSet().notOutDers().rview(normal);
       }
     }
 
@@ -227,10 +227,10 @@ namespace hpp {
       if (rows) {
         typedef Eigen::MatrixBlockView<matrixOut_t, Eigen::Dynamic, Eigen::Dynamic, false, false> View;
         const Eigen::ColBlockIndices& cols =
-          solver_->explicitConstraintSet().freeDers();
+          solver_->explicitConstraintSet().notOutDers();
         View (normal, cols.nbIndices(), cols.indices(), cols.nbIndices(), cols.indices()) = small;
       } else {
-        solver_->explicitConstraintSet().freeDers().lview(normal) = small;
+        solver_->explicitConstraintSet().notOutDers().lview(normal) = small;
       }
     }
 
@@ -471,7 +471,7 @@ namespace hpp {
 
     size_type ConfigProjector::numberNonLockedDof () const
     {
-      return solver_->explicitConstraintSet().freeDers().nbIndices();
+      return solver_->explicitConstraintSet().notOutDers().nbIndices();
     }
 
     size_type ConfigProjector::dimension () const
