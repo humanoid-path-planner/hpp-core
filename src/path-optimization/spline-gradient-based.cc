@@ -126,13 +126,13 @@ namespace hpp {
 
           // Apply chain rule if necessary
           if (sod.es) {
-            Js.resize(sod.es->derSize(), sod.es->derSize());
+            Js.resize(sod.es->nv (), sod.es->nv ());
             sod.es->jacobian(Js, q);
 
             sod.es->inDers().lview(J) =
               sod.es->inDers().lview(J).eval() +
               sod.es->outDers().transpose().rview(J).eval()
-              * sod.es->viewJacobian(Js).eval(); 
+              * sod.es->jacobianNotOutToOut (Js).eval ();
             sod.es->outDers().transpose().lview(J).setZero();
           }
 

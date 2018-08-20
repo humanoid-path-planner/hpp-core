@@ -23,7 +23,7 @@
 
 # include <hpp/statistics/success-bin.hh>
 
-# include <hpp/constraints/fwd.hh>
+# include <hpp/constraints/solver/by-substitution.hh>
 
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
@@ -302,13 +302,13 @@ namespace hpp {
 
       /// Get the numerical constraints of the config-projector (and so of the
       /// Constraint Set)
-      NumericalConstraints_t numericalConstraints () const
+      const NumericalConstraints_t& numericalConstraints () const
       {
-	return functions_;
+	return solver_->numericalConstraints ();
       }
 
       LockedJoints_t lockedJoints () const {
-        return lockedJoints_;
+        return solver_->lockedJoints ();
       }
 
       const BySubstitution& solver () const
@@ -344,11 +344,6 @@ namespace hpp {
       virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
 
       DevicePtr_t robot_;
-      NumericalConstraints_t functions_;
-      LockedJoints_t lockedJoints_;
-      mutable vector_t toMinusFrom_;
-      mutable vector_t projMinusFrom_;
-
       static LineSearchType defaultLineSearch_;
       LineSearchType lineSearchType_;
       BySubstitution* solver_;
