@@ -81,7 +81,7 @@ namespace hpp{
       {
         KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
-        ptr->initCopy (shPtr);
+        ptr->init (shPtr);
         ptr->checkPath ();
         return shPtr;
       }
@@ -90,7 +90,7 @@ namespace hpp{
       {
         KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
-        ptr->initCopy (shPtr);
+        ptr->init (shPtr);
         ptr->checkPath ();
         return shPtr;
       }
@@ -103,7 +103,7 @@ namespace hpp{
       {
         KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path, constraints);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
-        ptr->initCopy (shPtr);
+        ptr->init (shPtr);
         ptr->checkPath ();
         return shPtr;
       }
@@ -134,8 +134,8 @@ namespace hpp{
         os << "KinodynamicOrientedPath:" << std::endl;
         os << "interval: [ " << timeRange ().first << ", "
            << timeRange ().second << " ]" << std::endl;
-        os << "initial configuration: " << model::displayConfig(initial_ )<< std::endl;
-        os << "final configuration:   " << model::displayConfig(end_) << std::endl;
+        os << "initial configuration: " << pinocchio::displayConfig(initial_ )<< std::endl;
+        os << "final configuration:   " << pinocchio::displayConfig(end_) << std::endl;
         return os;
       }
       /// Constructor
@@ -163,12 +163,6 @@ namespace hpp{
         parent_t::init (self);
         weak_ = self;
         checkPath ();
-      }
-
-      void initCopy (KinodynamicOrientedPathPtr_t self)
-      {
-        parent_t::initCopy (self);
-        weak_ = self;
       }
 
       virtual bool impl_compute (ConfigurationOut_t result,

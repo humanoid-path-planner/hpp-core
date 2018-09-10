@@ -659,6 +659,7 @@ namespace hpp {
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
       /// Store latest instance created by static method create
       static ProblemSolverPtr_t latest_;
+      double timeOutPathPlanning_;
 
       void initProblem ();
     }; // class ProblemSolver

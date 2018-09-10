@@ -104,6 +104,8 @@ namespace hpp {
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef boost::shared_ptr <CollisionValidationReport>
     CollisionValidationReportPtr_t;
+    typedef boost::shared_ptr <AllCollisionsValidationReport>
+    AllCollisionsValidationReportPtr_t;
     typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef pinocchio::CollisionObjectConstPtr_t CollisionObjectConstPtr_t;
     typedef pinocchio::FclCollisionObject FclCollisionObject;

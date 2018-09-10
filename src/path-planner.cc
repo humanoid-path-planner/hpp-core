@@ -107,7 +107,6 @@ namespace hpp {
       throw std::runtime_error (oss.str ().c_str ());
     }
     hppStartBenchmark(ONE_STEP);
-        problem_.target ()->oneStep ();
 	oneStep ();
     hppStopBenchmark(ONE_STEP);
     hppDisplayBenchmark(ONE_STEP);

@@ -16,6 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/kinodynamic-oriented-path.hh>
+#include <hpp/pinocchio/device.hh>
 
 namespace hpp {
   namespace core {

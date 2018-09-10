@@ -21,7 +21,7 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/straight-path.hh>
-# include <hpp/model/configuration.hh>
+# include <hpp/pinocchio/configuration.hh>
 
 namespace hpp {
   namespace core {
@@ -144,8 +144,8 @@ namespace hpp {
         os << "KinodynamicPath:" << std::endl;
         os << "interval: [ " << timeRange ().first << ", "
            << timeRange ().second << " ]" << std::endl;
-        os << "initial configuration: " << model::displayConfig(initial_ )<< std::endl;
-        os << "final configuration:   " << model::displayConfig(end_) << std::endl;
+        os << "initial configuration: " << pinocchio::displayConfig(initial_ )<< std::endl;
+        os << "final configuration:   " << pinocchio::displayConfig(end_) << std::endl;
         return os;
       }
       /// Constructor

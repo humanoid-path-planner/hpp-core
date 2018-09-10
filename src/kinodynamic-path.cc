@@ -16,7 +16,9 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/kinodynamic-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -34,13 +36,13 @@ namespace hpp {
       assert (length >= 0);
       assert (!constraints ());
       hppDout(notice,"Create kinodynamic path with values : ");
-      hppDout(notice,"a1 = "<<model::displayConfig(a1_));
-      hppDout(notice,"t0 = "<<model::displayConfig(t0_));
-      hppDout(notice,"t1 = "<<model::displayConfig(t1_));
-      hppDout(notice,"tv = "<<model::displayConfig(tv_));
-      hppDout(notice,"t2 = "<<model::displayConfig(t2_));
+      hppDout(notice,"a1 = "<<pinocchio::displayConfig(a1_));
+      hppDout(notice,"t0 = "<<pinocchio::displayConfig(t0_));
+      hppDout(notice,"t1 = "<<pinocchio::displayConfig(t1_));
+      hppDout(notice,"tv = "<<pinocchio::displayConfig(tv_));
+      hppDout(notice,"t2 = "<<pinocchio::displayConfig(t2_));
       hppDout(notice,"length = "<<length);
-      hppDout(notice,"vLim = "<<model::displayConfig(vLim_));
+      hppDout(notice,"vLim = "<<pinocchio::displayConfig(vLim_));
       
       // for now, this class only deal with the translation part of a freeflyer :
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
@@ -62,13 +64,13 @@ namespace hpp {
       assert (device);
       assert (length >= 0);
       hppDout(notice,"Create kinodynamic path with constraints, with values : ");
-      hppDout(notice,"a1 = "<<model::displayConfig(a1_));
-      hppDout(notice,"t0 = "<<model::displayConfig(t0_));
-      hppDout(notice,"t1 = "<<model::displayConfig(t1_));
-      hppDout(notice,"tv = "<<model::displayConfig(tv_));
-      hppDout(notice,"t2 = "<<model::displayConfig(t2_));
+      hppDout(notice,"a1 = "<<pinocchio::displayConfig(a1_));
+      hppDout(notice,"t0 = "<<pinocchio::displayConfig(t0_));
+      hppDout(notice,"t1 = "<<pinocchio::displayConfig(t1_));
+      hppDout(notice,"tv = "<<pinocchio::displayConfig(tv_));
+      hppDout(notice,"t2 = "<<pinocchio::displayConfig(t2_));
       hppDout(notice,"length = "<<length);
-      hppDout(notice,"vLim = "<<model::displayConfig(vLim_));
+      hppDout(notice,"vLim = "<<pinocchio::displayConfig(vLim_));
 
       // for now, this class only deal with the translation part of a freeflyer :
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
@@ -119,8 +121,8 @@ namespace hpp {
       if (timeRange ().second == 0)
         u = 0;
 
-      model::interpolate (device_, initial_, end_, u, result);
-      //hppDout(notice,"path : initial = "<<model::displayConfig(initial_));
+      pinocchio::interpolate (device_,initial_, end_, u, result);
+      //hppDout(notice,"path : initial = "<<pinocchio::displayConfig(initial_));
 
       for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
       //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
@@ -190,7 +192,7 @@ namespace hpp {
       assert(subInterval.first >=0 && subInterval.second >=0 && "Negative time values in extract path");
       assert(subInterval.first >=timeRange_.first && subInterval.second <= timeRange_.second && "Given interval not inside path interval");
       // Length is assumed to be proportional to interval range
-      if(subInterval.first == timeRange_.first && subInterval.second == timeRange_.second){
+      if(subInterval.first == timeRange().first && subInterval.second == timeRange().second){
         hppDout(notice,"Call extract with same interval");
         return weak_.lock();
       }
@@ -220,11 +222,11 @@ namespace hpp {
       q2[configSize+4] = 0.0;
       q2[configSize+5] = 0.0;
       hppDout(info,"from : ");
-      hppDout(info,"q1 = "<<model::displayConfig(initial_));
-      hppDout(info,"q2 = "<<model::displayConfig(end_));
+      hppDout(info,"q1 = "<<pinocchio::displayConfig(initial_));
+      hppDout(info,"q2 = "<<pinocchio::displayConfig(end_));
       hppDout(info,"to : ");
-      hppDout(info,"q1 = "<<model::displayConfig(q1));
-      hppDout(info,"q2 = "<<model::displayConfig(q2));
+      hppDout(info,"q1 = "<<pinocchio::displayConfig(q1));
+      hppDout(info,"q2 = "<<pinocchio::displayConfig(q2));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");
 
@@ -246,8 +248,8 @@ namespace hpp {
 
 
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
-        ti = subInterval.first - timeRange_.first;
-        tf = timeRange_.second - subInterval.second;
+        ti = subInterval.first - timeRange().first;
+        tf = timeRange().second - timeRange().second;
         t0[i] = t0_[i] - ti;
         if(t0[i] <= 0){
           t0[i] = 0;

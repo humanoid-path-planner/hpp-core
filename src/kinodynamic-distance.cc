@@ -19,13 +19,11 @@
 #include <hpp/core/kinodynamic-distance.hh>
 #include <limits>
 #include <hpp/util/debug.hh>
-#include <hpp/model/body.hh>
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/model/joint-configuration.hh>
-#include <hpp/model/children-iterator.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <Eigen/SVD>
 
 namespace hpp {
@@ -182,8 +180,8 @@ value_type KinodynamicDistance::impl_distance (ConfigurationIn_t q1,
     size_type configSize = robot_->configSize() - robot_->extraConfigSpace().dimension ();
     // looking for Tmax
     //hppDout(notice,"KinodynamicDistance :  Looking for Tmax :");
-   // hppDout(info,"Distance between : "<<model::displayConfig(q1));
-    //hppDout(info,"and              : "<<model::displayConfig(q2));
+   // hppDout(info,"Distance between : "<<pinocchio::displayConfig(q1));
+    //hppDout(info,"and              : "<<pinocchio::displayConfig(q2));
 
     for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){// FIX ME : only work with freeflyer
         //hppDout(notice,"For joint :"<<robot_->getJointAtConfigRank(indexConfig)->name());

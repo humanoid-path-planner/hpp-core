@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_TORQUE_BOUND_VALIDATION_HH
 # define HPP_CORE_TORQUE_BOUND_VALIDATION_HH
 
-# include <hpp/model/joint.hh>
+# include <hpp/pinocchio/joint.hh>
 # include <hpp/core/config-validation.hh>
 
 namespace hpp {

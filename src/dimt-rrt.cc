@@ -18,8 +18,8 @@
 
 #include <boost/tuple/tuple.hpp>
 #include <hpp/util/debug.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/device.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/dimt-rrt.hh>
 #include <hpp/core/node.hh>
@@ -34,7 +34,7 @@
 
 namespace hpp {
 namespace core {
-using model::displayConfig;
+using pinocchio::displayConfig;
 
 DimtRRTPtr_t DimtRRT::createWithRoadmap
 (const Problem& problem, const RoadmapPtr_t& roadmap)

@@ -16,9 +16,9 @@
 
 # include <hpp/core/steering-method/steering-kinodynamic.hh>
 
-# include <hpp/model/device.hh>
-# include <hpp/model/joint.hh>
-# include <hpp/model/configuration.hh>
+# include <hpp/pinocchio/body.hh>
+# include <hpp/pinocchio/joint.hh>
+# include <hpp/pinocchio/configuration.hh>
 # include <hpp/core/problem.hh>
 # include <hpp/core/weighed-distance.hh>
 # include <hpp/core/kinodynamic-path.hh>
@@ -59,21 +59,21 @@ namespace hpp {
         double Tmax = 0;
         double T = 0;
         double t0,t1,tv,t2,a1,vLim;
-        model::vector3_t dir(q2[0] - q1[0] ,q2[1] - q1[1] ,q2[2] - q1[2] );
+        pinocchio::vector3_t dir(q2[0] - q1[0] ,q2[1] - q1[1] ,q2[2] - q1[2] );
         hppDout(notice,"direction = "<<dir);
         interval_t infeasibleInterval;
         std::vector<interval_t> infIntervalsVector;
-        size_type configSize = problem_->robot()->configSize() - problem_->robot()->extraConfigSpace().dimension ();
+        size_type configSize = problem_.robot()->configSize() - problem_.robot()->extraConfigSpace().dimension ();
         // looking for Tmax
         hppDout(notice,"## Looking for Tmax :");
-        hppDout(info,"between : "<<model::displayConfig(q1));
-        hppDout(info,"and     : "<<model::displayConfig(q2));
+        hppDout(info,"between : "<<pinocchio::displayConfig(q1));
+        hppDout(info,"and     : "<<pinocchio::displayConfig(q2));
 
         // for all joints
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){ // FIX ME : only work for freeflyer
           size_type indexVel = indexConfig + configSize;
-          hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
-          if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
+          hppDout(notice,"For joint :"<<problem_.robot()->getJointAtConfigRank(indexConfig)->name());
+          if(problem_.robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             T = computeMinTime(indexConfig,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&infeasibleInterval);
             infIntervalsVector.push_back(infeasibleInterval);
             if(T > Tmax)
@@ -120,7 +120,7 @@ namespace hpp {
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
           hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
-          if(problem_->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){          
+          if(problem_.robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t0,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
             t0_t[indexConfig]=t0;
@@ -152,33 +152,33 @@ namespace hpp {
       
       
       
-      Kinodynamic::Kinodynamic (const ProblemPtr_t& problem) :
-        SteeringMethod (problem), aMax_(Vector3::Ones(3)),vMax_(Vector3::Ones(3)), device_ (problem->robot ()), weak_ ()
+      Kinodynamic::Kinodynamic (const Problem& problem) :
+        SteeringMethod (problem), aMax_(Vector3::Ones(3)),vMax_(Vector3::Ones(3)), device_ (problem.robot ()), weak_ ()
       {
-        if(((problem->robot()->extraConfigSpace().dimension())) < 6){
+        if(((problem.robot()->extraConfigSpace().dimension())) < 6){
           std::cout<<"Error : you need at least "<<6<<" extra DOF"<<std::endl;
           hppDout(error,"Error : you need at least "<<6<<" extra DOF");
         }
 
         // get velocity and acceleration bounds from problem :
         try {
-          boost::any value = problem_->get<boost::any> (std::string("aMax"));
-          aMaxFixed_ = boost::any_cast<double>(value);
+          //boost::any value = problem_->get<boost::any> (std::string("aMax"));
+
+          aMaxFixed_ = problem_.getParameter(std::string("aMax")).floatValue();//, 5);
+          //aMaxFixed_ = boost::any_cast<double>(value);
         } catch (const std::exception& e) {
           std::cout<<"Warning : no acceleration bounds set, use 10.0 as default"<<std::endl;
           aMaxFixed_ = 10.;
         }
         aMax_=Vector3::Ones(3)*aMaxFixed_;
         try {
-          boost::any value = problem_->get<boost::any> (std::string("aMaxZ"));
-          aMaxFixed_Z_ = boost::any_cast<double>(value);
+          aMaxFixed_Z_ = problem_.getParameter(std::string("aMaxZ")).floatValue();
           aMax_[2] = aMaxFixed_Z_;
         } catch (const std::exception& e) {
           aMaxFixed_Z_ = 10.;
         }
         try {
-          boost::any value = problem_->get<boost::any> (std::string("vMax"));
-          vMax_ *= boost::any_cast<double>(value);
+          vMax_ *= aMaxFixed_Z_ = problem_.getParameter(std::string("vMax")).floatValue();
         } catch (const std::exception& e) {
           std::cout<<"Warning : no velocity bounds set, use 1.0 as default"<<std::endl;
         }
@@ -186,16 +186,14 @@ namespace hpp {
         hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_);
 
         try {
-          boost::any value = problem_->get<boost::any> (std::string("tryJump"));
-          tryJump_ = (bool)boost::any_cast<double>(value);
+          tryJump_ = problem_.getParameter(std::string("tryJump")).boolValue();
         } catch (const std::exception& e) {
           hppDout(notice,"try jump not set, use false as default");
           tryJump_=false;
         }
         hppDout(notice,"tryJump in steering method = "<<tryJump_);
         try {
-          boost::any value = problem_->get<boost::any> (std::string("orientedPath"));
-          orientedPath_ = (bool)boost::any_cast<double>(value);
+          orientedPath_  = problem_.getParameter(std::string("orientedPath")).boolValue();
         } catch (const std::exception& e) {
           hppDout(notice,"orientedPath not set, use false as default");
           orientedPath_ = false;
