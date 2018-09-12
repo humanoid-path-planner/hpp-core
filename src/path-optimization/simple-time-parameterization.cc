@@ -141,7 +141,7 @@ namespace hpp {
         const value_type safety = problem().getParameter("SimpleTimeParameterization/safety").floatValue();
         const size_type order = problem().getParameter("SimpleTimeParameterization/order").intValue();
         const value_type maxAcc = problem().getParameter("SimpleTimeParameterization/maxAcceleration").floatValue();
-        if (order <= 1 && maxAcc) {
+        if (order <= 1 && maxAcc > 0) {
           throw std::invalid_argument ("Maximum acceleration cannot be set when order is <= to 1. Please set parameter SimpleTimeParameterization/maxAcceleration to a negative value.");
         }
 
