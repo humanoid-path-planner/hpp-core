@@ -50,7 +50,6 @@ namespace hpp {
      \b right hand side\b.
 
      The constraints are solved numerically by a Newton Raphson like method.
-     Instances store locked degrees of freedom for performance optimisation.
 
      Numerical constraints can be added using method
      ConfigProjector::add. Default parameter of this method define
@@ -120,10 +119,6 @@ namespace hpp {
       bool optimize (ConfigurationOut_t config,
           std::size_t maxIter = 0);
 
-      /// Add a locked joint.
-      /// \param lockedJoint The locked joint.
-      void add (const LockedJointPtr_t& lockedJoint);
-
       /// Get robot
       const DevicePtr_t& robot () const
       {
@@ -161,8 +156,8 @@ namespace hpp {
       ///         vector,
       /// \retval reducedJacobian Reduced Jacobian of the differentiable
       ///         functions stacked in a matrix. Reduced Jacobian is defined
-      ///         as the Jacobian to which columns corresponding to locked
-      ///         joints have been removed and to which columns corresponding
+      ///         as the Jacobian to which columns corresponding to explicit
+      ///         constraints have been removed and to which columns corresponding
       ///         to passive dofs are set to 0.
       void computeValueAndJacobian (ConfigurationIn_t configuration,
 				    vectorOut_t value,
@@ -183,12 +178,12 @@ namespace hpp {
       /// \{
 
       /// Get number of non-locked degrees of freedom
-      size_type numberNonLockedDof () const;
+      size_type numberNonLockedDof () const HPP_CORE_DEPRECATED;
 
       /// Get constraint dimension
       size_type dimension () const;
 
-      /// Compress Velocity vector by removing locked degrees of freedom
+      /// Compress Velocity vector by removing output of explicit constraints
       ///
       /// \param normal input velocity vector
       /// \retval small compressed velocity vectors
@@ -196,11 +191,9 @@ namespace hpp {
 
       /// Expand compressed velocity vector
       ///
-      /// \param small compressed velocity vector without locked degrees of
-      ///              freedom,
+      /// \param small compressed velocity vector without output of explicit
+      ///              constraints
       /// \retval normal uncompressed velocity vector.
-      /// \note locked degree of freedom are not set. They should be initialized
-      ///       to zero.
       void uncompressVector (vectorIn_t small, vectorOut_t normal) const;
 
       /// Compress matrix
@@ -260,10 +253,6 @@ namespace hpp {
       void rightHandSideFromConfig (const constraints::ImplicitPtr_t& nm,
                                     ConfigurationIn_t config);
 
-      /// Same as rightHandSideFromConfig(ConfigurationIn_t) but only for
-      /// the specified LockedJoint
-      void rightHandSideFromConfig (const LockedJointPtr_t& nm, ConfigurationIn_t config);
-
       /// Set the level set parameter.
       /// \param param the level set parameter.
       void rightHandSide (const vector_t& param);
@@ -271,10 +260,6 @@ namespace hpp {
       /// Same as rightHandSide(vectorIn_t) but only for
       /// the specified constraints::Implicit
       void rightHandSide (const constraints::ImplicitPtr_t& nm, vectorIn_t rhs);
-
-      /// Same as rightHandSide(vectorIn_t) but only for
-      /// the specified LockedJoint
-      void rightHandSide (const LockedJointPtr_t& nm, vectorIn_t rhs);
 
       /// Get the level set parameter.
       /// \return the parameter.
@@ -288,10 +273,8 @@ namespace hpp {
       /// Check whether a configuration statisfies the constraint.
       ///
       /// \param config the configuration to check
-      /// \retval error concatenation of
-      ///         \li difference between value of numerical constraints and
-      ///             right hand side, and
-      ///         \li difference between locked joint value and right and side.
+      /// \retval error concatenation of differences between value of numerical constraints and
+      ///         right hand side.
       virtual bool isSatisfied (ConfigurationIn_t config, vector_t& error);
 
       /// Get the statistics
@@ -305,10 +288,6 @@ namespace hpp {
       const NumericalConstraints_t& numericalConstraints () const
       {
 	return solver_->numericalConstraints ();
-      }
-
-      LockedJoints_t lockedJoints () const {
-        return solver_->lockedJoints ();
       }
 
       const BySubstitution& solver () const

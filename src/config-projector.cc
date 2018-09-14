@@ -305,11 +305,6 @@ namespace hpp {
       solver_->projectOnKernel (from, to, result);
     }
 
-    void ConfigProjector::add (const LockedJointPtr_t& lockedJoint)
-    {
-      return solver_->add (lockedJoint);
-    }
-
     void ConfigProjector::addToConstraintSet
     (const ConstraintSetPtr_t& constraintSet)
     {
@@ -348,30 +343,16 @@ namespace hpp {
 
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
-      return solver_->rightHandSideFromInput (config);
+      return solver_->rightHandSideFromConfig (config);
     }
 
     void ConfigProjector::rightHandSideFromConfig (
         const constraints::ImplicitPtr_t& nm,
         ConfigurationIn_t config)
     {
-      constraints::ExplicitPtr_t enm =
-        HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nm);
-      DifferentiableFunctionPtr_t fImplicit = nm->functionPtr(), fExplicit;
-      if (enm) fExplicit = enm->explicitFunction();
-
-      if (!solver_->rightHandSideFromInput (
-            fImplicit, fExplicit, config)) {
+      if (!solver_->rightHandSideFromConfig (nm, config)) {
         throw std::runtime_error ("Function was not found in the solver.");
       }
-    }
-
-    void ConfigProjector::rightHandSideFromConfig (
-        const LockedJointPtr_t& lj,
-        ConfigurationIn_t config)
-    {
-      solver_->explicitConstraintSet().rightHandSideFromInput
-        (lj->explicitFunction(), config);
     }
 
     void ConfigProjector::rightHandSide (const vector_t& small)
@@ -383,22 +364,9 @@ namespace hpp {
         const constraints::ImplicitPtr_t& nm,
         vectorIn_t rhs)
     {
-      constraints::ExplicitPtr_t enm =
-        HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nm);
-      DifferentiableFunctionPtr_t fImplicit = nm->functionPtr(), fExplicit;
-      if (enm) fExplicit = enm->explicitFunction();
-
-      if (!solver_->rightHandSide (fImplicit, fExplicit, rhs)) {
+      if (!solver_->rightHandSide (nm, rhs)) {
         throw std::runtime_error ("Function was not found in the solver. This is probably because it is an explicit function and rhs is not supported for this type of function.");
       }
-    }
-
-    void ConfigProjector::rightHandSide (
-        const LockedJointPtr_t& lj,
-        vectorIn_t rhs)
-    {
-      solver_->explicitConstraintSet().rightHandSide (lj->explicitFunction(),
-                                                      rhs);
     }
 
     vector_t ConfigProjector::rightHandSide () const
