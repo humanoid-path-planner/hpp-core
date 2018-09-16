@@ -42,7 +42,6 @@ distance-between-objects.cc
   dubins.hh
   dubins.cc
   dubins-path.cc
-explicit-relative-transformation.cc
 extracted-path.hh
 interpolated-path.cc
 joint-bound-validation.cc

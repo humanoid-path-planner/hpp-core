@@ -32,7 +32,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
-#include <hpp/core/explicit-relative-transformation.hh>
+#include <hpp/constraints/explicit/relative-pose.hh>
 #include <pinocchio/multibody/joint/joint-variant.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 
@@ -42,6 +42,7 @@ using hpp::pinocchio::JointPtr_t;
 
 using hpp::constraints::RelativeTransformation;
 using hpp::constraints::Implicit;
+using hpp::constraints::explicit_::RelativePose;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
@@ -205,7 +206,7 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   proj = ConfigProjector::create (dev, "test", 1e-3, 10);
   constraints = ConstraintSet::create (dev, "test");
   constraints->addConstraint(proj);
-  proj->add (ExplicitRelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2)->createNumericalConstraint());
+  proj->add (RelativePose::create ("", dev, ja1, jb2, tf1, tf2));
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
   BOOST_CHECK_EQUAL (m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Constrained);   // lock ert

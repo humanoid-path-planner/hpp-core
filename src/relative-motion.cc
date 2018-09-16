@@ -15,7 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/relative-motion.hh>
-#include <hpp/core/explicit-relative-transformation.hh>
+#include <hpp/constraints/explicit/relative-pose.hh>
 
 #include <pinocchio/multibody/model.hpp>
 
@@ -23,13 +23,15 @@
 #include <hpp/pinocchio/joint.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
+#include <hpp/constraints/implicit/relative-pose.hh>
+#include <hpp/constraints/explicit/relative-transformation.hh>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/locked-joint.hh>
 
-#include <hpp/constraints/explicit/function.hh>
+#include <hpp/constraints/explicit/implicit-function.hh>
 
 namespace hpp {
   namespace core {
