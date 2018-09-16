@@ -188,8 +188,9 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   dev->computeForwardKinematics ();
   Transform3f tf1 (ja1->currentTransformation ());
   Transform3f tf2 (jb2->currentTransformation ());
-  proj->add (Implicit::create (
-        RelativeTransformation::create ("", dev, ja1, jb2, tf1, tf2)));
+  proj->add (Implicit::create
+             (RelativeTransformation::create ("joint_a1 <->joint_b2", dev, ja1,
+                                              jb2, tf1, tf2)));
 
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
@@ -206,10 +207,11 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   proj = ConfigProjector::create (dev, "test", 1e-3, 10);
   constraints = ConstraintSet::create (dev, "test");
   constraints->addConstraint(proj);
-  proj->add (RelativePose::create ("", dev, ja1, jb2, tf1, tf2));
+  proj->add (RelativePose::create
+             ("explicit joint_a1 <-> joint_b2", dev, ja1, jb2, tf1, tf2));
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
-  BOOST_CHECK_EQUAL (m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Constrained);   // lock ert
+  BOOST_CHECK_EQUAL (m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Parameterized);   // lock ert
 
   if (verbose) std::cout << '\n' << m << std::endl;
 }

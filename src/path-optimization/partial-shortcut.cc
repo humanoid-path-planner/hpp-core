@@ -149,18 +149,21 @@ namespace hpp {
         JointStdVector_t jv;
         ConfigProjectorPtr_t proj =
           pv->pathAtRank (0)->constraints ()->configProjector ();
-        LockedJoints_t lj;
-        if (proj) lj = proj->lockedJoints ();
+        NumericalConstraints_t constraints;
+        if (proj)
+          constraints = proj->numericalConstraints ();
 
         for (JointVector_t::const_iterator it = rjv.begin ();
-            it != rjv.end (); ++it) {
+             it != rjv.end (); ++it) {
           if ((*it)->numberDof () > 0) {
             bool lock = false;
             if (parameters.removeLockedJoints && proj) {
               const size_type rkCfg = (*it)->rankInConfiguration ();
-              for (LockedJoints_t::const_iterator itLJ = lj.begin ();
-                  itLJ != lj.end (); ++itLJ) {
-                if ((*itLJ)->rankInConfiguration () == rkCfg) {
+              for (NumericalConstraints_t::const_iterator it
+                     (constraints.begin ()); it != constraints.end (); ++it) {
+                LockedJointPtr_t lj (HPP_DYNAMIC_PTR_CAST (LockedJoint,
+                                                           *it));
+                if (lj && lj->rankInConfiguration () == rkCfg) {
                   lock = true;
                   break;
                 }
