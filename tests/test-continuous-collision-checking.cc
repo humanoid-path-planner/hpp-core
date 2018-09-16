@@ -21,7 +21,7 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/urdf/util.hh>
 
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
@@ -40,7 +40,7 @@ using hpp::pinocchio::urdf::loadRobotModel;
 using hpp::core::matrix_t;
 using hpp::core::vector_t;
 using hpp::core::size_type;
-using hpp::core::BasicConfigurationShooter;
+using hpp::core::configurationShooter::Uniform;
 using hpp::core::CollisionValidation;
 using hpp::core::Configuration_t;
 using hpp::core::ConfigurationShooterPtr_t;
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_SUITE (test_hpp_core)
 matrix_t generateRandomConfig (const DevicePtr_t& robot, size_type n)
 {
   // Create configuration shooter
-  ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
+  ConfigurationShooterPtr_t shooter (Uniform::create (robot));
   matrix_t m (n, robot->configSize ());
   for (size_type i=0; i<n; ++i) {
     m.row (i) = *(shooter->shoot ());
@@ -76,7 +76,7 @@ matrix_t generateRandomConfig (const DevicePtr_t& robot, size_type n)
 matrix_t generateRandomVelocities (const DevicePtr_t& robot, size_type n)
 {
   // Create configuration shooter
-  ConfigurationShooterPtr_t shooter (BasicConfigurationShooter::create (robot));
+  ConfigurationShooterPtr_t shooter (Uniform::create (robot));
   matrix_t m (n, robot->numberDof ());
   for (size_type i=0; i<n; ++i) {
     m.row (i) = vector_t::Random (robot->numberDof());
