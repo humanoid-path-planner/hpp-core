@@ -177,7 +177,11 @@ namespace hpp {
       /// columns corresponding to locked degrees of freedom.
       /// \{
 
+      /// Return the number of free variables
+      size_type numberFreeVariables () const;
+
       /// Get number of non-locked degrees of freedom
+      /// \deprecated Call numberFreeVariables instead
       size_type numberNonLockedDof () const HPP_CORE_DEPRECATED;
 
       /// Get constraint dimension

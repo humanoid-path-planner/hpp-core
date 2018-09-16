@@ -437,9 +437,14 @@ namespace hpp {
       return solver_->lastIsOptional();
     }
 
+    size_type ConfigProjector::numberFreeVariables () const
+    {
+      return solver_->numberFreeVariables ();
+    }
+
     size_type ConfigProjector::numberNonLockedDof () const
     {
-      return solver_->explicitConstraintSet().notOutDers().nbIndices();
+      return numberFreeVariables ();
     }
 
     size_type ConfigProjector::dimension () const

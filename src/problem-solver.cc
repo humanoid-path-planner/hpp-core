@@ -612,7 +612,7 @@ namespace hpp {
       // resize value and Jacobian
       value.resize (configProjector->solver().dimension());
       size_type rows = configProjector->solver().reducedDimension();
-      jacobian.resize (rows, configProjector->numberNonLockedDof ());
+      jacobian.resize (rows, configProjector->numberFreeVariables ());
       configProjector->computeValueAndJacobian (configuration, value, jacobian);
     }
 
