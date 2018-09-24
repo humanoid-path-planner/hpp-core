@@ -27,6 +27,8 @@ namespace hpp {
 					 value_type& localParam) const
     {
       assert(!timeParameterization());
+      if (paths_.empty())
+        throw std::runtime_error ("PathVector is empty.");
       std::size_t res = 0;
       localParam = param;
       bool finished = false;
