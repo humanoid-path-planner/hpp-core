@@ -46,7 +46,7 @@ namespace hpp {
     void Problem::declareParameter (const ParameterDescription& desc)
     {
       typedef Container<ParameterDescription> CPD_t;
-      std::pair<CPD_t::iterator, bool> ret = 
+      std::pair<CPD_t::iterator, bool> ret =
         pds().map.insert( CPD_t::value_type (desc.name(), desc));
       if (!ret.second)
         ret.first->second = desc;
@@ -85,6 +85,15 @@ namespace hpp {
     }
 
     // ======================================================================
+
+    Problem::Problem () :
+      robot_ (), distance_ (), initConf_ (), goalConfigurations_ (), target_ (),
+      steeringMethod_ (), configValidations_ (), pathValidation_ (),
+      collisionObstacles_ (), constraints_ (), configurationShooter_()
+    {
+      assert (false && "This constructor should not be used.");
+    }
+
 
     Problem::~Problem ()
     {
