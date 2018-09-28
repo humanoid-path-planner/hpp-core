@@ -108,7 +108,7 @@ namespace hpp {
     size_type ConstraintSet::numberNonLockedDof () const
     {
       return HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)
-        ->numberNonLockedDof ();
+        ->numberFreeVariables ();
     }
 
     void ConstraintSet::compressVector (vectorIn_t normal,

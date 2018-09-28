@@ -209,23 +209,10 @@ namespace hpp {
 
     constraints::ExplicitPtr_t ExplicitRelativeTransformation::createNumericalConstraint ()
     {
-      if (g_)
-        return constraints::Explicit::create (
-            robot_->configSpace (),
-            weak_.lock(),
-            g_, ginv_,
-            inConf_.indices(),
-            inVel_.indices(),
-            outConf_.indices(),
-            outVel_.indices());
-      else
-        return constraints::Explicit::create (
-            robot_->configSpace (),
-            weak_.lock(),
-            inConf_.indices(),
-            inVel_.indices(),
-            outConf_.indices(),
-            outVel_.indices());
+      return constraints::Explicit::create (robot_->configSpace (),
+                                            weak_.lock(), inConf_.indices(),
+                                            inVel_.indices(), outConf_.indices(),
+                                            outVel_.indices());
     }
   } // namespace core
 } // namespace hpp

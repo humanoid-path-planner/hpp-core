@@ -52,7 +52,6 @@
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
-#include <hpp/core/path-optimization/gradient-based.hh>
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
@@ -205,7 +204,6 @@ namespace hpp {
 
       // Store path optimization methods in map.
       pathOptimizers.add ("RandomShortcut",     RandomShortcut::create);
-      pathOptimizers.add ("GradientBased",      pathOptimization::GradientBased::create);
       pathOptimizers.add ("PartialShortcut",    pathOptimization::PartialShortcut::create);
       pathOptimizers.add ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
       pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
@@ -614,7 +612,7 @@ namespace hpp {
       // resize value and Jacobian
       value.resize (configProjector->solver().dimension());
       size_type rows = configProjector->solver().reducedDimension();
-      jacobian.resize (rows, configProjector->numberNonLockedDof ());
+      jacobian.resize (rows, configProjector->numberFreeVariables ());
       configProjector->computeValueAndJacobian (configuration, value, jacobian);
     }
 

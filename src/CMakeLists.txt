@@ -42,7 +42,6 @@ distance-between-objects.cc
   dubins.hh
   dubins.cc
   dubins-path.cc
-explicit-relative-transformation.cc
 extracted-path.hh
 interpolated-path.cc
 joint-bound-validation.cc
@@ -58,7 +57,6 @@ path-validations.cc
   path-optimization/collision-constraints-result.hh #
   path-optimization/linear-constraint.cc #
   path-optimization/path-length.cc #
-  path-optimization/gradient-based.cc #
   path-optimization/spline-gradient-based-abstract.cc #
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
