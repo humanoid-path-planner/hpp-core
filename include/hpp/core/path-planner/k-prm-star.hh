@@ -61,6 +61,7 @@ namespace hpp {
       private:
         enum STATE {
           BUILD_ROADMAP,
+          LINK_NODES,
           CONNECT_INIT_GOAL,
           FAILURE
         }; // enum STATE
@@ -72,9 +73,21 @@ namespace hpp {
         /// Connect initial and goal configurations to roadmap
         void connectInitAndGoal ();
         /// Connect node to k closest neighbors in the roadmap
-        void connectNodeToClosestNeighbors (const NodePtr_t& node);
+        /// \param node node to connect to nearest neighbors,
+        /// \return whether iterator on neighbors reached the end.
+        bool connectNodeToClosestNeighbors (const NodePtr_t& node);
         /// Number of nodes to create
         std::size_t numberNodes_;
+        /// Iterator on nodes
+        Nodes_t::const_iterator linkingNodeIt_;
+        /// Iterator on neighbors
+        Nodes_t::iterator itNeighbor_;
+        /// Number of closest neighbors to connect to each node
+        size_type numberNeighbors_;
+        /// List of neighbors of current node
+        Nodes_t neighbors_;
+        /// whether iterator reached last neighbor
+        bool reachedLastNeighbor_;
         /// Weak pointer to itself
         kPrmStarWkPtr_t weak_;
       }; // class kPrmStar

@@ -22,6 +22,7 @@
 
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/config-validations.hh>
+#include <hpp/core/path-projector.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem.hh>
@@ -58,6 +59,8 @@ namespace hpp {
               << numberNodes_;
           throw std::runtime_error (oss.str ().c_str ());
         }
+        numberNeighbors_ = (size_type) floor
+          ((kPRM * log ((value_type) numberNodes_)) + .5);
         if (roadmap ()->nodes ().size () >= numberNodes_) {
           state_ = CONNECT_INIT_GOAL;
         } else {
@@ -73,8 +76,9 @@ namespace hpp {
           {
           case BUILD_ROADMAP:
             generateRandomConfig ();
+            break;
+          case LINK_NODES:
             linkNodes ();
-            state_ = FAILURE;
             break;
           case CONNECT_INIT_GOAL:
             connectInitAndGoal ();
@@ -96,22 +100,33 @@ namespace hpp {
 	// Configuration validation methods associated to the problem
 	ConfigValidationsPtr_t configValidations
           (problem ().configValidations ());
+	// Get the constraints the robot is subject to
+	ConstraintSetPtr_t constraints (problem ().constraints ());
+        // Get the problem shooter
         ConfigurationShooterPtr_t shooter = problem().configurationShooter();
 	// Get roadmap
 	RoadmapPtr_t r (roadmap ());
-        while (r->nodes ().size () < numberNodes_) {
+        if (r->nodes ().size () < numberNodes_) {
           size_type nbTry = 0;
-          bool valid;
+          bool valid (false);
           // After 10000 trials throw if no valid configuration has been found.
           do {
             qrand = shooter->shoot ();
-            valid = configValidations->validate (*qrand, validationReport);
+            if ((valid = constraints->apply (*qrand))) {
+              valid = configValidations->validate (*qrand, validationReport);
+            }
           } while (!valid && nbTry < 10000);
           if (!valid) {
             throw std::runtime_error
               ("Failed to generate free configuration after 10000 trials.");
           }
           r->addNode (qrand);
+        } else {
+          state_ = LINK_NODES;
+          linkingNodeIt_ = r->nodes ().begin ();
+          neighbors_ =roadmap ()->nearestNodes
+            ((*linkingNodeIt_)->configuration (), numberNeighbors_);
+          itNeighbor_ = neighbors_.begin ();
         }
       }
 
@@ -119,14 +134,22 @@ namespace hpp {
       {
 	// Get roadmap
 	RoadmapPtr_t r (roadmap ());
-        for (Nodes_t::const_iterator linkingNodeIt = r->nodes ().begin ();
-             linkingNodeIt != r->nodes ().end (); ++linkingNodeIt) {
-          // Connect current node with closest neighbors
-          connectNodeToClosestNeighbors (*linkingNodeIt);
+        if (linkingNodeIt_ != r->nodes ().end ()) {
+          if (connectNodeToClosestNeighbors (*linkingNodeIt_)) {
+            ++linkingNodeIt_;
+            neighbors_ = roadmap ()->nearestNodes
+              ((*linkingNodeIt_)->configuration (), numberNeighbors_);
+            // Connect current node with closest neighbors
+            itNeighbor_ = neighbors_.begin ();
+          } else {
+            ++itNeighbor_;
+          }
+        } else {
+          state_ = CONNECT_INIT_GOAL;
         }
       }
 
-      void kPrmStar::connectNodeToClosestNeighbors (const NodePtr_t& node)
+      bool kPrmStar::connectNodeToClosestNeighbors (const NodePtr_t& node)
       {
 	// Retrieve the path validation algorithm associated to the problem
 	PathValidationPtr_t pathValidation (problem ().pathValidation ());
@@ -134,37 +157,61 @@ namespace hpp {
 	SteeringMethodPtr_t sm (problem ().steeringMethod ());
 	// Retrieve the constraints the robot is subject to
 	ConstraintSetPtr_t constraints (problem ().constraints ());
+        // Retrieve path projector
+        PathProjectorPtr_t pathProjector (problem ().pathProjector ());
 
-        size_type numberNeighbors
-          ((size_type) floor ((kPRM * log ((value_type) numberNodes_)) + .5));
-        Nodes_t neighbors
-          (roadmap ()->nearestNodes (node->configuration (), numberNeighbors));
-        for (Nodes_t::iterator it = neighbors.begin ();
-             it != neighbors.end (); ++it) {
+        if (itNeighbor_ != neighbors_.end ()) {
           // Connect only nodes that are not already connected
-          if (!(*it)->isOutNeighbor (node) && (node != *it)) {
+          if (!(*itNeighbor_)->isOutNeighbor (node) && (node != *itNeighbor_)) {
             PathPtr_t p ((*sm) (*node->configuration (),
-                                *(*it)->configuration ()));
+                                *(*itNeighbor_)->configuration ()));
             PathValidationReportPtr_t report;
-            PathPtr_t validPart;
-            if (p && pathValidation->validate (p, false, validPart, report)) {
-              roadmap ()->addEdges (node, *it, p);
+            PathPtr_t validPart, projected;
+            if (p) {
+              bool success;
+              if (pathProjector) {
+                success = pathProjector->apply (p, projected);
+              } else {
+                projected = p;
+                success = true;
+              }
+              if (success) {
+                if (pathValidation->validate (projected, false, validPart,
+                                              report)) {
+                  roadmap ()->addEdges (node, *itNeighbor_, p);
+                }
+              }
             }
           }
+          return false;
+        } else {
+          // itNeighbor_ reached the end
+          return true;
         }
       }
 
       void kPrmStar::connectInitAndGoal ()
       {
-        NodePtr_t node (roadmap ()->initNode ());
-        if (node->outEdges ().empty ()) {
-          connectNodeToClosestNeighbors (node);
+        NodePtr_t initNode (roadmap ()->initNode ());
+        if (initNode->outEdges ().empty ()) {
+          neighbors_ = roadmap ()->nearestNodes
+            (initNode->configuration (), numberNeighbors_);
+          // Connect current node with closest neighbors
+          for (itNeighbor_ = neighbors_.begin ();
+               itNeighbor_ != neighbors_.end (); ++itNeighbor_) {
+            connectNodeToClosestNeighbors (initNode);
+          }
         }
         for (NodeVector_t::const_iterator itn
                (roadmap ()->goalNodes ().begin ());
              itn != roadmap ()->goalNodes ().end (); ++itn) {
+          neighbors_ = roadmap ()->nearestNodes
+            ((*itn)->configuration (), numberNeighbors_);
           if ((*itn)->inEdges ().empty ()) {
-            connectNodeToClosestNeighbors (*itn);
+            for (itNeighbor_ = neighbors_.begin ();
+                 itNeighbor_ != neighbors_.end (); ++itNeighbor_) {
+              connectNodeToClosestNeighbors (*itn);
+            }
           }
         }
       }
