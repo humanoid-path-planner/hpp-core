@@ -52,6 +52,11 @@ namespace hpp {
       /// \param robot robot associated to the path planning problem.
       Problem (DevicePtr_t robot);
 
+      /// Constructor without argument
+      /// \warning do not use this constructor. It is necessary to define
+      ///          std::pairs <Problem, OtherType>.
+      Problem ();
+
       virtual ~Problem ();
 
       /// \name Problem definition
