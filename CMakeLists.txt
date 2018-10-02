@@ -69,9 +69,14 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/constraint.hh
   include/hpp/core/constraint-set.hh
   include/hpp/core/container.hh
-  include/hpp/core/continuous-collision-checking.hh
-  include/hpp/core/continuous-collision-checking/dichotomy.hh
-  include/hpp/core/continuous-collision-checking/progressive.hh
+  include/hpp/core/continuous-collision-checking.hh # DEPRECATED
+  include/hpp/core/continuous-collision-checking/dichotomy.hh # DEPRECATED
+  include/hpp/core/continuous-collision-checking/progressive.hh # DEPRECATED
+  include/hpp/core/continuous-validation.hh
+  include/hpp/core/continuous-validation/dichotomy.hh
+  include/hpp/core/continuous-validation/progressive.hh
+  include/hpp/core/continuous-validation/body-pair-collision.hh
+  include/hpp/core/continuous-validation/solid-solid-collision.hh
   include/hpp/core/diffusing-planner.hh
   include/hpp/core/discretized-collision-checking.hh
   include/hpp/core/discretized-path-validation.hh
@@ -158,6 +163,7 @@ ADD_SUBDIRECTORY(tests)
 PKG_CONFIG_APPEND_LIBS("hpp-core")
 
 INSTALL (FILES doc/continuous-collision-checking.pdf
+doc/continuous-validation.pdf
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
 
 SETUP_PROJECT_FINALIZE()

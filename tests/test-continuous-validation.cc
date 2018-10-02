@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-constraints. If not, see <http://www.gnu.org/licenses/>.
 
-#define BOOST_TEST_MODULE ContinuousCollisionChecking
+#define BOOST_TEST_MODULE ContinuousValidation
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -110,10 +110,10 @@ BOOST_AUTO_TEST_CASE (random)
 }
 #else
 
-static matrix_t m1 (220, 6); 
-static matrix_t m2 (20, 6); 
+static matrix_t m1 (220, 6);
+static matrix_t m2 (20, 6);
 
-BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
+BOOST_AUTO_TEST_CASE (continuous_validation_straight)
 {
 
   #include "../tests/random-numbers.hh"
@@ -323,7 +323,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
   // delete problem
 }
 
-BOOST_AUTO_TEST_CASE (continuous_collision_checking_spline)
+BOOST_AUTO_TEST_CASE (continuous_validation_spline)
 {
   test_spline_steering_method<hpp::core::steeringMethod::Spline<hpp::core::path::BernsteinBasis, 3> >();
 }

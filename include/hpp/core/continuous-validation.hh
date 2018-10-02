@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2014, 2015, 2016, 2017 CNRS
-// Authors: Florent Lamiraux, Joseph Mirabel
+// Copyright (c) 2014, 2015, 2016, 2017, 2018 CNRS
+// Authors: Florent Lamiraux, Joseph Mirabel, Diane Bury
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -16,29 +16,38 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
-# define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
+#ifndef HPP_CORE_CONTINUOUS_VALIDATION_HH
+# define HPP_CORE_CONTINUOUS_VALIDATION_HH
 
+# include <hpp/core/fwd.hh>
 # include <hpp/core/path-validation.hh>
+# include <hpp/core/path-validation-report.hh>
+# include <hpp/core/continuous-validation/solid-solid-collision.hh>
+# include <hpp/core/continuous-validation/body-pair-collision.hh>
+# include <hpp/core/continuous-validation/interval-validation.hh>
 
 namespace hpp {
   namespace core {
-    namespace continuousCollisionChecking {
-      HPP_PREDEF_CLASS (BodyPairCollision);
+    namespace continuousValidation {
       typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
       typedef std::vector <BodyPairCollisionPtr_t> BodyPairCollisions_t;
-    } // namespace continuousCollisionChecking
+      typedef boost::shared_ptr<IntervalValidation<ValidationReportPtr_t> > IntervalValidationPtr_t;
+      typedef std::vector<IntervalValidationPtr_t> IntervalValidations_t;
+    } // namespace continuousValidation
       /// \addtogroup validation
       /// \{
 
-      /// Continuous validation of a path for collision
+      /// Continuous validation of a path
       ///
-      /// This class is derived into two sub-classes that test for collision
+      /// This class is derived into two sub-classes
       /// \li a StraightPath, or
       /// \li a PathVector containing StraightPath or PathVector instances
       ///
-      /// A path is valid if and only if each pair of objects to test is
-      /// collision-free along the whole interval of definition.
+      /// A path is valid if and only if each interval validation element
+      /// is valid along the whole interval of definition
+      ///
+      /// Interval validation elements can be pairs of objects to test for
+      /// collision (BodyPairCollision) or an other type of validation.
       ///
       /// Collision pairs between bodies of the robot are initialized at
       /// construction of the instance.
@@ -46,14 +55,18 @@ namespace hpp {
       /// Method addObstacle adds an obstacle in the environment.
       /// For each joint, a new pair is created with the new obstacle.
       ///
-      /// Validation of pairs along straight interpolations is based on the
-      /// computation of an upper-bound of the relative velocity of objects
-      /// of one joint (or of the environment) in the reference frame of the
-      /// other joint.
+      /// Validation of a collision pair along straight interpolations is based
+      /// on the computation of an upper-bound of the relative velocity of
+      /// objects of one joint (or of the environment) in the reference frame
+      /// of the other joint. This is implemented in BodyPairCollision and
+      /// SolidSolidCollision.
       ///
       /// See <a href="continuous-collision-checking.pdf"> this document </a>
-      /// for details.
-    class HPP_CORE_DLLAPI ContinuousCollisionChecking : public PathValidation
+      /// for details on the continuous collision checking.
+      ///
+      /// See <a href="continuous-validation.pdf"> this document </a>
+      /// for details on the architecture of the code.
+    class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation
     {
     public:
       /// Compute the largest valid interval starting from the path beginning
@@ -75,6 +88,8 @@ namespace hpp {
       /// care about obstacles.
       virtual void addObstacle (const CollisionObjectConstPtr_t& object);
 
+      virtual void setPath(const PathPtr_t &path, bool reverse);
+
       /// Remove a collision pair between a joint and an obstacle
       /// \param the joint that holds the inner objects,
       /// \param the obstacle to remove.
@@ -86,12 +101,12 @@ namespace hpp {
 
       void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
 
-      virtual ~ContinuousCollisionChecking ();
+      virtual ~ContinuousValidation ();
     protected:
       /// Constructor
-      /// \param robot the robot for which collision checking is performed,
+      /// \param robot the robot for which validation is performed,
       /// \param tolerance maximal penetration allowed.
-      ContinuousCollisionChecking (const DevicePtr_t& robot,
+      ContinuousValidation (const DevicePtr_t& robot,
 				   const value_type& tolerance);
 
       /// Validate interval centered on a path parameter
@@ -109,15 +124,61 @@ namespace hpp {
 				  PathValidationReportPtr_t& report);
       DevicePtr_t robot_;
       value_type tolerance_;
-      continuousCollisionChecking::BodyPairCollisions_t
-        bodyPairCollisions_, disabledBodyPairCollisions_;
+
+      // all BodyPairValidation to validate
+      continuousValidation::BodyPairCollisions_t bodyPairCollisions_;
+      // all IntervalValidation that are not BodyPairValidation
+      continuousValidation::IntervalValidations_t intervalValidations_;
+      // BodyPairCollision for which collision is disabled
+      continuousValidation::BodyPairCollisions_t disabledBodyPairCollisions_;
       value_type stepSize_;
     private:
       virtual bool validateStraightPath
 	(const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
 	 PathValidationReportPtr_t& report) = 0;
-    }; // class ContinuousCollisionChecking
+      void generateAutoCollisions();
+      bool checkCollisionFirst;
+
+      template<typename IntervalValidations, typename ValidationReportTypePtr_t>
+      bool validateIntervals( IntervalValidations validations, const value_type &t,
+                    interval_t &interval, interval_t &tmpInt,
+                    PathValidationReportPtr_t &pathReport,
+                    value_type &distance)
+      {
+        typename IntervalValidations::iterator itMin = validations.begin();
+        for (typename IntervalValidations::iterator itVal = validations.begin();
+            itVal != validations.end(); ++itVal)
+        {
+          ValidationReportTypePtr_t report;
+          // the valid interval will not be greater than "interval" so we do not
+          // need to perform validation on a greater interval.
+          tmpInt = interval;
+          if (!(*itVal)->validateConfiguration(t, tmpInt, report))
+          {
+            pathReport = PathValidationReportPtr_t(new PathValidationReport);
+            pathReport->configurationReport = report;
+            pathReport->parameter = t;
+            return false;
+          }
+          else
+          {
+            if (interval.second > tmpInt.second)
+            {
+              itMin = itVal;
+              distance = std::distance(validations.begin(), itVal);
+            }
+            interval.first = std::max(interval.first, tmpInt.first);
+            interval.second = std::min(interval.second, tmpInt.second);
+            assert((*itVal)->path()->length() == 0 || interval.second > interval.first);
+            assert(interval.first <= t);
+            assert(t <= interval.second);
+          }
+        }
+        return true;
+      }
+
+    }; // class ContinuousValidation
     /// \}
   } // namespace core
 } // namespace hpp
-#endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_HH
+#endif // HPP_CORE_CONTINUOUS_VALIDATION_HH

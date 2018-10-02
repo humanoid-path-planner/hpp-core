@@ -29,8 +29,8 @@
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/discretized-collision-checking.hh>
-#include <hpp/core/continuous-collision-checking/dichotomy.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
 
 namespace hpp {

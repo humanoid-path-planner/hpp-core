@@ -88,7 +88,7 @@ namespace hpp {
     typedef hpp::pinocchio::BodyPtr_t BodyPtr_t;
     typedef boost::shared_ptr <CollisionPathValidationReport>
     CollisionPathValidationReportPtr_t;
-    typedef std::vector <CollisionPathValidationReport> 
+    typedef std::vector <CollisionPathValidationReport>
     CollisionPathValidationReports_t;
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef boost::shared_ptr <CollisionValidationReport>
@@ -234,15 +234,22 @@ namespace hpp {
       typedef boost::shared_ptr <const Hermite> HermiteConstPtr_t;
     } // namespace path
 
-    HPP_PREDEF_CLASS (ContinuousCollisionChecking);
-    typedef boost::shared_ptr <ContinuousCollisionChecking>
-    ContinuousCollisionCheckingPtr_t;
-    namespace continuousCollisionChecking {
+    HPP_PREDEF_CLASS (ContinuousValidation);
+    typedef boost::shared_ptr <ContinuousValidation>
+    ContinuousValidationPtr_t;
+    namespace continuousValidation {
       HPP_PREDEF_CLASS (Dichotomy);
       typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
       HPP_PREDEF_CLASS (Progressive);
       typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
-    } // namespace continuousCollisionChecking
+      HPP_PREDEF_CLASS (BodyPairCollision);
+      typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
+      typedef std::vector <BodyPairCollisionPtr_t> BodyPairCollisions_t;
+      HPP_PREDEF_CLASS (SolidSolidCollision);
+      typedef boost::shared_ptr <SolidSolidCollision> SolidSolidCollisionPtr_t;
+    } // namespace continuousValidation
+
+
 
     namespace distance {
       HPP_PREDEF_CLASS (ReedsShepp);
@@ -323,6 +330,12 @@ namespace hpp {
     ExplicitRelativeTransformationPtr_t HPP_CORE_DEPRECATED;
     typedef hpp::constraints::explicit_::RelativePose
     ExplicitRelativeTransformation HPP_CORE_DEPRECATED;
+    typedef ContinuousValidation ContinuousCollisionChecking HPP_CORE_DEPRECATED;
+    // typedef hpp::core::continuousCollisionChecking::Progressive
+    //   hpp::core::continuousValidation::Progressive HPP_CORE_DEPRECATED;
+    // typedef hpp::core::continuousCollisionChecking::Dichotomy
+    //   hpp::core::continuousValidation::Dichotomy HPP_CORE_DEPRECATED;
+    namespace continuousCollisionChecking = continuousValidation;
 
   } // namespace core
 } // namespace hpp

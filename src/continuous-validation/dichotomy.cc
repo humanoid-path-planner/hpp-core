@@ -16,7 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/continuous-collision-checking/dichotomy.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
 
 #include <deque>
 #include <pinocchio/multibody/geometry.hpp>
@@ -25,20 +25,18 @@
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
 
-#include "continuous-collision-checking/body-pair-collision.hh"
-#include "continuous-collision-checking/intervals.hh"
+#include "continuous-validation/intervals.hh"
 
 namespace hpp {
   namespace core {
-    namespace continuousCollisionChecking {
+    namespace continuousValidation {
 
       DichotomyPtr_t
       Dichotomy::create (const DevicePtr_t& robot, const value_type& tolerance)
       {
-	Dichotomy* ptr =
-	  new Dichotomy (robot, tolerance);
-	DichotomyPtr_t shPtr (ptr);
-	return shPtr;
+        Dichotomy* ptr = new Dichotomy (robot, tolerance);
+        DichotomyPtr_t shPtr (ptr);
+        return shPtr;
       }
 
       Dichotomy::~Dichotomy ()
@@ -52,11 +50,7 @@ namespace hpp {
 	// start by validating end of path
 	bool finished = false;
 	bool valid = true;
-	for (BodyPairCollisions_t::iterator itPair =
-	       bodyPairCollisions_.begin ();
-	     itPair != bodyPairCollisions_.end (); ++itPair) {
-	  (*itPair)->path (path, reverse);
-	}
+	setPath(path, reverse);
 	Intervals validSubset;
 	if (reverse) {
 	  value_type t (path->timeRange ().second);
@@ -144,7 +138,7 @@ namespace hpp {
 
       Dichotomy::Dichotomy
       (const DevicePtr_t& robot, const value_type& tolerance) :
-	ContinuousCollisionChecking (robot, tolerance)
+	ContinuousValidation (robot, tolerance)
       {
 	// Tolerance should be equal to 0, otherwise end of valid
 	// sub-path might be in collision.
@@ -153,6 +147,6 @@ namespace hpp {
 				    "support penetration.");
 	}
       }
-    } // namespace continuousCollisionChecking
+    } // namespace continuousValidation
   } // namespace core
 } // namespace hpp

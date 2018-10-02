@@ -30,10 +30,10 @@ config-validations.cc
 connected-component.cc
 constraint.cc
 constraint-set.cc
-continuous-collision-checking.cc
-continuous-collision-checking/dichotomy.cc
-continuous-collision-checking/body-pair-collision.hh
-continuous-collision-checking/progressive.cc
+continuous-validation.cc
+continuous-validation/dichotomy.cc
+continuous-validation/solid-solid-collision.cc
+continuous-validation/progressive.cc
 diffusing-planner.cc
 discretized-collision-checking.cc
 discretized-path-validation.cc
