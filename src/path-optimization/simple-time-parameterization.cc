@@ -179,6 +179,7 @@ namespace hpp {
         for (std::size_t i = 0; i < input->numberPaths(); ++i) {
           PathPtr_t p = input->pathAtRank(i);
           interval_t paramRange = p->paramRange();
+          p->timeParameterization (TimeParameterizationPtr_t(), paramRange);
 
           // Compute B
           p->velocityBound (v, paramRange.first, paramRange.second);
