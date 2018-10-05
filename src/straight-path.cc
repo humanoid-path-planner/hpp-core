@@ -102,7 +102,7 @@ namespace hpp {
 	}
 	pinocchio::difference <pinocchio::RnxSOnLieGroupMap>
 	  (device_, end_, initial_, result);
-	result /= length();
+	result /= paramLength();
 	return;
       }
       std::ostringstream oss;
