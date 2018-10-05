@@ -149,9 +149,10 @@ ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
 
-ADD_SUBDIRECTORY(src)
 SET(BOOST_COMPONENTS system timer unit_test_framework)
 SEARCH_FOR_BOOST()
+
+ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-core library in pkg-config file.
