@@ -219,6 +219,11 @@ namespace hpp {
         }
       }
 
+      kPrmStar::STATE kPrmStar::getComputationState () const
+      {
+	return state_;
+      }
+
       kPrmStar::kPrmStar (const Problem& problem) :
         Parent_t (problem),
         state_ (BUILD_ROADMAP)

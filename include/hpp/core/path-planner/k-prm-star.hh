@@ -29,6 +29,13 @@ namespace hpp {
       class HPP_CORE_DLLAPI kPrmStar : public PathPlanner
       {
       public:
+	/// Computation step of the algorithm
+        enum STATE {
+          BUILD_ROADMAP,
+          LINK_NODES,
+          CONNECT_INIT_GOAL,
+          FAILURE
+        }; // enum STATE
         /// Constant kPRM = 2 e
         static const double kPRM;
         typedef PathPlanner Parent_t;
@@ -46,6 +53,8 @@ namespace hpp {
       virtual void startSolve ();
       /// One step of the algorithm
       virtual void oneStep ();
+      /// get the computationnal state of the algorithm
+      STATE getComputationState () const;
 
       protected:
         /// Protected constructor
@@ -59,12 +68,6 @@ namespace hpp {
         void init (const kPrmStarWkPtr_t& weak);
 
       private:
-        enum STATE {
-          BUILD_ROADMAP,
-          LINK_NODES,
-          CONNECT_INIT_GOAL,
-          FAILURE
-        }; // enum STATE
         STATE state_;
         /// Generate random free configurations 10 by 10
         void generateRandomConfig ();
