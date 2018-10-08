@@ -115,6 +115,7 @@ namespace hpp {
             if ((valid = constraints->apply (*qrand))) {
               valid = configValidations->validate (*qrand, validationReport);
             }
+	    nbTry++;
           } while (!valid && nbTry < 10000);
           if (!valid) {
             throw std::runtime_error
@@ -137,10 +138,12 @@ namespace hpp {
         if (linkingNodeIt_ != r->nodes ().end ()) {
           if (connectNodeToClosestNeighbors (*linkingNodeIt_)) {
             ++linkingNodeIt_;
-            neighbors_ = roadmap ()->nearestNodes
-              ((*linkingNodeIt_)->configuration (), numberNeighbors_);
-            // Connect current node with closest neighbors
-            itNeighbor_ = neighbors_.begin ();
+	    if (linkingNodeIt_ != r->nodes ().end ()) {
+	      neighbors_ = roadmap ()->nearestNodes
+		((*linkingNodeIt_)->configuration (), numberNeighbors_);
+	      // Connect current node with closest neighbors
+	      itNeighbor_ = neighbors_.begin ();
+	    }
           } else {
             ++itNeighbor_;
           }
@@ -214,6 +217,11 @@ namespace hpp {
             }
           }
         }
+      }
+
+      kPrmStar::STATE kPrmStar::getComputationState () const
+      {
+	return state_;
       }
 
       kPrmStar::kPrmStar (const Problem& problem) :
