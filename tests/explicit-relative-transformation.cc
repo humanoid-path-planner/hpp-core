@@ -28,6 +28,8 @@
 #include <hpp/core/fwd.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
 #include <hpp/constraints/matrix-view.hh>
+#include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #include <pinocchio/spatial/skew.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
