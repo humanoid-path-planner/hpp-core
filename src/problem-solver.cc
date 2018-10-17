@@ -902,12 +902,9 @@ namespace hpp {
       se3::framesForwardKinematics (*obstacleRModel_, *obstacleRData_, vector_t::Zero(0));
 
       // Detach objects from joints
-      pinocchio::DeviceObjectVector& objects = device->objectVector();
-      for (pinocchio::DeviceObjectVector::iterator itObj = objects.begin();
-          itObj != objects.end(); ++itObj) {
-        addObstacle (prefix + (*itObj)->name (),
-            *(*itObj)->fcl (),
-            collision, distance);
+      for (size_type i = 0; i < device->nbObjects(); ++i) {
+        CollisionObjectPtr_t obj = device->objectAt (i);
+        addObstacle (prefix + obj->name (), *obj->fcl (), collision, distance);
       }
     }
 
