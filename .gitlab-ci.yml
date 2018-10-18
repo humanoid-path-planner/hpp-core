@@ -23,10 +23,6 @@ cache:
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
     - make test
 
-robotpkg-hpp-core-14.04-release:
-  <<: *robotpkg-hpp-core
-  image: eur0c.laas.fr:5000/humanoid-path-planner/hpp-core/hpp-core:14.04
-
 robotpkg-hpp-core-16.04-release:
   <<: *robotpkg-hpp-core
   image: eur0c.laas.fr:5000/humanoid-path-planner/hpp-core/hpp-core:16.04
@@ -53,4 +49,3 @@ doc-coverage:
     paths:
       - doxygen-html/
       - coverage/
-
