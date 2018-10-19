@@ -190,7 +190,7 @@ namespace hpp {
     throw (projection_error)
     {
       assert(subInterval.first >=0 && subInterval.second >=0 && "Negative time values in extract path");
-      assert(subInterval.first >=timeRange_.first && subInterval.second <= timeRange_.second && "Given interval not inside path interval");
+      assert(subInterval.first >=timeRange().first && subInterval.second <= timeRange().second && "Given interval not inside path interval");
       // Length is assumed to be proportional to interval range
       if(subInterval.first == timeRange().first && subInterval.second == timeRange().second){
         hppDout(notice,"Call extract with same interval");

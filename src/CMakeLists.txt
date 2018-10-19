@@ -103,9 +103,6 @@ path-validations.cc
   visibility-prm-planner.cc
   weighed-distance.cc
   kinodynamic-distance.cc
-  numerical-constraint.cc
-  equation.cc
-  locked-joint.cc
   path-projector/progressive.cc
   path-projector/dichotomy.cc
   path-projector/global.cc
