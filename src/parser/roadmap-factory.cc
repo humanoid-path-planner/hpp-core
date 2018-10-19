@@ -207,20 +207,21 @@ namespace hpp {
         roadmap_ (roadmap),
         extraCSsize_ (problem_->robot()->extraConfigSpace().dimension())
       {
+        DevicePtr_t robot = problem_->robot();
         if (extraCSsize_ > 0)
           addAttribute ("extra_config_space",
               boost::lexical_cast <std::string> (extraCSsize_));
 
         // Write joint names
-        const JointVector_t& joints = problem_->robot()->getJointVector ();
         size_type rank = -1;
-        StringSequence::OutType ssValues (joints.size());
-        for (JointVector_t::const_iterator it = joints.begin();
-            it != joints.end(); ++it) {
-          if ((*it)->configSize() <= 0) continue;
-          assert (rank < (*it)->rankInConfiguration());
-          rank = (*it)->rankInConfiguration();
-          ssValues.push_back ((*it)->name());
+        StringSequence::OutType ssValues (robot->nbJoints());
+        for (size_type iJ = 0; iJ < robot->nbJoints(); ++iJ) {
+          JointPtr_t joint = robot->jointAt (iJ);
+          // TODO this test is always false
+          if (joint->configSize() <= 0) continue;
+          assert (rank < joint->rankInConfiguration());
+          rank = joint->rankInConfiguration();
+          ssValues.push_back (joint->name());
         }
         StringSequence* ss = new StringSequence ("joints", this);
         ss->values (ssValues);

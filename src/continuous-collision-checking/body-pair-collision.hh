@@ -316,8 +316,8 @@ namespace hpp {
 	  assert (joint_a);
 	  BodyPtr_t body_a = joint_a_->linkedBody ();
 	  assert (body_a);
-	  for (size_type i = 0; i < body_a->innerObjects ().size (); ++i) {
-	    CollisionObjectConstPtr_t obj = body_a->innerObjects ().at(i);
+          for (size_type i = 0; i < body_a->nbInnerObjects(); ++i) {
+	    CollisionObjectConstPtr_t obj = body_a->innerObjectAt(i);
 
             for (ConstObjectStdVector_t::const_iterator it = objects_b.begin ();
                 it != objects_b.end (); ++it) {

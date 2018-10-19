@@ -92,17 +92,13 @@ namespace hpp {
 
     void CollisionValidation::addObstacle (const CollisionObjectConstPtr_t& object)
     {
-      const JointVector_t& jv = robot_->getJointVector ();
-      for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
-          ++it) {
-        JointPtr_t joint = JointPtr_t (new Joint(**it));
+      for (size_type j = 0; j < robot_->nbJoints(); ++j) {
+        JointPtr_t joint = robot_->jointAt (j);
         BodyPtr_t body = joint->linkedBody ();
         if (body) {
-          const ObjectVector_t& bodyObjects = body->innerObjects ();
-          for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-              itInner != bodyObjects.end (); ++itInner) {
+          for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
             // TODO: check the objects are not in same joint
-            collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+            collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(o), object));
           }
         }
       }
@@ -113,10 +109,8 @@ namespace hpp {
     {
       BodyPtr_t body = joint->linkedBody ();
       if (body) {
-        const ObjectVector_t& bodyObjects = body->innerObjects ();
-        for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-            itInner != bodyObjects.end (); ++itInner) {
-          CollisionPair_t colPair (*itInner, obstacle);
+        for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
+          CollisionPair_t colPair (body->innerObjectAt(o), obstacle);
           std::size_t nbDelPairs = 0;
           CollisionPairs_t::iterator _collisionPair (collisionPairs_.begin());
           while ( (_collisionPair = std::find (_collisionPair, collisionPairs_.end(), colPair))

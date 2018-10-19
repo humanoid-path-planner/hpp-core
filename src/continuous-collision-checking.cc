@@ -144,14 +144,14 @@ namespace hpp {
     void ContinuousCollisionChecking::addObstacle
     (const CollisionObjectConstPtr_t& object)
     {
-      pinocchio::JointVector_t& jv = robot_->getJointVector ();
-      for (size_type idx = 0; idx < jv.size (); ++idx) {
-	BodyPtr_t body = (jv.at(idx))->linkedBody ();
+      for (size_type idx = 0; idx < robot_->nbJoints(); ++idx) {
+        JointPtr_t joint = robot_->jointAt (idx);
+	BodyPtr_t body = joint->linkedBody ();
 	if (body) {
 	  ConstObjectStdVector_t objects;
 	  objects.push_back (object);
 	  bodyPairCollisions_.push_back
-	    (BodyPairCollision::create (jv.at(idx), objects, tolerance_));
+	    (BodyPairCollision::create (joint, objects, tolerance_));
 	}
       }
     }
