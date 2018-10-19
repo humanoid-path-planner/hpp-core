@@ -104,6 +104,16 @@ namespace hpp {
       }
     }
 
+    struct CollisionPairComparision {
+      CollisionPair_t a;
+      CollisionPairComparision (const CollisionPair_t& p) : a (p) {}
+      bool operator() (const CollisionPair_t& b)
+      {
+        return (&(a.first ->pinocchio()) == &(b.first ->pinocchio()))
+          &&   (&(a.second->pinocchio()) == &(b.second->pinocchio()));
+      }
+    };
+
     void CollisionValidation::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
@@ -111,9 +121,10 @@ namespace hpp {
       if (body) {
         for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
           CollisionPair_t colPair (body->innerObjectAt(o), obstacle);
+          CollisionPairComparision compare (colPair);
           std::size_t nbDelPairs = 0;
           CollisionPairs_t::iterator _collisionPair (collisionPairs_.begin());
-          while ( (_collisionPair = std::find (_collisionPair, collisionPairs_.end(), colPair))
+          while ( (_collisionPair = std::find_if (_collisionPair, collisionPairs_.end(), compare))
               != collisionPairs_.end()) {
             _collisionPair = collisionPairs_.erase (_collisionPair);
             ++nbDelPairs;
