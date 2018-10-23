@@ -54,7 +54,7 @@ DevicePtr_t createRobot ()
   //DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidRomeo, "romeo");
   DevicePtr_t robot (Device::create ("2-objects"));
   urdf::loadModel (robot, 0, "obj1/", "freeflyer", "file://" DATA_DIR "/empty.urdf", "");
-  robot->controlComputation((Device::Computation_t) (Device::JOINT_POSITION | Device::JACOBIAN));
+  robot->controlComputation((Computation_t) (JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound (0, -10);
   robot->rootJoint()->lowerBound (1, -10);
   robot->rootJoint()->lowerBound (2, -10);

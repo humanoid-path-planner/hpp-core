@@ -79,8 +79,8 @@ DevicePtr_t createRobot ()
   const std::string& name = robot->name ();
   ModelPtr_t m = ModelPtr_t(new ::se3::Model());
   GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->model(m);
-  robot->geomModel(gm);
+  robot->setModel(m);
+  robot->setGeomModel(gm);
   Transform3f mat; mat.setIdentity ();
   std::string jointName = name + "_x";
 

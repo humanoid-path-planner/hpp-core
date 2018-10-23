@@ -34,19 +34,21 @@ namespace hpp {
   namespace core {
     namespace {
       inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
-          const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
+          const fcl::CollisionRequest& req, fcl::CollisionResult& res,
+          pinocchio::DeviceData& data) {
         res.clear();
         return fcl::collide (
-                    _colPair->first ->fcl (),
-                    _colPair->second->fcl (),
+                    _colPair->first ->fcl (data),
+                    _colPair->second->fcl (data),
                     req, res);
       }
 
       inline bool collide (const CollisionPairs_t& pairs,
          const fcl::CollisionRequest& req, fcl::CollisionResult& res,
-         CollisionPairs_t::const_iterator& _col) {
+         CollisionPairs_t::const_iterator& _col,
+         pinocchio::DeviceData& data) {
         for (_col = pairs.begin (); _col != pairs.end (); ++_col)
-          if (collide (_col, req, res) != 0)
+          if (collide (_col, req, res, data) != 0)
             return true;
         return false;
       }
@@ -69,16 +71,17 @@ namespace hpp {
     bool CollisionValidation::validate (const Configuration_t& config,
                                         ValidationReportPtr_t& validationReport)
     {
-      robot_->currentConfiguration (config);
-      robot_->computeForwardKinematics ();
-      robot_->updateGeometryPlacements ();
+      pinocchio::DeviceSync device (robot_);
+      device.currentConfiguration (config);
+      device.computeForwardKinematics ();
+      device.updateGeometryPlacements ();
 
       fcl::CollisionResult collisionResult;
       CollisionPairs_t::const_iterator _col;
-      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col, device.d())
           ||
           ( checkParameterized_ &&
-            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col, device.d())
           )) {
         CollisionValidationReportPtr_t report (new CollisionValidationReport);
         report->object1 = _col->first;
@@ -168,7 +171,8 @@ namespace hpp {
               hppDout(info, "Disabling collision between "
                   << _colPair->first ->name() << " and "
                   << _colPair->second->name());
-              if (collide (_colPair, collisionRequest_, unused) != 0) {
+              if (fcl::collide (_colPair->first ->fcl (), _colPair->second->fcl (),
+                    collisionRequest_, unused) != 0) {
                 hppDout(warning, "Disabling collision detection between two "
                     "body in collision.");
               }

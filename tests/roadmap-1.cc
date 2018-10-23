@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   const std::string& name = robot->name ();
   ModelPtr_t m = ModelPtr_t(new ::se3::Model());
   GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->model(m);
-  robot->geomModel(gm);
+  robot->setModel(m);
+  robot->setGeomModel(gm);
   Transform3f mat; mat.setIdentity ();
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
@@ -347,8 +347,8 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   const std::string& name = robot->name ();
   ModelPtr_t m = ModelPtr_t(new ::se3::Model());
   GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->model(m);
-  robot->geomModel(gm);
+  robot->setModel(m);
+  robot->setGeomModel(gm);
   Transform3f mat; mat.setIdentity ();
 
   JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
