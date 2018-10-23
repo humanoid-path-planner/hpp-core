@@ -123,16 +123,28 @@ namespace hpp {
       for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
           ++it) {
         JointPtr_t joint = JointPtr_t (new Joint(**it));
+        addObstacleToJoint (object, joint, false);
+      }
+    }
+
+
+    void CollisionValidation::addObstacleToJoint (const CollisionObjectConstPtr_t& object,
+                                     const JointPtr_t& joint, const bool includeChildren)
+    {
         BodyPtr_t body = joint->linkedBody ();
         if (body) {
-          const ObjectVector_t& bodyObjects = body->innerObjects ();
-          for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-              itInner != bodyObjects.end (); ++itInner) {
-            // TODO: check the objects are not in same joint
-            collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+            const ObjectVector_t& bodyObjects = body->innerObjects ();
+            for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
+                itInner != bodyObjects.end (); ++itInner) {
+              // TODO: check the objects are not in same joint
+              collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+            }
           }
+        if(includeChildren) {
+            for(std::size_t i=0; i<joint->numberChildJoints(); ++i){
+                addObstacleToJoint (object, joint->childJoint(i),includeChildren);
+            }
         }
-      }
     }
 
     void CollisionValidation::removeObstacleFromJoint
