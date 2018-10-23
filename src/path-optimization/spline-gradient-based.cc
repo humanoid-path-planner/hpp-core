@@ -381,7 +381,7 @@ namespace hpp {
           if (p->length() > 0) input->appendPath (p);
         }
 
-        robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
+        robot_->controlComputation ((pinocchio::Computation_t)(robot_->computationFlag() | pinocchio::JACOBIAN));
         const size_type rDof = robot_->numberDof();
 
         // 1
