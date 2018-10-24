@@ -129,8 +129,8 @@ namespace hpp {
             Js.resize(sod.es->nv (), sod.es->nv ());
             sod.es->jacobian(Js, q);
 
-            sod.es->inDers().lview(J) =
-              sod.es->inDers().lview(J).eval() +
+            sod.es->freeDers().lview(J) =
+              sod.es->freeDers().lview(J).eval() +
               sod.es->outDers().transpose().rview(J).eval()
               * sod.es->jacobianNotOutToOut (Js).eval ();
             sod.es->outDers().transpose().lview(J).setZero();
@@ -257,20 +257,21 @@ namespace hpp {
           // If requested, check if the jacobian has columns of zeros.
           BlockIndex::segments_t passive;
           if (guessThr >= 0) {
-            matrix_t J (hs.dimension(), es.inDers().nbIndices());
+            matrix_t J (hs.reducedDimension(),
+                        hs.freeVariables ().nbIndices ());
             hs.computeValue<true>(path->initial());
             hs.updateJacobian(path->initial());
             hs.getReducedJacobian(J);
             size_type j = 0, k = 0;
             for (size_type r = 0; r < J.cols(); ++r) {
               if (J.col(r).isZero(guessThr)) {
-                size_type idof = es.inDers().indices()[j].first + k;
+                size_type idof = es.freeDers().indices()[j].first + k;
                 passive.push_back(BlockIndex::segment_t (idof, 1));
                 hppDout (info, "Deactivated dof (thr=" << guessThr
                     << ") " << idof << ". J = " << J.col(r).transpose());
               }
               k++;
-              if (k >= es.inDers().indices()[j].second) {
+              if (k >= hs.freeVariables ().indices()[j].second) {
                 j++;
                 k = 0;
               }
