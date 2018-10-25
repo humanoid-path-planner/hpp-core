@@ -68,7 +68,6 @@ namespace hpp {
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
         protected:
-          using typename Base::ExplicitConstraintSet;
           using typename Base::RowBlockIndices;
           using typename Base::SplineOptimizationData;
           using typename Base::SplineOptimizationDatas_t;

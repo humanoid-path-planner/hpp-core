@@ -118,6 +118,23 @@ namespace hpp {
       // ----------- Resolution steps --------------------------------------- //
 
       template <int _PB, int _SO>
+      PathVectorPtr_t SplineGradientBasedAbstract<_PB, _SO>::cleanInput
+      (const PathVectorPtr_t& input)
+      {
+        PathVectorPtr_t flat = PathVector::create
+          (input->outputSize(), input->outputDerivativeSize());
+        input->flatten(flat);
+        // Remove zero length path
+        PathVectorPtr_t clean = PathVector::create
+          (input->outputSize(), input->outputDerivativeSize());
+        for (std::size_t i = 0; i < flat->numberPaths(); ++i) {
+          PathPtr_t p = flat->pathAtRank (i);
+          if (p->length() > 0) clean->appendPath (p);
+        }
+        return clean;
+      }
+
+      template <int _PB, int _SO>
       void SplineGradientBasedAbstract<_PB, _SO>::appendEquivalentSpline
       (const StraightPathPtr_t& path, Splines_t& splines) const
       {
