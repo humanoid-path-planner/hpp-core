@@ -1,3 +1,9 @@
+# HPP-core
+
+[![Building Status](https://travis-ci.org/humanoid-path-planner/hpp-core.svg?branch=master)](https://travis-ci.org/humanoid-path-planner/hpp-core)
+[![Pipeline status](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-core/badges/master/pipeline.svg)](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-core/commits/master)
+[![Coverage report](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-core/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/humanoid-path-planner/hpp-core/master/coverage/)
+
 This package implements path planning algorithms for kinematic chains.
 Kinematic chains are represented by class hpp::pinocchio::Device.
 

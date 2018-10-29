@@ -15,7 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/relative-motion.hh>
-#include <hpp/core/explicit-relative-transformation.hh>
+#include <hpp/constraints/explicit/relative-pose.hh>
 
 #include <pinocchio/multibody/model.hpp>
 
@@ -23,13 +23,15 @@
 #include <hpp/pinocchio/joint.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
+#include <hpp/constraints/implicit/relative-pose.hh>
+#include <hpp/constraints/explicit/relative-transformation.hh>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/locked-joint.hh>
 
-#include <hpp/constraints/explicit/function.hh>
+#include <hpp/constraints/explicit/implicit-function.hh>
 
 namespace hpp {
   namespace core {
@@ -39,31 +41,45 @@ namespace hpp {
         m(i0,i1) = m(i1,i0) = t;
       }
 
-      template <typename T, typename Ptr_t = boost::shared_ptr<T> > struct check {
-        static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1, size_type& i2)
+      /// Check that a differentiable function defines a constraint of
+      /// relative pose between two joints
+      template <typename T > struct check {
+        typedef boost::shared_ptr<T> Ptr_t;
+        /// Check that function defines relative pose constraint
+        /// \param f Differentiable function,
+        /// \return whether f defines a relative pose constraint,
+        /// \retval i1, i2 indices of joints that are constrained if so.
+        static bool is (const DifferentiableFunctionPtr_t& f,
+                        size_type& i1, size_type& i2)
         {
           Ptr_t t = HPP_DYNAMIC_PTR_CAST(T, f);
           if (t) {
             i1 = RelativeMotion::idx(t->joint1());
             i2 = RelativeMotion::idx(t->joint2());
+            hppDout (info, "function " << f->name ()
+                     << " is a (relative) transformation. i1="
+                     << i1 << ", i2=" << i2);
             return true;
           }
           return false;
         }
       };
+    }
 
-      using constraints::explicit_::Function;
-      template <bool GisIdentity> struct check <Function<GisIdentity> > {
-        static bool is (const DifferentiableFunctionPtr_t& f, size_type& i1,
-                        size_type& i2)
-        {
-          typename Function<GisIdentity>::Ptr_t
-            implicit (HPP_DYNAMIC_PTR_CAST (Function<GisIdentity>, f));
-          if (implicit)
-            return check<ExplicitRelativeTransformation>::is (implicit->inputToOutput(), i1, i2);
-          return false;
-        }
-      };
+    bool isRelativePoseConstraint (const constraints::ImplicitConstPtr_t& c,
+                                   size_type& i1, size_type& i2)
+    {
+      constraints::implicit::RelativePoseConstPtr_t t
+        (HPP_DYNAMIC_PTR_CAST(const constraints::implicit::RelativePose, c));
+      if (t) {
+        i1 = RelativeMotion::idx(t->joint1());
+        i2 = RelativeMotion::idx(t->joint2());
+        hppDout (info, "constraint " << t->functionPtr ()->name ()
+                     << " is a relative pose. i1="
+                     << i1 << ", i2=" << i2);
+        return true;
+      }
+      return false;
     }
 
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
@@ -94,43 +110,56 @@ namespace hpp {
 
       // Loop over the LockedJoint
       const pinocchio::Model& model = robot->model();
-      const LockedJoints_t& lj = proj->lockedJoints ();
-      for (LockedJoints_t::const_iterator it = lj.begin ();
-          it != lj.end (); ++it) {
-        const std::string& jointName = (*it)->jointName();
-        if (!model.existJointName(jointName)) {
-          // Extra dofs and partial locked joints have a name that won't be
-          // recognized by Device::getJointByName. So they can be filtered
-          // this way.
-          hppDout (info, "Joint of locked joint not found: " << **it);
-          continue;
-        }
-        bool cstRHS = (*it)->constantRightHandSide();
-
-        // JointPtr_t j = robot->getJointByName ((*it)->jointName());
-        // const size_type i1 = idx(j),
-        const size_type i1 = model.getJointId(jointName),
-                        i2 = model.parents[i1];
-        recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
-      }
-
-      // Loop over the DifferentiableFunction
+      // Loop over the constraints
       const NumericalConstraints_t& ncs = proj->numericalConstraints ();
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
-        using hpp::constraints::explicit_::BasicFunction;
-        using hpp::constraints::explicit_::GenericFunction;
-        const constraints::Implicit& nc = **_ncs;
+        using hpp::constraints::implicit::RelativePose;
+        constraints::ImplicitConstPtr_t nc = *_ncs;
         size_type i1, i2;
+        // Detect locked joints
+        LockedJointConstPtr_t lj (HPP_DYNAMIC_PTR_CAST (const LockedJoint, nc));
+        if (lj) {
+          const std::string& jointName = lj->jointName();
+          if (!model.existJointName(jointName)) {
+            // Extra dofs and partial locked joints have a name that won't be
+            // recognized by Device::getJointByName. So they can be filtered
+            // this way.
+            hppDout (info, "Joint of locked joint not found: " << *lj);
+            continue;
+          }
+          bool cstRHS = lj->constantRightHandSide();
 
-        if (nc.functionPtr()->outputSize() != 6) continue;
-        if (   !check< RelativeTransformation>::is (nc.functionPtr(), i1, i2)
-            && !check<         Transformation>::is (nc.functionPtr(), i1, i2)
-            && !check<          BasicFunction>::is (nc.functionPtr(), i1, i2)
-            && !check<        GenericFunction>::is (nc.functionPtr(), i1, i2))
+          i1 = model.getJointId(jointName); i2 = model.parents[i1];
+          recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained :
+                                                Parameterized));
+          hppDout (info, "Locked joint found: " << lj->jointName ());
           continue;
+        }
+        // Detect relative pose constraints
+        if (nc->functionPtr()->outputSize() != 6) {
+          hppDout (info, "Constraint " << nc->functionPtr()->name ()
+                   << " is not of dimension 6.");
+          continue;
+        }
 
-        bool cstRHS = nc.constantRightHandSide();
+        if (!isRelativePoseConstraint (nc, i1, i2)) {
+          hppDout (info, "Constraint " << nc->functionPtr()->name ()
+                   << " is not of type RelativePose");
+          if (!check <Transformation>::is (nc->functionPtr (), i1, i2)) {
+            hppDout (info, "Constraint function " << nc->functionPtr()->name ()
+                     << " is not of type Transformation");
+            if (!check <RelativeTransformation>::is
+                (nc->functionPtr (), i1, i2)) {
+              hppDout (info, "Constraint function "
+                       << nc->functionPtr()->name ()
+                       << " is not of type RelativeTransformation");
+              continue;
+            }
+          }
+        }
+
+        bool cstRHS = nc->constantRightHandSide();
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
     }

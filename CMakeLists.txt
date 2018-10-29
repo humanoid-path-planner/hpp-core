@@ -94,7 +94,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/parameter.hh
   include/hpp/core/path.hh
   include/hpp/core/path-optimization/path-length.hh
-  include/hpp/core/path-optimization/gradient-based.hh
   include/hpp/core/path-optimization/linear-constraint.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/quadratic-program.hh
@@ -158,9 +157,10 @@ ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
 ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
 
-ADD_SUBDIRECTORY(src)
 SET(BOOST_COMPONENTS system timer unit_test_framework)
 SEARCH_FOR_BOOST()
+
+ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-core library in pkg-config file.

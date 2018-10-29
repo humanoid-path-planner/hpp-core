@@ -29,6 +29,13 @@ namespace hpp {
       class HPP_CORE_DLLAPI kPrmStar : public PathPlanner
       {
       public:
+	/// Computation step of the algorithm
+        enum STATE {
+          BUILD_ROADMAP,
+          LINK_NODES,
+          CONNECT_INIT_GOAL,
+          FAILURE
+        }; // enum STATE
         /// Constant kPRM = 2 e
         static const double kPRM;
         typedef PathPlanner Parent_t;
@@ -46,6 +53,8 @@ namespace hpp {
       virtual void startSolve ();
       /// One step of the algorithm
       virtual void oneStep ();
+      /// get the computationnal state of the algorithm
+      STATE getComputationState () const;
 
       protected:
         /// Protected constructor
@@ -59,11 +68,6 @@ namespace hpp {
         void init (const kPrmStarWkPtr_t& weak);
 
       private:
-        enum STATE {
-          BUILD_ROADMAP,
-          CONNECT_INIT_GOAL,
-          FAILURE
-        }; // enum STATE
         STATE state_;
         /// Generate random free configurations 10 by 10
         void generateRandomConfig ();
@@ -72,9 +76,21 @@ namespace hpp {
         /// Connect initial and goal configurations to roadmap
         void connectInitAndGoal ();
         /// Connect node to k closest neighbors in the roadmap
-        void connectNodeToClosestNeighbors (const NodePtr_t& node);
+        /// \param node node to connect to nearest neighbors,
+        /// \return whether iterator on neighbors reached the end.
+        bool connectNodeToClosestNeighbors (const NodePtr_t& node);
         /// Number of nodes to create
         std::size_t numberNodes_;
+        /// Iterator on nodes
+        Nodes_t::const_iterator linkingNodeIt_;
+        /// Iterator on neighbors
+        Nodes_t::iterator itNeighbor_;
+        /// Number of closest neighbors to connect to each node
+        size_type numberNeighbors_;
+        /// List of neighbors of current node
+        Nodes_t neighbors_;
+        /// whether iterator reached last neighbor
+        bool reachedLastNeighbor_;
         /// Weak pointer to itself
         kPrmStarWkPtr_t weak_;
       }; // class kPrmStar

@@ -26,7 +26,10 @@
 #include <hpp/util/timer.hh>
 
 #include <hpp/core/fwd.hh>
-#include <hpp/core/explicit-relative-transformation.hh>
+#include <hpp/constraints/explicit/relative-pose.hh>
+#include <hpp/constraints/matrix-view.hh>
+#include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #include <pinocchio/spatial/skew.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
@@ -36,9 +39,6 @@
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
-
-#include <hpp/constraints/differentiable-function.hh>
-#include <hpp/constraints/generic-transformation.hh>
 
 using namespace hpp::pinocchio;
 using namespace hpp::constraints;
@@ -89,10 +89,10 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
   Transform3f M2inO2 (Transform3f::Identity());
   Transform3f M1inO1 (Transform3f::Identity());
 
-  ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
-      "explicit_relative_transformation", robot,
-      object1, object2, M1inO1, M2inO2);
-  ExplicitPtr_t enm = ert->createNumericalConstraint();
+  ExplicitPtr_t enm (explicit_::RelativePose::create
+                     ("explicit_relative_transformation", robot, object1,
+                      object2, M1inO1, M2inO2));
+  DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
 
   Configuration_t q     = robot->currentConfiguration (),
                   qrand = se3::randomConfiguration(robot->model()),
@@ -183,10 +183,10 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
   std::cout << "M2inO2=" << M2inO2 << std::endl;
   std::cout << "M1inO1=" << M1inO1 << std::endl;
 
-  ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
-      "explicit_relative_transformation", robot,
-      object1, object2, M1inO1, M2inO2);
-  ExplicitPtr_t enm = ert->createNumericalConstraint();
+  ExplicitPtr_t enm (explicit_::RelativePose::create
+                     ("explicit_relative_transformation", robot, object1,
+                      object2, M1inO1, M2inO2));
+  DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
 
   Configuration_t q     = robot->currentConfiguration (),
                   qrand = se3::randomConfiguration(robot->model()),
@@ -200,8 +200,6 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
   LiegroupElement q_obj2 (ert->outputSpace ());
   vector_t q_obj1 (inConf.rview(qout).eval());
   ert->value (q_obj2, q_obj1);
-  if (enm->outputFunctionInverse())
-    enm->outputFunctionInverse()->value(q_obj2, q_obj2.vector());
   outConf.lview(qout) = q_obj2.vector ();
 
   // Test that at solution configuration, object2 and robot frames coincide.
@@ -279,19 +277,14 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   BOOST_TEST_MESSAGE("M2inO2=" << M2inO2);
   BOOST_TEST_MESSAGE("M1inO1=" << M1inO1);
 
-  ExplicitRelativeTransformationPtr_t ert = ExplicitRelativeTransformation::create (
-      "explicit_relative_transformation", robot,
-      object1, object2, M1inO1, M2inO2);
-  ExplicitPtr_t enm = ert->createNumericalConstraint();
-
+  ExplicitPtr_t enm (explicit_::RelativePose::create
+                     ("explicit_relative_transformation", robot, object1,
+                      object2, M1inO1, M2inO2));
+  DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
   DifferentiableFunctionPtr_t irt = enm->functionPtr();
   RelativeTransformation::Ptr_t rt = RelativeTransformation::create (
       "relative_transformation", robot,
       object1, object2, M1inO1, M2inO2);
-      // object2, object1, M2inO2, M1inO1);
-
-  DifferentiableFunctionPtr_t g    = enm->outputFunction(),
-                              ginv = enm->outputFunctionInverse();
 
   Configuration_t q     = robot->currentConfiguration (),
                   qrand = se3::randomConfiguration(robot->model()),
@@ -305,7 +298,6 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   LiegroupElement q_obj2 (ert->outputSpace ());
   vector_t q_obj1 (inConf.rview(qout).eval());
   ert->value (q_obj2, q_obj1);
-  enm->outputFunctionInverse()->value(q_obj2, q_obj2.vector());
   outConf.lview(qout) = q_obj2.vector ();
 
   // Test that at solution configuration, object2 and robot frames coincide.
@@ -325,16 +317,11 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   BOOST_CHECK_EQUAL (irt->outputSize(), rt->outputSize());
   BOOST_CHECK_EQUAL (irt->outputDerivativeSize(), rt->outputDerivativeSize());
   BOOST_CHECK_EQUAL (*irt->outputSpace(), *rt->outputSpace());
-  BOOST_CHECK_EQUAL (g->outputSize(), g->inputSize());
-  BOOST_CHECK_EQUAL (g->outputDerivativeSize(), g->inputDerivativeSize());
-  BOOST_CHECK_EQUAL (g->outputSize(), ginv->inputSize());
-  BOOST_CHECK_EQUAL (g->outputDerivativeSize(), ginv->inputDerivativeSize());
 
   Configuration_t q0 (qout);
   LiegroupElement v0 (rt->outputSpace ()), v1 (v0),
                   q_out (q_obj2), q_in  (q_obj2);
-  matrix_t J0 (rt->outputSpace()->nv(), rt->inputDerivativeSize()), J1 (J0),
-           Jg (g->outputSpace()->nv(),g->outputSpace()->nv()), Jginv (Jg);
+  matrix_t J0 (rt->outputSpace()->nv(), rt->inputDerivativeSize()), J1 (J0);
 
   irt->value    (v0, q0);
   irt->jacobian (J0, q0);
@@ -344,16 +331,6 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   BOOST_CHECK (v0.vector().isZero(test_precision));
   BOOST_CHECK (v1.vector().isZero(test_precision));
   EIGEN_IS_APPROX (J0, J1, test_precision);
-
-  q_in.vector() = outConf.rview(q0);
-  ginv->value    (q_obj2, q_in.vector());
-  ginv->jacobian (Jginv , q_in.vector());
-  g   ->value    (q_out , q_obj2.vector());
-  g   ->jacobian (Jg    , q_obj2.vector());
-
-  EIGEN_VECTOR_IS_APPROX (q_in.vector().head<3>(), q_out.vector().head<3>(), value_type_prec);
-  EIGEN_QUAT_IS_APPROX (q_in.vector().tail<4>(), q_out.vector().tail<4>(), value_type_prec);
-  BOOST_CHECK ((Jg * Jginv).eval().isIdentity(value_type_prec));
 
   // Second at random configurations
   for (size_type i=0; i<NB_RANDOM_CONF; ++i) {
@@ -365,15 +342,5 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
     rt ->jacobian (J1, q0);
     EIGEN_VECTOR_IS_APPROX (v0.vector(), v1.vector(), test_precision);
     EIGEN_IS_APPROX (J0, J1, test_precision);
-
-    q_in.vector() = outConf.rview(q0);
-    ginv->value    (q_obj2, q_in.vector());
-    ginv->jacobian (Jginv , q_in.vector());
-    g   ->value    (q_out , q_obj2.vector());
-    g   ->jacobian (Jg    , q_obj2.vector());
-
-    EIGEN_VECTOR_IS_APPROX (q_in.vector().head<3>(), q_out.vector().head<3>(), value_type_prec);
-    EIGEN_QUAT_IS_APPROX (q_in.vector().tail<4>(), q_out.vector().tail<4>(), value_type_prec);
-    BOOST_CHECK ((Jg * Jginv).eval().isIdentity(value_type_prec));
   }
 }
