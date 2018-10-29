@@ -144,7 +144,7 @@ namespace hpp {
       {
         typedef boost::fusion::vector<ConfigurationIn_t,
                 ConfigurationIn_t,
-                const value_type,
+                const value_type &,
                 value_type &> ArgsType;
 
         JOINT_MODEL_VISITOR_INIT(SquaredDistanceStep);
