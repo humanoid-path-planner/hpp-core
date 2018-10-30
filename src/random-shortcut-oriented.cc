@@ -141,7 +141,7 @@ namespace hpp {
             if(valid[i]){
               castedPath = boost::dynamic_pointer_cast<KinodynamicPath>(straight[i]);
               if(castedPath){
-                oriented = KinodynamicOrientedPath::createCopy(castedPath);
+                oriented = KinodynamicOrientedPath::create(castedPath);
                 orientedValid = problem ().pathValidation ()->validate(oriented, false, validPart, report);
                 if(orientedValid)
                   proj[i] = oriented;

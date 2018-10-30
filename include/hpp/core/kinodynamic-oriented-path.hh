@@ -86,7 +86,7 @@ namespace hpp{
         return shPtr;
       }
 
-      static KinodynamicOrientedPathPtr_t createCopy (const KinodynamicPathPtr_t& path)
+      static KinodynamicOrientedPathPtr_t create (const KinodynamicPathPtr_t& path)
       {
         KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
@@ -151,7 +151,7 @@ namespace hpp{
       KinodynamicOrientedPath (const KinodynamicOrientedPath& path);
 
 
-      /// Copy constructor
+      /// constructor from KinodynamicPath
       KinodynamicOrientedPath (const KinodynamicPath& path);
 
       /// Copy constructor with constraints

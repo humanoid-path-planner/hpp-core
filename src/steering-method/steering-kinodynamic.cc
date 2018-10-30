@@ -140,7 +140,7 @@ namespace hpp {
 
        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t0_t,t1_t,tv_t,t2_t,vLim_t);
        if(orientedPath_){
-         KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::createCopy(path);
+         KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::create(path);
          return orientedPath;
        }else{
          return path;

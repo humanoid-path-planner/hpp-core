@@ -170,7 +170,7 @@ namespace hpp {
       PathPtr_t path = parent_t::extract(subInterval);
       KinodynamicPathPtr_t kinoPath = boost::dynamic_pointer_cast<KinodynamicPath>(path);
       if(kinoPath)
-        return KinodynamicOrientedPath::createCopy(kinoPath);
+        return KinodynamicOrientedPath::create(kinoPath);
       else{
         hppDout(error,"Error while casting path in KinodynamicOrientedPath::extract");
         return PathPtr_t();
