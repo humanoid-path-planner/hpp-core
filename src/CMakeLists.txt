@@ -83,7 +83,6 @@ path-validations.cc
   random-shortcut.cc
   random-shortcut-oriented.cc
   dimt-rrt.cc
-  torque-bound-validation.cc
   reeds-shepp-path.cc
   relative-motion.cc  
   kinodynamic-path.cc

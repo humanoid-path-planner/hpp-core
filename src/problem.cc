@@ -33,7 +33,6 @@
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
-#include <hpp/core/torque-bound-validation.hh>
 
 namespace hpp {
   namespace core {

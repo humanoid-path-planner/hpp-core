@@ -57,10 +57,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (SubchainPath);
     HPP_PREDEF_CLASS (JointBoundValidation);
     struct JointBoundValidationReport;
-    HPP_PREDEF_CLASS (TorqueBoundValidation);
-    typedef boost::shared_ptr <TorqueBoundValidation> TorqueBoundValidationPtr_t;
-    struct TorqueBoundValidationReport;
-    typedef boost::shared_ptr <TorqueBoundValidationReport> TorqueBoundValidationReportPtr_t;
     class Node;
     HPP_PREDEF_CLASS (Path);
     HPP_PREDEF_CLASS (TimeParameterization);
