@@ -73,7 +73,6 @@
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/kinodynamic-distance.hh>
 #include <hpp/core/dimt-rrt.hh>
-#include <hpp/core/random-shortcut-oriented.hh>
 
 namespace hpp {
   namespace core {

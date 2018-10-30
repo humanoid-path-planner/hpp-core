@@ -81,7 +81,6 @@ path-validations.cc
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
   random-shortcut.cc
-  random-shortcut-oriented.cc
   dimt-rrt.cc
   reeds-shepp-path.cc
   relative-motion.cc  
