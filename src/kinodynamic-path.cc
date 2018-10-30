@@ -112,7 +112,6 @@ namespace hpp {
       }
       
       size_type configSize = device()->configSize() - device()->extraConfigSpace().dimension ();      
-      // const JointVector_t& jv (device()->getJointVector ());
       double v2,t2,t1,tv;
       size_type indexVel;
       size_type indexAcc;
@@ -122,20 +121,15 @@ namespace hpp {
         u = 0;
 
       pinocchio::interpolate (device_,initial_, end_, u, result);
-      //hppDout(notice,"path : initial = "<<pinocchio::displayConfig(initial_));
 
       for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
-      //for (model::JointVector_t::const_iterator itJoint = jv.begin (); itJoint != jv.end (); itJoint++) {
-        // size_type id = (*itJoint)->rankInConfiguration ();
-        // size_type indexVel = (*itJoint)->rankInVelocity() + configSize;
+
         indexVel = id + configSize;
         indexAcc = id + configSize + 3;
-        
-        //hppDout(notice," PATH For joint :"<<id<<" ; t = "<<t);
-       // hppDout(notice,"PATH for joint :"<<device()->getJointAtConfigRank(id)->name());
+
         if(device()->getJointAtConfigRank(id)->name() != "base_joint_SO3"){          
           
-          //if((*itJoint)->configSize() >= 1){
+
           // 3 case (each segment of the trajectory) : 
           if(t <= t0_[id]){ // before first segment
             //hppDout(info,"before 1° segment");
@@ -177,10 +171,7 @@ namespace hpp {
             result[indexVel] = end_[indexVel];
             result[indexAcc] = 0;
           }
-        }// if not quaternion joint
-
-     // }// if joint config size > 1
-      
+        }// if not quaternion joint      
      }// for all joints
       
       return true;

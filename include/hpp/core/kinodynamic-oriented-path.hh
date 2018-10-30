@@ -24,16 +24,8 @@
 namespace hpp{
   namespace core{
     /// Path with 2 segment of constant acceleration or 3 segments with a constant velocity segment
-    /// The orientation of the robot always follow the direction of the velocity
-    ///
-    /// Degrees of freedom are interpolated depending on the type of
-    /// \link hpp::model::Joint joint \endlink
-    /// they parameterize:
-    ///   \li linear interpolation for translation joints, bounded rotation
-    ///       joints, and translation part of freeflyer joints,
-    ///   \li angular interpolation for unbounded rotation joints,
-    ///   \li constant angular velocity for SO(3) part of freeflyer joints.
-    ///
+    /// This class is similar to \link hpp::core::KinodynamicPath KinodynamicPath \endlink exept that the orientation of the robot always follow the direction of the velocity
+
     class HPP_CORE_DLLAPI KinodynamicOrientedPath : public KinodynamicPath
     {
     public :

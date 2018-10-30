@@ -25,15 +25,16 @@
 
 namespace hpp {
   namespace core {
-    /// Path with 2 segment of constant acceleration or 3 segments with a constant velocity segment
+    /// KinodynamicPath store a "bang-bang" trajectory depend on time
+    /// with either 2 segment of constant acceleration or 3 segments with a constant velocity segment
     ///
-    /// Degrees of freedom are interpolated depending on the type of
-    /// \link hpp::model::Joint joint \endlink
-    /// they parameterize:
-    ///   \li linear interpolation for translation joints, bounded rotation
-    ///       joints, and translation part of freeflyer joints,
-    ///   \li angular interpolation for unbounded rotation joints,
-    ///   \li constant angular velocity for SO(3) part of freeflyer joints.
+    /// In current implementation, only the translation part of the freeflyer joint is considered by this class.
+    /// The value of all other joint are interpolated between the initial and end value using the interpolate() method.
+    ///
+    /// The current implementation assume that :
+    /// * The first joint of the robot is a freeflyer
+    /// * The robot have an extra Config Space of dimension >= 6.
+    /// The first 3 values of the extraConfig are the velocity of the root and the 3 other values are the aceleration.
     class HPP_CORE_DLLAPI KinodynamicPath : public StraightPath
     {
     public:
