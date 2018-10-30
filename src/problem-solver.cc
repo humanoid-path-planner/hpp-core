@@ -204,7 +204,7 @@ namespace hpp {
 
       steeringMethods.add ("Straight",   Factory<steeringMethod::Straight>::create);
       steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
-      steeringMethods.add ("Kynodynamic", steeringMethod::Kinodynamic::create);
+      steeringMethods.add ("Kinodynamic", steeringMethod::Kinodynamic::create);
       steeringMethods.add ("Dubins",     steeringMethod::Dubins::createWithGuess);
       steeringMethods.add ("Snibud",     steeringMethod::Snibud::createWithGuess);
       steeringMethods.add ("Hermite",    steeringMethod::Hermite::create);
