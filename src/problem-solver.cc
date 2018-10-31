@@ -201,6 +201,8 @@ namespace hpp {
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
       distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
+      distances.add ("Kinodynamic",     KinodynamicDistance::createFromProblem);
+
 
       steeringMethods.add ("Straight",   Factory<steeringMethod::Straight>::create);
       steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);

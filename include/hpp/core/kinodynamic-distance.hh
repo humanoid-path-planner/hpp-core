@@ -33,7 +33,7 @@ namespace core {
 class HPP_CORE_DLLAPI KinodynamicDistance : public Distance {
 public:
     static KinodynamicDistancePtr_t create (const DevicePtr_t& robot);
-    static KinodynamicDistancePtr_t createFromProblem (const ProblemPtr_t& problem);
+    static KinodynamicDistancePtr_t createFromProblem (const Problem& problem);
 
     static KinodynamicDistancePtr_t createCopy
     (const KinodynamicDistancePtr_t& distance);
@@ -47,6 +47,7 @@ public:
     }
 protected:
     KinodynamicDistance (const DevicePtr_t& robot);
+    KinodynamicDistance (const Problem& problem);
     KinodynamicDistance (const KinodynamicDistance& distance);
     void init (KinodynamicDistanceWkPtr_t self);
     /// Derived class should implement this function

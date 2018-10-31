@@ -38,9 +38,9 @@ KinodynamicDistancePtr_t KinodynamicDistance::create (const DevicePtr_t& robot)
     return shPtr;
 }
 
-KinodynamicDistancePtr_t KinodynamicDistance::createFromProblem (const ProblemPtr_t& problem)
+KinodynamicDistancePtr_t KinodynamicDistance::createFromProblem (const Problem& problem)
 {
-    KinodynamicDistance* ptr = new KinodynamicDistance (problem->robot());
+    KinodynamicDistance* ptr = new KinodynamicDistance (problem);
     KinodynamicDistancePtr_t shPtr (ptr);
     ptr->init (shPtr);
     return shPtr;
@@ -66,13 +66,26 @@ DistancePtr_t KinodynamicDistance::clone () const
 KinodynamicDistance::KinodynamicDistance (const DevicePtr_t& robot) :
     robot_ (robot)
 {
-    if((2*(robot_->extraConfigSpace().dimension())) < robot_->configSize()){
-        std::cout<<"Error : you need at least "<<robot_->configSize()-robot_->extraConfigSpace().dimension()<<" extra DOF"<<std::endl;
-        hppDout(error,"Error : you need at least "<<robot_->configSize() - robot_->extraConfigSpace().dimension()<<" extra DOF");
+    if(robot_->extraConfigSpace().dimension() <6){
+        std::cout<<"Error : you need at least 6 extra DOF"<<std::endl;
+        hppDout(error,"Error : you need at least 6 extra DOF");
     }
-    aMax_ = 1;
-    vMax_ = 2;
+    hppDout(warning,"Kinodynamic distance create from robot, cannot access user-defined velocity and acceleration bounds. Use default values");
+    aMax_ = 10.;
+    vMax_ = 1.;
 }
+
+KinodynamicDistance::KinodynamicDistance (const Problem& problem) :
+    robot_ (problem.robot())
+{
+    if(robot_->extraConfigSpace().dimension() <6){
+        std::cout<<"Error : you need at least 6 extra DOF"<<std::endl;
+        hppDout(error,"Error : you need at least 6 extra DOF");
+    }
+    aMax_=problem.getParameter(std::string("Kinodynamic/accelerationBound")).floatValue();
+    vMax_ = problem.getParameter(std::string("Kinodynamic/velocityBound")).floatValue();
+}
+
 
 
 KinodynamicDistance::KinodynamicDistance (const KinodynamicDistance& distance) :
@@ -103,9 +116,9 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
   double t1,t2,tv;
   int sigma;
   double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax_);
-  sigma = sgn(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
+  sigma = sgn(p2-p1-deltaPacc);
   //hppDout(info,"sigma = "<<sigma);
-  if(sigma == 0){ // ??? FIXME
+  if(sigma == 0){
     sigma = sgn(p2-p1);
     //hppDout(info,"sigma Bis= "<<sigma);
   }
