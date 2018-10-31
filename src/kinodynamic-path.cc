@@ -193,7 +193,7 @@ namespace hpp {
         return PathPtr_t();
       }
 
-      hppDout(notice,"%% EXTRACT PATH : path interval : "<<timeRange_.first<<" ; "<<timeRange_.second);
+      hppDout(notice,"%% EXTRACT PATH : path interval : "<<timeRange().first<<" ; "<<timeRange().second);
       hppDout(notice,"%% EXTRACT PATH : sub  interval : "<<subInterval.first<<" ; "<<subInterval.second);
 
       bool success;

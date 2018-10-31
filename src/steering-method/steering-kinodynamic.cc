@@ -119,7 +119,7 @@ namespace hpp {
         hppDout(info,"compute fixed end-time trajectory for each joint : ");
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
-          hppDout(notice,"For joint :"<<problem_->robot()->getJointAtConfigRank(indexConfig)->name());
+          hppDout(notice,"For joint :"<<problem_.robot()->getJointAtConfigRank(indexConfig)->name());
           if(problem_.robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t0,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
