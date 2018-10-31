@@ -373,6 +373,8 @@ namespace hpp {
         value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold").floatValue();
 
         PathVectorPtr_t input = Base::cleanInput (path);
+        size_type maxIterations = problem().getParameter
+          ("SplineGradientBased/maxIterations").intValue();
 
         robot_->controlComputation ((pinocchio::Computation_t)(robot_->computationFlag() | pinocchio::JACOBIAN));
         const size_type rDof = robot_->numberDof();
@@ -451,7 +453,9 @@ namespace hpp {
         QPc.computeLLT();
         QPc.solve(collisionReduced, boundConstraintReduced);
 
-        while (!(noCollision && minimumReached) && (!this->interrupt_)) {
+        size_type iter = 0;
+        while (!(noCollision && minimumReached) && (!this->interrupt_)
+               && iter < maxIterations) {
           // 6.1
           if (computeOptimum) {
             // 6.2
@@ -553,11 +557,15 @@ namespace hpp {
               computeInterpolatedSpline = true;
             }
           }
+          ++iter;
         }
 
         // 7
         HPP_DISPLAY_TIMECOUNTER(SGB_findNewConstraint);
-        return this->buildPathVector (splines);
+        if (iter < maxIterations) {
+          currentSplines = &splines;
+        }
+        return this->buildPathVector (*currentSplines);
       }
 
       // ----------- Convenience functions ---------------------------------- //
@@ -627,6 +635,11 @@ namespace hpp {
             "contains rows of zeros, in which case the "
             "corresponding DoF is considered passive.",
             Parameter(0.01)));
+      Problem::declareParameter (ParameterDescription (Parameter::INT,
+            "SplineGradientBased/maxIterations",
+            "Maximal number of iterations. Once reached the algorithm "
+            "returns the current path whether valid or not",
+            Parameter (std::numeric_limits <size_type>::max ())));
       HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
     } // namespace pathOptimization
   }  // namespace core
