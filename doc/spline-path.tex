@@ -6,6 +6,13 @@
 
 \section{Spline path}
 
+A spline path is
+$$
+p (t) = q_0 \oplus P(t)
+$$
+where $p(t)$ and $q_0$ are elements of the robot configuration space while
+$P(t)$ is an element of the tangent.
+
 $$
 P (t) = \sum_{i=0}^n P_i \times b_i(\frac{t - t_0}{T})
 $$
@@ -15,9 +22,23 @@ of degree less or equal to $n$ and $(P_i)$ is a set of points.
 
 \paragraph{Derivative}
 
+\subparagraph{On vector spaces} it is easy to compute $p^{(k)}(t)$ as:
 $$
-P^{(k)} (t) = \sum_{i=0}^n \frac{P_i}{T^k} \times b_i^{(k)}(\frac{t - t_0}{T})
+p^{(k)} (t) = P^{(k)} (t) = \sum_{i=0}^n \frac{P_i}{T^k} \times b_i^{(k)}(\frac{t - t_0}{T})
 $$
+
+\subparagraph{On non-vector spaces} the chain rule appears and we get:
+$$
+p^{(1)} (t) = \frac{d\oplus}{dv} \times P^{(1)} (t)
+$$
+Higher order derivatives need $\frac{d^n\oplus}{dv^n}$ which is not implemented yet.
+
+\subparagraph{With respect to path length}
+\begin{eqnarray*}
+% \frac{d^kP}{dT^k} (t,T) =  \sum_{i=0}^n \frac{(-1)^k P_i}{T^k} \times b_i^{(k)}(\frac{t - t_0}{T})
+\frac{dP}{dT} (t,T) =& \sum_{i=0}^n - \frac{P_i}{T^2} \times b_i^{(1)}(\frac{t - t_0}{T}) \\
+\frac{dp}{dT} (t,T) =& \frac{d\oplus}{dv}(q_0, P(t,T)) \frac{dP}{dT} (t, T)
+\end{eqnarray*}
 
 \paragraph{Integral of derivatives}
 \begin{eqnarray*}
@@ -27,6 +48,9 @@ $$
 &=& T^{1-2k} \sum_{i,j} P_i^T P_j \int_0^1 b_i^{(k)}(u) b_j^{(k)}(u) du \\
 \end{eqnarray*}
 
+It is important to highlight that
+$ {P^{(1)} (t)}^T . P^{(1)} (t) = {p^{(1)} (t)}^T . p^{(1)} (t) $.
+This should be asserted in the code.
 
 \section{Definiton of some basis of polynoms}
 

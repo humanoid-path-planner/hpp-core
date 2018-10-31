@@ -18,6 +18,7 @@
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
+#include <hpp/pinocchio/liegroup-space.hh>
 
 #include <path/math.hh>
 
@@ -253,7 +254,7 @@ namespace hpp {
       std::ostream& Spline<_SplineType, _Order>::print (std::ostream& os) const
       {
         os << "Spline (type=" << PolynomeBasis << ", order=" << Order
-          << ")\nbase = " << base_.transpose()
+          << ")\nbase = " << base().transpose()
           << '\n' << parameters_ << std::endl;
         return os;
       }
@@ -321,23 +322,31 @@ namespace hpp {
       template <int _SplineType, int _Order>
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type s) const
       {
-        BasisFunctionVector_t basisFunc;
         const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
-        basisFunctionDerivative(0, u, basisFunc);
-        velocity_.noalias() = parameters_.transpose() * basisFunc;
-
-        pinocchio::integrate<false, hpp::pinocchio::RnxSOnLieGroupMap> (robot_, base_, velocity_, res);
+        value (base_, parameters_, u, res, velocity_);
         return true;
       }
 
       template <int _SplineType, int _Order>
       void Spline<_SplineType, _Order>::impl_derivative (vectorOut_t res, const value_type& s, size_type order) const
       {
+        // p = q + v(t) so dp/dt = d+/dv * dv/dt
         assert (order > 0);
+        // For non vector space, it is not possible to compute the derivatives
+        // at a higher order. At the d2+/dv2 is not available for SE(n) and SO(n).
+        assert (order == 1 || robot_->configSpace()->isVectorSpace());
         BasisFunctionVector_t basisFunc;
         const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
         basisFunctionDerivative(order, u, basisFunc);
         res.noalias() = parameters_.transpose() * basisFunc;
+
+        if (!robot_->configSpace()->isVectorSpace()) {
+          basisFunctionDerivative(0, u, basisFunc);
+          vector_t v (parameters_.transpose() * basisFunc);
+          matrix_t unused;
+          // true means: res <- Jdiff * res
+          base_.space()->Jdifference<true> (base(), v, unused, res);
+        }
       }
 
       template <int _SplineType, int _Order>
@@ -347,6 +356,13 @@ namespace hpp {
         const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
         basisFunctionDerivative(0, u, basisFunc);
         res = basisFunc;
+
+        if (!robot_->configSpace()->isVectorSpace()) {
+          vector_t v (parameters_.transpose() * basisFunc);
+          matrix_t unused;
+          // true means: res <- Jdiff * res
+          base_.space()->Jdifference<true> (base(), v, unused, res);
+        }
       }
 
       template <int _SplineType, int _Order>
@@ -384,6 +400,24 @@ namespace hpp {
         squaredNormBasisFunctionIntegral(order, Ic);
         matrix_t tmp (parameters_.transpose() * Ic);
         res = 2 * Eigen::Map<vector_t, Eigen::Aligned> (tmp.data(), tmp.size());
+      }
+
+      template <int _SplineType, int _Order>
+      void Spline<_SplineType, _Order>::value (pinocchio::LiegroupConstElementRef base,
+          Eigen::Ref<const ParameterMatrix_t> params, const value_type& u,
+          ConfigurationOut_t res, vectorOut_t velocity)
+      {
+        assert (0 <= u && u <= 1);
+        assert (params.rows() == NbCoeffs);
+        assert (params.cols() == base.space()->nv());
+
+        velocity.resize (base.space()->nv());
+
+        BasisFunctionVector_t basisFunc;
+        BasisFunction_t::derivative (0, u, basisFunc);
+        velocity.noalias() = params.transpose() * basisFunc;
+
+        res = (base + velocity).vector();
       }
 
       template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath

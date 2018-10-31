@@ -21,6 +21,7 @@
 # include <hpp/core/path.hh>
 
 # include <hpp/pinocchio/device.hh>
+# include <hpp/pinocchio/liegroup-element.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/steering-method/fwd.hh>
@@ -204,13 +205,13 @@ namespace hpp {
           /// configuration.
           const Configuration_t& base () const
           {
-            return base_;
+            return base_.vector();
           }
 
           /// \sa base() const
           void base (const Configuration_t& q)
           {
-            base_ = q;
+            base_.vector() = q;
           }
 
           /// Each row corresponds to a velocity of the robot.
@@ -263,6 +264,19 @@ namespace hpp {
             return shPtr;
           }
 
+          /// Evaluate a spline.
+          /// \param base   the base configuration.
+          /// \param params concatenation of row vectors representing the
+          ///               velocity interpolation points.
+          /// \param u      the ratio, between 0 and 1.
+          /// \retval config the output configuration
+          /// \retval velocity the interpolated velocity
+          static void value (pinocchio::LiegroupConstElementRef base,
+              Eigen::Ref<const ParameterMatrix_t> params,
+              const value_type& u,
+              ConfigurationOut_t config,
+              vectorOut_t velocity);
+
         protected:
           Spline (const DevicePtr_t& robot,
               const interval_t& interval,
@@ -270,7 +284,7 @@ namespace hpp {
             : Path (interval, robot->configSize(), robot->numberDof(), constraints),
             parameterSize_ (robot->numberDof()),
             robot_ (robot),
-            base_ (outputSize()),
+            base_ (robot->RnxSOnConfigSpace()->vectorSpacesMerged()),
             parameters_ ((int)NbCoeffs, parameterSize_)
           {
             powersOfT_(0) = 1;
@@ -302,7 +316,7 @@ namespace hpp {
           /// Base of the spline path.
           /// The spline is a curve in the tangent space of the robot at this
           /// configuration.
-          Configuration_t base_;
+          LiegroupElement base_;
           /// Parameters of the spline are stored in a matrix
           ///   number of rows = degree of polynomial + 1
           ///   number of columns = robot number of degrees of freedom.
