@@ -35,7 +35,11 @@ namespace hpp {
       /// \addtogroup steering_method
       /// \{
       
-      /// Steering method that creates KinodynamicPath instances
+      /// Steering method that creates KinodynamicPath instances.
+      /// It produce a "bang-bang" trajectory connecting exactly the two given state (position and velocity)
+      /// which respect velocity and acceleration bounds defined by the user (see Problem parameters : Kinodynamic/velocityBound and Kinodynamic/accelerationBound)
+      ///
+      /// Implementation based on the equation of the article https://ieeexplore.ieee.org/document/6943083
       ///
       class HPP_CORE_DLLAPI Kinodynamic : public SteeringMethod
       {

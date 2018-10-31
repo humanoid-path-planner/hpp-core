@@ -26,10 +26,14 @@ namespace core {
 /// \addtogroup steering_method
 /// \{
 
-/// Weighed distance between configurations
+/// This class computed the Distance between two states as the minimal time required to connect this two states with a "bang-bang" trajectory,
+/// given velocity and acceleration bounds.
 ///
-/// Euclidean distance between configurations seen as vectors.
-/// Each degree of freedom is weighed by a positive value.
+/// This time is the same as the length() of a KinodynamicPath computed between this two states by the steeringMethod::Kinodynamic.
+///
+/// This class require that the dimension of the extraConfigSpace is at least 6 and store the velocity and acceleration of the root.
+///
+
 class HPP_CORE_DLLAPI KinodynamicDistance : public Distance {
 public:
     static KinodynamicDistancePtr_t create (const DevicePtr_t& robot);

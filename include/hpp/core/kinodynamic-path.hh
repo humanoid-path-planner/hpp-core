@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace core {
+    /// \addtogroup path
+    /// \{
+    ///
     /// KinodynamicPath store a "bang-bang" trajectory depend on time
     /// with either 2 segment of constant acceleration or 3 segments with a constant velocity segment
     ///
