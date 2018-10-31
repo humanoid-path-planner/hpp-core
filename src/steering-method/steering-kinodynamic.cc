@@ -161,49 +161,24 @@ namespace hpp {
         }
 
         // get velocity and acceleration bounds from problem :
-        try {
-          //boost::any value = problem_->get<boost::any> (std::string("aMax"));
 
-          aMaxFixed_ = problem_.getParameter(std::string("aMax")).floatValue();//, 5);
-          //aMaxFixed_ = boost::any_cast<double>(value);
-        } catch (const std::exception& e) {
-          std::cout<<"Warning : no acceleration bounds set, use 10.0 as default"<<std::endl;
-          aMaxFixed_ = 10.;
-        }
+        aMaxFixed_ = problem_.getParameter(std::string("Kinodynamic/accelerationBound")).floatValue();
         aMax_=Vector3::Ones(3)*aMaxFixed_;
-        try {
-          aMaxFixed_Z_ = problem_.getParameter(std::string("aMaxZ")).floatValue();
-          aMax_[2] = aMaxFixed_Z_;
-        } catch (const std::exception& e) {
-          aMaxFixed_Z_ = 10.;
-        }
-        try {
-          vMax_ *= aMaxFixed_Z_ = problem_.getParameter(std::string("vMax")).floatValue();
-        } catch (const std::exception& e) {
-          std::cout<<"Warning : no velocity bounds set, use 1.0 as default"<<std::endl;
-        }
+        aMaxFixed_Z_ = problem_.getParameter(std::string("Kinodynamic/verticalAccelerationBound")).floatValue();
+        vMax_ = Vector3::Ones(3) *  problem_.getParameter(std::string("Kinodynamic/velocityBound")).floatValue();
+
         std::cout<<"here"<<std::endl;
         hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_);
 
-        try {
-          tryJump_ = problem_.getParameter(std::string("tryJump")).boolValue();
-        } catch (const std::exception& e) {
-          hppDout(notice,"try jump not set, use false as default");
-          tryJump_=false;
-        }
-        hppDout(notice,"tryJump in steering method = "<<tryJump_);
-        try {
-          orientedPath_  = problem_.getParameter(std::string("orientedPath")).boolValue();
-        } catch (const std::exception& e) {
-          hppDout(notice,"orientedPath not set, use false as default");
-          orientedPath_ = false;
-        }
+        synchronizeVerticalAxis_ = problem_.getParameter(std::string("Kinodynamic/synchronizeVerticalAxis")).boolValue();
+        hppDout(notice,"synchronizeVerticalAxis in steering method = "<<synchronizeVerticalAxis_);
+        orientedPath_  = problem_.getParameter(std::string("Kinodynamic/forceOrientation")).boolValue();
         hppDout(notice,"oriented path : "<<orientedPath_);
       }
       
       /// Copy constructor
       Kinodynamic::Kinodynamic (const Kinodynamic& other) :
-        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_),tryJump_(other.tryJump_),orientedPath_(other.orientedPath_)
+        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_),synchronizeVerticalAxis_(other.synchronizeVerticalAxis_),orientedPath_(other.orientedPath_)
       {
       }
       
@@ -369,7 +344,7 @@ namespace hpp {
           *vLim = 0;
           return;
         }
-        if(tryJump_){
+        if(!synchronizeVerticalAxis_){
           if(index == 2 && /*((v1 == 0) ||*/ (v2==0)){ // FIXME : axis z ?
             hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
             assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
@@ -517,7 +492,29 @@ namespace hpp {
       }
 
 
-      
+      HPP_START_PARAMETER_DECLARATION(Kinodynamic)
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "Kinodynamic/velocityBound",
+            "The maximal magnitude of the velocity along the trajectory. ",
+            Parameter(1.)));
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "Kinodynamic/accelerationBound",
+            "The maximal magnitude of the acceleration along the trajectory. ",
+            Parameter(10.)));
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "Kinodynamic/verticalAccelerationBound",
+            "The maximal magnitude of the acceleration along the z axis. ",
+            Parameter(10.)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "Kinodynamic/forceOrientation",
+            "If true, the orientation of the root is always aligned with the velocity",
+            Parameter(false)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "Kinodynamic/synchronizeVerticalAxis",
+            "If false, the acceleration along the vertical axis is not synchronized wwith the other axis. This result in a greater vertical acceleration with a longer phase at constant velocity, resulting in a motion with less displacement along the vertical axis",
+            Parameter(true)));
+      HPP_END_PARAMETER_DECLARATION(Kinodynamic)
+
       
     } // namespace steeringMethod
   } // namespace core

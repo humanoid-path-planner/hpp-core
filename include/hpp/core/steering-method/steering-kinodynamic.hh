@@ -136,7 +136,7 @@ namespace hpp {
         Vector3 vMax_;
         double aMaxFixed_;
         double aMaxFixed_Z_;
-        bool tryJump_;
+        bool synchronizeVerticalAxis_;
         bool orientedPath_;
 
       private:
