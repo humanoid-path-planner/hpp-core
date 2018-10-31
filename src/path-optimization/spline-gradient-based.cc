@@ -315,7 +315,7 @@ namespace hpp {
         collision.addRows(cc->outputSize());
         functions.addConstraint (cc, idxSpline,
             collision.J.rows() - 1,
-            report->parameter / nextSpline->length()); 
+            report->parameter / nextSpline->length());
 
         functions.linearize(spline, sod, functions.functions.size() - 1, collision);
       }
