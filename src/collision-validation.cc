@@ -80,7 +80,6 @@ namespace hpp {
         bool firstCollision(true);
         AllCollisionsValidationReportPtr_t allReport;
         for (CollisionPairs_t::const_iterator _col = collisionPairs_.begin (); _col != collisionPairs_.end (); ++_col){
-          fcl::CollisionResult collisionResult;
           if (collide (_col, collisionRequest_, collisionResult) != 0){
             hppDout(notice,"in collision :  "<<_col->first->name()<<" / "<<_col->second->name());
             CollisionValidationReportPtr_t report (new CollisionValidationReport);
