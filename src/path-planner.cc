@@ -163,8 +163,7 @@ namespace hpp {
 	  PathValidationReportPtr_t report;
           bool pathValid = pathValidation->validate (projPath, false, validPath,
 						     report);
-          if (pathValid && validPath->timeRange ().second !=
-              path->timeRange ().first) {
+          if (pathValid && validPath->length() > 0) {
             roadmap ()->addEdge (initNode, *itn, projPath);
             roadmap ()->addEdge (*itn, initNode, projPath->reverse());
           }
