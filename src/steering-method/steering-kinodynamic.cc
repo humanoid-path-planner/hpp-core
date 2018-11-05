@@ -156,8 +156,8 @@ namespace hpp {
         SteeringMethod (problem), aMax_(Vector3::Ones(3)),vMax_(Vector3::Ones(3)), device_ (problem.robot ()), weak_ ()
       {
         if(((problem.robot()->extraConfigSpace().dimension())) < 6){
-          std::cout<<"Error : you need at least "<<6<<" extra DOF"<<std::endl;
-          hppDout(error,"Error : you need at least "<<6<<" extra DOF");
+          std::cout<<"Error : you need at least "<<6<<" extra DOF to use this steering method"<<std::endl;
+          hppDout(error,"Error : you need at least "<<6<<" extra DOF to use this steering method");
         }
 
         // get velocity and acceleration bounds from problem :
@@ -167,8 +167,7 @@ namespace hpp {
         aMaxFixed_Z_ = problem_.getParameter(std::string("Kinodynamic/verticalAccelerationBound")).floatValue();
         vMax_ = Vector3::Ones(3) *  problem_.getParameter(std::string("Kinodynamic/velocityBound")).floatValue();
 
-        std::cout<<"here"<<std::endl;
-        hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_);
+        hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<< "; aMax_ = "<<aMax_);
 
         synchronizeVerticalAxis_ = problem_.getParameter(std::string("Kinodynamic/synchronizeVerticalAxis")).boolValue();
         hppDout(notice,"synchronizeVerticalAxis in steering method = "<<synchronizeVerticalAxis_);
