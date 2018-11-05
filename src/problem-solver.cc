@@ -148,7 +148,6 @@ namespace hpp {
     configurationShooter::UniformPtr_t createUniformConfigShooter (const Problem& p)
     {
       configurationShooter::UniformPtr_t ptr = configurationShooter::Uniform::create(p.robot());
-      std::cout<<"Uniform : "<<p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue()<<std::endl;
       ptr->sampleExtraDOF(p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue());
       return ptr;
     }
