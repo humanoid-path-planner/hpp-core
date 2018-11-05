@@ -145,6 +145,14 @@ namespace hpp {
       return ptr;
     }
 
+    configurationShooter::UniformPtr_t createUniformConfigShooter (const Problem& p)
+    {
+      configurationShooter::UniformPtr_t ptr = configurationShooter::Uniform::create(p.robot());
+      std::cout<<"Uniform : "<<p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue()<<std::endl;
+      ptr->sampleExtraDOF(p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue());
+      return ptr;
+    }
+
     ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
     ProblemSolverPtr_t ProblemSolver::create ()
     {
@@ -194,7 +202,7 @@ namespace hpp {
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
 
-      configurationShooters.add ("Uniform" , createFromRobot<configurationShooter::Uniform>);
+      configurationShooters.add ("Uniform" , createUniformConfigShooter);
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
@@ -1102,6 +1110,10 @@ namespace hpp {
           "ConfigurationShooter/Gaussian/standardDeviation",
           "Scale the default standard deviation with this factor.",
           Parameter(0.25)));
+    Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+          "ConfigurationShooter/sampleExtraDOF",
+          "If false, the value of the random configuration extraDOF are set to 0.",
+          Parameter(true)));
     HPP_END_PARAMETER_DECLARATION(ProblemSolver)
   } //   namespace core
 } // namespace hpp
