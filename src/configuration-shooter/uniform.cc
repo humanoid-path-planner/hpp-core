@@ -46,7 +46,7 @@ namespace hpp {
               config [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
             }
         }else{
-            config.tail(extraDim) = Configuration_t::Zero(extraDim);
+            config.tail(extraDim).setZero();
         }
         return boost::make_shared<Configuration_t> (config);
       }
