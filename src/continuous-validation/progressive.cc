@@ -24,8 +24,9 @@
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/continuous-validation/initializer.hh>
 
-#include <hpp/core/continuous-validation/interval-validation.hh>
+#include "continuous-validation/intervals.hh"
 
 namespace hpp {
   namespace core {
@@ -50,6 +51,8 @@ namespace hpp {
       {
         Progressive* ptr = new Progressive (robot, tolerance);
         ProgressivePtr_t shPtr (ptr);
+        ptr->init(shPtr);
+        ptr->initializer_->initialize();
         return shPtr;
       }
 
@@ -134,15 +137,20 @@ namespace hpp {
       {
       }
 
-      Progressive::Progressive
-      (const DevicePtr_t& robot, const value_type& tolerance) :
-	ContinuousValidation (robot, tolerance)
+      void Progressive::init(const ProgressiveWkPtr_t weak)
       {
-	if (tolerance <= 0) {
-	  throw std::runtime_error
-	    ("tolerance should be positive for"
-	     " progressive continuous validation.");
-	}
+        ContinuousValidation::init (weak);
+        weak_ = weak;
+      }
+
+      Progressive::Progressive (const DevicePtr_t& robot, const value_type& tolerance):
+	      ContinuousValidation (robot, tolerance), weak_()
+      {
+        if (tolerance <= 0) {
+          throw std::runtime_error
+            ("tolerance should be positive for"
+            " progressive continuous validation.");
+        }
       }
     } // namespace continuousValidation
   } // namespace core

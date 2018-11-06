@@ -24,24 +24,17 @@
 # include <hpp/core/path-validation-report.hh>
 # include <hpp/core/continuous-validation/solid-solid-collision.hh>
 # include <hpp/core/continuous-validation/body-pair-collision.hh>
-# include <hpp/core/continuous-validation/interval-validation.hh>
 
 namespace hpp {
   namespace core {
-    namespace continuousValidation {
-      typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
-      typedef std::vector <BodyPairCollisionPtr_t> BodyPairCollisions_t;
-      typedef boost::shared_ptr<IntervalValidation<ValidationReportPtr_t> > IntervalValidationPtr_t;
-      typedef std::vector<IntervalValidationPtr_t> IntervalValidations_t;
-    } // namespace continuousValidation
       /// \addtogroup validation
       /// \{
 
       /// Continuous validation of a path
       ///
-      /// This class is derived into two sub-classes
-      /// \li a StraightPath, or
-      /// \li a PathVector containing StraightPath or PathVector instances
+      /// This class tests for collision
+      /// \li straight paths, or
+      /// \li concatenation of straight paths (PathVector).
       ///
       /// A path is valid if and only if each interval validation element
       /// is valid along the whole interval of definition
@@ -50,7 +43,7 @@ namespace hpp {
       /// collision (BodyPairCollision) or an other type of validation.
       ///
       /// Collision pairs between bodies of the robot are initialized at
-      /// construction of the instance.
+      /// construction of the instance through the Initializer.
       ///
       /// Method addObstacle adds an obstacle in the environment.
       /// For each joint, a new pair is created with the new obstacle.
@@ -73,11 +66,11 @@ namespace hpp {
       ///
       /// \param path the path to check for validity,
       /// \param reverse if true check from the end,
-      /// \retval the extracted valid part of the path, pointer to path if
+      /// \retval validPart the extracted valid part of the path, pointer to path if
       ///         path is valid.
       /// \retval report information about the validation process. A report
       ///         is allocated if the path is not valid.
-      /// \return whether the whole path is valid.
+      /// \return true if the whole path is valid.
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
@@ -91,8 +84,8 @@ namespace hpp {
       virtual void setPath(const PathPtr_t &path, bool reverse);
 
       /// Remove a collision pair between a joint and an obstacle
-      /// \param the joint that holds the inner objects,
-      /// \param the obstacle to remove.
+      /// \param joint the joint that holds the inner objects,
+      /// \param obstacle the obstacle to remove.
       /// \notice collision configuration validation needs to know about
       /// obstacles. This virtual method does nothing for configuration
       /// validation methods that do not care about obstacles.
@@ -100,6 +93,11 @@ namespace hpp {
 	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
       void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
+
+      /// Change the initializer
+      /// The continuous validation is then reset and the new initializer is
+      /// called to do the new initialization
+      void changeInitializer (continuousValidation::InitializerPtr_t initializer);
 
       virtual ~ContinuousValidation ();
     protected:
@@ -118,26 +116,29 @@ namespace hpp {
       ///         value, false if the body pair is in collision.
       /// \note object should be in the positions defined by the configuration
       ///       of parameter t on the path.
-      bool validateConfiguration (const Configuration_t& config,
+      virtual bool validateConfiguration (const Configuration_t& config,
 				  const value_type& t,
 				  interval_t& interval,
 				  PathValidationReportPtr_t& report);
       DevicePtr_t robot_;
       value_type tolerance_;
 
+      /// Store weak pointer to itself.
+      void init (ContinuousValidationWkPtr_t weak);
+
       // all BodyPairValidation to validate
       continuousValidation::BodyPairCollisions_t bodyPairCollisions_;
-      // all IntervalValidation that are not BodyPairValidation
-      continuousValidation::IntervalValidations_t intervalValidations_;
       // BodyPairCollision for which collision is disabled
       continuousValidation::BodyPairCollisions_t disabledBodyPairCollisions_;
       value_type stepSize_;
+      // Initializer as a delegate
+      continuousValidation::InitializerPtr_t initializer_;
     private:
-      virtual bool validateStraightPath
-	(const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
-	 PathValidationReportPtr_t& report) = 0;
-      void generateAutoCollisions();
-      bool checkCollisionFirst;
+      // Weak pointer to itself
+      ContinuousValidationWkPtr_t weak_;
+
+      virtual bool validateStraightPath (const PathPtr_t& path,
+        bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report) = 0;
 
       template<typename IntervalValidations, typename ValidationReportTypePtr_t>
       bool validateIntervals( IntervalValidations validations, const value_type &t,
@@ -176,6 +177,7 @@ namespace hpp {
         }
         return true;
       }
+      friend class continuousValidation::Initializer;
 
     }; // class ContinuousValidation
     /// \}

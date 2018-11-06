@@ -80,7 +80,7 @@ namespace hpp {
         /// the right one should belong to joint_b, or vice-versa.
         /// This is not checked.
         void addCollisionPair (const CollisionObjectConstPtr_t& left,
-            const CollisionObjectConstPtr_t right);
+            const CollisionObjectConstPtr_t &right);
 
         // Get joints
         const std::vector <se3::JointIndex>& joints () const

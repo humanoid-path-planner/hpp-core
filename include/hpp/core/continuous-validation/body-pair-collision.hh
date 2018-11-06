@@ -34,12 +34,11 @@
 # include <hpp/core/interpolated-path.hh>
 # include <hpp/core/deprecated.hh>
 # include <hpp/core/continuous-validation/interval-validation.hh>
-# include "continuous-validation/intervals.hh"
 
 namespace hpp {
   namespace core {
     namespace continuousValidation {
-      /// Computation of collision-free sub-intervals of a path
+      /// Computation of collision-free sub-intervals of a path. 
       ///
       /// This class aims at validating a path for the absence of collision
       /// between two bodies of a robot, which are in most common cases
@@ -65,6 +64,7 @@ namespace hpp {
               ///                collision checking must be performed.
               ///                As output, interval over which pair is collision-free,
               ///                not necessarily included in definition interval.
+        /// \param report the collision validation report
         /// \return true if the body pair is collision free for this parameter
         ///         value, false if the body pair is in collision.
         /// \note object should be in the positions defined by the configuration
@@ -106,8 +106,8 @@ namespace hpp {
             halfLengthDist = collisionFreeInterval(t, distanceLowerBound, Vm);
             halfLengthTol = 2*tolerance_/Vm;
           }
-          assert (!isnan (halfLengthDist));
-          assert (!isnan (halfLengthTol));
+          assert (!std::isnan (halfLengthDist));
+          assert (!std::isnan (halfLengthTol));
           interval.first = t - (halfLengthDist + halfLengthTol);
           interval.second = t + (halfLengthDist + halfLengthTol);
           validInterval_.insert (continuous_interval(interval.first,
@@ -132,29 +132,43 @@ namespace hpp {
           return maximalVelocity_;
         }
 
-        virtual const JointPtr_t& joint_a () const { return JointPtr_t(); }
-        virtual const JointPtr_t& joint_b () const { return JointPtr_t(); }
+        virtual const JointPtr_t& joint_a () const { }
+        virtual const JointPtr_t& joint_b () const { }
         virtual bool removeObjectTo_b (const CollisionObjectConstPtr_t& object) { return false;}
         virtual void addCollisionPair (const CollisionObjectConstPtr_t& left,
-            const CollisionObjectConstPtr_t right) {}
+            const CollisionObjectConstPtr_t &right) {}
 
       protected:
         mutable vector_t Vb_;
         CollisionPairs_t pairs_;
-        /// Constructor of inter-body collision checking
+        /// Constructor of body pair collision
         ///
-        /// \param body_a, body_b bodies to test for collision
         /// \param tolerance allowed penetration should be positive
-        /// \pre body_a and body_b should not be nul pointers.
         BodyPairCollision (value_type tolerance):
           IntervalValidation(tolerance), pairs_ (), maximalVelocity_(0)
         {
         }
 
+        virtual void setReport (CollisionValidationReportPtr_t& report,
+                            fcl::CollisionResult result,
+                            CollisionPair_t _pair)
+        {
+          report = CollisionValidationReportPtr_t
+            (new CollisionValidationReport);
+          report->object1 = _pair.first ;
+          report->object2 = _pair.second;
+          report->result = result;
+        }
+
       private:
         value_type maximalVelocity_;
+
+        /// Compute maximal velocity for a given velocity bound
+        /// \param Vb velocity
         virtual value_type computeMaximalVelocity(vector_t& Vb) const = 0;
 
+        /// Compute the maximal velocity along the path
+        /// To be called after a new path has been set
         virtual void setupPath()
         {
           if (HPP_DYNAMIC_PTR_CAST(StraightPath, path_)) refine_ = false;
@@ -173,8 +187,9 @@ namespace hpp {
 
         /// Compute a collision free interval around t given a lower bound of
         /// the distance to obstacle.
-        /// \retval maxVelocity
-        /// \return the interval half length
+        /// \param t the time in the path to test for a collision free interval
+        /// \return distanceLowerBound the interval half length
+        /// \retval maxVelocity the maximum velocity reached during this interval
         value_type collisionFreeInterval(const value_type &t,
                                         const value_type &distanceLowerBound,
                                         value_type &maxVelocity) const
@@ -228,11 +243,7 @@ namespace hpp {
             fcl::collide (object_a, object_b, request, result);
             // Get result
             if (result.isCollision ()) {
-              report = CollisionValidationReportPtr_t
-                (new CollisionValidationReport);
-              report->object1 = _pair->first ;
-              report->object2 = _pair->second;
-              report->result = result;
+              setReport(report, result, *_pair);
               return false;
             }
             if (result.distance_lower_bound < distanceLowerBound) {

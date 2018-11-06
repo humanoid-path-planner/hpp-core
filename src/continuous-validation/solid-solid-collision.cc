@@ -25,7 +25,6 @@
 # include <hpp/pinocchio/body.hh>
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/pinocchio/joint.hh>
-# include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/interpolated-path.hh>
 # include <hpp/core/deprecated.hh>
@@ -78,9 +77,11 @@ namespace hpp {
       }
 
       void SolidSolidCollision::addCollisionPair (const CollisionObjectConstPtr_t& left,
-          const CollisionObjectConstPtr_t right)
+          const CollisionObjectConstPtr_t& right)
       {
-        pairs_.push_back (CollisionPair_t(left, right));
+        // std::cout << "size = " << pairs_.size() << std::endl;
+        // std::cout << "capacity = " << pairs_.capacity() << std::endl;
+        pairs_.push_back (CollisionPair_t (left, right));
       }
 
       std::string SolidSolidCollision::name () const

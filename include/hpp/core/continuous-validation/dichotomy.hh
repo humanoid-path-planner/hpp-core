@@ -27,20 +27,20 @@ namespace hpp {
       /// \addtogroup validation
       /// \{
 
-      /// Continuous validation of a path for collision
+      /// Continuous validation of a path
       ///
       /// This class tests for collision
       /// \li straight paths, or
-      /// \li concatenation of straight paths.
+      /// \li concatenation of straight paths (PathVector).
       ///
-      /// A path is valid if and only if each pair of objects to test is
-      /// collision-free along the whole interval of definition.
+      /// A path is valid if and only if each interval validation element
+      /// is valid along the whole interval of definition.
       ///
-      /// For each pair, a union of sub-intervals where the pair is
-      /// collision-free is computed.
+      /// For each interval validation element, a union of sub-intervals
+      /// where the element is valid is computed.
       ///
-      /// First, each pair is tested at the beginning of the interval
-      /// (at the end if reverse is set to true). Then the pair that
+      /// First, each validation element is tested at the beginning of the interval
+      /// (at the end if reverse is set to true). Then the element that
       /// has the smaller upper bound of the first valid sub-interval is
       /// tested at the middle of the segment delimited by the upper bound
       /// of the first valid sub-interval and by the lower bound of the second
@@ -50,7 +50,7 @@ namespace hpp {
       /// Collision pairs between bodies of the robot are initialized at
       /// construction of the instance.
       ///
-      /// Method Progressive::addObstacle adds an obstacle in the environment.
+      /// Method addObstacle adds an obstacle in the environment.
       /// For each joint, a new pair is created with the new obstacle.
       ///
       /// Validation of pairs along straight interpolations is based on the
@@ -63,20 +63,24 @@ namespace hpp {
       class HPP_CORE_DLLAPI Dichotomy : public ContinuousValidation
       {
       public:
-	/// Create instance and return shared pointer
-	/// \param robot the robot for which continuous validation is performed,
-	/// \param tolerance maximal penetration allowed.
-	static DichotomyPtr_t
-	  create (const DevicePtr_t& robot, const value_type& tolerance);
+        /// Create instance and return shared pointer
+        /// \param robot the robot for which continuous validation is performed,
+        /// \param tolerance maximal penetration allowed.
+        static DichotomyPtr_t
+          create (const DevicePtr_t& robot, const value_type& tolerance);
 
-	virtual ~Dichotomy ();
+        virtual ~Dichotomy ();
       protected:
-	/// Constructor
-	/// \param robot the robot for which continuous validation is performed,
-	/// \param tolerance maximal penetration allowed.
-	Dichotomy (const DevicePtr_t& robot, const value_type& tolerance);
+        /// Constructor
+        /// \param robot the robot for which continuous validation is performed,
+        /// \param tolerance maximal penetration allowed.
+        Dichotomy (const DevicePtr_t& robot, const value_type& tolerance);
+        /// Store weak pointer to itself
+        void init(const DichotomyWkPtr_t weak);
       private:
-	virtual bool validateStraightPath (const PathPtr_t& path, bool reverse,
+        // Weak pointer to itself
+        DichotomyWkPtr_t weak_;
+	      virtual bool validateStraightPath (const PathPtr_t& path, bool reverse,
 					   PathPtr_t& validPart,
 					   PathValidationReportPtr_t& report);
       }; // class Dichotomy

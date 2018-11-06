@@ -33,7 +33,6 @@
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/deprecated.hh>
-#include "continuous-validation/intervals.hh"
 #include <hpp/core/fwd.hh>
 
 namespace hpp {

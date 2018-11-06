@@ -247,8 +247,9 @@ namespace hpp {
       typedef std::vector <BodyPairCollisionPtr_t> BodyPairCollisions_t;
       HPP_PREDEF_CLASS (SolidSolidCollision);
       typedef boost::shared_ptr <SolidSolidCollision> SolidSolidCollisionPtr_t;
+      HPP_PREDEF_CLASS (Initializer);
+      typedef boost::shared_ptr <Initializer> InitializerPtr_t;
     } // namespace continuousValidation
-
 
 
     namespace distance {
@@ -331,10 +332,6 @@ namespace hpp {
     typedef hpp::constraints::explicit_::RelativePose
     ExplicitRelativeTransformation HPP_CORE_DEPRECATED;
     typedef ContinuousValidation ContinuousCollisionChecking HPP_CORE_DEPRECATED;
-    // typedef hpp::core::continuousCollisionChecking::Progressive
-    //   hpp::core::continuousValidation::Progressive HPP_CORE_DEPRECATED;
-    // typedef hpp::core::continuousCollisionChecking::Dichotomy
-    //   hpp::core::continuousValidation::Dichotomy HPP_CORE_DEPRECATED;
     namespace continuousCollisionChecking = continuousValidation;
 
   } // namespace core
