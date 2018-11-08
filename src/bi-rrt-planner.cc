@@ -160,8 +160,7 @@ namespace hpp {
                     if (t_final != path->timeRange ().first)
                     {
                         ConfigurationPtr_t q_newEnd = ConfigurationPtr_t (new Configuration_t(validPath->initial()));
-                        NodePtr_t newNode = roadmap()->addNode (q_newEnd);
-                        roadmap()->addEdge(newNode, near, validPath);
+                        NodePtr_t newNode = roadmap()->addNodeAndEdge (q_newEnd,near,validPath);
                         // now try to connect both nodes
                         if(startComponentConnected)
                         {
