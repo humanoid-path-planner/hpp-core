@@ -129,6 +129,11 @@ namespace hpp {
       maxIterations_ = n;
     }
 
+    void PathPlanner::timeOut (const double& time)
+    {
+      timeOut_ = time;
+    }
+
     PathVectorPtr_t PathPlanner::computePath () const
     {
       return problem_.target()->computePath(roadmap());

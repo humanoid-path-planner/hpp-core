@@ -767,6 +767,7 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       pathPlanner_->maxIterations (maxIterPathPlanning_);
+      pathPlanner_->timeOut(timeOutPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();
       /// create Path projector
       initPathProjector ();

@@ -651,6 +651,8 @@ namespace hpp {
       size_type maxIterProjection_;
       /// Maximal number of iterations for path planner
       unsigned long int maxIterPathPlanning_;
+      /// Maximal time allocated to the path-planner
+      double timeOutPathPlanning_;
       /// Map of passive dofs
       segmentsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation
@@ -659,7 +661,6 @@ namespace hpp {
       DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
       /// Store latest instance created by static method create
       static ProblemSolverPtr_t latest_;
-      double timeOutPathPlanning_;
 
       void initProblem ();
     }; // class ProblemSolver
