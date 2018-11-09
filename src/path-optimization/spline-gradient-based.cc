@@ -14,6 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#define HPP_DEBUG
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 
 #include <hpp/util/exception-factory.hh>
@@ -211,8 +212,6 @@ namespace hpp {
             sod.activeParameters = RowBlockIndices (BlockIndex::difference
                                          (BlockIndex::segment_t(0, rDof),
                                           select.indices()));
-            hppDout (info, "Path " << idxSpline << ": do not change this dof " << select);
-            hppDout (info, "Path " << idxSpline << ": active dofs " << sod.activeParameters);
 
             // Add nOutVar constraint per coefficient.
             lc.addRows(Spline::NbCoeffs * nOutVar);
@@ -242,9 +241,6 @@ namespace hpp {
         if (hs.reducedDimension() > 0) {
           implicitBI = hs.implicitDof();
 
-          hppDout (info, "Solver " << hs
-              << '\n' << Eigen::RowBlockIndices(implicitBI));
-
           // in the case of PR2 passing a box from right to left hand,
           // the double grasp is a loop closure so the DoF of the base are
           // not active (one can see this in the Jacobian).
@@ -267,8 +263,6 @@ namespace hpp {
               if (J.col(r).isZero(guessThr)) {
                 size_type idof = es.freeDers().indices()[j].first + k;
                 passive.push_back(BlockIndex::segment_t (idof, 1));
-                hppDout (info, "Deactivated dof (thr=" << guessThr
-                    << ") " << idof << ". J = " << J.col(r).transpose());
               }
               k++;
               if (k >= hs.freeVariables ().indices()[j].second) {
@@ -278,9 +272,6 @@ namespace hpp {
             }
             BlockIndex::sort(passive);
             BlockIndex::shrink(passive);
-            hppDout (info, "Deactivated dof (thr=" << guessThr
-                << ") " << Eigen::ColBlockIndices(passive)
-                << "J = " << J);
             implicitBI = BlockIndex::difference (implicitBI, passive);
           }
         } else if (useExplicitInput) {
@@ -341,14 +332,11 @@ namespace hpp {
         while (not solved) {
           if (i == 0) {
             functions.removeLastConstraint (1, collision);
-            hppDout (warning, "Could not find a suitable collision constraint. Removing it.");
             return false;
           }
-          hppDout (info, "Looking for collision which does not make the constraint rank deficient.");
           // interpolate at alpha
           pinocchio::interpolate<pinocchio::RnxSOnLieGroupMap>
             (robot_, function->qFree_, function->qColl_, 0.5, q);
-          hppDout (info, "New q: " << q.transpose());
           // update the constraint
           function->updateConstraint (q);
           functions.linearize(spline, sod, iF, collision);
@@ -466,7 +454,6 @@ namespace hpp {
             constraint.computeSolution(QPc.xStar);
             Base::updateSplines(collSplines, constraint.xSol);
             cost.value(costLowerBound, collSplines);
-            hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             currentSplines = &collSplines;
             minimumReached = true;
             computeOptimum = false;
@@ -488,7 +475,6 @@ namespace hpp {
           }
           if (noCollision) {
             cost.value(optimalCost, *currentSplines);
-            hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
             // Update the spline
             for (std::size_t i = 0; i < splines.size(); ++i)
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
@@ -496,16 +482,13 @@ namespace hpp {
               collisionFunctions.linearize (splines, solvers, collision);
               constraint.reduceConstraint(collision, collisionReduced);
               QPc.solve(collisionReduced, boundConstraintReduced);
-              hppDout (info, "linearized");
               computeOptimum = true;
             }
-            hppDout (info, "Improved path with alpha = " << alpha);
 
             computeInterpolatedSpline = true;
             if (!minimumReached &&
                 std::abs(optimalCost - costLowerBound) < costThreshold * costLowerBound)
             {
-              hppDout (info, "Stopping because cost interval is small.");
               minimumReached = true;
             }
           } else {
@@ -526,9 +509,7 @@ namespace hpp {
               }
 
               if (!ok) {
-                hppDout (info, "The collision constraint would be rank deficient. Removing added constraint.");
                 if (alpha < alphaInit / (1 << 2)) {
-                  hppDout (info, "Interruption because alpha became too small.");
                   break;
                 }
                 alpha *= 0.5;
@@ -539,15 +520,8 @@ namespace hpp {
                 QPc.solve(collisionReduced, boundConstraintReduced);
                 bool overConstrained = (QPc.H.rows() < collisionReduced.rank);
                 if (overConstrained) {
-                  hppDout (info, "The problem is over constrained: "
-                      << QP.H.rows() << " variables for "
-                      << collisionReduced.rank << " independant constraints.");
                   break;
                 }
-                hppDout (info, "Added " << reports.size() << " constraints. "
-                    "Constraints size " << collision.J.rows() <<
-                    "(rank=" << collisionReduced.rank << ", ass=" << QPc.activeSetSize << ") / " << QPc.H.cols());
-
                 // When adding a new constraint, try first minimum under this
                 // constraint. If this latter minimum is in collision,
                 // re-initialize alpha to alphaInit.
@@ -569,6 +543,8 @@ namespace hpp {
         if (iter < maxIterations) {
           currentSplines = &splines;
         }
+        hppDout (info, "Final cost: " << optimalCost);
+        hppDout (info, "Number of iterations: " << iter);
         return this->buildPathVector (*currentSplines);
       }
 
@@ -591,7 +567,6 @@ namespace hpp {
 
         bool ret = std::fabs(expected - result) < Eigen::NumTraits<value_type>::dummy_precision();
         if (!ret) {
-          hppDout (error, "Hessian of the cost is not correct: " << expected << " - " << result << " = " << expected - result);
         }
         return ret;
       }
