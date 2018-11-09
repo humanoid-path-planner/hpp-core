@@ -403,7 +403,7 @@ namespace hpp {
       }
 
       template <int _SplineType, int _Order>
-      void Spline<_SplineType, _Order>::value (pinocchio::LiegroupConstElementRef base,
+      void Spline<_SplineType, _Order>::value (pinocchio::LiegroupElementConstRef base,
           Eigen::Ref<const ParameterMatrix_t> params, const value_type& u,
           ConfigurationOut_t res, vectorOut_t velocity)
       {

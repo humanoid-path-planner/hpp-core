@@ -271,7 +271,7 @@ namespace hpp {
           /// \param u      the ratio, between 0 and 1.
           /// \retval config the output configuration
           /// \retval velocity the interpolated velocity
-          static void value (pinocchio::LiegroupConstElementRef base,
+          static void value (pinocchio::LiegroupElementConstRef base,
               Eigen::Ref<const ParameterMatrix_t> params,
               const value_type& u,
               ConfigurationOut_t config,
