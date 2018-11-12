@@ -19,7 +19,6 @@
 #include <hpp/core/continuous-collision-checking/dichotomy.hh>
 
 #include <deque>
-#include <pinocchio/multibody/geometry.hpp>
 #include <hpp/util/debug.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>

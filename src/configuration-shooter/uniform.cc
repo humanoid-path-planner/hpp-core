@@ -18,6 +18,8 @@
 
 # include <hpp/core/configuration-shooter/uniform.hh>
 
+# include <pinocchio/algorithm/joint-configuration.hpp>
+
 namespace hpp {
   namespace core {
     namespace configurationShooter {

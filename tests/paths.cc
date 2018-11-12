@@ -26,122 +26,61 @@
 // because the original timers are already included by
 // the unit test framework
 // #include <boost/timer.hh>
+
+#include <hpp/core/straight-path.hh>
+#include <hpp/core/subchain-path.hh>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 
 #include <hpp/core/problem.hh>
-#include <hpp/core/path.hh>
-#include <hpp/core/straight-path.hh>
-#include <hpp/core/subchain-path.hh>
-#include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/multibody/geometry.hpp>
 
 #define TOSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << x ) ).str()
-
-using hpp::pinocchio::Device;
-using hpp::pinocchio::DevicePtr_t;
-using hpp::pinocchio::JointPtr_t;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointIndex;
-
 DevicePtr_t createRobot ()
 {
+  std::string urdf ("<robot name='test'>"
+      "<link name='link0'/>"
+      "<joint name='joint0' type='prismatic'>"
+        "<parent link='link0'/>"
+        "<child  link='link1'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "<link name='link1'/>"
+      "</robot>"
+      );
+
   DevicePtr_t robot = Device::create ("test");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-  std::string jointName = name + "_x";
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position; lower_position << -4;
-  JointModelPX::ConfigVector_t upper_position; upper_position <<  4;
-
-  robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
-
-
-  robot->createData();
-  robot->createGeomData();
-
+  urdf::loadModelFromString (robot, 0, "", "anchor", urdf, "");
   return robot;
-
-
-
-  /* DevicePtr_t robot = Device::create ("test");
-
-  const std::string& name = robot->name ();
-  fcl::Transform3f mat; mat.setIdentity ();
-  JointPtr_t joint;
-  std::string jointName = name + "_x";
-  // Translation along x
-  fcl::Matrix3f permutation;
-  joint = objectFactory.createJointTranslation (mat);
-  joint->name (jointName);
-
-  joint->isBounded (0, 1);
-  joint->lowerBound (0, -4);
-  joint->upperBound (0, +4);
-
-  robot->rootJoint (joint);
-  return robot;*/
 }
 
 DevicePtr_t createRobot2 ()
 {
-  DevicePtr_t robot = Device::create ("test");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-  std::string jointName = name + "_x";
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
-  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
-  JointIndex idJoint = 0;
-
+  std::ostringstream oss;
+  oss
+    << "<robot name='test'>"
+    << "<link name='link0'/>";
   for(int i = 0 ; i < 10 ; ++i){
-    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,jointName + TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
+    oss << "<joint name='joint" << i << "' type='prismatic'>"
+      << "<parent link='link" << i << "'/>"
+      << "<child  link='link" << i+1 << "'/>"
+      << "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      << "</joint>"
+      << "<link name='link" << i+1 << "'/>";
   }
+  oss << "</robot>";
+  std::string urdf (oss.str());
 
 
-  robot->createData();
-  robot->createGeomData();
+  DevicePtr_t robot = Device::create ("test");
+  urdf::loadModelFromString (robot, 0, "", "anchor", urdf, "");
   return robot;
-  /*DevicePtr_t robot = Device::create ("test");
-
-  const std::string& name = robot->name ();
-  fcl::Transform3f mat; mat.setIdentity ();
-  JointPtr_t joint, parentJoint;
-  std::string jointName = name + "_x";
-  // Translation along x
-  fcl::Matrix3f permutation;
-  for (int i = 0; i < 10; ++i) {
-    joint = objectFactory.createJointTranslation (mat);
-    joint->name (jointName + TOSTR(i));
-
-    joint->isBounded (0, 1);
-    joint->lowerBound (0, -4);
-    joint->upperBound (0, +4);
-    if (i == 0) robot->rootJoint (joint);
-    else parentJoint->addChildJoint (joint);
-    parentJoint = joint;
-  }
-
-  return robot;*/
 }
 
 typedef std::pair<value_type, value_type> Pair_t;

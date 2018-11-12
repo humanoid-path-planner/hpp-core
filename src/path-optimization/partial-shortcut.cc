@@ -18,7 +18,6 @@
 
 #include <hpp/util/debug.hh>
 
-#include <pinocchio/multibody/joint/joint.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/joint.hh>

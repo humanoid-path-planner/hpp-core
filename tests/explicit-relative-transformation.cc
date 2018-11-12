@@ -26,13 +26,11 @@
 #include <hpp/util/timer.hh>
 
 #include <hpp/core/fwd.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
 #include <hpp/constraints/matrix-view.hh>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/generic-transformation.hh>
-
-#include <pinocchio/spatial/skew.hpp>
-#include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/simple-device.hh>
 #include <hpp/pinocchio/urdf/util.hh>
@@ -82,6 +80,7 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
+  configurationShooter::UniformPtr_t cs = configurationShooter::Uniform::create(robot);
 
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
@@ -95,7 +94,7 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
   DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
 
   Configuration_t q     = robot->currentConfiguration (),
-                  qrand = se3::randomConfiguration(robot->model()),
+                  qrand = *cs->shoot(),
                   qout = qrand;
 
   // Check the output value
@@ -146,7 +145,7 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
   }
   // Second at random configurations
   for (size_type i=0; i<NB_RANDOM_CONF; ++i) {
-    q0 = se3::randomConfiguration(robot->model());
+    q0 = *cs->shoot();
     enm->function ().jacobian (J, q0);
     std::cout << "J=" << std::endl << J << std::endl;
     std::cout << "q0=" << q0.transpose () << std::endl;
@@ -173,6 +172,7 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
+  configurationShooter::UniformPtr_t cs = configurationShooter::Uniform::create(robot);
 
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
   DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
 
   Configuration_t q     = robot->currentConfiguration (),
-                  qrand = se3::randomConfiguration(robot->model()),
+                  qrand = *cs->shoot(),
                   qout = qrand;
 
   // Check the output value
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
   }
   // Second at random configurations
   for (size_type i=0; i<NB_RANDOM_CONF; ++i) {
-    q0 = se3::randomConfiguration(robot->model());
+    q0 = *cs->shoot();
     enm->function ().jacobian (J, q0);
     std::cout << "J=" << std::endl << J << std::endl;
     std::cout << "q0=" << q0.transpose () << std::endl;
@@ -267,6 +267,7 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
+  configurationShooter::UniformPtr_t cs = configurationShooter::Uniform::create(robot);
 
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
@@ -287,7 +288,7 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
       object1, object2, M1inO1, M2inO2);
 
   Configuration_t q     = robot->currentConfiguration (),
-                  qrand = se3::randomConfiguration(robot->model()),
+                  qrand = *cs->shoot(),
                   qout = qrand;
 
   // Check the output value
@@ -334,7 +335,7 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
 
   // Second at random configurations
   for (size_type i=0; i<NB_RANDOM_CONF; ++i) {
-    q0 = se3::randomConfiguration(robot->model());
+    q0 = *cs->shoot();
 
     irt->value    (v0, q0);
     irt->jacobian (J0, q0);

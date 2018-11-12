@@ -107,8 +107,8 @@ template <int SplineType> void compare_to_straight_path ()
   ls->parameters(ls_param);
   */
 
-  BOOST_CHECK(sp->initial().isApprox(ls->initial()));
-  BOOST_CHECK(sp->end().isApprox(ls->end()));
+  EIGEN_VECTOR_IS_APPROX(sp->initial(), ls->initial(), 1e-7);
+  EIGEN_VECTOR_IS_APPROX(sp->end()    , ls->end()    , 1e-7);
 
   const size_type N = 10;
   const value_type step1 = sp->length() / N;
@@ -186,10 +186,17 @@ void check_velocity_bounds ()
   }
 }
 
-BOOST_AUTO_TEST_CASE (spline)
+BOOST_AUTO_TEST_CASE (spline_canonical)
 {
   compare_to_straight_path<path::CanonicalPolynomeBasis>();
-  compare_to_straight_path<path::BernsteinBasis>();
+}
 
+BOOST_AUTO_TEST_CASE (spline_bernstein)
+{
+  compare_to_straight_path<path::BernsteinBasis>();
+}
+
+BOOST_AUTO_TEST_CASE (spline_bernstein_velocity)
+{
   check_velocity_bounds<path::BernsteinBasis, 3>();
 }

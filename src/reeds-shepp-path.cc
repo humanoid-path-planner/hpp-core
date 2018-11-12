@@ -22,8 +22,6 @@
 
 #include <hpp/util/debug.hh>
 
-#include <pinocchio/spatial/se3.hpp>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>

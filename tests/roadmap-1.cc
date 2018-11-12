@@ -22,6 +22,7 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
@@ -32,35 +33,15 @@
 
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/multibody/geometry.hpp>
-
-
-
-
 
 #define BOOST_TEST_MODULE roadmap-1
 #include <boost/test/included/unit_test.hpp>
 
-using hpp::pinocchio::Configuration_t;
-using hpp::core::ConfigurationPtr_t;
-using hpp::pinocchio::JointPtr_t;
-using hpp::pinocchio::Device;
-using hpp::pinocchio::DevicePtr_t;
-using hpp::core::Problem;
-using hpp::core::steeringMethod::Straight;
-using hpp::core::steeringMethod::StraightPtr_t;
-using hpp::core::RoadmapPtr_t;
-using hpp::core::Roadmap;
-using hpp::core::NodePtr_t;
-using hpp::core::WeighedDistance;
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointIndex;
+using hpp::core::steeringMethod::Straight;
+using hpp::core::steeringMethod::StraightPtr_t;
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
@@ -73,40 +54,34 @@ void addEdge (const hpp::core::RoadmapPtr_t& r,
 					*(nodes [j]->configuration ())));
 }
 
+DevicePtr_t createRobot ()
+{
+  std::string urdf ("<robot name='test'>"
+      "<link name='link1'/>"
+      "<link name='link2'/>"
+      "<link name='link3'/>"
+      "<joint name='tx' type='prismatic'>"
+        "<parent link='link1'/>"
+        "<child  link='link2'/>"
+        "<limit effort='30' velocity='1.0' lower='-3' upper='3'/>"
+      "</joint>"
+      "<joint name='ty' type='prismatic'>"
+        "<axis xyz='0 1 0'/>"
+        "<parent link='link2'/>"
+        "<child  link='link3'/>"
+        "<limit effort='30' velocity='1.0' lower='-3' upper='3'/>"
+      "</joint>"
+      "</robot>"
+      );
+
+  DevicePtr_t robot = Device::create ("test");
+  urdf::loadModelFromString (robot, 0, "", "anchor", urdf, "");
+  return robot;
+}
+
 BOOST_AUTO_TEST_CASE (Roadmap1) {
   // Build robot
- /* DevicePtr_t robot = Device::create("robot");
-  JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
-  xJoint->isBounded(0,1);
-  xJoint->lowerBound(0,-3.);
-  xJoint->upperBound(0,3.);
-  JointPtr_t yJoint = new JointTranslation <1>
-    (fcl::Transform3f(fcl::Quaternion3f (sqrt (2)/2, 0, 0, sqrt(2)/2)));
-  yJoint->isBounded(0,1);
-  yJoint->lowerBound(0,-3.);
-  yJoint->upperBound(0,3.);
-
-  robot->rootJoint (xJoint);
-  xJoint->addChildJoint (yJoint);
-*/
-  DevicePtr_t robot = Device::create("robot");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
-  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
-
-  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
-  robot->model().addJoint(idJoint,JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
-
-  robot->createData();
-  robot->createGeomData();
+  DevicePtr_t robot = createRobot();
 
   // Create steering method
   Problem p (robot);
@@ -151,7 +126,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   nodes.push_back (r->addNode (q));
   r->addGoalNode (nodes [5]->configuration ());
 
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 6);
   for (std::size_t i=0; i < nodes.size (); ++i) {
     for (std::size_t j=i+1; j < nodes.size (); ++j) {
@@ -174,7 +149,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 1 -> 0
   addEdge (r, *sm, nodes, 1, 0);
@@ -191,7 +166,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  std::cout << *r << std::endl; 
+  BOOST_MESSAGE(*r);
   // 1 -> 2
   addEdge (r, *sm, nodes, 1, 2);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 5);
@@ -206,7 +181,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 2 -> 0
   addEdge (r, *sm, nodes, 2, 0);
@@ -224,7 +199,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 2 -> 3
   addEdge (r, *sm, nodes, 2, 3);
@@ -242,7 +217,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 2 -> 4
   addEdge (r, *sm, nodes, 2, 4);
@@ -260,7 +235,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 3 -> 5
   addEdge (r, *sm, nodes, 3, 5);
@@ -278,7 +253,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 4 -> 5
   addEdge (r, *sm, nodes, 4, 5);
@@ -296,7 +271,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // 5 -> 0
   addEdge (r, *sm, nodes, 5, 0);
@@ -312,7 +287,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [5]->connectedComponent ());
   BOOST_CHECK (r->pathExists ());
-  std::cout << *r << std::endl;
+  BOOST_MESSAGE(*r);
 
   // Check that memory if well deallocated.
   std::set<ConnectedComponentWkPtr_t> ccs;
@@ -329,40 +304,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
 
 BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   // Build robot
- /* DevicePtr_t robot = Device::create("robot");
-  JointPtr_t xJoint = new JointTranslation <1> (fcl::Transform3f());
-  xJoint->isBounded(0,1);
-  xJoint->lowerBound(0,-3.);
-  xJoint->upperBound(0,3.);
-  JointPtr_t yJoint = new JointTranslation <1>
-    (fcl::Transform3f(fcl::Quaternion3f (sqrt (2)/2, 0, 0, sqrt(2)/2)));
-  yJoint->isBounded(0,1);
-  yJoint->lowerBound(0,-3.);
-  yJoint->upperBound(0,3.);
-
-  robot->rootJoint (xJoint);
-  xJoint->addChildJoint (yJoint);*/
-
-  DevicePtr_t robot = Device::create("robot");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-3);
-  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(3);
-
-
-  JointIndex idJoint = robot->model().addJoint(0,::se3::JointModelPX(), mat,name + "_x",max_effort,max_velocity,lower_position,upper_position);
-  robot->model().addJoint(idJoint,::se3::JointModelPY(), mat,name + "_y",max_effort,max_velocity,lower_position,upper_position);
-
-  robot->createData();
-  robot->createGeomData();
-
+  DevicePtr_t robot = createRobot();
 
   // Create steering method
   Problem p (robot);

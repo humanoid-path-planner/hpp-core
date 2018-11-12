@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE (interval_6)
   intervals.unionInterval (interval);
   checkIntervals (intervals);
 
-  std::cout << intervals << std::endl;
+  BOOST_MESSAGE(intervals);
 }
 
 BOOST_AUTO_TEST_CASE (interval_7)

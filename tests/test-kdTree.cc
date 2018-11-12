@@ -50,10 +50,10 @@ using namespace hpp;
 using namespace core;
 using namespace pinocchio;
 using namespace std;
-using ::se3::JointModelTranslation;
-using ::se3::JointIndex;
-using ::se3::JointModelSpherical;
-using ::se3::JointModelRUBZ;
+using ::pinocchio::JointModelTranslation;
+using ::pinocchio::JointIndex;
+using ::pinocchio::JointModelSpherical;
+using ::pinocchio::JointModelRUBZ;
 
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   so3Joint->addChildJoint (so2Joint);
 */
   DevicePtr_t robot = Device::create("robot");
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
+  ModelPtr_t m = ModelPtr_t(new Model());
+  GeomModelPtr_t gm = GeomModelPtr_t(new GeomModel());
   robot->setModel(m);
   robot->setGeomModel(gm);
   const std::string& name = robot->name ();

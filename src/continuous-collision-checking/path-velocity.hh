@@ -22,10 +22,6 @@
 # include <boost/mpl/vector.hpp>
 # include <boost/mpl/for_each.hpp>
 
-# include <pinocchio/multibody/geometry.hpp>
-
-# include <hpp/core/path/spline.hh>
-
 namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {

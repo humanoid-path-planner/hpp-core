@@ -20,8 +20,6 @@
 
 #include <hpp/fcl/distance.h>
 
-#include <pinocchio/multibody/geometry.hpp>
-
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>

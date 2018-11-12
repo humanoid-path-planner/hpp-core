@@ -25,14 +25,12 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 
-#include <pinocchio/multibody/liegroup/liegroup.hpp>
 #include <pinocchio/multibody/model.hpp>
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/extra-config-space.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/solver/by-substitution.hh>

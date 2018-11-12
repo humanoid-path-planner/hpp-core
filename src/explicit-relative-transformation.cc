@@ -16,7 +16,6 @@
 
 #include <hpp/core/explicit-relative-transformation.hh>
 
-#include <pinocchio/spatial/explog.hpp>
 #include <pinocchio/spatial/skew.hpp>
 
 #include <hpp/pinocchio/device.hh>
