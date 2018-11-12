@@ -29,6 +29,23 @@ namespace hpp {
     namespace steeringMethod {
 
 
+      /**
+       * @brief sgnenum
+       * @param val
+       * @return return -1 if val is negative, 1 if val positive, 0 if val == 0
+       */
+      inline int sgnenum(double val){
+        return ((0. < val ) - (val < 0.));
+      }
+
+      inline int sgn(double d) {
+        return d >= 0.0 ? 1 : -1;
+      }
+
+      inline double sgnf(double d) {
+        return d >= 0.0 ? 1.0 : -1.0;
+      }
+
       bool belong(double t, interval_t interval){
         return ((t>interval.first) && (t< interval.second));
       }
@@ -177,7 +194,7 @@ namespace hpp {
       
       /// Copy constructor
       Kinodynamic::Kinodynamic (const Kinodynamic& other) :
-        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_), device_ (other.device_),synchronizeVerticalAxis_(other.synchronizeVerticalAxis_),orientedPath_(other.orientedPath_)
+        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_),synchronizeVerticalAxis_(other.synchronizeVerticalAxis_),orientedPath_(other.orientedPath_),device_ (other.device_)
       {
       }
       
