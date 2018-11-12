@@ -125,10 +125,9 @@ namespace hpp {
       
       /// Extraction/Reversion of a sub-path
       /// \param subInterval interval of definition of the extract path
-      /// If upper bound of subInterval is smaller than lower bound,
-      /// result is reversed.
-      virtual PathPtr_t extract (const interval_t& subInterval) const
-      throw (projection_error);
+      /// If upper bound of subInterval is smaller than lower bound, return an empty path
+      virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
+        throw (projection_error);
       
       vector_t getT0(){return t0_;}
 

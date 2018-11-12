@@ -177,8 +177,8 @@ namespace hpp {
       return true;
     }
     
-    PathPtr_t KinodynamicPath::extract (const interval_t& subInterval) const
-    throw (projection_error)
+    PathPtr_t KinodynamicPath::impl_extract (const interval_t& subInterval) const
+            throw (projection_error)
     {
       assert(subInterval.first >=0 && subInterval.second >=0 && "Negative time values in extract path");
       assert(subInterval.first >=timeRange().first && subInterval.second <= timeRange().second && "Given interval not inside path interval");

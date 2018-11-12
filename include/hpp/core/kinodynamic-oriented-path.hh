@@ -160,7 +160,7 @@ namespace hpp{
       virtual bool impl_compute (ConfigurationOut_t result,
                                  value_type t) const;
 
-      virtual PathPtr_t extract (const interval_t& subInterval) const
+      virtual PathPtr_t impl_extract (const interval_t& subInterval) const
       throw (projection_error);
 
     private:
