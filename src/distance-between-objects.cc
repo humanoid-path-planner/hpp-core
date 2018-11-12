@@ -38,7 +38,7 @@ namespace hpp {
 	BodyPtr_t body = joint->linkedBody ();
 	if (body) {
           for (size_type j = 0; j < body->nbInnerObjects(); ++j) {
-	    collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(i), object));
+	    collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(j), object));
 	  }
 	}
       }
