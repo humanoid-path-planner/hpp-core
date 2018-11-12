@@ -30,6 +30,7 @@
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
 #include <hpp/core/problem.hh>
@@ -37,14 +38,12 @@
 namespace hpp {
   namespace core {
     namespace {
-      struct ComputeWeightStep : public se3::fusion::JointModelVisitor<ComputeWeightStep>
+      struct ComputeWeightStep : public ::pinocchio::fusion::JointVisitorBase<ComputeWeightStep>
       {
-        typedef boost::fusion::vector<const se3::Model &,
-                                      const se3::Data &,
-                                      const se3::GeometryData &,
+        typedef boost::fusion::vector<const pinocchio::Model &,
+                                      const pinocchio::Data &,
+                                      const pinocchio::GeomData &,
                                       value_type & > ArgsType;
-
-        JOINT_MODEL_VISITOR_INIT(ComputeWeightStep);
 
         template<int N> static value_type largestSingularValue (const Eigen::Matrix<value_type, 3, N>& m)
         {
@@ -55,10 +54,10 @@ namespace hpp {
         }
 
         template<typename JointModel, int NR> static void getRotationSubJacobian (
-            const se3::JointModelBase<JointModel> & jmodel,
-            const se3::Data & data,
+            const ::pinocchio::JointModelBase<JointModel> & jmodel,
+            const pinocchio::Data & data,
             const Eigen::Matrix<value_type, 6, Eigen::Dynamic>& J,
-            const se3::JointIndex& j,
+            const pinocchio::JointIndex& j,
             Eigen::Matrix<value_type, 6, NR>& rBlock)
         {
           typedef typename pinocchio::LieGroupTpl::template operation<JointModel>::type LGOp_t;
@@ -83,10 +82,10 @@ namespace hpp {
         }
 
         template<typename JointModel>
-        static void algo(const se3::JointModelBase<JointModel> & jmodel,
-            const se3::Model & model,
-            const se3::Data & data,
-            const se3::GeometryData & geomData,
+        static void algo(const ::pinocchio::JointModelBase<JointModel> & jmodel,
+            const pinocchio::Model & model,
+            const pinocchio::Data & data,
+            const pinocchio::GeomData & geomData,
             value_type & length)
         {
           typedef typename pinocchio::LieGroupTpl::template operation<JointModel>::type LGOp_t;
@@ -97,13 +96,13 @@ namespace hpp {
             return;
           }
 
-          const se3::JointIndex i = jmodel.id();
+          const pinocchio::JointIndex i = jmodel.id();
           JointJacobian_t jacobian(6, data.J.cols());
           RBlock_t rBlock;
           value_type sigma;
-          for (se3::JointIndex j = i; j <= (se3::JointIndex)data.lastChild[i]; ++j)
+          for (pinocchio::JointIndex j = i; j <= (pinocchio::JointIndex)data.lastChild[i]; ++j)
           {
-            se3::getJointJacobian<se3::LOCAL>(model, data, j, jacobian);
+            ::pinocchio::getJointJacobian(model, data, j, ::pinocchio::LOCAL, jacobian);
             getRotationSubJacobian(jmodel, data, jacobian, j, rBlock);
             const value_type radius = geomData.radius[j]
               + (data.oMi[j].translation() - data.oMi[i].translation()).squaredNorm();
@@ -113,11 +112,11 @@ namespace hpp {
         }
       };
 
-      template <> void ComputeWeightStep::algo<se3::JointModelComposite>(
-          const se3::JointModelBase<se3::JointModelComposite> & jmodel,
-          const se3::Model & model,
-          const se3::Data & data,
-          const se3::GeometryData & geomData,
+      template <> void ComputeWeightStep::algo< ::pinocchio::JointModelComposite>(
+          const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
+          const pinocchio::Model & model,
+          const pinocchio::Data & data,
+          const pinocchio::GeomData & geomData,
           value_type & length)
       {
         hppDout(warning, "The weights for JointModelComposite are not correct."
@@ -140,17 +139,15 @@ namespace hpp {
         return m.norm();
       }
 
-      struct SquaredDistanceStep : public se3::fusion::JointModelVisitor<SquaredDistanceStep>
+      struct SquaredDistanceStep : public ::pinocchio::fusion::JointVisitorBase<SquaredDistanceStep>
       {
         typedef boost::fusion::vector<ConfigurationIn_t,
                 ConfigurationIn_t,
                 const value_type &,
                 value_type &> ArgsType;
 
-        JOINT_MODEL_VISITOR_INIT(SquaredDistanceStep);
-
         template<typename JointModel>
-        static void algo(const se3::JointModelBase<JointModel> & jmodel,
+        static void algo(const ::pinocchio::JointModelBase<JointModel> & jmodel,
             ConfigurationIn_t q0,
             ConfigurationIn_t q1,
             const value_type & w,
@@ -166,14 +163,14 @@ namespace hpp {
       };
 
       template <>
-      void SquaredDistanceStep::algo<se3::JointModelComposite>(
-          const se3::JointModelBase<se3::JointModelComposite> & jmodel,
+      void SquaredDistanceStep::algo< ::pinocchio::JointModelComposite>(
+          const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
           ConfigurationIn_t q0,
           ConfigurationIn_t q1,
           const value_type & w,
           value_type & distance)
       {
-        se3::details::Dispatch<SquaredDistanceStep>::run(
+        ::pinocchio::details::Dispatch<SquaredDistanceStep>::run(
             jmodel.derived(),
             ArgsType(q0, q1, w, distance));
       }
@@ -259,10 +256,10 @@ namespace hpp {
       value_type minLength = std::numeric_limits <value_type>::infinity ();
 
       JointJacobian_t jacobian(6, robot_->numberDof());
-      const se3::Model& model = robot_->model();
-      const se3::Data& data = robot_->data();
-      const se3::GeometryData& geomData = robot_->geomData();
-      for (se3::JointIndex i = 1; i < model.joints.size(); ++i)
+      const pinocchio::Model& model = robot_->model();
+      const pinocchio::Data& data = robot_->data();
+      const pinocchio::GeomData& geomData = robot_->geomData();
+      for (pinocchio::JointIndex i = 1; i < model.joints.size(); ++i)
       {
 	  value_type length = 0;
           ComputeWeightStep::run(model.joints[i],
@@ -316,7 +313,7 @@ namespace hpp {
       assert (model.joints.size() <= weights_.size () + 1);
       // Configuration_t qq1 (q1), qq2 (q2);
       // Loop over robot joint
-      for( se3::JointIndex i=1; i<(se3::JointIndex) model.njoints; ++i )
+      for( pinocchio::JointIndex i=1; i<(pinocchio::JointIndex) model.njoints; ++i )
       {
         value_type length = weights_ [i-1] * weights_ [i-1];
         SquaredDistanceStep::ArgsType args(q1, q2, length, d);

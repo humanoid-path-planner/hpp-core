@@ -34,7 +34,7 @@ namespace hpp {
       using continuousCollisionChecking::BodyPairCollisions_t;
       using continuousCollisionChecking::BodyPairCollisionPtr_t;
 
-      typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
+      typedef std::pair<pinocchio::JointIndex, pinocchio::JointIndex> JointIndexPair_t;
 
       struct JointIndexPairCompare_t {
 	bool operator() (const JointIndexPair_t& p0, const JointIndexPair_t& p1) const
@@ -225,12 +225,12 @@ namespace hpp {
     {
       // Build body pairs for collision checking
       // First auto-collision
-      const se3::GeometryModel& gmodel = robot->geomModel ();
+      const pinocchio::GeomModel& gmodel = robot->geomModel ();
       JointPtr_t joint1, joint2;
       BodyPairCollisionMap_t bodyPairMap;
       for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
       {
-        const se3::CollisionPair& cp = gmodel.collisionPairs[i];
+        const ::pinocchio::CollisionPair& cp = gmodel.collisionPairs[i];
         JointIndexPair_t jp (gmodel.geometryObjects[cp.first ].parentJoint,
                              gmodel.geometryObjects[cp.second].parentJoint);
 

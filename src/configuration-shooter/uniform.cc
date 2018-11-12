@@ -20,6 +20,8 @@
 
 # include <pinocchio/algorithm/joint-configuration.hpp>
 
+# include <hpp/pinocchio/joint-collection.hh>
+
 namespace hpp {
   namespace core {
     namespace configurationShooter {
@@ -30,7 +32,7 @@ namespace hpp {
         size_type offset = robot_->configSize () - extraDim;
 
         Configuration_t config(robot_->configSize ());
-        config.head (offset) = se3::randomConfiguration(robot_->model());
+        config.head (offset) = ::pinocchio::randomConfiguration(robot_->model());
 
         // Shoot extra configuration variables
         for (size_type i=0; i<extraDim; ++i) {

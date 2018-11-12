@@ -22,6 +22,7 @@
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/simple-device.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
@@ -83,8 +84,8 @@ template <int SplineType> void compare_to_straight_path ()
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
-  Configuration_t q1 (se3::randomConfiguration(dev->model()));
-  Configuration_t q2 (se3::randomConfiguration(dev->model()));
+  Configuration_t q1 (::pinocchio::randomConfiguration(dev->model()));
+  Configuration_t q2 (::pinocchio::randomConfiguration(dev->model()));
 
   vector_t v (dev->numberDof());
   difference<RnxSOnLieGroupMap> (dev, q2, q1, v);
@@ -154,8 +155,8 @@ void check_velocity_bounds ()
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
-  Configuration_t q1 (se3::randomConfiguration(dev->model()));
-  Configuration_t q2 (se3::randomConfiguration(dev->model()));
+  Configuration_t q1 (::pinocchio::randomConfiguration(dev->model()));
+  Configuration_t q2 (::pinocchio::randomConfiguration(dev->model()));
   std::vector<int> orders (1, 1);
   vector_t v1 (vector_t::Random(dev->numberDof())),
            v2 (vector_t::Random(dev->numberDof()));

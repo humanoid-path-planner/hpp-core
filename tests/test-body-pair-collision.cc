@@ -21,6 +21,7 @@
 #include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/device.hh>
@@ -36,9 +37,9 @@ using namespace hpp::pinocchio;
 using hpp::core::continuousCollisionChecking::BodyPairCollision;
 using hpp::core::continuousCollisionChecking::BodyPairCollisionPtr_t;
 
-void display(const se3::Model& model,
-    const std::vector<se3::JointIndex>& joints) {
-  std::vector <se3::JointIndex>::const_iterator it;
+void display(const Model& model,
+    const std::vector<JointIndex>& joints) {
+  std::vector <JointIndex>::const_iterator it;
   for (it = joints.begin (); it != joints.end (); ++it) {
     if (*it > 0) std::cout << model.names[*it];
     else         std::cout << "None";
@@ -51,14 +52,14 @@ void display(const se3::Model& model,
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
 DevicePtr_t createRobot (){
-  DevicePtr_t robot = hpp::pinocchio::humanoidSimple("test");
+  DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
   return robot;
 }
 
 BOOST_AUTO_TEST_CASE (body_pair_collision_1)
 {
   DevicePtr_t robot = createRobot();
-  const se3::Model& model = robot->model();
+  const Model& model = robot->model();
   JointPtr_t joint_a = robot->getJointByBodyName ("lleg5_body");
   JointPtr_t joint_b = robot->getJointByBodyName ("rleg5_body");
 
@@ -69,10 +70,10 @@ BOOST_AUTO_TEST_CASE (body_pair_collision_1)
   ConstObjectStdVector_t obstacles;
   fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
   // FIXME this is a bit ugly.
-  int frame_id = robot->model().addFrame(se3::Frame("base_link",0,0,Transform3f (),se3::BODY));
+  int frame_id = robot->model().addFrame(::pinocchio::Frame("base_link",0,0,Transform3f (),::pinocchio::BODY));
   BOOST_CHECK(frame_id>=0);
-  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject
-    (se3::GeometryObject("obstacle", frame_id, 0, box, Transform3f (), "", hpp::pinocchio::vector3_t::Ones()),
+  GeomIndex idObj = robot->geomModel().addGeometryObject
+    (::pinocchio::GeometryObject("obstacle", frame_id, 0, box, Transform3f (), "", hpp::pinocchio::vector3_t::Ones()),
      robot->model());
   CollisionObjectPtr_t collObj (new hpp::pinocchio::CollisionObject(
         robot->geomModelPtr(), robot->geomDataPtr(), idObj));

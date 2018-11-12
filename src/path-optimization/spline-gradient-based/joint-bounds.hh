@@ -20,6 +20,7 @@
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/liegroup.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/core/path/spline.hh>
 
@@ -106,7 +107,7 @@ namespace hpp {
         }
       };
 
-      struct JointBoundConstraintStep : public se3::fusion::JointModelVisitor<JointBoundConstraintStep>
+      struct JointBoundConstraintStep : public ::pinocchio::fusion::JointVisitorBase<JointBoundConstraintStep>
       {
         typedef boost::fusion::vector<vectorIn_t,
                                       vectorIn_t,
@@ -115,10 +116,8 @@ namespace hpp {
                                       vector_t&,
                                       size_type&> ArgsType;
 
-        JOINT_MODEL_VISITOR_INIT(JointBoundConstraintStep);
-
         template<typename JointModel>
-        static void algo(const se3::JointModelBase<JointModel> & jmodel,
+        static void algo(const ::pinocchio::JointModelBase<JointModel> & jmodel,
             vectorIn_t low,
             vectorIn_t up,
             vectorIn_t neutral,
@@ -137,8 +136,8 @@ namespace hpp {
       };
 
       template<>
-      void JointBoundConstraintStep::algo<se3::JointModelComposite>(
-          const se3::JointModelBase<se3::JointModelComposite> & jmodel,
+      void JointBoundConstraintStep::algo< ::pinocchio::JointModelComposite>(
+          const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
           vectorIn_t low,
           vectorIn_t up,
           vectorIn_t neutral,
@@ -146,7 +145,7 @@ namespace hpp {
           vector_t& b,
           size_type& row)
       {
-        se3::details::Dispatch<JointBoundConstraintStep>::run(jmodel,
+        ::pinocchio::details::Dispatch<JointBoundConstraintStep>::run(jmodel.derived(),
             JointBoundConstraintStep::ArgsType(low, up, neutral, A, b, row));
       }
 
@@ -161,7 +160,7 @@ namespace hpp {
           matrix_t& A, vector_t& b)
       {
         size_type row = 0;
-        const se3::Model& model = d->model();
+        const pinocchio::Model& model = d->model();
         for (std::size_t i = 1; i < model.joints.size(); ++i) {
           JointBoundConstraintStep::run(model.joints[i],
               JointBoundConstraintStep::ArgsType(

@@ -31,6 +31,7 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/extra-config-space.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
@@ -49,7 +50,7 @@ namespace hpp {
                      Eigen::VectorXi& sat)
       {
         bool ret = false;
-        const se3::Model& model = robot->model();
+        const pinocchio::Model& model = robot->model();
 
         for (std::size_t i = 1; i < model.joints.size(); ++i) {
           const size_type nq = model.joints[i].nq();

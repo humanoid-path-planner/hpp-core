@@ -21,6 +21,7 @@
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup.hh>
 
@@ -117,7 +118,7 @@ namespace hpp {
           // q_inter.segment(rkCfg,szCfg) = j->jointModel().interpolate ( q1, q2,
               // t / (t2-t1));
           typedef pinocchio::RnxSOnLieGroupMap LG_t;
-          typedef se3::InterpolateStep<LG_t> IS_t;
+          typedef ::pinocchio::InterpolateStep<LG_t, ConfigurationIn_t, ConfigurationIn_t, value_type, Configuration_t> IS_t;
           value_type u = t / (t2-t1);
           IS_t::run (j->jointModel(), IS_t::ArgsType (q1, q2, u, q_inter));
           if (path->pathAtRank (i)->constraints ()) {

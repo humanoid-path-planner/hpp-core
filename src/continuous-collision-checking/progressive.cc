@@ -19,6 +19,7 @@
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 
 #include <limits>
+//#include <pinocchio/multibody/geometry.hpp>
 #include <hpp/util/debug.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
@@ -30,7 +31,7 @@ namespace hpp {
   namespace core {
     namespace continuousCollisionChecking {
       namespace {
-        typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
+        typedef std::pair<pinocchio::JointIndex, pinocchio::JointIndex> JointIndexPair_t;
 
         struct JointIndexPairCompare_t {
           bool operator() (const JointIndexPair_t& p0, const JointIndexPair_t& p1) const

@@ -16,10 +16,12 @@
 
 #include <hpp/core/steering-method/car-like.hh>
 
+#include <pinocchio/spatial/se3.hpp>
 #include <pinocchio/multibody/joint/joint-generic.hpp>
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/core/problem.hh>
 

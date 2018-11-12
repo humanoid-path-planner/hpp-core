@@ -64,7 +64,7 @@ namespace hpp {
         // Returns SE3(x) * oMi
         // Local frame
         J. topLeftCorner<3,3>().noalias() = oMi_.rotation().transpose();
-        J.topRightCorner<3,3>().noalias() = - oMi_.rotation().transpose() * se3::skew(oMi_.translation());
+        J.topRightCorner<3,3>().noalias() = - oMi_.rotation().transpose() * ::pinocchio::skew(oMi_.translation());
         J. bottomLeftCorner<3,3>().setZero();
         J.bottomRightCorner<3,3>().noalias() = oMi_.rotation().transpose();
       }

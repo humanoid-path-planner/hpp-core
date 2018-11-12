@@ -31,6 +31,7 @@
 #include <hpp/util/exception-factory.hh>
 
 #include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 
@@ -180,7 +181,7 @@ namespace hpp {
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
-      obstacleRModel_->addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
+      obstacleRModel_->addFrame(::pinocchio::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), ::pinocchio::BODY));
       obstacleRData_.reset (new Data (*obstacleRModel_));
 
 
@@ -397,7 +398,7 @@ namespace hpp {
       constraints_ = ConstraintSet::create (robot_, "Default constraint set");
       // Reset obstacles
       obstacleRModel_.reset(new Model());
-      obstacleRModel_->addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
+      obstacleRModel_->addFrame(::pinocchio::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), ::pinocchio::BODY));
       obstacleRData_.reset (new Data(*obstacleRModel_));
       obstacleModel_.reset (new GeomModel());
       obstacleData_ .reset (new GeomData(*obstacleModel_));
@@ -887,9 +888,9 @@ namespace hpp {
       const Data & d = device->data ();
       for (std::size_t i = 1; i < m.frames.size(); ++i)
       {
-        const se3::Frame& frame = m.frames[i];
-        // se3::FrameType type = (frame.type == se3::JOINT ? se3::FIXED_JOINT : frame.type);
-        obstacleRModel_->addFrame (se3::Frame (
+        const ::pinocchio::Frame& frame = m.frames[i];
+        // ::pinocchio::FrameType type = (frame.type == ::pinocchio::JOINT ? ::pinocchio::FIXED_JOINT : frame.type);
+        obstacleRModel_->addFrame (::pinocchio::Frame (
               prefix + frame.name,
               0,
               0, // TODO Keep frame hierarchy
@@ -899,7 +900,7 @@ namespace hpp {
               ));
       }
       obstacleRData_.reset (new Data(*obstacleRModel_));
-      se3::framesForwardKinematics (*obstacleRModel_, *obstacleRData_, vector_t::Zero(0));
+      ::pinocchio::framesForwardKinematics (*obstacleRModel_, *obstacleRData_, vector_t::Zero(0).eval());
 
       // Detach objects from joints
       for (size_type i = 0; i < device->nbObjects(); ++i) {
@@ -924,18 +925,18 @@ namespace hpp {
             << " already added! Choose another name (prefix).");
       }
 
-      se3::GeomIndex id = obstacleModel_->addGeometryObject(se3::GeometryObject(
+      ::pinocchio::GeomIndex id = obstacleModel_->addGeometryObject(::pinocchio::GeometryObject(
             name, 1, 0,
             inObject.collisionGeometry(),
-            se3::toPinocchioSE3(inObject.getTransform()),
+            ::pinocchio::toPinocchioSE3(inObject.getTransform()),
             "",
             vector3_t::Ones()),
           *obstacleRModel_);
       // Update obstacleData_
       // FIXME This should be done in Pinocchio
       {
-        se3::GeometryModel& model = *obstacleModel_;
-        se3::GeometryData& data = *obstacleData_;
+        ::pinocchio::GeometryModel& model = *obstacleModel_;
+        ::pinocchio::GeometryData& data = *obstacleData_;
         data.oMg.resize(model.ngeoms);
         //data.activeCollisionPairs.resize(model.collisionPairs.size(), true)
         //data.distance_results(model.collisionPairs.size())
@@ -944,7 +945,7 @@ namespace hpp {
         data.collisionObjects.push_back (fcl::CollisionObject(
               model.geometryObjects[id].fcl));
         data.oMg[id] =  model.geometryObjects[id].placement;
-        data.collisionObjects[id].setTransform( se3::toFclTransform3f(data.oMg[id]) );
+        data.collisionObjects[id].setTransform( ::pinocchio::toFclTransform3f(data.oMg[id]) );
       }
       CollisionObjectPtr_t object (
           new CollisionObject(obstacleModel_,obstacleData_,id));
@@ -967,7 +968,7 @@ namespace hpp {
       if (!obstacleModel_->existGeometryName(name)) {
         HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
       }
-      se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+      ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
       // Update obstacle model
       remove(obstacleModel_->geometryObjects, id);
@@ -987,7 +988,7 @@ namespace hpp {
       if (!obstacleModel_->existGeometryName(name)) {
         HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
       }
-      se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+      ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
       fcl::CollisionObject& fclobj = obstacleData_->collisionObjects[id];
       fclobj.computeAABB();
@@ -1004,7 +1005,7 @@ namespace hpp {
       } else {
         obstacleModel_->geometryObjects[id].fcl = newgeom;
         obstacleData_->collisionObjects[id] =
-          fcl::CollisionObject(newgeom, se3::toFclTransform3f(obstacleData_->oMg[id]));
+          fcl::CollisionObject(newgeom, ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]));
       }
     }
 
@@ -1037,7 +1038,7 @@ namespace hpp {
     CollisionObjectPtr_t ProblemSolver::obstacle (const std::string& name) const
     {
       if (obstacleModel_->existGeometryName(name)) {
-        se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+        ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
         return CollisionObjectPtr_t (
             new CollisionObject(obstacleModel_,obstacleData_,id));
       }
@@ -1049,7 +1050,7 @@ namespace hpp {
       if (!obstacleRModel_->existFrame(name)) {
         HPP_THROW(std::invalid_argument, "No obstacle frame with name " << name);
       }
-      se3::FrameIndex id = obstacleRModel_->getFrameId(name);
+      ::pinocchio::FrameIndex id = obstacleRModel_->getFrameId(name);
       return obstacleRData_->oMf[id];
     }
 

@@ -27,9 +27,11 @@
 
 # include <hpp/fcl/collision_data.h>
 # include <hpp/fcl/collision.h>
+# include <pinocchio/multibody/model.hpp>
 # include <hpp/pinocchio/body.hh>
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/pinocchio/joint.hh>
+# include <hpp/pinocchio/joint-collection.hh>
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/straight-path.hh>
 # include <hpp/core/interpolated-path.hh>
@@ -87,7 +89,7 @@ namespace hpp {
 	}
 
 
-	const std::vector <se3::JointIndex>& joints () const
+	const std::vector <pinocchio::JointIndex>& joints () const
 	{
 	  return joints_;
 	}
@@ -240,7 +242,7 @@ namespace hpp {
 	{
 	  os << "Progressive BodyPairCollision: " << joint_a_->name()
 	     << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
-	  const se3::Model& model = joint_a_->robot ()->model();
+	  const pinocchio::Model& model = joint_a_->robot ()->model();
 	  for (std::size_t i = 0; i < joints_.size (); ++i) {
 	    if (i > 0) os << model.names[i] << ',';
 	    else       os << "World"        << ',';
@@ -333,13 +335,13 @@ namespace hpp {
 	}
 
       private:
-	typedef se3::JointIndex JointIndex;
+	typedef pinocchio::JointIndex JointIndex;
 
 	void computeSequenceOfJoints ()
 	{
 	  joints_.clear ();
 
-	  const se3::Model& model = joint_a_->robot ()->model();
+	  const pinocchio::Model& model = joint_a_->robot ()->model();
 	  const JointIndex id_a = joint_a_->index(),
 	    id_b = (joint_b_ ? joint_b_->index() : 0);
 	  JointIndex ia = id_a, ib = id_b;
@@ -372,7 +374,7 @@ namespace hpp {
 
 	void computeCoefficients ()
 	{
-	  const se3::Model& model = joint_a_->robot ()->model();
+	  const pinocchio::Model& model = joint_a_->robot ()->model();
 
 	  JointPtr_t child;
 	  assert (joints_.size () > 1);
