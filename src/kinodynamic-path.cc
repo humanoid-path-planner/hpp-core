@@ -240,7 +240,7 @@ namespace hpp {
 
       for(int i = 0 ; i < a1_.size() ; ++i){ // adjust times bounds
         ti = subInterval.first - timeRange().first;
-        tf = timeRange().second - timeRange().second;
+        tf = timeRange().second - subInterval.second;
         t0[i] = t0_[i] - ti;
         if(t0[i] <= 0){
           t0[i] = 0;
