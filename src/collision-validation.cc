@@ -72,48 +72,43 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics ();
       robot_->updateGeometryPlacements ();
-
       fcl::CollisionResult collisionResult;
       CollisionPairs_t::const_iterator _col;
-      if(computeAllContacts_){
-        hppDout(notice,"collision validation, computeAllContacts, num of pairs : "<<collisionPairs_.size());
-        bool firstCollision(true);
-        AllCollisionsValidationReportPtr_t allReport;
-        for (CollisionPairs_t::const_iterator _col = collisionPairs_.begin (); _col != collisionPairs_.end (); ++_col){
-          if (collide (_col, collisionRequest_, collisionResult) != 0){
-            hppDout(notice,"in collision :  "<<_col->first->name()<<" / "<<_col->second->name());
-            CollisionValidationReportPtr_t report (new CollisionValidationReport);
-            report->object1 = _col->first;
-            report->object2 = _col->second;
-            report->result = collisionResult;
-            if(firstCollision){
-              allReport = AllCollisionsValidationReportPtr_t(new AllCollisionsValidationReport);
-              allReport->object1 = _col->first;
-              allReport->object2 = _col->second;
-              allReport->result = collisionResult;
-              firstCollision = false;
+      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+          ||
+          ( checkParameterized_ &&
+            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+          )) {
+        CollisionValidationReportPtr_t report (new CollisionValidationReport);
+        report->object1 = _col->first;
+        report->object2 = _col->second;
+        report->result = collisionResult;
+        if(computeAllContacts_){
+          // create report with the first collision
+          AllCollisionsValidationReportPtr_t allReport(new AllCollisionsValidationReport);
+          allReport->object1 = _col->first;
+          allReport->object2 = _col->second;
+          allReport->result = collisionResult;
+          allReport->collisionReports.push_back(report);
+          // then loop over all the remaining pairs :
+          ++_col;
+          while(_col != collisionPairs_.end()){
+            if (collide (_col, collisionRequest_, collisionResult) != 0){
+              CollisionValidationReportPtr_t report (new CollisionValidationReport);
+              report->object1 = _col->first;
+              report->object2 = _col->second;
+              report->result = collisionResult;
+              allReport->collisionReports.push_back(report);
             }
-            allReport->collisionReports.push_back(report);
+            ++_col;
           }
-        }
-        validationReport=allReport;
-        return firstCollision;
-      }else{
-        fcl::CollisionResult collisionResult;
-        if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
-            ||
-            ( checkParameterized_ &&
-              collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
-            )) {
-          CollisionValidationReportPtr_t report (new CollisionValidationReport);
-          report->object1 = _col->first;
-          report->object2 = _col->second;
-          report->result = collisionResult;
+          validationReport=allReport;
+        }else{
           validationReport = report;
-          return false;
         }
-        return true;
+        return false;
       }
+      return true;
     }
 
     void CollisionValidation::addObstacle (const CollisionObjectConstPtr_t& object)
