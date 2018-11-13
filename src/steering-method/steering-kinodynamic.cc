@@ -103,7 +103,7 @@ namespace hpp {
         if(Tmax<=std::numeric_limits<double>::epsilon()){
           hppDout(notice,"Steering kinodynamic : no translation mouvement.");
           //TODO : it mean that you must rotate without translation, not implemented yet
-          return PathPtr_t();
+          return StraightPath::create(device_.lock(),q1,q2,0.);
         }
 
 
