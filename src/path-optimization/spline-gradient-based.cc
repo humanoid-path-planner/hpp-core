@@ -131,14 +131,14 @@ namespace hpp {
             Js.resize(sod.es->nv (), sod.es->nv ());
             sod.es->jacobian(Js, q);
 
-            sod.es->freeDers().lview(J) =
-              sod.es->freeDers().lview(J).eval() +
+            sod.es->notOutDers().lview(J) =
+              sod.es->notOutDers().lview(J).eval() +
               sod.es->outDers().transpose().rview(J).eval()
               * sod.es->jacobianNotOutToOut (Js).eval ();
             sod.es->outDers().transpose().lview(J).setZero();
           }
 
-          spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
+          Spline::timeFreeBasisFunctionDerivative (0, ratios[fIdx], paramDerivativeCoeff);
 
           const size_type col = splineIds[fIdx] * Spline::NbCoeffs * rDof;
           for (size_type i = 0; i < Spline::NbCoeffs; ++i)
@@ -265,7 +265,7 @@ namespace hpp {
             size_type j = 0, k = 0;
             for (size_type r = 0; r < J.cols(); ++r) {
               if (J.col(r).isZero(guessThr)) {
-                size_type idof = es.freeDers().indices()[j].first + k;
+                size_type idof = es.notOutDers().indices()[j].first + k;
                 passive.push_back(BlockIndex::segment_t (idof, 1));
                 hppDout (info, "Deactivated dof (thr=" << guessThr
                     << ") " << idof << ". J = " << J.col(r).transpose());
