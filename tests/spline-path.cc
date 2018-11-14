@@ -108,8 +108,8 @@ template <int SplineType> void compare_to_straight_path ()
   ls->parameters(ls_param);
   */
 
-  EIGEN_VECTOR_IS_APPROX(sp->initial(), ls->initial(), 1e-7);
-  EIGEN_VECTOR_IS_APPROX(sp->end()    , ls->end()    , 1e-7);
+  CONFIGURATION_VECTOR_IS_APPROX(dev, sp->initial(), ls->initial(), 1e-7);
+  CONFIGURATION_VECTOR_IS_APPROX(dev, sp->end()    , ls->end()    , 1e-7);
 
   const size_type N = 10;
   const value_type step1 = sp->length() / N;
