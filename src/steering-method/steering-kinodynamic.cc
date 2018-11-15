@@ -360,7 +360,7 @@ namespace hpp {
           *vLim = 0;
           return;
         }
-        if(!synchronizeVerticalAxis_){
+        if(!synchronizeVerticalAxis_){ // if true : make the trajectory along z axis as short as possible (with the maximal acceleration) and then stay at null acceleration
           if(index == 2 && /*((v1 == 0) ||*/ (v2==0)){ // FIXME : axis z ?
             hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
             assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
@@ -476,6 +476,8 @@ namespace hpp {
           *a1 = x1;
         else
           *a1 = x2;
+        if(fabs(*a1)>aMax_[index]) // x1 or x2 could be sligtly greater than aMax because of numerical imprecision
+          *a1 = aMax_[index] * sgn(p2_1);
         double a2 = -(*a1);
         hppDout(notice,"a1 = "<<*a1);
         *t1 = 0.5*((v2_1/(*a1))+T);
