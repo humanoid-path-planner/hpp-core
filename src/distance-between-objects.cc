@@ -33,16 +33,12 @@ namespace hpp {
     (const CollisionObjectConstPtr_t &object)
     {
       using pinocchio::DISTANCE;
-      const JointVector_t& jv = robot_->getJointVector ();
-      for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
-	   ++it) {
-    JointConstPtr_t joint = *it;
+      for (size_type i = 0; i < robot_->nbJoints(); ++i) {
+        JointConstPtr_t joint = robot_->jointAt(i);
 	BodyPtr_t body = joint->linkedBody ();
 	if (body) {
-      const ObjectVector_t& bodyObjects = body->innerObjects ();
-	  for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-	       itInner != bodyObjects.end (); ++itInner) {
-	    collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+          for (size_type j = 0; j < body->nbInnerObjects(); ++j) {
+	    collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(j), object));
 	  }
 	}
       }

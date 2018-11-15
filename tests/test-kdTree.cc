@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE (kdTree) {
   DevicePtr_t robot = Device::create("robot");
   ModelPtr_t m = ModelPtr_t(new ::se3::Model());
   GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->model(m);
-  robot->geomModel(gm);
+  robot->setModel(m);
+  robot->setGeomModel(gm);
   const std::string& name = robot->name ();
   Transform3f mat; mat.setIdentity ();
 

@@ -91,7 +91,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/node.hh
   include/hpp/core/parameter.hh
   include/hpp/core/path.hh
-  include/hpp/core/path-optimization/path-length.hh
   include/hpp/core/path-optimization/linear-constraint.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/quadratic-program.hh

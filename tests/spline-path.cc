@@ -40,7 +40,7 @@ using namespace hpp::pinocchio;
 DevicePtr_t createRobot ()
 {
   DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidRomeo);
-  robot->controlComputation((Device::Computation_t) (Device::JOINT_POSITION | Device::JACOBIAN));
+  robot->controlComputation((Computation_t) (JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound (0, -1);
   robot->rootJoint()->lowerBound (1, -1);
   robot->rootJoint()->lowerBound (2, -1);

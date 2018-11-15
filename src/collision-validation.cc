@@ -35,19 +35,21 @@ namespace hpp {
   namespace core {
     namespace {
       inline std::size_t collide (const CollisionPairs_t::const_iterator& _colPair,
-          const fcl::CollisionRequest& req, fcl::CollisionResult& res) {
+          const fcl::CollisionRequest& req, fcl::CollisionResult& res,
+          pinocchio::DeviceData& data) {
         res.clear();
         return fcl::collide (
-                    _colPair->first ->fcl (),
-                    _colPair->second->fcl (),
+                    _colPair->first ->fcl (data),
+                    _colPair->second->fcl (data),
                     req, res);
       }
 
       inline bool collide (const CollisionPairs_t& pairs,
          const fcl::CollisionRequest& req, fcl::CollisionResult& res,
-         CollisionPairs_t::const_iterator& _col) {
+         CollisionPairs_t::const_iterator& _col,
+         pinocchio::DeviceData& data) {
         for (_col = pairs.begin (); _col != pairs.end (); ++_col)
-          if (collide (_col, req, res) != 0)
+          if (collide (_col, req, res, data) != 0)
             return true;
         return false;
       }
@@ -69,15 +71,17 @@ namespace hpp {
     bool CollisionValidation::validate (const Configuration_t& config,
                                         ValidationReportPtr_t& validationReport)
     {
-      robot_->currentConfiguration (config);
-      robot_->computeForwardKinematics ();
-      robot_->updateGeometryPlacements ();
+      pinocchio::DeviceSync device (robot_);
+      device.currentConfiguration (config);
+      device.computeForwardKinematics ();
+      device.updateGeometryPlacements ();
+
       fcl::CollisionResult collisionResult;
       CollisionPairs_t::const_iterator _col;
-      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col)
+      if (collide (collisionPairs_, collisionRequest_, collisionResult, _col, device.d())
           ||
           ( checkParameterized_ &&
-            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col)
+            collide (parameterizedPairs_, collisionRequest_, collisionResult, _col, device.d())
           )) {
         CollisionValidationReportPtr_t report (new CollisionValidationReport);
         report->object1 = _col->first;
@@ -113,10 +117,8 @@ namespace hpp {
 
     void CollisionValidation::addObstacle (const CollisionObjectConstPtr_t& object)
     {
-      const JointVector_t& jv = robot_->getJointVector ();
-      for (JointVector_t::const_iterator it = jv.begin (); it != jv.end ();
-          ++it) {
-        JointPtr_t joint = JointPtr_t (new Joint(**it));
+      for (size_type j = 0; j < robot_->nbJoints(); ++j) {
+        JointPtr_t joint = robot_->jointAt (j);
         addObstacleToJoint (object, joint, false);
       }
     }
@@ -127,13 +129,11 @@ namespace hpp {
     {
         BodyPtr_t body = joint->linkedBody ();
         if (body) {
-            const ObjectVector_t& bodyObjects = body->innerObjects ();
-            for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-                itInner != bodyObjects.end (); ++itInner) {
+            for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
               // TODO: check the objects are not in same joint
-              collisionPairs_.push_back (CollisionPair_t (*itInner, object));
+              collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(o), object));
             }
-          }
+        }
         if(includeChildren) {
             for(std::size_t i=0; i<joint->numberChildJoints(); ++i){
                 addObstacleToJoint (object, joint->childJoint(i),includeChildren);
@@ -141,18 +141,27 @@ namespace hpp {
         }
     }
 
+    struct CollisionPairComparision {
+      CollisionPair_t a;
+      CollisionPairComparision (const CollisionPair_t& p) : a (p) {}
+      bool operator() (const CollisionPair_t& b)
+      {
+        return (&(a.first ->pinocchio()) == &(b.first ->pinocchio()))
+          &&   (&(a.second->pinocchio()) == &(b.second->pinocchio()));
+      }
+    };
+
     void CollisionValidation::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
       BodyPtr_t body = joint->linkedBody ();
       if (body) {
-        const ObjectVector_t& bodyObjects = body->innerObjects ();
-        for (ObjectVector_t::const_iterator itInner = bodyObjects.begin ();
-            itInner != bodyObjects.end (); ++itInner) {
-          CollisionPair_t colPair (*itInner, obstacle);
+        for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
+          CollisionPair_t colPair (body->innerObjectAt(o), obstacle);
+          CollisionPairComparision compare (colPair);
           std::size_t nbDelPairs = 0;
           CollisionPairs_t::iterator _collisionPair (collisionPairs_.begin());
-          while ( (_collisionPair = std::find (_collisionPair, collisionPairs_.end(), colPair))
+          while ( (_collisionPair = std::find_if (_collisionPair, collisionPairs_.end(), compare))
               != collisionPairs_.end()) {
             _collisionPair = collisionPairs_.erase (_collisionPair);
             ++nbDelPairs;
@@ -196,7 +205,8 @@ namespace hpp {
               hppDout(info, "Disabling collision between "
                   << _colPair->first ->name() << " and "
                   << _colPair->second->name());
-              if (collide (_colPair, collisionRequest_, unused) != 0) {
+              if (fcl::collide (_colPair->first ->fcl (), _colPair->second->fcl (),
+                    collisionRequest_, unused) != 0) {
                 hppDout(warning, "Disabling collision detection between two "
                     "body in collision.");
               }

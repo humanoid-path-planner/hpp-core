@@ -137,7 +137,7 @@ namespace hpp {
 				      size_type _maxIterations) :
       Constraint (name), robot_ (robot),
       lineSearchType_ (defaultLineSearch_),
-      solver_ (new BySubstitution (robot->configSpace())),
+      solver_ (new BySubstitution (robot->configSpace()->vectorSpacesMerged())),
       weak_ (),
       statistics_ ("ConfigProjector " + name)
     {

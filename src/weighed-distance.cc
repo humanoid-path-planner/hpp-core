@@ -250,9 +250,9 @@ namespace hpp {
     void WeighedDistance::computeWeights ()
     {
       // Store computation flag
-      Device_t::Computation_t flag = robot_->computationFlag ();
-      Device_t::Computation_t newflag = static_cast <Device_t::Computation_t>
-	(flag | Device_t::JACOBIAN);
+      pinocchio::Computation_t flag = robot_->computationFlag ();
+      pinocchio::Computation_t newflag = static_cast <pinocchio::Computation_t>
+	(flag | pinocchio::JACOBIAN);
       robot_->controlComputation (newflag);
       robot_->computeForwardKinematics ();
       robot_->controlComputation (flag);

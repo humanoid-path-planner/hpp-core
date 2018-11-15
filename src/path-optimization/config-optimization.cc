@@ -153,17 +153,17 @@ namespace hpp {
       constraints::ImplicitPtr_t ConfigOptimization::createNumConstraint
         (const PathVector& path) const
       {
-        std::vector <bool> mask (problem().robot()->numberDof(), true);
+        DevicePtr_t robot = problem().robot();
+        std::vector <bool> mask (robot->numberDof(), true);
         // TODO: there are some DOF that should not be optimized using this
         // method. Here, we consider we do not want to optimized the root joint.
         // This is not a very good solution. For a freeflyer joint for instance,
         // you may want not to optimize the two first joints...
-        const JointVector_t& jv = problem().robot()->getJointVector ();
-        for (JointVector_t::const_iterator it = jv.begin ();
-            it != jv.end (); ++it) {
-          for (size_type i = 0; i < (*it)->numberDof (); i++)
-            if (parameters.shouldFilter (*it, i))
-              mask[(*it)->rankInVelocity () + i] = false;
+        for (size_type iJ = 0; iJ < robot->nbJoints(); ++iJ) {
+          JointPtr_t joint = robot->jointAt (iJ);
+          for (size_type i = 0; i < joint->numberDof (); i++)
+            if (parameters.shouldFilter (joint, i))
+              mask[joint->rankInVelocity () + i] = false;
         }
         Configuration_t goal = parameters.getGoal (path);
         constraints::ImplicitPtr_t cc = constraints::Implicit::create

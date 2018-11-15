@@ -54,9 +54,7 @@ path-validations.cc
   parameter.cc #
   path.cc #
   path-optimizer.cc #
-  path-optimization/collision-constraints-result.hh #
   path-optimization/linear-constraint.cc #
-  path-optimization/path-length.cc #
   path-optimization/spline-gradient-based-abstract.cc #
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #

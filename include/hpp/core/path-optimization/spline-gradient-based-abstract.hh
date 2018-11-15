@@ -76,6 +76,9 @@ namespace hpp {
           /// \name Spline creation
           /// \{
 
+          /// Flatten path and remove path of zero length.
+          static PathVectorPtr_t cleanInput (const PathVectorPtr_t& input);
+
           /// Spline steering method.
           typedef steeringMethod::Spline<PolynomeBasis, SplineOrder> SSM_t;
           typename SSM_t::Ptr_t steeringMethod_;
@@ -135,7 +138,6 @@ namespace hpp {
           /// \name Constraint creation
           /// \{
 
-          typedef constraints::ExplicitConstraintSet ExplicitConstraintSet;
           typedef Eigen::RowBlockIndices RowBlockIndices;
           typedef std::vector <bool> Bools_t;
           typedef std::vector <size_type> Indices_t;
@@ -147,7 +149,7 @@ namespace hpp {
             /// The set of constraint of the corresponding path.
             ConstraintSetPtr_t set;
             /// A copy of the explicit solver included in \ref set
-            boost::shared_ptr<ExplicitConstraintSet> es;
+            boost::shared_ptr<constraints::ExplicitConstraintSet> es;
 
             /// Variable on which we can optimize.
             /// Other variables are fully constrained.

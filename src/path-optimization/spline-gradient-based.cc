@@ -34,6 +34,8 @@
 namespace hpp {
   namespace core {
     using pinocchio::Device;
+    using constraints::ExplicitConstraintSet;
+    using constraints::solver::BySubstitution;
 
     namespace pathOptimization {
       typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RowMajorMatrix_t;
@@ -129,14 +131,14 @@ namespace hpp {
             Js.resize(sod.es->nv (), sod.es->nv ());
             sod.es->jacobian(Js, q);
 
-            sod.es->inDers().lview(J) =
-              sod.es->inDers().lview(J).eval() +
+            sod.es->notOutDers().lview(J) =
+              sod.es->notOutDers().lview(J).eval() +
               sod.es->outDers().transpose().rview(J).eval()
               * sod.es->jacobianNotOutToOut (Js).eval ();
             sod.es->outDers().transpose().lview(J).setZero();
           }
 
-          spline->parameterDerivativeCoefficients(paramDerivativeCoeff, t);
+          Spline::timeFreeBasisFunctionDerivative (0, ratios[fIdx], paramDerivativeCoeff);
 
           const size_type col = splineIds[fIdx] * Spline::NbCoeffs * rDof;
           for (size_type i = 0; i < Spline::NbCoeffs; ++i)
@@ -193,9 +195,8 @@ namespace hpp {
         if (cs) {
           ConfigProjectorPtr_t cp = cs->configProjector();
           if (cp) {
-            const constraints::solver::BySubstitution& hs = cp->solver();
-            const constraints::ExplicitConstraintSet& es =
-              hs.explicitConstraintSet();
+            const BySubstitution& hs = cp->solver();
+            const ExplicitConstraintSet& es = hs.explicitConstraintSet();
 
             // Get the active parameter row selection.
             value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
@@ -230,11 +231,10 @@ namespace hpp {
 
       template <int _PB, int _SO>
       Eigen::RowBlockIndices SplineGradientBased<_PB, _SO>::computeActiveParameters
-      (const PathPtr_t& path, const constraints::solver::BySubstitution& hs,
+      (const PathPtr_t& path, const BySubstitution& hs,
        const value_type& guessThr, const bool& useExplicitInput) const
       {
-        const constraints::ExplicitConstraintSet& es =
-          hs.explicitConstraintSet();
+        const ExplicitConstraintSet& es = hs.explicitConstraintSet();
 
         BlockIndex::segments_t implicitBI, explicitBI;
 
@@ -257,20 +257,21 @@ namespace hpp {
           // If requested, check if the jacobian has columns of zeros.
           BlockIndex::segments_t passive;
           if (guessThr >= 0) {
-            matrix_t J (hs.dimension(), es.inDers().nbIndices());
+            matrix_t J (hs.reducedDimension(),
+                        hs.freeVariables ().nbIndices ());
             hs.computeValue<true>(path->initial());
             hs.updateJacobian(path->initial());
             hs.getReducedJacobian(J);
             size_type j = 0, k = 0;
             for (size_type r = 0; r < J.cols(); ++r) {
               if (J.col(r).isZero(guessThr)) {
-                size_type idof = es.inDers().indices()[j].first + k;
+                size_type idof = es.notOutDers().indices()[j].first + k;
                 passive.push_back(BlockIndex::segment_t (idof, 1));
                 hppDout (info, "Deactivated dof (thr=" << guessThr
                     << ") " << idof << ". J = " << J.col(r).transpose());
               }
               k++;
-              if (k >= es.inDers().indices()[j].second) {
+              if (k >= hs.freeVariables ().indices()[j].second) {
                 j++;
                 k = 0;
               }
@@ -371,16 +372,9 @@ namespace hpp {
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum").boolValue();
         value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold").floatValue();
 
-        PathVectorPtr_t tmp = PathVector::create (robot_->configSize(), robot_->numberDof());
-        path->flatten(tmp);
-        // Remove zero length path
-        PathVectorPtr_t input = PathVector::create (robot_->configSize(), robot_->numberDof());
-        for (std::size_t i = 0; i < tmp->numberPaths(); ++i) {
-          PathPtr_t p = tmp->pathAtRank (i);
-          if (p->length() > 0) input->appendPath (p);
-        }
+        PathVectorPtr_t input = Base::cleanInput (path);
 
-        robot_->controlComputation ((Device::Computation_t)(robot_->computationFlag() | Device::JACOBIAN));
+        robot_->controlComputation ((pinocchio::Computation_t)(robot_->computationFlag() | pinocchio::JACOBIAN));
         const size_type rDof = robot_->numberDof();
 
         // 1

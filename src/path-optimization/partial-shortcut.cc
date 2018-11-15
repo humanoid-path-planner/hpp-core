@@ -145,7 +145,8 @@ namespace hpp {
       JointStdVector_t PartialShortcut::generateJointVector
         (const PathVectorPtr_t& pv) const
       {
-        const JointVector_t& rjv = problem().robot()->getJointVector ();
+        DevicePtr_t robot = problem().robot();
+
         JointStdVector_t jv;
         ConfigProjectorPtr_t proj =
           pv->pathAtRank (0)->constraints ()->configProjector ();
@@ -153,12 +154,13 @@ namespace hpp {
         if (proj)
           constraints = proj->numericalConstraints ();
 
-        for (JointVector_t::const_iterator it = rjv.begin ();
-             it != rjv.end (); ++it) {
-          if ((*it)->numberDof () > 0) {
+        for (size_type iJ = 0; iJ < robot->nbJoints(); ++iJ) {
+          JointPtr_t joint = robot->jointAt (iJ);
+          // TODO this test is always true.
+          if (joint->numberDof () > 0) {
             bool lock = false;
             if (parameters.removeLockedJoints && proj) {
-              const size_type rkCfg = (*it)->rankInConfiguration ();
+              const size_type rkCfg = joint->rankInConfiguration ();
               for (NumericalConstraints_t::const_iterator it
                      (constraints.begin ()); it != constraints.end (); ++it) {
                 LockedJointPtr_t lj (HPP_DYNAMIC_PTR_CAST (LockedJoint,
@@ -169,7 +171,7 @@ namespace hpp {
                 }
               }
             }
-             if (!lock) jv.push_back (*it);
+             if (!lock) jv.push_back (joint);
           }
         }
         return jv;
