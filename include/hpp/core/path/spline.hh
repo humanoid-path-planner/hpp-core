@@ -285,7 +285,8 @@ namespace hpp {
             parameterSize_ (robot->numberDof()),
             robot_ (robot),
             base_ (robot->RnxSOnConfigSpace()->vectorSpacesMerged()),
-            parameters_ ((int)NbCoeffs, parameterSize_)
+            parameters_ ((int)NbCoeffs, parameterSize_),
+            velocity_ (parameterSize_)
           {
             powersOfT_(0) = 1;
             for (size_type i = 1; i < NbPowerOfT; ++i)

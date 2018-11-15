@@ -266,6 +266,7 @@ namespace hpp {
         robot_ (path.robot_),
         base_ (path.base_),
         parameters_ (path.parameters_),
+        velocity_ (path.velocity_),
         powersOfT_ (path.powersOfT_)
       {}
 
@@ -276,6 +277,7 @@ namespace hpp {
         robot_ (path.robot_),
         base_ (path.base_),
         parameters_ (path.parameters_),
+        velocity_ (path.velocity_),
         powersOfT_ (path.powersOfT_)
       {}
 
@@ -343,9 +345,8 @@ namespace hpp {
         if (!robot_->configSpace()->isVectorSpace()) {
           basisFunctionDerivative(0, u, basisFunc);
           vector_t v (parameters_.transpose() * basisFunc);
-          matrix_t unused;
           // true means: res <- Jdiff * res
-          base_.space()->Jdifference<true> (base(), v, unused, res);
+          base_.space()->dIntegrate_dv<pinocchio::DerivativeTimesInput> (base_, v, res);
         }
       }
 
