@@ -97,7 +97,7 @@ namespace hpp {
           // then loop over all the remaining pairs :
           ++_col;
           while(_col != collisionPairs_.end()){
-            if (collide (_col, collisionRequest_, collisionResult) != 0){
+            if (collide (_col, collisionRequest_, collisionResult,device.d()) != 0){
               CollisionValidationReportPtr_t report (new CollisionValidationReport);
               report->object1 = _col->first;
               report->object2 = _col->second;

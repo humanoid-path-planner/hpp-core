@@ -238,7 +238,7 @@ namespace hpp {
     {
       // If configuration satisfies the constraint, do not modify it
       if (isSatisfied (configuration)) return true;
-      if (!(robot_->computationFlag() & pinocchio::Device::JACOBIAN))
+      if (!(robot_->computationFlag() & pinocchio::JACOBIAN))
         throw std::runtime_error("In ConfigProjector::apply: can't project a configuration if JACOBIAN computation flag is not enabled.");
       BySubstitution::Status status = (BySubstitution::Status)
         solverSolve (configuration);
