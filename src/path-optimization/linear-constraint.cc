@@ -17,6 +17,9 @@
 #include <hpp/core/path-optimization/linear-constraint.hh>
 
 #include <hpp/util/timer.hh>
+#include <hpp/util/exception-factory.hh>
+
+#include <hpp/pinocchio/util.hh>
 
 // #define USE_SVD
 #ifdef USE_SVD
@@ -33,7 +36,7 @@ namespace hpp {
         HPP_DISPLAY_TIMECOUNTER(LinearConstraint_decompose);
       }
 
-      bool LinearConstraint::decompose (bool check)
+      bool LinearConstraint::decompose (bool check, bool throwIfNotValid)
       {
         HPP_SCOPE_TIMECOUNTER(LinearConstraint_decompose);
 
@@ -77,6 +80,10 @@ namespace hpp {
           // check that the constraints are feasible
           matrix_t error = J * xStar - b;
           if (!error.isZero(1e-7)) {
+            if (throwIfNotValid) {
+              HPP_THROW(std::invalid_argument, "Constraints are not feasible.\nError is "
+                  << setpyformat << one_line(error) << unsetpyformat);
+            }
             hppDout (warning, "Constraint not feasible: "
                 << error.norm() << '\n' << error.transpose());
             return false;
