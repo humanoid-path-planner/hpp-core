@@ -104,7 +104,11 @@ namespace hpp {
           } else {
             value_type Vm;
             halfLengthDist = collisionFreeInterval(t, distanceLowerBound, Vm);
-            halfLengthTol = 2*tolerance_/Vm;
+            if (Vm != 0) {
+              halfLengthTol = 2*tolerance_/Vm;
+            } else {
+              halfLengthTol = numeric_limits <value_type>::infinity ();
+            }
           }
           assert (!std::isnan (halfLengthDist));
           assert (!std::isnan (halfLengthTol));
