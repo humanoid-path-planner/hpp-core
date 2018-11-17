@@ -74,7 +74,7 @@ namespace hpp {
       template <int _PB, int _SO>
       struct SplineGradientBased<_PB, _SO>::CollisionFunctions
       {
-        void addConstraint (const CollisionFunctionPtr_t& f,
+        void addConstraint (const typename CollisionFunction <SplinePtr_t>::Ptr_t& f,
                             const std::size_t& idx,
                             const size_type& row,
                             const value_type& r)
@@ -107,7 +107,7 @@ namespace hpp {
         void linearize (const SplinePtr_t& spline, const SplineOptimizationData& sod,
             const std::size_t& fIdx, LinearConstraint& lc)
         {
-          const CollisionFunctionPtr_t& f = functions[fIdx];
+          const typename CollisionFunction <SplinePtr_t>::Ptr_t& f = functions[fIdx];
 
           const size_type row = rows[fIdx],
                           nbRows = 1,
@@ -156,7 +156,7 @@ namespace hpp {
             linearize(splines[splineIds[i]], ss[i], i, lc);
         }
 
-        std::vector<CollisionFunctionPtr_t> functions;
+        std::vector<typename CollisionFunction <SplinePtr_t>::Ptr_t> functions;
         std::vector<std::size_t> splineIds;
         std::vector<size_type> rows;
         std::vector<value_type> ratios;
@@ -309,8 +309,9 @@ namespace hpp {
        CollisionFunctions& functions) const
       {
         hppDout (info, "Collision on spline " << idxSpline << " at ratio (in [0,1]) = " << report->parameter / nextSpline->length());
-        CollisionFunctionPtr_t cc =
-          CollisionFunction::create (robot_, spline, nextSpline, report);
+        typename CollisionFunction <SplinePtr_t>::Ptr_t cc
+          (CollisionFunction <SplinePtr_t>::create
+           (robot_, spline, nextSpline, report));
 
         collision.addRows(cc->outputSize());
         functions.addConstraint (cc, idxSpline,
@@ -333,7 +334,8 @@ namespace hpp {
         HPP_SCOPE_TIMECOUNTER(SGB_findNewConstraint);
         bool solved = false;
         Configuration_t q (robot_->configSize());
-        CollisionFunctionPtr_t function = functions.functions[iF];
+        typename CollisionFunction <SplinePtr_t>::Ptr_t function
+          (functions.functions[iF]);
 
         solved = constraint.reduceConstraint(collision, collisionReduced);
 
@@ -436,7 +438,7 @@ namespace hpp {
         value_type alpha = (checkOptimum_ || returnOptimum ? 1 : alphaInit);
 
         Splines_t alphaSplines, collSplines;
-        Splines_t* currentSplines;
+        Splines_t* currentSplines (0x0);
         Base::copy(splines, alphaSplines); Base::copy(splines, collSplines);
         Reports_t reports;
 

@@ -34,60 +34,26 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
-      HPP_PREDEF_CLASS (CollisionFunction);
-      typedef boost::shared_ptr <CollisionFunction> CollisionFunctionPtr_t;
       typedef pinocchio::Transform3f Transform3f;
       namespace eigen {
 	typedef Eigen::Matrix <value_type, 3, 1> vector3_t;
       } // namespace eigen
 
 
+      template <typename SplinePtr_t>
       class CollisionFunction : public DifferentiableFunction
       {
       public:
+        typedef boost::shared_ptr <CollisionFunction> Ptr_t;
        virtual ~CollisionFunction () {}
-       template <typename SplinePtr_t>
-       static CollisionFunctionPtr_t create
+       static Ptr_t create
        (const DevicePtr_t& robot, const SplinePtr_t& freeSpline,
         const SplinePtr_t& collSpline,
         const CollisionPathValidationReportPtr_t& report)
        {
-         const value_type& tColl = report->parameter;
-         bool success;
-         Configuration_t qColl = (*collSpline) (tColl, success);
-         assert(success);
-
-         HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
-             *(report->configurationReport));
-         CollisionObjectConstPtr_t object1 =
-           HPP_STATIC_PTR_CAST (CollisionValidationReport,
-               report->configurationReport)->object1;
-         CollisionObjectConstPtr_t object2 =
-           HPP_STATIC_PTR_CAST (CollisionValidationReport,
-               report->configurationReport)->object2;
-
-         hppDout (info, "obj1 = " << object1->name()
-             << " and obj2 = " << object2->name());
-         hppDout (info, "qColl = " << qColl.transpose());
-
-         // Backtrack collision in previous path (x0) to create constraint
-         value_type tFree = tColl * freeSpline->length () / collSpline->length();
-
-         Configuration_t qFree = (*freeSpline) (tFree, success);
-         assert(success);
-         hppDout (info, "qFree = " << qFree.transpose());
-
-         return create (robot, qFree, qColl, object1, object2);
-       }
-       static CollisionFunctionPtr_t create
-       (const DevicePtr_t& robot, const Configuration_t& qFree,
-	const Configuration_t& qColl, const CollisionObjectConstPtr_t& object1,
-	const CollisionObjectConstPtr_t& object2)
-       {
          CollisionFunction* ptr = new CollisionFunction
-           (robot, qFree, qColl, object1, object2);
-         CollisionFunctionPtr_t shPtr (ptr);
-         return shPtr;
+           (robot, freeSpline, collSpline, report);
+         return Ptr_t (ptr);
        }
 
        void updateConstraint (const Configuration_t& q)
@@ -101,7 +67,7 @@ namespace hpp {
          } else { // Update qFree_
            qFree_ = q;
          }
-         
+
          computeJacobian();
        }
 
@@ -109,37 +75,48 @@ namespace hpp {
 
       protected:
        CollisionFunction (const DevicePtr_t& robot,
-                            const Configuration_t& qFree,
-                            const Configuration_t& qColl,
-			    const CollisionObjectConstPtr_t& object1,
-			    const CollisionObjectConstPtr_t& object2)
-         : DifferentiableFunction (robot->configSize (), robot->numberDof (),
-                                   LiegroupSpace::R1 (), ""),
-         qFree_ (qFree), qColl_ (qColl),
-         robot_ (robot),
-         object1_ (object1), object2_ (object2),
+                          const SplinePtr_t& freeSpline,
+                          const SplinePtr_t& collSpline,
+                          const CollisionPathValidationReportPtr_t& report) :
+         DifferentiableFunction (robot->configSize (), robot->numberDof (),
+                                 LiegroupSpace::R1 (), ""),
+         qFree_ (), qColl_ (), robot_ (robot), object1_ (), object2_ (),
          J_ (), difference_ (robot->numberDof ())
-       {
-	 // Compute contact point in configuration qColl
-	 fcl::CollisionResult result = checkCollision(qColl, true);
-         if (result.numContacts() != 1) {
-           result = checkCollision(qColl, false);
-           if (result.isCollision()) {
-             hppDout (error, "FCL does not returns the same result when asking or not for the contact points.");
-           }
+        {
+          const value_type& tColl = report->parameter;
+          bool success;
+          qColl_ = (*collSpline) (tColl, success);
+          assert(success);
 
-           HPP_THROW(std::invalid_argument,
-               "Object " << object1->name() << " and " << object2->name()
-               << " are not in collision in configuration\n"
-               << setpyformat << one_line(qColl)
-               << "\nqFree is\n" << one_line(qFree)
-               << unsetpyformat);
-         }
-         contactPoint_ = result.getContact (0).pos;
-         hppDout (info, "contact point = " << contactPoint_.transpose());
+          HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
+                                     *(report->configurationReport));
+          CollisionValidationReportPtr_t collisionReport
+            (HPP_STATIC_PTR_CAST (CollisionValidationReport,
+                                  report->configurationReport));
+          object1_ = collisionReport->object1;
+          object2_ = collisionReport->object2;
 
-         computeJacobian();
-       }
+          hppDout (info, "obj1 = " << object1_->name()
+                   << " and obj2 = " << object2_->name());
+          hppDout (info, "qColl = " << pinocchio::displayConfig (qColl_));
+
+          // Backtrack collision in previous path (x0) to create constraint
+          value_type tFree = tColl * freeSpline->length () /
+            collSpline->length();
+
+          qFree_ = (*freeSpline) (tFree, success);
+          assert(success);
+          hppDout (info, "qFree = " << pinocchio::displayConfig (qFree_));
+          // Compute contact point in configuration qColl
+          const fcl::CollisionResult& result (collisionReport->result);
+          if (result.numContacts () < 1) {
+            abort ();
+          }
+          assert (result.numContacts () >= 1);
+          contactPoint_ = result.getContact (0).pos;
+          hppDout (info, "contact point = " << contactPoint_.transpose());
+          computeJacobian();
+        }
 
        fcl::CollisionResult checkCollision (const Configuration_t& q, bool enableContact)
        {
