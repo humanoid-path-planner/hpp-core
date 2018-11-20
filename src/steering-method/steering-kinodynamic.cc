@@ -343,13 +343,23 @@ namespace hpp {
       }
       
       void Kinodynamic::fixedTimeTrajectory(int index,double T, double p1, double p2, double v1, double v2, double *a1,double *t0, double *t1, double *tv, double *t2, double *vLim) const{
-        hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2);
+        hppDout(info,"p1 = "<<p1<<"  p2 = "<<p2<<"   ; v1 = "<<v1<<"    v2 = "<<v2<<" T = "<<T);
         double v12 = v1+v2;
         double v2_1 = v2-v1;
         double p2_1 = p2-p1;
         assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
         double vMax = vMax_[index];
+        double aMax =std::abs(aMax_[index]);
         hppDout(info,"v12 = "<<v12<<"   ; v21 = "<<v2_1<<"   ; p21 = "<<p2_1);
+        int sigma;
+        double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
+        sigma = sgnenum(p2-p1-deltaPacc);
+        hppDout(notice,"deltaPacc = "<<deltaPacc);
+        hppDout(info,"sigma = "<<sigma);
+        if(sigma == 0){
+          sigma = sgn(p2-p1);
+          hppDout(info,"sigma Bis= "<<sigma);
+        }
         
         if(v2_1 == 0 && p2_1 == 0){
           *a1 = 0;
@@ -364,14 +374,6 @@ namespace hpp {
           if(index == 2 && /*((v1 == 0) ||*/ (v2==0)){ // FIXME : axis z ?
             hppDout(notice, "FIXED TIME TRAJ for axis Z : ");
             assert(index >= 0 && index < 3 && "index of joint should be between in [0;2]");
-            double aMax =std::fabs(aMax_[index]);
-            double vMax = vMax_[index];
-            int sigma;
-            double deltaPacc = 0.5*(v1+v2)*(fabs(v2-v1)/aMax);
-            sigma = sgnenum(p2-p1-deltaPacc);  //TODO bug sigma == 0, temp fix ?
-            if(sigma == 0){ // ??? FIXME
-              sigma = sgn(p2-p1);
-            }
             *a1 = (sigma)*aMax;
             double a2 = -*a1;
             (*vLim) = (sigma) * vMax;
@@ -387,14 +389,14 @@ namespace hpp {
             const double q = -0.5*(b+sgnf(b)*sqrt(b*b-4*a*c));
             double x1 = 0;
             double x2 = 0;
-            if(a!= 0)
+            if(fabs(a)>std::numeric_limits<double>::epsilon()*100.)
               x1 = q/a;
             else
-              x1 = sgn(p2_1)*aMax_[index];
-            if(q!=0)
+              x1 = sigma*aMax_[index];
+            if(fabs(q)>std::numeric_limits<double>::epsilon()*100.)
               x2 = c/q;
             else
-              x2 = sgn(p2_1)*aMax_[index];
+              x2 = sigma*aMax_[index];
 
 
             hppDout(info, "sign of "<<b<<" is : "<<sgnf(b));
@@ -459,13 +461,13 @@ namespace hpp {
         if(fabs(a)>std::numeric_limits<double>::epsilon()*100.)
           x1 = q/a;
         else{
-          x1 = sgn(p2_1)*aMax_[index];
+          x1 = sigma*aMax_[index];
           hppDout(notice,"a == 0, take x1 = aMax");
         }
         if(fabs(q)>std::numeric_limits<double>::epsilon()*100.)
           x2 = c/q;
         else{
-          x2 = sgn(p2_1)*aMax_[index];
+          x2 = sigma*aMax_[index];
           hppDout(notice,"q == 0, take x1 = aMax");
         }
         hppDout(notice,"epsilon = "<<std::numeric_limits<double>::epsilon()*100.);
@@ -477,11 +479,13 @@ namespace hpp {
         else
           *a1 = x2;
         if(fabs(*a1)>aMax_[index]) // x1 or x2 could be sligtly greater than aMax because of numerical imprecision
-          *a1 = aMax_[index] * sgn(p2_1);
+          *a1 = aMax_[index] * sgn(*a1);
         double a2 = -(*a1);
         hppDout(notice,"a1 = "<<*a1);
         *t1 = 0.5*((v2_1/(*a1))+T);
         *vLim = sgn((*a1))*vMax;
+        hppDout(notice,"vLim = "<<*vLim);
+        hppDout(notice,"t1 before velocity limit : "<<*t1);
         if(std::abs(v1+(*t1)*(*a1)) <= vMax){  // two segment trajectory
           hppDout(notice,"Trajectory with 2 segments");
           *t2 = T - (*t1);
@@ -492,7 +496,7 @@ namespace hpp {
           if(fabs(q)>std::numeric_limits<double>::epsilon()*100.) // otherwise this mean that the solution have only a constant velocity segment, and the following equation will lead to a NaN because (*vLim*T- p2_1) == 0
             *a1 = ((*vLim - v1)*(*vLim - v1) + (*vLim - v2)*(*vLim - v2))/(2*(*vLim*T- p2_1));
           else{
-            *a1 =sgn(p2_1)*aMax_[index];
+            *a1 =sigma*aMax_[index];
             hppDout(notice,"q == 0, take x1 = aMax");
           }
 
