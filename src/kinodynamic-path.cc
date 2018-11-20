@@ -187,16 +187,16 @@ namespace hpp {
         hppDout(notice,"Call extract with same interval");
         return weak_.lock();
       }
+      bool success;
       value_type l = fabs (subInterval.second - subInterval.first);
       if(l<=0){
         hppDout(notice,"Call Extract with a length null");
-        return PathPtr_t();
+        return StraightPath::create(device_,((*this) (subInterval.first, success)),((*this) (subInterval.first, success)),0.);
       }
 
       hppDout(notice,"%% EXTRACT PATH : path interval : "<<timeRange().first<<" ; "<<timeRange().second);
       hppDout(notice,"%% EXTRACT PATH : sub  interval : "<<subInterval.first<<" ; "<<subInterval.second);
 
-      bool success;
       Configuration_t q1 ((*this) (subInterval.first, success));
       if (!success) throw projection_error
           ("Failed to apply constraints in KinodynamicPath::extract");

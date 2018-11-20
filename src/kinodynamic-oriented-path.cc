@@ -31,18 +31,18 @@ namespace hpp {
       Eigen::Vector3d vi(initial_[configSize],initial_[configSize+1],initial_[configSize+2]);
       if(vi.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[3]=quat.w();
-        initial_[4]=quat.x();
-        initial_[5]=quat.y();
-        initial_[6]=quat.z();
+        initial_[6]=quat.w();
+        initial_[3]=quat.x();
+        initial_[4]=quat.y();
+        initial_[5]=quat.z();
       }
       Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
       if(ve.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[3]=quat.w();
-        end_[4]=quat.x();
-        end_[5]=quat.y();
-        end_[6]=quat.z();
+        end_[6]=quat.w();
+        end_[3]=quat.x();
+        end_[4]=quat.y();
+        end_[5]=quat.z();
       }
 
 
@@ -61,18 +61,18 @@ namespace hpp {
       Eigen::Vector3d vi(initial_[configSize],initial_[configSize+1],initial_[configSize+2]);
       if(vi.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[3]=quat.w();
-        initial_[4]=quat.x();
-        initial_[5]=quat.y();
-        initial_[6]=quat.z();
+        initial_[6]=quat.w();
+        initial_[3]=quat.x();
+        initial_[4]=quat.y();
+        initial_[5]=quat.z();
       }
       Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
       if(ve.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[3]=quat.w();
-        end_[4]=quat.x();
-        end_[5]=quat.y();
-        end_[6]=quat.z();
+        end_[6]=quat.w();
+        end_[3]=quat.x();
+        end_[4]=quat.y();
+        end_[5]=quat.z();
       }
     }
 
@@ -84,18 +84,18 @@ namespace hpp {
       Eigen::Vector3d vi(path.initial_[configSize],path.initial_[configSize+1],path.initial_[configSize+2]);
       if(vi.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[3]=quat.w();
-        initial_[4]=quat.x();
-        initial_[5]=quat.y();
-        initial_[6]=quat.z();
+        initial_[6]=quat.w();
+        initial_[3]=quat.x();
+        initial_[4]=quat.y();
+        initial_[5]=quat.z();
       }
       Eigen::Vector3d ve(path.end_[configSize],path.end_[configSize+1],path.end_[configSize+2]);
       if(ve.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[3]=quat.w();
-        end_[4]=quat.x();
-        end_[5]=quat.y();
-        end_[6]=quat.z();
+        end_[6]=quat.w();
+        end_[3]=quat.x();
+        end_[4]=quat.y();
+        end_[5]=quat.z();
       }
     }
 
@@ -107,18 +107,18 @@ namespace hpp {
       Eigen::Vector3d vi(initial_[configSize],initial_[configSize+1],initial_[configSize+2]);
       if(vi.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[3]=quat.w();
-        initial_[4]=quat.x();
-        initial_[5]=quat.y();
-        initial_[6]=quat.z();
+        initial_[6]=quat.w();
+        initial_[3]=quat.x();
+        initial_[4]=quat.y();
+        initial_[5]=quat.z();
       }
       Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
       if(ve.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[3]=quat.w();
-        end_[4]=quat.x();
-        end_[5]=quat.y();
-        end_[6]=quat.z();
+        end_[6]=quat.w();
+        end_[3]=quat.x();
+        end_[4]=quat.y();
+        end_[5]=quat.z();
       }
     }
 
@@ -131,18 +131,18 @@ namespace hpp {
       Eigen::Vector3d vi(path.initial_[configSize],path.initial_[configSize+1],path.initial_[configSize+2]);
       if(vi.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[3]=quat.w();
-        initial_[4]=quat.x();
-        initial_[5]=quat.y();
-        initial_[6]=quat.z();
+        initial_[6]=quat.w();
+        initial_[3]=quat.x();
+        initial_[4]=quat.y();
+        initial_[5]=quat.z();
       }
       Eigen::Vector3d ve(path.end_[configSize],path.end_[configSize+1],path.end_[configSize+2]);
       if(ve.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[3]=quat.w();
-        end_[4]=quat.x();
-        end_[5]=quat.y();
-        end_[6]=quat.z();
+        end_[6]=quat.w();
+        end_[3]=quat.x();
+        end_[4]=quat.y();
+        end_[5]=quat.z();
       }
     }
 
@@ -156,10 +156,10 @@ namespace hpp {
       Eigen::Vector3d v(result[configSize],result[configSize+1],result[configSize+2]);
       if(v.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),v);
-        result[3]=quat.w();
-        result[4]=quat.x();
-        result[5]=quat.y();
-        result[6]=quat.z();
+        result[6]=quat.w();
+        result[3]=quat.x();
+        result[4]=quat.y();
+        result[5]=quat.z();
       }
 
       return true;
@@ -167,7 +167,7 @@ namespace hpp {
 
     PathPtr_t KinodynamicOrientedPath::impl_extract (const interval_t& subInterval) const
     throw (projection_error){
-      PathPtr_t path = parent_t::extract(subInterval);
+      PathPtr_t path = parent_t::impl_extract(subInterval);
       KinodynamicPathPtr_t kinoPath = boost::dynamic_pointer_cast<KinodynamicPath>(path);
       if(kinoPath)
         return KinodynamicOrientedPath::create(kinoPath);
