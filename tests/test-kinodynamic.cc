@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   configurationShooter::UniformPtr_t shooter = configurationShooter::Uniform::create(robot);
   ConfigurationPtr_t qr1,qr0;
   value_type t1,t2;
-  for(size_t i = 0 ; i < 100 ; i++){
+  for(size_t i = 0 ; i < 1000 ; i++){
     qr0 = shooter->shoot();
     qr1 = shooter->shoot();
     path = (*sm)(*qr0,*qr1);
@@ -425,6 +425,14 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
     BOOST_CHECK_EQUAL(path->initial().head(indexECS + 3),(*qr0).head(indexECS + 3));
     BOOST_CHECK_EQUAL((*path)(path->length(),success).head(indexECS + 3 ),(*qr1).head(indexECS + 3));
     BOOST_CHECK_EQUAL((*path)(0.,success).head(indexECS + 3 ),(*qr0).head(indexECS + 3));
+
+    for (size_t k = 0 ; k < 3 ; k++){
+      BOOST_CHECK_EQUAL(pathKino->getT0()[k],0.);
+      BOOST_CHECK(pathKino->getT1()[k] >= 0.);
+      BOOST_CHECK(pathKino->getTv()[k] >= 0.);
+      BOOST_CHECK(pathKino->getT2()[k] >= 0.);
+    }
+
     for(size_t j = 0 ; j < 10 ; j++){
       value_type a = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
       value_type b = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
@@ -445,7 +453,7 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
       BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
       BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
 
-      if(t1>t2){
+      if(t1<t2){
         extractedPathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath,extractedPath);
         BOOST_REQUIRE (extractedPathKino);
         for (size_t k = 0 ; k < 3 ; k++){
@@ -453,7 +461,7 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
           BOOST_CHECK(extractedPathKino->getT1()[k] >= 0.);
           BOOST_CHECK(extractedPathKino->getTv()[k] >= 0.);
           BOOST_CHECK(extractedPathKino->getT2()[k] >= 0.);
-          BOOST_CHECK_EQUAL(extractedPathKino->getT1()[k] + extractedPathKino->getTv()[k] + extractedPathKino->getT2()[k] , t2 -t1);
+          BOOST_CHECK_CLOSE(extractedPathKino->getT1()[k] + extractedPathKino->getTv()[k] + extractedPathKino->getT2()[k] , t2 -t1,1e-3);
         }
       }
 
@@ -520,7 +528,7 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
   configurationShooter::UniformPtr_t shooter = configurationShooter::Uniform::create(robot);
   ConfigurationPtr_t qr1,qr0;
   value_type t1,t2;
-  for(size_t i = 0 ; i < 100 ; i++){
+  for(size_t i = 0 ; i < 1000 ; i++){
     qr0 = shooter->shoot();
     qr1 = shooter->shoot();
     path = (*sm)(*qr0,*qr1);
@@ -552,7 +560,7 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
       BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
       BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
 
-      if(t1>t2){
+      if(t1<t2){
         extractedPathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicOrientedPath,extractedPath);
         BOOST_REQUIRE (extractedPathKino);
         for (size_t k = 0 ; k < 3 ; k++){
@@ -560,7 +568,7 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
           BOOST_CHECK(extractedPathKino->getT1()[k] >= 0.);
           BOOST_CHECK(extractedPathKino->getTv()[k] >= 0.);
           BOOST_CHECK(extractedPathKino->getT2()[k] >= 0.);
-          BOOST_CHECK_EQUAL(extractedPathKino->getT1()[k] + extractedPathKino->getTv()[k] + extractedPathKino->getT2()[k] , t2 -t1);
+          BOOST_CHECK_CLOSE(extractedPathKino->getT1()[k] + extractedPathKino->getTv()[k] + extractedPathKino->getT2()[k] , t2 -t1,1e-3);
         }
       }
 
