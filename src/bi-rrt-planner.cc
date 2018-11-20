@@ -38,7 +38,6 @@ namespace hpp {
     BiRRTPlannerPtr_t BiRRTPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)
     {
-      roadmap->clear();
       BiRRTPlanner* ptr = new BiRRTPlanner (problem, roadmap);
       return BiRRTPlannerPtr_t (ptr);
     }
