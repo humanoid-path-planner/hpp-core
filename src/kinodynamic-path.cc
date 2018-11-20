@@ -75,10 +75,29 @@ namespace hpp {
       // for now, this class only deal with the translation part of a freeflyer :
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
       for(size_t i = 0 ; i < 3 ; i++){
-        assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <float>::epsilon ()
+        assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <value_type>::epsilon ()
                && "Kinodynamic path : length is not coherent with switch times");
+        assert(t0[i] >= 0 && "Duration of the phases in kinodynamicPath must be positives.");
+        assert(t1[i] >= 0 && "Duration of the phases in kinodynamicPath must be positives.");
+        assert(tv[i] >= 0 && "Duration of the phases in kinodynamicPath must be positives.");
+        assert(t2[i] >= 0 && "Duration of the phases in kinodynamicPath must be positives.");
       }
-
+      // check if given parameters correctly reach end config after the given time :
+      value_type pf,v2;
+      size_type indexVel;
+      size_type configSize = device->configSize() - device->extraConfigSpace().dimension ();
+      for(size_t id = 0 ; id < 3 ; id++){
+        indexVel = id + configSize;
+        if(tv[id] > 0 ) // v2 : velocity at the beginning of t2 phase
+          v2 = vLim[id];
+        else
+          v2 = t1[id]*a1[id] + init[indexVel];
+        pf = init[id] + init[indexVel]*(t0[id]+t1[id]) + 0.5*t1[id]*t1[id]*a1[id] + tv[id]*vLim[id] + v2*t2[id] - 0.5*t2[id]*t2[id]*a1[id];
+        if(fabs(pf - end[id]) > 1e-6){
+          hppDout(error,"ERROR : kinodynamic path do not connect to end config for index "<<id<<" , pf = "<<pf<<" should be : "<<end[id]);
+        }
+        assert(fabs(pf - end[id]) < 1e-6 && "Kinodynamic path do not connect to end config with given parameters.");
+      }
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
