@@ -35,6 +35,7 @@
 # include <hpp/core/problem.hh>
 # include <hpp/core/weighed-distance.hh>
 # include <hpp/core/kinodynamic-path.hh>
+# include <hpp/core/kinodynamic-oriented-path.hh>
 # include <hpp/core/kinodynamic-distance.hh>
 #include <boost/assign.hpp>
 
@@ -47,6 +48,7 @@
 #include <hpp/core/nearest-neighbor.hh>
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/discretized-path-validation.hh>
+# include <hpp/core/configuration-shooter/uniform.hh>
 
 
 
@@ -64,10 +66,10 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   robot->controlComputation((Computation_t) (JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound (0, -10);
   robot->rootJoint()->lowerBound (1, -10);
-  robot->rootJoint()->lowerBound (2, -10);
+  robot->rootJoint()->lowerBound (2, 0);
   robot->rootJoint()->upperBound (0,  10);
   robot->rootJoint()->upperBound (1,  10);
-  robot->rootJoint()->upperBound (2,  10);
+  robot->rootJoint()->upperBound (2,  0);
   
   robot->setDimensionExtraConfigSpace(6);
   // define velocity and acceleration bounds
@@ -406,5 +408,165 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   BOOST_CHECK_EQUAL(extractedPathKino->getTv()[1],0);
   BOOST_CHECK_EQUAL(extractedPathKino->getT2()[1],  extractedPath->length() - extractedPathKino->getT1()[1]);
 
+  // random tests with non null initial and final acceleration
+
+  configurationShooter::UniformPtr_t shooter = configurationShooter::Uniform::create(robot);
+  ConfigurationPtr_t qr1,qr0;
+  value_type t1,t2;
+  for(size_t i = 0 ; i < 100 ; i++){
+    qr0 = shooter->shoot();
+    qr1 = shooter->shoot();
+    path = (*sm)(*qr0,*qr1);
+    BOOST_REQUIRE (path);
+    pathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath,path);
+    BOOST_REQUIRE (pathKino);
+    BOOST_CHECK(path->length() >= (*dist)(*qr0,*qr1));
+    BOOST_CHECK_EQUAL(path->end().head(indexECS + 3),(*qr1).head(indexECS + 3));
+    BOOST_CHECK_EQUAL(path->initial().head(indexECS + 3),(*qr0).head(indexECS + 3));
+    BOOST_CHECK_EQUAL((*path)(path->length(),success).head(indexECS + 3 ),(*qr1).head(indexECS + 3));
+    BOOST_CHECK_EQUAL((*path)(0.,success).head(indexECS + 3 ),(*qr0).head(indexECS + 3));
+    for(size_t j = 0 ; j < 10 ; j++){
+      value_type a = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
+      value_type b = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
+      if(a<b){
+        t1 = a ;
+        t2 = b;
+      }else{
+        t1 = b;
+        t2 = a;
+      }
+      extractedPath = path->extract(std::make_pair(t1,t2));
+      BOOST_REQUIRE (extractedPath);
+      BOOST_CHECK_EQUAL(extractedPath->length(),t2-t1);
+      BOOST_CHECK_EQUAL(extractedPath->timeRange().first,0.);
+      BOOST_CHECK_EQUAL(extractedPath->timeRange().second,t2-t1);
+      BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
+
+      if(t1>t2){
+        extractedPathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath,extractedPath);
+        BOOST_REQUIRE (extractedPathKino);
+        for (size_t k = 0 ; k < 3 ; k++){
+          BOOST_CHECK_EQUAL(extractedPathKino->getT0()[k],0.);
+          BOOST_CHECK(extractedPathKino->getT1()[k] >= 0.);
+          BOOST_CHECK(extractedPathKino->getTv()[k] >= 0.);
+          BOOST_CHECK(extractedPathKino->getT2()[k] >= 0.);
+          BOOST_CHECK_EQUAL(extractedPathKino->getT1()[k] + extractedPathKino->getTv()[k] + extractedPathKino->getT2()[k] , t2 -t1);
+        }
+      }
+
+    }
+
+  }
+
 }
+
+BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
+
+  DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
+  robot->controlComputation((Computation_t) (JOINT_POSITION | JACOBIAN));
+  robot->rootJoint()->lowerBound (0, -10);
+  robot->rootJoint()->lowerBound (1, -10);
+  robot->rootJoint()->lowerBound (2, 0);
+  robot->rootJoint()->upperBound (0,  10);
+  robot->rootJoint()->upperBound (1,  10);
+  robot->rootJoint()->upperBound (2,  0);
+
+  robot->setDimensionExtraConfigSpace(6);
+  // define velocity and acceleration bounds
+  const double vMax = 2;
+  const double aMax = 0.5;
+  robot->extraConfigSpace ().lower(0) = -vMax;
+  robot->extraConfigSpace ().lower(1) = -vMax;
+  robot->extraConfigSpace ().lower(2) = 0;
+  robot->extraConfigSpace ().upper(0) = vMax;
+  robot->extraConfigSpace ().upper(1) = vMax;
+  robot->extraConfigSpace ().upper(2) = 0;
+  robot->extraConfigSpace ().lower(3) = -aMax;
+  robot->extraConfigSpace ().lower(4) = -aMax;
+  robot->extraConfigSpace ().lower(5) = 0;
+  robot->extraConfigSpace ().upper(3) = aMax;
+  robot->extraConfigSpace ().upper(4) = aMax;
+  robot->extraConfigSpace ().upper(5) = 0;
+  BOOST_CHECK_MESSAGE( robot->extraConfigSpace().dimension () == 6 , "error during creation of the robot");
+
+
+
+
+  // Create steering method
+  Problem p = Problem (robot);
+  p.setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
+  p.setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
+  p.setParameter(std::string("Kinodynamic/forceOrientation"),Parameter(true));
+
+
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
+  KinodynamicOrientedPathPtr_t pathKino,extractedPathKino;
+  PathPtr_t path,extractedPath;
+
+  size_t indexECS = robot->configSize() - 6;
+  bool success;
+
+
+  JointBoundValidationPtr_t jointValidation = JointBoundValidation::create(robot);
+  DiscretizedPathValidationPtr_t pathVal = DiscretizedPathValidation::create(robot,0.001);
+  pathVal->add(jointValidation);
+  PathValidationReportPtr_t validationReport;
+  PathPtr_t validPath;
+
+  configurationShooter::UniformPtr_t shooter = configurationShooter::Uniform::create(robot);
+  ConfigurationPtr_t qr1,qr0;
+  value_type t1,t2;
+  for(size_t i = 0 ; i < 100 ; i++){
+    qr0 = shooter->shoot();
+    qr1 = shooter->shoot();
+    path = (*sm)(*qr0,*qr1);
+    BOOST_REQUIRE (path);
+    pathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicOrientedPath,path);
+    BOOST_REQUIRE (pathKino);
+    BOOST_CHECK(path->length() >= (*dist)(*qr0,*qr1));
+    BOOST_CHECK_EQUAL(path->end().head(3),(*qr1).head(3));
+    BOOST_CHECK_EQUAL(path->initial().head(3),(*qr0).head(3));
+    BOOST_CHECK_EQUAL((*path)(path->length(),success).head(3),(*qr1).head(3));
+    BOOST_CHECK_EQUAL((*path)(0.,success).head(3),(*qr0).head(3));
+    for(size_t j = 0 ; j < 10 ; j++){
+      value_type a = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
+      value_type b = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
+      if(a<b){
+        t1 = a ;
+        t2 = b;
+      }else{
+        t1 = b;
+        t2 = a;
+      }
+      extractedPath = path->extract(std::make_pair(t1,t2));
+      BOOST_REQUIRE (extractedPath);
+      BOOST_CHECK_EQUAL(extractedPath->length(),t2-t1);
+      BOOST_CHECK_EQUAL(extractedPath->timeRange().first,0.);
+      BOOST_CHECK_EQUAL(extractedPath->timeRange().second,t2-t1);
+      BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
+
+      if(t1>t2){
+        extractedPathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicOrientedPath,extractedPath);
+        BOOST_REQUIRE (extractedPathKino);
+        for (size_t k = 0 ; k < 3 ; k++){
+          BOOST_CHECK_EQUAL(extractedPathKino->getT0()[k],0.);
+          BOOST_CHECK(extractedPathKino->getT1()[k] >= 0.);
+          BOOST_CHECK(extractedPathKino->getTv()[k] >= 0.);
+          BOOST_CHECK(extractedPathKino->getT2()[k] >= 0.);
+          BOOST_CHECK_EQUAL(extractedPathKino->getT1()[k] + extractedPathKino->getTv()[k] + extractedPathKino->getT2()[k] , t2 -t1);
+        }
+      }
+
+    }
+
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
