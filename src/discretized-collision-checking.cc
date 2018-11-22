@@ -37,8 +37,8 @@ namespace hpp {
     (const DevicePtr_t& robot, const value_type& stepSize) :
       DiscretizedPathValidation (robot, stepSize)
     {
-      add (CollisionValidationPtr_t (CollisionValidation::create (robot)));
       add (JointBoundValidationPtr_t (JointBoundValidation::create (robot)));
+      add (CollisionValidationPtr_t (CollisionValidation::create (robot)));
     }
 
   } // namespace core
