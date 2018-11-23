@@ -47,14 +47,14 @@ namespace hpp {
       robot_->currentConfiguration (config);
       robot_->computeForwardKinematics();
       robot_->updateGeometryPlacements();
-      BodyPairCollisions_t::iterator itMin = bodyPairCollisions_.begin();
-      value_type distance = 0;
+      BodyPairCollisions_t::iterator smallestInterval = bodyPairCollisions_.begin();
       if (!validateIntervals<BodyPairCollisions_t, CollisionValidationReportPtr_t>
-            (bodyPairCollisions_, t, interval, tmpInt, report, distance))
+            (bodyPairCollisions_, t, interval, tmpInt, report, smallestInterval))
         return false;
-      std::advance(itMin, distance);
-      if (bodyPairCollisions_.size() > 1 && itMin != bodyPairCollisions_.begin())
-        std::iter_swap (bodyPairCollisions_.begin(), itMin);
+      // Put the smallest interval first so that, at next iteration,
+      // collision pairs with large interval are not computed.
+      if (bodyPairCollisions_.size() > 1 && smallestInterval != bodyPairCollisions_.begin())
+        std::iter_swap (bodyPairCollisions_.begin(), smallestInterval);
       return true;
     }
 
@@ -141,12 +141,15 @@ namespace hpp {
 
     void ContinuousValidation::removeObstacleFromJoint(const JointPtr_t &joint, const CollisionObjectConstPtr_t &obstacle)
     {
+      assert (joint);
       bool removed = false;
       for (BodyPairCollisions_t::iterator itPair =
               bodyPairCollisions_.begin();
           itPair != bodyPairCollisions_.end(); ++itPair)
       {
-        if (!(*itPair)->joint_b() && (*itPair)->joint_a() == joint)
+        // If jointA == joint and jointB is the root joint.
+        if ((*itPair)->indexJointA() == (size_type)joint->index()
+            && (*itPair)->indexJointB() == 0)
         {
           if ((*itPair)->removeObjectTo_b(obstacle))
           {
@@ -175,18 +178,15 @@ namespace hpp {
       for (BodyPairCollisions_t::iterator _colPair = bodyPairCollisions_.begin();
           _colPair != bodyPairCollisions_.end();)
       {
-        const JointConstPtr_t &ja = (*_colPair)->joint_a(),
-                              jb = (*_colPair)->joint_b();
-        ia = RelativeMotion::idx(ja);
-        ib = RelativeMotion::idx(jb);
+        ia = (*_colPair)->indexJointA ();
+        ib = (*_colPair)->indexJointB ();
+        if (ia < 0 || ib < 0) continue;
         switch (relMotion(ia, ib))
         {
         case RelativeMotion::Parameterized:
           hppDout(info, "Parameterized collision pairs treated as Constrained");
         case RelativeMotion::Constrained:
-          hppDout(info, "Disabling collision between joint "
-                            << (ja ? ja->name() : "universe") << " and "
-                            << (jb ? jb->name() : "universe"));
+          hppDout(info, "Disabling collision pair " << **_colPair);
           disabledBodyPairCollisions_.push_back(*_colPair);
           _colPair = bodyPairCollisions_.erase(_colPair);
           break;

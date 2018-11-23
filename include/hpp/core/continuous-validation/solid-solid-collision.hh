@@ -72,9 +72,9 @@ namespace hpp {
 
         bool removeObjectTo_b (const CollisionObjectConstPtr_t& object);
 
-	      std::string name () const;
+	std::string name () const;
 
-	      std::ostream& print (std::ostream& os) const;
+	std::ostream& print (std::ostream& os) const;
 
         /// \note The left object should belong to joint_a and
         /// the right one should belong to joint_b, or vice-versa.
@@ -97,6 +97,17 @@ namespace hpp {
         const JointPtr_t& joint_b () const
         {
           return joint_b_;
+        }
+
+        /// Returns joint A index or -1 if no such joint exists.
+        size_type indexJointA () const
+        {
+          return (joint_a_ ? joint_a_->index() : 0);
+        }
+        /// Returns joint B index or -1 if no such joint exists.
+        size_type indexJointB () const
+        {
+          return (joint_b_ ? joint_b_->index() : 0);
         }
 
       protected:

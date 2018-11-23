@@ -141,10 +141,10 @@ namespace hpp {
         bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report) = 0;
 
       template<typename IntervalValidations, typename ValidationReportTypePtr_t>
-      bool validateIntervals( IntervalValidations validations, const value_type &t,
+      bool validateIntervals(IntervalValidations& validations, const value_type &t,
                     interval_t &interval, interval_t &tmpInt,
                     PathValidationReportPtr_t &pathReport,
-                    value_type &distance)
+                    typename IntervalValidations::iterator &smallestInterval)
       {
         typename IntervalValidations::iterator itMin = validations.begin();
         for (typename IntervalValidations::iterator itVal = validations.begin();
@@ -166,7 +166,7 @@ namespace hpp {
             if (interval.second > tmpInt.second)
             {
               itMin = itVal;
-              distance = std::distance(validations.begin(), itVal);
+              smallestInterval = itVal;
             }
             interval.first = std::max(interval.first, tmpInt.first);
             interval.second = std::min(interval.second, tmpInt.second);

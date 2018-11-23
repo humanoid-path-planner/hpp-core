@@ -132,11 +132,16 @@ namespace hpp {
           return maximalVelocity_;
         }
 
-        virtual const JointPtr_t& joint_a () const { }
-        virtual const JointPtr_t& joint_b () const { }
-        virtual bool removeObjectTo_b (const CollisionObjectConstPtr_t& object) { return false;}
-        virtual void addCollisionPair (const CollisionObjectConstPtr_t& left,
-            const CollisionObjectConstPtr_t &right) {}
+        /// Returns joint A index or -1 if no such joint exists.
+        virtual size_type indexJointA () const { return -1; }
+        /// Returns joint B index or -1 if no such joint exists.
+        virtual size_type indexJointB () const { return -1; }
+
+        virtual bool removeObjectTo_b (const CollisionObjectConstPtr_t& /*object*/) { return false;}
+        virtual void addCollisionPair (const CollisionObjectConstPtr_t& /*left*/,
+            const CollisionObjectConstPtr_t &/*right*/) {}
+
+        virtual std::ostream& print (std::ostream& os) const = 0;
 
       protected:
         mutable vector_t Vb_;
@@ -254,6 +259,12 @@ namespace hpp {
         }
 
       }; // class BodyPairCollision
+
+      inline std::ostream& operator<< (std::ostream& os,
+                                       const BodyPairCollision& pair)
+      {
+        return pair.print (os);
+      }
     } // namespace continuousValidation
   } // namespace core
 } // namespace hpp
