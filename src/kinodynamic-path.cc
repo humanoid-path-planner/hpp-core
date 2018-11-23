@@ -75,7 +75,7 @@ namespace hpp {
       // for now, this class only deal with the translation part of a freeflyer :
       assert(a1.size()==3 && t0.size()==3 && t1.size()==3 && tv.size()==3 && t2.size()==3 && vLim.size()==3 && "Inputs vector of kinodynamicPath are not of size 3");
       for(size_t i = 0 ; i < 3 ; i++){
-        assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < std::numeric_limits <value_type>::epsilon ()
+        assert(fabs(length - (t0[i] + t1[i] + tv[i] + t2[i])) < Eigen::NumTraits<value_type>::dummy_precision ()
                && "Kinodynamic path : length is not coherent with switch times");
         assert(t0[i] >= 0 && "Duration of the phases in kinodynamicPath must be positives.");
         assert(t1[i] >= 0 && "Duration of the phases in kinodynamicPath must be positives.");
