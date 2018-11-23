@@ -38,8 +38,8 @@
 #include <hpp/core/configuration-shooter/gaussian.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/continuous-collision-checking/dichotomy.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
@@ -231,8 +231,8 @@ namespace hpp {
 
       // Store path validation methods in map.
       pathValidations.add ("Discretized", DiscretizedCollisionChecking::create);
-      pathValidations.add ("Progressive", continuousCollisionChecking::Progressive::create);
-      pathValidations.add ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
+      pathValidations.add ("Progressive", continuousValidation::Progressive::create);
+      pathValidations.add ("Dichotomy",   continuousValidation::Dichotomy::create);
 
       // Store config validation methods in map.
       configValidations.add ("CollisionValidation", CollisionValidation::create);

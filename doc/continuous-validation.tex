@@ -1,0 +1,89 @@
+\title{AlgorithmTemplate}
+\documentclass[10pt]{article}
+\usepackage{fullpage}
+\usepackage{times}
+\usepackage{fancyhdr,graphicx,amsmath,amssymb}
+\usepackage{algorithm}% http://ctan.org/pkg/algorithms
+\usepackage{listings}
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
+\usepackage{tikz-uml}
+
+\renewcommand{\algorithmiccomment}[1]{\hfill$\mathbin{ \textcolor{blue}{\triangleright} }$\textcolor{blue}{\ #1}}
+
+
+\begin{document}
+
+\title{Continuous validation in hpp-core}
+\author{Diane Bury}
+\maketitle
+
+\section{UML diagramm of the new Continuous Validation architecture}
+
+To enable the use of other type of validations than collision checking between two solids, the continuous validation in $hpp-core$ has been reworked (previously \textit{continuous collision checking}). With this new architecture, it is possible to create new classes for continuous validation. The continuous collision checking is now a part of this larger continuous validation. The following diagram is simplified for clarity.
+
+\begin{center}
+\begin{tikzpicture}
+\begin{umlpackage}{hpp-core}
+\umlclass[x=-0.5, y=6, type=abstract]{PathValidation}{}{
++ \textit{validate()}\\
++ addObstacle()\\
++ removeObstacleFromJoints() }
+
+\umlclass[y=0.5,x=-6.5, type=abstract]{IntervalValidation}{
+- path\_ : PathPtr\_t \\
+- validInterval\_ : interval\_set}{
++ \textit{validateConfiguration()}\\
++ path()}
+
+
+\umlclass[y=4,x=-6.5, type=abstract]{BodyPairCollision}{
+\# pairs
+}{
++ validateConfiguration()\\
+- collisionFreeInterval()\\
+- computeDistanceLowerBound()\\
+- \textit{computeMaxVelocity()} }
+
+\umlclass[y=7.5,x=-6.5]{SolidSolidCollision}{
+- joint\_a\_ : JointPtr\_t\\
+- joint\_b\_ : JointPtr\_t}{
+- computeMaximalVelocity()\\
+- computeSequenceOfJoints()\\
+- computeCoefficients()}
+
+\umlclass[x=-0.5, y=1.5, type=abstract]{ContinuousValidation}
+	{\# tolerance : value\_type\\
+	\# bodyPairCollisions\_ : BodyPairCollisions\_t\\
+	\# intervalValidations\_ : IntervalValidations\_t}
+	{+ validate()\\
+	+ setPath()\\
++ addObstacle()\\
++ removeObstacleFromJoints()\\
+\# validateConfiguration()\\
+- generateAutoCollision();\\
+	- \textit{validateStraightPath()}\\
+	 }
+
+\umlclass[y=-2.6, x=-5]{ContinuousValidation::Dichotomy}{
+}{
+- validateStraightPath() \\
+}
+- buildTensionIntervalValidations() \\
+- buildBodyPairCollisions() \\
+
+\umlclass[y=-2.5, x=1]{ContinuousValidation::Progressive}{}{
+- validateStraightPath()}
+
+\end{umlpackage}
+
+\umlinherit{BodyPairCollision}{IntervalValidation}
+\umlinherit{SolidSolidCollision}{BodyPairCollision}
+\umlinherit{ContinuousValidation}{PathValidation}
+\umlinherit{ContinuousValidation::Dichotomy}{ContinuousValidation}
+\umlinherit{ContinuousValidation::Progressive}{ContinuousValidation}
+\umlaggreg[mult=n]{ContinuousValidation}{IntervalValidation}
+
+\end{tikzpicture}
+\end{center}
+
+\end{document}
