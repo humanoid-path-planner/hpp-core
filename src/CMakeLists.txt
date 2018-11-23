@@ -80,7 +80,10 @@ path-validations.cc
   problem-target/task-target.cc #
   random-shortcut.cc
   reeds-shepp-path.cc
-  relative-motion.cc
+  relative-motion.cc  
+  kinodynamic-path.cc
+  kinodynamic-oriented-path.cc
+  steering-method/steering-kinodynamic.cc
   roadmap.cc
   steering-method/reeds-shepp.cc # TODO access type of joint
   steering-method/car-like.cc
@@ -89,8 +92,17 @@ path-validations.cc
   steering-method/snibud.cc
   steering-method/spline.cc
   straight-path.cc
+  interpolated-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
+  kinodynamic-distance.cc
+  path-projector/progressive.cc
+  path-projector/dichotomy.cc
+  path-projector/global.cc
+  path-projector.cc
+  parser/roadmap-factory.cc
+  problem-target/goal-configurations.cc
+  problem-target/task-target.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

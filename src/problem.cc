@@ -26,6 +26,7 @@
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/problem-target.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/discretized-collision-checking.hh>
@@ -248,7 +249,7 @@ namespace hpp {
       ValidationReportPtr_t report;
       if (!configValidations_->validate (*initConf_, report)) {
 	std::ostringstream oss;
-	oss << *report;
+  oss <<"init config invalid : "<< *report;
 	throw std::runtime_error (oss.str ());
       }
 

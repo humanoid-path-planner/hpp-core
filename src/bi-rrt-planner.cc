@@ -38,7 +38,6 @@ namespace hpp {
     BiRRTPlannerPtr_t BiRRTPlanner::createWithRoadmap
     (const Problem& problem, const RoadmapPtr_t& roadmap)
     {
-      roadmap->clear();
       BiRRTPlanner* ptr = new BiRRTPlanner (problem, roadmap);
       return BiRRTPlannerPtr_t (ptr);
     }
@@ -69,36 +68,34 @@ namespace hpp {
       weakPtr_ = weak;
     }
 
-    namespace
+    PathPtr_t BiRRTPlanner::extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
+                    const ConfigurationPtr_t& target, bool reverse)
     {
-        PathPtr_t extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
-                        const ConfigurationPtr_t& target, bool reverse=false)
+        const ConstraintSetPtr_t& constraints (sm->constraints ());
+        if (constraints)
         {
-            const ConstraintSetPtr_t& constraints (sm->constraints ());
-            if (constraints)
+            ConfigProjectorPtr_t configProjector (constraints->configProjector ());
+            if (configProjector)
             {
-                ConfigProjectorPtr_t configProjector (constraints->configProjector ());
-                if (configProjector)
-                {
-                    configProjector->projectOnKernel (*(near->configuration ()), *target,
-                            qProj_);
-                }
-                else
-                {
-                    qProj_ = *target;
-                }
-                if (constraints->apply (qProj_))
-                {
-                    return reverse ? (*sm) (qProj_, *(near->configuration ())) : (*sm) (*(near->configuration ()), qProj_);
-                }
-                else
-                {
-                    return PathPtr_t ();
-                }
+                configProjector->projectOnKernel (*(near->configuration ()), *target,
+                        qProj_);
             }
-            return reverse ? (*sm) (*target, *(near->configuration ())) : (*sm) (*(near->configuration ()), *target);
+            else
+            {
+                qProj_ = *target;
+            }
+            if (constraints->apply (qProj_))
+            {
+                return reverse ? (*sm) (qProj_, *(near->configuration ())) : (*sm) (*(near->configuration ()), qProj_);
+            }
+            else
+            {
+                return PathPtr_t ();
+            }
         }
+        return reverse ? (*sm) (*target, *(near->configuration ())) : (*sm) (*(near->configuration ()), *target);
     }
+
 
     /// One step of extension.
     void BiRRTPlanner::startSolve()
@@ -128,13 +125,15 @@ namespace hpp {
         {
             PathValidationReportPtr_t report;
             pathValidFromStart = pathValidation->validate (path, false, validPath, report);
-            // Insert new path to q_near in roadmap
-            value_type t_final = validPath->timeRange ().second;
-            if (t_final != path->timeRange ().first)
-            {
-                startComponentConnected = true;
-                q_new = ConfigurationPtr_t (new Configuration_t(validPath->end ()));
-                reachedNodeFromStart = roadmap()->addNodeAndEdges(near, q_new, validPath);
+            if(validPath){
+              // Insert new path to q_near in roadmap
+              value_type t_final = validPath->timeRange ().second;
+              if (t_final != path->timeRange ().first)
+              {
+                  startComponentConnected = true;
+                  q_new = ConfigurationPtr_t (new Configuration_t(validPath->end ()));
+                  reachedNodeFromStart = roadmap()->addNodeAndEdge(near, q_new, validPath);
+              }
             }
         }
 
@@ -143,7 +142,7 @@ namespace hpp {
            endComponents_.begin ();
          itcc != endComponents_.end (); ++itcc)
         {
-            near = roadmap()->nearestNode (q_rand, *itcc, distance);
+            near = roadmap()->nearestNode (q_rand, *itcc, distance,true);
             path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand, true);
             if (path)
             {
@@ -154,14 +153,13 @@ namespace hpp {
                     roadmap()->addEdge(reachedNodeFromStart, near, validPath);
                     return;
                 }
-                else
+                else if (validPath)
                 {
                     value_type t_final = validPath->timeRange ().second;
                     if (t_final != path->timeRange ().first)
                     {
                         ConfigurationPtr_t q_newEnd = ConfigurationPtr_t (new Configuration_t(validPath->initial()));
-                        NodePtr_t newNode = roadmap()->addNode (q_newEnd);
-                        roadmap()->addEdge(newNode, near, validPath);
+                        NodePtr_t newNode = roadmap()->addNodeAndEdge (q_newEnd,near,validPath);
                         // now try to connect both nodes
                         if(startComponentConnected)
                         {

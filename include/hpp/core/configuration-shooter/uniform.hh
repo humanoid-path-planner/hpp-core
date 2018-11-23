@@ -46,11 +46,15 @@ namespace hpp {
         }
         virtual ConfigurationPtr_t shoot () const;
 
+        void sampleExtraDOF(bool sampleExtraDOF){
+            sampleExtraDOF_=sampleExtraDOF;
+        }
+
       protected:
         /// Uniformly sample configuration space
         ///
         /// Note that translation joints have to be bounded.
-        Uniform (const DevicePtr_t& robot) : robot_ (robot)
+        Uniform (const DevicePtr_t& robot) : robot_ (robot),sampleExtraDOF_(true)
         {
         }
         void init (const UniformPtr_t& self)
@@ -61,6 +65,7 @@ namespace hpp {
 
       private:
         DevicePtr_t robot_;
+        bool sampleExtraDOF_;
         UniformWkPtr_t weak_;
       }; // class Uniform
       /// \}

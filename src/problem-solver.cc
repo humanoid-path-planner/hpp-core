@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
@@ -44,6 +43,7 @@
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
@@ -64,12 +64,14 @@
 #include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/steering-kinodynamic.hh>
 #include <hpp/core/steering-method/snibud.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
+#include <hpp/core/kinodynamic-distance.hh>
 
 namespace hpp {
   namespace core {
@@ -143,6 +145,13 @@ namespace hpp {
       return ptr;
     }
 
+    configurationShooter::UniformPtr_t createUniformConfigShooter (const Problem& p)
+    {
+      configurationShooter::UniformPtr_t ptr = configurationShooter::Uniform::create(p.robot());
+      ptr->sampleExtraDOF(p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue());
+      return ptr;
+    }
+
     ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
     ProblemSolverPtr_t ProblemSolver::create ()
     {
@@ -177,6 +186,8 @@ namespace hpp {
       errorThreshold_ (1e-4), maxIterProjection_ (20),
       maxIterPathPlanning_ (std::numeric_limits
 			    <unsigned long int>::max ()),
+      timeOutPathPlanning_(std::numeric_limits<double>::infinity()),
+      
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -190,14 +201,17 @@ namespace hpp {
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
 
-      configurationShooters.add ("Uniform" , createFromRobot<configurationShooter::Uniform>);
+      configurationShooters.add ("Uniform" , createUniformConfigShooter);
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
       distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
+      distances.add ("Kinodynamic",     KinodynamicDistance::createFromProblem);
+
 
       steeringMethods.add ("Straight",   Factory<steeringMethod::Straight>::create);
       steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      steeringMethods.add ("Kinodynamic", steeringMethod::Kinodynamic::create);
       steeringMethods.add ("Dubins",     steeringMethod::Dubins::createWithGuess);
       steeringMethods.add ("Snibud",     steeringMethod::Snibud::createWithGuess);
       steeringMethods.add ("Hermite",    steeringMethod::Hermite::create);
@@ -708,6 +722,7 @@ namespace hpp {
       problem_->distance (dist);
     }
 
+
     void ProblemSolver::initSteeringMethod ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -743,6 +758,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
+
       // Set shooter
       problem_->configurationShooter
         (configurationShooters.get (configurationShooterType_) (*problem_));
@@ -751,6 +767,7 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       pathPlanner_->maxIterations (maxIterPathPlanning_);
+      pathPlanner_->timeOut(timeOutPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();
       /// create Path projector
       initPathProjector ();
@@ -1093,6 +1110,10 @@ namespace hpp {
           "ConfigurationShooter/Gaussian/standardDeviation",
           "Scale the default standard deviation with this factor.",
           Parameter(0.25)));
+    Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+          "ConfigurationShooter/sampleExtraDOF",
+          "If false, the value of the random configuration extraDOF are set to 0.",
+          Parameter(true)));
     HPP_END_PARAMETER_DECLARATION(ProblemSolver)
   } //   namespace core
 } // namespace hpp

@@ -64,6 +64,8 @@ namespace hpp {
       void interrupt ();
       /// Set maximal number of iterations
       void maxIterations (const unsigned long int& n);
+      /// set time out (in seconds)
+      void timeOut(const double& timeOut);
       /// Find a path in the roadmap and transform it in trajectory
       PathVectorPtr_t computePath () const;
     protected:
@@ -86,6 +88,9 @@ namespace hpp {
       /// Maximal number of iterations to solve a problem
       /// reaching this bound raises an exception.
       unsigned long int maxIterations_;
+      /// Time out (in seconds) before interrupting the planning
+      double timeOut_;
+
       /// Store weak pointer to itself
       PathPlannerWkPtr_t weakPtr_;
     }; // class PathPlanner

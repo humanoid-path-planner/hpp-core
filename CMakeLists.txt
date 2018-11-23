@@ -107,6 +107,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path/spline.hh
   include/hpp/core/path/hermite.hh
   include/hpp/core/reeds-shepp-path.hh
+  include/hpp/core/kinodynamic-path.hh
+  include/hpp/core/kinodynamic-oriented-path.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
@@ -123,11 +125,14 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method/spline.hh
   include/hpp/core/steering-method/snibud.hh
   include/hpp/core/steering-method-straight.hh
+  include/hpp/core/steering-method/reeds-shepp.hh
+  include/hpp/core/steering-method/steering-kinodynamic.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/interpolated-path.hh
   include/hpp/core/validation-report.hh
   include/hpp/core/visibility-prm-planner.hh
   include/hpp/core/weighed-distance.hh
+  include/hpp/core/kinodynamic-distance.hh
   include/hpp/core/path-projector/progressive.hh
   include/hpp/core/path-projector/dichotomy.hh
   include/hpp/core/path-projector/global.hh

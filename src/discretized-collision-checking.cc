@@ -18,6 +18,7 @@
 
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/collision-validation.hh>
+#include <hpp/core/joint-bound-validation.hh>
 
 namespace hpp {
   namespace core {
@@ -36,6 +37,7 @@ namespace hpp {
     (const DevicePtr_t& robot, const value_type& stepSize) :
       DiscretizedPathValidation (robot, stepSize)
     {
+      add (JointBoundValidationPtr_t (JointBoundValidation::create (robot)));
       add (CollisionValidationPtr_t (CollisionValidation::create (robot)));
     }
 

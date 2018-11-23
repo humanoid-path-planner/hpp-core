@@ -29,6 +29,7 @@
 
 #include <hpp/core/relative-motion.hh>
 #include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/relative-motion.hh>
 
 namespace hpp {
   namespace core {
@@ -60,7 +61,6 @@ namespace hpp {
         return CollisionPair_t (o1, o2);
       }
     }
-
     CollisionValidationPtr_t CollisionValidation::create
     (const DevicePtr_t& robot)
     {
@@ -87,7 +87,29 @@ namespace hpp {
         report->object1 = _col->first;
         report->object2 = _col->second;
         report->result = collisionResult;
-        validationReport = report;
+        if(computeAllContacts_){
+          // create report with the first collision
+          AllCollisionsValidationReportPtr_t allReport(new AllCollisionsValidationReport);
+          allReport->object1 = _col->first;
+          allReport->object2 = _col->second;
+          allReport->result = collisionResult;
+          allReport->collisionReports.push_back(report);
+          // then loop over all the remaining pairs :
+          ++_col;
+          while(_col != collisionPairs_.end()){
+            if (collide (_col, collisionRequest_, collisionResult,device.d()) != 0){
+              CollisionValidationReportPtr_t report (new CollisionValidationReport);
+              report->object1 = _col->first;
+              report->object2 = _col->second;
+              report->result = collisionResult;
+              allReport->collisionReports.push_back(report);
+            }
+            ++_col;
+          }
+          validationReport=allReport;
+        }else{
+          validationReport = report;
+        }
         return false;
       }
       return true;
@@ -97,14 +119,26 @@ namespace hpp {
     {
       for (size_type j = 0; j < robot_->nbJoints(); ++j) {
         JointPtr_t joint = robot_->jointAt (j);
+        addObstacleToJoint (object, joint, false);
+      }
+    }
+
+
+    void CollisionValidation::addObstacleToJoint (const CollisionObjectConstPtr_t& object,
+                                     const JointPtr_t& joint, const bool includeChildren)
+    {
         BodyPtr_t body = joint->linkedBody ();
         if (body) {
-          for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
-            // TODO: check the objects are not in same joint
-            collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(o), object));
-          }
+            for (size_type o = 0; o < body->nbInnerObjects(); ++o) {
+              // TODO: check the objects are not in same joint
+              collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(o), object));
+            }
         }
-      }
+        if(includeChildren) {
+            for(std::size_t i=0; i<joint->numberChildJoints(); ++i){
+                addObstacleToJoint (object, joint->childJoint(i),includeChildren);
+            }
+        }
     }
 
     struct CollisionPairComparision {
@@ -192,7 +226,8 @@ namespace hpp {
       collisionRequest_(1, false, false, 1, false, true, fcl::GST_INDEP),
       robot_ (robot),
       parameterizedPairs_(), disabledPairs_(),
-      checkParameterized_(false)
+      checkParameterized_(false),
+      computeAllContacts_(false)
     {
       const se3::GeometryModel& model = robot->geomModel();
       const se3::GeometryData & data  = robot->geomData();

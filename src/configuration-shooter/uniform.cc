@@ -30,19 +30,23 @@ namespace hpp {
         Configuration_t config(robot_->configSize ());
         config.head (offset) = se3::randomConfiguration(robot_->model());
 
-        // Shoot extra configuration variables
-        for (size_type i=0; i<extraDim; ++i) {
-          value_type lower = robot_->extraConfigSpace ().lower (i);
-          value_type upper = robot_->extraConfigSpace ().upper (i);
-          value_type range = upper - lower;
-          if ((range < 0) ||
-              (range == std::numeric_limits<double>::infinity())) {
-            std::ostringstream oss
-              ("Cannot uniformy sample extra config variable ");
-            oss << i << ". min = " <<lower<< ", max = " << upper << std::endl;
-            throw std::runtime_error (oss.str ());
-          }
-          config [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
+        if(sampleExtraDOF_){
+            // Shoot extra configuration variables
+            for (size_type i=0; i<extraDim; ++i) {
+              value_type lower = robot_->extraConfigSpace ().lower (i);
+              value_type upper = robot_->extraConfigSpace ().upper (i);
+              value_type range = upper - lower;
+              if ((range < 0) ||
+                  (range == std::numeric_limits<double>::infinity())) {
+                std::ostringstream oss
+                  ("Cannot uniformy sample extra config variable ");
+                oss << i << ". min = " <<lower<< ", max = " << upper << std::endl;
+                throw std::runtime_error (oss.str ());
+              }
+              config [offset + i] = lower + (upper - lower) * rand ()/RAND_MAX;
+            }
+        }else{
+            config.tail(extraDim).setZero();
         }
         return boost::make_shared<Configuration_t> (config);
       }
