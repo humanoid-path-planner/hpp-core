@@ -33,8 +33,6 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BiRRTPlanner);
-    HPP_PREDEF_CLASS (CollisionPathValidation);
-    struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
     HPP_PREDEF_CLASS (CollisionValidationReport);
     HPP_PREDEF_CLASS (AllCollisionsValidationReport);
@@ -48,9 +46,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (DiffusingPlanner);
     HPP_PREDEF_CLASS (Distance);
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
-    HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
-    HPP_PREDEF_CLASS (DiscretizedPathValidation);
-    HPP_PREDEF_CLASS (PathValidations);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
     HPP_PREDEF_CLASS (SubchainPath);
@@ -63,9 +58,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (PathPlanner);
     HPP_PREDEF_CLASS (ProblemTarget);
     HPP_PREDEF_CLASS (PathVector);
-    HPP_PREDEF_CLASS (PathValidation);
-    struct PathValidationReport;
-    HPP_PREDEF_CLASS (PathValidation);
     HPP_PREDEF_CLASS (PlanAndOptimize);
     HPP_PREDEF_CLASS (Problem);
     class ProblemSolver;
@@ -90,10 +82,6 @@ namespace hpp {
     typedef boost::shared_ptr <BiRRTPlanner> BiRRTPlannerPtr_t;
     typedef hpp::pinocchio::Body Body;
     typedef hpp::pinocchio::BodyPtr_t BodyPtr_t;
-    typedef boost::shared_ptr <CollisionPathValidationReport>
-    CollisionPathValidationReportPtr_t;
-    typedef std::vector <CollisionPathValidationReport>
-    CollisionPathValidationReports_t;
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef boost::shared_ptr <CollisionValidationReport>
     CollisionValidationReportPtr_t;
@@ -132,12 +120,6 @@ namespace hpp {
     typedef constraints::DifferentiableFunctionPtr_t
     DifferentiableFunctionPtr_t;
     typedef boost::shared_ptr <DiffusingPlanner> DiffusingPlannerPtr_t;
-    typedef boost::shared_ptr <DiscretizedCollisionChecking>
-    DiscretizedCollisionCheckingPtr_t;
-    typedef boost::shared_ptr <DiscretizedPathValidation>
-    DiscretizedPathValidationPtr_t;
-    typedef boost::shared_ptr <PathValidations>
-    PathValidationsPtr_t;
     typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef boost::shared_ptr <DistanceBetweenObjects>
     DistanceBetweenObjectsPtr_t;
@@ -190,8 +172,6 @@ namespace hpp {
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <ProblemTarget> ProblemTargetPtr_t;
-    typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
-    typedef boost::shared_ptr <PathValidationReport> PathValidationReportPtr_t;
     typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
     typedef boost::shared_ptr <const PathVector> PathVectorConstPtr_t;
     typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
@@ -299,6 +279,23 @@ namespace hpp {
       HPP_PREDEF_CLASS (kPrmStar);
       typedef boost::shared_ptr <kPrmStar> kPrmStarPtr_t;
     } // namespace pathPlanner
+
+    HPP_PREDEF_CLASS (PathValidations);
+    HPP_PREDEF_CLASS (PathValidation);
+    typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
+    typedef boost::shared_ptr <PathValidations> PathValidationsPtr_t;
+    namespace pathValidation {
+      HPP_PREDEF_CLASS (Discretized);
+      typedef boost::shared_ptr <Discretized> DiscretizedPtr_t;
+    } // namespace pathValidation
+    // Path validation reports
+    struct PathValidationReport;
+    struct CollisionPathValidationReport;
+    typedef boost::shared_ptr <PathValidationReport> PathValidationReportPtr_t;
+    typedef boost::shared_ptr <CollisionPathValidationReport>
+    CollisionPathValidationReportPtr_t;
+    typedef std::vector <CollisionPathValidationReport>
+    CollisionPathValidationReports_t;
 
     HPP_PREDEF_CLASS (PathProjector);
     typedef boost::shared_ptr <PathProjector> PathProjectorPtr_t;

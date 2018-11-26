@@ -35,8 +35,6 @@ continuous-validation/dichotomy.cc
 continuous-validation/solid-solid-collision.cc
 continuous-validation/progressive.cc
 diffusing-planner.cc
-discretized-collision-checking.cc
-discretized-path-validation.cc
 distance/reeds-shepp.cc
 distance-between-objects.cc
   dubins.hh
@@ -46,6 +44,9 @@ extracted-path.hh
 interpolated-path.cc
 joint-bound-validation.cc
 path-validations.cc
+path-validation/discretized.cc
+path-validation/discretized-collision-checking.cc
+path-validation/discretized-joint-bound.cc
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
   # nearest-neighbor/k-d-tree.cc #

@@ -19,25 +19,23 @@
 #ifndef HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 # define HPP_CORE_DISCRETIZED_COLLISION_CHECKING
 
-# include <hpp/core/discretized-path-validation.hh>
+# warning "This file is deprecated. Include <hpp/core/path-validation/discretized-collision-checking.hh> instead."
+# include <hpp/core/path-validation/discretized-collision-checking.hh>
 
 namespace hpp {
   namespace core {
     /// \addtogroup validation
     /// \{
 
-    /// Validation of path by collision checking at discretized parameter values
-    ///
-    class HPP_CORE_DLLAPI DiscretizedCollisionChecking :
-      public DiscretizedPathValidation
+    /// \deprecated Use hpp::core::pathValidation::createDiscretizedCollisionChecking 
+    class HPP_CORE_DLLAPI DiscretizedCollisionChecking
     {
     public:
-      static DiscretizedCollisionCheckingPtr_t
-      create (const DevicePtr_t& robot, const value_type& stepSize);
-
-    protected:
-      DiscretizedCollisionChecking (const DevicePtr_t& robot,
-				    const value_type& stepSize);
+      static pathValidation::DiscretizedPtr_t
+      create (const DevicePtr_t& robot, const value_type& stepSize)
+      {
+        return pathValidation::createDiscretizedCollisionChecking (robot, stepSize);
+      }
     }; // class DiscretizedCollisionChecking
     /// \}
   } // namespace core

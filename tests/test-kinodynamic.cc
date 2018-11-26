@@ -47,7 +47,7 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/nearest-neighbor.hh>
 #include <hpp/core/joint-bound-validation.hh>
-#include <hpp/core/discretized-path-validation.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
 # include <hpp/core/configuration-shooter/uniform.hh>
 
 
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   size_t indexECS = robot->configSize() - 6;
 
   JointBoundValidationPtr_t jointValidation = JointBoundValidation::create(robot);
-  DiscretizedPathValidationPtr_t pathVal = DiscretizedPathValidation::create(robot,0.001);
+  pathValidation::DiscretizedPtr_t pathVal = pathValidation::createDiscretizedCollisionChecking(robot,0.001);
   pathVal->add(jointValidation);
   PathValidationReportPtr_t validationReport;
   PathPtr_t validPath;
@@ -520,7 +520,7 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
 
 
   JointBoundValidationPtr_t jointValidation = JointBoundValidation::create(robot);
-  DiscretizedPathValidationPtr_t pathVal = DiscretizedPathValidation::create(robot,0.001);
+  pathValidation::DiscretizedPtr_t pathVal = pathValidation::createDiscretizedCollisionChecking(robot,0.001);
   pathVal->add(jointValidation);
   PathValidationReportPtr_t validationReport;
   PathPtr_t validPath;

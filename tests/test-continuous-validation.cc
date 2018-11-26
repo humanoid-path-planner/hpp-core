@@ -25,7 +25,7 @@
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/continuous-validation/dichotomy.hh>
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/straight.hh>
@@ -47,7 +47,7 @@ using hpp::core::ConfigurationShooterPtr_t;
 using hpp::core::ConfigValidationPtr_t;
 using hpp::core::continuousCollisionChecking::Dichotomy;
 using hpp::core::continuousCollisionChecking::Progressive;
-using hpp::core::DiscretizedCollisionChecking;
+using hpp::core::pathValidation::createDiscretizedCollisionChecking;
 using hpp::core::PathPtr_t;
 using hpp::core::PathValidationPtr_t;
 using hpp::core::PathValidationReportPtr_t;
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
   // create path validation objects
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
   PathValidationPtr_t progressive (Progressive::create (robot, 0.001));
-  PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
+  PathValidationPtr_t discretized (createDiscretizedCollisionChecking
                                    (robot, 0.05));
   // create configuration validation instance
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
@@ -232,7 +232,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
   // create path validation objects
   // PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
   PathValidationPtr_t progressive (Progressive::create (robot, 0.01));
-  PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
+  PathValidationPtr_t discretized (createDiscretizedCollisionChecking
                                    (robot, 0.05));
   // create configuration validation instance
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));

@@ -29,7 +29,7 @@
 #include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/continuous-validation/dichotomy.hh>
 #include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
@@ -77,7 +77,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (), target_ (),
       steeringMethod_ (steeringMethod::Straight::create (*this)),
       configValidations_ (),
-      pathValidation_ (DiscretizedCollisionChecking::create
+      pathValidation_ (pathValidation::createDiscretizedCollisionChecking
 		       (robot, 0.05)),
       collisionObstacles_ (), constraints_ (),
       configurationShooter_(configurationShooter::Uniform::create (robot))
