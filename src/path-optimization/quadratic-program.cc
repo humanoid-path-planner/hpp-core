@@ -61,10 +61,21 @@ namespace hpp {
         // min   0.5 * x G x + g0 x
         // s.t.  CE^T x + ce0 = 0
         //       CI^T x + ci0 >= 0
-        return solve_quadprog2 (llt, trace, b,
+        Eigen::QuadProgStatus status;
+        double cost = solve_quadprog2 (llt, trace, b,
             ce.J.transpose(), - ce.b,
             ci.J.transpose(), - ci.b,
-            xStar, activeConstraint, activeSetSize);
+            xStar, activeConstraint, activeSetSize, status);
+        switch (status) {
+          case Eigen::UNBOUNDED:
+            hppDout (warning, "Quadratic problem is not bounded");
+          case Eigen::CONVERGED:
+            break;
+          case Eigen::CONSTRAINT_LINEARLY_DEPENDENT:
+            hppDout (error, "Constraint of quadratic problem are linearly dependent.");
+            break;
+        }
+        return cost;
       }
     } // namespace pathOptimization
   }  // namespace core
