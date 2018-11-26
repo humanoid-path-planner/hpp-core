@@ -51,7 +51,7 @@ namespace hpp {
         /// \param check If true, checks whether the constraint is feasible.
         /// \return whether the constraint is feasible
         ///                 (alwys true when check is false)
-        bool decompose (bool check = false);
+        bool decompose (bool check = false, bool throwIfNotValid = false);
 
         /// Compute rank of the constraint using a LU decomposition
         void computeRank ()
