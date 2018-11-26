@@ -93,6 +93,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/joint-bound-validation.hh
   include/hpp/core/equation.hh
   include/hpp/core/path-validations.hh
+  include/hpp/core/path-validation/discretized.hh
   include/hpp/core/path-validation/discretized-collision-checking.hh
   include/hpp/core/path-validation/discretized-joint-bound.hh
   include/hpp/core/numerical-constraint.hh
