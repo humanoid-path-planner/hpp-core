@@ -367,6 +367,7 @@ namespace hpp {
         // Get some parameters
         value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit").floatValue();
         bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst").boolValue();
+        bool reorderIntervals = problem().getParameter ("SplineGradientBased/reorderIntervals").boolValue();
         bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep").boolValue();
         bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound").boolValue();
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum").boolValue();
@@ -387,6 +388,8 @@ namespace hpp {
         // Initialize one path validation method for each spline.
         // Path validation methods are retrieve in the transition of the
         // constraint graph that produced the initial part of the path.
+        std::vector<std::size_t> collisionReordering(splines.size());
+        for (std::size_t i = 0; i < splines.size(); ++i) collisionReordering[i]=i;
         this->initializePathValidation(splines);
 
         // 2
@@ -470,7 +473,7 @@ namespace hpp {
 
           // 6.3.2 Check for collision
           if (!returnOptimum) {
-            reports = this->validatePath (*currentSplines, stopAtFirst);
+            reports = this->validatePath (*currentSplines, collisionReordering, stopAtFirst, reorderIntervals);
             noCollision = reports.empty();
           } else {
             minimumReached = true;
@@ -603,6 +606,10 @@ namespace hpp {
             "SplineGradientBased/alwaysStopAtFirst",
             "If true, consider only one (not all) collision constraint at each iteration.",
             Parameter(true)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "SplineGradientBased/reorderIntervals",
+            "If true, interval in collision are checked first at next iteration.",
+            Parameter(false)));
       Problem::declareParameter(ParameterDescription (Parameter::BOOL,
             "SplineGradientBased/linearizeAtEachStep",
             "If true, collision constraint will be re-linearized at each iteration.",
