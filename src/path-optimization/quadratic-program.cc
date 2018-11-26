@@ -18,7 +18,12 @@
 
 #include <hpp/util/timer.hh>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <path-optimization/spline-gradient-based/eiquadprog_2011.hpp>
+#pragma GCC diagnostic pop
 
 namespace hpp {
   namespace core {
