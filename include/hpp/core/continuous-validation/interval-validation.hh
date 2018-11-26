@@ -30,8 +30,6 @@
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/core/straight-path.hh>
-#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/deprecated.hh>
 #include <hpp/core/fwd.hh>
 

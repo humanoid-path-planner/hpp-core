@@ -29,10 +29,6 @@
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
 
-#include <hpp/core/config-projector.hh>
-#include <hpp/core/discretized-path-validation.hh>
-#include <hpp/core/joint-bound-validation.hh>
-#include <hpp/core/projection-error.hh>
 #include <hpp/core/reeds-shepp-path.hh>
 #include <hpp/core/steering-method/constant-curvature.hh>
 
