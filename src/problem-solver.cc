@@ -131,6 +131,18 @@ namespace hpp {
       static boost::shared_ptr<Derived> create (const Problem& problem, const value_type& value) { return Derived::create (problem, value); }
     };
 
+    pathValidation::DiscretizedPtr_t createDiscretizedJointBoundAndCollisionChecking (
+        const DevicePtr_t& robot, const value_type& stepSize)
+    {
+      using namespace pathValidation;
+      DiscretizedPtr_t pv (Discretized::create (stepSize));
+      JointBoundValidationPtr_t jbv (JointBoundValidation::create (robot));
+      pv->add (jbv);
+      CollisionValidationPtr_t cv (CollisionValidation::create (robot));
+      pv->add (cv);
+      return pv;
+    }
+
     template <typename T>
     boost::shared_ptr<T> createFromRobot (const Problem& p) { return T::create(p.robot()); }
 
@@ -232,7 +244,9 @@ namespace hpp {
 
       // Store path validation methods in map.
       pathValidations.add ("Discretized", pathValidation::createDiscretizedCollisionChecking);
+      pathValidations.add ("DiscretizedCollision", pathValidation::createDiscretizedCollisionChecking);
       pathValidations.add ("DiscretizedJointBound", pathValidation::createDiscretizedJointBound);
+      pathValidations.add ("DiscretizedCollisionAndJointBound", createDiscretizedJointBoundAndCollisionChecking);
       pathValidations.add ("Progressive", continuousValidation::Progressive::create);
       pathValidations.add ("Dichotomy",   continuousValidation::Dichotomy::create);
 
