@@ -36,11 +36,6 @@ namespace hpp {
     namespace pathOptimization {
       HPP_PREDEF_CLASS (CollisionFunction);
       typedef boost::shared_ptr <CollisionFunction> CollisionFunctionPtr_t;
-      typedef pinocchio::Transform3f Transform3f;
-      namespace eigen {
-	typedef Eigen::Matrix <value_type, 3, 1> vector3_t;
-      } // namespace eigen
-
 
       class CollisionFunction : public DifferentiableFunction
       {
