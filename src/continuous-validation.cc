@@ -30,6 +30,9 @@
 #include <iterator>
 namespace hpp {
   namespace core {
+    using continuousValidation::BodyPairCollisions_t;
+    using continuousValidation::SolidSolidCollision;
+
     /// Validate interval centered on a path parameter
     /// \param config Configuration at abscissa tmin on the path.
     /// \param tmin parameter value in the path interval of definition

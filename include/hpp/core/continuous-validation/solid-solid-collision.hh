@@ -82,10 +82,10 @@ namespace hpp {
         void addCollisionPair (const CollisionObjectConstPtr_t& left,
             const CollisionObjectConstPtr_t &right);
 
-        // Get joints
-        const std::vector <se3::JointIndex>& joints () const
+        // Get coefficients and joints
+        const CoefficientVelocities_t& coefficients () const
         {
-          return joints_;
+          return coefficients_;
         }
 
         /// Get joint a
@@ -131,14 +131,13 @@ namespace hpp {
               value_type tolerance);
 
       private:
-	      typedef se3::JointIndex JointIndex;
+        typedef pinocchio::JointIndex JointIndex;
+        typedef std::vector<JointIndex> JointIndices_t;
         JointPtr_t joint_a_;
         JointPtr_t joint_b_;
-        std::vector <JointIndex> joints_;
-        std::size_t indexCommonAncestor_;
-	      CoefficientVelocities_t coefficients_;
-        void computeSequenceOfJoints ();
-        void computeCoefficients ();
+        CoefficientVelocities_t coefficients_;
+        JointIndices_t computeSequenceOfJoints () const;
+        void computeCoefficients (const JointIndices_t& joints);
       }; // class SolidSolidCollision
     } // namespace continuousValidation
   } // namespace core

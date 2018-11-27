@@ -99,10 +99,7 @@ namespace hpp {
         }
 
       private:
-        virtual void setupPath()
-        {
-        }
-
+        virtual void setupPath() = 0;
       }; // class IntervalValidation
 
       template <typename ValidationReportTypePtr_t>

@@ -99,7 +99,8 @@ namespace hpp {
         os << "SolidSolidCollision: " << joint_a_->name()
           << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
         const se3::Model& model = joint_a_->robot ()->model();
-        for (std::size_t i = 0; i < joints_.size (); ++i) {
+        JointIndices_t joints = computeSequenceOfJoints ();
+        for (std::size_t i = 0; i < joints.size (); ++i) {
           if (i > 0) os << model.names[i] << ',';
           else       os << "World"        << ',';
         }
@@ -109,9 +110,9 @@ namespace hpp {
         return os;
       }
 
-      void SolidSolidCollision::computeSequenceOfJoints ()
+      SolidSolidCollision::JointIndices_t SolidSolidCollision::computeSequenceOfJoints () const
       {
-        joints_.clear ();
+        JointIndices_t joints;
 
         const se3::Model& model = joint_a_->robot ()->model();
         const JointIndex id_a = joint_a_->index(),
@@ -120,15 +121,15 @@ namespace hpp {
 
         std::vector<JointIndex> fromA, fromB;
         while (ia != ib)
-                {
-                  if (ia > ib) {
-                    fromA.push_back(ia);
-                    ia = model.parents[ia];
-                  } else /* if (ia < ib) */ {
-                    fromB.push_back(ib);
-                    ib = model.parents[ib];
-                  }
-                }
+        {
+          if (ia > ib) {
+            fromA.push_back(ia);
+            ia = model.parents[ia];
+          } else /* if (ia < ib) */ {
+            fromB.push_back(ib);
+            ib = model.parents[ib];
+          }
+        }
         assert (ia == ib);
         fromA.push_back(ia);
 
@@ -137,30 +138,31 @@ namespace hpp {
         else               assert (model.parents[fromB.back()] == ia);
 
         // Build sequence
-        joints_ = fromA;
-        joints_.insert(joints_.end(), fromB.rbegin(), fromB.rend());
-        assert(joints_.front() == id_a);
-        assert(joints_.back() == id_b);
-        assert(joints_.size() > 1);
+        joints = fromA;
+        joints.insert(joints.end(), fromB.rbegin(), fromB.rend());
+        assert(joints.front() == id_a);
+        assert(joints.back() == id_b);
+        assert(joints.size() > 1);
+        return joints;
       }
 
-      void SolidSolidCollision::computeCoefficients ()
+      void SolidSolidCollision::computeCoefficients (const JointIndices_t& joints)
       {
         const se3::Model& model = joint_a_->robot ()->model();
 
         JointPtr_t child;
-        assert (joints_.size () > 1);
-        coefficients_.resize (joints_.size () - 1);
+        assert (joints.size () > 1);
+        coefficients_.resize (joints.size () - 1);
         pinocchio::DevicePtr_t robot =joint_a_->robot ();
         // Store r0 + sum of T_{i/i+1} in a variable
         value_type cumulativeLength = joint_a_->linkedBody ()->radius ();
         value_type distance;
         std::size_t i = 0;
-        while (i + 1 < joints_.size()) {
-          if (model.parents[joints_[i]] == joints_[i+1])
-            child = JointPtr_t (new Joint(robot, joints_[i]));
-          else if (model.parents[joints_[i+1]] == joints_[i])
-            child = JointPtr_t (new Joint(robot, joints_[i+1]));
+        while (i + 1 < joints.size()) {
+          if (model.parents[joints[i]] == joints[i+1])
+            child = JointPtr_t (new Joint(robot, joints[i]));
+          else if (model.parents[joints[i+1]] == joints[i])
+            child = JointPtr_t (new Joint(robot, joints[i+1]));
           else
             abort ();
           coefficients_ [i].joint_ = child;
@@ -180,7 +182,7 @@ namespace hpp {
             const JointPtr_t& joint_b,
             value_type tolerance) :
         BodyPairCollision(tolerance), joint_a_ (joint_a), joint_b_ (joint_b),
-        joints_ (), indexCommonAncestor_ (0), coefficients_ ()
+        coefficients_ ()
       {
         assert (joint_a);
         assert (joint_b);
@@ -200,15 +202,15 @@ namespace hpp {
         assert (body_a);
         assert (body_b);
         // Find sequence of joints
-        computeSequenceOfJoints ();
-        computeCoefficients ();
+        JointIndices_t joints (computeSequenceOfJoints ());
+        computeCoefficients (joints);
       }
 
       SolidSolidCollision::SolidSolidCollision (const JointPtr_t& joint_a,
             const ConstObjectStdVector_t& objects_b,
             value_type tolerance) :
-        BodyPairCollision(tolerance), joint_a_ (joint_a), joint_b_ (), joints_ (),
-        indexCommonAncestor_ (0), coefficients_ ()
+        BodyPairCollision(tolerance), joint_a_ (joint_a), joint_b_ (),
+        coefficients_ ()
       {
         assert (joint_a);
         BodyPtr_t body_a = joint_a_->linkedBody ();
@@ -223,8 +225,8 @@ namespace hpp {
           }
         }
         // Find sequence of joints
-        computeSequenceOfJoints ();
-        computeCoefficients ();
+        JointIndices_t joints (computeSequenceOfJoints ());
+        computeCoefficients (joints);
       }
 
     } // namespace continuousValidation

@@ -22,8 +22,7 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/path-validation.hh>
 # include <hpp/core/path-validation-report.hh>
-# include <hpp/core/continuous-validation/solid-solid-collision.hh>
-# include <hpp/core/continuous-validation/body-pair-collision.hh>
+# include <hpp/core/continuous-validation/interval-validation.hh>
 
 namespace hpp {
   namespace core {

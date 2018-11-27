@@ -20,35 +20,9 @@
 # define HPP_CORE_CONTINUOUS_VALIDATION_INITIALIZER_HH
 
 # include <hpp/core/fwd.hh>
-# include <hpp/core/continuous-validation.hh>
-# include <pinocchio/multibody/geometry.hpp>
 
 namespace hpp {
   namespace core {
-    namespace
-    {
-      using continuousValidation::BodyPairCollisionPtr_t;
-      using continuousValidation::SolidSolidCollision;
-      using continuousValidation::BodyPairCollisions_t;
-
-      typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
-
-      struct JointIndexPairCompare_t
-      {
-        bool operator()(const JointIndexPair_t &p0, const JointIndexPair_t &p1) const
-        {
-          if (p0.first < p1.first)
-            return true;
-          if (p0.first > p1.first)
-            return false;
-          return (p0.second < p1.second);
-        }
-      };
-
-      typedef std::map<JointIndexPair_t, BodyPairCollisionPtr_t, JointIndexPairCompare_t> BodyPairCollisionMap_t;
-    } // namespace
-
-
     namespace continuousValidation {
       /// \addtogroup validation
       /// \{
@@ -100,38 +74,7 @@ namespace hpp {
 
         /// Create and store all inner body pair collisions for the robot
         ///
-        void generateAutoCollisions()
-        {
-          ContinuousValidationPtr_t continuousVal = continuousVal_.lock ();
-          DevicePtr_t robot = continuousVal->robot_;
-          const se3::GeometryModel &gmodel = robot->geomModel();
-          JointPtr_t joint1, joint2;
-          BodyPairCollisionMap_t bodyPairMap;
-          for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
-          {
-            const se3::CollisionPair &cp = gmodel.collisionPairs[i];
-            JointIndexPair_t jp(gmodel.geometryObjects[cp.first].parentJoint,
-                                gmodel.geometryObjects[cp.second].parentJoint);
-
-            // Ignore pairs of bodies that are in the same joint.
-            if (jp.first == jp.second)
-              continue;
-
-            BodyPairCollisionMap_t::iterator _bp = bodyPairMap.find(jp);
-
-            if (_bp == bodyPairMap.end())
-            {
-              joint1 = JointPtr_t(new Joint(robot, jp.first));
-              joint2 = JointPtr_t(new Joint(robot, jp.second));
-              continuousVal->bodyPairCollisions_.push_back(
-                  SolidSolidCollision::create(joint2, joint1, continuousVal->tolerance_));
-              bodyPairMap[jp] = continuousVal->bodyPairCollisions_.back();
-            }
-            CollisionObjectConstPtr_t co1 (new pinocchio::CollisionObject(robot, cp.first));
-            CollisionObjectConstPtr_t co2 (new pinocchio::CollisionObject(robot, cp.second));
-            bodyPairMap[jp]->addCollisionPair( co1,co2 );
-          }
-        }
+        void generateAutoCollisions();
 
         /// Constructor of continuous validation initializer
         ///
@@ -150,12 +93,7 @@ namespace hpp {
         /// Default reset
         ///
         /// Reset the BodyPairCollision vector of the Continuous Validation
-        void defaultReset()
-        {
-          ContinuousValidationPtr_t continuousVal = continuousVal_.lock ();
-          continuousVal->bodyPairCollisions_.clear();
-        }
-
+        void defaultReset();
       }; // class Initializer
       /// \}
     } // namespace continuousValidation
