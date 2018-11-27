@@ -34,7 +34,8 @@ namespace hpp {
     namespace continuousValidation {
 
       bool BodyPairCollision::validateConfiguration (const value_type& t, interval_t& interval,
-                CollisionValidationReportPtr_t& report)
+                CollisionValidationReportPtr_t& report,
+                pinocchio::DeviceData& data)
       {
         namespace icl = boost::icl;
         using std::numeric_limits;
@@ -53,7 +54,7 @@ namespace hpp {
         }
 
         value_type distanceLowerBound;
-        if (!computeDistanceLowerBound(distanceLowerBound, report))
+        if (!computeDistanceLowerBound(distanceLowerBound, report, data))
         {
           return false;
         }
@@ -139,7 +140,8 @@ namespace hpp {
       }
 
       bool BodyPairCollision::computeDistanceLowerBound(value_type &distanceLowerBound,
-        CollisionValidationReportPtr_t& report)
+        CollisionValidationReportPtr_t& report,
+        pinocchio::DeviceData& data)
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
@@ -147,8 +149,8 @@ namespace hpp {
           true, fcl::GST_INDEP);
         for (CollisionPairs_t::const_iterator _pair = pairs_.begin();
             _pair != pairs_.end(); ++_pair) {
-          pinocchio::FclConstCollisionObjectPtr_t object_a = _pair->first ->fcl ();
-          pinocchio::FclConstCollisionObjectPtr_t object_b = _pair->second->fcl ();
+          pinocchio::FclConstCollisionObjectPtr_t object_a = _pair->first ->fcl (data);
+          pinocchio::FclConstCollisionObjectPtr_t object_b = _pair->second->fcl (data);
           fcl::CollisionResult result;
           fcl::collide (object_a, object_b, request, result);
           // Get result

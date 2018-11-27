@@ -60,7 +60,8 @@ namespace hpp {
         /// \note object should be in the positions defined by the configuration
         ///       of parameter t on the path.
         bool validateConfiguration (const value_type& t, interval_t& interval,
-                  CollisionValidationReportPtr_t& report);
+                  CollisionValidationReportPtr_t& report,
+                  pinocchio::DeviceData& data);
 
         // Get pairs checked for collision
         const CollisionPairs_t& pairs () const
@@ -132,7 +133,7 @@ namespace hpp {
         /// \retval report the collision validation report
         /// \return true if the bodies are not in collision, else false
         bool computeDistanceLowerBound(value_type &distanceLowerBound,
-          CollisionValidationReportPtr_t& report);
+          CollisionValidationReportPtr_t& report, pinocchio::DeviceData& data);
 
       }; // class BodyPairCollision
 

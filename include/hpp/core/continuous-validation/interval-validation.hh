@@ -50,7 +50,8 @@ namespace hpp {
       {
       public:
         virtual bool validateConfiguration(const value_type &t, interval_t &interval,
-                                  ValidationReportTypePtr_t &report) = 0;
+                                  ValidationReportTypePtr_t &report,
+                                  pinocchio::DeviceData& data) = 0;
 
         /// Set path to validate
         /// \param path path to validate,

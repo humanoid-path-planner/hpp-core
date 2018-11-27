@@ -143,7 +143,8 @@ namespace hpp {
       bool validateIntervals(IntervalValidations& validations, const value_type &t,
                     interval_t &interval, interval_t &tmpInt,
                     PathValidationReportPtr_t &pathReport,
-                    typename IntervalValidations::iterator &smallestInterval)
+                    typename IntervalValidations::iterator &smallestInterval,
+                    pinocchio::DeviceData& data)
       {
         typename IntervalValidations::iterator itMin = validations.begin();
         for (typename IntervalValidations::iterator itVal = validations.begin();
@@ -153,7 +154,7 @@ namespace hpp {
           // the valid interval will not be greater than "interval" so we do not
           // need to perform validation on a greater interval.
           tmpInt = interval;
-          if (!(*itVal)->validateConfiguration(t, tmpInt, report))
+          if (!(*itVal)->validateConfiguration(t, tmpInt, report, data))
           {
             pathReport = PathValidationReportPtr_t(new PathValidationReport);
             pathReport->configurationReport = report;
