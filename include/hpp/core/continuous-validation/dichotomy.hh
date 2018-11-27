@@ -80,9 +80,13 @@ namespace hpp {
       private:
         // Weak pointer to itself
         DichotomyWkPtr_t weak_;
-	      virtual bool validateStraightPath (const PathPtr_t& path, bool reverse,
-					   PathPtr_t& validPart,
-					   PathValidationReportPtr_t& report);
+        bool validateStraightPath (const PathPtr_t& path, bool reverse,
+            PathPtr_t& validPart,
+            PathValidationReportPtr_t& report);
+        template <bool reverse>
+        bool validateStraightPath (const PathPtr_t& path,
+            PathPtr_t& validPart,
+            PathValidationReportPtr_t& report);
       }; // class Dichotomy
     } // namespace continuousValidation
     /// \}

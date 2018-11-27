@@ -18,7 +18,8 @@
 
 #include <hpp/core/continuous-validation/dichotomy.hh>
 
-#include <deque>
+#include <iterator>
+
 #include <pinocchio/multibody/geometry.hpp>
 #include <hpp/util/debug.hh>
 #include <hpp/core/collision-path-validation-report.hh>
@@ -27,11 +28,11 @@
 #include <hpp/core/continuous-validation/initializer.hh>
 
 #include "continuous-validation/intervals.hh"
+#include "continuous-validation/helper.hh"
 
 namespace hpp {
   namespace core {
     namespace continuousValidation {
-
       DichotomyPtr_t
       Dichotomy::create (const DevicePtr_t& robot, const value_type& tolerance)
       {
@@ -50,91 +51,62 @@ namespace hpp {
       (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
+        if (reverse) return validateStraightPath<true> (path, validPart, report);
+        else         return validateStraightPath<false>(path, validPart, report);
+      }
+
+      template <bool reverse>
+      bool Dichotomy::validateStraightPath
+      (const PathPtr_t& path, PathPtr_t& validPart,
+       PathValidationReportPtr_t& report)
+      {
         // start by validating end of path
         bool finished = false;
         bool valid = true;
         setPath(path, reverse);
         Intervals validSubset;
-        if (reverse) {
-          value_type t (path->timeRange ().second);
-          validSubset.unionInterval (std::make_pair (t,t));
-          Configuration_t q (path->outputSize ());
-          while (!finished) {
-            bool success = (*path) (q, t);
-            PathValidationReportPtr_t pathReport;
-            interval_t interval;
-            if (!success || !validateConfiguration (q, t, interval,
-                      pathReport)) {
-              report = pathReport;
-              valid = false;
-            } else {
-              validSubset.unionInterval (interval);
-            }
-            finished = (!valid || validSubset.contains (path->timeRange ()));
-            // Compute next parameter to check as middle of first non tested
-            // interval
-            std::list <interval_t>::const_reverse_iterator itIntervals
-              (validSubset.list ().rbegin ());
-            value_type t0 (itIntervals->first); ++ itIntervals;
-            value_type t1 (path->timeRange ().first);
-            if (itIntervals != validSubset.list ().rend ()) {
-              t1 = itIntervals->second;
-            }
-            t = .5* (t0 + t1);
-          }
-          if (!valid) {
-            assert (validSubset.list ().rbegin ()->first <=
-              path->timeRange ().second);
-            assert (validSubset.list ().rbegin ()->second >=
-              path->timeRange ().second);
-            value_type tmin (validSubset.list ().rbegin ()->first);
-            value_type tmax (path->timeRange ().second);
-            validPart = path->extract (std::make_pair (tmin, tmax));
-            return false;
+        const interval_t& tr (path->timeRange());
+        value_type t = first(tr, reverse);
+        validSubset.unionInterval (std::make_pair (t,t));
+        Configuration_t q (path->outputSize ());
+        value_type t0, t1, tmin, tmax;
+        while (!finished) {
+          bool success = (*path) (q, t);
+          PathValidationReportPtr_t pathReport;
+          interval_t interval;
+          if (!success ||
+              !validateConfiguration (q, t, interval, pathReport)) {
+            report = pathReport;
+            valid = false;
           } else {
-            validPart = path;
-            return true;
+            validSubset.unionInterval (interval);
           }
-        } else { // reverse
-          value_type t (path->timeRange ().first);
-          validSubset.unionInterval (std::make_pair (t,t));
-          Configuration_t q (path->outputSize ());
-          while (!finished) {
-            bool success = (*path) (q, t);
-            PathValidationReportPtr_t pathReport;
-            interval_t interval;
-            if (!success || !validateConfiguration (q, t, interval,
-                      pathReport)) {
-              report = pathReport;
-              valid = false;
-            } else {
-              validSubset.unionInterval (interval);
-            }
-            finished = (!valid || validSubset.contains (path->timeRange ()));
-            // Compute next parameter to check as middle of first non tested
-            // interval
-            std::list <interval_t>::const_iterator itIntervals
-              (validSubset.list ().begin ());
-            value_type t0 (itIntervals->second); ++ itIntervals;
-            value_type t1 (path->timeRange ().second);
-            if (itIntervals != validSubset.list ().end ()) {
-              t1 = itIntervals->first;
-            }
-            t = .5* (t0 + t1);
-          }
-          if (!valid) {
-            assert (validSubset.list ().begin ()->first <=
-              path->timeRange ().first);
-            assert (validSubset.list ().begin ()->second >=
-              path->timeRange ().first);
-            value_type tmin (path->timeRange ().first);
-            value_type tmax (validSubset.list ().begin ()->second);
-            validPart = path->extract (std::make_pair (tmin, tmax));
-            return false;
+          finished = (!valid || validSubset.contains (tr));
+          // Compute next parameter to check as middle of first non tested
+          // interval
+          t0 = second (begin(validSubset.list(), reverse), reverse);
+          t1 = second (tr                                , reverse);
+          if (validSubset.list().size() > 1)
+            t1 = first (Nth(validSubset.list(), 1, reverse), reverse);
+          t = .5* (t0 + t1);
+        }
+        if (!valid) {
+          assert ( begin(validSubset.list (), reverse).first <=
+                   first(tr                 , reverse));
+          assert ( begin(validSubset.list (), reverse).second >=
+                   first(tr                 , reverse));
+          if (reverse) {
+            tmin = validSubset.list ().rbegin ()->first;
+            tmax = tr.second;
           } else {
-            validPart = path;
-            return true;
+            tmin = tr.first;
+            tmax = validSubset.list ().begin ()->second;
           }
+          validPart = path->extract (std::make_pair (tmin, tmax));
+          return false;
+        } else {
+          validPart = path;
+          return true;
         }
         return false;
       }

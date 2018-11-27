@@ -27,6 +27,7 @@
 #include <hpp/core/continuous-validation/initializer.hh>
 
 #include "continuous-validation/intervals.hh"
+#include "continuous-validation/helper.hh"
 
 namespace hpp {
   namespace core {
@@ -60,76 +61,58 @@ namespace hpp {
       (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
+        if (reverse) return validateStraightPath<true> (path, validPart, report);
+        else         return validateStraightPath<false>(path, validPart, report);
+      }
+
+      template <bool reverse>
+      bool Progressive::validateStraightPath
+      (const PathPtr_t& path, PathPtr_t& validPart,
+       PathValidationReportPtr_t& report)
+      {
         // for each IntervalValidation
         //   - set path,
         //   - compute valid interval at start (end if reverse)
         bool valid = true;
+        const interval_t& tr (path->timeRange());
+        Configuration_t q (path->outputSize ());
+        PathValidationReportPtr_t pathReport;
+        interval_t interval;
+
         setPath(path, reverse);
-        if (reverse) {
-          value_type tmin = path->timeRange ().first;
-          value_type tmax = path->timeRange ().second;
-          value_type lastValidTime = tmax;
-          value_type t = tmax;
-          unsigned finished = 0;
-          Configuration_t q (path->outputSize ());
-          while (finished < 2 && valid) {
-            bool success = (*path) (q, t);
-            value_type tprev = t;
-            PathValidationReportPtr_t pathReport;
-            interval_t interval;
-            if (!success || !validateConfiguration (q, t, interval,
-                      pathReport)) {
-              report = pathReport;
-              valid = false;
-            } else {
-              t = interval.first;
-              lastValidTime = tprev;
-            }
-            if (t <= tmin) {
-              t = tmin;
-              finished ++;
-            }
-          }
-          if (valid) {
-            validPart = path;
-            return true;
+
+        const value_type tmin = tr.first;
+        const value_type tmax = tr.second;
+        value_type lastValidTime = first (tr, reverse);
+        value_type t             = lastValidTime;
+        unsigned finished = 0;
+        // If the interval is of length 0, there is only one configuration to
+        // validate.
+        if (reverse ? t <= tmin : t >= tmax) finished++;
+        while (finished < 2 && valid) {
+          bool success = (*path) (q, t);
+          value_type tprev = t;
+          if (!success ||
+              !validateConfiguration (q, t, interval, pathReport)) {
+            report = pathReport;
+            valid = false;
           } else {
-            validPart = path->extract (std::make_pair (lastValidTime, tmax));
-            return false;
+            t = second (interval, reverse);
+            lastValidTime = tprev;
           }
+          if (reverse ? t <= tmin : t >= tmax) {
+            t = reverse ? tmin : tmax;
+            finished ++;
+          }
+        }
+        if (valid) {
+          validPart = path;
+          return true;
         } else {
-          value_type tmin = path->timeRange ().first;
-          value_type tmax = path->timeRange ().second;
-          value_type lastValidTime = tmin;
-          value_type t = tmin;
-          unsigned finished = 0;
-          Configuration_t q (path->outputSize ());
-          if (t >= tmax) finished++;
-          while (finished < 2 && valid) {
-            bool success = (*path) (q, t);
-            value_type tprev = t;
-            PathValidationReportPtr_t pathReport;
-            interval_t interval;
-            if (!success || !validateConfiguration (q, t, interval,
-                      pathReport)) {
-              report = pathReport;
-              valid = false;
-            } else {
-              t = interval.second;
-              lastValidTime = tprev;
-            }
-            if (t >= tmax) {
-              t = tmax;
-              finished ++;
-            }
-          }
-          if (valid) {
-            validPart = path;
-            return true;
-          } else {
-            validPart = path->extract (std::make_pair (tmin, lastValidTime));
-            return false;
-          }
+          validPart = reverse ? 
+              path->extract (std::make_pair (lastValidTime, tmax))
+            : path->extract (std::make_pair (tmin, lastValidTime));
+          return false;
         }
       }
 
