@@ -85,29 +85,29 @@ namespace hpp {
         // Get coefficients and joints
         const CoefficientVelocities_t& coefficients () const
         {
-          return coefficients_;
+          return m_->coefficients;
         }
 
         /// Get joint a
         const JointPtr_t& joint_a () const
         {
-          return joint_a_;
+          return m_->joint_a;
         }
         /// Get joint b
         const JointPtr_t& joint_b () const
         {
-          return joint_b_;
+          return m_->joint_b;
         }
 
         /// Returns joint A index or -1 if no such joint exists.
         size_type indexJointA () const
         {
-          return (joint_a_ ? joint_a_->index() : 0);
+          return (m_->joint_a ? m_->joint_a->index() : 0);
         }
         /// Returns joint B index or -1 if no such joint exists.
         size_type indexJointB () const
         {
-          return (joint_b_ ? joint_b_->index() : 0);
+          return (m_->joint_b ? m_->joint_b->index() : 0);
         }
 
       protected:
@@ -133,11 +133,15 @@ namespace hpp {
       private:
         typedef pinocchio::JointIndex JointIndex;
         typedef std::vector<JointIndex> JointIndices_t;
-        JointPtr_t joint_a_;
-        JointPtr_t joint_b_;
-        CoefficientVelocities_t coefficients_;
-        JointIndices_t computeSequenceOfJoints () const;
-        void computeCoefficients (const JointIndices_t& joints);
+
+        struct Model {
+          JointPtr_t joint_a;
+          JointPtr_t joint_b;
+          CoefficientVelocities_t coefficients;
+          JointIndices_t computeSequenceOfJoints () const;
+          void computeCoefficients (const JointIndices_t& joints);
+        };
+        boost::shared_ptr<Model> m_;
       }; // class SolidSolidCollision
     } // namespace continuousValidation
   } // namespace core

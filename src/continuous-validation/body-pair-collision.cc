@@ -144,14 +144,15 @@ namespace hpp {
 
       bool BodyPairCollision::computeDistanceLowerBound(value_type &distanceLowerBound,
         CollisionValidationReportPtr_t& report,
-        pinocchio::DeviceData& data)
+        pinocchio::DeviceData& data) const
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
         static const fcl::CollisionRequest request (fcl::DISTANCE_LOWER_BOUND, 1);
         assert (request.enable_distance_lower_bound == true);
-        for (CollisionPairs_t::const_iterator _pair = pairs_.begin();
-            _pair != pairs_.end(); ++_pair) {
+        const CollisionPairs_t& prs (pairs());
+        for (CollisionPairs_t::const_iterator _pair = prs.begin();
+            _pair != prs.end(); ++_pair) {
           pinocchio::FclConstCollisionObjectPtr_t object_a = _pair->first ->fcl (data);
           pinocchio::FclConstCollisionObjectPtr_t object_b = _pair->second->fcl (data);
           fcl::CollisionResult result;

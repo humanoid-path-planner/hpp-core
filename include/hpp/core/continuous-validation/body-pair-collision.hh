@@ -66,7 +66,13 @@ namespace hpp {
         // Get pairs checked for collision
         const CollisionPairs_t& pairs () const
         {
-          return pairs_;
+          return m_->pairs;
+        }
+
+        // Get pairs checked for collision
+        CollisionPairs_t& pairs ()
+        {
+          return m_->pairs;
         }
 
         // Get maximal velocity
@@ -87,19 +93,17 @@ namespace hpp {
         virtual std::ostream& print (std::ostream& os) const = 0;
 
       protected:
-        mutable vector_t Vb_;
-        CollisionPairs_t pairs_;
         /// Constructor of body pair collision
         ///
         /// \param tolerance allowed penetration should be positive
         BodyPairCollision (value_type tolerance):
-          IntervalValidation(tolerance), pairs_ (), maximalVelocity_(0)
+          IntervalValidation(tolerance), m_ (new Model), maximalVelocity_(0)
         {
         }
 
         virtual void setReport (CollisionValidationReportPtr_t& report,
                             fcl::CollisionResult result,
-                            CollisionPair_t _pair)
+                            CollisionPair_t _pair) const
         {
           report = CollisionValidationReportPtr_t
             (new CollisionValidationReport);
@@ -109,6 +113,12 @@ namespace hpp {
         }
 
       private:
+        struct Model {
+          CollisionPairs_t pairs;
+        };
+        boost::shared_ptr<Model> m_;
+
+        mutable vector_t Vb_;
         value_type maximalVelocity_;
 
         /// Compute maximal velocity for a given velocity bound
@@ -133,7 +143,7 @@ namespace hpp {
         /// \retval report the collision validation report
         /// \return true if the bodies are not in collision, else false
         bool computeDistanceLowerBound(value_type &distanceLowerBound,
-          CollisionValidationReportPtr_t& report, pinocchio::DeviceData& data);
+          CollisionValidationReportPtr_t& report, pinocchio::DeviceData& data) const;
 
       }; // class BodyPairCollision
 

@@ -54,7 +54,7 @@ namespace hpp {
       {
         value_type maximalVelocity = 0;
         for (CoefficientVelocities_t::const_iterator itCoef =
-        coefficients_.begin (); itCoef != coefficients_.end (); ++itCoef) {
+        m_->coefficients.begin (); itCoef != m_->coefficients.end (); ++itCoef) {
           const JointPtr_t& joint = itCoef->joint_;
           const value_type& value = itCoef->value_;
           maximalVelocity += value * Vb.segment(joint->rankInVelocity(), joint->numberDof()).norm();
@@ -64,30 +64,31 @@ namespace hpp {
 
       bool SolidSolidCollision::removeObjectTo_b (const CollisionObjectConstPtr_t& object)
       {
-        const std::size_t s = pairs_.size();
-        for (CollisionPairs_t::iterator _pair = pairs_.begin ();
-          _pair != pairs_.end ();) {
+        CollisionPairs_t& prs (pairs());
+        const std::size_t s = prs.size();
+        for (CollisionPairs_t::iterator _pair = prs.begin ();
+          _pair != prs.end ();) {
           if (object == _pair->second)
-            _pair = pairs_.erase (_pair);
+            _pair = prs.erase (_pair);
           else
             ++_pair;
         }
-        return pairs_.size() < s;
+        return prs.size() < s;
       }
 
       void SolidSolidCollision::addCollisionPair (const CollisionObjectConstPtr_t& left,
           const CollisionObjectConstPtr_t& right)
       {
-        // std::cout << "size = " << pairs_.size() << std::endl;
-        // std::cout << "capacity = " << pairs_.capacity() << std::endl;
-        pairs_.push_back (CollisionPair_t (left, right));
+        // std::cout << "size = " << pairs().size() << std::endl;
+        // std::cout << "capacity = " << pairs().capacity() << std::endl;
+        pairs().push_back (CollisionPair_t (left, right));
       }
 
       std::string SolidSolidCollision::name () const
       {
         std::ostringstream oss;
-        oss << "(" << joint_a_->name () << ",";
-        if (joint_b_) oss << joint_b_->name ();
+        oss << "(" << m_->joint_a->name () << ",";
+        if (m_->joint_b) oss << m_->joint_b->name ();
         else oss << "obstacles";
         oss << ")";
         return oss.str ();
@@ -95,25 +96,25 @@ namespace hpp {
 
       std::ostream& SolidSolidCollision::print (std::ostream& os) const
       {
-        os << "SolidSolidCollision: " << joint_a_->name()
-          << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
+        os << "SolidSolidCollision: " << m_->joint_a->name()
+          << " - " << (m_->joint_b ? m_->joint_b->name() : "World") << '\n';
         const pinocchio::Model& model = joint_a_->robot ()->model();
-        JointIndices_t joints = computeSequenceOfJoints ();
+        JointIndices_t joints = m_->computeSequenceOfJoints ();
         for (std::size_t i = 0; i < joints.size (); ++i) {
           if (i > 0) os << model.names[i] << ',';
           else       os << "World"        << ',';
         }
         os << '\n';
-        for (std::size_t i = 0; i < coefficients_.size(); ++i)
-          os << coefficients_[i].value_ << ", ";
+        for (std::size_t i = 0; i < m_->coefficients.size(); ++i)
+          os << m_->coefficients[i].value_ << ", ";
         return os;
       }
 
-      SolidSolidCollision::JointIndices_t SolidSolidCollision::computeSequenceOfJoints () const
+      SolidSolidCollision::JointIndices_t SolidSolidCollision::Model::computeSequenceOfJoints () const
       {
         JointIndices_t joints;
 
-        const pinocchio::Model& model = joint_a_->robot ()->model();
+        const pinocchio::Model& model = joint_a->robot ()->model();
         const JointIndex id_a = indexJointA(),
                          id_b = indexJointB();
         JointIndex ia = id_a, ib = id_b;
@@ -145,16 +146,16 @@ namespace hpp {
         return joints;
       }
 
-      void SolidSolidCollision::computeCoefficients (const JointIndices_t& joints)
+      void SolidSolidCollision::Model::computeCoefficients (const JointIndices_t& joints)
       {
-        const pinocchio::Model& model = joint_a_->robot ()->model();
+        const pinocchio::Model& model = joint_a->robot ()->model();
 
         JointPtr_t child;
         assert (joints.size () > 1);
-        coefficients_.resize (joints.size () - 1);
-        pinocchio::DevicePtr_t robot =joint_a_->robot ();
+        coefficients.resize (joints.size () - 1);
+        pinocchio::DevicePtr_t robot =joint_a->robot ();
         // Store r0 + sum of T_{i/i+1} in a variable
-        value_type cumulativeLength = joint_a_->linkedBody ()->radius ();
+        value_type cumulativeLength = joint_a->linkedBody ()->radius ();
         value_type distance;
         std::size_t i = 0;
         while (i + 1 < joints.size()) {
@@ -165,11 +166,11 @@ namespace hpp {
           else
             abort ();
           assert(child);
-          coefficients_ [i].joint_ = child;
+          coefficients [i].joint_ = child;
           // Go through all known types of joints
           //  TODO: REPLACE THESE FUNCTIONS WITH NEW API
           distance = child->maximalDistanceToParent ();
-          coefficients_ [i].value_ =
+          coefficients [i].value_ =
             child->upperBoundLinearVelocity () +
             cumulativeLength * child->upperBoundAngularVelocity ();
           cumulativeLength += distance;
@@ -181,11 +182,13 @@ namespace hpp {
       SolidSolidCollision::SolidSolidCollision (const JointPtr_t& joint_a,
             const JointPtr_t& joint_b,
             value_type tolerance) :
-        BodyPairCollision(tolerance), joint_a_ (joint_a), joint_b_ (joint_b),
-        coefficients_ ()
+        BodyPairCollision(tolerance), m_ (new Model)
       {
+        m_->joint_a = joint_a;
+        m_->joint_b = joint_b;
+
         assert (joint_a);
-        if (joint_b && joint_b_->robot () != joint_a_->robot ()) {
+        if (joint_b && joint_b->robot () != joint_a->robot ()) {
           throw std::runtime_error
             ("Joints do not belong to the same device.");
         }
@@ -196,34 +199,35 @@ namespace hpp {
           throw std::runtime_error ("tolerance should be non-negative.");
         }
 
-        if (joint_a_) { assert(joint_a_->linkedBody ()); }
-        if (joint_b_) { assert(joint_b_->linkedBody ()); }
+        if (joint_a_) { assert(joint_a->linkedBody ()); }
+        if (joint_b_) { assert(joint_b->linkedBody ()); }
         // Find sequence of joints
-        JointIndices_t joints (computeSequenceOfJoints ());
-        computeCoefficients (joints);
+        JointIndices_t joints (m_->computeSequenceOfJoints ());
+        m_->computeCoefficients (joints);
       }
 
       SolidSolidCollision::SolidSolidCollision (const JointPtr_t& joint_a,
             const ConstObjectStdVector_t& objects_b,
             value_type tolerance) :
-        BodyPairCollision(tolerance), joint_a_ (joint_a), joint_b_ (),
-        coefficients_ ()
+        BodyPairCollision(tolerance), m_ (new Model)
       {
+        m_->joint_a = joint_a;
+
         assert (joint_a);
-        BodyPtr_t body_a = joint_a_->linkedBody ();
+        BodyPtr_t body_a = joint_a->linkedBody ();
         assert (body_a);
         for (size_type i = 0; i < body_a->nbInnerObjects(); ++i) {
 	      CollisionObjectConstPtr_t obj = body_a->innerObjectAt(i);
           for (ConstObjectStdVector_t::const_iterator it = objects_b.begin ();
               it != objects_b.end (); ++it) {
             assert (!(*it)->joint () ||
-                (*it)->joint ()->robot () != joint_a_->robot ());
-            pairs_.push_back (CollisionPair_t(obj, *it));
+                (*it)->joint ()->robot () != joint_a->robot ());
+            pairs().push_back (CollisionPair_t(obj, *it));
           }
         }
         // Find sequence of joints
-        JointIndices_t joints (computeSequenceOfJoints ());
-        computeCoefficients (joints);
+        JointIndices_t joints (m_->computeSequenceOfJoints ());
+        m_->computeCoefficients (joints);
       }
 
     } // namespace continuousValidation
