@@ -46,7 +46,6 @@ using namespace hpp::core;
 
 #define NB_RANDOM_CONF 2
 
-const value_type value_type_prec = Eigen::NumTraits<value_type>::dummy_precision();
 const value_type test_precision = 1e-8;
 
 DevicePtr_t createRobot ()
