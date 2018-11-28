@@ -92,6 +92,8 @@ namespace hpp {
 
         virtual std::ostream& print (std::ostream& os) const = 0;
 
+        virtual BodyPairCollisionPtr_t copy () const = 0;
+
       protected:
         /// Constructor of body pair collision
         ///
@@ -100,6 +102,11 @@ namespace hpp {
           IntervalValidation(tolerance), m_ (new Model), maximalVelocity_(0)
         {
         }
+
+        /// Copy constructor
+        BodyPairCollision (const BodyPairCollision& other):
+          IntervalValidation(other), m_(other.m_), maximalVelocity_(0)
+        {}
 
         virtual void setReport (CollisionValidationReportPtr_t& report,
                             fcl::CollisionResult result,

@@ -99,6 +99,12 @@ namespace hpp {
           }
         }
 
+        IntervalValidation (const IntervalValidation& other) :
+          tolerance_(other.tolerance_), refine_(true)
+        {
+          assert (tolerance_ > 0);
+        }
+
       private:
         virtual void setupPath() = 0;
       }; // class IntervalValidation

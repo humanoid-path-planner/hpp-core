@@ -110,6 +110,8 @@ namespace hpp {
           return (m_->joint_b ? m_->joint_b->index() : 0);
         }
 
+        BodyPairCollisionPtr_t copy () const;
+
       protected:
         /// Constructor of inter-body collision checking
         ///
@@ -129,6 +131,10 @@ namespace hpp {
         SolidSolidCollision (const JointPtr_t& joint_a,
               const ConstObjectStdVector_t& objects_b,
               value_type tolerance);
+
+        SolidSolidCollision (const SolidSolidCollision& other)
+          : BodyPairCollision (other), m_ (other.m_)
+        {}
 
       private:
         typedef pinocchio::JointIndex JointIndex;

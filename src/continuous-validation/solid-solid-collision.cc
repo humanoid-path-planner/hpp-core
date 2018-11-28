@@ -50,6 +50,11 @@ namespace hpp {
         return shPtr;
       }
 
+      BodyPairCollisionPtr_t SolidSolidCollision::copy () const
+      {
+        return BodyPairCollisionPtr_t(new SolidSolidCollision(*this));
+      }
+
       value_type SolidSolidCollision::computeMaximalVelocity(vector_t& Vb) const
       {
         value_type maximalVelocity = 0;
