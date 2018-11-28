@@ -80,8 +80,6 @@ namespace hpp {
       /// care about obstacles.
       virtual void addObstacle (const CollisionObjectConstPtr_t& object);
 
-      virtual void setPath(const PathPtr_t &path, bool reverse);
-
       /// Remove a collision pair between a joint and an obstacle
       /// \param joint the joint that holds the inner objects,
       /// \param obstacle the obstacle to remove.
@@ -100,6 +98,11 @@ namespace hpp {
 
       virtual ~ContinuousValidation ();
     protected:
+      typedef continuousValidation::BodyPairCollisions_t BodyPairCollisions_t;
+
+      static void setPath(BodyPairCollisions_t& bodyPairCollisions,
+          const PathPtr_t &path, bool reverse);
+
       /// Constructor
       /// \param robot the robot for which validation is performed,
       /// \param tolerance maximal penetration allowed.
@@ -107,6 +110,7 @@ namespace hpp {
 				   const value_type& tolerance);
 
       /// Validate interval centered on a path parameter
+      /// \param bodyPairCollisions collision to consider
       /// \param config Configuration at abscissa t on the path.
       /// \param t parameter value in the path interval of definition
       /// \retval interval interval over which the path is collision-free,
@@ -115,10 +119,12 @@ namespace hpp {
       ///         value, false if the body pair is in collision.
       /// \note object should be in the positions defined by the configuration
       ///       of parameter t on the path.
-      virtual bool validateConfiguration (const Configuration_t& config,
-				  const value_type& t,
-				  interval_t& interval,
-				  PathValidationReportPtr_t& report);
+      virtual bool validateConfiguration (BodyPairCollisions_t& bodyPairCollisions,
+          const Configuration_t& config,
+          const value_type& t,
+          interval_t& interval,
+          PathValidationReportPtr_t& report);
+
       DevicePtr_t robot_;
       value_type tolerance_;
 
@@ -126,9 +132,9 @@ namespace hpp {
       void init (ContinuousValidationWkPtr_t weak);
 
       // all BodyPairValidation to validate
-      continuousValidation::BodyPairCollisions_t bodyPairCollisions_;
+      BodyPairCollisions_t bodyPairCollisions_;
       // BodyPairCollision for which collision is disabled
-      continuousValidation::BodyPairCollisions_t disabledBodyPairCollisions_;
+      BodyPairCollisions_t disabledBodyPairCollisions_;
       value_type stepSize_;
       // Initializer as a delegate
       continuousValidation::InitializerPtr_t initializer_;
@@ -136,8 +142,9 @@ namespace hpp {
       // Weak pointer to itself
       ContinuousValidationWkPtr_t weak_;
 
-      virtual bool validateStraightPath (const PathPtr_t& path,
-        bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report) = 0;
+      virtual bool validateStraightPath (BodyPairCollisions_t& bodyPairCollisions,
+          const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+          PathValidationReportPtr_t& report) = 0;
 
       /// Validate a set of intervals for a given parameter along a path
       ///

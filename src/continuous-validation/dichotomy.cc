@@ -47,22 +47,22 @@ namespace hpp {
       }
 
       bool Dichotomy::validateStraightPath
-      (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+      (BodyPairCollisions_t& bpc, const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
-        if (reverse) return validateStraightPath<true> (path, validPart, report);
-        else         return validateStraightPath<false>(path, validPart, report);
+        if (reverse) return validateStraightPath<true> (bpc, path, validPart, report);
+        else         return validateStraightPath<false>(bpc, path, validPart, report);
       }
 
       template <bool reverse>
       bool Dichotomy::validateStraightPath
-      (const PathPtr_t& path, PathPtr_t& validPart,
+      (BodyPairCollisions_t& bodyPairCollisions, const PathPtr_t& path, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
         // start by validating end of path
         bool finished = false;
         bool valid = true;
-        setPath(path, reverse);
+        setPath(bodyPairCollisions, path, reverse);
         Intervals validSubset;
         const interval_t& tr (path->timeRange());
         value_type t = first(tr, reverse);
@@ -74,7 +74,7 @@ namespace hpp {
           PathValidationReportPtr_t pathReport;
           interval_t interval;
           if (!success ||
-              !validateConfiguration (q, t, interval, pathReport)) {
+              !validateConfiguration (bodyPairCollisions, q, t, interval, pathReport)) {
             report = pathReport;
             valid = false;
           } else {

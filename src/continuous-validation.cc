@@ -34,14 +34,16 @@ namespace hpp {
     using continuousValidation::SolidSolidCollision;
 
     /// Validate interval centered on a path parameter
+    /// \param bodyPairCollisions a reference to the pair with smallest interval.
     /// \param config Configuration at abscissa tmin on the path.
     /// \param t parameter value in the path interval of definition
     /// \retval interval interval validated for all validation elements
     /// \retval report reason why the interval is not valid,
     /// \return true if the configuration is collision free for this parameter
     ///         value, false otherwise.
-    bool ContinuousValidation::validateConfiguration(const Configuration_t &config, const value_type &t,
-                                                            interval_t &interval, PathValidationReportPtr_t &report)
+    bool ContinuousValidation::validateConfiguration(BodyPairCollisions_t& bodyPairCollisions,
+        const Configuration_t &config, const value_type &t,
+        interval_t &interval, PathValidationReportPtr_t &report)
     {
       interval.first = -std::numeric_limits <value_type>::infinity ();
       interval.second = std::numeric_limits <value_type>::infinity ();
@@ -49,15 +51,15 @@ namespace hpp {
       robot.currentConfiguration (config);
       robot.computeForwardKinematics();
       robot.updateGeometryPlacements();
-      BodyPairCollisions_t::iterator smallestInterval = bodyPairCollisions_.begin();
+      BodyPairCollisions_t::iterator smallestInterval = bodyPairCollisions.begin();
       if (!validateIntervals<BodyPairCollisions_t, CollisionValidationReportPtr_t>
-            (bodyPairCollisions_, t, interval, report,
+            (bodyPairCollisions, t, interval, report,
              smallestInterval, robot.d()))
         return false;
       // Put the smallest interval first so that, at next iteration,
       // collision pairs with large interval are not computed.
-      if (bodyPairCollisions_.size() > 1 && smallestInterval != bodyPairCollisions_.begin())
-        std::iter_swap (bodyPairCollisions_.begin(), smallestInterval);
+      if (bodyPairCollisions.size() > 1 && smallestInterval != bodyPairCollisions.begin())
+        std::iter_swap (bodyPairCollisions.begin(), smallestInterval);
       return true;
     }
 
@@ -117,7 +119,7 @@ namespace hpp {
           return true;
         }
       }
-      return validateStraightPath(path, reverse, validPart, report);
+      return validateStraightPath(bodyPairCollisions_, path, reverse, validPart, report);
     }
 
     void ContinuousValidation::addObstacle(const CollisionObjectConstPtr_t &object)
@@ -134,10 +136,11 @@ namespace hpp {
       }
     }
 
-    void ContinuousValidation::setPath(const PathPtr_t &path, bool reverse)
+    void ContinuousValidation::setPath(BodyPairCollisions_t& bodyPairCollisions,
+        const PathPtr_t &path, bool reverse)
     {
-      for (BodyPairCollisions_t::iterator itPair = bodyPairCollisions_.begin ();
-      itPair != bodyPairCollisions_.end (); ++itPair) {
+      for (BodyPairCollisions_t::iterator itPair = bodyPairCollisions.begin ();
+      itPair != bodyPairCollisions.end (); ++itPair) {
         (*itPair)->path (path, reverse);
       }
     }
@@ -146,8 +149,7 @@ namespace hpp {
     {
       assert (joint);
       bool removed = false;
-      for (BodyPairCollisions_t::iterator itPair =
-              bodyPairCollisions_.begin();
+      for (BodyPairCollisions_t::iterator itPair = bodyPairCollisions_.begin();
           itPair != bodyPairCollisions_.end(); ++itPair)
       {
         // If jointA == joint and jointB is the root joint.
