@@ -181,13 +181,12 @@ namespace hpp {
       private:
 	std::list <interval_t> intervals_;
       }; // class Intervals
+
+      inline std::ostream& operator<< (std::ostream& os, const Intervals& o)
+      {
+        return o.print (os);
+      }
     } // namespace continuousValidation
   } // namespace core
 } // namespace hpp
-inline std::ostream& operator<<
-(std::ostream& os,
- const hpp::core::continuousValidation::Intervals& intervals)
-{
-  return intervals.print (os);
-}
 #endif // HPP_CORE_CONTINUOUS_VALIDATION_INTERVALS_HH
