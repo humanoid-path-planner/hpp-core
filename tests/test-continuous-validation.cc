@@ -17,6 +17,12 @@
 #define BOOST_TEST_MODULE ContinuousValidation
 
 #include <boost/test/included/unit_test.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+namespace bpt = boost::posix_time;
+
+#ifdef _OPENMP
+# include <omp.h>
+#endif
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/urdf/util.hh>
@@ -117,11 +123,14 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
 {
 
   #include "../tests/random-numbers.hh"
+  i1 = 0;
+  i2 = 0;
 
   // Load robot model (ur5)
   DevicePtr_t robot (Device::create ("ur5"));
   loadRobotModel (robot, "anchor", "ur_description", "ur5_joint_limited_robot",
                   "", "");
+  robot->numberDeviceData (4);
 
   // create steering method
   Problem problem (robot);
@@ -136,9 +145,20 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
   ValidationReportPtr_t collisionReport;
   //  create random paths and test them with different validation instances
+  Configuration_t q1 (robot->configSize()),
+                  q2 (robot->configSize());
+  bpt::ptime t0 = bpt::microsec_clock::local_time();
+  int Nthreads = 1;
+#pragma omp parallel for
   for (size_type i=0; i<n1; ++i) {
-    Configuration_t q1 (m1.row (i1)); ++i1;
-    Configuration_t q2 (m1.row (i1)); ++i1;
+#ifdef _OPENMP
+    Nthreads = omp_get_num_threads();
+#endif
+#pragma omp critical
+    {
+      q1 = m1.row (i1); ++i1;
+      q2 = m1.row (i1); ++i1;
+    }
     PathValidationReportPtr_t report1;
     PathValidationReportPtr_t report2;
     PathValidationReportPtr_t report3;
@@ -149,6 +169,7 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
       bool res2 (progressive->validate  (path, false, validPart, report2));
       bool res3 (dichotomy->validate (path, false, validPart, report3));
 
+#pragma omp critical
       if (!res1) {
         BOOST_CHECK (!res2);
         BOOST_CHECK (!res3);
@@ -163,6 +184,7 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
           hppDout (error, *report1);
         }
       }
+#pragma omp critical
       if (res1) {
         BOOST_CHECK (res2);
         BOOST_CHECK (res3);
@@ -185,6 +207,7 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
       bool res2 (progressive->validate  (path, true, validPart, report2));
       bool res3 (dichotomy->validate (path, true, validPart, report3));
 
+#pragma omp critical
       if (!res1) {
         BOOST_CHECK (!res2);
         BOOST_CHECK (!res3);
@@ -199,6 +222,7 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
           hppDout (error, *report1);
         }
       }
+#pragma omp critical
       if (res1) {
         if (!res2) {
           hppDout (info, "Progressive found a collision where discretized did "
@@ -215,15 +239,22 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
       }
     }
   }
+  bpt::ptime t1 = bpt::microsec_clock::local_time();
+  BOOST_MESSAGE ("Total time (nthreads " << Nthreads << "): " << (t1-t0).total_milliseconds() << "ms");
   // delete problem
 }
 
 template <typename SplineSteeringMethod> void test_spline_steering_method ()
 {
+  #include "../tests/random-numbers.hh"
+  i1 = 0;
+  i2 = 0;
+
   // Load robot model (ur5)
   DevicePtr_t robot (Device::create ("ur5"));
   loadRobotModel (robot, "anchor", "ur_description", "ur5_joint_limited_robot",
                   "", "");
+  robot->numberDeviceData (4);
 
   // create steering method
   Problem problem (robot);
@@ -240,11 +271,25 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
 
   std::vector<int> orders (1, 1);
   //  create random paths and test them with different validation instances
+  Configuration_t q1 (robot->configSize()),
+                  q2 (robot->configSize());
+  vector_t v1 (robot->numberDof()),
+           v2 (robot->numberDof());
+  int Nthreads = 1;
+
+  bpt::ptime t0 = bpt::microsec_clock::local_time();
+#pragma omp parallel for
   for (size_type i=0; i<n2; ++i) {
-    std::cout << i << std::endl;
-    Configuration_t q1 (m1.row (i1)); ++i1;
-    Configuration_t q2 (m1.row (i1)); ++i1;
-    vector_t v1 (m2.row (i2++)), v2 (m2.row (i2++));
+#ifdef _OPENMP
+    Nthreads = omp_get_num_threads();
+#endif
+#pragma omp critical
+    {
+      q1 = m1.row (i1++);
+      q2 = m1.row (i1++);
+      v1 = m2.row (i2++);
+      v2 = m2.row (i2++);
+    }
     PathValidationReportPtr_t report1;
     PathValidationReportPtr_t report2;
     PathValidationReportPtr_t report3;
@@ -255,6 +300,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
       bool res2 (progressive->validate  (path, false, validPart, report2));
       // bool res3 (dichotomy->validate (path, false, validPart, report3));
 
+#pragma omp critical
       if (!res1) {
         BOOST_CHECK (!res2);
         // BOOST_CHECK (!res3);
@@ -269,6 +315,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
           hppDout (error, *report1);
         }*/
       }
+#pragma omp critical
       if (res1) {
         BOOST_CHECK (res2);
         if (!res2) {
@@ -290,6 +337,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
       bool res2 (progressive->validate  (path, true, validPart, report2));
       // bool res3 (dichotomy->validate (path, true, validPart, report3));
 
+#pragma omp critical
       if (!res1) {
         BOOST_CHECK (!res2);
         // BOOST_CHECK (!res3);
@@ -304,6 +352,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
           hppDout (error, *report1);
         }*/
       }
+#pragma omp critical
       if (res1) {
         if (!res2) {
           hppDout (info, "Progressive found a collision where discretized did "
@@ -320,6 +369,8 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
       }
     }
   }
+  bpt::ptime t1 = bpt::microsec_clock::local_time();
+  BOOST_MESSAGE ("Total time (nthreads " << Nthreads << "): " << (t1-t0).total_milliseconds() << "ms");
   // delete problem
 }
 

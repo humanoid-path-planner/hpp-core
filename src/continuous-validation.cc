@@ -119,7 +119,18 @@ namespace hpp {
           return true;
         }
       }
-      return validateStraightPath(bodyPairCollisions_, path, reverse, validPart, report);
+      BodyPairCollisions_t* bpc;
+      if (!bodyPairCollisionPool_.available()) {
+        // Add an element
+        bpc = new BodyPairCollisions_t(bodyPairCollisions_.size());
+        for (std::size_t i = 0; i < bpc->size(); ++i)
+          (*bpc)[i] = bodyPairCollisions_[i]->copy();
+        bodyPairCollisionPool_.push_back (bpc);
+      }
+      bpc = bodyPairCollisionPool_.acquire();
+      bool ret = validateStraightPath(*bpc, path, reverse, validPart, report);
+      bodyPairCollisionPool_.release (bpc);
+      return ret;
     }
 
     void ContinuousValidation::addObstacle(const CollisionObjectConstPtr_t &object)
@@ -132,6 +143,7 @@ namespace hpp {
           ConstObjectStdVector_t objects;
           objects.push_back(object);
           bodyPairCollisions_.push_back(SolidSolidCollision::create (joint, objects, tolerance_));
+          bodyPairCollisionPool_.clear();
         }
       }
     }
@@ -162,6 +174,7 @@ namespace hpp {
             if ((*itPair)->pairs().empty())
             {
               bodyPairCollisions_.erase(itPair);
+              bodyPairCollisionPool_.clear();
             }
           }
         }
@@ -204,6 +217,7 @@ namespace hpp {
           break;
         }
       }
+      bodyPairCollisionPool_.clear();
     }
 
     void ContinuousValidation::init (ContinuousValidationWkPtr_t weak)

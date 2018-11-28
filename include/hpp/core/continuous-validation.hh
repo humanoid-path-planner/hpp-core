@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_CONTINUOUS_VALIDATION_HH
 # define HPP_CORE_CONTINUOUS_VALIDATION_HH
 
+# include <hpp/pinocchio/pool.hh>
+
 # include <hpp/core/fwd.hh>
 # include <hpp/core/path-validation.hh>
 # include <hpp/core/path-validation-report.hh>
@@ -135,6 +137,9 @@ namespace hpp {
       BodyPairCollisions_t bodyPairCollisions_;
       // BodyPairCollision for which collision is disabled
       BodyPairCollisions_t disabledBodyPairCollisions_;
+
+      pinocchio::Pool<BodyPairCollisions_t> bodyPairCollisionPool_;
+
       value_type stepSize_;
       // Initializer as a delegate
       continuousValidation::InitializerPtr_t initializer_;
