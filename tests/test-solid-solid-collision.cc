@@ -43,6 +43,7 @@ using hpp::pinocchio::JointConstPtr_t;
 using hpp::pinocchio::ObjectVector_t;
 using hpp::core::continuousValidation::SolidSolidCollision;
 using hpp::core::continuousValidation::SolidSolidCollisionPtr_t;
+using hpp::core::continuousValidation::CoefficientVelocities_t;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
@@ -56,11 +57,11 @@ using ::se3::JointModelFreeFlyer;
 using ::se3::JointModelSpherical;
 using ::se3::JointIndex;
 
-void display(const se3::Model& model,
-    const std::vector<se3::JointIndex>& joints) {
-  std::vector <se3::JointIndex>::const_iterator it;
-  for (it = joints.begin (); it != joints.end (); ++it) {
-    if (*it > 0) std::cout << model.names[*it];
+void display(const se3::Model& model, const CoefficientVelocities_t& cvs) {
+  CoefficientVelocities_t::const_iterator it;
+  for (it = cvs.begin (); it != cvs.end (); ++it) {
+    size_type jidx = it->joint_->index();
+    if (jidx > 0) std::cout << model.names[jidx];
     else         std::cout << "None";
     std::cout << ", ";
   }
@@ -85,7 +86,7 @@ BOOST_AUTO_TEST_CASE (solid_solid_collision_1)
 
   SolidSolidCollisionPtr_t bpc = SolidSolidCollision::create
     (joint_a, joint_b, 0.001);
-  display(model, bpc->joints());
+  display(model, bpc->coefficients());
 
   ConstObjectStdVector_t obstacles;
   fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
@@ -99,17 +100,17 @@ BOOST_AUTO_TEST_CASE (solid_solid_collision_1)
         robot->geomModelPtr(), robot->geomDataPtr(), idObj));
   obstacles.push_back (collObj);
   bpc = SolidSolidCollision::create (joint_a, obstacles, 0.001);
-  display(model, bpc->joints());
+  display(model, bpc->coefficients());
 
   joint_a = robot->getJointByBodyName ("lleg5_body");
   joint_b = robot->getJointByBodyName ("lleg1_body");
   bpc = SolidSolidCollision::create (joint_a, joint_b, 0.001);
-  display(model, bpc->joints());
+  display(model, bpc->coefficients());
 
   joint_a = robot->getJointByBodyName ("lleg1_body");
   joint_b = robot->getJointByBodyName ("lleg5_body");
   bpc = SolidSolidCollision::create (joint_a, joint_b, 0.001);
-  display(model, bpc->joints());
+  display(model, bpc->coefficients());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
