@@ -104,7 +104,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/linear-constraint.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/quadratic-program.hh
-  include/hpp/core/path-optimization/config-optimization.hh
   include/hpp/core/path-optimization/simple-time-parameterization.hh
   include/hpp/core/path-optimization/spline-gradient-based.hh
   include/hpp/core/path-optimization/spline-gradient-based-abstract.hh

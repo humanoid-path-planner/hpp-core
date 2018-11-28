@@ -53,7 +53,6 @@
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
-#include <hpp/core/path-optimization/config-optimization.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
 #include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/path-validation/discretized-joint-bound.hh>
@@ -232,7 +231,6 @@ namespace hpp {
       // Store path optimization methods in map.
       pathOptimizers.add ("RandomShortcut",     RandomShortcut::create);
       pathOptimizers.add ("PartialShortcut",    pathOptimization::PartialShortcut::create);
-      pathOptimizers.add ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
       pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
 
       // pathOptimizers.add ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
