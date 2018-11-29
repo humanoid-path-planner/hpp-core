@@ -58,7 +58,7 @@ namespace hpp {
       /// Remove a collision pair between a joint and an obstacle
       /// \param joint the joint that holds the inner objects,
       /// \param obstacle the obstacle to remove.
-      /// \notice collision configuration validation needs to know about
+      /// \note collision configuration validation needs to know about
       /// obstacles. This virtual method does nothing for configuration
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint (const JointPtr_t& joint,

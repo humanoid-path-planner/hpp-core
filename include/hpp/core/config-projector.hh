@@ -47,7 +47,7 @@ namespace hpp {
      \f}
      Functions \f$f_i\f$ are \ref constraints::DifferentiableFunction
      "differentiable functions". Vectors \f$f_i^0\f$ are called
-     \b right hand side\b.
+     <b>right hand side</b>.
 
      The constraints are solved numerically by a Newton Raphson like method.
 

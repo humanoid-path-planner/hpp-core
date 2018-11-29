@@ -72,7 +72,7 @@ namespace hpp {
       /// Return a shared pointer to a copy of this and set constraints
       ///
       /// \param constraints constraints to apply to the copy
-      /// \precond *this should not have constraints.
+      /// \pre *this should not have constraints.
       virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const = 0;
 
       /// Static cast into a derived type
@@ -224,9 +224,9 @@ namespace hpp {
       /// \{
 
       /// Get interval of parameters.
-      /// If the instance contains a \ref timeParam_
-      /// this returns timeParam_ (timeRange())
-      /// otherwise, it returns \ref timeRange
+      /// \return the result of applying the \ref timeParameterization to
+      ///         \ref timeRange().
+      /// \note The time parameterization defaults to identity.
       const interval_t& paramRange () const
       {
 	return paramRange_;

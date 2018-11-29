@@ -217,8 +217,8 @@ namespace hpp {
       /// \param object a new object.
       void addObstacle (const CollisionObjectPtr_t &object);
       /// Remove a collision pair between a joint and an obstacle
-      /// \param the joint that holds the inner objects,
-      /// \param the obstacle to remove.
+      /// \param joint that holds the inner objects,
+      /// \param obstacle to remove.
       void removeObstacleFromJoint (const JointPtr_t& joint,
 				    const CollisionObjectConstPtr_t& obstacle);
 
