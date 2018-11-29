@@ -213,14 +213,11 @@ namespace hpp {
               boost::lexical_cast <std::string> (extraCSsize_));
 
         // Write joint names
-        size_type rank = -1;
         StringSequence::OutType ssValues (robot->nbJoints());
         for (size_type iJ = 0; iJ < robot->nbJoints(); ++iJ) {
           JointPtr_t joint = robot->jointAt (iJ);
           // TODO this test is always false
           if (joint->configSize() <= 0) continue;
-          assert (rank < joint->rankInConfiguration());
-          rank = joint->rankInConfiguration();
           ssValues.push_back (joint->name());
         }
         StringSequence* ss = new StringSequence ("joints", this);

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
 //
 // This file is part of hpp-core
@@ -16,17 +16,21 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_DISCRETIZED_PATH_VALIDATION_HH
-# define HPP_CORE_DISCRETIZED_PATH_VALIDATION_HH
-
-# warning "This file is deprecated. Include <hpp/core/path-validation/discretized.hh> instead."
-# include <hpp/core/path-validation/discretized.hh>
+#include <hpp/core/path-validation/discretized.hh>
+#include <hpp/core/path-validation/discretized-joint-bound.hh>
+#include <hpp/core/joint-bound-validation.hh>
 
 namespace hpp {
   namespace core {
-    typedef pathValidation::Discretized      DiscretizedPathValidation     ;
-    typedef pathValidation::DiscretizedPtr_t DiscretizedPathValidationPtr_t;
+    namespace pathValidation {
+      DiscretizedPtr_t createDiscretizedJointBound (
+          const DevicePtr_t& robot, const value_type& stepSize)
+      {
+        DiscretizedPtr_t pv (Discretized::create (stepSize));
+        JointBoundValidationPtr_t jbv (JointBoundValidation::create (robot));
+        pv->add (jbv);
+        return pv;
+      }
+    } // namespace pathValidation
   } // namespace core
 } // namespace hpp
-
-#endif // HPP_CORE_DISCRETIZED_PATH_VALIDATION_HH

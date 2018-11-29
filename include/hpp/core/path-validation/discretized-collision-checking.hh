@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2015 CNRS
-// Authors: Florent Lamiraux
+// Copyright (c) 2018 CNRS
+// Authors: Florent Lamiraux, Joseph Mirabel
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -16,17 +16,24 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_DISCRETIZED_PATH_VALIDATION_HH
-# define HPP_CORE_DISCRETIZED_PATH_VALIDATION_HH
+#ifndef HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH
+# define HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH
 
-# warning "This file is deprecated. Include <hpp/core/path-validation/discretized.hh> instead."
-# include <hpp/core/path-validation/discretized.hh>
+#include <hpp/core/path-validation/discretized.hh>
 
 namespace hpp {
   namespace core {
-    typedef pathValidation::Discretized      DiscretizedPathValidation     ;
-    typedef pathValidation::DiscretizedPtr_t DiscretizedPathValidationPtr_t;
+    namespace pathValidation {
+      /// \addtogroup validation
+      /// \{
+
+      /// Validation of path by collision checking at discretized parameter values
+      DiscretizedPtr_t createDiscretizedCollisionChecking (
+          const DevicePtr_t& robot, const value_type& stepSize);
+
+      /// \}
+    } // namespace pathValidation
   } // namespace core
 } // namespace hpp
 
-#endif // HPP_CORE_DISCRETIZED_PATH_VALIDATION_HH
+#endif // HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH

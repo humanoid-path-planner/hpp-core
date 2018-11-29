@@ -80,8 +80,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/continuous-validation/solid-solid-collision.hh
   include/hpp/core/continuous-validation/initializer.hh
   include/hpp/core/diffusing-planner.hh
-  include/hpp/core/discretized-collision-checking.hh
-  include/hpp/core/discretized-path-validation.hh
+  include/hpp/core/discretized-collision-checking.hh # DEPRECATED
+  include/hpp/core/discretized-path-validation.hh # DEPRECATED
   include/hpp/core/distance/reeds-shepp.hh
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
@@ -93,6 +93,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/joint-bound-validation.hh
   include/hpp/core/equation.hh
   include/hpp/core/path-validations.hh
+  include/hpp/core/path-validation/discretized.hh
+  include/hpp/core/path-validation/discretized-collision-checking.hh
+  include/hpp/core/path-validation/discretized-joint-bound.hh
   include/hpp/core/numerical-constraint.hh
   include/hpp/core/locked-joint.hh
   include/hpp/core/node.hh

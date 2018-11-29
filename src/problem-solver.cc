@@ -44,7 +44,6 @@
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
@@ -56,6 +55,8 @@
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/config-optimization.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized-joint-bound.hh>
 #include <hpp/core/path-validation-report.hh>
 // #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
@@ -129,6 +130,18 @@ namespace hpp {
     template <typename Derived> struct FactoryPP {
       static boost::shared_ptr<Derived> create (const Problem& problem, const value_type& value) { return Derived::create (problem, value); }
     };
+
+    pathValidation::DiscretizedPtr_t createDiscretizedJointBoundAndCollisionChecking (
+        const DevicePtr_t& robot, const value_type& stepSize)
+    {
+      using namespace pathValidation;
+      DiscretizedPtr_t pv (Discretized::create (stepSize));
+      JointBoundValidationPtr_t jbv (JointBoundValidation::create (robot));
+      pv->add (jbv);
+      CollisionValidationPtr_t cv (CollisionValidation::create (robot));
+      pv->add (cv);
+      return pv;
+    }
 
     template <typename T>
     boost::shared_ptr<T> createFromRobot (const Problem& p) { return T::create(p.robot()); }
@@ -230,7 +243,10 @@ namespace hpp {
       pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::BernsteinBasis, 3>::create);
 
       // Store path validation methods in map.
-      pathValidations.add ("Discretized", DiscretizedCollisionChecking::create);
+      pathValidations.add ("Discretized", pathValidation::createDiscretizedCollisionChecking);
+      pathValidations.add ("DiscretizedCollision", pathValidation::createDiscretizedCollisionChecking);
+      pathValidations.add ("DiscretizedJointBound", pathValidation::createDiscretizedJointBound);
+      pathValidations.add ("DiscretizedCollisionAndJointBound", createDiscretizedJointBoundAndCollisionChecking);
       pathValidations.add ("Progressive", continuousValidation::Progressive::create);
       pathValidations.add ("Dichotomy",   continuousValidation::Dichotomy::create);
 

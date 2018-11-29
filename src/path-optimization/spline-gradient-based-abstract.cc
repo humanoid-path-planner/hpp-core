@@ -202,14 +202,26 @@ namespace hpp {
       template <int _PB, int _SO>
       typename SplineGradientBasedAbstract<_PB, _SO>::Reports_t
       SplineGradientBasedAbstract<_PB, _SO>::validatePath
-      (const Splines_t& splines, bool stopAtFirst) const
+      (const Splines_t& splines,
+       std::vector<std::size_t>& reordering,
+       bool stopAtFirst,
+       bool reorder) const
       {
         assert (validations_.size() == splines.size());
         HPP_SCOPE_TIMECOUNTER(SGB_validatePath);
 	PathPtr_t validPart;
 	PathValidationReportPtr_t report;
 	Reports_t reports;
-        for (std::size_t i = 0; i < splines.size(); ++i) {
+        assert(reordering.size() == splines.size());
+#ifndef NDEBUG
+        std::vector<bool> check_ordering (reordering.size(), false);
+#endif
+        for (std::size_t j = 0; j < splines.size(); ++j) {
+          const std::size_t& i = reordering[j];
+#ifndef NDEBUG
+          assert(!check_ordering[i]);
+          check_ordering[i] = true;
+#endif
 	  if (!validations_[i]->validate (splines[i], false, validPart, report)) {
 	    HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport, *report);
 	    reports.push_back
@@ -218,6 +230,14 @@ namespace hpp {
             if (stopAtFirst) break;
 	  }
 	}
+        if (reorder && !reports.empty()) {
+          const std::size_t k = reports.front().second;
+          // Set reordering to [ k, ..., n-1, 0, ..., k-1]
+          for (std::size_t i = 0; i < reordering.size()-k; ++i)
+            reordering[i] = k + i;
+          for (std::size_t i = 0; i < k; ++i)
+            reordering[reordering.size()-k + i] = i;
+        }
         HPP_DISPLAY_TIMECOUNTER(SGB_validatePath);
         return reports;
       }
