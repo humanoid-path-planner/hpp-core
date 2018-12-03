@@ -149,7 +149,7 @@ namespace hpp {
         /// \retval distanceLowerBound
         /// \retval report the collision validation report
         /// \return true if the bodies are not in collision, else false
-        bool computeDistanceLowerBound(value_type &distanceLowerBound,
+        virtual bool computeDistanceLowerBound(value_type &distanceLowerBound,
           CollisionValidationReportPtr_t& report, pinocchio::DeviceData& data) const;
 
       }; // class BodyPairCollision
