@@ -62,6 +62,7 @@ path-validation/discretized-joint-bound.cc
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/quadratic-program.cc
+  path-optimization/random-shortcut.cc
   path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
   path-planner/k-prm-star.cc
@@ -80,7 +81,6 @@ path-validation/discretized-joint-bound.cc
   parser/roadmap-factory.cc #
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
-  random-shortcut.cc
   reeds-shepp-path.cc
   relative-motion.cc  
   kinodynamic-path.cc

@@ -104,6 +104,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/linear-constraint.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/quadratic-program.hh
+  include/hpp/core/path-optimization/random-shortcut.hh
   include/hpp/core/path-optimization/simple-time-parameterization.hh
   include/hpp/core/path-optimization/spline-gradient-based.hh
   include/hpp/core/path-optimization/spline-gradient-based-abstract.hh
@@ -121,7 +122,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
-  include/hpp/core/random-shortcut.hh
+  include/hpp/core/random-shortcut.hh # DEPRECATED
   include/hpp/core/roadmap.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method/fwd.hh

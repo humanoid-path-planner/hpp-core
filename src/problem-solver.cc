@@ -53,13 +53,13 @@
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
+#include <hpp/core/path-optimization/random-shortcut.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
 #include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/path-validation/discretized-joint-bound.hh>
 #include <hpp/core/path-validation-report.hh>
 // #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
-#include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
@@ -229,7 +229,7 @@ namespace hpp {
       steeringMethods.add ("Hermite",    steeringMethod::Hermite::create);
 
       // Store path optimization methods in map.
-      pathOptimizers.add ("RandomShortcut",     RandomShortcut::create);
+      pathOptimizers.add ("RandomShortcut",     pathOptimization::RandomShortcut::create);
       pathOptimizers.add ("PartialShortcut",    pathOptimization::PartialShortcut::create);
       pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
 

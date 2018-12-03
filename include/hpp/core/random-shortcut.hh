@@ -19,33 +19,14 @@
 #ifndef HPP_CORE_RANDOM_SHORTCUT_HH
 # define HPP_CORE_RANDOM_SHORTCUT_HH
 
-# include <hpp/core/path-optimizer.hh>
+# warning "This file is deprecated. Include <hpp/constraints/explicit.hh> instead."
+# include <hpp/core/path-optimization/random-shortcut.hh>
+# include <hpp/core/deprecated.hh>
 
 namespace hpp {
   namespace core {
-    /// \addtogroup path_optimization
-    /// \{
-
-    /// Random shortcut
-    ///
-    /// Path optimizer that iteratively samples random configurations along a
-    /// path and that tries to connect these configurations by a call to
-    /// the steering method.
-    ///
-    /// \note The optimizer assumes that the input path is a vector of optimal
-    ///       paths for the distance function.
-    class HPP_CORE_DLLAPI RandomShortcut : public PathOptimizer
-    {
-    public:
-      /// Return shared pointer to new object.
-      static RandomShortcutPtr_t create (const Problem& problem);
-
-      /// Optimize path
-      virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
-    protected:
-      RandomShortcut (const Problem& problem);
-    }; // class RandomShortcut
-    /// \}
+    typedef HPP_CORE_DEPRECATED pathOptimization::RandomShortcut      RandomShortcut     ;
+    typedef HPP_CORE_DEPRECATED pathOptimization::RandomShortcutPtr_t RandomShortcutPtr_t;
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_RANDOM_SHORTCUT_HH
