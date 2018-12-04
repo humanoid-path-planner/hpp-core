@@ -223,10 +223,7 @@ namespace hpp {
           check_ordering[i] = true;
 #endif
 	  if (!validations_[i]->validate (splines[i], false, validPart, report)) {
-	    HPP_STATIC_CAST_REF_CHECK (CollisionPathValidationReport, *report);
-	    reports.push_back
-	      (std::make_pair (HPP_STATIC_PTR_CAST
-			       (CollisionPathValidationReport, report), i));
+	    reports.push_back (std::make_pair (report, i));
             if (stopAtFirst) break;
 	  }
 	}

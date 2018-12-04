@@ -304,7 +304,7 @@ namespace hpp {
       (const std::size_t idxSpline,
        const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
        const SplineOptimizationData& sod,
-       const CollisionPathValidationReportPtr_t& report,
+       const PathValidationReportPtr_t& report,
        LinearConstraint& collision,
        CollisionFunctions& functions) const
       {

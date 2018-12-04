@@ -44,7 +44,7 @@ namespace hpp {
        static Ptr_t create
        (const DevicePtr_t& robot, const SplinePtr_t& freeSpline,
         const SplinePtr_t& collSpline,
-        const CollisionPathValidationReportPtr_t& report)
+        const PathValidationReportPtr_t& report)
        {
          CollisionFunction* ptr = new CollisionFunction
            (robot, freeSpline, collSpline, report);
@@ -72,7 +72,7 @@ namespace hpp {
        CollisionFunction (const DevicePtr_t& robot,
                           const SplinePtr_t& freeSpline,
                           const SplinePtr_t& collSpline,
-                          const CollisionPathValidationReportPtr_t& report) :
+                          const PathValidationReportPtr_t& report) :
          DifferentiableFunction (robot->configSize (), robot->numberDof (),
                                  LiegroupSpace::R1 (), ""),
          qFree_ (), qColl_ (), robot_ (robot), object1_ (), object2_ (),
@@ -83,11 +83,14 @@ namespace hpp {
           qColl_ = (*collSpline) (tColl, success);
           assert(success);
 
-          HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
-                                     *(report->configurationReport));
-          CollisionValidationReportPtr_t collisionReport
-            (HPP_STATIC_PTR_CAST (CollisionValidationReport,
-                                  report->configurationReport));
+          CollisionValidationReportPtr_t collisionReport =
+            (HPP_DYNAMIC_PTR_CAST (CollisionValidationReport,
+                                   report->configurationReport));
+          if (!collisionReport) {
+            std::stringstream ss;
+            ss << "Expected a CollisionValidationReport. Got a " << *report->configurationReport;
+            throw std::logic_error (ss.str());
+          }
           object1_ = collisionReport->object1;
           object2_ = collisionReport->object2;
 

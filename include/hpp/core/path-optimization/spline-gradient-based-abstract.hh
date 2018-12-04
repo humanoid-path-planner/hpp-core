@@ -126,7 +126,7 @@ namespace hpp {
           /// each spline.
           virtual void initializePathValidation(const Splines_t& splines);
 
-          typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
+          typedef std::vector <std::pair <PathValidationReportPtr_t,
                   std::size_t> > Reports_t;
           /// Calls each validations_ on the corresponding spline.
           /// \param reordering order in which the path validation is run.

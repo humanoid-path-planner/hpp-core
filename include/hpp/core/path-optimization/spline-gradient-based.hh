@@ -106,14 +106,13 @@ namespace hpp {
           bool checkOptimum_;
 
         private:
-          typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
-                  std::size_t> > Reports_t;
+          typedef typename Base::Reports_t Reports_t;
           struct CollisionFunctions;
 
           void addCollisionConstraint (const std::size_t idxSpline,
               const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
               const SplineOptimizationData& sod,
-              const CollisionPathValidationReportPtr_t& report,
+              const PathValidationReportPtr_t& report,
               LinearConstraint& collision, CollisionFunctions& functions) const;
 
           bool findNewConstraint (LinearConstraint& constraint,
