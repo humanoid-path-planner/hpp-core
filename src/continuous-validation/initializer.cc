@@ -66,8 +66,10 @@ namespace hpp {
 
           if (_bp == bodyPairMap.end())
           {
-            joint1 = JointPtr_t(new Joint(robot, jp.first));
-            joint2 = JointPtr_t(new Joint(robot, jp.second));
+            joint1 = Joint::create (robot, jp.first );
+            joint2 = Joint::create (robot, jp.second);
+            if (!joint2) joint2.swap (joint1);
+            assert(joint2);
             continuousVal->bodyPairCollisions_.push_back(
                 SolidSolidCollision::create(joint2, joint1, continuousVal->tolerance_));
             bodyPairMap[jp] = continuousVal->bodyPairCollisions_.back();

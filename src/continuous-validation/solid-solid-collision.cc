@@ -115,8 +115,8 @@ namespace hpp {
         JointIndices_t joints;
 
         const se3::Model& model = joint_a_->robot ()->model();
-        const JointIndex id_a = joint_a_->index(),
-          id_b = (joint_b_ ? joint_b_->index() : 0);
+        const JointIndex id_a = indexJointA(),
+                         id_b = indexJointB();
         JointIndex ia = id_a, ib = id_b;
 
         std::vector<JointIndex> fromA, fromB;
@@ -160,11 +160,12 @@ namespace hpp {
         std::size_t i = 0;
         while (i + 1 < joints.size()) {
           if (model.parents[joints[i]] == joints[i+1])
-            child = JointPtr_t (new Joint(robot, joints[i]));
+            child = Joint::create (robot, joints[i]);
           else if (model.parents[joints[i+1]] == joints[i])
-            child = JointPtr_t (new Joint(robot, joints[i+1]));
+            child = Joint::create (robot, joints[i+1]);
           else
             abort ();
+          assert(child);
           coefficients_ [i].joint_ = child;
           // Go through all known types of joints
           //  TODO: REPLACE THESE FUNCTIONS WITH NEW API
@@ -185,22 +186,19 @@ namespace hpp {
         coefficients_ ()
       {
         assert (joint_a);
-        assert (joint_b);
-        if (joint_b_->robot () != joint_a_->robot ()) {
+        if (joint_b && joint_b_->robot () != joint_a_->robot ()) {
           throw std::runtime_error
             ("Joints do not belong to the same device.");
         }
-        if (joint_a_->index() == joint_b_->index()) {
+        if (indexJointA() == indexJointB()) {
           throw std::runtime_error ("Bodies should be different");
         }
         if (tolerance < 0) {
           throw std::runtime_error ("tolerance should be non-negative.");
         }
 
-        BodyPtr_t body_a = joint_a_->linkedBody ();
-        BodyPtr_t body_b = joint_b_->linkedBody ();
-        assert (body_a);
-        assert (body_b);
+        if (joint_a_) { assert(joint_a_->linkedBody ()); }
+        if (joint_b_) { assert(joint_b_->linkedBody ()); }
         // Find sequence of joints
         JointIndices_t joints (computeSequenceOfJoints ());
         computeCoefficients (joints);
