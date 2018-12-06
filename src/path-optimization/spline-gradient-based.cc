@@ -643,7 +643,7 @@ namespace hpp {
             "Threshold used to check whether the Jacobian "
             "contains rows of zeros, in which case the "
             "corresponding DoF is considered passive.",
-            Parameter(0.01)));
+            Parameter(-1.)));
       Problem::declareParameter (ParameterDescription (Parameter::INT,
             "SplineGradientBased/maxIterations",
             "Maximal number of iterations. Once reached the algorithm "
