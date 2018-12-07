@@ -530,6 +530,9 @@ namespace hpp {
       /// Set path validation by calling path validation factory
       void initPathValidation ();
 
+      /// Set config validation by calling config validation factories
+      void initConfigValidation ();
+
       /// Initialize the problem target by calling the path validation factory
       virtual void initProblemTarget ();
 

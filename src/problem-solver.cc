@@ -359,6 +359,21 @@ namespace hpp {
       problem_->pathValidation (pathValidation);
     }
 
+    void ProblemSolver::initConfigValidation ()
+    {
+      if (!robot_) throw std::logic_error ("You must provide a robot first");
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      problem_->resetConfigValidations();
+      for (ConfigValidationTypes_t::const_iterator it =
+          configValidationTypes_.begin (); it != configValidationTypes_.end ();
+          ++it)
+      {
+        ConfigValidationPtr_t configValidation =
+          configValidations.get (*it) (robot_);
+        problem_->addConfigValidation (configValidation);
+      }
+    }
+
     void ProblemSolver::pathProjectorType (const std::string& type,
 					    const value_type& tolerance)
     {
@@ -389,11 +404,7 @@ namespace hpp {
       configValidationTypes_.push_back (type);
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       // If a robot is present, set config validation methods
-      if (robot_) {
-        ConfigValidationPtr_t configValidation =
-	      configValidations.get (type) (robot_);
-        problem_->addConfigValidation (configValidation);
-      }
+      initConfigValidation ();
     }
 
     void ProblemSolver::clearConfigValidations ()
@@ -682,19 +693,9 @@ namespace hpp {
       // Set constraints
       problem_->constraints (constraints_);
       // Set path validation method
-      PathValidationPtr_t pathValidation =
-	pathValidations.get (pathValidationType_)
-        (robot_, pathValidationTolerance_);
-      problem_->pathValidation (pathValidation);
+      initPathValidation ();
       // Set config validation methods
-      for (ConfigValidationTypes_t::const_iterator it =
-          configValidationTypes_.begin (); it != configValidationTypes_.end ();
-          ++it)
-      {
-        ConfigValidationPtr_t configValidation =
-	      configValidations.get (*it) (robot_);
-        problem_->addConfigValidation (configValidation);
-      }
+      initConfigValidation ();
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
       // Distance to obstacles
