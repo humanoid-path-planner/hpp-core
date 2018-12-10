@@ -374,6 +374,13 @@ namespace hpp {
       }
     }
 
+    void ProblemSolver::initValidations ()
+    {
+      initPathValidation ();
+      initConfigValidation ();
+      problem_->collisionObstacles(collisionObstacles_);
+    }
+
     void ProblemSolver::pathProjectorType (const std::string& type,
 					    const value_type& tolerance)
     {
