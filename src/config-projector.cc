@@ -44,6 +44,11 @@
 namespace hpp {
   namespace core {
     using constraints::solver::BySubstitution;
+    typedef constraints::solver::lineSearch::Backtracking Backtracking_t;
+    typedef constraints::solver::lineSearch::ErrorNormBased ErrorNormBased_t;
+    typedef constraints::solver::lineSearch::FixedSequence FixedSequence_t;
+    typedef constraints::solver::lineSearch::Constant Constant_t;
+
 
     namespace {
 
@@ -279,16 +284,37 @@ namespace hpp {
       const size_type maxIterSave = maxIterations();
       if (maxIter != 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
-      lastIsOptional(false);
-      BySubstitution::Status status = (BySubstitution::Status)
-        solverSolve (configuration);
-      lastIsOptional(true);
+      BySubstitution::Status status;
+      switch (lineSearchType_) {
+        case Backtracking  : {
+                               Backtracking_t ls;
+                               status = solver_->solve(configuration, true, ls);
+                               break;
+                             }
+        case ErrorNormBased: {
+                               ErrorNormBased_t ls;
+                               status = solver_->solve(configuration, true, ls);
+                               break;
+                             }
+        case FixedSequence : {
+                               FixedSequence_t ls;
+                               status = solver_->solve(configuration, true, ls);
+                               break;
+                             }
+        case Constant      : {
+                               Constant_t ls;
+                               status = solver_->solve(configuration, true, ls);
+                               break;
+                             }
+      }
       maxIterations(maxIterSave);
       hppDout (info, "After optimization: " << configuration.transpose ());
       if (status == BySubstitution::SUCCESS)
         return true;
+      else if (status == BySubstitution::INFEASIBLE && isSatisfied (configuration))
+        return true;
       else {
-	hppDout (info, "Optimization failed.");
+        hppDout (info, "Optimization failed.");
         return false;
       }
     }
@@ -380,19 +406,19 @@ namespace hpp {
     {
       switch (lineSearchType_) {
         case Backtracking  : {
-                               constraints::solver::lineSearch::Backtracking ls;
+                               Backtracking_t ls;
                                return solver_->oneStep(config, ls);
                              }
         case ErrorNormBased: {
-                               constraints::solver::lineSearch::ErrorNormBased ls;
+                               ErrorNormBased_t ls;
                                return solver_->oneStep(config, ls);
                              }
         case FixedSequence : {
-                               constraints::solver::lineSearch::FixedSequence ls;
+                               FixedSequence_t ls;
                                return solver_->oneStep(config, ls);
                              }
         case Constant : {
-                          constraints::solver::lineSearch::Constant ls;
+                          Constant_t ls;
                           return solver_->oneStep(config, ls);
                         }
       }
@@ -402,11 +428,6 @@ namespace hpp {
     inline int ConfigProjector::solverSolve (
         ConfigurationOut_t config) const
     {
-      typedef constraints::solver::lineSearch::Backtracking Backtracking_t;
-      typedef constraints::solver::lineSearch::ErrorNormBased ErrorNormBased_t;
-      typedef constraints::solver::lineSearch::FixedSequence FixedSequence_t;
-      typedef constraints::solver::lineSearch::Constant Constant_t;
-
       switch (lineSearchType_) {
         case Backtracking  : {
                                Backtracking_t ls;
