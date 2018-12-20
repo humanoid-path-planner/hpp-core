@@ -1,5 +1,7 @@
-/** \mainpage
-    \section hpp_core_sec_intro Introduction
+/** \mainpage hpp-core documentation
+    \anchor hpp_core_documentation
+
+    \par Introduction
 
     This package implements path planning algorithms for robots as
     kinematic chains.  Kinematic chains are represented by class
@@ -16,7 +18,7 @@
     For clarity, classes are distributed into <a
     href="modules.html">modules</a>.
 
-    \section hpp_core_sec_embedding Embedding hpp-core into an application
+    \par Embedding hpp-core into an application
 
     Class hpp::core::ProblemSolver is a container aiming at embedding
     hpp-core into an application. It stores elements of the problem

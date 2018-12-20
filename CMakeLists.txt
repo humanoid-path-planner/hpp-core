@@ -23,6 +23,7 @@ SET(CXX_DISABLE_WERROR TRUE)
 SET(DOXYGEN_USE_MATHJAX YES)
 
 INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/test.cmake)
 
@@ -30,25 +31,12 @@ SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
   "Implement basic classes for canonical path planning for kinematic chains."
   )
-SET(PROJECT_URL "")
+SET(PROJECT_URL "https://github.com/humanoid-path-planner/hpp-core")
 
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-SETUP_PROJECT()
-
-# Activate hpp-util logging if requested
-SET (HPP_DEBUG FALSE CACHE BOOL "trigger hpp-util debug output")
-IF (HPP_DEBUG)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
-ENDIF()
-# Activate hpp-util logging if requested
-SET (HPP_BENCHMARK FALSE CACHE BOOL "trigger hpp-util benchmark output")
-IF (HPP_BENCHMARK)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_ENABLE_BENCHMARK")
-ENDIF()
-# Ask Doxygen to create a tree view in html documentation
-SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
+SETUP_HPP_PROJECT()
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
@@ -176,4 +164,4 @@ INSTALL (FILES doc/continuous-collision-checking.pdf
 doc/continuous-validation.pdf
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
 
-SETUP_PROJECT_FINALIZE()
+SETUP_HPP_PROJECT_FINALIZE()
