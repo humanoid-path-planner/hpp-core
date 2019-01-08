@@ -223,7 +223,7 @@ namespace hpp {
     }
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
-      collisionRequest_(false, 1, false),
+      collisionRequest_(),
       robot_ (robot),
       parameterizedPairs_(), disabledPairs_(),
       checkParameterized_(false),
