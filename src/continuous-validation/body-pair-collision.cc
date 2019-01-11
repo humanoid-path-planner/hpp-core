@@ -148,8 +148,8 @@ namespace hpp {
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
-        static const fcl::CollisionRequest request (1, false, true, 1, false,
-          true, fcl::GST_INDEP);
+        static const fcl::CollisionRequest request (false, 1, true);
+        assert (request.enable_distance_lower_bound == true);
         for (CollisionPairs_t::const_iterator _pair = pairs_.begin();
             _pair != pairs_.end(); ++_pair) {
           pinocchio::FclConstCollisionObjectPtr_t object_a = _pair->first ->fcl (data);
