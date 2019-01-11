@@ -35,10 +35,9 @@ namespace hpp {
 
     /// Validate interval centered on a path parameter
     /// \param config Configuration at abscissa tmin on the path.
-    /// \param tmin parameter value in the path interval of definition
-    /// \retval tmin lower bound of valid interval if reverve is true,
-    ///              upper bound of valid interval if reverse is false.
-    ///              other bound of valid interval is input tmin.
+    /// \param t parameter value in the path interval of definition
+    /// \retval interval interval validated for all validation elements
+    /// \retval report reason why the interval is not valid,
     /// \return true if the configuration is collision free for this parameter
     ///         value, false otherwise.
     bool ContinuousValidation::validateConfiguration(const Configuration_t &config, const value_type &t,

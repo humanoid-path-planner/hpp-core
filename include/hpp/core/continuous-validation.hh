@@ -139,6 +139,18 @@ namespace hpp {
       virtual bool validateStraightPath (const PathPtr_t& path,
         bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report) = 0;
 
+      /// Validate a set of intervals for a given parameter along a path
+      ///
+      /// \tparam IntervalValidations type of container of validation elements
+      ///         (for instance validation for collision between a pair of
+      ///         bodies),
+      /// \tparam ValidationReportTypePtr_t type of validation report produced
+      ///         in case non validation. Should derive from ValidationReport.
+      /// \param objects able to validate an interval for collision,
+      /// \param t center of the interval to be validated,
+      /// \retval interval interval validated for all objects,
+      /// \retval smallestInterval iterator to the validation element that
+      ///         returned the smallest interval.
       template<typename IntervalValidations, typename ValidationReportTypePtr_t>
       bool validateIntervals
         (IntervalValidations& validations, const value_type &t,
