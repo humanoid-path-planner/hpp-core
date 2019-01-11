@@ -42,6 +42,7 @@ namespace hpp {
 
         if (valid_) {
           interval = path_->timeRange ();
+          assert (interval.second > interval.first);
           return true;
         }
         continuous_interval iclInterval (interval.first, interval.second,
@@ -50,6 +51,7 @@ namespace hpp {
         {
           // TODO interval could probably be enlarge using validInterval_
           // interval = validInterval_;
+          assert (interval.second > interval.first);
           return true;
         }
 
@@ -86,6 +88,7 @@ namespace hpp {
           path_->timeRange ().second, icl::interval_bounds::closed());
         if (icl::contains (validInterval_, iclInterval))
           valid_ = true;
+        assert (interval.second > interval.first);
         return true;
       }
 

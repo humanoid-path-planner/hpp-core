@@ -46,14 +46,13 @@ namespace hpp {
     {
       interval.first = -std::numeric_limits <value_type>::infinity ();
       interval.second = std::numeric_limits <value_type>::infinity ();
-      interval_t tmpInt;
       pinocchio::DeviceSync robot (robot_);
       robot.currentConfiguration (config);
       robot.computeForwardKinematics();
       robot.updateGeometryPlacements();
       BodyPairCollisions_t::iterator smallestInterval = bodyPairCollisions_.begin();
       if (!validateIntervals<BodyPairCollisions_t, CollisionValidationReportPtr_t>
-            (bodyPairCollisions_, t, interval, tmpInt, report,
+            (bodyPairCollisions_, t, interval, report,
              smallestInterval, robot.d()))
         return false;
       // Put the smallest interval first so that, at next iteration,
