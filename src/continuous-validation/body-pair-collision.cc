@@ -163,6 +163,7 @@ namespace hpp {
           }
           if (result.distance_lower_bound < distanceLowerBound) {
             distanceLowerBound = result.distance_lower_bound;
+            assert (distanceLowerBound > 0);
           }
         }
         return true;
