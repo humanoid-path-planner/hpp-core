@@ -52,15 +52,17 @@ namespace hpp {
 
     void DistanceBetweenObjects::computeDistances ()
     {
+      distanceResults_.resize (collisionPairs_.size());
+      std::size_t rank = 0;
       fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
       for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
 	   itCol != collisionPairs_.end (); ++itCol) {
     const CollisionObjectConstPtr_t& obj1 = itCol->first;
     const CollisionObjectConstPtr_t& obj2 = itCol->second;
-    fcl::DistanceResult fclDistance;
+    distanceResults_[rank].clear ();
     fcl::distance (obj1->fcl (), obj2->fcl (),
-               distanceRequest, fclDistance);
-    distanceResults_.push_back(fclDistance);
+               distanceRequest, distanceResults_[rank]);
+    ++rank;
       }
     }
 
