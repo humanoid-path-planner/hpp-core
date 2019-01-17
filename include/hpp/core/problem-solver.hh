@@ -51,7 +51,7 @@ namespace hpp {
     DistanceBuilder_t;
     typedef boost::function <SteeringMethodPtr_t (const Problem&) >
       SteeringMethodBuilder_t;
-    typedef std::vector<std::pair<std::string, FclCollisionObjectSharePtr_t > > AffordanceObjects_t;
+    typedef std::vector<std::pair < std::string, CollisionObjectPtr_t > > AffordanceObjects_t;
     typedef vector3_t AffordanceConfig_t;
 
     /// Set and solve a path planning problem
@@ -317,6 +317,17 @@ namespace hpp {
 	return maxIterPathPlanning_;
       }
 
+      /// set time out for the path planning ( in seconds)
+      void setTimeOutPathPlanning(double timeOut){
+        timeOutPathPlanning_ = timeOut;
+      }
+
+      /// set time out for the path planning ( in seconds)
+      double getTimeOutPathPlanning(){
+        return timeOutPathPlanning_;
+      }
+
+
       /// Set error threshold in config projector
       void errorThreshold (const value_type& threshold);
       /// Get errorimal number of threshold in config projector
@@ -519,6 +530,12 @@ namespace hpp {
       /// Set path validation by calling path validation factory
       void initPathValidation ();
 
+      /// Set config validation by calling config validation factories
+      void initConfigValidation ();
+
+      /// Initialize the config and path validations and add the obstacles.
+      void initValidations ();
+
       /// Initialize the problem target by calling the path validation factory
       virtual void initProblemTarget ();
 
@@ -640,6 +657,8 @@ namespace hpp {
       size_type maxIterProjection_;
       /// Maximal number of iterations for path planner
       unsigned long int maxIterPathPlanning_;
+      /// Maximal time allocated to the path-planner
+      double timeOutPathPlanning_;
       /// Map of passive dofs
       segmentsMap_t passiveDofsMap_;
       /// Map of CenterOfMassComputation

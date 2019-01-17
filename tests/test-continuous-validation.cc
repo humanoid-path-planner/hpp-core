@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-constraints. If not, see <http://www.gnu.org/licenses/>.
 
-#define BOOST_TEST_MODULE ContinuousCollisionChecking
+#define BOOST_TEST_MODULE ContinuousValidation
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -23,9 +23,9 @@
 
 #include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/collision-validation.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
-#include <hpp/core/continuous-collision-checking/dichotomy.hh>
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/continuous-validation/progressive.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/straight.hh>
@@ -47,7 +47,7 @@ using hpp::core::ConfigurationShooterPtr_t;
 using hpp::core::ConfigValidationPtr_t;
 using hpp::core::continuousCollisionChecking::Dichotomy;
 using hpp::core::continuousCollisionChecking::Progressive;
-using hpp::core::DiscretizedCollisionChecking;
+using hpp::core::pathValidation::createDiscretizedCollisionChecking;
 using hpp::core::PathPtr_t;
 using hpp::core::PathValidationPtr_t;
 using hpp::core::PathValidationReportPtr_t;
@@ -110,10 +110,10 @@ BOOST_AUTO_TEST_CASE (random)
 }
 #else
 
-static matrix_t m1 (220, 6); 
-static matrix_t m2 (20, 6); 
+static matrix_t m1 (220, 6);
+static matrix_t m2 (20, 6);
 
-BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
+BOOST_AUTO_TEST_CASE (continuous_validation_straight)
 {
 
   #include "../tests/random-numbers.hh"
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE (continuous_collision_checking_straight)
   // create path validation objects
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
   PathValidationPtr_t progressive (Progressive::create (robot, 0.001));
-  PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
+  PathValidationPtr_t discretized (createDiscretizedCollisionChecking
                                    (robot, 0.05));
   // create configuration validation instance
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
@@ -232,7 +232,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
   // create path validation objects
   // PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
   PathValidationPtr_t progressive (Progressive::create (robot, 0.01));
-  PathValidationPtr_t discretized (DiscretizedCollisionChecking::create
+  PathValidationPtr_t discretized (createDiscretizedCollisionChecking
                                    (robot, 0.05));
   // create configuration validation instance
   ConfigValidationPtr_t configValidation (CollisionValidation::create (robot));
@@ -323,7 +323,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
   // delete problem
 }
 
-BOOST_AUTO_TEST_CASE (continuous_collision_checking_spline)
+BOOST_AUTO_TEST_CASE (continuous_validation_spline)
 {
   test_spline_steering_method<hpp::core::steeringMethod::Spline<hpp::core::path::BernsteinBasis, 3> >();
 }

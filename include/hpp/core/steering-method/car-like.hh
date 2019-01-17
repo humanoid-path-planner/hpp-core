@@ -43,8 +43,6 @@ namespace hpp {
 	virtual ~CarLike () {}
 
 	  /// Set the wheels
-          /// \param computeRadius when true, the turning radius is computed
-          ///        from the position of the wheels.
           void setWheelJoints (const std::vector<JointPtr_t> wheels)
           {
             wheels_ = wheels;

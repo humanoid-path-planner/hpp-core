@@ -46,6 +46,21 @@ namespace hpp {
 	return os;
       }
     }; // class CollisionValidationReport
+
+    /// Validate a configuration with respect to collision
+    ///
+    struct HPP_CORE_DLLAPI AllCollisionsValidationReport : public CollisionValidationReport
+    {
+      std::vector<CollisionValidationReportPtr_t> collisionReports;
+      virtual std::ostream& print (std::ostream& os) const
+      {
+        os <<" Number of collisions : "<<collisionReports.size()<<".";
+        for(std::vector<CollisionValidationReportPtr_t>::const_iterator it = collisionReports.begin() ; it != collisionReports.end() ; ++it){
+          (*it)->print(os);
+        }
+        return os;
+      }
+    }; // class AllCollisionValidationReport
     /// \}
   } // namespace core
 } // namespace hpp

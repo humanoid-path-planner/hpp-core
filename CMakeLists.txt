@@ -23,6 +23,7 @@ SET(CXX_DISABLE_WERROR TRUE)
 SET(DOXYGEN_USE_MATHJAX YES)
 
 INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/test.cmake)
 
@@ -30,25 +31,12 @@ SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
   "Implement basic classes for canonical path planning for kinematic chains."
   )
-SET(PROJECT_URL "")
+SET(PROJECT_URL "https://github.com/humanoid-path-planner/hpp-core")
 
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-SETUP_PROJECT()
-
-# Activate hpp-util logging if requested
-SET (HPP_DEBUG FALSE CACHE BOOL "trigger hpp-util debug output")
-IF (HPP_DEBUG)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
-ENDIF()
-# Activate hpp-util logging if requested
-SET (HPP_BENCHMARK FALSE CACHE BOOL "trigger hpp-util benchmark output")
-IF (HPP_BENCHMARK)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_ENABLE_BENCHMARK")
-ENDIF()
-# Ask Doxygen to create a tree view in html documentation
-SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
+SETUP_HPP_PROJECT()
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
@@ -69,12 +57,19 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/constraint.hh
   include/hpp/core/constraint-set.hh
   include/hpp/core/container.hh
-  include/hpp/core/continuous-collision-checking.hh
-  include/hpp/core/continuous-collision-checking/dichotomy.hh
-  include/hpp/core/continuous-collision-checking/progressive.hh
+  include/hpp/core/continuous-collision-checking.hh # DEPRECATED
+  include/hpp/core/continuous-collision-checking/dichotomy.hh # DEPRECATED
+  include/hpp/core/continuous-collision-checking/progressive.hh # DEPRECATED
+  include/hpp/core/continuous-validation.hh
+  include/hpp/core/continuous-validation/dichotomy.hh
+  include/hpp/core/continuous-validation/progressive.hh
+  include/hpp/core/continuous-validation/interval-validation.hh
+  include/hpp/core/continuous-validation/body-pair-collision.hh
+  include/hpp/core/continuous-validation/solid-solid-collision.hh
+  include/hpp/core/continuous-validation/initializer.hh
   include/hpp/core/diffusing-planner.hh
-  include/hpp/core/discretized-collision-checking.hh
-  include/hpp/core/discretized-path-validation.hh
+  include/hpp/core/discretized-collision-checking.hh # DEPRECATED
+  include/hpp/core/discretized-path-validation.hh # DEPRECATED
   include/hpp/core/distance/reeds-shepp.hh
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
@@ -86,6 +81,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/joint-bound-validation.hh
   include/hpp/core/equation.hh
   include/hpp/core/path-validations.hh
+  include/hpp/core/path-validation/discretized.hh
+  include/hpp/core/path-validation/discretized-collision-checking.hh
+  include/hpp/core/path-validation/discretized-joint-bound.hh
   include/hpp/core/numerical-constraint.hh
   include/hpp/core/locked-joint.hh
   include/hpp/core/node.hh
@@ -94,7 +92,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/linear-constraint.hh
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/quadratic-program.hh
-  include/hpp/core/path-optimization/config-optimization.hh
+  include/hpp/core/path-optimization/random-shortcut.hh
   include/hpp/core/path-optimization/simple-time-parameterization.hh
   include/hpp/core/path-optimization/spline-gradient-based.hh
   include/hpp/core/path-optimization/spline-gradient-based-abstract.hh
@@ -107,10 +105,12 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path/spline.hh
   include/hpp/core/path/hermite.hh
   include/hpp/core/reeds-shepp-path.hh
+  include/hpp/core/kinodynamic-path.hh
+  include/hpp/core/kinodynamic-oriented-path.hh
   include/hpp/core/plan-and-optimize.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
-  include/hpp/core/random-shortcut.hh
+  include/hpp/core/random-shortcut.hh # DEPRECATED
   include/hpp/core/roadmap.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method/fwd.hh
@@ -123,11 +123,14 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method/spline.hh
   include/hpp/core/steering-method/snibud.hh
   include/hpp/core/steering-method-straight.hh
+  include/hpp/core/steering-method/reeds-shepp.hh
+  include/hpp/core/steering-method/steering-kinodynamic.hh
   include/hpp/core/straight-path.hh
   include/hpp/core/interpolated-path.hh
   include/hpp/core/validation-report.hh
   include/hpp/core/visibility-prm-planner.hh
   include/hpp/core/weighed-distance.hh
+  include/hpp/core/kinodynamic-distance.hh
   include/hpp/core/path-projector/progressive.hh
   include/hpp/core/path-projector/dichotomy.hh
   include/hpp/core/path-projector/global.hh
@@ -158,6 +161,7 @@ ADD_SUBDIRECTORY(tests)
 PKG_CONFIG_APPEND_LIBS("hpp-core")
 
 INSTALL (FILES doc/continuous-collision-checking.pdf
+doc/continuous-validation.pdf
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
 
-SETUP_PROJECT_FINALIZE()
+SETUP_HPP_PROJECT_FINALIZE()

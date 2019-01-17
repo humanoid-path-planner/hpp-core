@@ -115,7 +115,7 @@ namespace hpp {
       /// Return a shared pointer to a copy of this and set constraints
       ///
       /// \param constraints constraints to apply to the copy
-      /// \precond *this should not have constraints.
+      /// \pre *this should not have constraints.
       virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
       {
 	return createCopy (weak_.lock (), constraints);
@@ -204,10 +204,11 @@ namespace hpp {
       PathPtr_t impl_extract (const interval_t& subInterval) const
         throw (projection_error);
 
-    private:
+    protected:
       DevicePtr_t device_;
       Configuration_t initial_;
       Configuration_t end_;
+    private:
       StraightPathWkPtr_t weak_;
     }; // class StraightPath
     /// \}

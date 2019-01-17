@@ -307,7 +307,7 @@ namespace hpp {
     value_type WeighedDistance::impl_distance (ConfigurationIn_t q1,
 					       ConfigurationIn_t q2) const
     {
-      value_type res = 0, d;
+      value_type res = 0, d = std::numeric_limits <value_type>::infinity ();
 
       const pinocchio::Model& model = robot_->model();
       assert (model.joints.size() <= weights_.size () + 1);

@@ -46,7 +46,7 @@ namespace hpp {
 			     ValidationReportPtr_t& validationReport) = 0;
       /// Add an obstacle
       /// \param object obstacle added
-      /// \notice collision configuration validation needs to know about
+      /// \note collision configuration validation needs to know about
       /// obstacles. This virtual method does nothing for configuration
       /// validation methods that do not care about obstacles.
       virtual void addObstacle (const CollisionObjectConstPtr_t&)
@@ -56,7 +56,7 @@ namespace hpp {
       /// Remove a collision pair between a joint and an obstacle
       /// \param the joint that holds the inner objects,
       /// \param the obstacle to remove.
-      /// \notice collision configuration validation needs to know about
+      /// \note collision configuration validation needs to know about
       /// obstacles. This virtual method does nothing for configuration
       /// validation methods that do not care about obstacles.
       virtual void removeObstacleFromJoint(const JointPtr_t&,

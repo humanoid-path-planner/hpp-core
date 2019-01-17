@@ -218,26 +218,29 @@ namespace hpp {
           dx = alpha * (c0 * c - s0 * s);
           dy = alpha * (c0 * s + s0 * c);
           dtheta = alpha * curvature_;
-        } else if (order % 4 == 2) {
-          dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * s + s0 * c);
-          dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * c - s0 * s);
-        } else if (order % 4 == 3) {
-          dx = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * c - s0 * s);
-          dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * s + s0 * c);
-        } else if (order % 4 == 0) {
-          dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * s + s0 * c);
-          dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * c - s0 * s);
-        } else if (order % 4 == 1) {
-          dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * c - s0 * s);
-          dy =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
-            (c0 * s + s0 * c);
+        } else {
+          switch (order % 4) {
+            case 2:
+              dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * s + s0 * c);
+              dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * c - s0 * s);
+            case 3:
+              dx = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * c - s0 * s);
+              dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * s + s0 * c);
+            case 0:
+              dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * s + s0 * c);
+              dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * c - s0 * s);
+            case 1:
+              dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * c - s0 * s);
+              dy =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
+                (c0 * s + s0 * c);
+          }
         }
 
         result [dxyId_ + 0] = dx;

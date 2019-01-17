@@ -126,12 +126,20 @@ namespace hpp {
           /// each spline.
           virtual void initializePathValidation(const Splines_t& splines);
 
-          typedef std::vector <std::pair <CollisionPathValidationReportPtr_t,
+          typedef std::vector <std::pair <PathValidationReportPtr_t,
                   std::size_t> > Reports_t;
-          /// Calls each validations_ on the conresponding spline.
+          /// Calls each validations_ on the corresponding spline.
+          /// \param reordering order in which the path validation is run.
+          ///                   It is assumed that reordering is a permutation
+          ///                   of [0, splines.size()[.
           /// \param stopAtFirst if true, then return only at most one report
-          ///                    correponding to the first encountered collision.
-          Reports_t validatePath (const Splines_t& splines, bool stopAtFirst) const;
+          ///                    corresponding to the first encountered collision.
+          /// \param reorder Put the portion in collision first in order to
+          ///                improve performance of next collision check.
+          Reports_t validatePath (const Splines_t& splines,
+              std::vector<std::size_t>& reordering,
+              bool stopAtFirst,
+              bool reorder) const;
 
           /// \}
 

@@ -30,13 +30,13 @@ config-validations.cc
 connected-component.cc
 constraint.cc
 constraint-set.cc
-continuous-collision-checking.cc
-continuous-collision-checking/dichotomy.cc
-continuous-collision-checking/body-pair-collision.hh
-continuous-collision-checking/progressive.cc
+continuous-validation.cc
+continuous-validation/initializer.cc
+continuous-validation/body-pair-collision.cc
+continuous-validation/dichotomy.cc
+continuous-validation/solid-solid-collision.cc
+continuous-validation/progressive.cc
 diffusing-planner.cc
-discretized-collision-checking.cc
-discretized-path-validation.cc
 distance/reeds-shepp.cc
 distance-between-objects.cc
   dubins.hh
@@ -46,6 +46,9 @@ extracted-path.hh
 interpolated-path.cc
 joint-bound-validation.cc
 path-validations.cc
+path-validation/discretized.cc
+path-validation/discretized-collision-checking.cc
+path-validation/discretized-joint-bound.cc
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
   # nearest-neighbor/k-d-tree.cc #
@@ -59,7 +62,7 @@ path-validations.cc
   path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/quadratic-program.cc
-  path-optimization/config-optimization.cc#
+  path-optimization/random-shortcut.cc
   path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
   path-planner/k-prm-star.cc
@@ -78,9 +81,11 @@ path-validations.cc
   parser/roadmap-factory.cc #
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
-  random-shortcut.cc
   reeds-shepp-path.cc
-  relative-motion.cc
+  relative-motion.cc  
+  kinodynamic-path.cc
+  kinodynamic-oriented-path.cc
+  steering-method/steering-kinodynamic.cc
   roadmap.cc
   steering-method/reeds-shepp.cc # TODO access type of joint
   steering-method/car-like.cc
@@ -89,8 +94,17 @@ path-validations.cc
   steering-method/snibud.cc
   steering-method/spline.cc
   straight-path.cc
+  interpolated-path.cc
   visibility-prm-planner.cc
   weighed-distance.cc
+  kinodynamic-distance.cc
+  path-projector/progressive.cc
+  path-projector/dichotomy.cc
+  path-projector/global.cc
+  path-projector.cc
+  parser/roadmap-factory.cc
+  problem-target/goal-configurations.cc
+  problem-target/task-target.cc
   )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)

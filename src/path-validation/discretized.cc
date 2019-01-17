@@ -21,36 +21,37 @@
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/path.hh>
-#include <hpp/core/discretized-path-validation.hh>
+#include <hpp/core/path-validation/discretized.hh>
+#include <hpp/util/debug.hh>
 
 namespace hpp {
   namespace core {
+    namespace pathValidation {
 
-    DiscretizedPathValidationPtr_t
-    DiscretizedPathValidation::create (const DevicePtr_t& robot,
-				       const value_type& stepSize)
+    DiscretizedPtr_t
+    Discretized::create (const value_type& stepSize)
     {
-      DiscretizedPathValidation* ptr =
-	new DiscretizedPathValidation(robot, stepSize);
-      return DiscretizedPathValidationPtr_t (ptr);
+      Discretized* ptr = new Discretized(stepSize);
+      return DiscretizedPtr_t (ptr);
     }
 
-    void DiscretizedPathValidation::add
+    void Discretized::add
     (const ConfigValidationPtr_t& configValidation)
     {
       configValidations_->add (configValidation);
     }
 
-    void DiscretizedPathValidation::addObstacle
+    void Discretized::addObstacle
     (const CollisionObjectConstPtr_t& object)
     {
       configValidations_->addObstacle (object);
     }
 
-    bool DiscretizedPathValidation::validate
+    bool Discretized::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
     {
+        hppDout(notice,"path validation, reverse : "<<reverse);
       ValidationReportPtr_t configReport;
       assert (path);
       bool valid = true;
@@ -84,6 +85,7 @@ namespace hpp {
 	  return false;
 	}
       } else {
+          hppDout(notice,"path validation, else");
 	value_type tmin = path->timeRange ().first;
 	value_type tmax = path->timeRange ().second;
 	value_type lastValidTime = tmin;
@@ -105,6 +107,7 @@ namespace hpp {
 	    finished ++;
 	  }
 	}
+    hppDout(notice,"path validation, end. Valid : "<<valid<<" ; lastValidTime : "<<lastValidTime);
 	if (valid) {
 	  validPart = path;
 	  return true;
@@ -115,23 +118,24 @@ namespace hpp {
       }
     }
 
-    void DiscretizedPathValidation::removeObstacleFromJoint
+    void Discretized::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
       configValidations_->removeObstacleFromJoint (joint, obstacle);
     }
 
-    void DiscretizedPathValidation::filterCollisionPairs (
+    void Discretized::filterCollisionPairs (
         const RelativeMotion::matrix_type& matrix)
     {
       configValidations_->filterCollisionPairs (matrix);
     }
 
-    DiscretizedPathValidation::DiscretizedPathValidation
-    (const DevicePtr_t& robot, const value_type& stepSize) :
-      stepSize_ (stepSize), robot_ (robot),
+    Discretized::Discretized (const value_type& stepSize) :
+      stepSize_ (stepSize),
       configValidations_ (ConfigValidations::create ())
     {
     }
+
+    } // namespace pathValidation
   } // namespace core
 } // namespace hpp

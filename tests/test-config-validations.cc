@@ -49,13 +49,14 @@ BOOST_AUTO_TEST_CASE ( test_add_config_validation )
     ProblemSolverPtr_t ps = ProblemSolver::create ();
     ps->robot ( ps->createRobot ("robot") );
     ProblemPtr_t problem = ps->problem ();
-    ConfigValidationsPtr_t configValidations = problem->configValidations ();
 
     ps->clearConfigValidations ();
-    BOOST_CHECK_MESSAGE (configValidations->numberConfigValidations () == 0,
-        "Clearing ConfigValidations did not work");
+    BOOST_CHECK_MESSAGE
+      (problem->configValidations ()->numberConfigValidations () == 0,
+       "Clearing ConfigValidations did not work");
 
     ps->addConfigValidation ("CollisionValidation");
-    BOOST_CHECK_MESSAGE (configValidations->numberConfigValidations () == 1,
-        "Adding CollisionValidation to the ProblemSolver did not work");
+    BOOST_CHECK_MESSAGE
+      (problem->configValidations ()->numberConfigValidations () == 1,
+       "Adding CollisionValidation to the ProblemSolver did not work");
 }

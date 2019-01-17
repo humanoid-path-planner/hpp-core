@@ -88,6 +88,11 @@
 #include <iostream>
 
 namespace Eigen {
+    enum QuadProgStatus {
+      CONVERGED,
+      CONSTRAINT_LINEARLY_DEPENDENT,
+      UNBOUNDED
+    };
 
     // namespace internal {
 
@@ -135,13 +140,14 @@ namespace Eigen {
     double solve_quadprog2(LLT<MatrixXd,Lower> &chol,  double c1, VectorXd & g0,
                            const MatrixXd & CE, const VectorXd & ce0,
                            const MatrixXd & CI, const VectorXd & ci0,
-                           VectorXd& x, VectorXi& A, int& q);
+                           VectorXd& x, VectorXi& A, int& q, QuadProgStatus& status);
 
     /* solve_quadprog is used for on-demand QP solving */
     inline double solve_quadprog(MatrixXd & G,  VectorXd & g0,
                                  const MatrixXd & CE, const VectorXd & ce0,
                                  const MatrixXd & CI, const VectorXd & ci0,
-                                 VectorXd& x, VectorXi& activeSet, int& activeSetSize){
+                                 VectorXd& x, VectorXi& activeSet, int& activeSetSize,
+                                 QuadProgStatus& status){
 
         LLT<MatrixXd,Lower> chol(G.cols());
         double c1;
@@ -152,7 +158,7 @@ namespace Eigen {
         /* decompose the matrix G in the form LL^T */
         chol.compute(G);
 
-        return solve_quadprog2(chol, c1, g0, CE, ce0, CI, ci0, x, activeSet, activeSetSize);
+        return solve_quadprog2(chol, c1, g0, CE, ce0, CI, ci0, x, activeSet, activeSetSize, status);
 
     }
 
@@ -163,7 +169,8 @@ namespace Eigen {
     inline double solve_quadprog2(LLT<MatrixXd,Lower> &chol,  double c1, VectorXd & g0,
                                   const MatrixXd & CE, const VectorXd & ce0,
                                   const MatrixXd & CI, const VectorXd & ci0,
-                                  VectorXd& x, VectorXi& A, int& q)
+                                  VectorXd& x, VectorXi& A, int& q,
+                                  QuadProgStatus& status)
     {
         int i, j, k, l; /* indices */
         MatrixXd::Index ip, me, mi;
@@ -261,6 +268,7 @@ namespace Eigen {
             {
                 // FIXME: it should raise an error
                 // Equality constraints are linearly dependent
+                status = CONSTRAINT_LINEARLY_DEPENDENT;
                 return f_value;
             }
         }
@@ -300,6 +308,7 @@ namespace Eigen {
         {
             /* numerically there are not infeasibilities anymore */
             q = iq;
+            status = CONVERGED;
             return f_value;
         }
 
@@ -320,6 +329,7 @@ namespace Eigen {
         if (ss >= 0.0)
         {
             q = iq;
+            status = CONVERGED;
             return f_value;
         }
 
@@ -384,7 +394,10 @@ namespace Eigen {
             /* QPP is infeasible */
             // FIXME: unbounded to raise
             q = iq;
+#ifdef TRACE_SOLVER
             std::cerr<<"QP unbounded\n";
+#endif
+            status = UNBOUNDED;
             return inf;
         }
         /* case (ii): step in dual space */

@@ -33,10 +33,9 @@
 namespace hpp {
   namespace core {
     HPP_PREDEF_CLASS (BiRRTPlanner);
-    HPP_PREDEF_CLASS (CollisionPathValidation);
-    struct CollisionPathValidationReport;
     HPP_PREDEF_CLASS (CollisionValidation);
     HPP_PREDEF_CLASS (CollisionValidationReport);
+    HPP_PREDEF_CLASS (AllCollisionsValidationReport);
     HPP_PREDEF_CLASS (ConfigurationShooter);
     HPP_PREDEF_CLASS (ConfigProjector);
     HPP_PREDEF_CLASS (ConfigValidation);
@@ -47,9 +46,6 @@ namespace hpp {
     HPP_PREDEF_CLASS (DiffusingPlanner);
     HPP_PREDEF_CLASS (Distance);
     HPP_PREDEF_CLASS (DistanceBetweenObjects);
-    HPP_PREDEF_CLASS (DiscretizedCollisionChecking);
-    HPP_PREDEF_CLASS (DiscretizedPathValidation);
-    HPP_PREDEF_CLASS (PathValidations);
     class Edge;
     HPP_PREDEF_CLASS (ExtractedPath);
     HPP_PREDEF_CLASS (SubchainPath);
@@ -62,22 +58,21 @@ namespace hpp {
     HPP_PREDEF_CLASS (PathPlanner);
     HPP_PREDEF_CLASS (ProblemTarget);
     HPP_PREDEF_CLASS (PathVector);
-    HPP_PREDEF_CLASS (PathValidation);
-    struct PathValidationReport;
-    HPP_PREDEF_CLASS (PathValidation);
     HPP_PREDEF_CLASS (PlanAndOptimize);
     HPP_PREDEF_CLASS (Problem);
     class ProblemSolver;
-    HPP_PREDEF_CLASS (RandomShortcut);
     HPP_PREDEF_CLASS (Roadmap);
     HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (StraightPath);
     HPP_PREDEF_CLASS (InterpolatedPath);
     HPP_PREDEF_CLASS (DubinsPath);
     HPP_PREDEF_CLASS (ReedsSheppPath);
+    HPP_PREDEF_CLASS (KinodynamicPath);    
+    HPP_PREDEF_CLASS (KinodynamicOrientedPath);
     HPP_PREDEF_CLASS (ValidationReport);
     HPP_PREDEF_CLASS (VisibilityPrmPlanner);
     HPP_PREDEF_CLASS (WeighedDistance);
+    HPP_PREDEF_CLASS (KinodynamicDistance);
     class KDTree;
 
     typedef constraints::ComparisonTypes_t ComparisonTypes_t;
@@ -86,17 +81,17 @@ namespace hpp {
     typedef boost::shared_ptr <BiRRTPlanner> BiRRTPlannerPtr_t;
     typedef hpp::pinocchio::Body Body;
     typedef hpp::pinocchio::BodyPtr_t BodyPtr_t;
-    typedef boost::shared_ptr <CollisionPathValidationReport>
-    CollisionPathValidationReportPtr_t;
-    typedef std::vector <CollisionPathValidationReport> 
-    CollisionPathValidationReports_t;
     typedef boost::shared_ptr <CollisionValidation> CollisionValidationPtr_t;
     typedef boost::shared_ptr <CollisionValidationReport>
     CollisionValidationReportPtr_t;
+    typedef boost::shared_ptr <AllCollisionsValidationReport>
+    AllCollisionsValidationReportPtr_t;
     typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
     typedef pinocchio::CollisionObjectConstPtr_t CollisionObjectConstPtr_t;
     typedef pinocchio::FclCollisionObject FclCollisionObject;
-    typedef boost::shared_ptr<pinocchio::FclCollisionObject> FclCollisionObjectSharePtr_t;
+    typedef FclCollisionObject * FclCollisionObjectPtr_t;
+    typedef const FclCollisionObject * FclConstCollisionObjectPtr_t;
+    typedef boost::shared_ptr <FclCollisionObject> FclCollisionObjectSharePtr_t;
 
     typedef pinocchio::Configuration_t Configuration_t;
     typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
@@ -124,12 +119,6 @@ namespace hpp {
     typedef constraints::DifferentiableFunctionPtr_t
     DifferentiableFunctionPtr_t;
     typedef boost::shared_ptr <DiffusingPlanner> DiffusingPlannerPtr_t;
-    typedef boost::shared_ptr <DiscretizedCollisionChecking>
-    DiscretizedCollisionCheckingPtr_t;
-    typedef boost::shared_ptr <DiscretizedPathValidation>
-    DiscretizedPathValidationPtr_t;
-    typedef boost::shared_ptr <PathValidations>
-    PathValidationsPtr_t;
     typedef boost::shared_ptr <Distance> DistancePtr_t;
     typedef boost::shared_ptr <DistanceBetweenObjects>
     DistanceBetweenObjectsPtr_t;
@@ -182,14 +171,11 @@ namespace hpp {
     typedef boost::shared_ptr <PathOptimizer> PathOptimizerPtr_t;
     typedef boost::shared_ptr <PathPlanner> PathPlannerPtr_t;
     typedef boost::shared_ptr <ProblemTarget> ProblemTargetPtr_t;
-    typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
-    typedef boost::shared_ptr <PathValidationReport> PathValidationReportPtr_t;
     typedef boost::shared_ptr <PathVector> PathVectorPtr_t;
     typedef boost::shared_ptr <const PathVector> PathVectorConstPtr_t;
     typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
     typedef Problem* ProblemPtr_t;
     typedef ProblemSolver* ProblemSolverPtr_t;
-    typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;
     typedef boost::shared_ptr <const StraightPath> StraightPathConstPtr_t;
@@ -197,6 +183,10 @@ namespace hpp {
     typedef boost::shared_ptr <const ReedsSheppPath> ReedsSheppPathConstPtr_t;
     typedef boost::shared_ptr <DubinsPath> DubinsPathPtr_t;
     typedef boost::shared_ptr <const DubinsPath> DubinsPathConstPtr_t;
+    typedef boost::shared_ptr <KinodynamicPath> KinodynamicPathPtr_t;
+    typedef boost::shared_ptr <const KinodynamicPath> KinodynamicPathConstPtr_t;
+    typedef boost::shared_ptr <KinodynamicOrientedPath> KinodynamicOrientedPathPtr_t;
+    typedef boost::shared_ptr <const KinodynamicOrientedPath> KinodynamicOrientedPathConstPtr_t;
     typedef boost::shared_ptr <InterpolatedPath> InterpolatedPathPtr_t;
     typedef boost::shared_ptr <const InterpolatedPath> InterpolatedPathConstPtr_t;
     typedef boost::shared_ptr <SteeringMethod> SteeringMethodPtr_t;
@@ -213,6 +203,7 @@ namespace hpp {
     typedef boost::shared_ptr <VisibilityPrmPlanner> VisibilityPrmPlannerPtr_t;
     typedef boost::shared_ptr <ValidationReport> ValidationReportPtr_t;
     typedef boost::shared_ptr <WeighedDistance> WeighedDistancePtr_t;
+    typedef boost::shared_ptr <KinodynamicDistance> KinodynamicDistancePtr_t;
     typedef std::map <std::string, constraints::ImplicitPtr_t>
     NumericalConstraintMap_t;
     typedef std::map <std::string, ComparisonTypes_t> ComparisonTypeMap_t;
@@ -234,15 +225,23 @@ namespace hpp {
       typedef boost::shared_ptr <const Hermite> HermiteConstPtr_t;
     } // namespace path
 
-    HPP_PREDEF_CLASS (ContinuousCollisionChecking);
-    typedef boost::shared_ptr <ContinuousCollisionChecking>
-    ContinuousCollisionCheckingPtr_t;
-    namespace continuousCollisionChecking {
+    HPP_PREDEF_CLASS (ContinuousValidation);
+    typedef boost::shared_ptr <ContinuousValidation>
+    ContinuousValidationPtr_t;
+    namespace continuousValidation {
       HPP_PREDEF_CLASS (Dichotomy);
       typedef boost::shared_ptr <Dichotomy> DichotomyPtr_t;
       HPP_PREDEF_CLASS (Progressive);
       typedef boost::shared_ptr <Progressive> ProgressivePtr_t;
-    } // namespace continuousCollisionChecking
+      HPP_PREDEF_CLASS (BodyPairCollision);
+      typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
+      typedef std::vector <BodyPairCollisionPtr_t> BodyPairCollisions_t;
+      HPP_PREDEF_CLASS (SolidSolidCollision);
+      typedef boost::shared_ptr <SolidSolidCollision> SolidSolidCollisionPtr_t;
+      HPP_PREDEF_CLASS (Initializer);
+      typedef boost::shared_ptr <Initializer> InitializerPtr_t;
+    } // namespace continuousValidation
+
 
     namespace distance {
       HPP_PREDEF_CLASS (ReedsShepp);
@@ -259,6 +258,8 @@ namespace hpp {
     } // namespace nearestNeighbor
 
     namespace pathOptimization {
+      HPP_PREDEF_CLASS (RandomShortcut);
+      typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
       HPP_PREDEF_CLASS (Cost);
       typedef boost::shared_ptr <Cost> CostPtr_t;
       HPP_PREDEF_CLASS (GradientBased);
@@ -279,6 +280,23 @@ namespace hpp {
       typedef boost::shared_ptr <kPrmStar> kPrmStarPtr_t;
     } // namespace pathPlanner
 
+    HPP_PREDEF_CLASS (PathValidations);
+    HPP_PREDEF_CLASS (PathValidation);
+    typedef boost::shared_ptr <PathValidation> PathValidationPtr_t;
+    typedef boost::shared_ptr <PathValidations> PathValidationsPtr_t;
+    namespace pathValidation {
+      HPP_PREDEF_CLASS (Discretized);
+      typedef boost::shared_ptr <Discretized> DiscretizedPtr_t;
+    } // namespace pathValidation
+    // Path validation reports
+    struct PathValidationReport;
+    struct CollisionPathValidationReport;
+    typedef boost::shared_ptr <PathValidationReport> PathValidationReportPtr_t;
+    typedef boost::shared_ptr <CollisionPathValidationReport>
+    CollisionPathValidationReportPtr_t;
+    typedef std::vector <CollisionPathValidationReport>
+    CollisionPathValidationReports_t;
+
     HPP_PREDEF_CLASS (PathProjector);
     typedef boost::shared_ptr <PathProjector> PathProjectorPtr_t;
     namespace pathProjector {
@@ -291,6 +309,15 @@ namespace hpp {
       HPP_PREDEF_CLASS (RecursiveHermite);
       typedef boost::shared_ptr <RecursiveHermite> RecursiveHermitePtr_t;
     } // namespace pathProjector
+
+    namespace steeringMethod {
+      HPP_PREDEF_CLASS (Interpolated);
+      typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
+      HPP_PREDEF_CLASS (ReedsShepp);
+      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+      HPP_PREDEF_CLASS (Kinodynamic);
+      typedef boost::shared_ptr <Kinodynamic> KinodynamicPtr_t;
+    } // namespace steeringMethod
 
     namespace problemTarget {
       HPP_PREDEF_CLASS (GoalConfigurations);
@@ -323,6 +350,8 @@ namespace hpp {
     ExplicitRelativeTransformationPtr_t HPP_CORE_DEPRECATED;
     typedef hpp::constraints::explicit_::RelativePose
     ExplicitRelativeTransformation HPP_CORE_DEPRECATED;
+    typedef ContinuousValidation ContinuousCollisionChecking HPP_CORE_DEPRECATED;
+    namespace continuousCollisionChecking = continuousValidation;
 
   } // namespace core
 } // namespace hpp

@@ -306,6 +306,7 @@ namespace hpp {
       {
         BasisFunctionVector_t ub;
         BasisFunction_t::absDerBounds (ub);
+        ub /= length();
         res.transpose() = ub.transpose() * parameters_.cwiseAbs();
       }
 
@@ -382,6 +383,7 @@ namespace hpp {
       {
         BasisFunctionVector_t ub;
         BasisFunction_t::bound (1, t0, t1, ub);
+        ub /= length();
         res.noalias() = parameters_.cwiseAbs().transpose() * ub;
       }
 

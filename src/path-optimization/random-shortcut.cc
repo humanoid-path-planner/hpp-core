@@ -16,6 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/path-optimization/random-shortcut.hh>
+
 #include <limits>
 #include <deque>
 #include <cstdlib>
@@ -25,14 +27,14 @@
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/random-shortcut.hh>
 #include <hpp/core/path-projector.hh>
 
 namespace hpp {
   namespace core {
+    namespace pathOptimization {
     // Compute the length of a vector of paths assuming that each element
     // is optimal for the given distance.
-    template <bool reEstimateLength = false> struct PathLength {
+    template <bool reEstimateLength = false> struct _PathLength {
       static inline value_type run (const PathVectorPtr_t& path,
                              const DistancePtr_t& distance)
       {
@@ -80,20 +82,17 @@ namespace hpp {
       std::size_t projectionError = n;
       std::deque <value_type> length (n-1,
 				      numeric_limits <value_type>::infinity ());
-      length.push_back (PathLength<>::run (tmpPath, problem ().distance ()));
+      length.push_back (_PathLength<>::run (tmpPath, problem ().distance ()));
       PathVectorPtr_t result;
 
-      while (!finished && projectionError != 0) {
-        t[0] = tmpPath->timeRange ().first;
-        t[3] = tmpPath->timeRange ().second;
-	value_type u2 = (t[3]-t[0]) * rand ()/RAND_MAX;
-	value_type u1 = (t[3]-t[0]) * rand ()/RAND_MAX;
-	if (u1 < u2) {
-          t[1] = t[0] + u1; t[2] = t[0] + u2;
-        } else {
-          t[1] = t[0] + u2; t[2] = t[0] + u1;
+      while (!interrupt_ && !finished && projectionError != 0) {
+        t[0] = tmpPath->timeRange().first ;
+        t[3] = tmpPath->timeRange().second;
+        bool error = !shootTimes (tmpPath, t[0], t[1], t[2], t[3]);
+        if (error) {
+          projectionError--;
+          continue;
         }
-        bool error = false;
         for (int i = 1; i < 3; ++i) {
           if (!(*tmpPath) (q[i], t[i])) {
             hppDout (error, "Configuration at param "
@@ -143,7 +142,7 @@ namespace hpp {
           result = tmpPath;
           continue;
         }
-        value_type newLength = PathLength<>::run (result, problem ().distance ());
+        value_type newLength = _PathLength<>::run (result, problem ().distance ());
         if (length[n-1] <= newLength) {
           hppDout (info,  "the length would increase:" << length[n-1] << " " << newLength);
           result = tmpPath;
@@ -169,6 +168,24 @@ namespace hpp {
       return result;
     }
 
+    bool RandomShortcut::shootTimes (const PathVectorPtr_t& /*current*/,
+        const value_type& t0,
+        value_type& t1,
+        value_type& t2,
+        const value_type& t3)
+    {
+      value_type u2 = (t3-t0) * rand ()/RAND_MAX;
+      value_type u1 = (t3-t0) * rand ()/RAND_MAX;
+      if (u1 < u2) {
+        t1 = t0 + u1;
+        t2 = t0 + u2;
+      } else {
+        t1 = t0 + u2;
+        t2 = t0 + u1;
+      }
+      return true;
+    }
+
     // ----------- Declare parameters ------------------------------------- //
 
     HPP_START_PARAMETER_DECLARATION(RandomShortcut)
@@ -177,5 +194,6 @@ namespace hpp {
           "Number of loops.",
           Parameter((size_type)5)));
     HPP_END_PARAMETER_DECLARATION(RandomShortcut)
+    } // namespace pathOptimization
   } // namespace core
 } // namespace hpp

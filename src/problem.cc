@@ -26,11 +26,12 @@
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/problem-target.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/discretized-collision-checking.hh>
-#include <hpp/core/continuous-collision-checking/dichotomy.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
 
 namespace hpp {
@@ -76,7 +77,7 @@ namespace hpp {
       initConf_ (), goalConfigurations_ (), target_ (),
       steeringMethod_ (steeringMethod::Straight::create (*this)),
       configValidations_ (),
-      pathValidation_ (DiscretizedCollisionChecking::create
+      pathValidation_ (pathValidation::createDiscretizedCollisionChecking
 		       (robot, 0.05)),
       collisionObstacles_ (), constraints_ (),
       configurationShooter_(configurationShooter::Uniform::create (robot))
@@ -248,7 +249,7 @@ namespace hpp {
       ValidationReportPtr_t report;
       if (!configValidations_->validate (*initConf_, report)) {
 	std::ostringstream oss;
-	oss << *report;
+  oss <<"init config invalid : "<< *report;
 	throw std::runtime_error (oss.str ());
       }
 

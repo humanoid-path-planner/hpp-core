@@ -16,28 +16,21 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/collision-validation.hh>
 
 namespace hpp {
   namespace core {
-
-    DiscretizedCollisionCheckingPtr_t
-    DiscretizedCollisionChecking::create (const DevicePtr_t& robot,
-					  const value_type& stepSize)
-    {
-      DiscretizedCollisionChecking* ptr (new DiscretizedCollisionChecking
-					 (robot, stepSize));
-      DiscretizedCollisionCheckingPtr_t shPtr (ptr);
-      return shPtr;
-    }
-
-    DiscretizedCollisionChecking::DiscretizedCollisionChecking
-    (const DevicePtr_t& robot, const value_type& stepSize) :
-      DiscretizedPathValidation (robot, stepSize)
-    {
-      add (CollisionValidationPtr_t (CollisionValidation::create (robot)));
-    }
-
+    namespace pathValidation {
+      DiscretizedPtr_t createDiscretizedCollisionChecking (
+          const DevicePtr_t& robot, const value_type& stepSize)
+      {
+        DiscretizedPtr_t pv (Discretized::create (stepSize));
+        CollisionValidationPtr_t cv (CollisionValidation::create (robot));
+        pv->add (cv);
+        return pv;
+      }
+    } // namespace pathValidation
   } // namespace core
 } // namespace hpp

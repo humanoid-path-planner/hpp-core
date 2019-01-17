@@ -27,10 +27,6 @@
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
 
-#include <hpp/core/config-projector.hh>
-#include <hpp/core/discretized-path-validation.hh>
-#include <hpp/core/joint-bound-validation.hh>
-#include <hpp/core/projection-error.hh>
 #include <hpp/core/reeds-shepp-path.hh>
 #include <hpp/core/steering-method/constant-curvature.hh>
 
@@ -671,10 +667,9 @@ namespace hpp {
         if (fabs (lengths_ [i]) > precision) {
           value_type extra_l = fabs (lengths_ [i]);
           l += extra_l;
+          if (types [typeId_][i] == RS_NOP) break;
           value_type curvature;
           switch (types [typeId_][i]) {
-          case RS_NOP:
-            break;
           case RS_LEFT:
             curvature = 1./rho_;
             break;
@@ -684,6 +679,7 @@ namespace hpp {
           case RS_STRAIGHT:
             curvature = 0;
             break;
+          case RS_NOP:
           default:
             abort ();
           }

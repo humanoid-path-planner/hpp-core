@@ -34,60 +34,21 @@
 namespace hpp {
   namespace core {
     namespace pathOptimization {
-      HPP_PREDEF_CLASS (CollisionFunction);
-      typedef boost::shared_ptr <CollisionFunction> CollisionFunctionPtr_t;
-      typedef pinocchio::Transform3f Transform3f;
-      namespace eigen {
-	typedef Eigen::Matrix <value_type, 3, 1> vector3_t;
-      } // namespace eigen
 
-
+      template <typename SplinePtr_t>
       class CollisionFunction : public DifferentiableFunction
       {
       public:
+        typedef boost::shared_ptr <CollisionFunction> Ptr_t;
        virtual ~CollisionFunction () {}
-       template <typename SplinePtr_t>
-       static CollisionFunctionPtr_t create
+       static Ptr_t create
        (const DevicePtr_t& robot, const SplinePtr_t& freeSpline,
         const SplinePtr_t& collSpline,
-        const CollisionPathValidationReportPtr_t& report)
-       {
-         const value_type& tColl = report->parameter;
-         bool success;
-         Configuration_t qColl = (*collSpline) (tColl, success);
-         assert(success);
-
-         HPP_STATIC_CAST_REF_CHECK (CollisionValidationReport,
-             *(report->configurationReport));
-         CollisionObjectConstPtr_t object1 =
-           HPP_STATIC_PTR_CAST (CollisionValidationReport,
-               report->configurationReport)->object1;
-         CollisionObjectConstPtr_t object2 =
-           HPP_STATIC_PTR_CAST (CollisionValidationReport,
-               report->configurationReport)->object2;
-
-         hppDout (info, "obj1 = " << object1->name()
-             << " and obj2 = " << object2->name());
-         hppDout (info, "qColl = " << qColl.transpose());
-
-         // Backtrack collision in previous path (x0) to create constraint
-         value_type tFree = tColl * freeSpline->length () / collSpline->length();
-
-         Configuration_t qFree = (*freeSpline) (tFree, success);
-         assert(success);
-         hppDout (info, "qFree = " << qFree.transpose());
-
-         return create (robot, qFree, qColl, object1, object2);
-       }
-       static CollisionFunctionPtr_t create
-       (const DevicePtr_t& robot, const Configuration_t& qFree,
-	const Configuration_t& qColl, const CollisionObjectConstPtr_t& object1,
-	const CollisionObjectConstPtr_t& object2)
+        const PathValidationReportPtr_t& report)
        {
          CollisionFunction* ptr = new CollisionFunction
-           (robot, qFree, qColl, object1, object2);
-         CollisionFunctionPtr_t shPtr (ptr);
-         return shPtr;
+           (robot, freeSpline, collSpline, report);
+         return Ptr_t (ptr);
        }
 
        void updateConstraint (const Configuration_t& q)
@@ -101,7 +62,7 @@ namespace hpp {
          } else { // Update qFree_
            qFree_ = q;
          }
-         
+
          computeJacobian();
        }
 
@@ -109,37 +70,51 @@ namespace hpp {
 
       protected:
        CollisionFunction (const DevicePtr_t& robot,
-                            const Configuration_t& qFree,
-                            const Configuration_t& qColl,
-			    const CollisionObjectConstPtr_t& object1,
-			    const CollisionObjectConstPtr_t& object2)
-         : DifferentiableFunction (robot->configSize (), robot->numberDof (),
-                                   LiegroupSpace::R1 (), ""),
-         qFree_ (qFree), qColl_ (qColl),
-         robot_ (robot),
-         object1_ (object1), object2_ (object2),
+                          const SplinePtr_t& freeSpline,
+                          const SplinePtr_t& collSpline,
+                          const PathValidationReportPtr_t& report) :
+         DifferentiableFunction (robot->configSize (), robot->numberDof (),
+                                 LiegroupSpace::R1 (), ""),
+         qFree_ (), qColl_ (), robot_ (robot), object1_ (), object2_ (),
          J_ (), difference_ (robot->numberDof ())
-       {
-	 // Compute contact point in configuration qColl
-	 fcl::CollisionResult result = checkCollision(qColl, true);
-         if (result.numContacts() != 1) {
-           result = checkCollision(qColl, false);
-           if (result.isCollision()) {
-             hppDout (error, "FCL does not returns the same result when asking or not for the contact points.");
-           }
+        {
+          const value_type& tColl = report->parameter;
+          bool success;
+          qColl_ = (*collSpline) (tColl, success);
+          assert(success);
 
-           HPP_THROW(std::invalid_argument,
-               "Object " << object1->name() << " and " << object2->name()
-               << " are not in collision in configuration\n"
-               << setpyformat << one_line(qColl)
-               << "\nqFree is\n" << one_line(qFree)
-               << unsetpyformat);
-         }
-         contactPoint_ = result.getContact (0).pos;
-         hppDout (info, "contact point = " << contactPoint_.transpose());
+          CollisionValidationReportPtr_t collisionReport =
+            (HPP_DYNAMIC_PTR_CAST (CollisionValidationReport,
+                                   report->configurationReport));
+          if (!collisionReport) {
+            std::stringstream ss;
+            ss << "Expected a CollisionValidationReport. Got a " << *report->configurationReport;
+            throw std::logic_error (ss.str());
+          }
+          object1_ = collisionReport->object1;
+          object2_ = collisionReport->object2;
 
-         computeJacobian();
-       }
+          hppDout (info, "obj1 = " << object1_->name()
+                   << " and obj2 = " << object2_->name());
+          hppDout (info, "qColl = " << pinocchio::displayConfig (qColl_));
+
+          // Backtrack collision in previous path (x0) to create constraint
+          value_type tFree = tColl * freeSpline->length () /
+            collSpline->length();
+
+          qFree_ = (*freeSpline) (tFree, success);
+          assert(success);
+          hppDout (info, "qFree = " << pinocchio::displayConfig (qFree_));
+          // Compute contact point in configuration qColl
+          const fcl::CollisionResult& result (collisionReport->result);
+          if (result.numContacts () < 1) {
+            abort ();
+          }
+          assert (result.numContacts () >= 1);
+          contactPoint_ = result.getContact (0).pos;
+          hppDout (info, "contact point = " << contactPoint_.transpose());
+          computeJacobian();
+        }
 
        fcl::CollisionResult checkCollision (const Configuration_t& q, bool enableContact)
        {
@@ -147,7 +122,7 @@ namespace hpp {
 	 robot_->computeForwardKinematics ();
          robot_->updateGeometryPlacements ();
 	 fcl::CollisionResult result;
-         fcl::CollisionRequest collisionRequest (1, enableContact, false, 1, false, true, fcl::GST_INDEP);
+         fcl::CollisionRequest collisionRequest (enableContact, 1, false);
          fcl::collide (object1_->fcl (), object2_->fcl (), collisionRequest, result);
          return result;
        }
@@ -162,41 +137,46 @@ namespace hpp {
          robot_->currentConfiguration (qColl_);
          robot_->computeForwardKinematics ();
 
-	 JointConstPtr_t joint1 = object1_->joint ();
-         Transform3f M1 (joint1->currentTransformation ());
-         vector3_t x1_J1 (M1.actInv(contactPoint_));
+         if (!object2_->joint() || object2_->joint()->index() == 0) {
+           object1_.swap(object2_);
+         }
 
-         if (object2_->joint ()) { // object2 = body part
-           JointConstPtr_t joint2 = object2_->joint ();
-           Transform3f M2 (joint2->currentTransformation ());
+	 JointConstPtr_t joint1 = object1_->joint ();
+	 JointConstPtr_t joint2 = object2_->joint ();
+         assert(joint2 && joint2->index() > 0);
+         Transform3f M2 (joint2->currentTransformation ());
+         vector3_t x2_J2 (M2.actInv(contactPoint_));
+
+         if (joint1 && joint1->index() > 0) { // object1 = body part
+           Transform3f M1 (joint1->currentTransformation ());
            // Position of contact point in each object local frame
-           vector3_t x2_J2 = M2.actInv (contactPoint_);
+           vector3_t x1_J1 = M1.actInv (contactPoint_);
            // Compute contact points in configuration qFree
            robot_->currentConfiguration (qFree_);
            robot_->computeForwardKinematics ();
            M2 = joint2->currentTransformation ();
            M1 = joint1->currentTransformation ();
-           // Position of x2 in local frame of joint1
-           vector3_t x2_J1 (M1.actInv (M2.act (x2_J2)));
-           hppDout (info, "x1 in J1 = " << x1_J1.transpose());
-           hppDout (info, "x2 in J1 = " << x2_J1.transpose());
-
-           u = (x2_J1 - x1_J1).normalized();
-           f = constraints::RelativePosition::create
-             ("", robot_, joint1, joint2, Transform3f(I3, x1_J1), Transform3f(I3 ,x2_J2));
-         } else{ // object2 = fixed obstacle and has no joint
-           vector3_t x2_J2 (contactPoint_);
-           // Compute contact points in configuration qFree
-           robot_->currentConfiguration (qFree_);
-           robot_->computeForwardKinematics ();
-           Transform3f M1 (joint1->currentTransformation ());
-           // position of x1 in global frame
-           vector3_t x1_J2 (M1.act (x1_J1));
+           // Position of x1 in local frame of joint2
+           vector3_t x1_J2 (M2.actInv (M1.act (x1_J1)));
+           hppDout (info, "x2 in J2 = " << x2_J2.transpose());
            hppDout (info, "x1 in J2 = " << x1_J2.transpose());
 
            u = (x1_J2 - x2_J2).normalized();
+           f = constraints::RelativePosition::create
+             ("", robot_, joint1, joint2, Transform3f(I3, x1_J1), Transform3f(I3 ,x2_J2));
+         } else{ // object1 = fixed obstacle and has no joint
+           vector3_t x1_J1 (contactPoint_);
+           // Compute contact points in configuration qFree
+           robot_->currentConfiguration (qFree_);
+           robot_->computeForwardKinematics ();
+           Transform3f M2 (joint2->currentTransformation ());
+           // position of x2 in global frame
+           vector3_t x2_J1 (M2.act (x2_J2));
+           hppDout (info, "x2 in J1 = " << x2_J1.transpose());
+
+           u = (x2_J1 - x2_J2).normalized();
            f = constraints::Position::create
-             ("", robot_, joint1, Transform3f(I3 ,x1_J1), Transform3f(I3 ,x2_J2));
+             ("", robot_, joint2, Transform3f(I3 ,x2_J2), Transform3f(I3 ,x1_J1));
          }
          matrix_t Jpos (f->outputSize (), f->inputDerivativeSize ());
          f->jacobian (Jpos, qFree_);

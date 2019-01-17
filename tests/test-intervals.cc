@@ -17,11 +17,11 @@
 // <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MODULE intervals
-#include "continuous-collision-checking/intervals.hh"
+#include "continuous-validation/intervals.hh"
 #include <boost/test/included/unit_test.hpp>
 
 using hpp::core::interval_t;
-using hpp::core::continuousCollisionChecking::Intervals;
+using hpp::core::continuousValidation::Intervals;
 
 bool checkIntervals (const Intervals& intervals)
 {

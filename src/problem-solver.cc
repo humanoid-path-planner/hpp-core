@@ -1,4 +1,3 @@
-
 //
 // Copyright (c) 2014 CNRS
 // Authors: Florent Lamiraux
@@ -40,12 +39,12 @@
 #include <hpp/core/configuration-shooter/gaussian.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/continuous-collision-checking/dichotomy.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/diffusing-planner.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/distance-between-objects.hh>
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
@@ -55,22 +54,25 @@
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
-#include <hpp/core/path-optimization/config-optimization.hh>
+#include <hpp/core/path-optimization/random-shortcut.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized-joint-bound.hh>
 #include <hpp/core/path-validation-report.hh>
 // #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
-#include <hpp/core/random-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/steering-kinodynamic.hh>
 #include <hpp/core/steering-method/snibud.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
+#include <hpp/core/kinodynamic-distance.hh>
 
 namespace hpp {
   namespace core {
@@ -129,6 +131,18 @@ namespace hpp {
       static boost::shared_ptr<Derived> create (const Problem& problem, const value_type& value) { return Derived::create (problem, value); }
     };
 
+    pathValidation::DiscretizedPtr_t createDiscretizedJointBoundAndCollisionChecking (
+        const DevicePtr_t& robot, const value_type& stepSize)
+    {
+      using namespace pathValidation;
+      DiscretizedPtr_t pv (Discretized::create (stepSize));
+      JointBoundValidationPtr_t jbv (JointBoundValidation::create (robot));
+      pv->add (jbv);
+      CollisionValidationPtr_t cv (CollisionValidation::create (robot));
+      pv->add (cv);
+      return pv;
+    }
+
     template <typename T>
     boost::shared_ptr<T> createFromRobot (const Problem& p) { return T::create(p.robot()); }
 
@@ -141,6 +155,13 @@ namespace hpp {
         ptr->sigmas (p.robot()->currentVelocity());
       else if (p.parameters.has(stdDev))
         ptr->sigma (p.getParameter (stdDev).floatValue());
+      return ptr;
+    }
+
+    configurationShooter::UniformPtr_t createUniformConfigShooter (const Problem& p)
+    {
+      configurationShooter::UniformPtr_t ptr = configurationShooter::Uniform::create(p.robot());
+      ptr->sampleExtraDOF(p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue());
       return ptr;
     }
 
@@ -178,6 +199,8 @@ namespace hpp {
       errorThreshold_ (1e-4), maxIterProjection_ (20),
       maxIterPathPlanning_ (std::numeric_limits
 			    <unsigned long int>::max ()),
+      timeOutPathPlanning_(std::numeric_limits<double>::infinity()),
+      
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
@@ -191,22 +214,24 @@ namespace hpp {
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
 
-      configurationShooters.add ("Uniform" , createFromRobot<configurationShooter::Uniform>);
+      configurationShooters.add ("Uniform" , createUniformConfigShooter);
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
       distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
+      distances.add ("Kinodynamic",     KinodynamicDistance::createFromProblem);
+
 
       steeringMethods.add ("Straight",   Factory<steeringMethod::Straight>::create);
       steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
+      steeringMethods.add ("Kinodynamic", steeringMethod::Kinodynamic::create);
       steeringMethods.add ("Dubins",     steeringMethod::Dubins::createWithGuess);
       steeringMethods.add ("Snibud",     steeringMethod::Snibud::createWithGuess);
       steeringMethods.add ("Hermite",    steeringMethod::Hermite::create);
 
       // Store path optimization methods in map.
-      pathOptimizers.add ("RandomShortcut",     RandomShortcut::create);
+      pathOptimizers.add ("RandomShortcut",     pathOptimization::RandomShortcut::create);
       pathOptimizers.add ("PartialShortcut",    pathOptimization::PartialShortcut::create);
-      pathOptimizers.add ("ConfigOptimization", pathOptimization::ConfigOptimization::create);
       pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
 
       // pathOptimizers.add ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
@@ -217,9 +242,12 @@ namespace hpp {
       pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::BernsteinBasis, 3>::create);
 
       // Store path validation methods in map.
-      pathValidations.add ("Discretized", DiscretizedCollisionChecking::create);
-      pathValidations.add ("Progressive", continuousCollisionChecking::Progressive::create);
-      pathValidations.add ("Dichotomy",   continuousCollisionChecking::Dichotomy::create);
+      pathValidations.add ("Discretized", pathValidation::createDiscretizedCollisionChecking);
+      pathValidations.add ("DiscretizedCollision", pathValidation::createDiscretizedCollisionChecking);
+      pathValidations.add ("DiscretizedJointBound", pathValidation::createDiscretizedJointBound);
+      pathValidations.add ("DiscretizedCollisionAndJointBound", createDiscretizedJointBoundAndCollisionChecking);
+      pathValidations.add ("Progressive", continuousValidation::Progressive::create);
+      pathValidations.add ("Dichotomy",   continuousValidation::Dichotomy::create);
 
       // Store config validation methods in map.
       configValidations.add ("CollisionValidation", CollisionValidation::create);
@@ -332,6 +360,28 @@ namespace hpp {
       problem_->pathValidation (pathValidation);
     }
 
+    void ProblemSolver::initConfigValidation ()
+    {
+      if (!robot_) throw std::logic_error ("You must provide a robot first");
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      problem_->resetConfigValidations();
+      for (ConfigValidationTypes_t::const_iterator it =
+          configValidationTypes_.begin (); it != configValidationTypes_.end ();
+          ++it)
+      {
+        ConfigValidationPtr_t configValidation =
+          configValidations.get (*it) (robot_);
+        problem_->addConfigValidation (configValidation);
+      }
+    }
+
+    void ProblemSolver::initValidations ()
+    {
+      initPathValidation ();
+      initConfigValidation ();
+      problem_->collisionObstacles(collisionObstacles_);
+    }
+
     void ProblemSolver::pathProjectorType (const std::string& type,
 					    const value_type& tolerance)
     {
@@ -362,11 +412,7 @@ namespace hpp {
       configValidationTypes_.push_back (type);
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       // If a robot is present, set config validation methods
-      if (robot_) {
-        ConfigValidationPtr_t configValidation =
-	      configValidations.get (type) (robot_);
-        problem_->addConfigValidation (configValidation);
-      }
+      initConfigValidation ();
     }
 
     void ProblemSolver::clearConfigValidations ()
@@ -655,19 +701,9 @@ namespace hpp {
       // Set constraints
       problem_->constraints (constraints_);
       // Set path validation method
-      PathValidationPtr_t pathValidation =
-	pathValidations.get (pathValidationType_)
-        (robot_, pathValidationTolerance_);
-      problem_->pathValidation (pathValidation);
+      initPathValidation ();
       // Set config validation methods
-      for (ConfigValidationTypes_t::const_iterator it =
-          configValidationTypes_.begin (); it != configValidationTypes_.end ();
-          ++it)
-      {
-        ConfigValidationPtr_t configValidation =
-	      configValidations.get (*it) (robot_);
-        problem_->addConfigValidation (configValidation);
-      }
+      initConfigValidation ();
       // Set obstacles
       problem_->collisionObstacles(collisionObstacles_);
       // Distance to obstacles
@@ -709,6 +745,7 @@ namespace hpp {
       problem_->distance (dist);
     }
 
+
     void ProblemSolver::initSteeringMethod ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
@@ -744,6 +781,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
+
       // Set shooter
       problem_->configurationShooter
         (configurationShooters.get (configurationShooterType_) (*problem_));
@@ -752,6 +790,7 @@ namespace hpp {
       PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
       pathPlanner_ = createPlanner (*problem_, roadmap_);
       pathPlanner_->maxIterations (maxIterPathPlanning_);
+      pathPlanner_->timeOut(timeOutPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();
       /// create Path projector
       initPathProjector ();
@@ -1094,6 +1133,10 @@ namespace hpp {
           "ConfigurationShooter/Gaussian/standardDeviation",
           "Scale the default standard deviation with this factor.",
           Parameter(0.25)));
+    Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+          "ConfigurationShooter/sampleExtraDOF",
+          "If false, the value of the random configuration extraDOF are set to 0.",
+          Parameter(true)));
     HPP_END_PARAMETER_DECLARATION(ProblemSolver)
   } //   namespace core
 } // namespace hpp

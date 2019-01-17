@@ -25,7 +25,7 @@
 # include <hpp/core/steering-method/fwd.hh>
 # include <hpp/core/steering-method.hh>
 # include <hpp/core/straight-path.hh>
-# include <hpp/core/weighed-distance.hh>
+# include <hpp/core/distance.hh>
 # include <hpp/core/config-projector.hh>
 
 namespace hpp {

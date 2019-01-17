@@ -16,8 +16,8 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_CORE_CONTINUOUS_COLLISION_CHECKING_INTERVALS_HH
-# define HPP_CORE_CONTINUOUS_COLLISION_CHECKING_INTERVALS_HH
+#ifndef HPP_CORE_CONTINUOUS_VALIDATION_INTERVALS_HH
+# define HPP_CORE_CONTINUOUS_VALIDATION_INTERVALS_HH
 
 #include <ostream>
 #include <list>
@@ -25,7 +25,7 @@
 
 namespace hpp {
   namespace core {
-    namespace continuousCollisionChecking {
+    namespace continuousValidation {
       inline bool lastElement (const std::list <interval_t>& list,
 			       const std::list <interval_t>::iterator& it)
       {
@@ -179,15 +179,14 @@ namespace hpp {
 	}
 
       private:
-	std::list <interval_t> intervals_;      
+	std::list <interval_t> intervals_;
       }; // class Intervals
 
-      inline std::ostream& operator<<
-      (std::ostream& os, const Intervals& intervals)
+      inline std::ostream& operator<< (std::ostream& os, const Intervals& o)
       {
-        return intervals.print (os);
+        return o.print (os);
       }
-    } // namespace continuousCollisionChecking
+    } // namespace continuousValidation
   } // namespace core
 } // namespace hpp
-#endif // HPP_CORE_CONTINUOUS_COLLISION_CHECKING_INTERVALS_HH
+#endif // HPP_CORE_CONTINUOUS_VALIDATION_INTERVALS_HH

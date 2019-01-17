@@ -1,10 +1,7 @@
 INPUT = @CMAKE_SOURCE_DIR@/include \
-      @CMAKE_SOURCE_DIR@/doc \
-      @CMAKE_SOURCE_DIR@/src/continuous-collision-checking/body-pair-collision.hh \
-      @CMAKE_SOURCE_DIR@/src/times-frame-function.hh
+      @CMAKE_SOURCE_DIR@/doc
 
 HIDE_FRIEND_COMPOUNDS  = YES
 
 IMAGE_PATH             = @CMAKE_SOURCE_DIR@/doc
-GENERATE_TREEVIEW	 = @DOXYGEN_TREEVIEW@
 USE_MATHJAX            = YES

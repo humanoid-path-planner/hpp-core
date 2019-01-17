@@ -1,0 +1,260 @@
+\documentclass {article}
+\usepackage{amsmath}
+\usepackage{todonotes}
+
+\newcommand\reals{\mathbf{R}}
+
+\newcommand\spline[4]{P(#1, #2, #3, #4)}
+\newcommand\splinev[3]{v(#1, #2, #3)}
+\newcommand\splinea[2]{\spline{b_{#1}}{c_{#1}}{T_{#1}}{#2}}
+\newcommand\splineva[2]{\splinev{c_{#1}}{T_{#1}}{#2}}
+
+\newcommand\dotspline[4]{\dot{P}(#1, #2, #3, #4)}
+\newcommand\dotsplinev[3]{\dot{v}(#1, #2, #3)}
+\newcommand\dotsplinea[2]{\dotspline{b_{#1}}{c_{#1}}{T_{#1}}{#2}}
+\newcommand\dotsplineva[2]{\dotsplinev{c_{#1}}{T_{#1}}{#2}}
+
+\newcommand\subspline[5]{P^{#1}(#2, #3, #4, #5)}
+\newcommand\subsplinea[3]{\subspline{#1}{b_{#2}}{c_{#2}}{T_{#2}}{#3}}
+
+\newcommand\Jplusq[2]{\frac{\partial\oplus}{\partial{q}}(#1,#2)}
+\newcommand\Jplusv[2]{\frac{\partial\oplus}{\partial{v}}(#1,#2)}
+\newcommand\Jminusl[2]{\frac{\partial\ominus}{\partial{q_l}}(#1,#2)}
+\newcommand\Jminusr[2]{\frac{\partial\ominus}{\partial{q_r}}(#1,#2)}
+
+\newcommand\Hplusvv[2]{\frac{\partial^2\oplus}{\partial^2{v}}(#1,#2)}
+\newcommand\Hminusrr[2]{\frac{\partial^2\ominus}{\partial^2{q_r}}(#1,#2)}
+
+% \newcommand\constraintIa{}
+% \newcommand\constraintIb{}
+
+\begin{document}
+
+\section{Problem statement}
+Let $B^n_k(u), 0 \le k \le n, u \in [0,1]$ be a base of the set of polynoms of degree inferior
+or equal to $n$. We define:
+\begin{equation}
+  \spline{b}{c}{T}{t} = b \oplus \splinev{c}{T}{t}
+  % \spline{b}{c}{T}{t} = b \oplus \sum_k c_k B^n_k(\frac{t}{T})
+  \label{eq:splinedef}
+\end{equation}
+where $$ \splinev{c}{T}{t} = \sum_k B^n_k(\frac{t}{T}) c^k $$
+
+\subsection{Continuity constraint}
+
+\begin{align}
+  \splinea{i}{T_i} &= \splinea{i+1}{0} \label{eq:continuitydef_0i}\\
+  q_{initial}      &= \splinea{  0}{0} \label{eq:continuitydef_00} \\
+  \splinea{N}{T_N} &= q_{goal}         \label{eq:continuitydef_0N} \\
+%
+  \dotsplinea{i}{T_i} &= \dotsplinea{i+1}{0} \label{eq:continuitydef_1i} \\
+  \dot{q}_{initial}   &= \dotsplinea{  0}{0} \label{eq:continuitydef_10} \\
+  \dotsplinea{N}{T_N} &= \dot{q}_{goal}      \label{eq:continuitydef_1N}
+  % \label{<++>}
+\end{align}
+
+Equations~\eqref{eq:continuitydef_0i} and~\eqref{eq:continuitydef_1i} can be reformulated
+as follows\footnote{This relies on the fact that $\Jplusv{q}{v}^{-1} = \Jminusr{q}{q\oplus v}$}.
+
+\begin{align*}
+  \splineva{i}{T_i} &= (b_{i+1} \oplus \splineva{i+1}{0}) \ominus b_i \\
+  \dotsplineva{i}{T_i} &=
+  % \Jplusv{b_i}{\splineva{i}{T_i}}^{-1} \times
+  \Jminusr{b_i}{b_i\oplus\splineva{i}{T_i}} \times
+  \Jplusv{b_{i+1}}{\splineva{i+1}{0}} \times
+  \dotsplineva{i+1}{0}
+\end{align*}
+
+\subsubsection{Bezier curves}
+
+We implement continuity constraint as explicit constraints.
+
+\begin{align*}
+  \splineva{i+1}{0} &= c_{i+1}^{0} \\
+  \splineva{i}{T_i} &= c_{i}^{n}   \\
+  \dotsplineva{i+1}{0} &= \frac{n}{T_{i+1}} (c_{i+1}^{1}-c_{i+1}^0) \\
+  \dotsplineva{i}{T_i} &= \frac{n}{T_i} (c_i^{n} - c_i^{n-1})
+\end{align*}
+
+Thus, for $0 \le i < N$:
+\begin{align*}
+  c_i^n     &= (b_{i+1} \oplus c_{i+1}^{0}) \ominus b_i \\
+  c_i^{n-1} &= c_i^n - \frac{T_i}{T_{i+1}}
+  \Jminusr{b_i}{b_i\oplus c_i^n} \times
+  \Jplusv{b_{i+1}}{c_{i+1}^0} \times
+  (c_{i+1}^{1}-c_{i+1}^0)
+\end{align*}
+
+Equations~\eqref{eq:continuitydef_00} and~\eqref{eq:continuitydef_10} becomes:
+\begin{align*}
+  c_0^0 &= q_{initial} \ominus b_0 \\
+  c_0^1 &= c_0^0 + \frac{T_0}{n}
+  \Jplusv{b_0}{c_0^0}
+  \dot{q}_{initial}
+\end{align*}
+
+Equations~\eqref{eq:continuitydef_0N} and~\eqref{eq:continuitydef_1N} becomes:
+\begin{align*}
+  c_N^n     &= q_{goal} \ominus b_N \\
+  c_N^{n-1} &= c_N^n - \frac{T_N}{n}
+  \Jminusr{b_N}{b_N\oplus c_N^n} \times
+  \dot{q}_{goal}
+\end{align*}
+
+\paragraph{Derivatives} for $0 \le i < N$:
+\begin{align*}
+  \frac{\partial{c_i^n}}{\partial{c^0_{i+1}}} &=
+  \Jminusl{b_{i+1} \oplus c_{i+1}^{0}}{b_i} \times
+  \Jplusv{b_{i+1}}{c_{i+1}^{0}} \\
+%
+  \frac{\partial{c_i^{n-1}}}{\partial{c^k_{i+1}}} &=
+  \frac{\partial{c_i^n}}{\partial{c^k_{i+1}}} - \frac{T_i}{T_{i+1}}
+  % \left(\right.
+  \Bigg(
+  \\
+  % \Jminusr{b_i}{b_i\oplus c_i^n}
+  & \bigg[
+    \Hminusrr{b_i}{c_i^0}
+    \Jplusv{b_i}{c_i^0}
+    \frac{\partial{c_i^n}}{\partial{c^k_{i+1}}}
+  \bigg]
+  \Jplusv{b_{i+1}}{c_{i+1}^0}
+  (c_{i+1}^{1}-c_{i+1}^0)
+  \\
+  + &
+  \delta_{0,k}
+  \Jminusr{b_i}{b_i\oplus c_i^n}
+  % \Jplusv{b_{i+1}}{c_{i+1}^
+  \bigg[
+    \Hplusvv{b_i}{c_i^0}
+    I_r
+    % \frac{\partial{c_{i+1}^0}}{\partial{c^k_{i+1}}}
+  \bigg]
+  (c_{i+1}^{1}-c_{i+1}^0)
+  \\
+  + &
+  (\delta_{1,k} - \delta_{0,k})
+  \Jminusr{b_i}{b_i\oplus c_i^n}
+  \Jplusv{b_{i+1}}{c_{i+1}^0}
+  % (c_{i+1}^{1}-c_{i+1}^0)
+  % \left.\right)
+  \Bigg)
+\end{align*}
+
+\subsubsection{Implementation}
+This is implemented in class {\texttt ExplicitContinuityFunction}
+in file {\texttt src/path-optimization/spline-gradient-based/continuity.hh}.
+
+Currently, the second order derivatives of the integration and difference operators
+($\oplus$ and $\ominus$) are not implemented. The derivative of the continuity constraint is
+only correct on vector spaces.
+
+\subsection{Path constraints}
+
+We consider four types of constraints, as follows.
+\begin{align}
+     \subsplinea{(a)}{i}{t} &= f_i (\subsplinea{(b)}{i}{t}) \label{eq:constraintdef_Ia}
+  \\ \subsplinea{(c)}{i}{t} &= \bar{f_i} (\subsplinea{(d)}{i}{t}) \oplus r_i \label{eq:constraintdef_IIa}
+  \\      F_i  (\splinea{i}{t}) &= 0   \label{eq:constraintdef_Ib}
+  \\ \bar{F_i} (\splinea{i}{t}) &= R_i \label{eq:constraintdef_IIb}
+\end{align}
+
+\subsubsection{Implicit constraints}
+Equation~\eqref{eq:constraintdef_Ib} becomes, for $0\le i\le N$:
+\begin{align*}
+  G_i(b_i, c_i, T_i) &= 0 \\
+  G_i(b_{i+1}, c_{i+1}, T_{i+1}) &= 0 \\
+\end{align*}
+where $G_i(b_i, c_i, T_i) = F_i  (\splinea{i}{0})$.
+
+Equation~\eqref{eq:constraintdef_IIb} becomes, for $0\le i\le N$:
+\begin{equation*}
+  \bar{G_i}(b_i, c_i, T_i, b_{i+1}, c_{i+1}, T_{i+1}) = 0
+\end{equation*}
+where $
+\bar{G_i}(b_i, c_i, T_i, b_{i+1}, c_{i+1}, T_{i+1}) =
+\bar{F_i} (\splinea{i}{0}) - \bar{F_i} (\splinea{i+1}{0})
+$
+and 
+$
+\bar{G_N}(b_N, c_N, T_N) =
+\bar{F_N} (\splinea{N}{0}) - \bar{F_N} (\splinea{N}{T_N})
+$
+
+\paragraph{Implementation} of $G_i$ function is done in class {\texttt hpp::constraints::function::Difference}
+in {\texttt hpp-constraints} package.
+
+\subsubsection{Explicit constraints}
+If $f_i$ in Equation~\eqref{eq:constraintdef_Ia}
+is such that $f_i(\subsplinea{(b)}{i}{t})$ is a polynom
+of degree inferior or equal to $n$, then
+Equation~\eqref{eq:constraintdef_Ia} can be converted into
+an explicit constraint such as
+$$
+b_i^{(a)}, c_i^{(a)}  = g_i (b_i^{(b)}, c_i^{(b)}, T_i)
+$$
+Otherwise, Equation~\eqref{eq:constraintdef_Ia} becomes
+a proxy function.
+
+Consider now Equation~\eqref{eq:constraintdef_IIa}.
+As $r_i$ is independant of $t$, it can be one of the expression below.
+\begin{align*}
+  r^{0-}_i &= \subsplinea{(c)}{i-1}{T_{i-1}} &\ominus& \bar{f_i} (\subsplinea{(d)}{i-1}{T_{i-1}})) \\
+  r^{0+}_i &= \subsplinea{(c)}{i  }{      0} &\ominus& \bar{f_i} (\subsplinea{(d)}{i  }{      0})) \\
+  r^{1-}_i &= \subsplinea{(c)}{i  }{T_{i  }} &\ominus& \bar{f_i} (\subsplinea{(d)}{i  }{T_{i  }})) \\
+  r^{1+}_i &= \subsplinea{(c)}{i+1}{      0} &\ominus& \bar{f_i} (\subsplinea{(d)}{i+1}{      0}))
+\end{align*}
+In what follows, we choose the expression of $r_i$ which, if possible, keeps the constraint explicit.
+
+If $\bar{f_i}$
+is such that $\bar{f_i}(\subsplinea{(b)}{i}{t})\oplus r_i$ is a polynom
+of degree inferior or equal to $n$, then
+Equation~\eqref{eq:constraintdef_IIa} can be converted into
+an explicit constraint such as
+$$
+b_i^{(c)}, c_i^{(c)}  = \bar{g_i} (b_i^{(d)}, c_i^{(d)}, T_i) \oplus r_i
+$$
+For instance, this happens when $\bar{f_i}$ is constant (e.g. {\texttt LockedJoint} constraints).
+
+In the general case,
+we define it either as a proxy constraint or as an implicit constraint.
+For simplicity, we always use the following expression for $r_i$.
+$$
+  r_i = \subsplinea{(c)}{i-1}{T_{i-1}} \ominus \bar{f_i} (\subsplinea{(d)}{i}{0}))
+$$
+The proxy function is then $
+\subsplinea{(c)}{i}{t} = \bar{g_i} (b_i^{(d)}, c_i^{(d)}, T_i) \oplus r_i
+$
+
+\paragraph{Implementation} of the above proxy function is done in class \texttt{ProxyFunction}
+\todo{Not fully implementated yet.}
+in file {\texttt src/path-optimization/spline-gradient-based/proxy.hh}.
+
+\subsubsection{Proxy functions}
+A proxy function is a function that outputs a subconfiguration for a subpath,
+from another subconfiguration and/or subpath.
+They are more general than explicit function since the resulting trajectory is not
+necessarily a spline.
+The proxy function replaces the path value
+$ p_i^{(c)}(t) = \subsplinea{(c)}{i}{t} $ by
+$$ p_i^{(c)}(t) \gets Proxy (b_j^{(d)}, c_j^{(d)}, T_j, t) $$
+
+$(i,(c))$ is the output subset. $(j,(d))$ is the input subset.
+
+Any constraint that depends on $(i, (c))$ will be converted into
+a function that depends on $(j, (d))$ using the chaining rule.
+
+The output subset should be removed from the variables,
+e.g. by adding an explicit constant constraint on them.
+Corresponding continuity constraints should be removed
+if ensured by other means or made implicit.
+
+\paragraph{Implementation} of functions using proxies is done in class
+\texttt{ProxiedFunction} \todo{Not implemented yet}
+in file {\texttt src/path-optimization/spline-gradient-based/proxy.hh}.
+
+\section{Resolution using quadratic programming}
+
+\section{Resolution using non-linear optimization}
+
+\end{document}
