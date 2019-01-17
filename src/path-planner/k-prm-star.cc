@@ -112,9 +112,9 @@ namespace hpp {
           // After 10000 trials throw if no valid configuration has been found.
           do {
             qrand = shooter->shoot ();
-            if (valid = (!constraints || constraints->apply (*qrand))) {
+            valid = (!constraints || constraints->apply (*qrand));
+            if (valid)
               valid = configValidations->validate (*qrand, validationReport);
-            }
 	    nbTry++;
           } while (!valid && nbTry < 10000);
           if (!valid) {

@@ -283,7 +283,7 @@ namespace hpp {
       const size_type maxIterSave = maxIterations();
       if (maxIter != 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
-      BySubstitution::Status status;
+      BySubstitution::Status status = BySubstitution::MAX_ITERATION_REACHED;
       switch (lineSearchType_) {
         case Backtracking  : {
                                Backtracking_t ls;
