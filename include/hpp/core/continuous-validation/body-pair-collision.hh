@@ -90,6 +90,7 @@ namespace hpp {
         virtual void addCollisionPair (const CollisionObjectConstPtr_t& /*left*/,
             const CollisionObjectConstPtr_t &/*right*/) {}
 
+        virtual std::string name () const = 0;
         virtual std::ostream& print (std::ostream& os) const = 0;
 
         virtual BodyPairCollisionPtr_t copy () const = 0;
