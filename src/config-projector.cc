@@ -368,6 +368,11 @@ namespace hpp {
       return solver_->isSatisfied (config, error);
     }
 
+    const NumericalConstraints_t& ConfigProjector::numericalConstraints () const
+    {
+      return solver_->numericalConstraints ();
+    }
+
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       return solver_->rightHandSideFromConfig (config);
