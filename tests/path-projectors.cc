@@ -103,7 +103,7 @@ class Polynomial : public DifferentiableFunction {
     vector_t coefs_;
 
   protected:
-      void impl_compute (LiegroupElement& result, vectorIn_t argument) const {
+      void impl_compute (LiegroupElementRef result, vectorIn_t argument) const {
         result.vector ()[0] = argument.cwiseProduct (argument).dot (coefs_) - 1;
       }
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const {
