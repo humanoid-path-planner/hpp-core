@@ -21,6 +21,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/time-parameterization.hh>
+#include <hpp/core/config-projector.hh>
 
 namespace hpp {
   namespace core {
@@ -124,6 +125,14 @@ namespace hpp {
     void Path::init (const PathWkPtr_t& self)
     {
       weak_ = self;
+    }
+
+    bool Path::applyConstraints (ConfigurationOut_t result, const value_type& param) const
+    {
+      if (!constraints_) return true;
+      if (constraints_->configProjector ())
+        constraints_->configProjector()->rightHandSideAt(param);
+      return constraints_->apply (result);
     }
 
     void Path::derivative (vectorOut_t result, const value_type& time,

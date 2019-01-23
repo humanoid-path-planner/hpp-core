@@ -267,6 +267,9 @@ namespace hpp {
       /// \return the parameter.
       vector_t rightHandSide () const;
 
+      /// Update the right hand side using Implicit::rightHandSideAt
+      void rightHandSideAt (const value_type& s);
+
       /// @}
 
       /// Check whether a configuration statisfies the constraint.

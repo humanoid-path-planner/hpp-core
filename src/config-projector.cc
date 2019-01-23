@@ -406,6 +406,11 @@ namespace hpp {
       return solver_->rightHandSide();
     }
 
+    void ConfigProjector::rightHandSideAt (const value_type& s)
+    {
+      solver_->rightHandSideAt (s);
+    }
+
     inline bool ConfigProjector::solverOneStep (ConfigurationOut_t config) const
     {
       switch (lineSearchType_) {
