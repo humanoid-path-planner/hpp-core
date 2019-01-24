@@ -108,6 +108,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/kinodynamic-path.hh
   include/hpp/core/kinodynamic-oriented-path.hh
   include/hpp/core/plan-and-optimize.hh
+  include/hpp/core/plugin.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
   include/hpp/core/random-shortcut.hh # DEPRECATED

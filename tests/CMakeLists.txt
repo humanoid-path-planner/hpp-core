@@ -76,3 +76,7 @@ ADD_TESTCASE (time-parameterization FALSE)
 ADD_TESTCASE (configuration-shooters FALSE)
 # ADD_TESTCASE (hermite-path FALSE) Refactoring hpp-model -> hpp-pinocchio not done
 ADD_TESTCASE (test-kinodynamic FALSE)
+ADD_SUBDIRECTORY(plugin-test)
+CONFIG_FILES (plugin.cc)
+ADD_TESTCASE (plugin TRUE)
+ADD_DEPENDENCIES (plugin example)

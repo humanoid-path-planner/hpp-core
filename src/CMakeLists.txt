@@ -70,6 +70,7 @@ path-validation/discretized-joint-bound.cc
   path/spline.cc
   path/hermite.cc
   plan-and-optimize.cc #
+  plugin.cc # TODO : addObstacle
   problem.cc # TODO : addObstacle
   problem-solver.cc # TODO : addObstacle
   path-projector.cc
@@ -117,5 +118,6 @@ PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-pinocchio)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-util)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-statistics)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-constraints)
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${CMAKE_DL_LIBS})
 
 INSTALL(TARGETS ${LIBRARY_NAME} DESTINATION lib)
