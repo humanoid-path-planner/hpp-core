@@ -234,6 +234,8 @@ namespace hpp {
     {
       using pinocchio::displayConfig;
       if (constraints()) {
+        if (constraints_->configProjector ())
+          constraints_->configProjector()->rightHandSideAt(paramRange_.first);
         if (!constraints()->isSatisfied (initial())) {
           std::stringstream oss;
           hppDout (error, *constraints());
@@ -245,12 +247,14 @@ namespace hpp {
           oss << displayConfig (error) << ".";
           throw projection_error (oss.str ().c_str ());
         }
+        if (constraints_->configProjector ())
+          constraints_->configProjector()->rightHandSideAt(paramRange_.second);
         if (constraints() && !constraints()->isSatisfied (end())) {
           std::stringstream oss;
           hppDout (error, *constraints());
           hppDout (error, displayConfig (end()));
           oss << "End configuration of path does not satisfy the path "
-            "constraints: q=" << displayConfig (initial ()) << "; error=";
+            "constraints: q=" << displayConfig (end ()) << "; error=";
           vector_t error;
           constraints ()->isSatisfied (end (), error);
           Configuration_t q = end();
