@@ -839,10 +839,8 @@ namespace hpp {
       report = "";
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
-      // Create steering method using factory
-      SteeringMethodPtr_t sm (steeringMethods.get (steeringMethodType_)
-          (*problem_));
-      problem_->steeringMethod (sm);
+      // Get steering method from problem
+      SteeringMethodPtr_t sm (problem_->steeringMethod());
       PathPtr_t dp = (*sm) (start, end);
       if (!dp) {
 	report = "Steering method failed to build a path.";
