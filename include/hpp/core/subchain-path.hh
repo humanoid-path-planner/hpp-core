@@ -20,6 +20,7 @@
 # define HPP_CORE_DOF_EXTRACTED_PATH_HH
 
 # include <hpp/core/path.hh>
+# include <hpp/constraints/matrix-view.hh>
 
 namespace hpp {
   namespace core {
@@ -51,13 +52,15 @@ namespace hpp {
 	return createCopy (weak_.lock (), constraints);
       }
 
+      /// \copydoc SubchainPath::SubchainPath
       static SubchainPathPtr_t
-      create (const PathPtr_t& original, const segments_t& intervals)
+      create (const PathPtr_t& original, const segments_t& confIntervals,
+          const segments_t& velIntervals)
       {
-	SubchainPath* ptr = new SubchainPath (original, intervals);
-	SubchainPathPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
+        SubchainPath* ptr = new SubchainPath (original, confIntervals, velIntervals);
+        SubchainPathPtr_t shPtr (ptr);
+        ptr->init (shPtr);
+        return shPtr;
       }
 
       static SubchainPathPtr_t
@@ -105,13 +108,7 @@ namespace hpp {
 
       void dofExtract (ConfigurationIn_t qin, ConfigurationOut_t qout) const
       {
-        size_type r = 0;
-        for (segments_t::const_iterator _rank = intervals_.begin();
-            _rank != intervals_.end(); ++_rank) {
-          qout.segment(r, _rank->second) = qin.segment(_rank->first, _rank->second);
-          r += _rank->second;
-        }
-        assert (r == outputSize());
+        qout = configView_.rview (qin);
       }
 
     protected:
@@ -119,10 +116,7 @@ namespace hpp {
       virtual std::ostream& print (std::ostream &os) const
       {
 	os << "Dof Extracted Path:" << std::endl;
-	os << "intervals: ";
-        for (segments_t::const_iterator _rank = intervals_.begin();
-            _rank != intervals_.end(); ++_rank)
-          os << "[ "  << _rank->first << ", " << _rank->second << "], " << std::endl;
+	os << "intervals: " << configView_ << std::endl;
 	os << "original path:" << std::endl;
 	os << *original_ << std::endl;
 	return os;
@@ -131,16 +125,20 @@ namespace hpp {
       /// Constructor
       ///
       /// \param original Path to extract,
-      /// \param intervals of the configuration parameters to be extracted
-      SubchainPath (const PathPtr_t& original, const segments_t& intervals) :
-	Path (original->timeRange(), intervalsToSize(intervals), outputSize ()),
-	original_ (original), intervals_ (intervals),
+      /// \param confIntervals of the configuration parameters to be extracted
+      /// \param velIntervals of the configuration parameters to be extracted
+      SubchainPath (const PathPtr_t& original,
+          const segments_t& confIntervals,
+          const segments_t& velIntervals) :
+	Path (original->timeRange(), Eigen::BlockIndex::cardinal(confIntervals),
+            Eigen::BlockIndex::cardinal(velIntervals)),
+	original_ (original), configView_ (confIntervals),
         q_ (Configuration_t::Zero(original->outputSize()))
       {}
 
       SubchainPath (const SubchainPath& path) : Path (path),
 						  original_ (path.original_),
-                                                  intervals_ (path.intervals_),
+                                                  configView_ (path.configView_),
                                                   q_ (path.q_),
 						  weak_ ()
       {
@@ -149,7 +147,7 @@ namespace hpp {
       SubchainPath (const SubchainPath& path,
 		     const ConstraintSetPtr_t& constraints) :
 	Path (path, constraints), original_ (path.original_),
-	intervals_ (path.intervals_), weak_ ()
+	configView_ (path.configView_), weak_ ()
       {
       }
 
@@ -161,18 +159,9 @@ namespace hpp {
 
     private:
       PathPtr_t original_;
-      segments_t intervals_;
+      Eigen::RowBlockIndices configView_, velView_;
       mutable Configuration_t q_;
       SubchainPathWkPtr_t weak_;
-
-      static size_type intervalsToSize(const segments_t& ints)
-      {
-        size_type l = 0;
-        for (segments_t::const_iterator _rank = ints.begin();
-            _rank != ints.end(); ++_rank)
-          l += _rank->second;
-        return l;
-      }
     }; // SubchainPath
     /// \}
   } //   namespace core
