@@ -27,7 +27,7 @@
 #include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/util/debug.hh>
-#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/util.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/joint-collection.hh>
@@ -176,14 +176,6 @@ namespace hpp {
       }
     }
 
-    std::ostream& operator<< (std::ostream& os, const std::vector <value_type>& v)
-    {
-      for (std::size_t i=0; i<v.size (); ++i) {
-	os << v [i] << ",";
-      }
-      return os;
-    }
-
     WeighedDistancePtr_t WeighedDistance::create (const DevicePtr_t& robot)
     {
       WeighedDistance* ptr = new WeighedDistance (robot);
@@ -203,7 +195,7 @@ namespace hpp {
 
     WeighedDistancePtr_t
     WeighedDistance::createWithWeight (const DevicePtr_t& robot,
-			     const std::vector <value_type>& weights)
+			     const vector_t& weights)
     {
       WeighedDistance* ptr = new WeighedDistance (robot, weights);
       WeighedDistancePtr_t shPtr (ptr);
@@ -225,12 +217,31 @@ namespace hpp {
       return createCopy (weak_.lock ());
     }
 
-    value_type WeighedDistance::getWeight( std::size_t rank ) const
+    const vector_t& WeighedDistance::weights () const
+    {
+      return weights_;
+    }
+
+    void WeighedDistance::weights (const vector_t& ws)
+    {
+      if ( ws.size() == weights_.size() )
+      {
+	weights_ = ws;
+      }
+      else {
+	std::ostringstream oss;
+	oss << "Distance::weights : size mismatch. Got " << ws.size() << ". Expected "
+	    << weights_.size () << ".";
+	throw std::runtime_error(oss.str ());
+      }
+    }
+
+    value_type WeighedDistance::getWeight( size_type rank ) const
     {
       return weights_[rank];
     }
 
-    void WeighedDistance::setWeight (std::size_t rank, value_type weight )
+    void WeighedDistance::setWeight (size_type rank, value_type weight )
     {
       if ( rank < weights_.size() )
       {
@@ -268,14 +279,14 @@ namespace hpp {
           ComputeWeightStep::run(model.joints[i],
               ComputeWeightStep::ArgsType(model, data, geomData, length));
 	  if (minLength > length && length > 0) minLength = length;
-	  weights_.push_back (length);
-	for (std::size_t k=0; k < weights_.size (); ++k) {
+	  weights_[i-1] = length;
+	for (std::size_t k=0; k < i; ++k) {
 	  if (weights_ [k] == 0) {
 	    weights_ [k] = minLength;
 	  }
 	}
       }
-      hppDout(info, "The weights are " << Eigen::Map<vector_t>(weights_.data(), weights_.size()).transpose());
+      hppDout(info, "The weights are " << weights_);
     }
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot) :
@@ -291,7 +302,7 @@ namespace hpp {
     }
 
     WeighedDistance::WeighedDistance (const DevicePtr_t& robot,
-				      const std::vector <value_type>& weights) :
+				      const vector_t& weights) :
       robot_ (robot), weights_ (weights)
     {
     }

@@ -271,6 +271,8 @@ namespace hpp {
                   type);
       }
       distanceType_ = type;
+      // TODO
+      // initDistance ();
     }
 
     void ProblemSolver::steeringMethodType (const std::string& type)
