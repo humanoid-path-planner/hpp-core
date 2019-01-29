@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   StraightPtr_t sm = Straight::create (p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
-				     (robot, boost::assign::list_of (1)(1)));
+				     (robot, vector_t::Ones(2)));
   RoadmapPtr_t r = Roadmap::create (distance, robot);
 
   std::vector <NodePtr_t> nodes;
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   StraightPtr_t sm = Straight::create (p);
   // create roadmap
   hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
-				     (robot, boost::assign::list_of (1)(1)));
+				     (robot, vector_t::Ones(2)));
   RoadmapPtr_t r = Roadmap::create (distance, robot);
 
   std::vector <NodePtr_t> nodes;
