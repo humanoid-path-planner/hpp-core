@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE (subchain)
   q2.tail<5>().setConstant(-1);
 
   PathPtr_t p1 = (*problem.steeringMethod()) (q1, q2), p2;
-  p2 = SubchainPath::create(p1, intervals);
+  p2 = SubchainPath::create(p1, intervals, intervals);
 
   BOOST_CHECK(p2->outputSize() == 6);
   Configuration_t q (p2->outputSize());
