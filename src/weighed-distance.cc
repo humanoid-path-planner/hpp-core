@@ -255,10 +255,13 @@ namespace hpp {
       robot_->controlComputation (flag);
       value_type minLength = std::numeric_limits <value_type>::infinity ();
 
-      JointJacobian_t jacobian(6, robot_->numberDof());
       const pinocchio::Model& model = robot_->model();
       const pinocchio::Data& data = robot_->data();
       const pinocchio::GeomData& geomData = robot_->geomData();
+      weights_.resize (model.joints.size()-1);
+      // TODO when there is only one freeflyer, and the body radius is 0,
+      // the weights should be [0,].
+      // The algorithm below returns [inf,]
       for (pinocchio::JointIndex i = 1; i < model.joints.size(); ++i)
       {
 	  value_type length = 0;

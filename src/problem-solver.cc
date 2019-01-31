@@ -860,9 +860,12 @@ namespace hpp {
 	projValid = problem()->pathValidation ()->validate (dp1, false, dp2, r);
         pathValid = projValid && projected;
         if (!projValid) {
-          hppDout (info, *r);
-          std::ostringstream oss;
-          oss << *r; report = oss.str ();
+          if (r) {
+            std::ostringstream oss;
+            oss << *r; report = oss.str ();
+          } else {
+            report = "No path validation report.";
+          }
         }
       } else {
         dp2 = dp;
