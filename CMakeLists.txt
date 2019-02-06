@@ -33,6 +33,8 @@ SET(PROJECT_DESCRIPTION
   )
 SET(PROJECT_URL "https://github.com/humanoid-path-planner/hpp-core")
 
+OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" ON)
+
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
@@ -160,8 +162,10 @@ ADD_SUBDIRECTORY(tests)
 # Add dependency toward hpp-core library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")
 
-INSTALL (FILES doc/continuous-collision-checking.pdf
-doc/continuous-validation.pdf
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
+IF(INSTALL_DOCUMENTATION)
+  INSTALL (FILES doc/continuous-collision-checking.pdf
+  doc/continuous-validation.pdf
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
+ENDIF(INSTALL_DOCUMENTATION)
 
 SETUP_HPP_PROJECT_FINALIZE()
