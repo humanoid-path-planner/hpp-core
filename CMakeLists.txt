@@ -31,7 +31,6 @@ SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
   "Implement basic classes for canonical path planning for kinematic chains."
   )
-SET(PROJECT_URL "https://github.com/humanoid-path-planner/hpp-core")
 
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -160,8 +159,10 @@ ADD_SUBDIRECTORY(tests)
 # Add dependency toward hpp-core library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-core")
 
-INSTALL (FILES doc/continuous-collision-checking.pdf
-doc/continuous-validation.pdf
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
+IF(INSTALL_DOCUMENTATION)
+  INSTALL (FILES doc/continuous-collision-checking.pdf
+  doc/continuous-validation.pdf
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
+ENDIF(INSTALL_DOCUMENTATION)
 
 SETUP_HPP_PROJECT_FINALIZE()
