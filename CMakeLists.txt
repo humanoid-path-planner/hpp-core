@@ -31,9 +31,6 @@ SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION
   "Implement basic classes for canonical path planning for kinematic chains."
   )
-SET(PROJECT_URL "https://github.com/humanoid-path-planner/hpp-core")
-
-OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" ON)
 
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
