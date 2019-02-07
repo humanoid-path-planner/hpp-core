@@ -122,7 +122,8 @@ namespace hpp {
 	 robot_->computeForwardKinematics ();
          robot_->updateGeometryPlacements ();
 	 fcl::CollisionResult result;
-         fcl::CollisionRequest collisionRequest (enableContact, 1, false);
+         fcl::CollisionRequestFlag flag = enableContact? fcl::CONTACT : fcl::NO_REQUEST ;
+         fcl::CollisionRequest collisionRequest (flag, 1);
          fcl::collide (object1_->fcl (), object2_->fcl (), collisionRequest, result);
          return result;
        }
