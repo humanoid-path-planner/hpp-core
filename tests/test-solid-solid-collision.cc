@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE (solid_solid_collision_1)
   display(model, bpc->coefficients());
 
   ConstObjectStdVector_t obstacles;
-  fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
+  hpp::fcl::CollisionGeometryPtr_t box (new hpp::fcl::Box (.2, .4, .6));
   // FIXME this is a bit ugly.
   int frame_id = robot->model().addFrame(::pinocchio::Frame("base_link",0,0,Transform3f (),::pinocchio::BODY));
   BOOST_CHECK(frame_id>=0);
