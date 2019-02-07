@@ -148,7 +148,7 @@ namespace hpp {
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
-        static const fcl::CollisionRequest request (false, 1, true);
+        static const fcl::CollisionRequest request (fcl::DISTANCE_LOWER_BOUND, 1);
         assert (request.enable_distance_lower_bound == true);
         for (CollisionPairs_t::const_iterator _pair = pairs_.begin();
             _pair != pairs_.end(); ++_pair) {
