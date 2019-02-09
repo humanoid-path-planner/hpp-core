@@ -499,6 +499,8 @@ namespace hpp {
             *a1 =sigma*aMax_[index];
             hppDout(notice,"q == 0, take x1 = aMax");
           }
+          if(fabs(*a1)>aMax_[index]) // after this equations a1 could be slightly greater than aMax because of numerical imprecision
+            *a1 = aMax_[index] * sgn(*a1);
 
           a2 = -(*a1);
           // compute new time intervals :
