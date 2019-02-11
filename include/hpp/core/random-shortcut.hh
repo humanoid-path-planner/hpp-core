@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_RANDOM_SHORTCUT_HH
 # define HPP_CORE_RANDOM_SHORTCUT_HH
 
-# warning "This file is deprecated. Include <hpp/constraints/explicit.hh> instead."
+# warning "This file is deprecated. Include <hpp/core/path-optimization/random-shortcut.hh> instead."
 # include <hpp/core/path-optimization/random-shortcut.hh>
 # include <hpp/core/deprecated.hh>
 
