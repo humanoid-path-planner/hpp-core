@@ -471,6 +471,88 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
 
 }
 
+BOOST_AUTO_TEST_CASE (kinodynamic_aMax1) {
+
+  DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
+  robot->controlComputation((Computation_t) (JOINT_POSITION | JACOBIAN));
+  robot->rootJoint()->lowerBound (0, -10);
+  robot->rootJoint()->lowerBound (1, -10);
+  robot->rootJoint()->lowerBound (2, 0);
+  robot->rootJoint()->upperBound (0,  10);
+  robot->rootJoint()->upperBound (1,  10);
+  robot->rootJoint()->upperBound (2,  0);
+
+  robot->setDimensionExtraConfigSpace(6);
+  // define velocity and acceleration bounds
+  const double vMax = 0.3;
+  const double aMax = 1.;
+  robot->extraConfigSpace ().lower(0) = -vMax;
+  robot->extraConfigSpace ().lower(1) = -vMax;
+  robot->extraConfigSpace ().lower(2) = 0;
+  robot->extraConfigSpace ().upper(0) = vMax;
+  robot->extraConfigSpace ().upper(1) = vMax;
+  robot->extraConfigSpace ().upper(2) = 0;
+  robot->extraConfigSpace ().lower(3) = -aMax;
+  robot->extraConfigSpace ().lower(4) = -aMax;
+  robot->extraConfigSpace ().lower(5) = 0;
+  robot->extraConfigSpace ().upper(3) = aMax;
+  robot->extraConfigSpace ().upper(4) = aMax;
+  robot->extraConfigSpace ().upper(5) = 0;
+  BOOST_CHECK_MESSAGE( robot->extraConfigSpace().dimension () == 6 , "error during creation of the robot");
+
+
+
+
+  // Create steering method
+  Problem p = Problem (robot);
+  p.setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
+  p.setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
+
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
+
+  // try to connect several states : (notation : sx = (px, vx, ax)
+  Configuration_t q0 (robot->currentConfiguration());
+  Configuration_t q1 (robot->currentConfiguration());
+
+  JointBoundValidationPtr_t jointValidation = JointBoundValidation::create(robot);
+  pathValidation::DiscretizedPtr_t pathVal = pathValidation::createDiscretizedCollisionChecking(robot,0.001);
+  pathVal->add(jointValidation);
+  PathValidationReportPtr_t validationReport;
+  PathPtr_t validPath;
+
+  q0[0] = 0;
+  q1[0] = 1.5;
+  PathPtr_t path = (*sm)(q0,q1);
+  BOOST_REQUIRE (path);
+  KinodynamicPathPtr_t pathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath,path);
+  BOOST_REQUIRE (pathKino);
+
+  // length should be 2.82843
+  BOOST_CHECK_CLOSE(path->length(),5.3,1e-3);
+  BOOST_CHECK_EQUAL(path->length(),(*dist)(q0,q1));
+  // check if 3 segments
+  BOOST_CHECK(pathKino->getTv()[0]> 0.);
+  BOOST_CHECK_EQUAL(pathKino->getT0()[0],0.);
+  BOOST_CHECK_EQUAL(pathKino->getT1()[0] + pathKino->getTv()[0] + pathKino->getT2()[0],path->length());
+
+  // check if no unecessary motion :
+  for(size_t i = 1 ; i < 3 ; i++){
+    BOOST_CHECK_EQUAL(pathKino->getT0()[i],0.);
+    BOOST_CHECK_EQUAL(pathKino->getT1()[i],0.);
+    BOOST_CHECK_EQUAL(pathKino->getT2()[i],0.);
+    BOOST_CHECK_EQUAL(pathKino->getA1()[i],0.);
+    BOOST_CHECK_EQUAL(pathKino->getTv()[i],path->length());
+   }
+   // check if the trajectory is really bang-bang :
+  BOOST_CHECK_EQUAL(pathKino->getA1()[0],aMax);
+  BOOST_CHECK_EQUAL(pathKino->getT1()[0],pathKino->getT2()[0]);
+   // check if bounds are respected :
+  BOOST_CHECK(pathVal->validate(path,false,validPath,validationReport));
+
+
+}
+
 BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
 
   DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
