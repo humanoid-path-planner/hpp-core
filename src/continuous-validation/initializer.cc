@@ -50,10 +50,13 @@ namespace hpp {
         ContinuousValidationPtr_t continuousVal = continuousVal_.lock ();
         DevicePtr_t robot = continuousVal->robot_;
         const pinocchio::GeomModel &gmodel = robot->geomModel();
+        const pinocchio::GeomData  &gdata  = robot->geomData();
         JointPtr_t joint1, joint2;
         BodyPairCollisionMap_t bodyPairMap;
         for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
         {
+          if (!gdata.activeCollisionPairs[i]) continue;
+
           const ::pinocchio::CollisionPair &cp = gmodel.collisionPairs[i];
           JointIndexPair_t jp(gmodel.geometryObjects[cp.first].parentJoint,
               gmodel.geometryObjects[cp.second].parentJoint);
