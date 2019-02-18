@@ -35,6 +35,10 @@ SET(PROJECT_DESCRIPTION
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_SOURCE_DIR}/cmake-modules/
+  ${CMAKE_MODULE_PATH})
+
 SETUP_HPP_PROJECT()
 
 # Declare Headers
@@ -107,6 +111,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/kinodynamic-path.hh
   include/hpp/core/kinodynamic-oriented-path.hh
   include/hpp/core/plan-and-optimize.hh
+  include/hpp/core/plugin.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
   include/hpp/core/random-shortcut.hh # DEPRECATED
@@ -154,6 +159,7 @@ SET(BOOST_COMPONENTS system timer unit_test_framework)
 SEARCH_FOR_BOOST()
 
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-core library in pkg-config file.
@@ -164,5 +170,10 @@ IF(INSTALL_DOCUMENTATION)
   doc/continuous-validation.pdf
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
 ENDIF(INSTALL_DOCUMENTATION)
+
+SET(PKG_CONFIG_EXTRA "${PKG_CONFIG_EXTRA}\ncmake_plugin=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake/${PROJECT_NAME}-plugin.cmake")
+INSTALL(FILES cmake-modules/hpp-core-plugin.cmake
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake/
+  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 
 SETUP_HPP_PROJECT_FINALIZE()

@@ -48,16 +48,7 @@ using hpp::core::continuousValidation::CoefficientVelocities_t;
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
-using ::se3::JointModelRX;
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointModelRUBX;
-using ::se3::JointModelFreeFlyer;
-using ::se3::JointModelSpherical;
-using ::se3::JointIndex;
-
-void display(const se3::Model& model, const CoefficientVelocities_t& cvs) {
+void display(const Model& model, const CoefficientVelocities_t& cvs) {
   CoefficientVelocities_t::const_iterator it;
   for (it = cvs.begin (); it != cvs.end (); ++it) {
     size_type jidx = it->joint_->index();
@@ -72,7 +63,7 @@ void display(const se3::Model& model, const CoefficientVelocities_t& cvs) {
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
 DevicePtr_t createRobot (){
-  DevicePtr_t robot = hpp::pinocchio::humanoidSimple("test");
+  DevicePtr_t robot = unittest::makeDevice (unittest::HumanoidSimple);
   return robot;
 }
 
@@ -80,7 +71,7 @@ DevicePtr_t createRobot (){
 BOOST_AUTO_TEST_CASE (solid_solid_collision_1)
 {
   DevicePtr_t robot = createRobot();
-  const se3::Model& model = robot->model();
+  const Model& model = robot->model();
   JointPtr_t joint_a = robot->getJointByBodyName ("lleg5_body");
   JointPtr_t joint_b = robot->getJointByBodyName ("rleg5_body");
 
@@ -89,14 +80,14 @@ BOOST_AUTO_TEST_CASE (solid_solid_collision_1)
   display(model, bpc->coefficients());
 
   ConstObjectStdVector_t obstacles;
-  fcl::CollisionGeometryPtr_t box (new fcl::Box (.2, .4, .6));
+  hpp::fcl::CollisionGeometryPtr_t box (new hpp::fcl::Box (.2, .4, .6));
   // FIXME this is a bit ugly.
-  int frame_id = robot->model().addFrame(se3::Frame("base_link",0,0,Transform3f (),se3::BODY));
+  int frame_id = robot->model().addFrame(::pinocchio::Frame("base_link",0,0,Transform3f (),::pinocchio::BODY));
   BOOST_CHECK(frame_id>=0);
-  ::se3::GeomIndex idObj = robot->geomModel().addGeometryObject
-    (se3::GeometryObject("obstacle", frame_id, 0, box, Transform3f (), "", hpp::pinocchio::vector3_t::Ones()),
+  GeomIndex idObj = robot->geomModel().addGeometryObject
+    (::pinocchio::GeometryObject("obstacle", frame_id, 0, box, Transform3f (), "", vector3_t::Ones()),
      robot->model());
-  CollisionObjectPtr_t collObj (new hpp::pinocchio::CollisionObject(
+  CollisionObjectPtr_t collObj (new CollisionObject(
         robot->geomModelPtr(), robot->geomDataPtr(), idObj));
   obstacles.push_back (collObj);
   bpc = SolidSolidCollision::create (joint_a, obstacles, 0.001);

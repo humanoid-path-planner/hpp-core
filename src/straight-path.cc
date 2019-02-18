@@ -33,7 +33,7 @@ namespace hpp {
 				ConfigurationIn_t init,
 				ConfigurationIn_t end,
 				value_type length) :
-      parent_t (interval_t (0, length), device->configSize (),
+      parent_t (interval_t(0, length), device->configSize (),
 		device->numberDof ()),
       device_ (device), initial_ (init), end_ (end)
     {
@@ -45,14 +45,40 @@ namespace hpp {
     StraightPath::StraightPath (const DevicePtr_t& device,
 				ConfigurationIn_t init,
 				ConfigurationIn_t end,
+				interval_t interval) :
+      parent_t (interval, device->configSize (),
+		device->numberDof ()),
+      device_ (device), initial_ (init), end_ (end)
+    {
+      assert (device);
+      assert (interval.second >= interval.first);
+      assert (!constraints ());
+    }
+
+    StraightPath::StraightPath (const DevicePtr_t& device,
+				ConfigurationIn_t init,
+				ConfigurationIn_t end,
 				value_type length,
 				ConstraintSetPtr_t constraints) :
-      parent_t (interval_t (0, length), device->configSize (),
+      parent_t (interval_t(0, length), device->configSize (),
 		device->numberDof (), constraints),
       device_ (device), initial_ (init), end_ (end)
     {
       assert (device);
       assert (length >= 0);
+    }
+
+    StraightPath::StraightPath (const DevicePtr_t& device,
+				ConfigurationIn_t init,
+				ConfigurationIn_t end,
+				interval_t interval,
+				ConstraintSetPtr_t constraints) :
+      parent_t (interval, device->configSize (),
+		device->numberDof (), constraints),
+      device_ (device), initial_ (init), end_ (end)
+    {
+      assert (device);
+      assert (interval.second >= interval.first);
     }
 
     StraightPath::StraightPath (const StraightPath& path) :

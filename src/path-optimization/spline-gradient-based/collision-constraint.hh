@@ -185,7 +185,7 @@ namespace hpp {
          assert (J_.rows () == 1);
        }
 
-       virtual void impl_compute (LiegroupElement& result, vectorIn_t argument)
+       virtual void impl_compute (LiegroupElementRef result, vectorIn_t argument)
          const
        {
          pinocchio::difference<pinocchio::DefaultLieGroupMap> (robot_, argument, qFree_, difference_);

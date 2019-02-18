@@ -116,12 +116,8 @@ namespace hpp {
       Configuration_t operator () (const value_type& time) const
         HPP_CORE_DEPRECATED
       {
-	Configuration_t result (outputSize ());
-	impl_compute (result, paramAtTime(time));
-	if (constraints_) {
-	  constraints_->apply (result);
-	}
-	return result;
+        bool unused;
+        return (*this) (time, unused);
       }
 
       Configuration_t operator () (const value_type& time, bool& success) const
@@ -132,9 +128,10 @@ namespace hpp {
       bool operator () (ConfigurationOut_t result, const value_type& time)
        const throw ()
       {
-	bool success = impl_compute (result, paramAtTime(time));
+        value_type s = paramAtTime (time);
+	bool success = impl_compute (result, s);
 	if (!success) return false;
-	return (!constraints_ || constraints_->apply (result));
+        return applyConstraints (result, s);
       }
 
       /// Get the configuration at a parameter without applying the constraints.
@@ -318,9 +315,7 @@ namespace hpp {
 	Configuration_t result (outputSize ());
 	success = impl_compute (result, param);
 	if (!success) return result;
-	if (constraints_) {
-	  success = constraints_->apply (result);
-	}
+        success = applyConstraints (result, param);
 	return result;
       }
 
@@ -372,6 +367,8 @@ namespace hpp {
         }
         return time;
       }
+
+      bool applyConstraints (ConfigurationOut_t result, const value_type& param) const;
 
       /// Size of the configuration space
       size_type outputSize_;

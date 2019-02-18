@@ -36,19 +36,22 @@ namespace hpp {
 	(const Problem& problem);
       static WeighedDistancePtr_t create (const DevicePtr_t& robot);
       static WeighedDistancePtr_t
-    createWithWeight (const DevicePtr_t& robot,
-		const std::vector <value_type>& weights);
+        createWithWeight (const DevicePtr_t& robot, const vector_t& weights);
       static WeighedDistancePtr_t createCopy
 	(const WeighedDistancePtr_t& distance);
       virtual DistancePtr_t clone () const;
       /// Get weight of joint at given rank
       /// \param rank rank of the joint in robot joint vector
-      value_type getWeight( std::size_t rank ) const;
+      value_type getWeight( size_type rank ) const;
       /// Set weight of joint at given rank
       /// \param rank rank of the joint in robot joint vector
-      void setWeight(std::size_t rank, value_type weight);
+      void setWeight(size_type rank, value_type weight);
+      /// Get weights
+      const vector_t& weights() const;
+      /// Set weights
+      void weights(const vector_t& ws);
       /// Get size of weight vector
-      std::size_t size () const
+      size_type size () const
       {
 	return weights_.size ();
       }
@@ -61,8 +64,7 @@ namespace hpp {
     protected:
       WeighedDistance (const Problem& problem);
       WeighedDistance (const DevicePtr_t& robot);
-      WeighedDistance (const DevicePtr_t& robot,
-		       const std::vector <value_type>& weights);
+      WeighedDistance (const DevicePtr_t& robot, const vector_t& weights);
       WeighedDistance (const WeighedDistance& distance);
       void init (WeighedDistanceWkPtr_t self);
       /// Derived class should implement this function
@@ -71,7 +73,7 @@ namespace hpp {
     private:
       void computeWeights ();
       DevicePtr_t robot_;
-      std::vector <value_type> weights_;
+      vector_t weights_;
       WeighedDistanceWkPtr_t weak_;
     }; // class WeighedDistance
     /// \}

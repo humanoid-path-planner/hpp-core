@@ -17,6 +17,11 @@
 #ifndef TEST_UTIL_HH
 # define TEST_UTIL_HH
 
+#define CONFIGURATION_VECTOR_IS_APPROX(robot, Qa, Qb, prec)                    \
+  BOOST_CHECK_MESSAGE(::hpp::pinocchio::isApprox(robot, Qa, Qb, prec),         \
+      "check isApprox(" #Qa ", " #Qb ") failed "                               \
+      "[\n" << (Qa).transpose() << "\n!=\n" << (Qb).transpose() << "\n]")
+
 #define EIGEN_VECTOR_IS_APPROX(Va, Vb, prec)                                   \
   BOOST_CHECK_MESSAGE((Va).isApprox(Vb, prec),                                 \
       "check " #Va ".isApprox(" #Vb ") failed "                                \

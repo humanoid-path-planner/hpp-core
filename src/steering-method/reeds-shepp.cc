@@ -16,7 +16,7 @@
 
 #include <hpp/core/steering-method/reeds-shepp.hh>
 
-#include <pinocchio/multibody/joint/joint.hpp>
+#include <pinocchio/multibody/joint/fwd.hpp>
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
