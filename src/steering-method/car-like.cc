@@ -47,7 +47,7 @@ namespace hpp {
         rho_ (turningRadius), xy_ (xyJoint), rz_ (rzJoint),
         xyId_ (xy_->rankInConfiguration ()), wheels_ (wheels), weak_ ()
       {
-        if (rz_->jointModel ().classname () == "JointModelPlanar") {
+        if (rz_->jointModel ().shortname () == "JointModelPlanar") {
           rzId_ = rz_->rankInConfiguration () + 2;
         } else {
           rzId_ = rz_->rankInConfiguration ();
