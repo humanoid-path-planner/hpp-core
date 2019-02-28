@@ -24,7 +24,9 @@
 
 namespace hpp {
   namespace core {
-    /// \addtogroup plugin
+    /// \addtogroup hpp_core_plugin Plugins
+    /// \{
+
     /// Plugin mechanism to declare new features in ProblemSolver class
     class ProblemSolverPlugin {
       public:
@@ -59,6 +61,14 @@ namespace hpp {
         bool initialized_;
     }; // class ProblemSolver
 
+    /// To create a plugin, create a class that derives from
+    /// hpp::core::ProblemSolverPlugin and call this macro in the root namespace.
+    /// To load the plugin, use
+    /// \code
+    /// std::string filename;
+    /// hpp::core::ProblemSolver ps*;
+    /// hpp::core::plugin::loadPlugin (filename, ps);
+    /// \endcode
 #define HPP_CORE_DEFINE_PLUGIN(PluginClassName)                                \
     extern "C" {                                                               \
       ::hpp::core::ProblemSolverPlugin* createProblemSolverPlugin ()           \
@@ -67,7 +77,6 @@ namespace hpp {
       }                                                                        \
     }
 
-    /// \addtogroup plugin
     namespace plugin {
       /// Find the absolute path to a library named name.
       /// \param name
@@ -76,8 +85,14 @@ namespace hpp {
       /// \throw std::invalid_argument if not valid file found.
       std::string findPluginLibrary (const std::string& name);
 
+      /// Load a plugin into ProblemSolver
+      /// 1. Call \ref findPluginLibrary
+      /// 2. Call dlopen and handle errors
+      /// 3. ProblemSolverPlugin::initialize with \c ps
       bool loadPlugin (const std::string& lib, ProblemSolver* ps);
     } // namespace plugin
+
+    /// \}
 
   } // namespace core
 } // namespace hpp
