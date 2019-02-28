@@ -16,7 +16,7 @@
 
 INCLUDE(hpp-core-plugin)
 
-ADD_PLUGIN(spline-gradient-based
+HPP_ADD_PLUGIN(spline-gradient-based
   SOURCES spline-gradient-based.cc
   LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl
   PKG_CONFIG_DEPENDENCIES hpp-util hpp-pinocchio hpp-statistics hpp-constraints)

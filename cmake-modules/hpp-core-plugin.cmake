@@ -14,8 +14,7 @@
 # received a copy of the GNU Lesser General Public License along with
 # hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-MACRO(ADD_PLUGIN PLUGIN_NAME)
-
+MACRO(HPP_ADD_PLUGIN PLUGIN_NAME)
   SET(options EXCLUDE_FROM_ALL)
   SET(oneValueArgs )
   SET(multiValueArgs
@@ -37,4 +36,9 @@ MACRO(ADD_PLUGIN PLUGIN_NAME)
   IF(NOT PLUGIN_EXCLUDE_FROM_ALL)
     INSTALL(TARGETS ${PLUGIN_NAME} DESTINATION lib/hppPlugins)
   ENDIF()
+ENDMACRO()
+
+MACRO(ADD_PLUGIN PLUGIN_NAME)
+  MESSAGE(AUTHOR_WARNING "Macro ADD_PLUGIN is deprecated and should be replaced by HPP_ADD_PLUGIN")
+  HPP_ADD_PLUGIN(${PLUGIN_NAME} ${ARGN})
 ENDMACRO()
