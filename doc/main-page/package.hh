@@ -5,7 +5,7 @@
 
     This package implements path planning algorithms for robots as
     kinematic chains.  Kinematic chains are represented by class
-    hpp::model::Device in package hpp-model.
+    hpp::pinocchio::Device in package hpp-model.
 
     The main classes are:
     \li hpp::core::Problem: defines a canonical path planning problem,
