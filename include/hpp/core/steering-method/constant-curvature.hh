@@ -27,26 +27,25 @@ namespace hpp {
   namespace core {
     namespace steeringMethod {
       /// Path of constant curvature for a carlike robot
-      /// \todo this class ought to be replaced by a straight using a different
-      ///       LiegroupSpace (as an interpolation and differentiation method).
-      ///       This would remove the need for the two lengths
-      ///       (pathLength and curveLength)
       class ConstantCurvature : public Path {
       public:
         typedef Path parent_t;
         virtual ~ConstantCurvature () throw () {}
          /// Create instance and return shared pointer.
         /// \param robot the carlike robot,
-        /// \param init Initial configuration of the path,
+        /// \param init, end Initial and final configurations of the path,
+        /// \param curveLength distance traveled by the middle of the rear
+        ///        wheel axis, negative values correspond to backward motions
+        /// \param pathLength length of the interval of definition. Should be
+        ///        positive,
         /// \param curvature curvature of the path,
-        /// \param length length of the path, negative values correspond to
-        ///        backward motions
         /// \param xyId id of degrees of freedom corresponding to (x,y)
         /// coordinates of robot,
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
         /// \param rz joint corresponding to orientation of robot,
-        /// \param vector of joints corresponding to wheels.
+        /// \param wheels vector of joints corresponding to wheels,
+        /// \param constraints set of contraints the path is suject to.
         static ConstantCurvaturePtr_t create
         (const DevicePtr_t& robot, ConfigurationIn_t init,
          ConfigurationIn_t end,
@@ -93,16 +92,18 @@ namespace hpp {
 
         /// Constructor
         /// \param robot the carlike robot,
-        /// \param init Initial configuration of the path,
+        /// \param init, end Initial and final configurations of the path,
+        /// \param curveLength distance traveled by the middle of the rear
+        ///        wheel axis, negative values correspond to backward motions
+        /// \param pathLength length of the interval of definition. Should be
+        ///        positive,
         /// \param curvature curvature of the path,
-        /// \param length length of the path, negative values correspond to
-        ///        backward motions
         /// \param xyId id of degrees of freedom corresponding to (x,y)
         /// coordinates of robot,
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
         /// \param rz joint corresponding to orientation of robot,
-        /// \param vector of joints corresponding to wheels.
+        /// \param wheels vector of joints corresponding to wheels.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
                            ConfigurationIn_t end,
                            value_type curveLength, value_type pathLength,
@@ -112,16 +113,18 @@ namespace hpp {
 
         /// Constructor
         /// \param robot the carlike robot,
-        /// \param init Initial configuration of the path,
-        /// \param length length of the path, negative values correspond to
-        ///        backward motions
+        /// \param init, end Initial and final configurations of the path,
+        /// \param curveLength distance traveled by the middle of the rear
+        ///        wheel axis, negative values correspond to backward motions
+        /// \param pathLength length of the interval of definition. Should be
+        ///        positive,
         /// \param curvature curvature of the path,
         /// \param xyId id of degrees of freedom corresponding to (x,y)
         /// coordinates of robot,
         /// \param rzId id of degrees of freedom corresponding to orientation
         /// of robot.
         /// \param rz joint corresponding to orientation of robot,
-        /// \param vector of joints corresponding to wheels,
+        /// \param wheels vector of joints corresponding to wheels,
         /// \param constraints set of contraints the path is suject to.
         ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
                            ConfigurationIn_t end,
