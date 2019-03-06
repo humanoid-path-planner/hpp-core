@@ -36,6 +36,12 @@ namespace hpp {
         Configuration_t qEnd (q2);
         qEnd.segment<2>(xyId_) = q1.segment<2>(xyId_);
         qEnd.segment<2>(rzId_) = q1.segment<2>(rzId_);
+        // Do not take into account wheel joints in additional distance.
+        for (std::vector<JointPtr_t>::const_iterator it = wheels_.begin ();
+             it != wheels_.end (); ++it) {
+          size_type i = (*it)->rankInConfiguration ();
+          qEnd [i] = q1 [i];
+        }
         // The length corresponding to the non RS DoF
         value_type extraL = (*problem().distance()) (q1, qEnd);
 
