@@ -139,7 +139,8 @@ namespace hpp {
       if (timeRange ().second == 0)
         u = 0;
 
-      pinocchio::interpolate (device_,initial_, end_, u, result);
+      pinocchio::interpolate (device_,initial_.head (configSize),
+                              end_.head (configSize), u, result);
 
       for(int id = 0 ; id < 3 ; id++){ // FIX ME : only work for freeflyer (translation part)
 
