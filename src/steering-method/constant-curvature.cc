@@ -259,6 +259,31 @@ namespace hpp {
         }
       }
 
+      PathPtr_t ConstantCurvature::impl_extract
+      (const interval_t& paramInterval) const throw (projection_error)
+      {
+        assert (!timeParameterization ());
+        assert (timeRange ().second - timeRange ().first >= 0);
+        value_type L (timeRange ().second - timeRange ().first);
+        value_type tmin (paramInterval.first), tmax (paramInterval.second);
+        value_type curveLength =0, pathLength = 0;
+        if (L != 0) {
+          curveLength = ((tmax - tmin)/L * curveLength_);
+          pathLength = fabs (tmax - tmin)/L * length ();
+        }
+        Configuration_t init (robot_->configSize ());
+        bool res (impl_compute (init, tmin)); assert (res);
+        Configuration_t end (robot_->configSize ());
+        res = impl_compute (end,tmax); assert (res);
+        ConstantCurvaturePtr_t result (createCopy (weak_.lock ()));
+        result->initial_ = init;
+        result->end_ = end;
+        result->curveLength_ = curveLength;
+        result->timeRange (interval_t (0, pathLength));
+        result->forward_ = curveLength > 0 ? 1 : -1;
+        return result;
+      }
+
       inline value_type meanBounds(const JointPtr_t& j, const size_type& i)
       {
         return (j->upperBound(i) + j->lowerBound(i))/2;

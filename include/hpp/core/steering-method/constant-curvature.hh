@@ -147,6 +147,10 @@ namespace hpp {
         virtual void impl_derivative
         (vectorOut_t result, const value_type& param, size_type order) const;
 
+        /// Virtual implementation of path extraction
+        virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
+          throw (projection_error);
+
         /// store weak pointer to itself
         void init (const ConstantCurvatureWkPtr_t& weak)
         {
@@ -162,12 +166,13 @@ namespace hpp {
                              const std::vector<JointPtr_t> wheels);
 
         const DevicePtr_t robot_;
-        const Configuration_t initial_;
+        Configuration_t initial_;
         Configuration_t end_;
-        const value_type curveLength_, curvature_;
+        value_type curveLength_;
+        const value_type curvature_;
         const size_type xyId_,rzId_;
         size_type dxyId_,drzId_;
-        const value_type forward_;
+        value_type forward_;
         struct Wheels_t {
           value_type value; // Constant value of the wheel angle
           JointPtr_t j;
