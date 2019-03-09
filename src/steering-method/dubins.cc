@@ -19,6 +19,7 @@
 # include <hpp/pinocchio/device.hh>
 # include <hpp/pinocchio/joint.hh>
 
+# include <hpp/core/distance.hh>
 # include <hpp/core/problem.hh>
 # include <hpp/core/dubins-path.hh>
 
@@ -28,8 +29,22 @@ namespace hpp {
       PathPtr_t Dubins::impl_compute (ConfigurationIn_t q1,
           ConfigurationIn_t q2) const
       {
+        // TODO this should not be done here.
+        // See todo in class ConstantCurvature
+        Configuration_t qEnd (q2);
+        qEnd.segment<2>(xyId_) = q1.segment<2>(xyId_);
+        qEnd.segment<2>(rzId_) = q1.segment<2>(rzId_);
+        // Do not take into account wheel joints in additional distance.
+        for (std::vector<JointPtr_t>::const_iterator it = wheels_.begin ();
+             it != wheels_.end (); ++it) {
+          size_type i = (*it)->rankInConfiguration ();
+          qEnd [i] = q1 [i];
+        }
+        // The length corresponding to the non RS DoF
+        DistancePtr_t d (problem().distance());
+        value_type extraL = (*d) (q1, qEnd);
         DubinsPathPtr_t path =
-          DubinsPath::create (device_.lock (), q1, q2,
+          DubinsPath::create (device_.lock (), q1, q2, extraL,
 			      rho_ , xyId_, rzId_, wheels_, constraints ());
         return path;
       }
