@@ -29,8 +29,6 @@ namespace hpp {
       PathPtr_t Dubins::impl_compute (ConfigurationIn_t q1,
           ConfigurationIn_t q2) const
       {
-        // TODO this should not be done here.
-        // See todo in class ConstantCurvature
         Configuration_t qEnd (q2);
         qEnd.segment<2>(xyId_) = q1.segment<2>(xyId_);
         qEnd.segment<2>(rzId_) = q1.segment<2>(rzId_);
