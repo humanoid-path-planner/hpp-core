@@ -23,7 +23,7 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
-# include <hpp/core/path.hh>
+# include <hpp/core/path-vector.hh>
 
 namespace hpp {
   namespace core {
@@ -43,10 +43,10 @@ namespace hpp {
     ///       the configuration parameter of those joints are computed so that
     ///       the wheel is aligned with the velocity.
     ///   \li linear interpolation for the other joints
-    class DubinsPath : public Path
+    class DubinsPath : public PathVector
     {
     public:
-      typedef core::Path parent_t;
+      typedef core::PathVector parent_t;
 
       /// Destructor
       virtual ~DubinsPath () throw () {}
@@ -54,19 +54,24 @@ namespace hpp {
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
-      /// \param rho The radius of a turn.
+      /// \param extraLength Part of path length due to non Dubins degrees of
+      ///        freedom,
+      /// \param rho The radius of a turn,
       /// \param xyId, rzId indices in configuration vector of translation
       ///                   and rotation of the car,
       /// \param wheels vector of joints that represent turning wheels.
       static DubinsPathPtr_t create (const DevicePtr_t& device,
 				     ConfigurationIn_t init,
 				     ConfigurationIn_t end,
+                                     value_type extraLength,
 				     value_type rho,
 				     size_type xyId, size_type rzId,
                                      const std::vector<JointPtr_t> wheels);
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
+      /// \param extraLength Part of path length due to non Dubins degrees of
+      ///        freedom,
       /// \param rho The radius of a turn.
       /// \param xyId, rzId indices in configuration vector of translation
       ///                   and rotation of the car,
@@ -75,6 +80,7 @@ namespace hpp {
       static DubinsPathPtr_t create (const DevicePtr_t& device,
 				     ConfigurationIn_t init,
 				     ConfigurationIn_t end,
+                                     value_type extraLength,
 				     value_type rho,
 				     size_type xyId, size_type rzId,
                                      const std::vector<JointPtr_t> wheels,
@@ -147,13 +153,13 @@ namespace hpp {
       }
       /// Constructor
       DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		  ConfigurationIn_t end, value_type rho,
+		  ConfigurationIn_t end, value_type extraLength, value_type rho,
 		  size_type xyId, size_type rzId,
                   const std::vector<JointPtr_t> wheels);
 
       /// Constructor with constraints
       DubinsPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		  ConfigurationIn_t end, value_type rho,
+		  ConfigurationIn_t end, value_type extraLength, value_type rho,
 		  size_type xyId, size_type rzId,
                   const std::vector<JointPtr_t> wheels,
 		  ConstraintSetPtr_t constraints);
@@ -167,19 +173,7 @@ namespace hpp {
 
       void init (DubinsPathPtr_t self);
 
-      virtual bool impl_compute (ConfigurationOut_t result,
-				 value_type param) const;
-      /// Virtual implementation of derivative
-      virtual void impl_derivative (vectorOut_t result, const value_type& t,
-				    size_type order) const;
-
     private:
-      /// Set the wheel joints for a car-like vehicle.
-      ///
-      /// \param rz joint from which the turning radius was computed.
-      /// \param wheels bounded rotation joints.
-      void setWheelJoints (const JointPtr_t rz,
-			   const std::vector<JointPtr_t> wheels);
       void dubins_init_normalised (double alpha, double beta, double d);
       void dubins_init (vector3_t q0, vector3_t q1);
       typedef Eigen::Matrix<value_type, 3, 1> Lengths_t;
@@ -189,15 +183,10 @@ namespace hpp {
       Configuration_t end_;
       const size_type xyId_,rzId_;
       size_type dxyId_,drzId_;
-      struct Wheels_t {
-        value_type L, R, S; // Left, Right and Straight turn
-        JointPtr_t j;
-        Wheels_t () : j() {}
-      };
-      std::vector<Wheels_t> wheels_;
+      std::vector<JointPtr_t> wheels_;
       std::size_t typeId_;
       Lengths_t lengths_;
-      value_type rho_;
+      value_type extraLength_, rho_;
 
       vector3_t qi_;       // the initial configuration
       DubinsPathWkPtr_t weak_;
