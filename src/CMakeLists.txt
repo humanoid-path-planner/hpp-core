@@ -61,6 +61,7 @@ path-validation/discretized-joint-bound.cc
   path-optimization/spline-gradient-based-abstract.cc #
   path-optimization/partial-shortcut.cc #
   path-optimization/random-shortcut.cc
+  path-optimization/simple-shortcut.cc
   path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
   path-planner/k-prm-star.cc
