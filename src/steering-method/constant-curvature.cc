@@ -137,7 +137,8 @@ namespace hpp {
         Path (other), robot_ (other.robot_), initial_ (other.initial_),
         end_ (other.end_), curveLength_ (other.curveLength_),
         curvature_ (other.curvature_),  xyId_ (other.xyId_),
-        rzId_ (other.rzId_), forward_ (other.forward_), wheels_ (other.wheels_)
+        rzId_ (other.rzId_), dxyId_ (other.dxyId_), drzId_ (other.drzId_),
+        forward_ (other.forward_), wheels_ (other.wheels_)
       {
       }
 
@@ -146,7 +147,8 @@ namespace hpp {
         parent_t (other, constraints), robot_ (other.robot_),
         initial_ (other.initial_), end_ (other.end_),
         curveLength_ (other.curveLength_), curvature_ (other.curvature_),
-        xyId_ (other.xyId_), rzId_ (other.rzId_), forward_ (other.forward_),
+        xyId_ (other.xyId_), rzId_ (other.rzId_), dxyId_ (other.dxyId_),
+        drzId_ (other.drzId_), forward_ (other.forward_),
         wheels_ (other.wheels_)
       {
       }
@@ -245,7 +247,7 @@ namespace hpp {
 
         result [dxyId_ + 0] = dx;
         result [dxyId_ + 1] = dy;
-        result [rzId_] = dtheta;
+        result [drzId_] = dtheta;
         // Express velocity in local frame
         Eigen::Matrix<value_type, 2, 2> R;
         R.col(0) << c0 * c - s0 * s, c0 * s + s0 * c;
@@ -255,7 +257,7 @@ namespace hpp {
         // Set wheel joint velocities
         for (std::vector<Wheels_t>::const_iterator w = wheels_.begin ();
              w < wheels_.end (); ++w) {
-          result [w->j->rankInConfiguration ()] = 0;
+          result [w->j->rankInVelocity ()] = 0;
         }
       }
 
