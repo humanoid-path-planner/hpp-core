@@ -50,7 +50,7 @@ namespace hpp {
     public:
       /// Create a path planning problem.
       /// \param robot robot associated to the path planning problem.
-      Problem (DevicePtr_t robot);
+      static ProblemPtr_t create (DevicePtr_t robot);
 
       /// Constructor without argument
       /// \warning do not use this constructor. It is necessary to define
@@ -289,7 +289,14 @@ namespace hpp {
 
       Container < Parameter > parameters;
 
+    protected:
+      /// \copydoc Problem::create(DevicePtr_t);
+      Problem (DevicePtr_t robot);
+
+      void init (ProblemWkPtr_t wkPtr);
+
     private :
+      ProblemWkPtr_t wkPtr_;
       /// The robot
       DevicePtr_t robot_;
       /// Distance between configurations of the robot

@@ -71,18 +71,31 @@ namespace hpp {
 
     // ======================================================================
 
-    Problem::Problem (DevicePtr_t robot) :
-      robot_ (robot),
-      distance_ (WeighedDistance::create (robot)),
-      initConf_ (), goalConfigurations_ (), target_
-      (problemTarget::GoalConfigurations::create (this)),
-      steeringMethod_ (steeringMethod::Straight::create (*this)),
-      configValidations_ (),
-      pathValidation_ (pathValidation::createDiscretizedCollisionChecking
-		       (robot, 0.05)),
-      collisionObstacles_ (), constraints_ (),
-      configurationShooter_(configurationShooter::Uniform::create (robot))
+    ProblemPtr_t Problem::create (DevicePtr_t robot)
     {
+      ProblemPtr_t p (new Problem (robot));
+      p->init (p);
+      return p;
+    }
+
+    // ======================================================================
+    Problem::Problem (DevicePtr_t robot) :
+      robot_ (robot)
+    {
+    }
+
+    // ======================================================================
+
+    void Problem::init (ProblemWkPtr_t wkPtr)
+    {
+      wkPtr_ = wkPtr;
+
+      distance_       = WeighedDistance::create (robot_);
+      target_         = problemTarget::GoalConfigurations::create (wkPtr_.lock());
+      steeringMethod_ = steeringMethod::Straight::create (*this);
+      pathValidation_ = pathValidation::createDiscretizedCollisionChecking (robot_, 0.05);
+      configurationShooter_ = configurationShooter::Uniform::create (robot_);
+
       resetConfigValidations();
     }
 

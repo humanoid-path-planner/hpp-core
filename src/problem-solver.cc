@@ -180,11 +180,11 @@ namespace hpp {
     }
 
     ProblemSolver::ProblemSolver () :
-      constraints_ (), robot_ (), problem_ (NULL), pathPlanner_ (),
+      constraints_ (), robot_ (), problem_ (), pathPlanner_ (),
       roadmap_ (), paths_ (),
       pathProjectorType_ ("None"), pathProjectorTolerance_ (0.2),
       pathPlannerType_ ("DiffusingPlanner"),
-      target_ (problemTarget::GoalConfigurations::create(NULL)),
+      target_ (problemTarget::GoalConfigurations::create(ProblemPtr_t())),
       initConf_ (), goalConfigurations_ (),
       robotType_ ("hpp::pinocchio::Device"),
       configurationShooterType_ ("Uniform"),
@@ -263,7 +263,6 @@ namespace hpp {
 
     ProblemSolver::~ProblemSolver ()
     {
-      if (problem_) delete problem_;
     }
 
     void ProblemSolver::distanceType (const std::string& type)
@@ -466,7 +465,7 @@ namespace hpp {
 
     void ProblemSolver::addGoalConfig (const ConfigurationPtr_t& config)
     {
-      target_ = problemTarget::GoalConfigurations::create(NULL);
+      target_ = problemTarget::GoalConfigurations::create(ProblemPtr_t());
       goalConfigurations_.push_back (config);
     }
 
@@ -687,9 +686,7 @@ namespace hpp {
 
     void ProblemSolver::resetProblem ()
     {
-      if (problem_)
-	delete problem_;
-      initializeProblem (new Problem (robot_));
+      initializeProblem (Problem::create(robot_));
     }
 
     void ProblemSolver::initializeProblem (ProblemPtr_t problem)
@@ -712,8 +709,6 @@ namespace hpp {
 
     void ProblemSolver::problem (ProblemPtr_t problem)
     {
-      if (problem_)
-        delete problem_;
       problem_ = problem;
     }
 
