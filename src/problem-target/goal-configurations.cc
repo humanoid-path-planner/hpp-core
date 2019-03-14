@@ -57,15 +57,17 @@ namespace hpp {
 
       PathVectorPtr_t GoalConfigurations::computePath(const RoadmapPtr_t& roadmap) const
       {
-        Astar astar (roadmap, problem_->distance ());
+        ProblemPtr_t problem (problem_.lock());
+        assert (problem);
+        Astar astar (roadmap, problem->distance ());
         PathVectorPtr_t sol = PathVector::create (
-            problem_->robot()->configSize(), problem_->robot()->numberDof());
+            problem->robot()->configSize(), problem->robot()->numberDof());
         astar.solution (sol);
         // This happens when q_init == q_goal
         if (sol->numberPaths() == 0) {
           ConfigurationPtr_t q (roadmap->initNode()->configuration ());
           sol->appendPath(
-              (*problem_->steeringMethod()) (*q, *q)
+              (*problem->steeringMethod()) (*q, *q)
               );
         }
         return sol;

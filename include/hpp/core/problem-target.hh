@@ -64,7 +64,7 @@ namespace hpp {
       }
 
       /// Reference to the planner for access to problem and roadmap
-      ProblemPtr_t problem_;
+      ProblemWkPtr_t problem_;
 
       /// Store weak pointer to itself
       ProblemTargetWkPtr_t weakPtr_;
