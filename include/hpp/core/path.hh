@@ -103,6 +103,13 @@ namespace hpp {
       PathPtr_t extract (const interval_t& subInterval) const
         throw (projection_error);
 
+      /// \copydoc Path::extract(const interval_t&) const
+      PathPtr_t extract (const value_type& tmin, const value_type& tmax) const
+        throw (projection_error)
+      {
+        return extract (std::make_pair(tmin, tmax));
+      }
+
       /// Reversion of a path
       /// \return a new path that is this one reversed.
       virtual PathPtr_t reverse () const;
