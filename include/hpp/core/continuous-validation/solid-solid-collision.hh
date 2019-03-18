@@ -45,7 +45,7 @@ namespace hpp {
       /// Each interval is computed by bounding from above the velocity of
       /// all points of body 1 in the reference frame of body 2.
       ///
-      /// See <a href="continuous-collision-checking.pdf"> this document </a>
+      /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.
       class HPP_CORE_DLLAPI SolidSolidCollision : public BodyPairCollision
       {
