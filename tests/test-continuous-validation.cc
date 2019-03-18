@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
   robot->numberDeviceData (4);
 
   // create steering method
-  Problem problem (robot);
-  SteeringMethodPtr_t sm (Straight::create (problem));
+  ProblemPtr_t problem = Problem::create(robot);
+  SteeringMethodPtr_t sm (Straight::create (*problem));
 
   // create path validation objects
   PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));
@@ -257,8 +257,8 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
   robot->numberDeviceData (4);
 
   // create steering method
-  Problem problem (robot);
-  typename SplineSteeringMethod::Ptr_t sm (SplineSteeringMethod::create (problem));
+  ProblemPtr_t problem = Problem::create(robot);
+  typename SplineSteeringMethod::Ptr_t sm (SplineSteeringMethod::create (*problem));
 
   // create path validation objects
   // PathValidationPtr_t dichotomy (Dichotomy::create (robot, 0));

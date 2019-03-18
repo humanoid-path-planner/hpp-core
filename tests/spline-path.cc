@@ -82,7 +82,7 @@ template <int SplineType> void compare_to_straight_path ()
 
   DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
-  Problem problem (dev);
+  ProblemPtr_t problem = Problem::create(dev);
 
   Configuration_t q1 (::pinocchio::randomConfiguration(dev->model()));
   Configuration_t q2 (::pinocchio::randomConfiguration(dev->model()));
@@ -91,11 +91,11 @@ template <int SplineType> void compare_to_straight_path ()
   difference<RnxSOnLieGroupMap> (dev, q2, q1, v);
 
   // create StraightPath
-  PathPtr_t sp = (*problem.steeringMethod()) (q1, q2);
+  PathPtr_t sp = (*problem->steeringMethod()) (q1, q2);
   // value_type length = sp->length();
 
   // Create linear spline
-  typename SM_t::Ptr_t sm (SM_t::create (problem));
+  typename SM_t::Ptr_t sm (SM_t::create (*problem));
   PathPtr_t ls_abstract = (*sm) (q1, q2);
   typename path_t::Ptr_t ls = HPP_DYNAMIC_PTR_CAST(path_t, ls_abstract);
 
@@ -153,7 +153,7 @@ void check_velocity_bounds ()
 
   DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
-  Problem problem (dev);
+  ProblemPtr_t problem = Problem::create(dev);
 
   Configuration_t q1 (::pinocchio::randomConfiguration(dev->model()));
   Configuration_t q2 (::pinocchio::randomConfiguration(dev->model()));
@@ -163,7 +163,7 @@ void check_velocity_bounds ()
 
 
   // Create spline
-  typename SM_t::Ptr_t sm (SM_t::create (problem));
+  typename SM_t::Ptr_t sm (SM_t::create (*problem));
   PathPtr_t spline = sm->steer (q1, orders, v1, q2, orders, v2);
 
   vector_t vb1 (vector_t::Random(dev->numberDof())), vb2 = vb1;

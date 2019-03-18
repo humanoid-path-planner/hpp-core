@@ -112,11 +112,11 @@ BOOST_AUTO_TEST_CASE (extracted)
 {
   DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
-  Problem problem (dev);
+  ProblemPtr_t problem = Problem::create(dev);
 
   Configuration_t q1 (dev->configSize()); q1 << 0;
   Configuration_t q2 (dev->configSize()); q2 << 1;
-  PathPtr_t p1 = (*problem.steeringMethod()) (q1, q2), p2;
+  PathPtr_t p1 = (*problem->steeringMethod()) (q1, q2), p2;
 
   p2 = p1->extract (Pair_t (0.5, 1));
   checkAt (p1, 0.5, p2, 0.0);
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE (subchain)
 {
   DevicePtr_t dev = createRobot2(); // 10 translations
   BOOST_REQUIRE (dev);
-  Problem problem (dev);
+  ProblemPtr_t problem = Problem::create(dev);
 
   segments_t intervals;
   intervals.push_back(segment_t (0,3));
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE (subchain)
   Configuration_t q2 (Configuration_t::Ones(dev->configSize()));
   q2.tail<5>().setConstant(-1);
 
-  PathPtr_t p1 = (*problem.steeringMethod()) (q1, q2), p2;
+  PathPtr_t p1 = (*problem->steeringMethod()) (q1, q2), p2;
   p2 = SubchainPath::create(p1, intervals, intervals);
 
   BOOST_CHECK(p2->outputSize() == 6);

@@ -41,6 +41,7 @@ BOOST_AUTO_TEST_CASE (memory_deallocation)
   SteeringMethodWkPtr_t sm = problem->steeringMethod();
   DistanceWkPtr_t distance = problem->distance ();
   RoadmapWkPtr_t roadmap = ps->roadmap ();
+  problem.reset();
 
   delete ps;
 

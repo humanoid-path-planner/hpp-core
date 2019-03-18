@@ -138,13 +138,13 @@ BOOST_AUTO_TEST_CASE (kdTree) {
 
 
   // Build Distance, nearestNeighbor, KDTree
-  Problem problem (robot);
+  ProblemPtr_t problem = Problem::create(robot);
   WeighedDistancePtr_t distance = WeighedDistance::create(robot);
-  problem.distance (distance);
-  ConfigurationShooterPtr_t confShoot = problem.configurationShooter();
+  problem->distance (distance);
+  ConfigurationShooterPtr_t confShoot = problem->configurationShooter();
   nearestNeighbor::KDTree kdTree(robot,distance,30);
   nearestNeighbor::Basic basic (distance);
-  SteeringMethodPtr_t sm = steeringMethod::Straight::create (&problem);
+  SteeringMethodPtr_t sm = steeringMethod::Straight::create (problem);
 
   // Add 4 connectedComponents with 2000 nodes each
   ConfigurationPtr_t configuration;

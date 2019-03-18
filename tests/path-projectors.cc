@@ -306,22 +306,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 {
   DevicePtr_t dev = createRobot();
   BOOST_REQUIRE (dev);
-  Problem problem (dev);
+  ProblemPtr_t problem = Problem::create(dev);
 
   ConstraintSetPtr_t c = createConstraints (dev);
   DifferentiableFunctionPtr_t func = traits::func (dev);
   c->configProjector ()->add (Implicit::create (func));
-  problem.steeringMethod(traits::SM_t::create (problem));
-  problem.steeringMethod ()->constraints (c);
+  problem->steeringMethod(traits::SM_t::create (*problem));
+  problem->steeringMethod ()->constraints (c);
 
   for (int c = 0; c < 2; ++c) {
     if (c == 0)
-      problem.setParameter ("PathProjection/HessianBound", Parameter((value_type)-1));
+      problem->setParameter ("PathProjection/HessianBound", Parameter((value_type)-1));
     else
-      problem.setParameter ("PathProjection/HessianBound", Parameter(traits::K));
+      problem->setParameter ("PathProjection/HessianBound", Parameter(traits::K));
 
     typename traits::ProjPtr_t projector =
-      traits::Proj_t::create (problem, traits::projection_step);
+      traits::Proj_t::create (*problem, traits::projection_step);
 
     std::cout << "========================================\n";
 
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 
       // HPP_DEFINE_TIMECOUNTER(projector);
       traits::make_conf (q1, q2, i);
-      PathPtr_t path = (*problem.steeringMethod ()) (q1,q2);
+      PathPtr_t path = (*problem->steeringMethod ()) (q1,q2);
 
       PathPtr_t projection;
       // Averaging the projection

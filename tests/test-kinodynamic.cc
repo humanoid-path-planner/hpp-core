@@ -93,12 +93,12 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   
 
   // Create steering method
-  Problem p = Problem (robot);
-  p.setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
-  p.setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
+  ProblemPtr_t p = Problem::create(robot);
+  p->setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
+  p->setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
 
-  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (p);
-  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(*p);
 
   // try to connect several states : (notation : sx = (px, vx, ax)
   Configuration_t q0 (robot->currentConfiguration());
@@ -504,12 +504,12 @@ BOOST_AUTO_TEST_CASE (kinodynamic_aMax1) {
 
 
   // Create steering method
-  Problem p = Problem (robot);
-  p.setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
-  p.setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
+  ProblemPtr_t p = Problem::create(robot);
+  p->setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
+  p->setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
 
-  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (p);
-  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(*p);
 
   // try to connect several states : (notation : sx = (px, vx, ax)
   Configuration_t q0 (robot->currentConfiguration());
@@ -586,14 +586,14 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
 
 
   // Create steering method
-  Problem p = Problem (robot);
-  p.setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
-  p.setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
-  p.setParameter(std::string("Kinodynamic/forceOrientation"),Parameter(true));
+  ProblemPtr_t p = Problem::create(robot);
+  p->setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
+  p->setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
+  p->setParameter(std::string("Kinodynamic/forceOrientation"),Parameter(true));
 
 
-  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (p);
-  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(*p);
   KinodynamicOrientedPathPtr_t pathKino,extractedPathKino;
   PathPtr_t path,extractedPath;
 

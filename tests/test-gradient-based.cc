@@ -86,21 +86,21 @@ BOOST_AUTO_TEST_CASE (BFGS)
   q3 (0) = s; q3 (1) = s; q3 (2) = s; q3 (3) = s;
   q4 (0) = 1; q4 (1) = 0; q4 (2) = 1; q4 (3) = 0;
 
-  Problem problem (robot);
-  SteeringMethodPtr_t sm = problem.steeringMethod ();
+  ProblemPtr_t problem = Problem::create(robot);
+  SteeringMethodPtr_t sm = problem->steeringMethod ();
   PathVectorPtr_t path = PathVector::create (robot->configSize (),
 					     robot->numberDof ());
   path->appendPath ((*sm) (q0, q1));
   path->appendPath ((*sm) (q1, q2));
   path->appendPath ((*sm) (q2, q3));
   path->appendPath ((*sm) (q3, q4));
-  problem.setParameter ("SplineGradientBased/alphaInit",
+  problem->setParameter ("SplineGradientBased/alphaInit",
                         hpp::core::Parameter (1.));
-  problem.setParameter ("SplineGradientBased/costThreshold",
+  problem->setParameter ("SplineGradientBased/costThreshold",
                         hpp::core::Parameter (1e-6));
   PathOptimizerPtr_t pathOptimizer
     (pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create
-     (problem));
+     (*problem));
   PathVectorPtr_t optimizedPath (pathOptimizer->optimize (path));
   Configuration_t p0 (robot->configSize ());
   Configuration_t p1 (robot->configSize ());

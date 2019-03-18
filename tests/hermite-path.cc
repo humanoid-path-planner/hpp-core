@@ -135,8 +135,8 @@ BOOST_AUTO_TEST_CASE (hermitePath)
 {
   DevicePtr_t dev = createRobot ();
   BOOST_REQUIRE (dev);
-  Problem problem (dev);
-  steeringMethod::HermitePtr_t hermiteSM = steeringMethod::Hermite::create(&problem);
+  ProblemPtr_t problem = Problem::create(dev);
+  steeringMethod::HermitePtr_t hermiteSM = steeringMethod::Hermite::create(problem);
 
   Configuration_t q0 (dev->configSize()); q0 << -1, -1;
   Configuration_t q2 (dev->configSize()); q2 <<  1,  1;
