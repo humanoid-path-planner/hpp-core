@@ -230,7 +230,7 @@ namespace hpp {
          end_.head (device_->configSize ()), l/L, q[2]);
       const int* types = DIRDATA [typeId_];
       for (std::size_t i=0; i<3; ++i) {
-        value_type curvature;
+        value_type curvature = 0;
         switch (types [i]) {
         case L_SEG:
           curvature = 1./rho_;

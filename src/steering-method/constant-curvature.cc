@@ -274,7 +274,7 @@ namespace hpp {
           pathLength = fabs (tmax - tmin)/L * length ();
         }
         Configuration_t init (robot_->configSize ());
-        bool res (impl_compute (init, tmin)); assert (res);
+        bool res (impl_compute (init, tmin)); assert (res); (void)res;
         Configuration_t end (robot_->configSize ());
         res = impl_compute (end,tmax); assert (res);
         ConstantCurvaturePtr_t result (createCopy (weak_.lock ()));
