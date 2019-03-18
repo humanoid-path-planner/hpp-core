@@ -103,7 +103,7 @@ namespace hpp {
       {
         os << "SolidSolidCollision: " << m_->joint_a->name()
           << " - " << (m_->joint_b ? m_->joint_b->name() : "World") << '\n';
-        const pinocchio::Model& model = joint_a_->robot ()->model();
+        const pinocchio::Model& model = joint_a()->robot ()->model();
         JointIndices_t joints = m_->computeSequenceOfJoints ();
         for (std::size_t i = 0; i < joints.size (); ++i) {
           if (i > 0) os << model.names[i] << ',';
@@ -120,8 +120,9 @@ namespace hpp {
         JointIndices_t joints;
 
         const pinocchio::Model& model = joint_a->robot ()->model();
-        const JointIndex id_a = indexJointA(),
-                         id_b = indexJointB();
+        assert(joint_a);
+        const JointIndex id_a = (joint_a ? joint_a->index() : 0),
+                         id_b = (joint_b ? joint_b->index() : 0);
         JointIndex ia = id_a, ib = id_b;
 
         std::vector<JointIndex> fromA, fromB;
@@ -204,8 +205,8 @@ namespace hpp {
           throw std::runtime_error ("tolerance should be non-negative.");
         }
 
-        if (joint_a_) { assert(joint_a->linkedBody ()); }
-        if (joint_b_) { assert(joint_b->linkedBody ()); }
+        if (joint_a) { assert(joint_a->linkedBody ()); }
+        if (joint_b) { assert(joint_b->linkedBody ()); }
         // Find sequence of joints
         JointIndices_t joints (m_->computeSequenceOfJoints ());
         m_->computeCoefficients (joints);
