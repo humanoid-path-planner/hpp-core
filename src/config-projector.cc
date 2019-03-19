@@ -25,14 +25,13 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 
-#include <pinocchio/multibody/liegroup/liegroup.hpp>
 #include <pinocchio/multibody/model.hpp>
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/extra-config-space.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/liegroup.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
@@ -56,7 +55,7 @@ namespace hpp {
                      Eigen::VectorXi& sat)
       {
         bool ret = false;
-        const se3::Model& model = robot->model();
+        const pinocchio::Model& model = robot->model();
 
         for (std::size_t i = 1; i < model.joints.size(); ++i) {
           const size_type nq = model.joints[i].nq();
@@ -284,7 +283,7 @@ namespace hpp {
       const size_type maxIterSave = maxIterations();
       if (maxIter != 0) maxIterations(maxIter);
       hppDout (info, "before optimization: " << configuration.transpose ());
-      BySubstitution::Status status;
+      BySubstitution::Status status = BySubstitution::MAX_ITERATION_REACHED;
       switch (lineSearchType_) {
         case Backtracking  : {
                                Backtracking_t ls;
@@ -369,6 +368,11 @@ namespace hpp {
       return solver_->isSatisfied (config, error);
     }
 
+    const NumericalConstraints_t& ConfigProjector::numericalConstraints () const
+    {
+      return solver_->numericalConstraints ();
+    }
+
     vector_t ConfigProjector::rightHandSideFromConfig (ConfigurationIn_t config)
     {
       return solver_->rightHandSideFromConfig (config);
@@ -400,6 +404,11 @@ namespace hpp {
     vector_t ConfigProjector::rightHandSide () const
     {
       return solver_->rightHandSide();
+    }
+
+    void ConfigProjector::rightHandSideAt (const value_type& s)
+    {
+      solver_->rightHandSideAt (s);
     }
 
     inline bool ConfigProjector::solverOneStep (ConfigurationOut_t config) const

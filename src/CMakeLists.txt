@@ -59,9 +59,7 @@ path-validation/discretized-joint-bound.cc
   path-optimizer.cc #
   path-optimization/linear-constraint.cc #
   path-optimization/spline-gradient-based-abstract.cc #
-  path-optimization/spline-gradient-based.cc #
   path-optimization/partial-shortcut.cc #
-  path-optimization/quadratic-program.cc
   path-optimization/random-shortcut.cc
   path-optimization/simple-time-parameterization.cc#
   path-planner.cc #
@@ -70,6 +68,7 @@ path-validation/discretized-joint-bound.cc
   path/spline.cc
   path/hermite.cc
   plan-and-optimize.cc #
+  plugin.cc # TODO : addObstacle
   problem.cc # TODO : addObstacle
   problem-solver.cc # TODO : addObstacle
   path-projector.cc
@@ -117,5 +116,19 @@ PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-pinocchio)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-util)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-statistics)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-constraints)
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${CMAKE_DL_LIBS})
 
 INSTALL(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+# GPL licenced part
+ADD_LIBRARY(${LIBRARY_NAME}-gpl
+  SHARED
+  path-optimization/quadratic-program.cc
+  path-optimization/spline-gradient-based.cc)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-pinocchio)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-util)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-statistics)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-constraints)
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME}-gpl ${LIBRARY_NAME})
+
+INSTALL(TARGETS ${LIBRARY_NAME}-gpl DESTINATION lib)

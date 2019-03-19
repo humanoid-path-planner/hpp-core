@@ -21,6 +21,7 @@
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 #include <hpp/constraints/implicit/relative-pose.hh>

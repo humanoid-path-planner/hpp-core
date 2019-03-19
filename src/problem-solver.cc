@@ -30,6 +30,7 @@
 #include <hpp/util/exception-factory.hh>
 
 #include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 
@@ -46,12 +47,13 @@
 #include <hpp/core/roadmap.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
-#include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/random-shortcut.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
@@ -203,7 +205,7 @@ namespace hpp {
       passiveDofsMap_ (), comcMap_ (),
       distanceBetweenObjects_ ()
     {
-      obstacleRModel_->addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
+      obstacleRModel_->addFrame(::pinocchio::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), ::pinocchio::BODY));
       obstacleRData_.reset (new Data (*obstacleRModel_));
 
 
@@ -232,13 +234,6 @@ namespace hpp {
       pathOptimizers.add ("RandomShortcut",     pathOptimization::RandomShortcut::create);
       pathOptimizers.add ("PartialShortcut",    pathOptimization::PartialShortcut::create);
       pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
-
-      // pathOptimizers.add ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 1>::create);
-      // pathOptimizers.add ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 2>::create);
-      // pathOptimizers.add ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<path::CanonicalPolynomeBasis, 3>::create);
-      pathOptimizers.add ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create);
-      // pathOptimizers.add ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<path::BernsteinBasis, 2>::create);
-      pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::BernsteinBasis, 3>::create);
 
       // Store path validation methods in map.
       pathValidations.add ("Discretized", pathValidation::createDiscretizedCollisionChecking);
@@ -276,6 +271,8 @@ namespace hpp {
                   type);
       }
       distanceType_ = type;
+      // TODO
+      // initDistance ();
     }
 
     void ProblemSolver::steeringMethodType (const std::string& type)
@@ -443,7 +440,7 @@ namespace hpp {
       constraints_ = ConstraintSet::create (robot_, "Default constraint set");
       // Reset obstacles
       obstacleRModel_.reset(new Model());
-      obstacleRModel_->addFrame(se3::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), se3::BODY));
+      obstacleRModel_->addFrame(::pinocchio::Frame("obstacle_frame", 0, 0, Transform3f::Identity(), ::pinocchio::BODY));
       obstacleRData_.reset (new Data(*obstacleRModel_));
       obstacleModel_.reset (new GeomModel());
       obstacleData_ .reset (new GeomData(*obstacleModel_));
@@ -844,10 +841,8 @@ namespace hpp {
       report = "";
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
 
-      // Create steering method using factory
-      SteeringMethodPtr_t sm (steeringMethods.get (steeringMethodType_)
-          (*problem_));
-      problem_->steeringMethod (sm);
+      // Get steering method from problem
+      SteeringMethodPtr_t sm (problem_->steeringMethod());
       PathPtr_t dp = (*sm) (start, end);
       if (!dp) {
 	report = "Steering method failed to build a path.";
@@ -867,9 +862,12 @@ namespace hpp {
 	projValid = problem()->pathValidation ()->validate (dp1, false, dp2, r);
         pathValid = projValid && projected;
         if (!projValid) {
-          hppDout (info, *r);
-          std::ostringstream oss;
-          oss << *r; report = oss.str ();
+          if (r) {
+            std::ostringstream oss;
+            oss << *r; report = oss.str ();
+          } else {
+            report = "No path validation report.";
+          }
         }
       } else {
         dp2 = dp;
@@ -926,9 +924,9 @@ namespace hpp {
       const Data & d = device->data ();
       for (std::size_t i = 1; i < m.frames.size(); ++i)
       {
-        const se3::Frame& frame = m.frames[i];
-        // se3::FrameType type = (frame.type == se3::JOINT ? se3::FIXED_JOINT : frame.type);
-        obstacleRModel_->addFrame (se3::Frame (
+        const ::pinocchio::Frame& frame = m.frames[i];
+        // ::pinocchio::FrameType type = (frame.type == ::pinocchio::JOINT ? ::pinocchio::FIXED_JOINT : frame.type);
+        obstacleRModel_->addFrame (::pinocchio::Frame (
               prefix + frame.name,
               0,
               0, // TODO Keep frame hierarchy
@@ -938,7 +936,7 @@ namespace hpp {
               ));
       }
       obstacleRData_.reset (new Data(*obstacleRModel_));
-      se3::framesForwardKinematics (*obstacleRModel_, *obstacleRData_, vector_t::Zero(0));
+      ::pinocchio::framesForwardKinematics (*obstacleRModel_, *obstacleRData_, vector_t::Zero(0).eval());
 
       // Detach objects from joints
       for (size_type i = 0; i < device->nbObjects(); ++i) {
@@ -963,18 +961,18 @@ namespace hpp {
             << " already added! Choose another name (prefix).");
       }
 
-      se3::GeomIndex id = obstacleModel_->addGeometryObject(se3::GeometryObject(
+      ::pinocchio::GeomIndex id = obstacleModel_->addGeometryObject(::pinocchio::GeometryObject(
             name, 1, 0,
             inObject.collisionGeometry(),
-            se3::toPinocchioSE3(inObject.getTransform()),
+            ::pinocchio::toPinocchioSE3(inObject.getTransform()),
             "",
             vector3_t::Ones()),
           *obstacleRModel_);
       // Update obstacleData_
       // FIXME This should be done in Pinocchio
       {
-        se3::GeometryModel& model = *obstacleModel_;
-        se3::GeometryData& data = *obstacleData_;
+        ::pinocchio::GeometryModel& model = *obstacleModel_;
+        ::pinocchio::GeometryData& data = *obstacleData_;
         data.oMg.resize(model.ngeoms);
         //data.activeCollisionPairs.resize(model.collisionPairs.size(), true)
         //data.distance_results(model.collisionPairs.size())
@@ -983,7 +981,7 @@ namespace hpp {
         data.collisionObjects.push_back (fcl::CollisionObject(
               model.geometryObjects[id].fcl));
         data.oMg[id] =  model.geometryObjects[id].placement;
-        data.collisionObjects[id].setTransform( se3::toFclTransform3f(data.oMg[id]) );
+        data.collisionObjects[id].setTransform( ::pinocchio::toFclTransform3f(data.oMg[id]) );
       }
       CollisionObjectPtr_t object (
           new CollisionObject(obstacleModel_,obstacleData_,id));
@@ -1006,7 +1004,7 @@ namespace hpp {
       if (!obstacleModel_->existGeometryName(name)) {
         HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
       }
-      se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+      ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
       // Update obstacle model
       remove(obstacleModel_->geometryObjects, id);
@@ -1026,7 +1024,7 @@ namespace hpp {
       if (!obstacleModel_->existGeometryName(name)) {
         HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
       }
-      se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+      ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
       fcl::CollisionObject& fclobj = obstacleData_->collisionObjects[id];
       fclobj.computeAABB();
@@ -1043,7 +1041,7 @@ namespace hpp {
       } else {
         obstacleModel_->geometryObjects[id].fcl = newgeom;
         obstacleData_->collisionObjects[id] =
-          fcl::CollisionObject(newgeom, se3::toFclTransform3f(obstacleData_->oMg[id]));
+          fcl::CollisionObject(newgeom, ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]));
       }
     }
 
@@ -1076,7 +1074,7 @@ namespace hpp {
     CollisionObjectPtr_t ProblemSolver::obstacle (const std::string& name) const
     {
       if (obstacleModel_->existGeometryName(name)) {
-        se3::GeomIndex id = obstacleModel_->getGeometryId(name);
+        ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
         return CollisionObjectPtr_t (
             new CollisionObject(obstacleModel_,obstacleData_,id));
       }
@@ -1088,7 +1086,7 @@ namespace hpp {
       if (!obstacleRModel_->existFrame(name)) {
         HPP_THROW(std::invalid_argument, "No obstacle frame with name " << name);
       }
-      se3::FrameIndex id = obstacleRModel_->getFrameId(name);
+      ::pinocchio::FrameIndex id = obstacleRModel_->getFrameId(name);
       return obstacleRData_->oMf[id];
     }
 

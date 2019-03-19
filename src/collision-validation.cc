@@ -54,7 +54,7 @@ namespace hpp {
         return false;
       }
 
-      inline CollisionPair_t makeCollisionPair (const DevicePtr_t& d, const se3::CollisionPair& p)
+      inline CollisionPair_t makeCollisionPair (const DevicePtr_t& d, const ::pinocchio::CollisionPair& p)
       {
         CollisionObjectConstPtr_t o1 (new pinocchio::CollisionObject(d, p.first));
         CollisionObjectConstPtr_t o2 (new pinocchio::CollisionObject(d, p.second));
@@ -187,7 +187,7 @@ namespace hpp {
     {
       // Loop over collision pairs and remove disabled ones.
       CollisionPairs_t::iterator _colPair = collisionPairs_.begin ();
-      se3::JointIndex j1, j2;
+      pinocchio::JointIndex j1, j2;
       fcl::CollisionResult unused;
       while (_colPair != collisionPairs_.end ()) {
         j1 = _colPair->first ->jointIndex();
@@ -223,14 +223,14 @@ namespace hpp {
     }
 
     CollisionValidation::CollisionValidation (const DevicePtr_t& robot) :
-      collisionRequest_(false, 1, false),
+      collisionRequest_(fcl::NO_REQUEST,1),
       robot_ (robot),
       parameterizedPairs_(), disabledPairs_(),
       checkParameterized_(false),
       computeAllContacts_(false)
     {
-      const se3::GeometryModel& model = robot->geomModel();
-      const se3::GeometryData & data  = robot->geomData();
+      const pinocchio::GeomModel& model = robot->geomModel();
+      const pinocchio::GeomData & data  = robot->geomData();
 
       for (std::size_t i = 0; i < model.collisionPairs.size(); ++i)
         if (data.activeCollisionPairs[i])

@@ -32,17 +32,14 @@
 #define HPP_ENABLE_BENCHMARK 1
 #include <hpp/util/timer.hh>
 
-#include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/multibody/geometry.hpp>
-
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/implicit.hh>
+
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/constraints/implicit.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/interpolated-path.hh>
@@ -56,66 +53,34 @@
 
 #include <hpp/core/path-projector/recursive-hermite.hh>
 
-
-using hpp::pinocchio::Device;
-using hpp::pinocchio::DevicePtr_t;
-using hpp::pinocchio::JointPtr_t;
-
 using hpp::constraints::Implicit;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointIndex;
-
 DevicePtr_t createRobot ()
 {
+  std::string urdf ("<robot name='test'>"
+      "<link name='link1'/>"
+      "<link name='link2'/>"
+      "<link name='link3'/>"
+      "<joint name='tx' type='prismatic'>"
+        "<parent link='link1'/>"
+        "<child  link='link2'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "<joint name='ty' type='prismatic'>"
+        "<axis xyz='0 1 0'/>"
+        "<parent link='link2'/>"
+        "<child  link='link3'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "</robot>"
+      );
+
   DevicePtr_t robot = Device::create ("test");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-  std::string jointName = name + "_x";
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(JointModelPX::NQ,-4);
-  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(JointModelPX::NQ,4);
-
-  JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat, jointName, max_effort,max_velocity,lower_position,upper_position);
-
-  JointModelPY::TangentVector_t max_effortY = JointModelPY::TangentVector_t::Constant(JointModelPY::NV,std::numeric_limits<double>::max());
-  JointModelPY::TangentVector_t max_velocityY = JointModelPY::TangentVector_t::Constant(JointModelPY::NV,std::numeric_limits<double>::max());
-  JointModelPY::ConfigVector_t lower_positionY = JointModelPY::ConfigVector_t::Constant(JointModelPY::NQ,-4);
-  JointModelPY::ConfigVector_t upper_positionY = JointModelPY::ConfigVector_t::Constant(JointModelPY::NQ,4);
-  std::string jointNameY = name + "_y";
-
-  robot->model().addJoint(idX,JointModelPY(), mat,jointNameY,max_effortY,max_velocityY,lower_positionY,upper_positionY);
-
-  robot->createData();
-  robot->createGeomData();
-
+  urdf::loadModelFromString (robot, 0, "", "anchor", urdf, "");
   return robot;
-  /*
-  // Translation along x
-  joint = objectFactory.createJointTranslation2 (mat);
-  joint->name (jointName);
-
-  joint->isBounded (0, 1);
-  joint->lowerBound (0, -4);
-  joint->upperBound (0, +4);
-  joint->isBounded (1, 1);
-  joint->lowerBound (1, -4);
-  joint->upperBound (1, +4);
-
-  robot->rootJoint (joint);
-  return robot;
-  */
 }
 
 ConstraintSetPtr_t createConstraints (DevicePtr_t r)
@@ -138,7 +103,7 @@ class Polynomial : public DifferentiableFunction {
     vector_t coefs_;
 
   protected:
-      void impl_compute (LiegroupElement& result, vectorIn_t argument) const {
+      void impl_compute (LiegroupElementRef result, vectorIn_t argument) const {
         result.vector ()[0] = argument.cwiseProduct (argument).dot (coefs_) - 1;
       }
       void impl_jacobian (matrixOut_t jacobian, vectorIn_t arg) const {

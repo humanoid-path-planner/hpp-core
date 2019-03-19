@@ -21,8 +21,6 @@
 
 # include <sstream>
 
-# include <pinocchio/algorithm/joint-configuration.hpp>
-
 # include <hpp/pinocchio/device.hh>
 
 # include <hpp/core/configuration-shooter.hh>

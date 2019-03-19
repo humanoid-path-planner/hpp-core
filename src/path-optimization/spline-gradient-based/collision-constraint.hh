@@ -122,7 +122,8 @@ namespace hpp {
 	 robot_->computeForwardKinematics ();
          robot_->updateGeometryPlacements ();
 	 fcl::CollisionResult result;
-         fcl::CollisionRequest collisionRequest (enableContact, 1, false);
+         fcl::CollisionRequestFlag flag = enableContact? fcl::CONTACT : fcl::NO_REQUEST ;
+         fcl::CollisionRequest collisionRequest (flag, 1);
          fcl::collide (object1_->fcl (), object2_->fcl (), collisionRequest, result);
          return result;
        }
@@ -184,7 +185,7 @@ namespace hpp {
          assert (J_.rows () == 1);
        }
 
-       virtual void impl_compute (LiegroupElement& result, vectorIn_t argument)
+       virtual void impl_compute (LiegroupElementRef result, vectorIn_t argument)
          const
        {
          pinocchio::difference<pinocchio::DefaultLieGroupMap> (robot_, argument, qFree_, difference_);

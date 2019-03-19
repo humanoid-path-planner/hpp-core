@@ -19,6 +19,7 @@
 #include <limits>
 
 #include <pinocchio/multibody/model.hpp>
+
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup.hh>

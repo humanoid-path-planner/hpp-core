@@ -21,99 +21,46 @@
 #include <cmath>
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-
-#include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
-#include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
-#include <pinocchio/multibody/geometry.hpp>
-
-using hpp::pinocchio::BodyPtr_t;
-using hpp::pinocchio::Body;
-using hpp::pinocchio::CollisionObject;
-using hpp::pinocchio::CollisionObjectPtr_t;
-using hpp::pinocchio::Configuration_t;
-using hpp::pinocchio::Device;
-using hpp::pinocchio::DevicePtr_t;
-using hpp::pinocchio::Transform3f;
-using hpp::pinocchio::JointPtr_t;
-using hpp::pinocchio::value_type;
-using fcl::Quaternion3f;
-using fcl::Box;
-using hpp::core::ConfigurationPtr_t;
-using hpp::core::PathVector;
-using hpp::core::PathVectorPtr_t;
-using hpp::core::Problem;
-using hpp::core::SteeringMethodPtr_t;
-using hpp::core::steeringMethod::Straight;
-using hpp::core::PathOptimizerPtr_t;
-using hpp::core::pathOptimization::GradientBased;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
-
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointModelRUBZ;
-using ::se3::JointIndex;
-using ::se3::FrameIndex;
-
 
 BOOST_AUTO_TEST_SUITE( test_hpp_core )
 
 // Build a box robot moving in the plane
 DevicePtr_t createRobot ()
 {
+  std::string urdf ("<robot name='test'>"
+      "<link name='body'>"
+        "<collision>"
+          "<geometry>"
+            "<box size='1 2 1'/>"
+          "</geometry>"
+        "</collision>"
+      "</link>"
+      "</robot>"
+      );
+
   DevicePtr_t robot = Device::create ("test");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-  std::string jointName = name + "_x";
+  urdf::loadModelFromString (robot, 0, "", "planar", urdf, "");
 
-  JointIndex idX = robot->model().addJoint(0,JointModelPX(), mat,jointName);
-  robot->model().addJointFrame(idX);
+  BOOST_REQUIRE_EQUAL(robot->configSize(), 4);
+  BOOST_REQUIRE_EQUAL(robot->numberDof (), 3);
 
-  std::string jointNameY = name + "_y";
-
-  idX = robot->model().addJoint(idX,JointModelPY(), mat,jointNameY);
-  robot->model().addJointFrame(idX);
-
-  robot->model().upperPositionLimit.setConstant( 2);
-  robot->model().lowerPositionLimit.setConstant(-2);
-
-  idX = robot->model().addJoint(idX,JointModelRUBZ(), mat,"rot_z");
-  robot->model().addJointFrame(idX);
-
-  robot->model().upperPositionLimit.tail<2>().setConstant( 1.01);
-  robot->model().lowerPositionLimit.tail<2>().setConstant(-1.01);
-
-  fcl::Transform3f position; position.setIdentity ();
-
-  boost::shared_ptr <Box> box (new Box (1,2,1));
-  fcl::CollisionObject object(box, position);
-  robot->model().appendBodyToJoint(idX,::se3::Inertia::Identity(), se3::SE3::Identity());
-  robot->model().addBodyFrame("body", idX, se3::SE3::Identity());
-  FrameIndex bodyId = robot->model().getFrameId("body");
-  robot->geomModel().addGeometryObject(
-      se3::GeometryObject("obstacle", bodyId, idX, object.collisionGeometry(), mat, "", hpp::pinocchio::vector3_t::Ones()),
-      robot->model());
-
-  robot->createData();
-  robot->createGeomData();
+  JointPtr_t rj = robot->getJointByName("root_joint");
+  BOOST_REQUIRE(rj);
+  rj->upperBound (0, 2);
+  rj->upperBound (1, 2);
+  rj->lowerBound (0,-2);
+  rj->lowerBound (1,-2);
   return robot;
 }
 

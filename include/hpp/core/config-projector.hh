@@ -23,8 +23,6 @@
 
 # include <hpp/statistics/success-bin.hh>
 
-# include <hpp/constraints/solver/by-substitution.hh>
-
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint.hh>
 # include <hpp/core/deprecated.hh>
@@ -269,6 +267,9 @@ namespace hpp {
       /// \return the parameter.
       vector_t rightHandSide () const;
 
+      /// Update the right hand side using Implicit::rightHandSideAt
+      void rightHandSideAt (const value_type& s);
+
       /// @}
 
       /// Check whether a configuration statisfies the constraint.
@@ -289,10 +290,7 @@ namespace hpp {
 
       /// Get the numerical constraints of the config-projector (and so of the
       /// Constraint Set)
-      const NumericalConstraints_t& numericalConstraints () const
-      {
-	return solver_->numericalConstraints ();
-      }
+      const NumericalConstraints_t& numericalConstraints () const;
 
       const BySubstitution& solver () const
       {

@@ -27,6 +27,7 @@
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
+# include <hpp/pinocchio/joint-collection.hh>
 
 namespace hpp {
   namespace core {
@@ -80,15 +81,13 @@ namespace hpp {
         computeSigmasAlgo (LG2(), sigmas.tail(LG2::NV), upper.tail(LG2::NQ), lower.tail(LG2::NQ));
       }
 
-      struct ComputeSigmasStep : public se3::fusion::JointModelVisitor<ComputeSigmasStep>
+      struct ComputeSigmasStep : public ::pinocchio::fusion::JointVisitorBase<ComputeSigmasStep>
       {
-        typedef boost::fusion::vector<const se3::Model&, vector_t&> ArgsType;
-
-        JOINT_MODEL_VISITOR_INIT(ComputeSigmasStep);
+        typedef boost::fusion::vector<const pinocchio::Model&, vector_t&> ArgsType;
 
         template<typename JointModel>
-          static void algo(const se3::JointModelBase<JointModel> & jmodel,
-              const se3::Model& model,
+          static void algo(const ::pinocchio::JointModelBase<JointModel> & jmodel,
+              const pinocchio::Model& model,
               vector_t& sigmas)
           {
             typedef typename pinocchio::DefaultLieGroupMap::operation<JointModel>::type LG_t;
@@ -100,11 +99,11 @@ namespace hpp {
       };
 
       template<>
-      void ComputeSigmasStep::algo<se3::JointModelComposite>(const se3::JointModelBase<se3::JointModelComposite> & jmodel,
-              const se3::Model& model,
+      void ComputeSigmasStep::algo< ::pinocchio::JointModelComposite>(const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
+              const pinocchio::Model& model,
               vector_t& sigmas)
       {
-        se3::details::Dispatch<ComputeSigmasStep>::run(jmodel, ComputeSigmasStep::ArgsType(model, sigmas));
+        ::pinocchio::details::Dispatch<ComputeSigmasStep>::run(jmodel.derived(), ComputeSigmasStep::ArgsType(model, sigmas));
       }
 
       ConfigurationPtr_t Gaussian::shoot () const
@@ -126,7 +125,7 @@ namespace hpp {
 
       void Gaussian::sigma(const value_type& factor)
       {
-        const se3::Model& model = robot_->model();
+        const pinocchio::Model& model = robot_->model();
         ComputeSigmasStep::ArgsType args (model, sigmas_);
         for(std::size_t i = 1; i < model.joints.size(); ++i)
           ComputeSigmasStep::run (model.joints[i], args);

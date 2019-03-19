@@ -28,7 +28,7 @@ namespace hpp {
   namespace core {
     namespace continuousValidation {
       namespace {
-        typedef std::pair<se3::JointIndex, se3::JointIndex> JointIndexPair_t;
+        typedef std::pair<pinocchio::JointIndex, pinocchio::JointIndex> JointIndexPair_t;
 
         struct JointIndexPairCompare_t
         {
@@ -49,12 +49,15 @@ namespace hpp {
       {
         ContinuousValidationPtr_t continuousVal = continuousVal_.lock ();
         DevicePtr_t robot = continuousVal->robot_;
-        const se3::GeometryModel &gmodel = robot->geomModel();
+        const pinocchio::GeomModel &gmodel = robot->geomModel();
+        const pinocchio::GeomData  &gdata  = robot->geomData();
         JointPtr_t joint1, joint2;
         BodyPairCollisionMap_t bodyPairMap;
         for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i)
         {
-          const se3::CollisionPair &cp = gmodel.collisionPairs[i];
+          if (!gdata.activeCollisionPairs[i]) continue;
+
+          const ::pinocchio::CollisionPair &cp = gmodel.collisionPairs[i];
           JointIndexPair_t jp(gmodel.geometryObjects[cp.first].parentJoint,
               gmodel.geometryObjects[cp.second].parentJoint);
 

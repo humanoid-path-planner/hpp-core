@@ -14,12 +14,16 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/steering-method/car-like.hh>
+
+#include <pinocchio/spatial/se3.hpp>
+#include <pinocchio/multibody/joint/joint-generic.hpp>
+
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
+
 #include <hpp/core/problem.hh>
-#include <hpp/core/steering-method/car-like.hh>
-#include <pinocchio/spatial/se3.hpp>
-#include <pinocchio/multibody/joint/joint.hpp>
 
 namespace hpp {
   namespace core {
@@ -43,7 +47,7 @@ namespace hpp {
         rho_ (turningRadius), xy_ (xyJoint), rz_ (rzJoint),
         xyId_ (xy_->rankInConfiguration ()), wheels_ (wheels), weak_ ()
       {
-        if (rz_->jointModel ().classname () == "JointModelPlanar") {
+        if (rz_->jointModel ().shortname () == "JointModelPlanar") {
           rzId_ = rz_->rankInConfiguration () + 2;
         } else {
           rzId_ = rz_->rankInConfiguration ();

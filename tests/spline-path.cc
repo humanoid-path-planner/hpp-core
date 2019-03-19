@@ -22,6 +22,7 @@
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/simple-device.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
@@ -83,8 +84,8 @@ template <int SplineType> void compare_to_straight_path ()
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
-  Configuration_t q1 (se3::randomConfiguration(dev->model()));
-  Configuration_t q2 (se3::randomConfiguration(dev->model()));
+  Configuration_t q1 (::pinocchio::randomConfiguration(dev->model()));
+  Configuration_t q2 (::pinocchio::randomConfiguration(dev->model()));
 
   vector_t v (dev->numberDof());
   difference<RnxSOnLieGroupMap> (dev, q2, q1, v);
@@ -107,8 +108,8 @@ template <int SplineType> void compare_to_straight_path ()
   ls->parameters(ls_param);
   */
 
-  BOOST_CHECK(sp->initial().isApprox(ls->initial()));
-  BOOST_CHECK(sp->end().isApprox(ls->end()));
+  CONFIGURATION_VECTOR_IS_APPROX(dev, sp->initial(), ls->initial(), 1e-7);
+  CONFIGURATION_VECTOR_IS_APPROX(dev, sp->end()    , ls->end()    , 1e-7);
 
   const size_type N = 10;
   const value_type step1 = sp->length() / N;
@@ -154,8 +155,8 @@ void check_velocity_bounds ()
   BOOST_REQUIRE (dev);
   Problem problem (dev);
 
-  Configuration_t q1 (se3::randomConfiguration(dev->model()));
-  Configuration_t q2 (se3::randomConfiguration(dev->model()));
+  Configuration_t q1 (::pinocchio::randomConfiguration(dev->model()));
+  Configuration_t q2 (::pinocchio::randomConfiguration(dev->model()));
   std::vector<int> orders (1, 1);
   vector_t v1 (vector_t::Random(dev->numberDof())),
            v2 (vector_t::Random(dev->numberDof()));
@@ -186,10 +187,17 @@ void check_velocity_bounds ()
   }
 }
 
-BOOST_AUTO_TEST_CASE (spline)
+BOOST_AUTO_TEST_CASE (spline_canonical)
 {
   compare_to_straight_path<path::CanonicalPolynomeBasis>();
-  compare_to_straight_path<path::BernsteinBasis>();
+}
 
+BOOST_AUTO_TEST_CASE (spline_bernstein)
+{
+  compare_to_straight_path<path::BernsteinBasis>();
+}
+
+BOOST_AUTO_TEST_CASE (spline_bernstein_velocity)
+{
   check_velocity_bounds<path::BernsteinBasis, 3>();
 }

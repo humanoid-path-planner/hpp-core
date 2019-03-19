@@ -48,7 +48,7 @@ MACRO(ADD_TESTCASE NAME GENERATED)
   PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-pinocchio)
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}
-    ${Boost_LIBRARIES} hpp-core
+    ${Boost_LIBRARIES} hpp-core hpp-core-gpl
     )
 
 ENDMACRO(ADD_TESTCASE)
@@ -76,3 +76,7 @@ ADD_TESTCASE (time-parameterization FALSE)
 ADD_TESTCASE (configuration-shooters FALSE)
 # ADD_TESTCASE (hermite-path FALSE) Refactoring hpp-model -> hpp-pinocchio not done
 ADD_TESTCASE (test-kinodynamic FALSE)
+ADD_SUBDIRECTORY(plugin-test)
+CONFIG_FILES (plugin.cc)
+ADD_TESTCASE (plugin TRUE)
+ADD_DEPENDENCIES (plugin example)

@@ -20,8 +20,6 @@
 #include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/configuration-shooter/gaussian.hh>
 
-#include <pinocchio/multibody/model.hpp>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/simple-device.hh>
@@ -48,9 +46,6 @@ void basic_test (CS_t cs, DevicePtr_t robot)
 BOOST_AUTO_TEST_CASE (uniform)
 {
   DevicePtr_t robot = pin_test::makeDevice(pin_test::HumanoidSimple);
-  robot->model().lowerPositionLimit.head<3>().setConstant(-1);
-  robot->model().upperPositionLimit.head<3>().setConstant( 1);
-
   UniformPtr_t cs = Uniform::create (robot);
 
   basic_test (cs, robot);

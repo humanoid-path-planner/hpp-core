@@ -24,6 +24,7 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 
@@ -33,12 +34,6 @@
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
-#include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/multibody/geometry.hpp>
-
-using hpp::pinocchio::Device;
-using hpp::pinocchio::DevicePtr_t;
-using hpp::pinocchio::JointPtr_t;
 
 using hpp::constraints::RelativeTransformation;
 using hpp::constraints::Implicit;
@@ -46,12 +41,6 @@ using hpp::constraints::explicit_::RelativePose;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
-
-using ::se3::JointModelFreeFlyer;
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointIndex;
 
 bool verbose = true;
 
@@ -74,37 +63,52 @@ bool verbose = true;
 */
 DevicePtr_t createRobot ()
 {
+  std::string urdf ("<robot name='test'>"
+      "<link name='base_link'/>"
+      "<link name='link_test_x'/>"
+      "<joint name='test_x' type='prismatic'>"
+        "<parent link='base_link'/>"
+        "<child  link='link_test_x'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+
+      "<link name='link_a0'/>"
+      "<link name='link_a1'/>"
+      "<joint name='joint_a0' type='prismatic'>"
+        "<parent link='link_test_x'/>"
+        "<child  link='link_a0'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "<joint name='joint_a1' type='prismatic'>"
+        "<parent link='link_a0'/>"
+        "<child  link='link_a1'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+
+      "<link name='link_b0'/>"
+      "<link name='link_b1'/>"
+      "<link name='link_b2'/>"
+      "<joint name='joint_b0' type='prismatic'>"
+        "<parent link='link_test_x'/>"
+        "<child  link='link_b0'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "<joint name='joint_b1' type='prismatic'>"
+        "<parent link='link_b0'/>"
+        "<child  link='link_b1'/>"
+        "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "<joint name='joint_b2' type='floating'>"
+        "<parent link='link_b1'/>"
+        "<child  link='link_b2'/>"
+      "</joint>"
+
+      "</robot>"
+      );
+
 
   DevicePtr_t robot = Device::create ("test");
-  const std::string& name = robot->name ();
-  ModelPtr_t m = ModelPtr_t(new ::se3::Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new ::se3::GeometryModel());
-  robot->setModel(m);
-  robot->setGeomModel(gm);
-  Transform3f mat; mat.setIdentity ();
-  std::string jointName = name + "_x";
-
-  JointModelPX::TangentVector_t max_effort = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::TangentVector_t max_velocity = JointModelPX::TangentVector_t::Constant(JointModelPX::NV,std::numeric_limits<double>::max());
-  JointModelPX::ConfigVector_t lower_position = JointModelPY::ConfigVector_t::Constant(-4);
-  JointModelPX::ConfigVector_t upper_position = JointModelPY::ConfigVector_t::Constant(4);
-
-  JointIndex idJoint = robot->model().addJoint(0,JointModelPX(), mat,jointName,max_effort,max_velocity,lower_position,upper_position);
-
-  std::string bname = "joint_a";
-  for (int i = 0; i < 2; ++i) {
-    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
-  }
-  bname = "joint_b";
-  idJoint = 1;
-  for (int i = 0; i < 2; ++i) {
-    idJoint = robot->model().addJoint(idJoint,JointModelPX(), mat,bname+TOSTR(i),max_effort,max_velocity,lower_position,upper_position);
-  }
-  int i = 2;
-  idJoint = robot->model().addJoint(idJoint,JointModelFreeFlyer(), mat,bname+TOSTR(i));
-
-  robot->createData();
-  robot->createGeomData();
+  urdf::loadModelFromString (robot, 0, "", "anchor", urdf, "");
   return robot;
 }
 

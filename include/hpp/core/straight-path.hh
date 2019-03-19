@@ -53,17 +53,26 @@ namespace hpp {
 				       ConfigurationIn_t end,
 				       value_type length)
       {
-	StraightPath* ptr = new StraightPath (device, init, end, length);
+        return create (device, init, end, interval_t (0, length));
+      }
+
+      /// Create instance and return shared pointer
+      /// \param device Robot corresponding to configurations
+      /// \param init, end Start and end configurations of the path
+      /// \param interval interval of definition.
+      static StraightPathPtr_t create (const DevicePtr_t& device,
+				       ConfigurationIn_t init,
+				       ConfigurationIn_t end,
+				       interval_t interval)
+      {
+	StraightPath* ptr = new StraightPath (device, init, end, interval);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
         ptr->checkPath ();
 	return shPtr;
       }
 
-      /// Create instance and return shared pointer
-      /// \param device Robot corresponding to configurations
-      /// \param init, end Start and end configurations of the path
-      /// \param length Distance between the configurations.
+      /// \copydoc create(const DevicePtr_t&, ConfigurationIn_t, ConfigurationIn_t, value_type)
       /// \param constraints the path is subject to
       static StraightPathPtr_t create (const DevicePtr_t& device,
 				       ConfigurationIn_t init,
@@ -71,7 +80,18 @@ namespace hpp {
 				       value_type length,
 				       ConstraintSetPtr_t constraints)
       {
-	StraightPath* ptr = new StraightPath (device, init, end, length,
+        return create (device, init, end, interval_t (0, length), constraints);
+      }
+
+      /// \copydoc create(const DevicePtr_t&, ConfigurationIn_t, ConfigurationIn_t, interval_t)
+      /// \param constraints the path is subject to
+      static StraightPathPtr_t create (const DevicePtr_t& device,
+				       ConfigurationIn_t init,
+				       ConfigurationIn_t end,
+                                       interval_t interval,
+				       ConstraintSetPtr_t constraints)
+      {
+	StraightPath* ptr = new StraightPath (device, init, end, interval,
 					      constraints);
 	StraightPathPtr_t shPtr (ptr);
 	ptr->init (shPtr);
@@ -166,13 +186,23 @@ namespace hpp {
 	os << "final configuration:   " << end_.transpose () << std::endl;
 	return os;
       }
+
       /// Constructor
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		    ConfigurationIn_t end, value_type length);
 
+      /// Constructor
+      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
+		    ConfigurationIn_t end, interval_t interval);
+
       /// Constructor with constraints
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
 		    ConfigurationIn_t end, value_type length,
+		    ConstraintSetPtr_t constraints);
+
+      /// Constructor with constraints
+      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
+		    ConfigurationIn_t end, interval_t interval,
 		    ConstraintSetPtr_t constraints);
 
       /// Copy constructor

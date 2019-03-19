@@ -18,18 +18,17 @@
 
 #include <hpp/core/continuous-validation/solid-solid-collision.hh>
 
+#include <pinocchio/multibody/model.hpp>
+
+#include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/collision.h>
+
+#include <hpp/pinocchio/body.hh>
+#include <hpp/pinocchio/collision-object.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/device.hh>
 
-# include <hpp/fcl/collision_data.h>
-# include <hpp/fcl/collision.h>
-# include <hpp/pinocchio/body.hh>
-# include <hpp/pinocchio/collision-object.hh>
-# include <hpp/pinocchio/joint.hh>
-# include <hpp/core/straight-path.hh>
-# include <hpp/core/interpolated-path.hh>
-# include <hpp/core/deprecated.hh>
-# include <pinocchio/multibody/geometry.hpp>
-
+#include <hpp/core/deprecated.hh>
 
 namespace hpp {
   namespace core {
@@ -98,7 +97,7 @@ namespace hpp {
       {
         os << "SolidSolidCollision: " << joint_a_->name()
           << " - " << (joint_b_ ? joint_b_->name() : "World") << '\n';
-        const se3::Model& model = joint_a_->robot ()->model();
+        const pinocchio::Model& model = joint_a_->robot ()->model();
         JointIndices_t joints = computeSequenceOfJoints ();
         for (std::size_t i = 0; i < joints.size (); ++i) {
           if (i > 0) os << model.names[i] << ',';
@@ -114,7 +113,7 @@ namespace hpp {
       {
         JointIndices_t joints;
 
-        const se3::Model& model = joint_a_->robot ()->model();
+        const pinocchio::Model& model = joint_a_->robot ()->model();
         const JointIndex id_a = indexJointA(),
                          id_b = indexJointB();
         JointIndex ia = id_a, ib = id_b;
@@ -148,7 +147,7 @@ namespace hpp {
 
       void SolidSolidCollision::computeCoefficients (const JointIndices_t& joints)
       {
-        const se3::Model& model = joint_a_->robot ()->model();
+        const pinocchio::Model& model = joint_a_->robot ()->model();
 
         JointPtr_t child;
         assert (joints.size () > 1);

@@ -17,13 +17,8 @@
 #define BOOST_TEST_MODULE ConfigProjector 
 #include <boost/test/included/unit_test.hpp>
 
-#include <pinocchio/multibody/joint/joint-variant.hpp>
-#include <pinocchio/multibody/geometry.hpp>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/simple-device.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
@@ -31,11 +26,6 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/constraints/implicit.hh>
-
-using hpp::pinocchio::Device;
-using hpp::pinocchio::DevicePtr_t;
-using hpp::pinocchio::JointPtr_t;
-using hpp::pinocchio::Body;
 
 using hpp::constraints::Position;
 using hpp::constraints::PositionPtr_t;
@@ -45,76 +35,12 @@ using hpp::constraints::vector3_t;
 using namespace hpp;
 using namespace hpp::pinocchio;
 using namespace hpp::core;
-using ::se3::JointModelRX;
-using ::se3::JointModelPX;
-using ::se3::JointModelPY;
-using ::se3::JointModelPZ;
-using ::se3::JointModelRUBX;
-using ::se3::JointModelFreeFlyer;
-using ::se3::JointModelSpherical;
-using ::se3::JointIndex;
 
 typedef Eigen::Matrix<value_type,3,1> Vector3;
 typedef Eigen::Matrix<value_type,3,3> Matrix3;
 
-/*
-JointPtr_t createFreeflyerJoint (DevicePtr_t robot)
-{
-  const std::string& name = robot->name ();
-  fcl::Transform3f mat; mat.setIdentity ();
-  JointPtr_t joint, parent;
-  const fcl::Vec3f T = mat.getTranslation ();
-  std::string jointName = name + "_x";
-  // Translation along x
-  fcl::Matrix3f permutation;
-  joint = objectFactory.createJointTranslation (mat);
-  joint->name (jointName);
-  joint->isBounded (0, 1);
-  joint->lowerBound (0, -4);
-  joint->upperBound (0, +4);
-  robot->rootJoint (joint);
-  parent = joint;
-
-  // Translation along y
-  permutation (0,0) = 0; permutation (0,1) = -1; permutation (0,2) = 0;
-  permutation (1,0) = 1; permutation (1,1) =  0; permutation (1,2) = 0;
-  permutation (2,0) = 0; permutation (2,1) =  0; permutation (2,2) = 1;
-  fcl::Transform3f pos;
-  pos.setRotation (permutation * mat.getRotation ());
-  pos.setTranslation (T);
-  joint = objectFactory.createJointTranslation (pos);
-  jointName = name + "_y";
-  joint->name (jointName);
-  joint->isBounded (0, 1);
-  joint->lowerBound (0, -4);
-  joint->upperBound (0, +4);
-  parent->addChildJoint (joint);
-  parent = joint;
-
-  // Translation along z
-  permutation (0,0) = 0; permutation (0,1) = 0; permutation (0,2) = -1;
-  permutation (1,0) = 0; permutation (1,1) = 1; permutation (1,2) =  0;
-  permutation (2,0) = 1; permutation (2,1) = 0; permutation (2,2) =  0;
-  pos.setRotation (permutation * mat.getRotation ());
-  pos.setTranslation (T);
-  joint = objectFactory.createJointTranslation (pos);
-  jointName = name + "_z";
-  joint->name (jointName);
-  joint->isBounded (0, 1);
-  joint->lowerBound (0, -4);
-  joint->upperBound (0, +4);
-  parent->addChildJoint (joint);
-  parent = joint;
-  // joint SO3
-  joint = objectFactory.createJointSO3 (mat);
-  jointName = name + "_SO3";
-  joint->name (jointName);
-  parent->addChildJoint (joint);
-  return joint;
-}*/
-
 DevicePtr_t createRobot (){
-  DevicePtr_t robot = hpp::pinocchio::humanoidSimple("test");
+  DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
   const value_type l = 2;
   robot->rootJoint()->lowerBound(0, -l);
   robot->rootJoint()->lowerBound(1, -l);
@@ -124,175 +50,6 @@ DevicePtr_t createRobot (){
   robot->rootJoint()->upperBound(2,  l);
   return robot;
 }
-/*
-DevicePtr_t createRobot ()
-{
-  DevicePtr_t robot = Device::create ("test");
-  JointPtr_t waist = createFreeflyerJoint (robot);
-  JointPtr_t parent = waist;
-  BodyPtr_t body;
-  fcl::Transform3f pos;
-  fcl::Matrix3f orient;
-  // Right leg joint 0
-  orient (0,0) = 0; orient (0,1) = 0; orient (0,2) = -1;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
-  orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, 0));
-  JointPtr_t joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("RLEG_0");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("RLEG_BODY0");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Right leg joint 1
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, 0));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("RLEG_1");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("RLEG_BODY1");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Right leg joint 2
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, 0));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("RLEG_2");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("RLEG_BODY2");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Right leg joint 3: knee
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, -0.35));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("RLEG_3");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("RLEG_BODY3");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Right leg joint 4: ankle
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, -0.70));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("RLEG_4");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("RLEG_BODY4");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Right leg joint 5: ankle
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, -0.70));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("RLEG_5");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("RLEG_BODY5");
-  joint->setLinkedBody (body);
-
-  // Left leg
-  parent = waist;
-  // Left leg joint 0
-  orient (0,0) = 0; orient (0,1) = 0; orient (0,2) = -1;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) =  0;
-  orient (2,0) = 1; orient (2,1) = 0; orient (2,2) =  0;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, 0));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("LLEG_0");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("LLEG_BODY0");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Left leg joint 1
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, 0));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("LLEG_1");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("LLEG_BODY1");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Left leg joint 2
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, 0));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("LLEG_2");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("LLEG_BODY2");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Left leg joint 3: knee
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, -0.35));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("LLEG_3");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("LLEG_BODY3");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Left leg joint 4: ankle
-  orient (0,0) = 0; orient (0,1) = -1; orient (0,2) = 0;
-  orient (1,0) = 1; orient (1,1) =  0; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) =  0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, -0.70));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("LLEG_4");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("LLEG_BODY4");
-  joint->setLinkedBody (body);
-  parent = joint;
-  // Left leg joint 5: ankle
-  orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-  orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-  orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-  pos.setRotation (orient);
-  pos.setTranslation (fcl::Vec3f (0, -0.08, -0.70));
-  joint = objectFactory.createBoundedJointRotation (pos);
-  joint->name ("LLEG_5");
-  parent->addChildJoint (joint);
-  body = objectFactory.createBody ();
-  body->name ("LLEG_BODY5");
-  joint->setLinkedBody (body);
-
-  return robot;
-}*/
 
 BOOST_AUTO_TEST_SUITE (config_projector)
 
