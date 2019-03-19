@@ -96,6 +96,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimization/partial-shortcut.hh
   include/hpp/core/path-optimization/quadratic-program.hh
   include/hpp/core/path-optimization/random-shortcut.hh
+  include/hpp/core/path-optimization/simple-shortcut.hh
   include/hpp/core/path-optimization/simple-time-parameterization.hh
   include/hpp/core/path-optimization/spline-gradient-based.hh
   include/hpp/core/path-optimization/spline-gradient-based-abstract.hh

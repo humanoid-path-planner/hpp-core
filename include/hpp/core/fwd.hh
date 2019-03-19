@@ -261,6 +261,8 @@ namespace hpp {
     namespace pathOptimization {
       HPP_PREDEF_CLASS (RandomShortcut);
       typedef boost::shared_ptr <RandomShortcut> RandomShortcutPtr_t;
+      HPP_PREDEF_CLASS (SimpleShortcut);
+      typedef boost::shared_ptr <SimpleShortcut> SimpleShortcutPtr_t;
       HPP_PREDEF_CLASS (Cost);
       typedef boost::shared_ptr <Cost> CostPtr_t;
       HPP_PREDEF_CLASS (GradientBased);
