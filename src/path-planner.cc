@@ -16,8 +16,10 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/path-planner.hh>
+#include <boost/tuple/tuple.hpp>
 
+#include <hpp/core/path-planner.hh>
+#include <hpp/core/nearest-neighbor.hh>
 #include <hpp/util/debug.hh>
 
 #include <hpp/core/roadmap.hh>
@@ -90,10 +92,10 @@ namespace hpp {
       unsigned long int nIter (0);
       boost::posix_time::ptime timeStart(boost::posix_time::microsec_clock::universal_time());
       startSolve ();
-      tryDirectPath ();
+      tryConnectInitAndGoals ();
       solved = problem_.target()->reached (roadmap());
       if (solved ) {
-	hppDout (info, "tryDirectPath succeeded");
+	hppDout (info, "tryConnectInitAndGoals succeeded");
       }
       if (interrupt_) throw std::runtime_error ("Interruption");
       while (!solved) {
@@ -174,5 +176,85 @@ namespace hpp {
         }
       }
     }
+    void PathPlanner::tryConnectInitAndGoals ()
+    {
+      // call steering method here to build a direct conexion
+      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      PathProjectorPtr_t pathProjector (problem ().pathProjector ());
+      PathPtr_t validPath, projPath, path;
+      NodePtr_t initNode = roadmap ()->initNode();
+      NearestNeighborPtr_t nn (roadmap ()->nearestNeighbor ());
+      // Register edges to add to roadmap and add them after iterating
+      // among the connected components.
+      typedef boost::tuple <NodePtr_t, NodePtr_t, PathPtr_t> FutureEdge_t;
+      typedef std::vector <FutureEdge_t> FutureEdges_t;
+      FutureEdges_t futureEdges;
+      ConnectedComponentPtr_t initCC (initNode->connectedComponent ());
+      for (ConnectedComponents_t::iterator itCC
+             (roadmap ()->connectedComponents ().begin ());
+           itCC != roadmap ()->connectedComponents ().end (); ++itCC) {
+        if (*itCC != initCC) {
+          value_type d;
+          NodePtr_t near (nn->search (initNode->configuration (),
+                                      *itCC, d, true));
+          assert (near);
+          ConfigurationPtr_t q1 (initNode->configuration ());
+          ConfigurationPtr_t q2 (near->configuration ());
+          path = (*sm) (*q1, *q2);
+          if (!path) continue;
+          if (pathProjector) {
+            if (!pathProjector->apply (path, projPath)) continue;
+          } else {
+            projPath = path;
+          }
+          if (projPath) {
+            PathValidationReportPtr_t report;
+            bool pathValid = pathValidation->validate (projPath, false,
+                                                       validPath, report);
+            if (pathValid && validPath->length() > 0) {
+              futureEdges.push_back (FutureEdge_t (initNode, near, projPath));
+            }
+          }
+        }
+      }
+      for (NodeVector_t::const_iterator itn = roadmap ()->goalNodes ().begin();
+	   itn != roadmap ()->goalNodes ().end (); ++itn) {
+        ConnectedComponentPtr_t goalCC ((*itn)->connectedComponent ());
+        for (ConnectedComponents_t::iterator itCC
+               (roadmap ()->connectedComponents ().begin ());
+             itCC != roadmap ()->connectedComponents ().end (); ++itCC) {
+          if (*itCC != goalCC) {
+            value_type d;
+            NodePtr_t near (nn->search ((*itn)->configuration (), *itCC, d,
+                                        false));
+            assert (near);
+            ConfigurationPtr_t q1 (near->configuration ());
+            ConfigurationPtr_t q2 ((*itn)->configuration ());
+            path = (*sm) (*q1, *q2);
+            if (!path) continue;
+            if (pathProjector) {
+              if (!pathProjector->apply (path, projPath)) continue;
+            } else {
+              projPath = path;
+            }
+            if (projPath) {
+              PathValidationReportPtr_t report;
+              bool pathValid = pathValidation->validate (projPath, false,
+                                                         validPath, report);
+              if (pathValid && validPath->length() > 0) {
+                futureEdges.push_back (FutureEdge_t (near, (*itn), projPath));
+              }
+            }
+          }
+        }
+      }
+      // Add edges
+      for (FutureEdges_t::const_iterator it (futureEdges.begin ());
+           it != futureEdges.end (); ++it) {
+        roadmap ()->addEdge (it->get <0> (), it->get <1> (), it->get <2> ());
+      }
+    }
+
   } //   namespace core
 } // namespace hpp
