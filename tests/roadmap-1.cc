@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   nodes.push_back (r->addNode (q));
   r->addGoalNode (nodes [5]->configuration ());
 
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 6);
   for (std::size_t i=0; i < nodes.size (); ++i) {
     for (std::size_t j=i+1; j < nodes.size (); ++j) {
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 1 -> 0
   addEdge (r, *sm, nodes, 1, 0);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
   // 1 -> 2
   addEdge (r, *sm, nodes, 1, 2);
   BOOST_CHECK_EQUAL (r->connectedComponents ().size (), 5);
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 2 -> 0
   addEdge (r, *sm, nodes, 2, 0);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 2 -> 3
   addEdge (r, *sm, nodes, 2, 3);
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 2 -> 4
   addEdge (r, *sm, nodes, 2, 4);
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (!r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 3 -> 5
   addEdge (r, *sm, nodes, 3, 5);
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 4 -> 5
   addEdge (r, *sm, nodes, 4, 5);
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
     }
   }
   BOOST_CHECK (r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // 5 -> 0
   addEdge (r, *sm, nodes, 5, 0);
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   BOOST_CHECK (nodes [0]->connectedComponent () == 
 	       nodes [5]->connectedComponent ());
   BOOST_CHECK (r->pathExists ());
-  BOOST_MESSAGE(*r);
+  BOOST_TEST_MESSAGE(*r);
 
   // Check that memory if well deallocated.
   std::set<ConnectedComponentWkPtr_t> ccs;
