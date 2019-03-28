@@ -58,9 +58,7 @@ namespace hpp {
           nodes.push_back (node);
         }
         roadmap->addGoalNode (node->configuration ());
-        const SteeringMethod& sm (*(problem ().steeringMethod ()));
         PathValidationPtr_t pv (problem ().pathValidation ());
-        PathProjectorPtr_t proj (problem ().pathProjector ());
         for (std::size_t i=0; i < nodes.size () - 1; ++i) {
           for (std::size_t j=i+2; j < nodes.size (); ++j) {
             PathPtr_t path (steer (*(nodes [i]->configuration ()),

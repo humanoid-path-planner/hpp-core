@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE (interval_6)
   intervals.unionInterval (interval);
   checkIntervals (intervals);
 
-  BOOST_MESSAGE(intervals);
+  BOOST_TEST_MESSAGE(intervals);
 }
 
 BOOST_AUTO_TEST_CASE (interval_7)

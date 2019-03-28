@@ -54,7 +54,9 @@ namespace hpp {
       virtual PathVectorPtr_t solve ();
       /// Try to make direct connection between init and goal
       /// configurations, in order to avoid a random shoot.
-      virtual void tryDirectPath();
+      virtual void tryDirectPath() HPP_CORE_DEPRECATED;
+      /// Try to connect initial and goal configurations to existing roadmap
+      virtual void tryConnectInitAndGoals ();
 
       /// User implementation of one step of resolution
       virtual void oneStep () = 0;

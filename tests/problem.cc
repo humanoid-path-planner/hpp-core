@@ -93,7 +93,7 @@ void pointMassProblem (const char* steeringMethod,
   ps->solve ();
 
   BOOST_CHECK (ps->roadmap()->nodes().size() > 2);
-  BOOST_MESSAGE ("Solved the problem with " << ps->roadmap()->nodes().size()
+  BOOST_TEST_MESSAGE ("Solved the problem with " << ps->roadmap()->nodes().size()
       << " nodes.");
 }
 
@@ -131,7 +131,7 @@ void carLikeProblem (const char* steeringMethod,
   ps->solve ();
 
   BOOST_CHECK (ps->roadmap()->nodes().size() > 2);
-  BOOST_MESSAGE ("Solved the problem with " << ps->roadmap()->nodes().size()
+  BOOST_TEST_MESSAGE ("Solved the problem with " << ps->roadmap()->nodes().size()
       << " nodes.");
 }
 

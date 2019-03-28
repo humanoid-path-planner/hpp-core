@@ -804,7 +804,7 @@ namespace hpp {
       initProblem ();
 
       pathPlanner_->startSolve ();
-      pathPlanner_->tryDirectPath ();
+      pathPlanner_->tryConnectInitAndGoals ();
       return roadmap_->pathExists ();
     }
 
