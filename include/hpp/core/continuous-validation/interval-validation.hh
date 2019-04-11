@@ -102,7 +102,9 @@ namespace hpp {
         IntervalValidation (const IntervalValidation& other) :
           tolerance_(other.tolerance_), refine_(true)
         {
-          assert (tolerance_ > 0);
+          if (tolerance_ < 0) {
+            throw std::runtime_error ("tolerance should be non-negative.");
+          }
         }
 
       private:
