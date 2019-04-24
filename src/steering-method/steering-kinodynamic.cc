@@ -219,7 +219,7 @@ namespace hpp {
         double a2 = -a1;
         double vLim = (sigma) * vMax;
         hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax);
-        if((p2-p1) == 0. && (v2-v1)==0. ){  
+        if(fabs(p2-p1) < (std::numeric_limits<double>::epsilon()*100.) && fabs(v2-v1)<(std::numeric_limits<double>::epsilon()*100.) ){
           hppDout(notice,"No movement in this joints, abort.");
           return 0.;
         }
@@ -361,7 +361,7 @@ namespace hpp {
           hppDout(info,"sigma Bis= "<<sigma);
         }
         
-        if(v2_1 == 0 && p2_1 == 0){
+        if(fabs(v2_1) < (std::numeric_limits<double>::epsilon()*100.) && fabs(p2_1)<(std::numeric_limits<double>::epsilon()*100.) ){
           *a1 = 0;
           *t0 = 0;
           *t1 = 0;
@@ -468,7 +468,7 @@ namespace hpp {
           x2 = c/q;
         else{
           x2 = sigma*aMax_[index];
-          hppDout(notice,"q == 0, take x1 = aMax");
+          hppDout(notice,"q == 0, take x2 = aMax");
         }
         hppDout(notice,"epsilon = "<<std::numeric_limits<double>::epsilon()*100.);
 

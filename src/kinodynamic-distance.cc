@@ -126,7 +126,7 @@ double KinodynamicDistance::computeMinTime(double p1, double p2, double v1, doub
   double a2 = -a1;
   double vLim = (sigma) * vMax_;
   //hppDout(info,"Vlim = "<<vLim<<"   ;  aMax = "<<aMax_);
-  if((p2-p1) == 0. && (v2-v1)==0. ){
+  if(fabs(p2-p1) < (std::numeric_limits<double>::epsilon()*100.) && fabs(v2-v1)<(std::numeric_limits<double>::epsilon()*100.) ){
     //hppDout(notice,"No movement in this joints, abort.");
     return 0.;
   }
