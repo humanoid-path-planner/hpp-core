@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
     }
   }
   bpt::ptime t1 = bpt::microsec_clock::local_time();
-  BOOST_MESSAGE ("Total time (nthreads " << Nthreads << "): " << (t1-t0).total_milliseconds() << "ms");
+  BOOST_TEST_MESSAGE ("Total time (nthreads " << Nthreads << "): " << (t1-t0).total_milliseconds() << "ms");
   // delete problem
 }
 
@@ -370,7 +370,7 @@ template <typename SplineSteeringMethod> void test_spline_steering_method ()
     }
   }
   bpt::ptime t1 = bpt::microsec_clock::local_time();
-  BOOST_MESSAGE ("Total time (nthreads " << Nthreads << "): " << (t1-t0).total_milliseconds() << "ms");
+  BOOST_TEST_MESSAGE ("Total time (nthreads " << Nthreads << "): " << (t1-t0).total_milliseconds() << "ms");
   // delete problem
 }
 
