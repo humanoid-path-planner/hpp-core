@@ -76,6 +76,8 @@
 #include <hpp/core/joint-bound-validation.hh>
 #include <hpp/core/kinodynamic-distance.hh>
 
+#include "../src/path-validation/no-validation.hh"
+
 namespace hpp {
   namespace core {
     using boost::bind;
@@ -238,6 +240,8 @@ namespace hpp {
       pathOptimizers.add ("SimpleTimeParameterization", pathOptimization::SimpleTimeParameterization::create);
 
       // Store path validation methods in map.
+      pathValidations.add ("NoValidation",
+                           pathValidation::NoValidation::create);
       pathValidations.add ("Discretized", pathValidation::createDiscretizedCollisionChecking);
       pathValidations.add ("DiscretizedCollision", pathValidation::createDiscretizedCollisionChecking);
       pathValidations.add ("DiscretizedJointBound", pathValidation::createDiscretizedJointBound);
