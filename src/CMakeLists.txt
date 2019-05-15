@@ -49,6 +49,7 @@ path-validations.cc
 path-validation/discretized.cc
 path-validation/discretized-collision-checking.cc
 path-validation/discretized-joint-bound.cc
+path-validation/no-validation.hh
   nearest-neighbor/basic.hh #
   nearest-neighbor/basic.cc #
   # nearest-neighbor/k-d-tree.cc #
