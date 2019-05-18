@@ -180,7 +180,7 @@ namespace hpp {
     }
 
     NodePtr_t
-    Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
+    Roadmap::nearestNode (const Configuration_t& configuration,
         value_type& minDistance, bool reverse)
     {
       NodePtr_t closest = 0x0;
@@ -200,7 +200,7 @@ namespace hpp {
     }
 
     NodePtr_t
-    Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
+    Roadmap::nearestNode (const Configuration_t& configuration,
         const ConnectedComponentPtr_t& connectedComponent,
         value_type& minDistance, bool reverse)
     {
@@ -211,7 +211,7 @@ namespace hpp {
       return closest;
     }
 
-    Nodes_t Roadmap::nearestNodes (const ConfigurationPtr_t& configuration,
+    Nodes_t Roadmap::nearestNodes (const Configuration_t& configuration,
                                    size_type k)
     {
       value_type d;
@@ -219,7 +219,7 @@ namespace hpp {
                                                d);
     }
 
-    Nodes_t Roadmap::nearestNodes (const ConfigurationPtr_t& configuration,
+    Nodes_t Roadmap::nearestNodes (const Configuration_t& configuration,
                                    const ConnectedComponentPtr_t&
                                    connectedComponent,
                                    size_type k)

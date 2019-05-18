@@ -48,13 +48,24 @@ namespace hpp {
       /// connected component with this node.
       NodePtr_t addNode (const ConfigurationPtr_t& config);
 
+      NodePtr_t addNode (const Configuration_t& config)
+      {
+        return addNode (ConfigurationPtr_t (new Configuration_t(config)));
+      }
+
       /// Get nearest node to a configuration in the roadmap.
       /// \param configuration configuration
       /// \param reverse if true, compute distance from given configuration to nodes in roadmap,
       /// if false from nodes in roadmap to given configuration
       /// \retval distance to the nearest node.
-      NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+      NodePtr_t nearestNode (const Configuration_t& configuration,
            value_type& minDistance, bool reverse = false);
+
+      NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+           value_type& minDistance, bool reverse = false)
+      {
+        return nearestNode (*configuration, minDistance, reverse);
+      }
 
       /// Get nearest node to a configuration in a connected component.
       /// \param configuration configuration
@@ -62,17 +73,30 @@ namespace hpp {
       /// \param reverse if true, compute distance from given configuration to nodes in roadmap,
       /// if false from nodes in roadmap to given configuration
       /// \retval distance to the nearest node.
-      NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+      NodePtr_t nearestNode (const Configuration_t& configuration,
 			     const ConnectedComponentPtr_t& connectedComponent,
            value_type& minDistance, bool reverse = false);
+
+      NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+			     const ConnectedComponentPtr_t& connectedComponent,
+           value_type& minDistance, bool reverse = false)
+      {
+        return nearestNode (*configuration, connectedComponent, minDistance, reverse);
+      }
 
       /// Get nearest node to a configuration in the roadmap.
       /// \param configuration configuration
       /// \param k number of nearest nodes to return
       /// if false from nodes in roadmap to given configuration
       /// \return k nearest nodes
-      Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
+      Nodes_t nearestNodes (const Configuration_t& configuration,
                             size_type k);
+
+      Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
+                            size_type k)
+      {
+        return nearestNodes (*configuration, k);
+      }
 
       /// Get nearest node to a configuration in a connected component.
       /// \param configuration configuration
@@ -80,10 +104,18 @@ namespace hpp {
       /// \param k number of nearest nodes to return
       /// if false from nodes in roadmap to given configuration
       /// \return k nearest nodes in the connected component
-      Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
+      Nodes_t nearestNodes (const Configuration_t& configuration,
                             const ConnectedComponentPtr_t&
                             connectedComponent,
                             size_type k);
+
+      Nodes_t nearestNodes (const ConfigurationPtr_t& configuration,
+                            const ConnectedComponentPtr_t&
+                            connectedComponent,
+                            size_type k)
+      {
+        return nearestNodes (*configuration, connectedComponent, k);
+      }
 
       /// Add a node and two edges
       /// \param from node from which the edge starts,
