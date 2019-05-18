@@ -106,7 +106,7 @@ namespace hpp {
         ::pinocchio::details::Dispatch<ComputeSigmasStep>::run(jmodel.derived(), ComputeSigmasStep::ArgsType(model, sigmas));
       }
 
-      ConfigurationPtr_t Gaussian::shoot () const
+      void Gaussian::shoot (Configuration_t& config) const
       {
         static boost::random::mt19937 eng;
         vector_t velocity (robot_->numberDof());
@@ -116,11 +116,9 @@ namespace hpp {
           velocity[i] = distrib (eng);
         }
 
-        ConfigurationPtr_t config(new Configuration_t(robot_->configSize ()));
-        ::hpp::pinocchio::integrate (robot_, center_, velocity, *config);
-        ::hpp::pinocchio::saturate  (robot_, *config);
-
-        return config;
+        config.resize(robot_->configSize ());
+        ::hpp::pinocchio::integrate (robot_, center_, velocity, config);
+        ::hpp::pinocchio::saturate  (robot_, config);
       }
 
       void Gaussian::sigma(const value_type& factor)

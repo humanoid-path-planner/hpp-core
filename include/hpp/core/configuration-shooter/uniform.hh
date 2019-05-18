@@ -42,7 +42,7 @@ namespace hpp {
           ptr->init (shPtr);
           return shPtr;
         }
-        virtual ConfigurationPtr_t shoot () const;
+        virtual void shoot (Configuration_t& q) const;
 
         void sampleExtraDOF(bool sampleExtraDOF){
             sampleExtraDOF_=sampleExtraDOF;

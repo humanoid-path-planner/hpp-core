@@ -26,12 +26,12 @@ namespace hpp {
   namespace core {
     namespace configurationShooter {
 
-      ConfigurationPtr_t Uniform::shoot () const
+      void Uniform::shoot (Configuration_t& config) const
       {
         size_type extraDim = robot_->extraConfigSpace ().dimension ();
         size_type offset = robot_->configSize () - extraDim;
 
-        Configuration_t config(robot_->configSize ());
+        config.resize(robot_->configSize ());
         config.head (offset) = ::pinocchio::randomConfiguration(robot_->model());
 
         if(sampleExtraDOF_){
@@ -52,7 +52,6 @@ namespace hpp {
         }else{
             config.tail(extraDim).setZero();
         }
-        return boost::make_shared<Configuration_t> (config);
       }
 
     } // namespace configurationShooter
