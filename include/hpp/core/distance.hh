@@ -43,6 +43,17 @@ namespace hpp {
 	return impl_distance (n1, n2);
       }
 
+      value_type compute (ConfigurationIn_t q1,
+				  ConfigurationIn_t q2) const
+      {
+	return impl_distance (q1, q2);
+      }
+
+      value_type compute (NodePtr_t n1, NodePtr_t n2) const
+      {
+	return impl_distance (n1, n2);
+      }
+
       virtual DistancePtr_t clone () const = 0;
 
       virtual ~Distance () {};

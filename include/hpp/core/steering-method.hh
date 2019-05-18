@@ -52,6 +52,12 @@ namespace hpp {
 	return PathPtr_t ();
       }
 
+      /// \copydoc SteeringMethod::operator()(ConfigurationIn_t,ConfigurationIn_t)
+      PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const
+      {
+        return this->operator() (q1, q2);
+      }
+
       virtual ~SteeringMethod () {};
 
       /// Copy instance and return shared pointer

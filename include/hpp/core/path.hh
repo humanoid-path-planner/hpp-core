@@ -141,6 +141,17 @@ namespace hpp {
         return applyConstraints (result, s);
       }
 
+      Configuration_t eval (const value_type& time, bool& success) const
+      {
+        return this->operator() (time, success);
+      }
+
+      bool eval (ConfigurationOut_t result, const value_type& time)
+       const throw ()
+      {
+        return this->operator() (result, time);
+      }
+
       /// Get the configuration at a parameter without applying the constraints.
       bool at (const value_type& time, ConfigurationOut_t result) const
       {
