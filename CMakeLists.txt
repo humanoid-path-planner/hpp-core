@@ -167,8 +167,7 @@ ADD_SUBDIRECTORY(tests)
 PKG_CONFIG_APPEND_LIBS("hpp-core")
 
 IF(INSTALL_DOCUMENTATION)
-  INSTALL (FILES doc/continuous-collision-checking.pdf
-  doc/continuous-validation.pdf
+  INSTALL (FILES doc/continuous-validation.pdf
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
 ENDIF(INSTALL_DOCUMENTATION)
 

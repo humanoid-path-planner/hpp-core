@@ -675,9 +675,8 @@ namespace hpp {
     void ProblemSolver::maxIterPathPlanning (size_type iterations)
     {
       maxIterPathPlanning_ = iterations;
-      if (constraints_ && constraints_->configProjector ()) {
-        constraints_->configProjector ()->maxIterations (iterations);
-      }
+      if (pathPlanner_)
+        pathPlanner_->maxIterations (maxIterPathPlanning_);
     }
 
     void ProblemSolver::errorThreshold (const value_type& threshold)

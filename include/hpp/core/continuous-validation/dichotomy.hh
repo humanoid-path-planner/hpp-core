@@ -58,7 +58,7 @@ namespace hpp {
       /// of one joint (or of the environment) in the reference frame of the
       /// other joint.
       ///
-      /// See <a href="continuous-collision-checking.pdf"> this document </a>
+      /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.
       class HPP_CORE_DLLAPI Dichotomy : public ContinuousValidation
       {
