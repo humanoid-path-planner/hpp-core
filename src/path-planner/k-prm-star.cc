@@ -94,7 +94,7 @@ namespace hpp {
       void kPrmStar::generateRandomConfig ()
       {
 	// shoot a valid random configuration
-	ConfigurationPtr_t qrand;
+	Configuration_t qrand;
 	// Report of configuration validation: unused here
 	ValidationReportPtr_t validationReport;
 	// Configuration validation methods associated to the problem
@@ -111,10 +111,10 @@ namespace hpp {
           bool valid (false);
           // After 10000 trials throw if no valid configuration has been found.
           do {
-            qrand = shooter->shoot ();
-            valid = (!constraints || constraints->apply (*qrand));
+            shooter->shoot (qrand);
+            valid = (!constraints || constraints->apply (qrand));
             if (valid)
-              valid = configValidations->validate (*qrand, validationReport);
+              valid = configValidations->validate (qrand, validationReport);
 	    nbTry++;
           } while (!valid && nbTry < 10000);
           if (!valid) {
@@ -126,7 +126,7 @@ namespace hpp {
           state_ = LINK_NODES;
           linkingNodeIt_ = r->nodes ().begin ();
           neighbors_ =roadmap ()->nearestNodes
-            ((*linkingNodeIt_)->configuration (), numberNeighbors_);
+            (*(*linkingNodeIt_)->configuration (), numberNeighbors_);
           itNeighbor_ = neighbors_.begin ();
         }
       }

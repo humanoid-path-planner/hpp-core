@@ -66,7 +66,7 @@ namespace hpp {
       weakPtr_ = weak;
     }
 
-    bool VisibilityPrmPlanner::visibleFromCC (const ConfigurationPtr_t q, 
+    bool VisibilityPrmPlanner::visibleFromCC (const Configuration_t q, 
 					      const ConnectedComponentPtr_t cc){
       PathPtr_t validPart;
       bool found = false; 
@@ -80,7 +80,7 @@ namespace hpp {
 	   n_it != cc->nodes ().end (); ++n_it){
 	if(nodeStatus_ [*n_it]){// only iterate on guard nodes
 	  ConfigurationPtr_t qCC = (*n_it)->configuration ();
-	  PathPtr_t path = (*sm) (*q, *qCC);
+	  PathPtr_t path = (*sm) (q, *qCC);
 	  PathValidationReportPtr_t report;
 	  if (path && pathValidation->validate (path, false, validPart,
 						report)){
@@ -88,7 +88,9 @@ namespace hpp {
 	    if (path->length () < length) {
 	      length = path->length ();
 	      // Save shortest edge
-	      delayedEdge = DelayedEdge_t (*n_it, q, path->reverse ());
+	      delayedEdge = DelayedEdge_t (*n_it,
+                  boost::make_shared<Configuration_t>(q),
+                  path->reverse ());
 	    }
 	    found = true;
 	  }
@@ -102,22 +104,22 @@ namespace hpp {
       else return false;
     }
 
-    ConfigurationPtr_t VisibilityPrmPlanner::applyConstraints 
-    (const ConfigurationPtr_t qFrom, const ConfigurationPtr_t qTo){
-      ConfigurationPtr_t qProj (new Configuration_t (*qTo));
+    void VisibilityPrmPlanner::applyConstraints (const Configuration_t& qFrom,
+        const Configuration_t& qTo, Configuration_t& qout)
+    {
       ConstraintSetPtr_t constraints (problem ().constraints ());
       if (constraints) {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
-	  constrApply_ = false; // while apply has not successed
-	  configProjector->projectOnKernel (*qFrom, *qTo, *qProj);
-	  if (constraints->apply (*qProj)) {
+          constrApply_ = false; // while apply has not successed
+	  configProjector->projectOnKernel (qFrom, qTo, qout);
+	  if (constraints->apply (qout)) {
 	    constrApply_ = true;
-	    return qProj;
+	    return;
 	  }
 	}
       }
-      return qTo;
+      qout = qTo;
     }
 
     void VisibilityPrmPlanner::oneStep ()
@@ -126,11 +128,11 @@ namespace hpp {
       ConfigurationShooterPtr_t configurationShooter (problem().configurationShooter());
       ConfigValidationsPtr_t configValidations (problem ().configValidations());
       RoadmapPtr_t r (roadmap ());
-      ConfigurationPtr_t q_rand;
       value_type count; // number of times q has been seen
       constrApply_ = true; // stay true if no constraint in Problem
-      ConfigurationPtr_t q_init 
-	(new Configuration_t (*(r->initNode ()->configuration ())));
+      Configuration_t q_init (*(r->initNode ()->configuration ())),
+                      q_proj (robot->configSize()),
+                      q_rand (robot->configSize());
 
       /* Initialization of guard status */
       nodeStatus_ [r->initNode ()] = true; // init node is guard
@@ -142,11 +144,11 @@ namespace hpp {
       // Shoot random config as long as not collision-free
       ValidationReportPtr_t report;
       do {
-	q_rand = configurationShooter->shoot ();
-	q_rand = applyConstraints(q_init, q_rand);
-	robot->currentConfiguration (*q_rand);
+	configurationShooter->shoot (q_rand);
+	applyConstraints(q_init, q_rand, q_proj);
+	robot->currentConfiguration (q_proj);
 	robot->computeForwardKinematics ();
-      } while (!configValidations->validate (*q_rand, report) ||
+      } while (!configValidations->validate (q_proj, report) ||
 	       !constrApply_);
       count = 0;
 
@@ -154,16 +156,16 @@ namespace hpp {
 	     r->connectedComponents ().begin ();
 	   itcc != r->connectedComponents ().end (); ++itcc) {
 	ConnectedComponentPtr_t cc = *itcc;
-	if (visibleFromCC (q_rand, cc)) { 
+	if (visibleFromCC (q_proj, cc)) { 
 	  // delayedEdges_ will completed if visible
 	  count++; // count how many times q has been seen
 	}
       }
 	
       if (count == 0){ // q not visible from anywhere
-	NodePtr_t newNode = r->addNode (q_rand); // add q as a guard node
+	NodePtr_t newNode = r->addNode (q_proj); // add q as a guard node
 	nodeStatus_ [newNode] = true;
-	hppDout(info, "q is a guard node: " << displayConfig (*q_rand));
+	hppDout(info, "q is a guard node: " << displayConfig (q_proj));
       }
       if (count > 1){ // q visible several times
 	// Insert delayed edges from list and add q as a connection node

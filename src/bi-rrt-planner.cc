@@ -69,7 +69,7 @@ namespace hpp {
     }
 
     PathPtr_t BiRRTPlanner::extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
-                    const ConfigurationPtr_t& target, bool reverse)
+                    const Configuration_t& target, bool reverse)
     {
         const ConstraintSetPtr_t& constraints (sm->constraints ());
         if (constraints)
@@ -77,12 +77,12 @@ namespace hpp {
             ConfigProjectorPtr_t configProjector (constraints->configProjector ());
             if (configProjector)
             {
-                configProjector->projectOnKernel (*(near->configuration ()), *target,
+                configProjector->projectOnKernel (*(near->configuration ()), target,
                         qProj_);
             }
             else
             {
-                qProj_ = *target;
+                qProj_ = target;
             }
             if (constraints->apply (qProj_))
             {
@@ -93,7 +93,7 @@ namespace hpp {
                 return PathPtr_t ();
             }
         }
-        return reverse ? (*sm) (*target, *(near->configuration ())) : (*sm) (*(near->configuration ()), *target);
+        return reverse ? (*sm) (target, *(near->configuration ())) : (*sm) (*(near->configuration ()), target);
     }
 
 
@@ -118,7 +118,8 @@ namespace hpp {
         bool startComponentConnected(false), pathValidFromStart(false);
         ConfigurationPtr_t q_new;
         // first try to connect to start component
-        ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
+        Configuration_t q_rand;
+        configurationShooter_->shoot (q_rand);
         near = roadmap()->nearestNode (q_rand, startComponent_, distance);
         path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand);
         if (path)

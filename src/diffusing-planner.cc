@@ -93,26 +93,26 @@ namespace hpp {
     }
 
     PathPtr_t DiffusingPlanner::extend (const NodePtr_t& near,
-					const ConfigurationPtr_t& target)
+					const Configuration_t& target)
     {
       const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       const ConstraintSetPtr_t& constraints (sm->constraints ());
       if (constraints) {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
-	  configProjector->projectOnKernel (*(near->configuration ()), *target,
+	  configProjector->projectOnKernel (*(near->configuration ()), target,
 					    qProj_);
 	} else {
-	  qProj_ = *target;
+	  qProj_ = target;
 	}
 	if (!constraints->apply (qProj_)) {
 	  return PathPtr_t ();
 	}
       } else {
-        qProj_ = *target;
+        qProj_ = target;
       }
       // Here, qProj_ is a configuration that satisfies the constraints
-      // or *target if there are no constraints.
+      // or target if there are no constraints.
       PathPtr_t path = (*sm) (*(near->configuration ()), qProj_);
       PathProjectorPtr_t pp = problem ().pathProjector();
       if (pp) {
@@ -161,7 +161,8 @@ namespace hpp {
       Nodes_t newNodes, nearestNeighbors;
       PathPtr_t validPath, path;
       // Pick a random node
-      ConfigurationPtr_t q_rand = configurationShooter_->shoot ();
+      Configuration_t q_rand;
+      configurationShooter_->shoot (q_rand);
       //
       // First extend each connected component toward q_rand
       //

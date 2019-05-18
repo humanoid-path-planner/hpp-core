@@ -196,7 +196,7 @@ namespace hpp {
            itCC != roadmap ()->connectedComponents ().end (); ++itCC) {
         if (*itCC != initCC) {
           value_type d;
-          NodePtr_t near (nn->search (initNode->configuration (),
+          NodePtr_t near (nn->search (*initNode->configuration (),
                                       *itCC, d, true));
           assert (near);
           ConfigurationPtr_t q1 (initNode->configuration ());
@@ -226,7 +226,7 @@ namespace hpp {
              itCC != roadmap ()->connectedComponents ().end (); ++itCC) {
           if (*itCC != goalCC) {
             value_type d;
-            NodePtr_t near (nn->search ((*itn)->configuration (), *itCC, d,
+            NodePtr_t near (nn->search (*(*itn)->configuration (), *itCC, d,
                                         false));
             assert (near);
             ConfigurationPtr_t q1 (near->configuration ());

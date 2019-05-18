@@ -58,13 +58,16 @@ namespace hpp {
 
       /// Return true if the configuration is visible from the given 
       /// connected component.
-      bool visibleFromCC (const ConfigurationPtr_t q, 
+      bool visibleFromCC (const Configuration_t q, 
 			  const ConnectedComponentPtr_t cc);
       
       /// Apply the problem constraints on a given configuration qTo by 
       /// projecting it on the tangent space of qFrom.
-      ConfigurationPtr_t applyConstraints (const ConfigurationPtr_t qFrom, 
-					   const ConfigurationPtr_t qTo);
+      void applyConstraints (
+          const Configuration_t& qFrom, 
+          const Configuration_t& qTo,
+          Configuration_t& qOut);
+
       bool constrApply_; // True if applyConstraints has successed
     };
     /// \}

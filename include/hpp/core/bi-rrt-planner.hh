@@ -49,7 +49,7 @@ namespace hpp {
       /// Store weak pointer to itself
       void init (const BiRRTPlannerWkPtr_t& weak);
       PathPtr_t extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
-                      const ConfigurationPtr_t& target, bool reverse=false);
+                      const Configuration_t& target, bool reverse=false);
 
       ConfigurationShooterPtr_t configurationShooter_;
       ConnectedComponentPtr_t startComponent_;

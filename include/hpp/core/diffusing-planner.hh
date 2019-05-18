@@ -50,7 +50,7 @@ namespace hpp {
       /// \param near node in the roadmap,
       /// \param target target configuration
       virtual PathPtr_t extend (const NodePtr_t& near,
-				const ConfigurationPtr_t& target);
+				const Configuration_t& target);
     private:
       ConfigurationShooterPtr_t configurationShooter_;
       mutable Configuration_t qProj_;
