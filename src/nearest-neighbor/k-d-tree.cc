@@ -219,34 +219,34 @@ namespace hpp {
     }
 
 
-    value_type KDTree::distanceToBox (const ConfigurationPtr_t& configuration) {
+    value_type KDTree::distanceToBox (const Configuration_t& configuration) {
       value_type minDistance;
       value_type DistanceToUpperBound;
       value_type DistanceToLowerBound;
       // Projection of the configuration on the box
-      Configuration_t confbox = *configuration;
+      Configuration_t confbox = configuration;
 
       DistanceToLowerBound = fabs (lowerBounds_[splitDim_] -
-				   (*configuration) [splitDim_])
+				   configuration [splitDim_])
 	* weights_ [splitDim_];
       DistanceToUpperBound = fabs (upperBounds_[splitDim_] -
-				   (*configuration)[splitDim_])
+				   configuration[splitDim_])
 	* weights_ [splitDim_];
       minDistance = std::min (DistanceToLowerBound, DistanceToUpperBound);
       return minDistance;
     }
 
-    NodePtr_t KDTree::search (const ConfigurationPtr_t& configuration,
+    NodePtr_t KDTree::search (const Configuration_t& configuration,
             const ConnectedComponentPtr_t& connectedComponent,
                               value_type& minDistance, bool) {
       // Test if the configuration is in the root box
       for ( std::size_t i=0 ; i<dim_ ; i++ ) {
-	if ( (*configuration)[i] < lowerBounds_[i] || (*configuration)[i]
+	if ( configuration[i] < lowerBounds_[i] || configuration[i]
 	     > upperBounds_[i] ) {
 	  std::ostringstream oss ("The Configuration isn't in the root box: \n"
 				  "  i = ");
 	  oss << i << ", lower = " << lowerBounds_[i] << ", config = "
-	      << (*configuration)[i] << ", upper = " << upperBounds_[i]
+	      << configuration[i] << ", upper = " << upperBounds_[i]
 	      << ".";
 	  throw std::runtime_error (oss.str ());
 	}
@@ -263,7 +263,7 @@ namespace hpp {
     NodePtr_t KDTree::search (const NodePtr_t& node,
             const ConnectedComponentPtr_t& connectedComponent,
                               value_type& minDistance) {
-      return search (node->configuration (), connectedComponent, minDistance);
+      return search (*node->configuration (), connectedComponent, minDistance);
     }
 
     Nodes_t KDTree::KnearestSearch (const NodePtr_t&,
@@ -273,14 +273,14 @@ namespace hpp {
       assert (false && "K-nearest neighbor in KD-tree: unimplemented features");
     }
 
-    Nodes_t KDTree::KnearestSearch (const ConfigurationPtr_t&,
+    Nodes_t KDTree::KnearestSearch (const Configuration_t&,
         const ConnectedComponentPtr_t&, const std::size_t,
         value_type&)
     {
       assert (false && "K-nearest neighbor in KD-tree: unimplemented features");
     }
 
-    Nodes_t KDTree::KnearestSearch (const ConfigurationPtr_t& configuration,
+    Nodes_t KDTree::KnearestSearch (const Configuration_t& configuration,
                                     const RoadmapPtr_t& roadmap,
                                     const std::size_t K, value_type& distance)
     {
@@ -288,7 +288,7 @@ namespace hpp {
     }
 
     void KDTree::search (value_type boxDistance, value_type& minDistance,
-			 const ConfigurationPtr_t& configuration,
+			 const Configuration_t& configuration,
 			 const ConnectedComponentPtr_t& connectedComponent,
        NodePtr_t& nearest,bool reverse) {
       if ( boxDistance < minDistance*minDistance
@@ -300,9 +300,9 @@ namespace hpp {
 		 nodesMap_[connectedComponent].begin ();
 	       itNode != nodesMap_[connectedComponent].end (); ++itNode) {
       if(reverse)
-        distance = (*distance_) (*configuration,*((*itNode)->configuration ()));
+        distance = (*distance_) (configuration,*((*itNode)->configuration ()));
       else
-        distance = (*distance_) (*((*itNode)->configuration ()),*configuration);
+        distance = (*distance_) (*((*itNode)->configuration ()),configuration);
 	    if (distance < minDistance) {
 	      minDistance = distance;
 	      nearest = (*itNode);
@@ -314,7 +314,7 @@ namespace hpp {
 	  value_type distanceToInfChild;
 	  value_type distanceToSupChild;
 	  if ( boxDistance == 0. ) {
-	    if ( (*configuration) [supChild_->splitDim_]
+	    if ( configuration [supChild_->splitDim_]
 		 > supChild_->lowerBounds_[supChild_->splitDim_])  {
 	      distanceToSupChild = 0.;
 	      distanceToInfChild = infChild_->distanceToBox(configuration);

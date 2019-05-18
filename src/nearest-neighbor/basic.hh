@@ -51,12 +51,12 @@ namespace hpp {
         connectedComponent,
              value_type& distance);
 
-      virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
+      virtual NodePtr_t search (const Configuration_t& configuration,
 			       const ConnectedComponentPtr_t&
 				connectedComponent,
              value_type& distance, bool reverse = false);
 
-      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
                                       const ConnectedComponentPtr_t&
                                         connectedComponent,
                                       const std::size_t K,
@@ -74,7 +74,7 @@ namespace hpp {
       /// \param K the number of nearest neighbors to return
       /// \retval distance to the Kth closest neighbor
       /// \return the K nearest neighbors
-      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
                                       const RoadmapPtr_t& roadmap,
                                       const std::size_t K,
 			              value_type& distance);

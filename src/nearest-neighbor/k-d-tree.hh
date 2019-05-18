@@ -48,7 +48,7 @@ namespace hpp {
       virtual void clear();
 
       // search nearest node
-      virtual NodePtr_t search (const ConfigurationPtr_t& configuration,
+      virtual NodePtr_t search (const Configuration_t& configuration,
 			        const ConnectedComponentPtr_t&
 				connectedComponent,
         value_type& minDistance, bool reverse = false);
@@ -65,7 +65,7 @@ namespace hpp {
                                       const std::size_t K,
                                       value_type& distance);
 
-      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
                                       const ConnectedComponentPtr_t&
                                         connectedComponent,
                                       const std::size_t K,
@@ -77,7 +77,7 @@ namespace hpp {
       /// \param K the number of nearest neighbors to return
       /// \retval distance to the Kth closest neighbor
       /// \return the K nearest neighbors
-      virtual Nodes_t KnearestSearch (const ConfigurationPtr_t& configuration,
+      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
                                       const RoadmapPtr_t& roadmap,
                                       const std::size_t K,
 			              value_type& distance);
@@ -127,11 +127,11 @@ namespace hpp {
       void findDeviceBounds();
 
       // distance to the nearest bound on the splited dimention
-      value_type distanceToBox(const ConfigurationPtr_t& configuration);
+      value_type distanceToBox(const Configuration_t& configuration);
 
       // search nearest node
       void search(value_type boxDistance, value_type& minDistance,
-      const ConfigurationPtr_t& configuration,
+      const Configuration_t& configuration,
       const ConnectedComponentPtr_t& connectedComponent,
       NodePtr_t& nearest, bool reverse = false);
 

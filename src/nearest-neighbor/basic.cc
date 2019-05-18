@@ -39,7 +39,7 @@ namespace hpp {
                 DistAndNodeComp_t > Queue_t;
       }
 
-      NodePtr_t Basic::search (const ConfigurationPtr_t& configuration,
+      NodePtr_t Basic::search (const Configuration_t& configuration,
              const ConnectedComponentPtr_t&
         connectedComponent,
              value_type& distance, bool reverse)
@@ -52,9 +52,9 @@ namespace hpp {
 	       connectedComponent->nodes ().begin ();
 	     itNode != connectedComponent->nodes ().end (); ++itNode) {
     if(reverse)
-      d = dist ( *configuration, *(*itNode)->configuration ());
+      d = dist ( configuration, *(*itNode)->configuration ());
     else
-      d = dist ( *(*itNode)->configuration (), *configuration);
+      d = dist ( *(*itNode)->configuration (), configuration);
 	  if (d < distance) {
 	    distance = d;
 	    result = *itNode;
@@ -85,7 +85,7 @@ namespace hpp {
 	return result;
       }
 
-      Nodes_t Basic::KnearestSearch (const ConfigurationPtr_t& configuration,
+      Nodes_t Basic::KnearestSearch (const Configuration_t& q,
           const ConnectedComponentPtr_t&
           connectedComponent,
           const std::size_t K,
@@ -94,7 +94,6 @@ namespace hpp {
         Queue_t ns;
         distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
-        const Configuration_t& q = *configuration;
         for (NodeVector_t::const_iterator itNode =
             connectedComponent->nodes ().begin ();
             itNode != connectedComponent->nodes ().end (); ++itNode) {
@@ -142,14 +141,13 @@ namespace hpp {
         return nodes;
       }
 
-      Nodes_t Basic::KnearestSearch (const ConfigurationPtr_t& configuration,
+      Nodes_t Basic::KnearestSearch (const Configuration_t& q,
                                      const RoadmapPtr_t& roadmap,
                                      const std::size_t K, value_type& distance)
       {
         Queue_t ns;
         distance = std::numeric_limits <value_type>::infinity ();
         const Distance& dist = *distance_;
-        const Configuration_t& q = *configuration;
         for (Nodes_t::const_iterator itNode =
             roadmap->nodes ().begin ();
             itNode != roadmap->nodes ().end (); ++itNode) {
