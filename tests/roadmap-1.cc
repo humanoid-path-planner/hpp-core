@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   hpp::pinocchio::value_type dist;
   using hpp::core::Nodes_t;
   Nodes_t knearest = r->nearestNeighbor()->KnearestSearch
-    (nodes[0]->configuration(), nodes[0]->connectedComponent (), 3, dist);
+    (*nodes[0]->configuration(), nodes[0]->connectedComponent (), 3, dist);
   for (Nodes_t::const_iterator it = knearest.begin (); it != knearest.end(); ++it) {
     BOOST_TEST_MESSAGE ("q = [" << (*it)->configuration()->transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), *(*it)->configuration()));
   }

@@ -33,13 +33,12 @@ namespace pin_test = hpp::pinocchio::unittest;
 template <typename CS_t>
 void basic_test (CS_t cs, DevicePtr_t robot)
 {
+  hpp::core::Configuration_t q;
   for (int i = 0; i < 10; ++i)
   {
-    hpp::core::ConfigurationPtr_t cptr = cs->shoot();
-    BOOST_REQUIRE (cptr);
-    hpp::core::Configuration_t c = *cptr;
+    cs->shoot(q);
     hpp::pinocchio::ArrayXb unused(robot->numberDof());
-    BOOST_CHECK(!hpp::pinocchio::saturate(robot, c, unused));
+    BOOST_CHECK(!hpp::pinocchio::saturate(robot, q, unused));
   }
 }
 
@@ -61,5 +60,7 @@ BOOST_AUTO_TEST_CASE (gaussian)
 
   cs->sigma (0);
 
-  BOOST_CHECK(cs->shoot()->isApprox(cs->center()));
+  hpp::core::Configuration_t q;
+  cs->shoot(q);
+  BOOST_CHECK(q.isApprox(cs->center()));
 }

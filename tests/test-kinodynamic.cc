@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
 
   // random tests with non null initial and final acceleration
 
-  configurationShooter::UniformPtr_t shooter = configurationShooter::Uniform::create(robot);
+  ConfigurationShooterPtr_t shooter = configurationShooter::Uniform::create(robot);
   ConfigurationPtr_t qr1,qr0;
   value_type t1,t2;
   for(size_t i = 0 ; i < 1000 ; i++){
@@ -607,7 +607,7 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
   PathValidationReportPtr_t validationReport;
   PathPtr_t validPath;
 
-  configurationShooter::UniformPtr_t shooter = configurationShooter::Uniform::create(robot);
+  ConfigurationShooterPtr_t shooter = configurationShooter::Uniform::create(robot);
   ConfigurationPtr_t qr1,qr0;
   value_type t1,t2;
   for(size_t i = 0 ; i < 1000 ; i++){

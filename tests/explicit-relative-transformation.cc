@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
-  configurationShooter::UniformPtr_t cs = configurationShooter::Uniform::create(robot);
+  ConfigurationShooterPtr_t cs = configurationShooter::Uniform::create(robot);
 
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
-  configurationShooter::UniformPtr_t cs = configurationShooter::Uniform::create(robot);
+  ConfigurationShooterPtr_t cs = configurationShooter::Uniform::create(robot);
 
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
 {
   DevicePtr_t robot = createRobot();
   BOOST_REQUIRE (robot);
-  configurationShooter::UniformPtr_t cs = configurationShooter::Uniform::create(robot);
+  ConfigurationShooterPtr_t cs = configurationShooter::Uniform::create(robot);
 
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1  = robot->getJointByName("obj1/root_joint");
