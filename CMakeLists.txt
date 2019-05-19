@@ -60,9 +60,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/constraint.hh
   include/hpp/core/constraint-set.hh
   include/hpp/core/container.hh
-  include/hpp/core/continuous-collision-checking.hh # DEPRECATED
-  include/hpp/core/continuous-collision-checking/dichotomy.hh # DEPRECATED
-  include/hpp/core/continuous-collision-checking/progressive.hh # DEPRECATED
   include/hpp/core/continuous-validation.hh
   include/hpp/core/continuous-validation/dichotomy.hh
   include/hpp/core/continuous-validation/progressive.hh
@@ -71,8 +68,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/continuous-validation/solid-solid-collision.hh
   include/hpp/core/continuous-validation/initializer.hh
   include/hpp/core/diffusing-planner.hh
-  include/hpp/core/discretized-collision-checking.hh # DEPRECATED
-  include/hpp/core/discretized-path-validation.hh # DEPRECATED
   include/hpp/core/distance/reeds-shepp.hh
   include/hpp/core/distance.hh
   include/hpp/core/distance-between-objects.hh
@@ -88,7 +83,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-validation/discretized-collision-checking.hh
   include/hpp/core/path-validation/discretized-joint-bound.hh
   include/hpp/core/numerical-constraint.hh
-  include/hpp/core/locked-joint.hh
   include/hpp/core/node.hh
   include/hpp/core/parameter.hh
   include/hpp/core/path.hh
@@ -115,7 +109,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/plugin.hh
   include/hpp/core/problem.hh
   include/hpp/core/problem-solver.hh
-  include/hpp/core/random-shortcut.hh # DEPRECATED
   include/hpp/core/roadmap.hh
   include/hpp/core/steering-method.hh
   include/hpp/core/steering-method/fwd.hh
@@ -127,7 +120,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/steering-method/reeds-shepp.hh
   include/hpp/core/steering-method/spline.hh
   include/hpp/core/steering-method/snibud.hh
-  include/hpp/core/steering-method-straight.hh
   include/hpp/core/steering-method/reeds-shepp.hh
   include/hpp/core/steering-method/steering-kinodynamic.hh
   include/hpp/core/straight-path.hh

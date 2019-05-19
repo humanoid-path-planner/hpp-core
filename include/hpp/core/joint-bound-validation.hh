@@ -26,31 +26,7 @@ namespace hpp {
   namespace core {
     /// \addtogroup validation
     /// \{
-/*
-    /// Exception thrown when a configuration is not within the bounds
-    class HPP_CORE_DLLAPI JointBoundException : public std::runtime_error
-    {
-    public:
-      JointBoundException (const std::string& what, const JointPtr_t& joint,
-			   size_type rank, value_type lowerBound,
-			   value_type upperBound, value_type value)  HPP_CORE_DEPRECATED :
-	runtime_error (what),
-	joint_ (joint), rank_ (rank), lowerBound_ (lowerBound),
-	upperBound_ (upperBound), value_ (value)
-	{
-	}
-      /// Joint the configuration value is out of bounds
-      JointPtr_t joint_;
-      /// degree of freedom in the joint (usually 0)
-      size_type rank_;
-      /// lower bound
-      value_type lowerBound_;
-      /// upper bound
-      value_type upperBound_;
-      /// configuration value
-      value_type value_;
-    };
-*/
+
     /// report returned when a configuration is not within the bounds
     class HPP_CORE_DLLAPI JointBoundValidationReport : public ValidationReport
     {
