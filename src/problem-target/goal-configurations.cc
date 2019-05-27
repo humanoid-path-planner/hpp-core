@@ -45,6 +45,7 @@ namespace hpp {
 
       bool GoalConfigurations::reached (const RoadmapPtr_t& roadmap) const
       {
+        if (!roadmap->initNode ()) return false;
         const ConnectedComponentPtr_t ccInit = roadmap->initNode ()->connectedComponent ();
         const NodeVector_t& goals = roadmap->goalNodes();
         for (NodeVector_t::const_iterator _goal = goals.begin (); _goal != goals.end (); ++_goal) {
