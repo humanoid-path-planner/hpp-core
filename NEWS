@@ -1,7 +1,8 @@
                                                                 -*- outline -*-
+New in 4.6.0
 * Keep frames of obstacles.
 * Add Gaussian configuration shooter
-* Enable computation of path derivative up to order 2 for path with time parameterization
+* Enable computation of path derivative up to order 2 for path with time parameterization.
 * Improve parameters in problem
 * SimpleTimeParameterization accepts acceleration limits.
 
