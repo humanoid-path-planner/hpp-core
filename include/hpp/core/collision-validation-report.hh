@@ -34,15 +34,17 @@ namespace hpp {
     {
       /// First object in collision
       CollisionObjectConstPtr_t object1;
+      std::string objectName1;
       /// Second object in collision
       CollisionObjectConstPtr_t object2;
+      std::string objectName2;
       /// fcl collision results
       fcl::CollisionResult result;
       /// Write report in a stream
       virtual std::ostream& print (std::ostream& os) const
       {
-	os << "Collision between object " << object1->name () << " and "
-	   << object2->name ();
+	os << "Collision between object " << (object1 ? object1->name() : objectName1) << " and "
+	   << (object2 ? object2->name() : objectName2);
 	return os;
       }
     }; // class CollisionValidationReport
