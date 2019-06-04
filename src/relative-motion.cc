@@ -129,7 +129,7 @@ namespace hpp {
             hppDout (info, "Joint of locked joint not found: " << *lj);
             continue;
           }
-          bool cstRHS = lj->constantRightHandSide();
+          bool cstRHS (lj->parameterSize () == 0);
 
           i1 = model.getJointId(jointName); i2 = model.parents[i1];
           recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained :
@@ -160,7 +160,7 @@ namespace hpp {
           }
         }
 
-        bool cstRHS = nc->constantRightHandSide();
+        bool cstRHS (nc->parameterSize () == 0);
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
     }
