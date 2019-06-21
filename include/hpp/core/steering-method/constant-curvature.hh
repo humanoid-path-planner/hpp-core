@@ -146,6 +146,10 @@ namespace hpp {
         /// Virtual implementation of derivative
         virtual void impl_derivative
         (vectorOut_t result, const value_type& param, size_type order) const;
+        /// Virtual implementation of velocity bound
+        virtual void impl_velocityBound (vectorOut_t bound,
+                                         const value_type& param0,
+                                         const value_type& param1) const;
 
         /// Virtual implementation of path extraction
         virtual PathPtr_t impl_extract (const interval_t& paramInterval) const

@@ -28,6 +28,32 @@
 namespace hpp {
   namespace core {
     namespace steeringMethod {
+      namespace details {
+        using std::max;
+
+        /// \param t0, t1 angles between \f$ 0 \f$ and \f$ 2 \pi \f$.
+        value_type absCosineMax (const value_type& t0, const value_type& t1)
+        {
+          assert (0 <= t0 && t0 <= t1 && t1 <= 2*M_PI);
+          if (t1 <= M_PI) return max(fabs(cos(t0)), fabs(cos(t1)));
+          // M_PI < t1 <= 2*M_PI
+          if (t0 <= M_PI) return 1.;
+          // M_PI < t0 <= t1 <= 2*M_PI
+          return max(fabs(cos(t0)), fabs(cos(t1)));
+        }
+
+        /// \param t0, t1 angles between \f$ 0 \f$ and \f$ 2 \pi \f$.
+        value_type absSineMax (const value_type& t0, const value_type& t1)
+        {
+          assert (0 <= t0 && t0 <= t1 && t1 <= 2*M_PI);
+          if (t1 <= M_PI_2)   return sin(t1);
+          if (t0 <= M_PI_2)   return 1.;
+          if (t0 >= 3*M_PI_2) return - sin(t0);
+          // M_PI_2 < t0 < 3*M_PI_2
+          if (t1 >= 3*M_PI_2) return 1.;
+          return max(sin(t0), sin(t1));
+        }
+      }
 
       ConstantCurvaturePtr_t ConstantCurvature::create
       (const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
@@ -258,6 +284,71 @@ namespace hpp {
         for (std::vector<Wheels_t>::const_iterator w = wheels_.begin ();
              w < wheels_.end (); ++w) {
           result [w->j->rankInVelocity ()] = 0;
+        }
+      }
+
+      void ConstantCurvature::impl_velocityBound
+      (vectorOut_t bound, const value_type& param0, const value_type& param1) const
+      {
+        // Does a linear interpolation on all the joints.
+        if (paramRange ().first == paramRange ().second) {
+          bound.setZero();
+          return;
+        }
+        const value_type L = paramLength();
+        assert (L > 0);
+        pinocchio::difference <pinocchio::RnxSOnLieGroupMap>
+          (robot_, end_, initial_, bound);
+        bound.noalias() = bound.cwiseAbs() / L;
+
+        value_type alpha (fabs(curveLength_) / L);
+
+        // Compute max of
+        // dx = alpha * (c0 * c - s0 * s);
+        // dy = alpha * (c0 * s + s0 * c);
+        // dtheta = alpha * curvature_;
+        // onto [ param0, param1 ]
+        value_type Mx = std::numeric_limits<value_type>::quiet_NaN(),
+                   My = std::numeric_limits<value_type>::quiet_NaN();
+
+        if (curvature_ == 0) {
+          value_type t0 = curvature_ * curveLength_ * (param0 - paramRange().first) / L,
+                     t1 = curvature_ * curveLength_ * (param1 - paramRange().first) / L;
+          if (t0 > t1) std::swap (t0, t1);
+          if (t1-t0 >= M_PI)
+            Mx = My = 1;
+          else {
+            // Compute thetaI
+            const value_type c0 (initial_ [rzId_ + 0]), s0 (initial_ [rzId_ + 1]);
+            const value_type tI (atan2 (s0, c0));
+            t0 += tI;
+            t1 += tI;
+            // max(|c0 * c - s0 * s|) = max(|cos(t)|) for t in [t0, t1]
+            // max(|c0 * s + s0 * c|) = max(|sin(t)|) for t in [t0, t1]
+
+            value_type kd = std::floor(t0 * M_1_PI/2) * 2*M_PI;
+            t0 -= kd;
+            t1 -= kd;
+            assert (0 <= t0 && t0 <= t1 && t1 <= 2*M_PI);
+
+            Mx = details::absCosineMax (t0, t1);
+            My = details::absSineMax   (t0, t1);
+          }
+        } else {
+          Mx = 1.;
+          My = 0.;
+        }
+        assert (Mx >= 0. && My >= 0.);
+        assert (Mx <= 1. && My <= 1.);
+
+        bound [dxyId_ + 0] = alpha * Mx;
+        bound [dxyId_ + 1] = alpha * My;
+        bound [drzId_]     = alpha * std::fabs (curvature_);
+
+        // Set wheel joint velocities
+        for (std::vector<Wheels_t>::const_iterator w = wheels_.begin ();
+             w < wheels_.end (); ++w) {
+          bound [w->j->rankInVelocity ()] = 0;
         }
       }
 
