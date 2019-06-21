@@ -188,8 +188,12 @@ namespace hpp {
       size_type dxyId_,drzId_;
       std::size_t typeId_;
       Lengths_t lengths_;
-      value_type currentLength_;
+      // Distance traveled by the center of the rear wheel axis
+      value_type rsLength_;
+      // Extra length to take into account the motion of other joints:
+      // Length of path = rsLength_ + extraLength_
       value_type extraLength_;
+      // Minimal radius of curvature
       value_type rho_;
       ReedsSheppPathWkPtr_t weak_;
     }; // class ReedsSheppPath
