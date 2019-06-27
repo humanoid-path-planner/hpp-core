@@ -130,6 +130,9 @@ namespace hpp{
         os << "final configuration:   " << pinocchio::displayConfig(end_) << std::endl;
         return os;
       }
+
+      void orienteInitAndGoal(const DevicePtr_t& device);
+
       /// Constructor
       KinodynamicOrientedPath (const DevicePtr_t& robot, ConfigurationIn_t init,
                        ConfigurationIn_t end, value_type length, ConfigurationIn_t a1,ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim);

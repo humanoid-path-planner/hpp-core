@@ -20,15 +20,12 @@
 
 namespace hpp {
   namespace core {
-    KinodynamicOrientedPath::KinodynamicOrientedPath (const DevicePtr_t& device,
-                                      ConfigurationIn_t init,
-                                      ConfigurationIn_t end,
-                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
-      parent_t (device,init,end,length,a1,t0,t1,tv,t2,vLim)
-    {
-      // adjust initial and end configs, with correcto orientation :
+
+    void KinodynamicOrientedPath::orienteInitAndGoal(const DevicePtr_t& device){
+      // adjust initial and end configs, with correct orientation  (aligned with the velocity):
       size_type configSize = device->configSize() - device->extraConfigSpace().dimension ();
       Eigen::Vector3d vi(initial_[configSize],initial_[configSize+1],initial_[configSize+2]);
+      Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
       if(vi.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
         initial_[6]=quat.w();
@@ -36,7 +33,6 @@ namespace hpp {
         initial_[4]=quat.y();
         initial_[5]=quat.z();
       }
-      Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
       if(ve.norm() > 0){ // if velocity in the state
         Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
         end_[6]=quat.w();
@@ -44,8 +40,15 @@ namespace hpp {
         end_[4]=quat.y();
         end_[5]=quat.z();
       }
+    }
 
-
+    KinodynamicOrientedPath::KinodynamicOrientedPath (const DevicePtr_t& device,
+                                      ConfigurationIn_t init,
+                                      ConfigurationIn_t end,
+                                      value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
+      parent_t (device,init,end,length,a1,t0,t1,tv,t2,vLim)
+    {
+      orienteInitAndGoal(device);
     }
 
     KinodynamicOrientedPath::KinodynamicOrientedPath (const DevicePtr_t& device,
@@ -56,94 +59,26 @@ namespace hpp {
       parent_t (device,init,end,length,a1,t0,t1,tv,t2,vLim,constraints)
 
     {
-      // adjust initial and end configs, with correcto orientation :
-      size_type configSize = device->configSize() - device->extraConfigSpace().dimension ();
-      Eigen::Vector3d vi(initial_[configSize],initial_[configSize+1],initial_[configSize+2]);
-      if(vi.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[6]=quat.w();
-        initial_[3]=quat.x();
-        initial_[4]=quat.y();
-        initial_[5]=quat.z();
-      }
-      Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
-      if(ve.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[6]=quat.w();
-        end_[3]=quat.x();
-        end_[4]=quat.y();
-        end_[5]=quat.z();
-      }
+      orienteInitAndGoal(device);
     }
 
     KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicOrientedPath& path) :
       parent_t (path)
     {
-      // adjust initial and end configs, with correcto orientation :
-      size_type configSize = path.device()->configSize() - path.device()->extraConfigSpace().dimension ();
-      Eigen::Vector3d vi(path.initial_[configSize],path.initial_[configSize+1],path.initial_[configSize+2]);
-      if(vi.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[6]=quat.w();
-        initial_[3]=quat.x();
-        initial_[4]=quat.y();
-        initial_[5]=quat.z();
-      }
-      Eigen::Vector3d ve(path.end_[configSize],path.end_[configSize+1],path.end_[configSize+2]);
-      if(ve.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[6]=quat.w();
-        end_[3]=quat.x();
-        end_[4]=quat.y();
-        end_[5]=quat.z();
-      }
+      orienteInitAndGoal(path.device());
     }
 
     KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicPath& path) :
       parent_t (path)
     {
-      // adjust initial and end configs, with correcto orientation :
-      size_type configSize = path.device()->configSize() - path.device()->extraConfigSpace().dimension ();
-      Eigen::Vector3d vi(initial_[configSize],initial_[configSize+1],initial_[configSize+2]);
-      if(vi.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[6]=quat.w();
-        initial_[3]=quat.x();
-        initial_[4]=quat.y();
-        initial_[5]=quat.z();
-      }
-      Eigen::Vector3d ve(end_[configSize],end_[configSize+1],end_[configSize+2]);
-      if(ve.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[6]=quat.w();
-        end_[3]=quat.x();
-        end_[4]=quat.y();
-        end_[5]=quat.z();
-      }
+      orienteInitAndGoal(path.device());
     }
 
     KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicOrientedPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints)
     {
-      // adjust initial and end configs, with correcto orientation :
-      size_type configSize = path.device()->configSize() - path.device()->extraConfigSpace().dimension ();
-      Eigen::Vector3d vi(path.initial_[configSize],path.initial_[configSize+1],path.initial_[configSize+2]);
-      if(vi.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),vi);
-        initial_[6]=quat.w();
-        initial_[3]=quat.x();
-        initial_[4]=quat.y();
-        initial_[5]=quat.z();
-      }
-      Eigen::Vector3d ve(path.end_[configSize],path.end_[configSize+1],path.end_[configSize+2]);
-      if(ve.norm() > 0){ // if velocity in the state
-        Eigen::Quaterniond quat = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitX(),ve);
-        end_[6]=quat.w();
-        end_[3]=quat.x();
-        end_[4]=quat.y();
-        end_[5]=quat.z();
-      }
+      orienteInitAndGoal(path.device());
     }
 
     bool KinodynamicOrientedPath::impl_compute (ConfigurationOut_t result,
