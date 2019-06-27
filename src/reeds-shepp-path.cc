@@ -148,12 +148,12 @@ namespace hpp {
       typeId_ = typeId;
       lengths_(0) = t; lengths_(1) = u; lengths_(2) = v; lengths_(3) = w;
       lengths_(4) = x;
-      currentLength_ = rho_ * lengths_.lpNorm<1> ();
+      rsLength_ = rho_ * lengths_.lpNorm<1> ();
     }
 
     void ReedsSheppPath::CSC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = currentLength_, L;
+      value_type t, u, v, Lmin = rsLength_, L;
       if (LpSpLp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(14, t, u, v);
@@ -211,7 +211,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = currentLength_, L;
+      value_type t, u, v, Lmin = rsLength_, L;
       if (LpRmL(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(0, t, u, v);
@@ -290,7 +290,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = currentLength_, L;
+      value_type t, u, v, Lmin = rsLength_, L;
       if (LpRupLumRm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v)))
       {
         setupPath(2, t, u, -u, v);
@@ -367,7 +367,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCSC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = currentLength_ - .5*pi, L;
+      value_type t, u, v, Lmin = rsLength_ - .5*pi, L;
       if (LpRmSmLm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(4, t, -.5*pi, u, v);
@@ -477,7 +477,7 @@ namespace hpp {
     }
     void ReedsSheppPath::CCSCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
     {
-      value_type t, u, v, Lmin = currentLength_ - pi, L;
+      value_type t, u, v, Lmin = rsLength_ - pi, L;
       if (LpRmSLmRp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
         setupPath(16, t, -.5*pi, u, -.5*pi, v);
@@ -560,7 +560,7 @@ namespace hpp {
       parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
       xyId_ (xyId), rzId_ (rzId), typeId_ (0), lengths_ (),
-      currentLength_ (std::numeric_limits <value_type>::infinity ()),
+      rsLength_ (std::numeric_limits <value_type>::infinity ()),
       extraLength_ (extraLength), rho_ (rho)
     {
       assert (device);
@@ -580,7 +580,7 @@ namespace hpp {
       parent_t (device->configSize (), device->numberDof ()),
       device_ (device), initial_ (init), end_ (end),
       xyId_ (xyId), rzId_ (rzId), typeId_ (0),
-      currentLength_ (std::numeric_limits <value_type>::infinity ()),
+      rsLength_ (std::numeric_limits <value_type>::infinity ()),
       extraLength_ (extraLength), rho_ (rho)
     {
       assert (device);
@@ -588,7 +588,7 @@ namespace hpp {
       lengths_.setZero ();
       buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
       this->constraints (constraints);
-      assert (fabs (extraLength_ + currentLength_ - paramRange ().second) < 1e-8);
+      assert (fabs (extraLength_ + rsLength_ - paramRange ().second) < 1e-8);
     }
 
     ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
@@ -596,7 +596,7 @@ namespace hpp {
       end_ (path.end_), xyId_ (path.xyId_), rzId_ (path.rzId_),
       dxyId_ (path.dxyId_), drzId_ (path.drzId_),
       typeId_ (path.typeId_), lengths_(path.lengths_),
-      currentLength_ (path.currentLength_),
+      rsLength_ (path.rsLength_),
       extraLength_ (path.extraLength_), rho_ (path.rho_)
     {
     }
@@ -654,7 +654,7 @@ namespace hpp {
                                       xyId_, rzId_, rz, wheels,
                                       ConstraintSetPtr_t ()));
         appendPath (segment);
-        currentLength_ = 0;
+        rsLength_ = 0;
         return;
       }
       CSC  (xy, csPhi, phi);
@@ -663,11 +663,11 @@ namespace hpp {
       CCSC (xy, csPhi, phi);
       CCSCC(xy, csPhi, phi);
       // build path vector
-      value_type L (currentLength_), l (0.);
+      value_type L (rsLength_), s (0.);
       for (unsigned int i=0; i<5; ++i) {
         if (fabs (lengths_ [i]) > precision) {
-          value_type extra_l = fabs (lengths_ [i]);
-          l += extra_l;
+          value_type l = rho_ * fabs (lengths_ [i]);
+          s += l;
           if (types [typeId_][i] == RS_NOP) break;
           value_type curvature;
           switch (types [typeId_][i]) {
@@ -684,12 +684,11 @@ namespace hpp {
           default:
             abort ();
           }
-          pinocchio::interpolate (device_, initial_, end_, l/L, qEnd);
+          pinocchio::interpolate (device_, initial_, end_, s/L, qEnd);
           ConstantCurvaturePtr_t segment
             (ConstantCurvature::create (device_, qInit, qEnd,
                                         rho_ * lengths_ [i],
-                                        rho_ * lengths_ [i] +
-                                        lengths_ [i] * extraLength_ / L,
+                                        l * (1 + extraLength_ / L),
                                         curvature, xyId_, rzId_, rz, wheels,
                                         ConstraintSetPtr_t ()));
           appendPath (segment);
