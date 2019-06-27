@@ -129,7 +129,7 @@ namespace hpp {
         double aMaxFixed_Z_;
         bool synchronizeVerticalAxis_;
         bool orientedPath_;
-
+        bool orientationIgnoreZValue_;
       private:
         DeviceWkPtr_t device_;
         KinodynamicWkPtr_t weak_;

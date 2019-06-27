@@ -157,7 +157,7 @@ namespace hpp {
 
        KinodynamicPathPtr_t path = KinodynamicPath::create (device_.lock (), q1, q2,length,a1_t,t0_t,t1_t,tv_t,t2_t,vLim_t);
        if(orientedPath_){
-         KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::create(path);
+         KinodynamicOrientedPathPtr_t orientedPath = KinodynamicOrientedPath::create(path,orientationIgnoreZValue_);
          return orientedPath;
        }else{
          return path;
@@ -188,13 +188,15 @@ namespace hpp {
 
         synchronizeVerticalAxis_ = problem_.getParameter(std::string("Kinodynamic/synchronizeVerticalAxis")).boolValue();
         hppDout(notice,"synchronizeVerticalAxis in steering method = "<<synchronizeVerticalAxis_);
-        orientedPath_  = problem_.getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue();
+        orientedPath_  = problem_.getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue() ||  problem_.getParameter(std::string("Kinodynamic/forceYawOrientation")).boolValue();
+        orientationIgnoreZValue_ =  problem_.getParameter(std::string("Kinodynamic/forceYawOrientation")).boolValue() && !problem_.getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue() ;
         hppDout(notice,"oriented path : "<<orientedPath_);
+        hppDout(notice,"oriented path only constraint yaw (ignore z value) : "<<orientationIgnoreZValue_);
       }
       
       /// Copy constructor
       Kinodynamic::Kinodynamic (const Kinodynamic& other) :
-        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_),synchronizeVerticalAxis_(other.synchronizeVerticalAxis_),orientedPath_(other.orientedPath_),device_ (other.device_)
+        SteeringMethod (other),aMax_(other.aMax_),vMax_(other.vMax_),synchronizeVerticalAxis_(other.synchronizeVerticalAxis_),orientedPath_(other.orientedPath_),orientationIgnoreZValue_(other.orientationIgnoreZValue_),device_ (other.device_)
       {
       }
       
@@ -532,6 +534,10 @@ namespace hpp {
       Problem::declareParameter(ParameterDescription (Parameter::BOOL,
             "Kinodynamic/forceAllOrientation",
             "If true, the orientation of the root is always aligned with the velocity",
+            Parameter(false)));
+      Problem::declareParameter(ParameterDescription (Parameter::BOOL,
+            "Kinodynamic/forceYawOrientation",
+            "If true, the yaw orientation (along z axis) of the root is always aligned with the velocity",
             Parameter(false)));
       Problem::declareParameter(ParameterDescription (Parameter::BOOL,
             "Kinodynamic/synchronizeVerticalAxis",

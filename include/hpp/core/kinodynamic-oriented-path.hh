@@ -39,9 +39,9 @@ namespace hpp{
       static KinodynamicOrientedPathPtr_t create (const DevicePtr_t& device,
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
-                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim)
+                                          value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim, bool ignoreZValue = false)
       {
-        KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (device, init, end, length,a1,t0,t1,tv,t2,vLim);
+        KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (device, init, end, length,a1,t0,t1,tv,t2,vLim,ignoreZValue);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
         ptr->checkPath ();
@@ -57,10 +57,10 @@ namespace hpp{
                                           ConfigurationIn_t init,
                                           ConfigurationIn_t end,
                                           value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
-                                          ConstraintSetPtr_t constraints)
+                                          ConstraintSetPtr_t constraints, bool ignoreZValue = false)
       {
         KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (device, init, end, length,a1,t0,t1,tv,t2,vLim,
-                                                    constraints);
+                                                    constraints,ignoreZValue);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
         ptr->checkPath ();
@@ -78,9 +78,9 @@ namespace hpp{
         return shPtr;
       }
 
-      static KinodynamicOrientedPathPtr_t create (const KinodynamicPathPtr_t& path)
+      static KinodynamicOrientedPathPtr_t create (const KinodynamicPathPtr_t& path,bool ignoreZValue = false)
       {
-        KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path);
+        KinodynamicOrientedPath* ptr = new KinodynamicOrientedPath (*path,ignoreZValue);
         KinodynamicOrientedPathPtr_t shPtr (ptr);
         ptr->init (shPtr);
         ptr->checkPath ();
@@ -118,6 +118,8 @@ namespace hpp{
         return createCopy (weak_.lock (), constraints);
       }
 
+      bool ignoreZValue() const {return ignoreZValue_;}
+      void ignoreZValue(bool ignoreZValue){ignoreZValue_ = ignoreZValue;}
 
     protected:
       /// Print path in a stream
@@ -135,19 +137,19 @@ namespace hpp{
 
       /// Constructor
       KinodynamicOrientedPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1,ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim);
+                       ConfigurationIn_t end, value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,bool ignoreZValue );
 
       /// Constructor with constraints
       KinodynamicOrientedPath (const DevicePtr_t& robot, ConfigurationIn_t init,
                        ConfigurationIn_t end, value_type length,ConfigurationIn_t a1,ConfigurationIn_t t0,ConfigurationIn_t t1,ConfigurationIn_t tv,ConfigurationIn_t t2,ConfigurationIn_t vLim,
-                       ConstraintSetPtr_t constraints);
+                       ConstraintSetPtr_t constraints,bool ignoreZValue);
 
       /// Copy constructor
       KinodynamicOrientedPath (const KinodynamicOrientedPath& path);
 
 
       /// constructor from KinodynamicPath
-      KinodynamicOrientedPath (const KinodynamicPath& path);
+      KinodynamicOrientedPath (const KinodynamicPath& path,bool ignoreZValue);
 
       /// Copy constructor with constraints
       KinodynamicOrientedPath (const KinodynamicOrientedPath& path,
@@ -168,6 +170,7 @@ namespace hpp{
 
     private:
       KinodynamicOrientedPathWkPtr_t weak_;
+      bool ignoreZValue_;
     };//class kinodynamic oriented path
   }//namespace core
 }//namespace hpp
