@@ -188,7 +188,7 @@ namespace hpp {
 
         synchronizeVerticalAxis_ = problem_.getParameter(std::string("Kinodynamic/synchronizeVerticalAxis")).boolValue();
         hppDout(notice,"synchronizeVerticalAxis in steering method = "<<synchronizeVerticalAxis_);
-        orientedPath_  = problem_.getParameter(std::string("Kinodynamic/forceOrientation")).boolValue();
+        orientedPath_  = problem_.getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue();
         hppDout(notice,"oriented path : "<<orientedPath_);
       }
       
@@ -530,7 +530,7 @@ namespace hpp {
             "The maximal magnitude of the acceleration along the z axis. ",
             Parameter(10.)));
       Problem::declareParameter(ParameterDescription (Parameter::BOOL,
-            "Kinodynamic/forceOrientation",
+            "Kinodynamic/forceAllOrientation",
             "If true, the orientation of the root is always aligned with the velocity",
             Parameter(false)));
       Problem::declareParameter(ParameterDescription (Parameter::BOOL,
