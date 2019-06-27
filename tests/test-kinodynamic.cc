@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
   ProblemPtr_t p = Problem::create(robot);
   p->setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
   p->setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
-  p->setParameter(std::string("Kinodynamic/forceOrientation"),Parameter(true));
+  p->setParameter(std::string("Kinodynamic/forceAllOrientation"),Parameter(true));
 
 
   steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
