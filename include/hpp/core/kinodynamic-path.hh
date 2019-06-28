@@ -27,9 +27,11 @@ namespace hpp {
   namespace core {
     /// \addtogroup path
     /// \{
+
+    /// Kino-dynamic straight path
     ///
-    /// This Path have the same behavior as the \link hpp::core::StraightPath StraightPath \endlink class
-    /// exept for the translation part of the free-flyer.
+    /// This Path has the same behavior as the \link hpp::core::StraightPath StraightPath \endlink class
+    /// except for the translation part of the free-flyer.
     /// For the translation part of the free-flyer KinodynamicPath store a "bang-bang" trajectory dependent on time
     /// with either 2 segment of constant acceleration or 3 segments with a constant velocity segment
     ///
@@ -198,6 +200,7 @@ namespace hpp {
       vector_t a1_;
       vector_t t0_,t1_,tv_,t2_,vLim_;
     }; // class KinodynamicPath
+    /// \}
   } //   namespace core
 } // namespace hpp
 #endif // HPP_CORE_KINODYNAMIC_PATH_HH
