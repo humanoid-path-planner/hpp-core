@@ -23,8 +23,8 @@
 
 namespace hpp{
   namespace core{
-    /// Path with 2 segment of constant acceleration or 3 segments with a constant velocity segment
-    /// This class is similar to \link hpp::core::KinodynamicPath KinodynamicPath \endlink exept that the orientation of the robot always follow the direction of the velocity
+    /// This class is similar to \link hpp::core::KinodynamicPath KinodynamicPath \endlink exept that the orientation of the robot always follow the direction of the velocity.
+    /// If the problem parameter "Kinodynamic/forceYawOrientation" have been set to True, only the orientation around the z axis is set to follow the direction of the velocity.
 
     class HPP_CORE_DLLAPI KinodynamicOrientedPath : public KinodynamicPath
     {

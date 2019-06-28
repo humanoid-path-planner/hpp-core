@@ -28,7 +28,9 @@ namespace hpp {
     /// \addtogroup path
     /// \{
     ///
-    /// KinodynamicPath store a "bang-bang" trajectory depend on time
+    /// This Path have the same behavior as the \link hpp::core::StraightPath StraightPath \endlink class
+    /// exept for the translation part of the free-flyer.
+    /// For the translation part of the free-flyer KinodynamicPath store a "bang-bang" trajectory dependent on time
     /// with either 2 segment of constant acceleration or 3 segments with a constant velocity segment
     ///
     /// In current implementation, only the translation part of the freeflyer joint is considered by this class.
