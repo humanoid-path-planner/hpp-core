@@ -47,10 +47,6 @@ namespace hpp {
     {
       interval.first = -std::numeric_limits <value_type>::infinity ();
       interval.second = std::numeric_limits <value_type>::infinity ();
-
-      robot_->currentConfiguration (config);
-      robot_->computeFramesForwardKinematics ();
-      robot_->updateGeometryPlacements ();
       hpp::pinocchio::DeviceSync robot (robot_);
       robot.currentConfiguration (config);
       robot.computeForwardKinematics();
