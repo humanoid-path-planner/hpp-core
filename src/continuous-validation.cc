@@ -203,7 +203,8 @@ namespace hpp {
         ib = (*_colPair)->indexJointB ();
         if (ia < 0 || ib < 0) {
           ++_colPair;
-          continue;}
+          continue;
+        }
         switch (relMotion(ia, ib))
         {
         case RelativeMotion::Parameterized:
