@@ -22,6 +22,7 @@
 #include <hpp/pinocchio/simple-device.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
@@ -138,6 +139,30 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   BOOST_CHECK_MESSAGE ( cfg (0) > 1                                     , "Dof 0 should have been modified. " << cfg.head<3>().transpose());
   BOOST_CHECK_MESSAGE ((cfg.segment (1,1) - ref.segment (1,1)).isZero (), "Dof 1 should not have been modified. " << cfg.head<3>().transpose());
   BOOST_CHECK_MESSAGE ( cfg (2) > 1                                     , "Dof 2 should have been modified. " << cfg.head<3>().transpose());
+}
+
+BOOST_AUTO_TEST_CASE (copy)
+{
+  using constraints::Implicit;
+  using constraints::ImplicitPtr_t;
+  DevicePtr_t dev = createRobot();
+  JointPtr_t xyz = dev->getJointByName ("root_joint");
+  ConfigProjectorPtr_t projector =
+    ConfigProjector::create (dev, "test", 1e-4, 20);
+  matrix3_t rot; rot.setIdentity ();
+  vector3_t zero; zero.setZero();
+  PositionPtr_t position
+    (Position::create ("Position", dev, xyz, Transform3f (rot, zero),
+                       Transform3f(rot,vector3_t (1,1,1))));
+  ComparisonTypes_t equality (3, constraints::Equality);
+  ImplicitPtr_t constraint (Implicit::create (position, equality));
+  projector->add (constraint);
+
+  ConfigProjectorPtr_t copy (HPP_DYNAMIC_PTR_CAST (ConfigProjector,
+                                                   projector->copy ()));
+  vector_t rhs (3);
+  bool success (copy->solver ().getRightHandSide (constraint, rhs));
+  BOOST_CHECK (success);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
