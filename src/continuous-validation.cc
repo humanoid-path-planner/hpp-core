@@ -47,7 +47,7 @@ namespace hpp {
     {
       interval.first = -std::numeric_limits <value_type>::infinity ();
       interval.second = std::numeric_limits <value_type>::infinity ();
-      pinocchio::DeviceSync robot (robot_);
+      hpp::pinocchio::DeviceSync robot (robot_);
       robot.currentConfiguration (config);
       robot.computeForwardKinematics();
       robot.updateGeometryPlacements();
@@ -62,7 +62,6 @@ namespace hpp {
         std::iter_swap (bodyPairCollisions.begin(), smallestInterval);
       return true;
     }
-
 
     bool ContinuousValidation::validate(const PathPtr_t &path, bool reverse, PathPtr_t &validPart,
                                               PathValidationReportPtr_t &report)
@@ -198,7 +197,10 @@ namespace hpp {
       {
         ia = (*_colPair)->indexJointA ();
         ib = (*_colPair)->indexJointB ();
-        if (ia < 0 || ib < 0) continue;
+        if (ia < 0 || ib < 0) {
+          ++_colPair;
+          continue;
+        }
         switch (relMotion(ia, ib))
         {
         case RelativeMotion::Parameterized:

@@ -20,6 +20,7 @@
 # define HPP_CORE_CONTINUOUS_VALIDATION_INITIALIZER_HH
 
 # include <hpp/core/fwd.hh>
+# include <hpp/core/continuous-validation.hh>
 
 namespace hpp {
   namespace core {

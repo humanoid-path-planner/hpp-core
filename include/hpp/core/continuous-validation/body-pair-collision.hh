@@ -90,6 +90,7 @@ namespace hpp {
         virtual void addCollisionPair (const CollisionObjectConstPtr_t& /*left*/,
             const CollisionObjectConstPtr_t &/*right*/) {}
 
+        virtual std::string name () const = 0;
         virtual std::ostream& print (std::ostream& os) const = 0;
 
         virtual BodyPairCollisionPtr_t copy () const = 0;
@@ -149,7 +150,7 @@ namespace hpp {
         /// \retval distanceLowerBound
         /// \retval report the collision validation report
         /// \return true if the bodies are not in collision, else false
-        bool computeDistanceLowerBound(value_type &distanceLowerBound,
+        virtual bool computeDistanceLowerBound(value_type &distanceLowerBound,
           CollisionValidationReportPtr_t& report, pinocchio::DeviceData& data) const;
 
       }; // class BodyPairCollision

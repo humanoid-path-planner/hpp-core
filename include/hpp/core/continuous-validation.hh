@@ -98,6 +98,12 @@ namespace hpp {
       /// called to do the new initialization
       void changeInitializer (continuousValidation::InitializerPtr_t initializer);
 
+      /// Get tolerance value
+      value_type tolerance () const
+      {
+        return tolerance_;
+      }
+
       virtual ~ContinuousValidation ();
     protected:
       typedef continuousValidation::BodyPairCollisions_t BodyPairCollisions_t;
