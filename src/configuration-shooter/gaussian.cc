@@ -99,7 +99,7 @@ namespace hpp {
       };
 
       template<>
-      void ComputeSigmasStep::algo< ::pinocchio::JointModelComposite>(const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
+      void ComputeSigmasStep::algo< pinocchio::JointModelComposite>(const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
               const pinocchio::Model& model,
               vector_t& sigmas)
       {

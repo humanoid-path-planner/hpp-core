@@ -136,8 +136,8 @@ namespace hpp {
       };
 
       template<>
-      void JointBoundConstraintStep::algo< ::pinocchio::JointModelComposite>(
-          const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
+      void JointBoundConstraintStep::algo< pinocchio::JointModelComposite>(
+          const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
           vectorIn_t low,
           vectorIn_t up,
           vectorIn_t neutral,

@@ -112,8 +112,8 @@ namespace hpp {
         }
       };
 
-      template <> void ComputeWeightStep::algo< ::pinocchio::JointModelComposite>(
-          const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
+      template <> void ComputeWeightStep::algo< pinocchio::JointModelComposite>(
+          const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
           const pinocchio::Model & model,
           const pinocchio::Data & data,
           const pinocchio::GeomData & geomData,
@@ -163,8 +163,8 @@ namespace hpp {
       };
 
       template <>
-      void SquaredDistanceStep::algo< ::pinocchio::JointModelComposite>(
-          const ::pinocchio::JointModelBase< ::pinocchio::JointModelComposite> & jmodel,
+      void SquaredDistanceStep::algo< pinocchio::JointModelComposite>(
+          const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
           ConfigurationIn_t q0,
           ConfigurationIn_t q1,
           const value_type & w,
