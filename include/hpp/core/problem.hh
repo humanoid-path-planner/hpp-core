@@ -139,9 +139,11 @@ namespace hpp {
       }
 
       /// Reset the ConfigValidations
+      /// by creating a new ConfigValidations using ConfigValidations::create
       void resetConfigValidations ();
 
-      // Clear the ConfigValidations
+      /// Clear the ConfigValidations
+      /// by calling ConfigValidations::clear
       void clearConfigValidations ();
 
       /// Add a config validation method
