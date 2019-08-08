@@ -17,7 +17,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MODULE solid_solid_collision
-
+#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include <limits>
