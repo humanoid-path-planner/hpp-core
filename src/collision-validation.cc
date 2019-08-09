@@ -208,7 +208,7 @@ namespace hpp {
               if (fcl::collide (_colPair->first ->fcl (), _colPair->second->fcl (),
                     collisionRequest_, unused) != 0) {
                 hppDout(warning, "Disabling collision detection between two "
-                    "body in collision.");
+                    "bodies in collision.");
               }
               disabledPairs_.push_back (*_colPair);
               _colPair = collisionPairs_.erase (_colPair);

@@ -42,6 +42,16 @@ namespace hpp {
         m(i0,i1) = m(i1,i0) = t;
       }
 
+      /// Considering the order Constrained(0) < Parameterized(1) < Unconstrained(2)
+      /// Change m(i0,i1) only if it decreases.
+      inline void symSetNoDowngrade (RelativeMotion::matrix_type& m, size_type i0, size_type i1, RelativeMotion::RelativeMotionType t)
+      {
+        assert (RelativeMotion::Constrained < RelativeMotion::Parameterized
+            && RelativeMotion::Parameterized < RelativeMotion::Unconstrained);
+        assert (m(i0,i1) == m(i1,i0));
+        if (t < m(i0,i1)) m(i0,i1) = m(i1,i0) = t;
+      }
+
       /// Check that a differentiable function defines a constraint of
       /// relative pose between two joints
       template <typename T > struct check {
@@ -169,9 +179,12 @@ namespace hpp {
         const size_type& i1, const size_type& i2,
         const RelativeMotion::RelativeMotionType& type)
     {
+      assert (Constrained < Parameterized && Parameterized < Unconstrained);
       bool param = (type == Parameterized);
       RelativeMotionType t = Unconstrained;
-      if (type == Unconstrained) return;
+      // Constrained(0) < Parameterized(1) < Unconstrained(2)
+      // If the current value is more constraining, then do not change it.
+      if (matrix(i1,i2) <= type) return;
       symSet(matrix, i1, i2, type);
 
       // i1 to i3
@@ -180,7 +193,7 @@ namespace hpp {
         if (i3 == i2) continue;
         if (matrix(i2,i3) != Unconstrained) {
           t = (!param && matrix(i2,i3) == Constrained) ? Constrained : Parameterized;
-          symSet(matrix, i1, i3, t);
+          symSetNoDowngrade(matrix, i1, i3, t);
         }
       }
       for (size_type i0 = 0; i0 < matrix.rows(); ++i0) {
@@ -189,7 +202,7 @@ namespace hpp {
         // i0 to i2
         if (matrix(i0,i1) != Unconstrained) {
           t = (!param && matrix(i0,i1) == Constrained) ? Constrained : Parameterized;
-          symSet (matrix, i0, i2 ,t);
+          symSetNoDowngrade (matrix, i0, i2 ,t);
         }
 
         // from i0 to i3
@@ -199,9 +212,10 @@ namespace hpp {
           if (i3 == i1) continue;
           if (i3 == i0) continue;
           if (matrix(i2,i3) == Unconstrained) continue;
+          // If motion is already constrained, continue.
           t = (!param && matrix(i0,i1) == Constrained && matrix(i2,i3) == Constrained)
             ? Constrained : Parameterized;
-          symSet (matrix, i0, i3, t);
+          symSetNoDowngrade (matrix, i0, i3, t);
         }
       }
     }

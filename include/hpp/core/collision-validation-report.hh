@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 # define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 
+# include <hpp/util/indent.hh>
+
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/core/validation-report.hh>
 # include <hpp/fcl/collision_data.h>
@@ -56,11 +58,11 @@ namespace hpp {
       std::vector<CollisionValidationReportPtr_t> collisionReports;
       virtual std::ostream& print (std::ostream& os) const
       {
-        os <<" Number of collisions : "<<collisionReports.size()<<".";
+        os <<" Number of collisions : "<<collisionReports.size()<<"."<<incendl;
         for(std::vector<CollisionValidationReportPtr_t>::const_iterator it = collisionReports.begin() ; it != collisionReports.end() ; ++it){
-          (*it)->print(os);
+          os << **it << iendl;
         }
-        return os;
+        return os << decindent;
       }
     }; // class AllCollisionValidationReport
     /// \}

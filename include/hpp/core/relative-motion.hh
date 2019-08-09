@@ -31,12 +31,12 @@ namespace hpp {
       enum RelativeMotionType {
         /// The relative motion is fully constrained and the constraint cannot be
         /// parameterized (has constant right-hand side)
-        Constrained,
+        Constrained = 0,
         /// The relative motion is fully constrained but the constraint can be
         /// parameterized (has non-constant right-hand side)
-        Parameterized,
+        Parameterized = 1,
         /// The relative motion is not constrained
-        Unconstrained
+        Unconstrained = 2
       };
 
       typedef Eigen::Matrix<RelativeMotionType, Eigen::Dynamic, Eigen::Dynamic> matrix_type;
