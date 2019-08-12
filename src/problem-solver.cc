@@ -169,16 +169,9 @@ namespace hpp {
       return ptr;
     }
 
-    ProblemSolverPtr_t ProblemSolver::latest_ = 0x0;
     ProblemSolverPtr_t ProblemSolver::create ()
     {
-      latest_ = new ProblemSolver ();
-      return latest_;
-    }
-
-    ProblemSolverPtr_t ProblemSolver::latest ()
-    {
-      return latest_;
+      return new ProblemSolver ();
     }
 
     ProblemSolver::ProblemSolver () :
