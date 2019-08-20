@@ -5,3 +5,5 @@ HIDE_FRIEND_COMPOUNDS  = YES
 
 IMAGE_PATH             = @CMAKE_SOURCE_DIR@/doc
 USE_MATHJAX            = YES
+HTML_EXTRA_FILES       = @CMAKE_SOURCE_DIR@/doc/continuous-collision-checking.pdf \
+                         @CMAKE_SOURCE_DIR@/doc/continuous-validation.pdf

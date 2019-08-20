@@ -55,7 +55,7 @@ namespace hpp {
       /// of the other joint. This is implemented in BodyPairCollision and
       /// SolidSolidCollision.
       ///
-      /// See <a href="continuous-validation.pdf"> this document </a>
+      /// See <a href="continuous-collision-checking.pdf"> this document </a>
       /// for details on the continuous collision checking.
       ///
       /// See <a href="continuous-validation.pdf"> this document </a>
