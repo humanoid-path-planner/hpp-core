@@ -567,21 +567,7 @@ namespace hpp {
     void ProblemSolver::addLockedJointToConfigProjector
     (const std::string& configProjName, const std::string& lockedJointName)
     {
-      if (!robot_) {
-	hppDout (error, "Cannot add constraint while robot is not set");
-      }
-      ConfigProjectorPtr_t  configProjector = constraints_->configProjector ();
-      if (!configProjector) {
-	configProjector = ConfigProjector::create
-	  (robot_, configProjName, errorThreshold_, maxIterProjection_);
-	constraints_->addConstraint (configProjector);
-      }
-      if (!lockedJoints.has (lockedJointName)) {
-        std::stringstream ss; ss << "Function " << lockedJointName <<
-                                " does not exists";
-        throw std::invalid_argument (ss.str());
-      }
-      configProjector->add (lockedJoints.get(lockedJointName));
+      addNumericalConstraintToConfigProjector (configProjName, lockedJointName);
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
@@ -590,11 +576,9 @@ namespace hpp {
       constraints::ImplicitPtr_t nc;
       if (numericalConstraints.has (name))
         nc = numericalConstraints.get(name);
-      else if (lockedJoints.has (name))
-        nc = lockedJoints.get(name);
       else
-        throw std::runtime_error (name + std::string (" is neither a numerical "
-              "constraint nor a locked joint"));
+        throw std::runtime_error (name + std::string (" is not a numerical "
+              "constraint."));
       nc->comparisonType (types);
     }
 
@@ -604,11 +588,9 @@ namespace hpp {
       constraints::ImplicitPtr_t nc;
       if (numericalConstraints.has (name))
         nc = numericalConstraints.get(name);
-      else if (lockedJoints.has (name))
-        nc = lockedJoints.get(name);
       else
-        throw std::runtime_error (name + std::string (" is neither a numerical "
-              "constraint nor a locked joint"));
+        throw std::runtime_error (name + std::string (" is not a numerical "
+              "constraint."));
       ComparisonTypes_t eqtypes (nc->function().outputDerivativeSize(), type);
       nc->comparisonType (eqtypes);
     }
@@ -618,11 +600,9 @@ namespace hpp {
       constraints::ImplicitPtr_t nc;
       if (numericalConstraints.has (name))
         nc = numericalConstraints.get(name);
-      else if (lockedJoints.has (name))
-        nc = lockedJoints.get(name);
       else
-        throw std::runtime_error (name + std::string (" is neither a numerical "
-              "constraint nor a locked joint"));
+        throw std::runtime_error (name + std::string (" is not a numerical "
+              "constraint."));
       return nc->comparisonType ();
     }
 

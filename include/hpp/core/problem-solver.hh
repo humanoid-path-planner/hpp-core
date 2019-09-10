@@ -31,6 +31,12 @@
 
 namespace hpp {
   namespace core {
+    /// member ProblemSolver::lockedJoints has been removed. LockedJointPtr_t
+    /// instances are now stored with constraints::ImplicitPtr_t in
+    /// member numericalConstraints.
+    class Member_lockedJoints_in_class_ProblemSolver_has_been_removed_use_member_numericalConstraints_instead
+    {
+    };
     typedef boost::function < DevicePtr_t (const std::string&) > RobotBuilder_t;
     typedef boost::function < PathOptimizerPtr_t (const Problem&) >
       PathOptimizerBuilder_t;
@@ -247,8 +253,12 @@ namespace hpp {
       /// \param lockedJointName name of the locked joint as stored in internal
       ///        map.
       /// Build the config projector if not yet constructed.
+      /// \deprecated LockedJoint instances are now handled as other numerical
+      ///             constraints. Call addNumericalConstraintToConfigProjector
+      ///             instead.
       virtual void addLockedJointToConfigProjector
-	(const std::string& configProjName, const std::string& lockedJointName);
+	(const std::string& configProjName, const std::string& lockedJointName)
+        HPP_CORE_DEPRECATED;
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
@@ -560,8 +570,10 @@ namespace hpp {
 
       /// Container of constraints::Implicit
       Container <constraints::ImplicitPtr_t>      numericalConstraints;
-      /// Container of LockedJoint
-      Container <LockedJointPtr_t>              lockedJoints;
+      /// member lockedJoints has been removed. LockedJointPtr_t
+      /// instances are now stored with constraints::ImplicitPtr_t in
+      /// member numericalConstraints.
+      Member_lockedJoints_in_class_ProblemSolver_has_been_removed_use_member_numericalConstraints_instead                    lockedJoints;
       /// Container of CenterOfMassComputation
       Container <CenterOfMassComputationPtr_t>  centerOfMassComputations;
       /// Container of passive DoFs (as segments_t)

@@ -1,4 +1,5 @@
                                                                 -*- outline -*-
+* Handle LockedJoint and Implicit instances in the same container in ProblemSolver class. make method ProblemSolver::addLockedJointToConfigProjector deprecated.
 * Fix bug in Reeds and Shepp paths when curvature is not equal to 1.
 New in 4.6.0
 * Keep frames of obstacles.
