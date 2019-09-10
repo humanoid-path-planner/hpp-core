@@ -532,20 +532,6 @@ namespace hpp {
 	hppDout (error, "Cannot add constraint while robot is not set");
     }
 
-    void ProblemSolver::addLockedJoint (const LockedJointPtr_t& lj)
-    {
-      if (!robot_) {
-	hppDout (error, "Cannot add constraint while robot is not set");
-      }
-      ConfigProjectorPtr_t  configProjector = constraints_->configProjector ();
-      if (!configProjector) {
-	configProjector = ConfigProjector::create
-	  (robot_, "ConfigProjector", errorThreshold_, maxIterProjection_);
-	constraints_->addConstraint (configProjector);
-      }
-      configProjector->add (lj);
-    }
-
     void ProblemSolver::resetConstraints ()
     {
       if (robot_) {
