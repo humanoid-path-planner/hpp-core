@@ -15,6 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MODULE ExplicitRelativeTransformationTest
+#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>

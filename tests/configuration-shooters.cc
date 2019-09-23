@@ -15,6 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MODULE configuration_shooters
+#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include <hpp/core/configuration-shooter/uniform.hh>

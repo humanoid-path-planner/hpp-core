@@ -15,6 +15,7 @@
 // hpp-constraints. If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MODULE ContinuousValidation
+#include <pinocchio/fwd.hpp>
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>

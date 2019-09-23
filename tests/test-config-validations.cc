@@ -18,6 +18,8 @@
 
 #define BOOST_TEST_MODULE test_config_validations
 
+#include <pinocchio/fwd.hpp>
+
 #include <boost/test/included/unit_test.hpp>
 
 #include <hpp/core/problem.hh>

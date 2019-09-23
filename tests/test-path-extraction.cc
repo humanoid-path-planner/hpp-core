@@ -18,6 +18,8 @@
 
 #define BOOST_TEST_MODULE path_extraction
 
+#include <pinocchio/fwd.hpp>
+
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/fcl/math/transform.h>
 

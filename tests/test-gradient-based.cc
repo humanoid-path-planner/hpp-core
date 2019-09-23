@@ -19,6 +19,7 @@
 #define BOOST_TEST_MODULE gradient_based
 
 #include <cmath>
+#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include <hpp/pinocchio/device.hh>
