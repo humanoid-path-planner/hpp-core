@@ -14,7 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-constraints. If not, see <http://www.gnu.org/licenses/>.
 
-#define BOOST_TEST_MODULE ConfigProjector 
+#define BOOST_TEST_MODULE ConfigProjector
+#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include <hpp/pinocchio/device.hh>
@@ -124,16 +125,16 @@ BOOST_AUTO_TEST_CASE (ref_not_zero)
   projector->add (constraints::Implicit::create (position, ineq));
   Configuration_t cfg(dev->neutralConfiguration ());
 
-  ref[0] = 2; 
-  ref[1] = 0; 
-  ref[2] = 2; 
+  ref[0] = 2;
+  ref[1] = 0;
+  ref[2] = 2;
   cfg.segment (0,3) = ref;
   BOOST_CHECK (projector->apply (cfg));
   BOOST_CHECK_MESSAGE ((cfg.segment (0, 3) - ref).isZero (), "Configuration should not be modified.");
 
-  ref[0] = 0; 
-  ref[1] = 0; 
-  ref[2] = 0; 
+  ref[0] = 0;
+  ref[1] = 0;
+  ref[2] = 0;
   cfg.segment (0,3) = ref;
   BOOST_CHECK (projector->apply (cfg));
   BOOST_CHECK_MESSAGE ( cfg (0) > 1                                     , "Dof 0 should have been modified. " << cfg.head<3>().transpose());

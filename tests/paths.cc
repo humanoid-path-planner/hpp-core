@@ -15,6 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MODULE paths
+#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
