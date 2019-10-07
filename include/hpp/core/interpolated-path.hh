@@ -41,7 +41,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI InterpolatedPath : public Path
     {
     public:
-      typedef std::pair <value_type, Configuration_t> InterpolationPoint_t;
+      typedef std::pair <const value_type, Configuration_t> InterpolationPoint_t;
       typedef std::map <value_type, Configuration_t, std::less <value_type>,
         Eigen::aligned_allocator <InterpolationPoint_t> > InterpolationPoints_t;
       typedef Path parent_t;
