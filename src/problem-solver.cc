@@ -529,7 +529,7 @@ namespace hpp {
       if (robot_)
 	constraints_->addConstraint (constraint);
       else
-	hppDout (error, "Cannot add constraint while robot is not set");
+        throw std::logic_error ("Cannot add constraint while robot is not set");
     }
 
     void ProblemSolver::resetConstraints ()
