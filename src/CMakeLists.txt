@@ -94,6 +94,7 @@ path-validation/no-validation.hh
   steering-method/dubins.cc
   steering-method/snibud.cc
   steering-method/spline.cc
+  steering-method/straight.cc
   straight-path.cc
   interpolated-path.cc
   visibility-prm-planner.cc
