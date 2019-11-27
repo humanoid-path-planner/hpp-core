@@ -17,20 +17,18 @@
 # hpp-core  If not, see
 # <http://www.gnu.org/licenses/>.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET(CXX_DISABLE_WERROR TRUE)
 SET(DOXYGEN_USE_MATHJAX YES)
 
-INCLUDE(cmake/base.cmake)
+SET(PROJECT_NAME hpp-core)
+SET(PROJECT_DESCRIPTION "Implement basic classes for canonical path planning for kinematic chains.")
+
 INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/test.cmake)
 
-SET(PROJECT_NAME hpp-core)
-SET(PROJECT_DESCRIPTION
-  "Implement basic classes for canonical path planning for kinematic chains."
-  )
 
 # Where to compile shared objects
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -39,7 +37,8 @@ SET(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake-modules/
   ${CMAKE_MODULE_PATH})
 
-SETUP_HPP_PROJECT()
+COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
+PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
@@ -167,5 +166,3 @@ SET(PKG_CONFIG_EXTRA "${PKG_CONFIG_EXTRA}\ncmake_plugin=${CMAKE_INSTALL_PREFIX}/
 INSTALL(FILES cmake-modules/hpp-core-plugin.cmake
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake/
   PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-
-SETUP_HPP_PROJECT_FINALIZE()
