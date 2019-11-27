@@ -297,6 +297,18 @@ namespace hpp {
         return *solver_;
       }
 
+      /// Set the line search type.
+      void lineSearchType (LineSearchType ls)
+      {
+        lineSearchType_ = ls;
+      }
+
+      /// Get the line search type.
+      LineSearchType lineSearchType () const
+      {
+        return lineSearchType_;
+      }
+
       static void defaultLineSearch (LineSearchType ls);
 
     protected:

@@ -56,7 +56,8 @@ namespace hpp {
         void* library = dlopen(lib.c_str(), RTLD_NOW);
         error = dlerror ();
         if (error != NULL) {
-          hppDout (error, "Error loading library " << lib << ": " << error);
+          throw std::runtime_error ("Error loading library " + lib + ": " +
+              error);
           return false;
         }
         if (library == NULL) {
@@ -67,11 +68,13 @@ namespace hpp {
         PluginFunction_t function = reinterpret_cast<PluginFunction_t>(dlsym(library, "createProblemSolverPlugin"));
         error = dlerror ();
         if (error != NULL) {
-          hppDout (error, "Error loading library " << lib << ":\n" << error);
+          throw std::runtime_error ("Error loading library " + lib + ": " +
+              error);
           return false;
         }
         if (function == NULL) {
-          hppDout (error, "Symbol createProblemSolverPlugin of (correctly loaded) library " << lib << " is NULL.");
+          throw std::runtime_error ("Symbol createProblemSolverPlugin of "
+              "(correctly loaded) library " + lib + " is NULL.");
           return false;
         }
 
