@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE (load_plugin)
 {
   ProblemSolverPtr_t ps = ProblemSolver::create();
 
-  std::string lib ("@CMAKE_BINARY_DIR@/lib/example.so");
+  std::string lib ("@CMAKE_BINARY_DIR@/tests/plugin-test/example.so");
   BOOST_CHECK (plugin::loadPlugin (lib, ps));
 
   BOOST_CHECK (ps->distances.has ("WeighedDuplicate"));

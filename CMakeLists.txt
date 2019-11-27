@@ -29,10 +29,6 @@ INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/test.cmake)
 
-
-# Where to compile shared objects
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-
 SET(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake-modules/
   ${CMAKE_MODULE_PATH})
