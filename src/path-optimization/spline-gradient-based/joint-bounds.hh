@@ -107,7 +107,7 @@ namespace hpp {
         }
       };
 
-      struct JointBoundConstraintStep : public ::pinocchio::fusion::JointVisitorBase<JointBoundConstraintStep>
+      struct JointBoundConstraintStep : public ::pinocchio::fusion::JointUnaryVisitorBase<JointBoundConstraintStep>
       {
         typedef boost::fusion::vector<vectorIn_t,
                                       vectorIn_t,
