@@ -20,6 +20,7 @@
 # define HPP_CORE_CONFIG_VALIDATIONS_HH
 
 # include <hpp/core/config-validation.hh>
+# include <hpp/core/obstacle-user.hh>
 
 namespace hpp {
   namespace core {
@@ -28,7 +29,9 @@ namespace hpp {
 
     /// Validate a configuration with respect to collision
     ///
-    class HPP_CORE_DLLAPI ConfigValidations : public ConfigValidation
+    class HPP_CORE_DLLAPI ConfigValidations :
+      public ConfigValidation,
+      public ObstacleUserInterface
     {
     public:
       static ConfigValidationsPtr_t create ();

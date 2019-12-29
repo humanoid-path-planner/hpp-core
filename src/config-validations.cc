@@ -48,26 +48,29 @@ namespace hpp {
 
     void ConfigValidations::addObstacle (const CollisionObjectConstPtr_t& object)
     {
-      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->addObstacle (object);
+      for (std::size_t i = 0; i < validations_.size(); ++i) {
+        boost::shared_ptr<ObstacleUserInterface> oui =
+          HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
+        if (oui) oui->addObstacle (object);
       }
     }
 
     void ConfigValidations::removeObstacleFromJoint
     (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
     {
-      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->removeObstacleFromJoint (joint, obstacle);
+      for (std::size_t i = 0; i < validations_.size(); ++i) {
+        boost::shared_ptr<ObstacleUserInterface> oui =
+          HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
+        if (oui) oui->removeObstacleFromJoint (joint, obstacle);
       }
     }
 
     void ConfigValidations::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
     {
-      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->filterCollisionPairs (matrix);
+      for (std::size_t i = 0; i < validations_.size(); ++i) {
+        boost::shared_ptr<ObstacleUserInterface> oui =
+          HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
+        if (oui) oui->filterCollisionPairs (matrix);
       }
     }
 
