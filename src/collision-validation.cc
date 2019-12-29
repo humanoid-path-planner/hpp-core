@@ -59,17 +59,13 @@ namespace hpp {
         pairs = &pPairs_;
       }
       if (collide) {
-        CollisionValidationReportPtr_t report (new CollisionValidationReport);
-        report->object1 = (*pairs)[iPair].first;
-        report->object2 = (*pairs)[iPair].second;
-        report->result = collisionResult;
+        CollisionValidationReportPtr_t report (
+            new CollisionValidationReport ((*pairs)[iPair], collisionResult));
 
         if(computeAllContacts_){
           // create report with the first collision
-          AllCollisionsValidationReportPtr_t allReport(new AllCollisionsValidationReport);
-          allReport->object1 = (*pairs)[iPair].first;
-          allReport->object2 = (*pairs)[iPair].second;
-          allReport->result = collisionResult;
+          AllCollisionsValidationReportPtr_t allReport(
+              new AllCollisionsValidationReport ((*pairs)[iPair], collisionResult));
           allReport->collisionReports.push_back(report);
           // then loop over all the remaining pairs :
           ++iPair;
@@ -79,10 +75,8 @@ namespace hpp {
                   cPairs_[iPair].first ->fcl (device.d()),
                   cPairs_[iPair].second->fcl (device.d()),
                   cRequests_[iPair], collisionResult) != 0) {
-              CollisionValidationReportPtr_t report (new CollisionValidationReport);
-              report->object1 = (*pairs)[iPair].first;
-              report->object2 = (*pairs)[iPair].second;
-              report->result = collisionResult;
+              CollisionValidationReportPtr_t report (
+                  new CollisionValidationReport ((*pairs)[iPair], collisionResult));
               allReport->collisionReports.push_back(report);
             }
           }

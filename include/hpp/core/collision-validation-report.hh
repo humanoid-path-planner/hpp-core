@@ -34,6 +34,20 @@ namespace hpp {
     ///
     struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport
     {
+      CollisionValidationReport () {}
+
+      CollisionValidationReport (
+          CollisionObjectConstPtr_t o1, CollisionObjectConstPtr_t o2,
+          const fcl::CollisionResult& r) : object1 (o1), object2 (o2), result(r)
+      {}
+
+      CollisionValidationReport (const CollisionPair_t& pair,
+          const fcl::CollisionResult& r) :
+        object1 (pair.first),
+        object2 (pair.second),
+        result(r)
+      {}
+
       /// First object in collision
       CollisionObjectConstPtr_t object1;
       std::string objectName1;
@@ -55,6 +69,17 @@ namespace hpp {
     ///
     struct HPP_CORE_DLLAPI AllCollisionsValidationReport : public CollisionValidationReport
     {
+      AllCollisionsValidationReport() {}
+
+      AllCollisionsValidationReport (
+          CollisionObjectConstPtr_t o1, CollisionObjectConstPtr_t o2,
+          const fcl::CollisionResult& r) : CollisionValidationReport (o1, o2, r)
+      {}
+
+      AllCollisionsValidationReport (const CollisionPair_t& pair,
+          const fcl::CollisionResult& r) : CollisionValidationReport (pair, r)
+      {}
+
       std::vector<CollisionValidationReportPtr_t> collisionReports;
       virtual std::ostream& print (std::ostream& os) const
       {
@@ -64,7 +89,7 @@ namespace hpp {
         }
         return os << decindent;
       }
-    }; // class AllCollisionValidationReport
+    }; // class AllCollisionsValidationReport
     /// \}
   } // namespace core
 } // namespace hpp
