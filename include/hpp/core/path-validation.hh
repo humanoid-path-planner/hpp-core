@@ -48,27 +48,6 @@ namespace hpp {
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report) = 0;
 
-      /// Add an obstacle
-      /// \param object obstacle added
-      /// \note collision path validation need to know about obstacles. This
-      /// virtual method does nothing for path validation methods that do not
-      /// care about obstacles.
-      virtual void addObstacle (const CollisionObjectConstPtr_t&)
-      {
-      }
-      /// Remove a collision pair between a joint and an obstacle
-      /// \param the joint that holds the inner objects,
-      /// \param the obstacle to remove.
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void removeObstacleFromJoint (const JointPtr_t&,
-					    const CollisionObjectConstPtr_t&)
-      {
-      }
-
-      virtual void filterCollisionPairs (const RelativeMotion::matrix_type&) {}
-
       virtual ~PathValidation () {};
 
     protected:
