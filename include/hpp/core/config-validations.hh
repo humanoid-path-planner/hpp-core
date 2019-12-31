@@ -31,7 +31,7 @@ namespace hpp {
     ///
     class HPP_CORE_DLLAPI ConfigValidations :
       public ConfigValidation,
-      public ObstacleUserInterface
+      public ObstacleUserVector<ConfigValidationPtr_t>
     {
     public:
       static ConfigValidationsPtr_t create ();
@@ -48,22 +48,6 @@ namespace hpp {
       /// Add a configuration validation object
       void add (const ConfigValidationPtr_t& configValidation);
 
-      /// Add an obstacle
-      /// \param object obstacle added
-      /// Store obstacle and build a collision pair with each body of the robot.
-      virtual void addObstacle (const CollisionObjectConstPtr_t &object);
-
-      /// Remove a collision pair between a joint and an obstacle
-      /// \param the joint that holds the inner objects,
-      /// \param the obstacle to remove.
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void removeObstacleFromJoint
-	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
-
-      void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
-
       /// Return the number of config validations
       size_type numberConfigValidations() const;
 
@@ -72,8 +56,6 @@ namespace hpp {
 
     protected:
       ConfigValidations ();
-    private:
-      std::vector <ConfigValidationPtr_t> validations_;
     }; // class ConfigValidation
     /// \}
   } // namespace core
