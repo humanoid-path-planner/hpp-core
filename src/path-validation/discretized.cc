@@ -35,18 +35,6 @@ namespace hpp {
       return DiscretizedPtr_t (ptr);
     }
 
-    void Discretized::add
-    (const ConfigValidationPtr_t& configValidation)
-    {
-      configValidations_->add (configValidation);
-    }
-
-    void Discretized::addObstacle
-    (const CollisionObjectConstPtr_t& object)
-    {
-      configValidations_->addObstacle (object);
-    }
-
     bool Discretized::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
@@ -64,7 +52,7 @@ namespace hpp {
         Configuration_t q (path->outputSize());
 	while (finished < 2 && valid) {
           bool success = (*path) (q, t);
-      if (!success || !configValidations_->validate (q, configReport)) {
+      if (!success || !ConfigValidations::validate (q, configReport)) {
 	validationReport = CollisionPathValidationReportPtr_t
 	  (new CollisionPathValidationReport (t, configReport));
 	    valid = false;
@@ -94,7 +82,7 @@ namespace hpp {
         Configuration_t q (path->outputSize());
 	while (finished < 2 && valid) {
 	  bool success = (*path) (q, t);
-      if (!success || !configValidations_->validate (q, configReport)) {
+      if (!success || !ConfigValidations::validate (q, configReport)) {
 	validationReport = CollisionPathValidationReportPtr_t
 	  (new CollisionPathValidationReport (t, configReport));
 	    valid = false;
@@ -118,21 +106,8 @@ namespace hpp {
       }
     }
 
-    void Discretized::removeObstacleFromJoint
-    (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
-    {
-      configValidations_->removeObstacleFromJoint (joint, obstacle);
-    }
-
-    void Discretized::filterCollisionPairs (
-        const RelativeMotion::matrix_type& matrix)
-    {
-      configValidations_->filterCollisionPairs (matrix);
-    }
-
     Discretized::Discretized (const value_type& stepSize) :
-      stepSize_ (stepSize),
-      configValidations_ (ConfigValidations::create ())
+      stepSize_ (stepSize)
     {
     }
 

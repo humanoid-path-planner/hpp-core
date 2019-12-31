@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_PATH_VALIDATION_DISCRETIZED_HH
 # define HPP_CORE_PATH_VALIDATION_DISCRETIZED_HH
 
+# include <hpp/core/config-validations.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {
@@ -31,7 +32,9 @@ namespace hpp {
     ///
     /// Apply some configuration validation algorithms at discretized values
     /// of the path parameter.
-    class HPP_CORE_DLLAPI Discretized : public PathValidation
+    class HPP_CORE_DLLAPI Discretized :
+      public PathValidation,
+      public ConfigValidations
     {
     public:
       static DiscretizedPtr_t create (const value_type& stepSize);
@@ -49,32 +52,11 @@ namespace hpp {
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
 
-      /// Add a configuration validation object
-      virtual void add (const ConfigValidationPtr_t& configValidation);
-
-      /// Add an obstacle
-      /// \param object obstacle added
-      virtual void addObstacle (const CollisionObjectConstPtr_t&);
-
-      /// Remove a collision pair between a joint and an obstacle
-      /// \param joint the joint that holds the inner objects,
-      /// \param obstacle the obstacle to remove.
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void removeObstacleFromJoint (const JointPtr_t& joint,
-          const CollisionObjectConstPtr_t& obstacle);
-
-      virtual void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
-
       virtual ~Discretized () {};
     protected:
       Discretized (const value_type& stepSize);
 
       value_type stepSize_;
-
-    private:
-      ConfigValidationsPtr_t configValidations_;
     }; // class Discretized
     /// \}
     } // namespace pathValidation
