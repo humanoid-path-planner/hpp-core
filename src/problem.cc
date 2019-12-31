@@ -182,9 +182,9 @@ namespace hpp {
       // Add object in local list
       collisionObstacles_.push_back (object);
       // Add obstacle to path validation method
-      if (pathValidation_) {
-	pathValidation_->addObstacle (object);
-      }
+      boost::shared_ptr<ObstacleUserInterface> oui =
+        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
+      if (oui) oui->addObstacle (object);
       if (configValidations_) {
 	configValidations_->addObstacle (object);
       }
@@ -195,9 +195,9 @@ namespace hpp {
     void Problem::removeObstacleFromJoint (const JointPtr_t& joint,
 					   const CollisionObjectConstPtr_t& obstacle)
     {
-      if (pathValidation_) {
-	pathValidation_->removeObstacleFromJoint (joint, obstacle);
-      }
+      boost::shared_ptr<ObstacleUserInterface> oui =
+        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
+      if (oui) oui->addObstacle (obstacle);
       if (configValidations_) {
 	configValidations_->removeObstacleFromJoint (joint, obstacle);
       }
@@ -210,9 +210,9 @@ namespace hpp {
       RelativeMotion::fromConstraint (matrix, robot_, constraints_);
       hppDout (info, "RelativeMotion matrix:\n" << matrix);
 
-      if (pathValidation_) {
-	pathValidation_->filterCollisionPairs (matrix);
-      }
+      boost::shared_ptr<ObstacleUserInterface> oui =
+        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
+      if (oui) oui->filterCollisionPairs (matrix);
       if (configValidations_) {
 	configValidations_->filterCollisionPairs (matrix);
       }
@@ -224,9 +224,12 @@ namespace hpp {
     {
       pathValidation_ = pathValidation;
       // Insert obstacles in path validation object
-      for (ObjectStdVector_t::const_iterator it =  collisionObstacles_.begin ();
-	   it != collisionObstacles_.end (); ++it) {
-	pathValidation_->addObstacle (*it);
+      boost::shared_ptr<ObstacleUserInterface> oui =
+        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
+      if (oui) {
+        for (ObjectStdVector_t::const_iterator it =  collisionObstacles_.begin ();
+            it != collisionObstacles_.end (); ++it)
+          oui->addObstacle (*it);
       }
     }
 
