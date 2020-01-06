@@ -109,7 +109,7 @@ namespace hpp {
         static bool collide (const CollisionPairs_t& pairs,
             const CollisionRequests_t& reqs,
             fcl::CollisionResult& res,
-            std::size_t i,
+            std::size_t& i,
             pinocchio::DeviceData& data);
 
         // Get pairs checked for collision

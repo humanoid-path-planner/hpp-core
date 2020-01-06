@@ -30,7 +30,7 @@ namespace hpp {
     bool ObstacleUser::collide (const CollisionPairs_t& pairs,
         const CollisionRequests_t& reqs,
         fcl::CollisionResult& res,
-        std::size_t i,
+        std::size_t& i,
         pinocchio::DeviceData& data)
     {
       for (i = 0; i < pairs.size(); ++i) {
