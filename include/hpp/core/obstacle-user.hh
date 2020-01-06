@@ -136,6 +136,13 @@ namespace hpp {
           return cRequests_;
         }
 
+        fcl::CollisionRequest& defaultRequest()
+        {
+          return defaultRequest_;
+        }
+
+        void setRequests (const fcl::CollisionRequest& r);
+
         /// Add an obstacle
         /// \param object obstacle added
         virtual void addObstacle (const CollisionObjectConstPtr_t& object);
@@ -183,11 +190,6 @@ namespace hpp {
         {}
 
         void addRobotCollisionPairs ();
-
-        void defaultRequest(const fcl::CollisionRequest& request)
-        {
-          defaultRequest_ = request;
-        }
 
         DevicePtr_t robot_;
         fcl::CollisionRequest defaultRequest_;

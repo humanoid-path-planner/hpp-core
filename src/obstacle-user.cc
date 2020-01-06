@@ -173,5 +173,12 @@ namespace hpp {
           cRequests_.push_back (defaultRequest_);
         }
     }
+
+    void ObstacleUser::setRequests (const fcl::CollisionRequest& r)
+    {
+      for (std::size_t i = 0; i < cRequests_.size(); ++i) cRequests_[i] = r;
+      for (std::size_t i = 0; i < pRequests_.size(); ++i) pRequests_[i] = r;
+      for (std::size_t i = 0; i < dRequests_.size(); ++i) dRequests_[i] = r;
+    }
   } // namespace core
 } // namespace hpp

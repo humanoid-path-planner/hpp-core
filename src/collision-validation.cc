@@ -95,7 +95,7 @@ namespace hpp {
       checkParameterized_(false),
       computeAllContacts_(false)
     {
-      defaultRequest(fcl::CollisionRequest(fcl::NO_REQUEST,1));
+      defaultRequest() = fcl::CollisionRequest(fcl::NO_REQUEST,1);
       addRobotCollisionPairs();
     }
 
