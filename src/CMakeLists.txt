@@ -45,6 +45,7 @@ distance-between-objects.cc
 extracted-path.hh
 interpolated-path.cc
 joint-bound-validation.cc
+obstacle-user.cc
 path-validations.cc
 path-validation/discretized.cc
 path-validation/discretized-collision-checking.cc

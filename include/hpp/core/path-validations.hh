@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_PATH_VALIDATIONS_HH
 # define HPP_CORE_PATH_VALIDATIONS_HH
 
+# include <hpp/core/obstacle-user.hh>
 # include <hpp/core/path-validation.hh>
 
 namespace hpp {
@@ -29,11 +30,12 @@ namespace hpp {
     /// Validation of a path with multiple path validation methods
     ///
     /// Apply several path validation methods to the path parameter
-    class HPP_CORE_DLLAPI PathValidations : public PathValidation
+    class HPP_CORE_DLLAPI PathValidations :
+      public PathValidation,
+      public ObstacleUserVector<PathValidationPtr_t>
     {
     public:
-      static PathValidationsPtr_t
-	create ();
+      static PathValidationsPtr_t create ();
 
       /// Compute the largest valid interval starting from the path beginning
       ///
@@ -51,28 +53,9 @@ namespace hpp {
       /// Add a path validation object
       virtual void addPathValidation (const PathValidationPtr_t& pathValidation);
 
-      /// Add an obstacle
-      /// \param object obstacle added
-      virtual void addObstacle (const CollisionObjectConstPtr_t&);
-
-      /// Remove a collision pair between a joint and an obstacle
-      /// \param joint the joint that holds the inner objects,
-      /// \param obstacle the obstacle to remove.
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void removeObstacleFromJoint (const JointPtr_t& joint,
-          const CollisionObjectConstPtr_t& obstacle);
-
-      virtual void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
-
       virtual ~PathValidations () {};
     protected:
       PathValidations ();
-
-    private:
-      std::vector <PathValidationPtr_t> validations_;
-
     }; // class PathValidations
     /// \}
   } // namespace core

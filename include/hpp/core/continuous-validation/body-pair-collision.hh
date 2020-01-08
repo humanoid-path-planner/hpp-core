@@ -114,10 +114,7 @@ namespace hpp {
                             CollisionPair_t _pair) const
         {
           report = CollisionValidationReportPtr_t
-            (new CollisionValidationReport);
-          report->object1 = _pair.first ;
-          report->object2 = _pair.second;
-          report->result = result;
+            (new CollisionValidationReport (_pair, result));
         }
 
       private:

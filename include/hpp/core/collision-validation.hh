@@ -21,6 +21,7 @@
 
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/config-validation.hh>
+# include <hpp/core/obstacle-user.hh>
 # include <hpp/fcl/collision_data.h>
 
 namespace hpp {
@@ -30,7 +31,9 @@ namespace hpp {
 
     /// Validate a configuration with respect to collision
     ///
-    class HPP_CORE_DLLAPI CollisionValidation : public ConfigValidation
+    class HPP_CORE_DLLAPI CollisionValidation :
+      public ConfigValidation,
+      public ObstacleUser
     {
     public:
       static CollisionValidationPtr_t create (const DevicePtr_t& robot);
@@ -44,30 +47,6 @@ namespace hpp {
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
 			     ValidationReportPtr_t& validationReport);
-
-      /// Add an obstacle
-      /// \param object obstacle added
-      /// Store obstacle and build a collision pair with each body of the robot.
-      virtual void addObstacle (const CollisionObjectConstPtr_t& object);
-
-      /// Add an obstacle to a specific joint
-      /// \param object obstacle added
-      /// \param joint concerned with obstacle addition
-      /// \param includeChildren whether to add obstacle to joint children
-      /// Store obstacle and build a collision pair with each body of the robot.
-      virtual void addObstacleToJoint (const CollisionObjectConstPtr_t& object,
-                                       const JointPtr_t& joint, const bool includeChildren);
-
-      /// Remove a collision pair between a joint and an obstacle
-      /// \param the joint that holds the inner objects,
-      /// \param the obstacle to remove.
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void removeObstacleFromJoint
-	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
-
-      void filterCollisionPairs (const RelativeMotion::matrix_type& matrix);
 
       void checkParameterized (bool active)
       {
@@ -83,20 +62,12 @@ namespace hpp {
       {
         return checkParameterized_;
       }
-    public:
-      /// fcl low level request object used for collision checking.
-      /// modify this attribute to obtain more detailed validation
-      /// reports in a call to validate.
-      fcl::CollisionRequest collisionRequest_;
+
     protected:
       CollisionValidation (const DevicePtr_t& robot);
       DevicePtr_t robot_;
-      CollisionPairs_t collisionPairs_,
-                       parameterizedPairs_,
-                       disabledPairs_;
+
     private:
-
-
       bool checkParameterized_;
       bool computeAllContacts_;
 

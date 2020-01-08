@@ -46,31 +46,6 @@ namespace hpp {
       validations_.push_back (configValidation);
     }
 
-    void ConfigValidations::addObstacle (const CollisionObjectConstPtr_t& object)
-    {
-      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->addObstacle (object);
-      }
-    }
-
-    void ConfigValidations::removeObstacleFromJoint
-    (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
-    {
-      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->removeObstacleFromJoint (joint, obstacle);
-      }
-    }
-
-    void ConfigValidations::filterCollisionPairs (const RelativeMotion::matrix_type& matrix)
-    {
-      for (std::vector <ConfigValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->filterCollisionPairs (matrix);
-      }
-    }
-
     size_type ConfigValidations::numberConfigValidations () const
     {
       return (size_type) validations_.size ();
@@ -81,7 +56,7 @@ namespace hpp {
       validations_.clear ();
     }
 
-    ConfigValidations::ConfigValidations () : validations_ ()
+    ConfigValidations::ConfigValidations ()
     {
     }
 

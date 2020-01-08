@@ -81,7 +81,7 @@ namespace hpp {
         computeSigmasAlgo (LG2(), sigmas.tail(LG2::NV), upper.tail(LG2::NQ), lower.tail(LG2::NQ));
       }
 
-      struct ComputeSigmasStep : public ::pinocchio::fusion::JointVisitorBase<ComputeSigmasStep>
+      struct ComputeSigmasStep : public ::pinocchio::fusion::JointUnaryVisitorBase<ComputeSigmasStep>
       {
         typedef boost::fusion::vector<const pinocchio::Model&, vector_t&> ArgsType;
 

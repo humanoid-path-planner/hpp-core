@@ -22,6 +22,7 @@
 # include <hpp/pinocchio/pool.hh>
 
 # include <hpp/core/fwd.hh>
+# include <hpp/core/obstacle-user.hh>
 # include <hpp/core/path-validation.hh>
 # include <hpp/core/path-validation-report.hh>
 # include <hpp/core/continuous-validation/interval-validation.hh>
@@ -60,7 +61,9 @@ namespace hpp {
       ///
       /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details on the architecture of the code.
-    class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation
+    class HPP_CORE_DLLAPI ContinuousValidation :
+      public PathValidation,
+      public ObstacleUserInterface
     {
     public:
       /// Compute the largest valid interval starting from the path beginning

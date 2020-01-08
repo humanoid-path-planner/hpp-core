@@ -44,36 +44,6 @@ namespace hpp {
       /// \return whether the whole config is valid.
       virtual bool validate (const Configuration_t& config,
 			     ValidationReportPtr_t& validationReport) = 0;
-      /// Add an obstacle
-      /// \param object obstacle added
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void addObstacle (const CollisionObjectConstPtr_t&)
-      {
-      }
-
-      /// Remove a collision pair between a joint and an obstacle
-      /// \param the joint that holds the inner objects,
-      /// \param the obstacle to remove.
-      /// \note collision configuration validation needs to know about
-      /// obstacles. This virtual method does nothing for configuration
-      /// validation methods that do not care about obstacles.
-      virtual void removeObstacleFromJoint(const JointPtr_t&,
-					   const CollisionObjectConstPtr_t&)
-      {
-      }
-
-      /// \brief Filter collision pairs.
-      /// Remove pairs of object that cannot be in collision
-      /// when these constraints are statisfied.
-      /// This effectively disables collision detection between objects that
-      /// have no possible relative motion due to the constraints.
-      /// \todo Before disabling collision pair, check if there is a collision.
-      ///
-      /// \param square symmetric matrix of RelativeMotionType of size numberDof x numberDof
-      virtual void filterCollisionPairs (const RelativeMotion::matrix_type&)
-      {}
 
       virtual ~ConfigValidation () {};
 

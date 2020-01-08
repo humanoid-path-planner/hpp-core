@@ -38,14 +38,6 @@ namespace hpp {
       validations_.push_back (pathValidation);
     }
 
-    void PathValidations::addObstacle (const CollisionObjectConstPtr_t& object)
-    {
-      for (std::vector <PathValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->addObstacle (object);
-      }
-    }
-
     bool PathValidations::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
@@ -75,25 +67,7 @@ namespace hpp {
       return result;
     }
 
-    void PathValidations::removeObstacleFromJoint
-    (const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle)
-    {
-      for (std::vector <PathValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->removeObstacleFromJoint (joint, obstacle);
-      }
-    }
-
-    void PathValidations::filterCollisionPairs (
-        const RelativeMotion::matrix_type& matrix)
-    {
-      for (std::vector <PathValidationPtr_t>::iterator itVal =
-	     validations_.begin (); itVal != validations_.end (); ++itVal) {
-	(*itVal)->filterCollisionPairs (matrix);
-      }
-    }
-
-    PathValidations::PathValidations () : validations_ ()
+    PathValidations::PathValidations ()
     {
     }
   } // namespace core

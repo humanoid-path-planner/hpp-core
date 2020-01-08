@@ -38,7 +38,7 @@
 namespace hpp {
   namespace core {
     namespace {
-      struct ComputeWeightStep : public ::pinocchio::fusion::JointVisitorBase<ComputeWeightStep>
+      struct ComputeWeightStep : public ::pinocchio::fusion::JointUnaryVisitorBase<ComputeWeightStep>
       {
         typedef boost::fusion::vector<const pinocchio::Model &,
                                       const pinocchio::Data &,
@@ -139,7 +139,7 @@ namespace hpp {
         return m.norm();
       }
 
-      struct SquaredDistanceStep : public ::pinocchio::fusion::JointVisitorBase<SquaredDistanceStep>
+      struct SquaredDistanceStep : public ::pinocchio::fusion::JointUnaryVisitorBase<SquaredDistanceStep>
       {
         typedef boost::fusion::vector<ConfigurationIn_t,
                 ConfigurationIn_t,
