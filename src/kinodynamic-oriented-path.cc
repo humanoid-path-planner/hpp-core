@@ -77,14 +77,14 @@ namespace hpp {
     KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicPath& path,bool ignoreZValue) :
       parent_t (path),ignoreZValue_(ignoreZValue)
     {
-      orienteInitAndGoal(path.device());
+      orienteInitAndGoal(device());
     }
 
     KinodynamicOrientedPath::KinodynamicOrientedPath (const KinodynamicOrientedPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints),ignoreZValue_(path.ignoreZValue())
     {
-      orienteInitAndGoal(path.device());
+      orienteInitAndGoal(device());
     }
 
     bool KinodynamicOrientedPath::impl_compute (ConfigurationOut_t result,

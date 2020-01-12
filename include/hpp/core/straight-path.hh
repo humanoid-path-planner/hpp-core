@@ -19,6 +19,8 @@
 #ifndef HPP_CORE_STRAIGHT_PATH_HH
 # define HPP_CORE_STRAIGHT_PATH_HH
 
+# include <hpp/pinocchio/liegroup-element.hh>
+
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/path.hh>
@@ -43,6 +45,40 @@ namespace hpp {
       typedef Path parent_t;
       /// Destructor
       virtual ~StraightPath () throw () {}
+
+      /// Create instance and return shared pointer
+      /// \param init, end Start and end configurations of the path,
+      /// \param length Distance between the configurations,
+      /// \param constraints the path is subject to.
+      static StraightPathPtr_t create (LiegroupSpacePtr_t space,
+                                       vectorIn_t init,
+				       vectorIn_t end,
+				       interval_t interval,
+                                       ConstraintSetPtr_t constraints = ConstraintSetPtr_t())
+      {
+	StraightPath* ptr;
+        if (constraints)
+          ptr = new StraightPath (space, init, end, interval, constraints);
+        else
+          ptr = new StraightPath (space, init, end, interval);
+	StraightPathPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+        ptr->checkPath ();
+        return shPtr;
+      }
+
+      /// Create instance and return shared pointer
+      /// \param init, end Start and end configurations of the path
+      /// \param length Distance between the configurations.
+      /// \param constraints the path is subject to.
+      static StraightPathPtr_t create (LiegroupElementConstRef init,
+				       LiegroupElementConstRef end,
+				       interval_t interval,
+                                       ConstraintSetPtr_t constraints = ConstraintSetPtr_t())
+      {
+        assert (init.space() == end.space());
+	return create (init.space(), init.vector(), end.vector(), interval, constraints);
+      }
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
@@ -162,7 +198,7 @@ namespace hpp {
       }
       
       /// Return the internal robot.
-      DevicePtr_t device () const;
+      DevicePtr_t device () const HPP_CORE_DEPRECATED;
 
       /// Get the initial configuration
       Configuration_t initial () const
@@ -188,8 +224,12 @@ namespace hpp {
       }
 
       /// Constructor
-      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, value_type length);
+      StraightPath (LiegroupSpacePtr_t space, vectorIn_t init, vectorIn_t end,
+          interval_t interval);
+
+      /// Constructor
+      StraightPath (LiegroupSpacePtr_t space, vectorIn_t init, vectorIn_t end,
+          interval_t interval, ConstraintSetPtr_t constraints);
 
       /// Constructor
       StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
@@ -236,6 +276,7 @@ namespace hpp {
 
     protected:
       DevicePtr_t device_;
+      LiegroupSpacePtr_t space_;
       Configuration_t initial_;
       Configuration_t end_;
     private:

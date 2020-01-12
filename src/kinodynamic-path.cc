@@ -29,7 +29,8 @@ namespace hpp {
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
                                       value_type length, ConfigurationIn_t a1,ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
-      parent_t (device,init,end,length),
+      parent_t (device,init,end,interval_t(0,length)),
+      device_ (device),
       a1_(a1),t0_(t0),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
       assert (device);
@@ -58,7 +59,8 @@ namespace hpp {
                                       ConfigurationIn_t end,
                                       value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
                                       ConstraintSetPtr_t constraints) :
-      parent_t (device,init,end,length,constraints),
+      parent_t (device,init,end,interval_t(0,length),constraints),
+      device_ (device),
       a1_(a1),t0_(t0),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
       assert (device);
@@ -101,13 +103,15 @@ namespace hpp {
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path) :
-      parent_t (path),a1_(path.a1_),t0_(path.t0_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
+      parent_t (path),device_(path.device_),
+      a1_(path.a1_),t0_(path.t0_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
     {
     }
     
     KinodynamicPath::KinodynamicPath (const KinodynamicPath& path,
                                       const ConstraintSetPtr_t& constraints) :
       parent_t (path, constraints),
+      device_ (path.device_),
       a1_(path.a1_),t0_(path.t0_),t1_(path.t1_),tv_(path.tv_),t2_(path.t2_),vLim_(path.vLim_)
     {
       assert (constraints->apply (initial_));
