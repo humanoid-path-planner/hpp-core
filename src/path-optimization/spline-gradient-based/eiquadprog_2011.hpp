@@ -137,7 +137,7 @@ namespace Eigen {
     void delete_constraint(MatrixXd& R, MatrixXd& J, VectorXi& A, VectorXd& u,  int p, int& iq, int l);
 
     /* solve_quadprog2 is used when the Cholesky decomposition of the G matrix is precomputed */
-    double solve_quadprog2(LLT<MatrixXd,Lower> &chol,  double c1, VectorXd & g0,
+    double solve_quadprog2(const LLT<MatrixXd,Lower> &chol,  double c1, const VectorXd & g0,
                            const MatrixXd & CE, const VectorXd & ce0,
                            const MatrixXd & CI, const VectorXd & ci0,
                            VectorXd& x, VectorXi& A, int& q, QuadProgStatus& status);
@@ -166,7 +166,7 @@ namespace Eigen {
      * @param A Output vector containing the indexes of the active constraints.
      * @param q Output value representing the size of the active set.
      */
-    inline double solve_quadprog2(LLT<MatrixXd,Lower> &chol,  double c1, VectorXd & g0,
+    inline double solve_quadprog2(const LLT<MatrixXd,Lower> &chol,  double c1, const VectorXd & g0,
                                   const MatrixXd & CE, const VectorXd & ce0,
                                   const MatrixXd & CI, const VectorXd & ci0,
                                   VectorXd& x, VectorXi& A, int& q,
