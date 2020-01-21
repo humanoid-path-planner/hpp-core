@@ -455,6 +455,9 @@ namespace hpp {
 #endif // NDEBUG
 
         QuadraticProgram QPc (QP, constraint);
+        if (QPc.H.rows() == 0)
+          // There are no variables left for optimization.
+          return this->buildPathVector (splines);
         QPc.computeLLT();
         QPc.solve(collisionReduced, boundConstraintReduced);
 

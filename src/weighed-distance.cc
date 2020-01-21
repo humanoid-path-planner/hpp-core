@@ -257,6 +257,13 @@ namespace hpp {
 
     void WeighedDistance::computeWeights ()
     {
+      // TODO this test is necessary because of
+      // https://github.com/stack-of-tasks/pinocchio/issues/1011
+      // It can be removed when the issue is solved.
+      if (robot_->configSize() == 0) {
+        weights_.resize (0);
+        return;
+      }
       // Store computation flag
       pinocchio::Computation_t flag = robot_->computationFlag ();
       pinocchio::Computation_t newflag = static_cast <pinocchio::Computation_t>
@@ -324,7 +331,7 @@ namespace hpp {
       value_type res = 0, d = std::numeric_limits <value_type>::infinity ();
 
       const pinocchio::Model& model = robot_->model();
-      assert (model.joints.size() <= weights_.size () + 1);
+      assert ((size_type)model.joints.size() <= weights_.size () + 1);
       // Configuration_t qq1 (q1), qq2 (q2);
       // Loop over robot joint
       for( pinocchio::JointIndex i=1; i<(pinocchio::JointIndex) model.njoints; ++i )

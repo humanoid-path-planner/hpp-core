@@ -938,7 +938,7 @@ namespace hpp {
         //data.collision_results(model.collisionPairs.size())
         //data.radius()
         data.collisionObjects.push_back (fcl::CollisionObject(
-              model.geometryObjects[id].fcl));
+              model.geometryObjects[id].geometry));
         data.oMg[id] =  model.geometryObjects[id].placement;
         data.collisionObjects[id].setTransform( ::pinocchio::toFclTransform3f(data.oMg[id]) );
       }
@@ -992,13 +992,13 @@ namespace hpp {
         removeObstacle(name);
         return;
       }
-      fcl::CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].fcl;
+      fcl::CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].geometry;
       fcl::CollisionGeometryPtr_t newgeom (extract(fclgeom.get(), fclobj.getTransform(), aabb));
       if (!newgeom) {
         // No intersection. Geom should be removed.
         removeObstacle(name);
       } else {
-        obstacleModel_->geometryObjects[id].fcl = newgeom;
+        obstacleModel_->geometryObjects[id].geometry = newgeom;
         obstacleData_->collisionObjects[id] =
           fcl::CollisionObject(newgeom, ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]));
       }

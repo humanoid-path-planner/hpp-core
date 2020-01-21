@@ -195,8 +195,14 @@ namespace hpp {
         return d >= 0.0 ? 1.0 : -1.0;
       }
 
+      const DevicePtr_t& device () const
+      {
+        return device_;
+      }
+
     private:
       KinodynamicPathWkPtr_t weak_;
+      DevicePtr_t device_;
       vector_t a1_;
       vector_t t0_,t1_,tv_,t2_,vLim_;
     }; // class KinodynamicPath

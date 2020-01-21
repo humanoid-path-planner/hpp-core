@@ -150,6 +150,7 @@ namespace hpp {
     typedef constraints::matrixOut_t matrixOut_t;
     typedef constraints::LiegroupElement LiegroupElement;
     typedef constraints::LiegroupElementRef LiegroupElementRef;
+    typedef pinocchio::LiegroupElementConstRef LiegroupElementConstRef;
     typedef constraints::LiegroupSpace LiegroupSpace;
     typedef constraints::LiegroupSpacePtr_t LiegroupSpacePtr_t;
     typedef pinocchio::size_type size_type;

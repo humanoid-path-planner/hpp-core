@@ -54,7 +54,7 @@ namespace hpp {
     {
       distanceResults_.resize (collisionPairs_.size());
       std::size_t rank = 0;
-      fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
+      fcl::DistanceRequest distanceRequest (true, 0, 0);
       for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin ();
 	   itCol != collisionPairs_.end (); ++itCol) {
     const CollisionObjectConstPtr_t& obj1 = itCol->first;
