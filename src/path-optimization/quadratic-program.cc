@@ -57,6 +57,8 @@ namespace hpp {
 
       double QuadraticProgram::solve(const LinearConstraint& ce, const LinearConstraint& ci)
       {
+        if (ce.J.rows() > ce.J.cols())
+          throw std::runtime_error ("The QP is over-constrained. QuadProg cannot handle it.");
         HPP_SCOPE_TIMECOUNTER(QuadraticProgram_solve_quadprog);
         // min   0.5 * x G x + g0 x
         // s.t.  CE^T x + ce0 = 0

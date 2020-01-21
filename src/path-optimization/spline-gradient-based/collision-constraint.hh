@@ -101,6 +101,7 @@ namespace hpp {
           // Backtrack collision in previous path (x0) to create constraint
           value_type tFree = tColl * freeSpline->length () /
             collSpline->length();
+          tFree = std::min(tFree, freeSpline->length()); // can be slightly above freeSpline length due to round-offs
 
           qFree_ = (*freeSpline) (tFree, success);
           assert(success);
