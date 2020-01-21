@@ -92,19 +92,27 @@ namespace hpp {
       bool contains (const constraints::ImplicitPtr_t& numericalConstraint)
         const;
 
-      /// Add a numerical constraint
-      /// \param numericalConstraint The numerical constraint.
+      /// \copydoc ConfigProjector::add(const constraints::ImplicitPtr_t&, const std::size_t)
       /// \param passiveDofs column indices of the jacobian vector that will be
       ///        set to zero when solving.
-      /// \param priority priority of the function. The last level might be
-      ///        optional.
-      /// \return false if numerical constraint had already been inserted.
-      ///
-      /// \note The intervals are interpreted as a list of couple
-      /// (index_start, length) and NOT as (index_start, index_end).
       bool add (const constraints::ImplicitPtr_t& numericalConstraint,
 		const segments_t& passiveDofs = segments_t (0),
 		const std::size_t priority = 0);
+
+      /// Add a numerical constraint
+      ///
+      /// \note The intervals are interpreted as a list of couple
+      /// (index_start, length) and NOT as (index_start, index_end).
+      ///
+      /// \param numericalConstraint The numerical constraint.
+      /// \param priority priority of the function. The last level might be
+      ///        optional.
+      /// \return false if numerical constraint had already been inserted.
+      bool add (const constraints::ImplicitPtr_t& numericalConstraint,
+		const std::size_t priority)
+      {
+        return add (numericalConstraint, segments_t(0), priority);
+      }
 
       void lastIsOptional (bool optional);
 
