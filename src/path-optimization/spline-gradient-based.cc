@@ -375,6 +375,7 @@ namespace hpp {
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum").boolValue();
         value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold").floatValue();
 
+        if (path->length() == 0) return path;
         PathVectorPtr_t input = Base::cleanInput (path);
         size_type maxIterations = problem().getParameter
           ("SplineGradientBased/maxIterations").intValue();
