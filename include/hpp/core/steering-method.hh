@@ -41,15 +41,19 @@ namespace hpp {
       /// create a path between two configurations
       /// \return a Path from q1 to q2 if found. An empty
       /// Path if Path could not be built.
+      /// \note if q1 == q2, the steering method should not return an empty
+      ///       shared pointer.
       PathPtr_t operator() (ConfigurationIn_t q1,
 			    ConfigurationIn_t q2) const
       {
+        PathPtr_t path;
         try {
-          return impl_compute (q1, q2);
+          path = impl_compute (q1, q2);
         } catch (const projection_error& e) {
           hppDout (info, "Could not build path: " << e.what());
         }
-	return PathPtr_t ();
+        assert (q1 != q2 || path);
+	return path;
       }
 
       /// \copydoc SteeringMethod::operator()(ConfigurationIn_t,ConfigurationIn_t)
