@@ -35,6 +35,10 @@ namespace hpp {
     {
       for (i = 0; i < pairs.size(); ++i) {
         res.clear();
+        assert(!pairs[i].first ->fcl (data)->getTranslation().hasNaN());
+        assert(!pairs[i].first ->fcl (data)->getRotation().hasNaN());
+        assert(!pairs[i].second->fcl (data)->getTranslation().hasNaN());
+        assert(!pairs[i].second->fcl (data)->getRotation().hasNaN());
         if (fcl::collide (
               pairs[i].first ->fcl (data),
               pairs[i].second->fcl (data),

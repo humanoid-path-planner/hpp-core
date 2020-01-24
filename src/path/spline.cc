@@ -313,6 +313,8 @@ namespace hpp {
       template <int _SplineType, int _Order>
       void Spline<_SplineType, _Order>::squaredNormBasisFunctionIntegral (const size_type order, BasisFunctionIntegralMatrix_t& Ic) const
       {
+        assert(std::max(size_type(1), 2*order - 1) < powersOfT_.size());
+
         // TODO: add a cache.
         if (length() == 0) Ic.setZero();
         else {
@@ -325,8 +327,17 @@ namespace hpp {
       template <int _SplineType, int _Order>
       bool Spline<_SplineType, _Order>::impl_compute (ConfigurationOut_t res, value_type s) const
       {
-        const value_type u = (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
-        value (base_, parameters_, u, res, velocity_);
+        if (paramLength() == 0)
+          value (base_, parameters_, 0, res, velocity_);
+        else {
+          assert(s >= paramRange().first - std::numeric_limits<value_type>::epsilon());
+          assert(s <= paramRange().second + std::numeric_limits<value_type>::epsilon());
+          value_type u = (s - paramRange().first) / paramLength();
+          // clamp u between 0 and 1.
+          if      (u < 0.) u = 0.;
+          else if (u > 1.) u = 1.;
+          value (base_, parameters_, u, res, velocity_);
+        }
         return true;
       }
 

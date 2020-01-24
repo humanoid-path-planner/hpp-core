@@ -355,7 +355,7 @@ namespace hpp {
           function->updateConstraint (q);
           functions.linearize(spline, sod, iF, collision);
           // check the rank
-          solved = constraint.reduceConstraint(collision, collisionReduced);
+          solved = constraint.reduceConstraint(collision, collisionReduced, true);
           --i;
         }
         return true;
@@ -375,6 +375,7 @@ namespace hpp {
         bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum").boolValue();
         value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold").floatValue();
 
+        if (path->length() == 0) return path;
         PathVectorPtr_t input = Base::cleanInput (path);
         size_type maxIterations = problem().getParameter
           ("SplineGradientBased/maxIterations").intValue();
@@ -514,6 +515,13 @@ namespace hpp {
             }
           } else {
             if (alpha != 1.) {
+              if (QPc.H.rows() <= collisionReduced.rank) {
+                hppDout (info, "No more constraints can be added."
+                    << QP.H.rows() << " variables for "
+                    << collisionReduced.rank << " independant constraints.");
+                break;
+              }
+
               bool ok = false;
               for (std::size_t i = 0; i < reports.size(); ++i) {
                 addCollisionConstraint(reports[i].second,
@@ -527,6 +535,8 @@ namespace hpp {
                   findNewConstraint (constraint, collision, collisionReduced,
                       collisionFunctions, collisionFunctions.functions.size() - 1,
                       splines[reports[i].second], solvers[reports[i].second]);
+                if (!ok) break;
+                if (QPc.H.rows() <= collisionReduced.rank) break;
               }
 
               if (!ok) {
@@ -541,13 +551,6 @@ namespace hpp {
                 computeInterpolatedSpline = true;
               } else {
                 QPc.solve(collisionReduced, boundConstraintReduced);
-                bool overConstrained = (QPc.H.rows() < collisionReduced.rank);
-                if (overConstrained) {
-                  hppDout (info, "The problem is over constrained: "
-                      << QP.H.rows() << " variables for "
-                      << collisionReduced.rank << " independant constraints.");
-                  break;
-                }
                 hppDout (info, "Added " << reports.size() << " constraints. "
                     "Constraints size " << collision.J.rows() <<
                     "(rank=" << collisionReduced.rank << ", ass=" << QPc.activeSetSize << ") / " << QPc.H.cols());
