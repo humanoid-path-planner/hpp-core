@@ -162,7 +162,6 @@ namespace hpp {
     }
 
     PathPtr_t StraightPath::impl_extract (const interval_t& subInterval) const
-      throw (projection_error)
     {
       // Length is assumed to be proportional to interval range
       value_type l = fabs (subInterval.second - subInterval.first);

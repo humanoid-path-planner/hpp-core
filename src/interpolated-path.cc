@@ -207,7 +207,6 @@ namespace hpp {
     }
 
     PathPtr_t InterpolatedPath::impl_extract (const interval_t& subInterval) const
-        throw (projection_error)
     {
       // Length is assumed to be proportional to interval range
       const bool reverse = (subInterval.first > subInterval.second);

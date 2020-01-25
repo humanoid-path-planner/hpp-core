@@ -138,7 +138,6 @@ namespace hpp {
     }
 
     PathPtr_t PathVector::impl_extract (const interval_t& subInterval) const
-        throw (projection_error)
     {
       assert(!timeParameterization());
       using std::make_pair;

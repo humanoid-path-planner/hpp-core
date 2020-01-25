@@ -253,7 +253,7 @@ namespace hpp {
             return other;
           }
 
-          virtual ~Spline () throw () {}
+          virtual ~Spline () {}
 
           static Ptr_t create (const DevicePtr_t& robot,
               const interval_t& interval,

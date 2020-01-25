@@ -163,7 +163,6 @@ namespace hpp {
     }
 
     PathPtr_t Path::extract (const interval_t& subInterval) const
-        throw (projection_error)
     {
       PathPtr_t res;
       if (timeParam_) {
@@ -215,7 +214,6 @@ namespace hpp {
     }
 
     PathPtr_t Path::impl_extract (const interval_t& paramInterval) const
-        throw (projection_error)
     {
       if (paramInterval == paramRange_)
 	return this->copy ();

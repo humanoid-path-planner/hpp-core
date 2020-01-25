@@ -108,8 +108,7 @@ namespace hpp {
       return true;
     }
 
-    PathPtr_t KinodynamicOrientedPath::impl_extract (const interval_t& subInterval) const
-    throw (projection_error){
+    PathPtr_t KinodynamicOrientedPath::impl_extract (const interval_t& subInterval) const{
       PathPtr_t path = parent_t::impl_extract(subInterval);
       KinodynamicPathPtr_t kinoPath = boost::dynamic_pointer_cast<KinodynamicPath>(path);
       if(kinoPath)

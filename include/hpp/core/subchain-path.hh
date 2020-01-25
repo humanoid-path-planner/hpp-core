@@ -35,7 +35,7 @@ namespace hpp {
     public:
       typedef Path parent_t;
 
-      virtual ~SubchainPath () throw () {}
+      virtual ~SubchainPath () {}
 
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const

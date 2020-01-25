@@ -64,7 +64,7 @@ namespace hpp {
       /// \{
 
       /// Destructor
-      virtual ~Path () throw () {}
+      virtual ~Path () {}
 
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const = 0;
@@ -100,12 +100,10 @@ namespace hpp {
       /// \exception projection_error is thrown when an end configuration of
       ///                             the returned path could not be computed
       ///                             due to projection failure.
-      PathPtr_t extract (const interval_t& subInterval) const
-        throw (projection_error);
+      PathPtr_t extract (const interval_t& subInterval) const;
 
       /// \copydoc Path::extract(const interval_t&) const
       PathPtr_t extract (const value_type& tmin, const value_type& tmax) const
-        throw (projection_error)
       {
         return extract (std::make_pair(tmin, tmax));
       }
@@ -133,7 +131,7 @@ namespace hpp {
       }
 
       bool operator () (ConfigurationOut_t result, const value_type& time)
-       const throw ()
+       const
       {
         value_type s = paramAtTime (time);
 	bool success = impl_compute (result, s);
@@ -147,7 +145,7 @@ namespace hpp {
       }
 
       bool eval (ConfigurationOut_t result, const value_type& time)
-       const throw ()
+       const
       {
         return this->operator() (result, time);
       }
@@ -371,8 +369,7 @@ namespace hpp {
       }
 
       /// Virtual implementation of \ref extract
-      virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
-        throw (projection_error);
+      virtual PathPtr_t impl_extract (const interval_t& paramInterval) const;
 
     private:
       /// Interval of definition

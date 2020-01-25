@@ -353,7 +353,7 @@ namespace hpp {
       }
 
       PathPtr_t ConstantCurvature::impl_extract
-      (const interval_t& paramInterval) const throw (projection_error)
+      (const interval_t& paramInterval) const
       {
         assert (!timeParameterization ());
         assert (timeRange ().second - timeRange ().first >= 0);

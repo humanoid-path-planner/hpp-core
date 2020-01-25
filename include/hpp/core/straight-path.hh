@@ -44,7 +44,7 @@ namespace hpp {
     public:
       typedef Path parent_t;
       /// Destructor
-      virtual ~StraightPath () throw () {}
+      virtual ~StraightPath () {}
 
       /// Create instance and return shared pointer
       /// \param init, end Start and end configurations of the path,
@@ -271,8 +271,7 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       /// If upper bound of subInterval is smaller than lower bound,
       /// result is reversed.
-      PathPtr_t impl_extract (const interval_t& subInterval) const
-        throw (projection_error);
+      PathPtr_t impl_extract (const interval_t& subInterval) const;
 
     protected:
       DevicePtr_t device_;

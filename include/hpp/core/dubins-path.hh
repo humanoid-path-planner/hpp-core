@@ -49,7 +49,7 @@ namespace hpp {
       typedef core::PathVector parent_t;
 
       /// Destructor
-      virtual ~DubinsPath () throw () {}
+      virtual ~DubinsPath () {}
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations

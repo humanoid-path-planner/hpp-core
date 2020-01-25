@@ -47,7 +47,7 @@ namespace hpp {
       typedef Path parent_t;
 
       /// Destructor
-      virtual ~InterpolatedPath () throw () {}
+      virtual ~InterpolatedPath () {}
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
@@ -203,8 +203,7 @@ namespace hpp {
 
       /// Extraction/Reversion of a sub-path
       /// See Path::extract
-      PathPtr_t impl_extract (const interval_t& subInterval) const
-        throw (projection_error);
+      PathPtr_t impl_extract (const interval_t& subInterval) const;
     private:
       DevicePtr_t device_;
       InterpolationPoints_t configs_;

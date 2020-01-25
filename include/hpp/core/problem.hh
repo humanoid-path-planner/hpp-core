@@ -253,7 +253,6 @@ namespace hpp {
       ///
       /// \param name of the parameter.
       const Parameter& getParameter (const std::string& name) const
-        throw (std::invalid_argument)
       {
         if (parameters.has(name))
           return parameters.get(name);
@@ -267,8 +266,7 @@ namespace hpp {
       /// \param value value of the parameter
       /// \throw std::invalid_argument if a parameter exists but has a different
       ///        type.
-      void setParameter (const std::string& name, const Parameter& value)
-        throw (std::invalid_argument);
+      void setParameter (const std::string& name, const Parameter& value);
 
       /// Declare a parameter
       /// In shared library, use the following snippet in your cc file:

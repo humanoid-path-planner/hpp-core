@@ -284,7 +284,6 @@ namespace hpp {
     // ======================================================================
 
     void Problem::setParameter (const std::string& name, const Parameter& value)
-      throw (std::invalid_argument)
     {
       const ParameterDescription& desc = parameterDescription(name);
       if (desc.type() != value.type())

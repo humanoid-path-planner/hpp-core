@@ -28,12 +28,16 @@ namespace hpp {
 
       projection_error (const std::string& msg) : msg_ (msg) {}
 
-      projection_error (const projection_error& other) throw ()
+      projection_error (const projection_error& other)
         : std::exception (other), msg_ (other.msg_) {}
 
-      virtual ~projection_error () throw () {};
+      virtual ~projection_error () {};
 
-      virtual const char* what () const throw () { return msg_.c_str (); };
+#if __cplusplus >= 201103L
+      virtual const char* what () const noexcept { return msg_.c_str (); };
+#else
+      virtual const char* what () const throw() { return msg_.c_str (); };
+#endif
 
       std::string msg_;
     };

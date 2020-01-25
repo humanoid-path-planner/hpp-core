@@ -47,7 +47,7 @@ namespace hpp {
     public:
       typedef StraightPath parent_t;
       /// Destructor
-      virtual ~KinodynamicPath () throw () {}
+      virtual ~KinodynamicPath () {}
       
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
@@ -130,8 +130,7 @@ namespace hpp {
       /// Extraction/Reversion of a sub-path
       /// \param subInterval interval of definition of the extract path
       /// If upper bound of subInterval is smaller than lower bound, return an empty path
-      virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
-        throw (projection_error);
+      virtual PathPtr_t impl_extract (const interval_t& paramInterval) const;
       
       vector_t getT0(){return t0_;}
 

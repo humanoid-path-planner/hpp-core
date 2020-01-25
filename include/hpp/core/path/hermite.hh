@@ -34,7 +34,7 @@ namespace hpp {
         typedef Spline<BernsteinBasis,3> parent_t;
 
         /// Destructor
-        virtual ~Hermite () throw () {}
+        virtual ~Hermite () {}
 
         static HermitePtr_t create (const DevicePtr_t& device,
                                     ConfigurationIn_t init,

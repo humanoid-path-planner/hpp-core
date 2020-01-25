@@ -30,7 +30,7 @@ namespace hpp {
     public:
       typedef Path parent_t;
 
-      virtual ~ExtractedPath () throw () {}
+      virtual ~ExtractedPath () {}
 
       /// Return a shared pointer to a copy of this
       virtual PathPtr_t copy () const
@@ -95,7 +95,6 @@ namespace hpp {
       }
 
       virtual PathPtr_t impl_extract (const interval_t& subInterval) const
-        throw (projection_error)
       {
 	ExtractedPathPtr_t path = createCopy (weak_.lock ());
 	value_type tmin = sInOriginalPath (subInterval.first),

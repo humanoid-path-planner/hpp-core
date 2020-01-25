@@ -80,7 +80,7 @@ namespace hpp {
       }
       
       /// Destructor
-      virtual ~PathVector () throw ()
+      virtual ~PathVector ()
       {
       }
       /// \}
@@ -188,8 +188,7 @@ namespace hpp {
 				    size_type order) const;
       /// Extraction of a sub-path
       /// \param subInterval interval of definition of the extract path
-      virtual PathPtr_t impl_extract (const interval_t& subInterval) const
-        throw (projection_error);
+      virtual PathPtr_t impl_extract (const interval_t& subInterval) const;
 
     private:
       Paths_t paths_;

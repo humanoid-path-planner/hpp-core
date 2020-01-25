@@ -30,7 +30,7 @@ namespace hpp {
       class ConstantCurvature : public Path {
       public:
         typedef Path parent_t;
-        virtual ~ConstantCurvature () throw () {}
+        virtual ~ConstantCurvature () {}
          /// Create instance and return shared pointer.
         /// \param robot the carlike robot,
         /// \param init, end Initial and final configurations of the path,
@@ -152,8 +152,7 @@ namespace hpp {
                                          const value_type& param1) const;
 
         /// Virtual implementation of path extraction
-        virtual PathPtr_t impl_extract (const interval_t& paramInterval) const
-          throw (projection_error);
+        virtual PathPtr_t impl_extract (const interval_t& paramInterval) const;
 
         /// store weak pointer to itself
         void init (const ConstantCurvatureWkPtr_t& weak)

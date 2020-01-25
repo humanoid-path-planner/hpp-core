@@ -30,7 +30,7 @@ namespace hpp{
     {
     public :
       typedef KinodynamicPath parent_t;
-      virtual ~KinodynamicOrientedPath () throw () {}
+      virtual ~KinodynamicOrientedPath () {}
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
@@ -165,8 +165,7 @@ namespace hpp{
       virtual bool impl_compute (ConfigurationOut_t result,
                                  value_type t) const;
 
-      virtual PathPtr_t impl_extract (const interval_t& subInterval) const
-      throw (projection_error);
+      virtual PathPtr_t impl_extract (const interval_t& subInterval) const;
 
     private:
       KinodynamicOrientedPathWkPtr_t weak_;
