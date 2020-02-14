@@ -168,7 +168,7 @@ namespace hpp {
 		  std::numeric_limits <float>::epsilon ());
 	  t1min = std::max (t1min, paths_ [i]->timeRange ().first);
 	  t1max = std::min (t1max, paths_ [i]->timeRange ().second);
-          if (t1min != t1max) {
+          if (t1min != t1max || path->numberPaths() == 0) {
             path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
           }
 	  --i;
@@ -198,7 +198,7 @@ namespace hpp {
 		  std::numeric_limits <float>::epsilon ());
 	  t1min = std::max (t1min, paths_ [i]->timeRange ().first);
 	  t1max = std::min (t1max, paths_ [i]->timeRange ().second);
-          if (t1min != t1max) {
+          if (t1min != t1max || path->numberPaths() == 0) {
             path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
           }
 	  ++i;
