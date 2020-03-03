@@ -52,16 +52,47 @@ namespace hpp {
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
+      /// \param timeRange interval of definition
+      static InterpolatedPathPtr_t create (const DevicePtr_t& device,
+				       ConfigurationIn_t init,
+				       ConfigurationIn_t end,
+                                       interval_t timeRange)
+      {
+	InterpolatedPath* ptr = new InterpolatedPath (device, init, end,
+            timeRange);
+	InterpolatedPathPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+
+      /// Create instance and return shared pointer
+      /// \param device Robot corresponding to configurations
+      /// \param init, end Start and end configurations of the path
+      /// \param timeRange interval of definition
+      /// \param constraints the path is subject to
+      static InterpolatedPathPtr_t create (const DevicePtr_t& device,
+				       ConfigurationIn_t init,
+				       ConfigurationIn_t end,
+				       interval_t timeRange,
+				       ConstraintSetPtr_t constraints)
+      {
+	InterpolatedPath* ptr = new InterpolatedPath (device, init, end,
+            timeRange, constraints);
+	InterpolatedPathPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
+      }
+
+      /// Create instance and return shared pointer
+      /// \param device Robot corresponding to configurations
+      /// \param init, end Start and end configurations of the path
       /// \param length Distance between the configurations.
       static InterpolatedPathPtr_t create (const DevicePtr_t& device,
 				       ConfigurationIn_t init,
 				       ConfigurationIn_t end,
 				       value_type length)
       {
-	InterpolatedPath* ptr = new InterpolatedPath (device, init, end, length);
-	InterpolatedPathPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
+	return create (device, init, end, interval_t(0, length));
       }
 
       /// Create instance and return shared pointer
@@ -75,11 +106,7 @@ namespace hpp {
 				       value_type length,
 				       ConstraintSetPtr_t constraints)
       {
-	InterpolatedPath* ptr = new InterpolatedPath (device, init, end, length,
-					      constraints);
-	InterpolatedPathPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
+        return create (device, init, end, interval_t(0, length), constraints);
       }
 
       /// Create copy and return shared pointer
@@ -171,11 +198,11 @@ namespace hpp {
 
       /// Constructor
       InterpolatedPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, value_type length);
+		    ConfigurationIn_t end, interval_t timeRange);
 
       /// Constructor with constraints
       InterpolatedPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, value_type length,
+		    ConfigurationIn_t end, interval_t timeRange,
 		    ConstraintSetPtr_t constraints);
 
       /// DIscretization of a given path.

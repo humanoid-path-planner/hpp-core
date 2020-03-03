@@ -30,14 +30,14 @@ namespace hpp {
     InterpolatedPath::InterpolatedPath (const DevicePtr_t& device,
         ConfigurationIn_t init,
         ConfigurationIn_t end,
-        value_type length) :
-      parent_t (interval_t (0, length), device->configSize (),
+        interval_t timeRange) :
+      parent_t (timeRange, device->configSize (),
 		device->numberDof ()),
       device_ (device)
     {
       assert (init.size() == device_->configSize ());
-      insert (0, init);
-      insert (length, end);
+      insert (timeRange.first, init);
+      insert (timeRange.second, end);
       assert (device);
       assert (length >= 0);
       assert (!constraints ());
@@ -46,15 +46,15 @@ namespace hpp {
     InterpolatedPath::InterpolatedPath (const DevicePtr_t& device,
 				ConfigurationIn_t init,
 				ConfigurationIn_t end,
-				value_type length,
+                                interval_t timeRange,
 				ConstraintSetPtr_t constraints) :
-      parent_t (interval_t (0, length), device->configSize (),
+      parent_t (timeRange, device->configSize (),
 		device->numberDof (), constraints),
       device_ (device)
     {
       assert (init.size() == device_->configSize ());
-      insert (0, init);
-      insert (length, end);
+      insert (timeRange.first, init);
+      insert (timeRange.second, end);
       assert (device);
       assert (length >= 0);
     }
@@ -62,20 +62,20 @@ namespace hpp {
     InterpolatedPath::InterpolatedPath (const PathPtr_t& path,
                                         const DevicePtr_t& device,
                                         const std::size_t& nbSamples) :
-      parent_t (interval_t (0, path->length ()), device->configSize (),
+      parent_t (path->timeRange(), device->configSize (),
 		device->numberDof (), path->constraints ()), device_ (device)
 
     {
       assert (path->initial ().size() == device_->configSize ());
-      insert (0, path->initial ());
-      insert (path->length (), path->end ());
+      insert (timeRange().first, path->initial ());
+      insert (timeRange().second, path->end ());
       assert (device);
       assert (path->length () >= 0);
 
       const value_type dl = path->length () / (value_type) (nbSamples + 1);
       Configuration_t q (device->configSize ());
       for (std::size_t iS = 0; iS < nbSamples; ++iS) {
-        const value_type u = dl * (value_type) (iS + 1);
+        const value_type u = timeRange().first + dl * (value_type) (iS + 1);
         if (!(*path) (q, u))
           throw projection_error ("could not build InterpolatedPath");
         insert (u, q);
@@ -221,8 +221,15 @@ namespace hpp {
       Configuration_t q2 (configAtParam (subInterval.second, success));
       if (!success) throw projection_error
 		      ("Failed to apply constraints in InterpolatedPath::extract");
-      InterpolatedPathPtr_t result = InterpolatedPath::create (device_, q1, q2, l,
-					       constraints ());
+      // TODO if the constraint as a varying right hand side, then the generated
+      // path will not be correct.
+      // In order to propagate the correct time information, one must either:
+      // - implement some extraction method for the constraints.
+      // - make class Path tolerate reversed time range, i.e. (t1, t2) with t1 > t2.
+      // The second option shouldn't be hard to implement but may be hard to
+      // propagate in all the code.
+      InterpolatedPathPtr_t result = InterpolatedPath::create (device_, q1, q2,
+          l, constraints ());
 
       InterpolationPoints_t::const_iterator it = configs_.upper_bound (tmin);
       if (reverse)

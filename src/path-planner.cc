@@ -87,10 +87,12 @@ namespace hpp {
 
     PathVectorPtr_t PathPlanner::solve ()
     {
+      namespace bpt = boost::posix_time;
+
       interrupt_ = false;
       bool solved = false;
       unsigned long int nIter (0);
-      boost::posix_time::ptime timeStart(boost::posix_time::microsec_clock::universal_time());
+      bpt::ptime timeStart(bpt::microsec_clock::universal_time());
       startSolve ();
       tryConnectInitAndGoals ();
       solved = problem_.target()->reached (roadmap());
@@ -104,7 +106,9 @@ namespace hpp {
 	  oss << "Maximal number of iterations reached: " << maxIterations_;
 	  throw std::runtime_error (oss.str ().c_str ());
     }
-    if(((boost::posix_time::microsec_clock::universal_time() - timeStart).total_milliseconds()) > timeOut_*1000.){
+      bpt::ptime timeStop(bpt::microsec_clock::universal_time());
+      if(static_cast<value_type>((timeStop - timeStart).total_milliseconds())
+          > timeOut_*1000){
       oss << "time out reached : " << timeOut_<<" s";
       throw std::runtime_error (oss.str ().c_str ());
     }

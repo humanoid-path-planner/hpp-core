@@ -48,7 +48,7 @@ namespace hpp {
 
       /// Create instance and return shared pointer
       /// \param init, end Start and end configurations of the path,
-      /// \param length Distance between the configurations,
+      /// \param interval interval of definition
       /// \param constraints the path is subject to.
       static StraightPathPtr_t create (LiegroupSpacePtr_t space,
                                        vectorIn_t init,
@@ -69,7 +69,7 @@ namespace hpp {
 
       /// Create instance and return shared pointer
       /// \param init, end Start and end configurations of the path
-      /// \param length Distance between the configurations.
+      /// \param interval interval of definition
       /// \param constraints the path is subject to.
       static StraightPathPtr_t create (LiegroupElementConstRef init,
 				       LiegroupElementConstRef end,
