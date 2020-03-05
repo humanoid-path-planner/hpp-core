@@ -142,11 +142,12 @@ namespace hpp {
       /// Store weak pointer to itself.
       void init (ContinuousValidationWkPtr_t weak);
 
-      // all BodyPairValidation to validate
+      /// All BodyPairValidation to validate
       BodyPairCollisions_t bodyPairCollisions_;
-      // BodyPairCollision for which collision is disabled
+      /// BodyPairCollision for which collision is disabled
       BodyPairCollisions_t disabledBodyPairCollisions_;
 
+      /// Temporary container of BodyPairCollision instances for thread safety.
       pinocchio::Pool<BodyPairCollisions_t> bodyPairCollisionPool_;
 
       value_type stepSize_;

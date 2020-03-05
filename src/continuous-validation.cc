@@ -118,6 +118,7 @@ namespace hpp {
           return true;
         }
       }
+      // Copy list of BodyPairCollision instances in a pool for thread safety.
       BodyPairCollisions_t* bpc;
       if (!bodyPairCollisionPool_.available()) {
         // Add an element
