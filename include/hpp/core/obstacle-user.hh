@@ -26,6 +26,12 @@
 
 namespace hpp {
   namespace core {
+    /// Abstract class for handling obstacles
+    ///
+    /// Several classes perform collision detection between the bodies
+    /// of a robot and a set of rigid-body obstacles of the environment.
+    ///
+    /// This class defines a common abstract interface for those classes.
     class HPP_CORE_DLLAPI ObstacleUserInterface
     {
       public:
@@ -51,14 +57,33 @@ namespace hpp {
         virtual void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion) = 0;
     }; // class ObstacleUserInterface
 
-    /// \tparam Derived must be a shared point to some object.
+    /// Vector of validation class instances.
+    ///
+    /// \tparam Derived must be a shared point to some validation class. For
+    ///         instance \link ConfigValidation ConfigValidationPtr_t \endlink
+    ///         or \link PathValidation PathValidationPtr_t \endlink.
+    ///
+    /// This class implements the abstract interface defined by
+    /// ObstacleUserInterface and stores a vector of path or config validation
+    /// class instances. Methods
+    /// \link ObstacleUserVector::addObstacle addObstacle \endlink,
+    /// \link ObstacleUserVector::removeObstacleFromJoint
+    ///       removeObstacleFromJoint\endlink, and
+    /// \link ObstacleUserVector::filterCollisionPairs filterCollisionPairs
+    /// \endlink iteratively dynamic cast each instance into
+    /// Obstacle user interface and calls the derived implementation in case of
+    /// success.
     template<typename Derived>
     class HPP_CORE_DLLAPI ObstacleUserVector : public ObstacleUserInterface
     {
       public:
         virtual ~ObstacleUserVector () {}
 
-        /// \copydoc ObstacleUserInterface::addObstacle
+        /// Add obstacle to each element
+        ///
+        /// Dynamic cast into ObstacleUserInterface each element
+        /// of \link ObstacleUserVector::validations_ validations_
+        /// \endlink and call method addObstacle of element.
         void addObstacle (const CollisionObjectConstPtr_t& object)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
@@ -68,7 +93,11 @@ namespace hpp {
           }
         }
 
-        /// \copydoc ObstacleUserInterface::removeObstacleFromJoint
+        /// Remove obstacle from joint to each element
+        ///
+        /// Dynamic cast into ObstacleUserInterface each element
+        /// of \link ObstacleUserVector::validations_ validations_
+        /// \endlink and call method removeObstacleFromJoint of element.
         void removeObstacleFromJoint(const JointPtr_t& joint,
             const CollisionObjectConstPtr_t& object)
         {
@@ -79,7 +108,11 @@ namespace hpp {
           }
         }
 
-        /// \copydoc ObstacleUserInterface::filterCollisionPairs
+        /// Filter collision pairs to each element
+        ///
+        /// Dynamic cast into ObstacleUserInterface each element
+        /// of \link ObstacleUserVector::validations_ validations_
+        /// \endlink and call method filterCollisionPairs of element.
         void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
