@@ -38,13 +38,10 @@ namespace hpp {
     namespace continuousValidation {
       /// Computation of collision-free sub-intervals of a path
       ///
-      /// This class aims at validating a path for the absence of collision
-      /// between two bodies of a robot.
-      ///
-      /// The interval of definition of the path is successively covered
-      /// by intervals where boths bodies are proved to be collision-free.
-      /// Each interval is computed by bounding from above the velocity of
-      /// all points of body 1 in the reference frame of body 2.
+      /// This class aims at validating a path interval for for a given
+      /// criterion. Up to now the only criterion handled is the collision
+      /// between rigid bodies (robot bodies or obstacles).
+      /// \sa BodyPairCollision.
       template <typename ValidationReportTypePtr_t>
       class IntervalValidation
       {
