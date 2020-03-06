@@ -29,35 +29,14 @@ namespace hpp {
 
       /// Continuous validation of a path
       ///
-      /// This class tests for collision
-      /// \li straight paths, or
-      /// \li concatenation of straight paths (PathVector).
+      /// This class is a specialization of ContinuousValidation.
       ///
-      /// A path is valid if and only if each interval validation element
-      /// is valid along the whole interval of definition.
-      ///
-      /// For each interval validation element, a union of sub-intervals
-      /// where the element is valid is computed.
-      ///
-      /// First, each validation element is tested at the beginning of the interval
-      /// (at the end if reverse is set to true). Then the element that
-      /// has the smaller upper bound of the first valid sub-interval is
-      /// tested at the middle of the segment delimited by the upper bound
-      /// of the first valid sub-interval and by the lower bound of the second
-      /// valid sub-interval (or the end of the interval of definition if the
-      /// union of sub-intervals contains only one sub-interval).
-      ///
-      /// Collision pairs between bodies of the robot are initialized at
-      /// construction of the instance.
-      ///
-      /// Method addObstacle adds an obstacle in the environment.
-      /// For each joint, a new pair is created with the new obstacle.
-      ///
-      /// Validation of pairs along straight interpolations is based on the
-      /// computation of an upper-bound of the relative velocity of objects
-      /// of one joint (or of the environment) in the reference frame of the
-      /// other joint.
-      ///
+      /// The interval validation is performed by
+      /// \li validating the beginning of the interval (or the end if paramater
+      ///     reverse is set to true when calling
+      ///     ContinuousValidation::validate),
+      /// \li validate intervals centered at the middle of the biggest non
+      ///     tested interval.
       /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.
       class HPP_CORE_DLLAPI Dichotomy : public ContinuousValidation

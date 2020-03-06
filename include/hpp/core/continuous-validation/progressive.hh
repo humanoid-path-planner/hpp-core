@@ -29,34 +29,14 @@ namespace hpp {
 
       /// Continuous validation of a path
       ///
-      /// This class tests for collision
-      /// \li straight paths, or
-      /// \li concatenation of straight paths.
+      /// This class is a specialization of ContinuousValidation.
       ///
-      /// A path is valid if and only if each interval validation element
-      /// is valid along the whole interval of definition
-      ///
-      /// For each interval validation element, a union of sub-intervals
-      /// where the element is valid is computed.
-      ///
-      /// The validation of a path is progressive, starting at the beginning
-      /// of the interval (or at the end if reverse is set to true).
-      /// The smallest valid sub-interval for all validation elements centered at
-      /// the current parameter is computed. The current parameter is thus set
-      /// to the upper bound of this sub-interval and the validation process
-      /// goes on until a collision is detected or the current parameter reaches
-      /// the end of the interval of definition.
-      ///
-      /// Collision pairs between bodies of the robot are initialized at
-      /// construction of the instance.
-      ///
-      /// Method addObstacle adds an obstacle in the environment.
-      /// For each joint, a new pair is created with the new obstacle.
-      ///
-      /// Validation of pairs along straight interpolations is based on the
-      /// computation of an upper-bound of the relative velocity of objects
-      /// of one joint (or of the environment) in the reference frame of the
-      /// other joint.
+      /// The interval validation is performed by
+      /// \li validating the beginning of the interval (or the end if paramater
+      ///     reverse is set to true when calling
+      ///     ContinuousValidation::validate),
+      /// \li validate intervals centered at the end of the current validated
+      ///     interval (or at the beginning if reverse is set to true).
       ///
       /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.
