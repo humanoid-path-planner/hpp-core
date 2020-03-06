@@ -39,7 +39,7 @@ namespace hpp {
       insert (timeRange.first, init);
       insert (timeRange.second, end);
       assert (device);
-      assert (length >= 0);
+      assert (length() >= 0);
       assert (!constraints ());
     }
 
@@ -56,7 +56,7 @@ namespace hpp {
       insert (timeRange.first, init);
       insert (timeRange.second, end);
       assert (device);
-      assert (length >= 0);
+      assert (length() >= 0);
     }
 
     InterpolatedPath::InterpolatedPath (const PathPtr_t& path,
