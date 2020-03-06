@@ -24,7 +24,6 @@
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
-#include <hpp/core/continuous-validation/initializer.hh>
 
 #include "continuous-validation/intervals.hh"
 #include "continuous-validation/helper.hh"
@@ -38,7 +37,7 @@ namespace hpp {
         Dichotomy* ptr = new Dichotomy (robot, tolerance);
         DichotomyPtr_t shPtr (ptr);
         ptr->init(shPtr);
-        ptr->initializer_->initialize();
+        ptr->initialize();
         return shPtr;
       }
 
@@ -47,7 +46,7 @@ namespace hpp {
       }
 
       bool Dichotomy::validateStraightPath
-      (BodyPairCollisions_t& bpc, const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+      (IntervalValidations_t& bpc, const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
         if (reverse) return validateStraightPath<true> (bpc, path, validPart, report);
@@ -56,7 +55,7 @@ namespace hpp {
 
       template <bool reverse>
       bool Dichotomy::validateStraightPath
-      (BodyPairCollisions_t& bodyPairCollisions, const PathPtr_t& path, PathPtr_t& validPart,
+      (IntervalValidations_t& bodyPairCollisions, const PathPtr_t& path, PathPtr_t& validPart,
        PathValidationReportPtr_t& report)
       {
         // start by validating end of path

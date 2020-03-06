@@ -54,7 +54,6 @@ namespace hpp {
       /// considered as valid if the criterion is violated by less than the
       /// tolerance. This parameter interpretation is left to the
       /// specialization designers.
-      template <typename ValidationReportTypePtr_t>
       class IntervalValidation
       {
       public:
@@ -67,8 +66,8 @@ namespace hpp {
         /// \param data data resulting from forward kinematics computed at
         ///        parameter t.
         virtual bool validateConfiguration(const value_type &t, interval_t &interval,
-                                  ValidationReportTypePtr_t &report,
-                                  pinocchio::DeviceData& data) = 0;
+                                  ValidationReportPtr_t &report,
+                                  const pinocchio::DeviceData& data) = 0;
 
         /// Set path to validate
         /// \param path path to validate,
@@ -95,6 +94,7 @@ namespace hpp {
 
         virtual std::string name () const = 0;
         virtual std::ostream& print (std::ostream& os) const = 0;
+        virtual IntervalValidationPtr_t copy () const = 0;
 
       protected:
         typedef boost::icl::continuous_interval<value_type> continuous_interval;
@@ -128,8 +128,8 @@ namespace hpp {
         virtual void setupPath() = 0;
       }; // class IntervalValidation
 
-      template <typename ValidationReportTypePtr_t>
-      inline std::ostream &operator<<(std::ostream &os, const IntervalValidation<ValidationReportTypePtr_t> &b)
+      inline std::ostream &operator<<(std::ostream &os,
+                                      const IntervalValidation& b)
       {
         return b.print(os);
       }

@@ -65,6 +65,10 @@ namespace hpp {
 					      const JointPtr_t& joint_b,
 					      value_type tolerance);
 
+        /// Copy instance and return shared pointer.
+        static SolidSolidCollisionPtr_t createCopy
+          (const SolidSolidCollisionPtr_t& other);
+
         value_type computeMaximalVelocity(vector_t& Vb) const;
 
         bool removeObjectTo_b (const CollisionObjectConstPtr_t& object);
@@ -107,7 +111,7 @@ namespace hpp {
           return (m_->joint_b ? m_->joint_b->index() : 0);
         }
 
-        BodyPairCollisionPtr_t copy () const;
+        IntervalValidationPtr_t copy () const;
 
       protected:
         /// Constructor of inter-body collision checking
@@ -129,10 +133,12 @@ namespace hpp {
               const ConstObjectStdVector_t& objects_b,
               value_type tolerance);
 
+        /// Copy constructor
         SolidSolidCollision (const SolidSolidCollision& other)
           : BodyPairCollision (other), m_ (other.m_)
         {}
 
+        void init(const SolidSolidCollisionWkPtr_t& weak);
       private:
         typedef pinocchio::JointIndex JointIndex;
         typedef std::vector<JointIndex> JointIndices_t;
@@ -145,6 +151,7 @@ namespace hpp {
           void computeCoefficients (const JointIndices_t& joints);
         };
         boost::shared_ptr<Model> m_;
+        SolidSolidCollisionWkPtr_t weak_;
       }; // class SolidSolidCollision
     } // namespace continuousValidation
   } // namespace core

@@ -61,7 +61,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/continuous-validation/interval-validation.hh
   include/hpp/core/continuous-validation/body-pair-collision.hh
   include/hpp/core/continuous-validation/solid-solid-collision.hh
-  include/hpp/core/continuous-validation/initializer.hh
   include/hpp/core/diffusing-planner.hh
   include/hpp/core/distance/reeds-shepp.hh
   include/hpp/core/distance.hh

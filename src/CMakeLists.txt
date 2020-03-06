@@ -31,7 +31,6 @@ connected-component.cc
 constraint.cc
 constraint-set.cc
 continuous-validation.cc
-continuous-validation/initializer.cc
 continuous-validation/body-pair-collision.cc
 continuous-validation/dichotomy.cc
 continuous-validation/solid-solid-collision.cc

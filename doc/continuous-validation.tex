@@ -24,8 +24,11 @@ To enable the use of other type of validations than collision checking between t
 \begin{center}
 \begin{tikzpicture}
 \begin{umlpackage}{hpp-core}
-\umlclass[x=-0.5, y=6, type=abstract]{PathValidation}{}{
+\umlclass[x=-2.5, y=6, type=abstract]{PathValidation}{}{
 + \textit{validate()}\\
+}
+
+\umlclass[x=1.5, y=6, type=abstract]{ObstacleUserInterface}{}{
 + addObstacle()\\
 + removeObstacleFromJoints() }
 
@@ -53,7 +56,6 @@ To enable the use of other type of validations than collision checking between t
 
 \umlclass[x=-0.5, y=1.5, type=abstract]{ContinuousValidation}
 	{\# tolerance : value\_type\\
-	\# bodyPairCollisions\_ : BodyPairCollisions\_t\\
 	\# intervalValidations\_ : IntervalValidations\_t}
 	{+ validate()\\
 	+ setPath()\\
@@ -79,6 +81,7 @@ To enable the use of other type of validations than collision checking between t
 \umlinherit{BodyPairCollision}{IntervalValidation}
 \umlinherit{SolidSolidCollision}{BodyPairCollision}
 \umlinherit{ContinuousValidation}{PathValidation}
+\umlinherit{ContinuousValidation}{ObstacleUserInterface}
 \umlinherit{ContinuousValidation::Dichotomy}{ContinuousValidation}
 \umlinherit{ContinuousValidation::Progressive}{ContinuousValidation}
 \umlaggreg[mult=n]{ContinuousValidation}{IntervalValidation}

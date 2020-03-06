@@ -23,12 +23,15 @@
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/obstacle-user.hh>
+# include <hpp/core/path.hh>
 # include <hpp/core/path-validation.hh>
 # include <hpp/core/path-validation-report.hh>
 # include <hpp/core/continuous-validation/interval-validation.hh>
 
 namespace hpp {
   namespace core {
+    using continuousValidation::IntervalValidation;
+    using continuousValidation::IntervalValidationPtr_t;
       /// \addtogroup validation
       /// \{
 
@@ -65,6 +68,35 @@ namespace hpp {
       public ObstacleUserInterface
     {
     public:
+      /// Delegate class to initialize ContinuousValidation instance
+      ///
+      /// See method ContinuousValidation::initialize for details
+      class Initialize
+      {
+      public:
+        Initialize(ContinuousValidation& owner);
+        /// Initialize ContinuousValidation class
+        virtual void doExecute() const;
+      protected:
+        ContinuousValidation& owner_;
+      }; // class Initialize
+      /// Delegate class to add obstacle to ContinuousValidation instance
+      ///
+      /// See method ContinuousValidation::addObstacle for details
+      class AddObstacle
+      {
+      public:
+        AddObstacle(ContinuousValidation& owner);
+        /// Add an obstacle
+        /// \param object obstacle added
+        /// Add the object to each collision pair a body of which is the
+        /// environment.
+        virtual void doExecute(const CollisionObjectConstPtr_t &object) const;
+      protected:
+        ContinuousValidation& owner_;
+        DeviceWkPtr_t robot_;
+      }; // class AddObstacle
+
       /// Compute the largest valid interval starting from the path beginning
       ///
       /// \param path the path to check for validity,
@@ -77,11 +109,7 @@ namespace hpp {
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
-      /// Add an obstacle
-      /// \param object obstacle added
-      /// Add the object to each collision pair a body of which is the
-      /// environment.
-      /// care about obstacles.
+      /// Iteratively call method doExecute of delegate class AddObstacle
       virtual void addObstacle (const CollisionObjectConstPtr_t& object);
 
       /// Remove a collision pair between a joint and an obstacle
@@ -95,22 +123,45 @@ namespace hpp {
 
       void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
 
-      /// Change the initializer
-      /// The continuous validation is then reset and the new initializer is
-      /// called to do the new initialization
-      void changeInitializer (continuousValidation::InitializerPtr_t initializer);
+      /// \name Delegate
+      /// \{
 
+      /// Add a delegate
+      /// \tparam delegate type of delegate.
+      ///
+      /// The following methods iteratively call delegates stored in a
+      /// vector:
+      /// \li addObstacle (type of delegate AddObstacle).
+      template <class Delegate> void add(const Delegate& delegate);
+
+      /// Reset delegates of a type
+      /// \tparam delegate type of delegate
+      template <class Delegate> void reset();
+
+      /// \}
+      /// Add interval validation instance
+      void addIntervalValidation
+        (const IntervalValidationPtr_t& intervalValidation);
       /// Get tolerance value
       value_type tolerance () const
       {
         return tolerance_;
       }
 
+      DevicePtr_t robot() const
+      {
+        return robot_;
+      }
+      /// Initialize object
+      ///
+      /// Iteratively call delegates of type Initialize stored in object.
+      void initialize();
+
       virtual ~ContinuousValidation ();
     protected:
-      typedef continuousValidation::BodyPairCollisions_t BodyPairCollisions_t;
+      typedef continuousValidation::IntervalValidations_t IntervalValidations_t;
 
-      static void setPath(BodyPairCollisions_t& bodyPairCollisions,
+      static void setPath(IntervalValidations_t& intervalValidations,
           const PathPtr_t &path, bool reverse);
 
       /// Constructor
@@ -120,7 +171,7 @@ namespace hpp {
 				   const value_type& tolerance);
 
       /// Validate interval centered on a path parameter
-      /// \param bodyPairCollisions collision to consider
+      /// \param intervalValidations collision to consider
       /// \param config Configuration at abscissa t on the path.
       /// \param t parameter value in the path interval of definition
       /// \retval interval interval over which the path is collision-free,
@@ -129,40 +180,16 @@ namespace hpp {
       ///         value, false if the body pair is in collision.
       /// \note object should be in the positions defined by the configuration
       ///       of parameter t on the path.
-      virtual bool validateConfiguration (BodyPairCollisions_t& bodyPairCollisions,
+      virtual bool validateConfiguration
+        (IntervalValidations_t& intervalValidations,
           const Configuration_t& config,
           const value_type& t,
           interval_t& interval,
           PathValidationReportPtr_t& report);
 
-      DevicePtr_t robot_;
-      value_type tolerance_;
-
-      /// Store weak pointer to itself.
-      void init (ContinuousValidationWkPtr_t weak);
-
-      /// All BodyPairValidation to validate
-      BodyPairCollisions_t bodyPairCollisions_;
-      /// BodyPairCollision for which collision is disabled
-      BodyPairCollisions_t disabledBodyPairCollisions_;
-
-      /// Temporary container of BodyPairCollision instances for thread safety.
-      pinocchio::Pool<BodyPairCollisions_t> bodyPairCollisionPool_;
-
-      value_type stepSize_;
-      // Initializer as a delegate
-      continuousValidation::InitializerPtr_t initializer_;
-    private:
-      // Weak pointer to itself
-      ContinuousValidationWkPtr_t weak_;
-
-      virtual bool validateStraightPath (BodyPairCollisions_t& bodyPairCollisions,
-          const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
-          PathValidationReportPtr_t& report) = 0;
-
       /// Validate a set of intervals for a given parameter along a path
       ///
-      /// \tparam IntervalValidations type of container of validation elements
+      /// \tparam IntervalValidation type of container of validation elements
       ///         (for instance validation for collision between a pair of
       ///         bodies),
       /// \tparam ValidationReportTypePtr_t type of validation report produced
@@ -172,18 +199,17 @@ namespace hpp {
       /// \retval interval interval validated for all objects,
       /// \retval smallestInterval iterator to the validation element that
       ///         returned the smallest interval.
-      template<typename IntervalValidations, typename ValidationReportTypePtr_t>
       bool validateIntervals
-        (IntervalValidations& validations, const value_type &t,
+        (IntervalValidations_t& validations, const value_type &t,
          interval_t &interval, PathValidationReportPtr_t &pathReport,
-         typename IntervalValidations::iterator& smallestInterval,
+         typename IntervalValidations_t::iterator& smallestInterval,
          pinocchio::DeviceData& data)
       {
-        typename IntervalValidations::iterator itMin = validations.begin();
-        for (typename IntervalValidations::iterator itVal = validations.begin();
-            itVal != validations.end(); ++itVal)
+        typename IntervalValidations_t::iterator itMin = validations.begin();
+        for (IntervalValidations_t::iterator itVal (validations.begin());
+             itVal != validations.end(); ++itVal)
         {
-          ValidationReportTypePtr_t report;
+          ValidationReportPtr_t report;
           // the valid interval will not be greater than "interval" so we do not
           // need to perform validation on a greater interval.
           interval_t tmpInt = interval;
@@ -210,10 +236,46 @@ namespace hpp {
         }
         return true;
       }
-      friend class continuousValidation::Initializer;
 
+      DevicePtr_t robot_;
+      value_type tolerance_;
+
+      /// Store weak pointer to itself.
+      void init (ContinuousValidationWkPtr_t weak);
+
+      /// All BodyPairValidation to validate
+      IntervalValidations_t intervalValidations_;
+      /// BodyPairCollision for which collision is disabled
+      IntervalValidations_t disabledBodyPairCollisions_;
+
+      pinocchio::Pool<IntervalValidations_t> bodyPairCollisionPool_;
+
+      value_type stepSize_;
+    private:
+      // Weak pointer to itself
+      ContinuousValidationWkPtr_t weak_;
+
+      virtual bool validateStraightPath
+        (IntervalValidations_t& intervalValidations,
+          const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+          PathValidationReportPtr_t& report) = 0;
+
+      std::vector<Initialize> initialize_;
+      std::vector<AddObstacle> addObstacle_;
     }; // class ContinuousValidation
     /// \}
+    template <class Delegate> void ContinuousValidation::add
+    (const Delegate& delegate)
+    {
+      assert (false &&
+              "No delegate of this type in class ContinuousValidation.");
+    }
+    template <class Delegate> void ContinuousValidation::reset()
+    {
+      assert (false &&
+              "No delegate of this type in class ContinuousValidation.");
+    }
+
   } // namespace core
 } // namespace hpp
 #endif // HPP_CORE_CONTINUOUS_VALIDATION_HH

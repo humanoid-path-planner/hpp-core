@@ -238,10 +238,11 @@ namespace hpp {
       HPP_PREDEF_CLASS (BodyPairCollision);
       typedef boost::shared_ptr <BodyPairCollision> BodyPairCollisionPtr_t;
       typedef std::vector <BodyPairCollisionPtr_t> BodyPairCollisions_t;
+      HPP_PREDEF_CLASS (IntervalValidation);
+      typedef boost::shared_ptr <IntervalValidation> IntervalValidationPtr_t;
+      typedef std::vector <IntervalValidationPtr_t> IntervalValidations_t;
       HPP_PREDEF_CLASS (SolidSolidCollision);
       typedef boost::shared_ptr <SolidSolidCollision> SolidSolidCollisionPtr_t;
-      HPP_PREDEF_CLASS (Initializer);
-      typedef boost::shared_ptr <Initializer> InitializerPtr_t;
     } // namespace continuousValidation
 
 

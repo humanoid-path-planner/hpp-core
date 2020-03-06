@@ -38,7 +38,10 @@ namespace hpp {
 					      const ConstObjectStdVector_t& objects_b,
 					      value_type tolerance)
       {
-        SolidSolidCollisionPtr_t shPtr(new SolidSolidCollision(joint_a, objects_b, tolerance));
+        SolidSolidCollision* ptr
+          (new SolidSolidCollision(joint_a, objects_b, tolerance));
+        SolidSolidCollisionPtr_t shPtr(ptr);
+        ptr->init(shPtr);
         return shPtr;
       }
 
@@ -46,13 +49,24 @@ namespace hpp {
 					      const JointPtr_t& joint_b,
 					      value_type tolerance)
       {
-        SolidSolidCollisionPtr_t shPtr (new SolidSolidCollision(joint_a, joint_b, tolerance));
+        SolidSolidCollision* ptr = new SolidSolidCollision
+          (joint_a, joint_b, tolerance);
+        SolidSolidCollisionPtr_t shPtr (ptr);
+        ptr->init(shPtr);
         return shPtr;
       }
 
-      BodyPairCollisionPtr_t SolidSolidCollision::copy () const
+      SolidSolidCollisionPtr_t SolidSolidCollision::createCopy
+      (const SolidSolidCollisionPtr_t& other)
       {
-        return BodyPairCollisionPtr_t(new SolidSolidCollision(*this));
+        SolidSolidCollision* ptr = new SolidSolidCollision (*other);
+        SolidSolidCollisionPtr_t shPtr (ptr);
+        ptr->init(shPtr);
+        return shPtr;
+      }
+      IntervalValidationPtr_t SolidSolidCollision::copy () const
+      {
+        return createCopy(weak_.lock());
       }
 
       value_type SolidSolidCollision::computeMaximalVelocity(vector_t& Vb) const
@@ -234,6 +248,11 @@ namespace hpp {
         // Find sequence of joints
         JointIndices_t joints (m_->computeSequenceOfJoints ());
         m_->computeCoefficients (joints);
+      }
+
+      void SolidSolidCollision::init(const SolidSolidCollisionWkPtr_t& weak)
+      {
+        weak_ = weak;
       }
 
     } // namespace continuousValidation

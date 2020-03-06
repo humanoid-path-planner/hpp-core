@@ -46,7 +46,7 @@ namespace hpp {
       ///
       /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.
-      class BodyPairCollision : public IntervalValidation<CollisionValidationReportPtr_t>
+      class BodyPairCollision : public IntervalValidation
       {
       public:
         typedef std::pair<CollisionObjectConstPtr_t, CollisionObjectConstPtr_t> CollisionPair_t;
@@ -64,8 +64,8 @@ namespace hpp {
         /// \note object should be in the positions defined by the configuration
         ///       of parameter t on the path.
         bool validateConfiguration (const value_type& t, interval_t& interval,
-                  CollisionValidationReportPtr_t& report,
-                  pinocchio::DeviceData& data);
+                  ValidationReportPtr_t& report,
+                  const pinocchio::DeviceData& data);
 
         // Get pairs checked for collision
         const CollisionPairs_t& pairs () const
@@ -97,8 +97,6 @@ namespace hpp {
         virtual std::string name () const = 0;
         virtual std::ostream& print (std::ostream& os) const = 0;
 
-        virtual BodyPairCollisionPtr_t copy () const = 0;
-
       protected:
         /// Constructor of body pair collision
         ///
@@ -113,7 +111,7 @@ namespace hpp {
           IntervalValidation(other), m_(other.m_), maximalVelocity_(0)
         {}
 
-        virtual void setReport (CollisionValidationReportPtr_t& report,
+        virtual void setReport (ValidationReportPtr_t& report,
                             fcl::CollisionResult result,
                             CollisionPair_t _pair) const
         {
@@ -152,7 +150,8 @@ namespace hpp {
         /// \retval report the collision validation report
         /// \return true if the bodies are not in collision, else false
         virtual bool computeDistanceLowerBound(value_type &distanceLowerBound,
-          CollisionValidationReportPtr_t& report, pinocchio::DeviceData& data) const;
+          ValidationReportPtr_t& report,
+          const pinocchio::DeviceData& data) const;
 
       }; // class BodyPairCollision
 

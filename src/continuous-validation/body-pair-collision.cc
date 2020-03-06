@@ -34,8 +34,8 @@ namespace hpp {
     namespace continuousValidation {
 
       bool BodyPairCollision::validateConfiguration (const value_type& t, interval_t& interval,
-                CollisionValidationReportPtr_t& report,
-                pinocchio::DeviceData& data)
+                ValidationReportPtr_t& report,
+                const pinocchio::DeviceData& data)
       {
         namespace icl = boost::icl;
         using std::numeric_limits;
@@ -143,8 +143,8 @@ namespace hpp {
       }
 
       bool BodyPairCollision::computeDistanceLowerBound(value_type &distanceLowerBound,
-        CollisionValidationReportPtr_t& report,
-        pinocchio::DeviceData& data) const
+        ValidationReportPtr_t& report,
+        const pinocchio::DeviceData& data) const
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
