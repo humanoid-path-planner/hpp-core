@@ -31,14 +31,18 @@ namespace hpp {
       /// Computation of collision-free sub-intervals of a path. 
       ///
       /// This class aims at validating a path for the absence of collision
-      /// between two bodies of a robot, which are in most common cases
-      /// two solid bodies (see SolidSolidCollision). With this abstraction,
-      /// other bodies (like cables) can also be checked for collision.
+      /// between two bodies of a robot, or between a robot body and the
+      /// environment. Bodies are considered as rigid.
       ///
-      /// The interval of definition of the path is successively covered
-      /// by intervals where boths bodies are proved to be collision-free.
-      /// Each interval is computed by bounding from above the velocity of
-      /// all points of body 1 in the reference frame of body 2.
+      /// If the bodies are part of an open kinematic chain, the
+      /// computations are performed by class SolidSolidCollision.
+      ///
+      /// With this abstraction, other bodies (like legs of a parallel robot)
+      /// can also be checked for collision. In this case, the specialized
+      /// class needs to implement method \link
+      /// BodyPairCollision::computeMaximalVelocity computeMaximalVelocity
+      /// \endlink, taking into account the constrained motion of the legs
+      /// implied by the closure of the kinematic chain.
       ///
       /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.

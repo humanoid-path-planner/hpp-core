@@ -34,23 +34,22 @@ namespace hpp {
 
       /// Continuous validation of a path
       ///
-      /// This class tests for collision
-      /// \li straight paths, or
-      /// \li concatenation of straight paths (PathVector).
+      /// In the future, this class is aimed at validating a path for various
+      /// criteria. However, in its current form, it only validates with respect
+      /// to the absence of collisions between bodies of a robot and the
+      /// environment.
+      ///
+      /// Validation of PathVector instances is performed path by path.
       ///
       /// A path is valid if and only if each interval validation element
-      /// is valid along the whole interval of definition
-      ///
-      /// Interval validation elements can be pairs of objects to test for
-      /// collision (BodyPairCollision) or an other type of validation.
+      /// is valid along the whole interval of definition (class
+      /// BodyPairCollision).
       ///
       /// Collision pairs between bodies of the robot are initialized at
-      /// construction of the instance through the Initializer.
+      /// construction of the instance through the Initializer. The initializer
+      /// may be modified using methd ContinuousValidation::changeInitializer.
       ///
-      /// Method addObstacle adds an obstacle in the environment.
-      /// For each joint, a new pair is created with the new obstacle.
-      ///
-      /// Validation of a collision pair along straight interpolations is based
+      /// Validation of a collision pair is based
       /// on the computation of an upper-bound of the relative velocity of
       /// objects of one joint (or of the environment) in the reference frame
       /// of the other joint. This is implemented in BodyPairCollision and

@@ -37,13 +37,10 @@ namespace hpp {
 
       /// Computation of collision-free sub-intervals of a path
       ///
-      /// This class aims at validating a path for the absence of collision
-      /// between two solid bodies of a robot.
-      ///
-      /// The interval of definition of the path is successively covered
-      /// by intervals where boths bodies are proved to be collision-free.
-      /// Each interval is computed by bounding from above the velocity of
-      /// all points of body 1 in the reference frame of body 2.
+      /// This class derives from BodyPairCollision and validates a subinterval
+      /// of a path for collision between to robot bodies of between a robot
+      /// body and the environment. The robot body should be part of an open
+      /// kinematic chain.
       ///
       /// See <a href="continuous-validation.pdf"> this document </a>
       /// for details.

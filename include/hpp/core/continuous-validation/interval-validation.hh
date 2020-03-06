@@ -36,16 +36,36 @@
 namespace hpp {
   namespace core {
     namespace continuousValidation {
-      /// Computation of collision-free sub-intervals of a path
+      /// Validation of a parameter interval of a path
       ///
-      /// This class aims at validating a path interval for for a given
-      /// criterion. Up to now the only criterion handled is the collision
-      /// between rigid bodies (robot bodies or obstacles).
-      /// \sa BodyPairCollision.
+      /// During path planning, some criteria need to be checked to be
+      /// valid over the whole interval of definition of a path.
+      /// The most common criterion is the absence of collision (implemented
+      /// by derived class BodyPairCollision), but some other criteria might
+      /// need to be checked. For instance the tension of the cables of a
+      /// parallel cable driven robot need to remain in an interval.
+      ///
+      /// This class provides a common interface for continuous validation
+      /// through method \link IntervalValidation::validateConfiguration
+      /// validateConfiguration \endlink.
+      ///
+      /// A \link IntervalValidation::tolerance tolerance \endlink
+      /// may be provided at construction. An interval will be
+      /// considered as valid if the criterion is violated by less than the
+      /// tolerance. This parameter interpretation is left to the
+      /// specialization designers.
       template <typename ValidationReportTypePtr_t>
       class IntervalValidation
       {
       public:
+        /// Validate an interval for a given criterion
+        /// \param t center of the interval to validate
+        /// \param interval over which the criterion should be checked,
+        /// \retval interval part of the input interval that is valid,
+        /// \retval report report in case of non validity of the configuration
+        ///         at parameter t
+        /// \param data data resulting from forward kinematics computed at
+        ///        parameter t.
         virtual bool validateConfiguration(const value_type &t, interval_t &interval,
                                   ValidationReportTypePtr_t &report,
                                   pinocchio::DeviceData& data) = 0;

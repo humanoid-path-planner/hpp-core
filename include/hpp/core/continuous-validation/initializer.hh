@@ -32,7 +32,7 @@ namespace hpp {
       ///
       /// This class initializes the continuous validation
       /// By default, it creates all the inner body pair collision of the robot
-      ///
+      /// (class SolidSolidCollision).
       ///
       class Initializer
       {
