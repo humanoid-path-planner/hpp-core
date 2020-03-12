@@ -121,6 +121,13 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
+      /// Filter collision pairs.
+      ///
+      /// Remove pairs of object that cannot be in collision.
+      /// This effectively disables collision detection between objects that
+      /// have no possible relative motion due to the constraints.
+      ///
+      /// \param relMotion square symmetric matrix of RelativeMotionType of size numberDof x numberDof
       void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
 
       /// \name Delegate

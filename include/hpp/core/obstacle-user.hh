@@ -47,9 +47,9 @@ namespace hpp {
         virtual void removeObstacleFromJoint(const JointPtr_t& joint,
             const CollisionObjectConstPtr_t& object) = 0;
 
-        /// \brief Filter collision pairs.
-        /// Remove pairs of object that cannot be in collision
-        /// when these constraints are statisfied.
+        /// Filter collision pairs.
+
+        /// Remove pairs of object that cannot be in collision.
         /// This effectively disables collision detection between objects that
         /// have no possible relative motion due to the constraints.
         ///
@@ -194,9 +194,9 @@ namespace hpp {
         virtual void removeObstacleFromJoint(const JointPtr_t& joint,
             const CollisionObjectConstPtr_t& object);
 
-        /// \brief Filter collision pairs.
-        /// Remove pairs of object that cannot be in collision
-        /// when these constraints are statisfied.
+        /// Filter collision pairs.
+        ///
+        /// Remove pairs of object that cannot be in collision.
         /// This effectively disables collision detection between objects that
         /// have no possible relative motion due to the constraints.
         /// \todo Before disabling collision pair, check if there is a collision.
