@@ -39,12 +39,21 @@ namespace hpp {
         Unconstrained = 2
       };
 
+      /// Matrix of relative motion
+      ///
+      /// The row and column indices correspond to joint indices in the robot
+      /// plus one. 0 corresponds to the environment.
+      /// The values of the matrix are
+      /// \li Constrained: the joints are rigidly fixed to each other,
+      /// \li Parameterized: the joints are rigidly fixed to each other, but the
+      /// relative transformation may differ from one path to another one,
+      /// \li Unconstrained: the joints can move with respect to each other.
       typedef Eigen::Matrix<RelativeMotionType, Eigen::Dynamic, Eigen::Dynamic> matrix_type;
 
       /// Build a new RelativeMotion matrix from a robot
       ///
       /// \param robot a Device,
-      /// initialize a matirx of size (N+1) x (N+1) where N is the robot number
+      /// initialize a matrix of size (N+1) x (N+1) where N is the robot number
       /// of degrees of freedom.
       /// Diagonal elements are set to RelativeMotion::Constrained,
       /// other elements are set to RelativeMotion::Unconstrained.
