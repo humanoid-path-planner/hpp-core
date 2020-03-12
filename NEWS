@@ -1,6 +1,28 @@
                                                                 -*- outline -*-
-* Handle LockedJoint and Implicit instances in the same container in ProblemSolver class. make method ProblemSolver::addLockedJointToConfigProjector deprecated.
 * Fix bug in Reeds and Shepp paths when curvature is not equal to 1.
+* Handle LockedJoint and Implicit instances in the same container in ProblemSolver class. make method ProblemSolver::addLockedJointToConfigProjector deprecated.
+* Replace class ContinuousCollisionChecking by class ContinuousValidation for broader generalisation.
+* Remove deprecated methods and files
+  - ProblemSolver::addLockedJoint,
+  - hpp::core::JointBoundException,
+  - include/hpp/core/continuous-collision-checking.hh,
+  - include/hpp/core/continuous-collision-checking/dichotomy.hh,
+  - include/hpp/core/continuous-collision-checking/progressive.hh,
+  - include/hpp/core/discretized-collision-checking.hh,
+  - include/hpp/core/discretized-path-validation.hh,
+  - include/hpp/core/locked-joint.hh,
+  - include/hpp/core/random-shortcut.hh,
+  - include/hpp/core/steering-method-straight.hh.
+* in SteeringMethod, assert that if q1 == q2, operator() returns a path.
+* class SplineGradientBased has been improved
+  - some bugs have been fixed,
+  - length of input path should not be 0.
+* PathVector::extract(t,t) does not returns an empty path.
+* InterpolatedPath supports non-zero start of interval of definition
+* Add abstract class ObstacleUserInterface. This class is aimed at being parent of an class handling obstacles. Provide some implementations like
+  - ObstacleUser,
+  - ObstacleUserVector.
+* Add method setSecurityMargin to class ObstacleUserInterface.
 New in 4.6.0
 * Keep frames of obstacles.
 * Add Gaussian configuration shooter
