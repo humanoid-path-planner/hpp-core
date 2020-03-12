@@ -22,6 +22,8 @@
 # include <boost/icl/continuous_interval.hpp>
 # include <boost/icl/interval_set.hpp>
 
+# include <hpp/fcl/collision_data.h>
+
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/continuous-validation/interval-validation.hh>
 
@@ -97,18 +99,35 @@ namespace hpp {
         virtual std::string name () const = 0;
         virtual std::ostream& print (std::ostream& os) const = 0;
 
+        /// \name Security margin
+        /// \{
+
+        /// Get security margin
+        value_type securityMargin() const
+        {
+          return collisionRequest_.security_margin;
+        }
+        /// Set security margin
+        void securityMargin(const value_type& securityMargin)
+        {
+          collisionRequest_.security_margin = securityMargin;
+        }
+        /// \}
       protected:
         /// Constructor of body pair collision
         ///
         /// \param tolerance allowed penetration should be positive
         BodyPairCollision (value_type tolerance):
-          IntervalValidation(tolerance), m_ (new Model), maximalVelocity_(0)
+          IntervalValidation(tolerance), m_ (new Model),
+          collisionRequest_(fcl::DISTANCE_LOWER_BOUND, 1), maximalVelocity_(0)
         {
         }
 
         /// Copy constructor
         BodyPairCollision (const BodyPairCollision& other):
-          IntervalValidation(other), m_(other.m_), maximalVelocity_(0)
+          IntervalValidation(other), m_(other.m_),
+          collisionRequest_(other.collisionRequest_),
+          maximalVelocity_(other.maximalVelocity_)
         {}
 
         virtual void setReport (ValidationReportPtr_t& report,
@@ -124,6 +143,7 @@ namespace hpp {
           CollisionPairs_t pairs;
         };
         boost::shared_ptr<Model> m_;
+        fcl::CollisionRequest collisionRequest_;
 
         mutable vector_t Vb_;
         value_type maximalVelocity_;

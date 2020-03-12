@@ -315,6 +315,26 @@ namespace hpp {
       bodyPairCollisionPool_.clear();
     }
 
+    void ContinuousValidation::setSecurityMargins
+    (const matrix_t& securityMatrix)
+    {
+      // Loop over collision pairs and remove disabled ones.
+      size_type ia, ib;
+      for (IntervalValidations_t::iterator _colPair
+             (intervalValidations_.begin());
+          _colPair != intervalValidations_.end(); ++_colPair)
+      {
+        BodyPairCollisionPtr_t bpc(HPP_DYNAMIC_PTR_CAST(BodyPairCollision,
+                                                        *_colPair));
+        if (!bpc) continue;
+        ia = bpc->indexJointA ();
+        ib = bpc->indexJointB ();
+        value_type margin(securityMatrix(ia, ib));
+        bpc->securityMargin(margin);
+      }
+      bodyPairCollisionPool_.clear();
+    }
+
     template <>
     void ContinuousValidation::add<ContinuousValidation::AddObstacle>
     (const AddObstacle& delegate)
