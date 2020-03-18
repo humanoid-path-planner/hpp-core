@@ -47,14 +47,20 @@ namespace hpp {
         virtual void removeObstacleFromJoint(const JointPtr_t& joint,
             const CollisionObjectConstPtr_t& object) = 0;
 
-        /// \brief Filter collision pairs.
-        /// Remove pairs of object that cannot be in collision
-        /// when these constraints are statisfied.
+        /// Filter collision pairs.
+        ///
+        /// Remove pairs of object that cannot be in collision.
         /// This effectively disables collision detection between objects that
         /// have no possible relative motion due to the constraints.
         ///
         /// \param relMotion square symmetric matrix of RelativeMotionType of size numberDof x numberDof
         virtual void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion) = 0;
+        /// Set different security margins for collision pairs
+        ///
+        /// This method enables users to choose different security margins
+        /// for each pair of robot body or each pair robot body - obstacle.
+        /// \sa hpp::fcl::CollisionRequest::security_margin.
+        virtual void setSecurityMargins(const matrix_t& securityMatrix) = 0;
     }; // class ObstacleUserInterface
 
     /// Vector of validation class instances.
@@ -119,6 +125,20 @@ namespace hpp {
             boost::shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->filterCollisionPairs (relMotion);
+          }
+        }
+
+        /// Set different security margins for collision pairs
+        ///
+        /// This method enables users to choose different security margins
+        /// for each pair of robot body or each pair robot body - obstacle.
+        /// \sa hpp::fcl::CollisionRequest::security_margin.
+        void setSecurityMargins(const matrix_t& securityMatrix)
+        {
+          for (std::size_t i = 0; i < validations_.size(); ++i) {
+            boost::shared_ptr<ObstacleUserInterface> oui =
+              HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
+            if (oui) oui->setSecurityMargins (securityMatrix);
           }
         }
 
@@ -194,9 +214,9 @@ namespace hpp {
         virtual void removeObstacleFromJoint(const JointPtr_t& joint,
             const CollisionObjectConstPtr_t& object);
 
-        /// \brief Filter collision pairs.
-        /// Remove pairs of object that cannot be in collision
-        /// when these constraints are statisfied.
+        /// Filter collision pairs.
+        ///
+        /// Remove pairs of object that cannot be in collision.
         /// This effectively disables collision detection between objects that
         /// have no possible relative motion due to the constraints.
         /// \todo Before disabling collision pair, check if there is a collision.
@@ -204,6 +224,12 @@ namespace hpp {
         /// \param relMotion square symmetric matrix of RelativeMotionType of size numberDof x numberDof
         virtual void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
 
+        /// Set different security margins for collision pairs
+        ///
+        /// This method enables users to choose different security margins
+        /// for each pair of robot body or each pair robot body - obstacle.
+        /// \sa hpp::fcl::CollisionRequest::security_margin.
+        virtual void setSecurityMargins(const matrix_t& securityMatrix);
       protected:
         /// Constructor of body pair collision
         ObstacleUser (DevicePtr_t robot)

@@ -162,6 +162,30 @@ namespace hpp {
       }
     }
 
+    void ObstacleUser::setSecurityMargins(const matrix_t& securityMatrix)
+    {
+      pinocchio::JointIndex j1, j2;
+      fcl::CollisionResult unused;
+      for (std::size_t i = 0; i < cPairs_.size(); ++i) {
+        const CollisionPair_t& pair = cPairs_[i];
+        j1 = pair.first ->jointIndex();
+        j2 = pair.second->jointIndex();
+        cRequests_[i].security_margin = securityMatrix(j1, j2);
+      }
+      for (std::size_t i = 0; i < pPairs_.size(); ++i) {
+        const CollisionPair_t& pair = pPairs_[i];
+        j1 = pair.first ->jointIndex();
+        j2 = pair.second->jointIndex();
+        pRequests_[i].security_margin = securityMatrix(j1, j2);
+      }
+      for (std::size_t i = 0; i < dPairs_.size(); ++i) {
+        const CollisionPair_t& pair = dPairs_[i];
+        j1 = pair.first ->jointIndex();
+        j2 = pair.second->jointIndex();
+        dRequests_[i].security_margin = securityMatrix(j1, j2);
+      }
+    }
+
     void ObstacleUser::addRobotCollisionPairs ()
     {
       const pinocchio::GeomModel& model = robot_->geomModel();

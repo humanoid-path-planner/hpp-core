@@ -121,7 +121,21 @@ namespace hpp {
       virtual void removeObstacleFromJoint
 	(const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle);
 
+      /// Filter collision pairs.
+      ///
+      /// Remove pairs of object that cannot be in collision.
+      /// This effectively disables collision detection between objects that
+      /// have no possible relative motion due to the constraints.
+      ///
+      /// \param relMotion square symmetric matrix of RelativeMotionType of size numberDof x numberDof
       void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
+
+      /// Set different security margins for collision pairs
+      ///
+      /// This method enables users to choose different security margins
+      /// for each pair of robot body or each pair robot body - obstacle.
+      /// \sa hpp::fcl::CollisionRequest::security_margin.
+      virtual void setSecurityMargins(const matrix_t& securityMatrix);
 
       /// \name Delegate
       /// \{

@@ -338,6 +338,8 @@ namespace hpp {
       typedef boost::shared_ptr < Gaussian > GaussianPtr_t;
     } // namespace configurationShooter
 
+    /// Plane polygon represented by its vertices
+    /// Used to model contact surfaces for manipulation applications
     typedef std::vector<core::vector3_t> Shape_t;
     typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
     typedef std::list <JointAndShape_t> JointAndShapes_t;
