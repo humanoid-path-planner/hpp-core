@@ -500,6 +500,11 @@ namespace hpp {
       {
 	return distanceBetweenObjects_;
       }
+
+      pinocchio::GeomModelPtr_t obstacleGeomModel () const
+      { return obstacleModel_; }
+      pinocchio::GeomDataPtr_t  obstacleGeomData () const
+      { return obstacleData_; }
       /// \}
 
       /// Local vector of objects considered for collision detection
