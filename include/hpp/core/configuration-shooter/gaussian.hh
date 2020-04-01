@@ -44,7 +44,6 @@ namespace hpp {
             ptr->init (shPtr);
             return shPtr;
           }
-          virtual void shoot (Configuration_t& q) const;
 
           void center (ConfigurationIn_t c)
           {
@@ -92,6 +91,7 @@ namespace hpp {
             weak_ = self;
           }
 
+          virtual void impl_shoot (Configuration_t& q) const;
         private:
           const DevicePtr_t& robot_;
           /// The mean value

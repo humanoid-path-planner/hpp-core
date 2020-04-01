@@ -26,7 +26,7 @@ namespace hpp {
   namespace core {
     namespace configurationShooter {
 
-      void Uniform::shoot (Configuration_t& config) const
+      void Uniform::impl_shoot (Configuration_t& config) const
       {
         size_type extraDim = robot_->extraConfigSpace ().dimension ();
         size_type offset = robot_->configSize () - extraDim;
