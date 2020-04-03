@@ -31,7 +31,13 @@ namespace hpp {
       class HPP_CORE_DLLAPI Polynomial : public TimeParameterization
       {
         public:
-          Polynomial (const vector_t& param) : a (param) {}
+          Polynomial (const vector_t& param) : a (param)
+          {
+            for (size_type i=0; i<a.size(); ++i){
+              assert(a[i] < std::numeric_limits<value_type>::infinity());
+              assert(a[i] > -std::numeric_limits<value_type>::infinity());
+            }
+          }
 
           const vector_t& parameters () const
           {
@@ -102,6 +108,7 @@ namespace hpp {
               tn *= t;
               res += a[i] * tn;
             }
+            assert (!std::isnan(res));
             return res;
           }
 

@@ -151,6 +151,16 @@ namespace hpp {
         vector_t ub ( robot->model().velocityLimit),
                  lb (-robot->model().velocityLimit),
                  cb ((ub + lb) / 2);
+        for (size_type i=0; i < cb.size(); ++i) {
+          if (std::isnan (cb [i])) {
+            std::ostringstream oss;
+            oss << "in SimpleTimeParameterization::optimize:\n";
+            oss << "  the velocities of the input device should be bounded\n";
+            oss << "  velocity bounds at rank " << i << " are [" << lb[i]
+                << ", " << ub[i] << "].";
+            throw std::runtime_error(oss.str());
+          }
+        }
         assert (cb.size() + robot->extraConfigSpace().dimension()
             == robot->numberDof());
 
