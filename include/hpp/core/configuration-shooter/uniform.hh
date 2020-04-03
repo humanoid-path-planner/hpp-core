@@ -42,7 +42,6 @@ namespace hpp {
           ptr->init (shPtr);
           return shPtr;
         }
-        virtual void shoot (Configuration_t& q) const;
 
         void sampleExtraDOF(bool sampleExtraDOF){
             sampleExtraDOF_=sampleExtraDOF;
@@ -61,6 +60,7 @@ namespace hpp {
           weak_ = self;
         }
 
+        virtual void impl_shoot (Configuration_t& q) const;
       private:
         DevicePtr_t robot_;
         bool sampleExtraDOF_;

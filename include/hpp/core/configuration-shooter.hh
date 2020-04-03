@@ -44,7 +44,11 @@ namespace hpp {
 
       /// Shoot a random configuration
       /// \param q the configuration (resized if necessary).
-      virtual void shoot (Configuration_t& q) const = 0;
+      ///
+      /// \deprecated This method is virtual for backward compatibility. It will
+      /// become non-virtual in the future. Child classes should rather implement
+      /// \ref impl_shoot so that both prototype of method shoot remain available.
+      virtual void shoot (Configuration_t& q) const { impl_shoot(q); }
 
       virtual ~ConfigurationShooter () {};
     protected:
@@ -56,6 +60,8 @@ namespace hpp {
     {
   weakPtr_ = weak;
     }
+
+      virtual void impl_shoot (Configuration_t& q) const = 0;
     private:
       ConfigurationShooterWkPtr_t weakPtr_;
     }; // class
