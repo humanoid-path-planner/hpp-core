@@ -45,6 +45,10 @@ namespace hpp {
           a[1] = B;
           hppDout (info, "Time parametrization returned " << a.transpose()
               << ", " << T);
+          if (!isfinite(T) || !a.allFinite() || a.hasNaN()) {
+            HPP_THROW(std::logic_error, "Invalid time parameterization "
+                "coefficients: " << a.transpose());
+          }
           return TimeParameterizationPtr_t (new Polynomial (a));
         }
 
@@ -60,6 +64,10 @@ namespace hpp {
           a[3] = - 2 * a[2] / (3 * T);
           hppDout (info, "Time parametrization returned " << a.transpose()
               << ", " << T);
+          if (!isfinite(T) || !a.allFinite() || a.hasNaN()) {
+            HPP_THROW(std::logic_error, "Invalid time parameterization "
+                "coefficients: " << a.transpose());
+          }
           return TimeParameterizationPtr_t (new Polynomial (a));
         }
 
@@ -88,6 +96,10 @@ namespace hpp {
           a[5] =   6 * (s1 - s0) / Tpow;
           hppDout (info, "Time parametrization returned " << a.transpose()
               << ", " << T);
+          if (!isfinite(T) || !a.allFinite() || a.hasNaN()) {
+            HPP_THROW(std::logic_error, "Invalid time parameterization "
+                "coefficients: " << a.transpose());
+          }
           return TimeParameterizationPtr_t (new Polynomial (a));
         }
 
@@ -98,7 +110,9 @@ namespace hpp {
           const value_type thr = std::sqrt(Eigen::NumTraits<value_type>::dummy_precision());
           if (   fabs(tp->value(0) - sr.first) >= thr
               || fabs(tp->value(T) - sr.second) >= thr) {
-            throw std::logic_error("Boundaries of TimeParameterization are not correct.");
+            HPP_THROW(std::logic_error, "Interval of TimeParameterization result"
+                " is not correct. Expected " << sr.first << ", " << sr.second <<
+                ". Got " << tp->value(0) << ", " << tp->value(T));
           }
           if (order >= 1
               && (fabs(tp->derivative(0, 1)) > thr
@@ -150,7 +164,7 @@ namespace hpp {
         const DevicePtr_t& robot = problem().robot();
         vector_t ub ( robot->model().velocityLimit),
                  lb (-robot->model().velocityLimit),
-                 cb ((ub + lb) / 2);
+                 cb (vector_t::Zero(ub.size()));//cb ((ub + lb) / 2);
         assert (cb.size() + robot->extraConfigSpace().dimension()
             == robot->numberDof());
 
@@ -188,7 +202,10 @@ namespace hpp {
           const value_type B = std::min(
               ( ub.cwiseProduct(v_inv)).minCoeff(),
               (-lb.cwiseProduct(v_inv)).minCoeff());
-          assert (B > 0);
+          if (B <= 0 || B != B) {
+            HPP_THROW(std::runtime_error,"Invalid parametrization derivative "
+                "velocity bound: " << B);
+          }
 
           // Compute the polynom and total time
           value_type T;
