@@ -108,7 +108,7 @@ namespace hpp {
               tn *= t;
               res += a[i] * tn;
             }
-            assert (!std::isnan(res));
+            assert (res == res);
             return res;
           }
 

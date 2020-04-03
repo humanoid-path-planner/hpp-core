@@ -106,7 +106,7 @@ namespace hpp {
         ::pinocchio::details::Dispatch<ComputeSigmasStep>::run(jmodel.derived(), ComputeSigmasStep::ArgsType(model, sigmas));
       }
 
-      void Gaussian::shoot (Configuration_t& config) const
+      void Gaussian::impl_shoot (Configuration_t& config) const
       {
         static boost::random::mt19937 eng;
         vector_t velocity (robot_->numberDof());
