@@ -88,7 +88,7 @@ namespace hpp {
           path_->timeRange ().second, icl::interval_bounds::closed());
         if (icl::contains (validInterval_, iclInterval))
           valid_ = true;
-        assert (interval.second > interval.first);
+        assert (interval.second > interval.first || path()->length() == 0);
         return true;
       }
 
