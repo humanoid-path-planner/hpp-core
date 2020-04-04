@@ -151,6 +151,9 @@ namespace hpp {
 
       PathVectorPtr_t SimpleTimeParameterization::optimize (const PathVectorPtr_t& path)
       {
+        if (path->length() == 0) {
+          return path;
+        }
         const value_type infinity = std::numeric_limits<value_type>::infinity();
 
         const value_type safety = problem().getParameter("SimpleTimeParameterization/safety").floatValue();
