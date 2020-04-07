@@ -37,26 +37,46 @@ namespace hpp {
 
       /// Continuous validation of a path
       ///
-      /// In the future, this class is aimed at validating a path for various
-      /// criteria. However, in its current form, it only validates with respect
-      /// to the absence of collisions between bodies of a robot and the
+      /// This class valides a path for various criteria.
+      /// The default validation criterion is the absence of collisions
+      /// between bodies of a robot and the
       /// environment.
       ///
       /// Validation of PathVector instances is performed path by path.
       ///
       /// A path is valid if and only if each interval validation element
       /// is valid along the whole interval of definition (class
-      /// BodyPairCollision).
+      /// continuousValidation::IntervalValidation).
       ///
-      /// Collision pairs between bodies of the robot are initialized at
-      /// construction of the instance through the Initializer. The initializer
-      /// may be modified using methd ContinuousValidation::changeInitializer.
+      /// In order to validate other criteria, users can add their own
+      /// derivation of class continuousValidation::IntervalValidation using
+      /// method \link ContinuousValidation::addIntervalValidation
+      /// addIntervalValidation\endlink. They can also make use of two types
+      /// of delegates:
+      /// \li \link ContinuousValidation::Initialize Initialize\endlink
+      ///     and user defined derived classes. Instances of these classes
+      ///     may be added to the list of initializers by calling method
+      ///     \link ContinuousValidation::add <ContinuousValidation::Initialize>
+      ///     add <Initialize> \endlink. Upon calling method
+      /// \link ContinuousValidation::initialize initialize\endlink, methods
+      /// \c doExecute of these instances are called sucessively.
+      /// \li \link ContinuousValidation::AddObstacle AddObstacle\endlink
+      ///     and user defined derived classes. Instances of these classes
+      ///     may be added to the list of obstacle adders by calling method
+      ///     \link ContinuousValidation::add <ContinuousValidation::AddObstacle>
+      ///     add <AddObstacle> \endlink. Upon calling method
+      /// \link ContinuousValidation::addObstacle addObstacle\endlink, method
+      /// \c doExecute of these instances are called sucessively.
+      ///
+      /// Base class ContinuousValidation::Initialize initializes
+      /// collision pairs between bodies of the robot.
       ///
       /// Validation of a collision pair is based
       /// on the computation of an upper-bound of the relative velocity of
       /// objects of one joint (or of the environment) in the reference frame
-      /// of the other joint. This is implemented in BodyPairCollision and
-      /// SolidSolidCollision.
+      /// of the other joint. This is implemented in
+      /// continuousValidation::BodyPairCollision and
+      /// continuousValidation::SolidSolidCollision.
       ///
       /// See <a href="continuous-collision-checking.pdf"> this document </a>
       /// for details on the continuous collision checking.
@@ -75,7 +95,11 @@ namespace hpp {
       {
       public:
         Initialize(ContinuousValidation& owner);
-        /// Initialize ContinuousValidation class
+        /// Initialize collision pairs between bodies of the robot
+        /// Iterate over all collision pairs of the robot, and for each one,
+        /// \li create an instance of continuousValidation::SolidSolidCollision,
+        /// \li add it to class ContinuousValidation using method
+        ///     ContinuousValidation::addIntervalValidation.
         virtual void doExecute() const;
         virtual ~Initialize () {}
       protected:
@@ -111,7 +135,9 @@ namespace hpp {
       virtual bool validate (const PathPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
-      /// Iteratively call method doExecute of delegate class AddObstacle
+      /// Iteratively call method doExecute of delegate classes AddObstacle
+      /// \param object new obstacle.
+      /// \sa ContinuousValidation::add, ContinuousValidation::AddObstacle.
       virtual void addObstacle (const CollisionObjectConstPtr_t& object);
 
       /// Remove a collision pair between a joint and an obstacle
@@ -143,11 +169,22 @@ namespace hpp {
       /// \{
 
       /// Add a delegate
-      /// \tparam delegate type of delegate.
+      /// \tparam Delegate type of delegate.
+      /// \param instance of delegate class.
       ///
-      /// The following methods iteratively call delegates stored in a
-      /// vector:
-      /// \li addObstacle (type of delegate AddObstacle).
+      /// Delegates are used to enable users to specialize some actions of the
+      /// class without deriving the class. This class supports two types of
+      /// delegates:
+      /// \li Initialize: method
+      ///     \link ContinuousValidation::Initialize::doExecute doExecute
+      ///     \endlink of instances of this class and of user defined derived
+      ///     classes are called successively upon call of method
+      ///     \link ContinuousValidation::initialize\endlink,
+      /// \li AddObstacle: method
+      ///     \link ContinuousValidation::AddObstacle::doExecute doExecute
+      ///     \endlink of instances of this class and of user defined derived
+      ///     classes are called successively upon call of method
+      ///     \link ContinuousValidation::addObstacle\endlink,
       template <class Delegate> void add(const Delegate& delegate);
 
       /// Reset delegates of a type
@@ -168,9 +205,8 @@ namespace hpp {
       {
         return robot_;
       }
-      /// Initialize object
-      ///
-      /// Iteratively call delegates of type Initialize stored in object.
+      /// Iteratively call method doExecute of delegate classes Initialize
+      /// \sa ContinuousValidation::add, ContinuousValidation::Initialize.
       void initialize();
 
       virtual ~ContinuousValidation ();
