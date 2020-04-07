@@ -392,8 +392,8 @@ namespace hpp {
       if (tolerance < 0) {
         throw std::runtime_error ("tolerance should be non-negative.");
       }
-      add(Initialize(*this));
-      add(AddObstacle(*this));
+      add<Initialize>(Initialize(*this));
+      add<AddObstacle>(AddObstacle(*this));
     }
   } // namespace core
 } // namespace hpp

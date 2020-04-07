@@ -77,6 +77,7 @@ namespace hpp {
         Initialize(ContinuousValidation& owner);
         /// Initialize ContinuousValidation class
         virtual void doExecute() const;
+        virtual ~Initialize () {}
       protected:
         ContinuousValidation& owner_;
       }; // class Initialize
@@ -92,6 +93,7 @@ namespace hpp {
         /// Add the object to each collision pair a body of which is the
         /// environment.
         virtual void doExecute(const CollisionObjectConstPtr_t &object) const;
+        virtual ~AddObstacle () {}
       protected:
         ContinuousValidation& owner_;
         DeviceWkPtr_t robot_;
@@ -278,6 +280,20 @@ namespace hpp {
       std::vector<AddObstacle> addObstacle_;
     }; // class ContinuousValidation
     /// \}
+    template <>
+    void ContinuousValidation::add<ContinuousValidation::AddObstacle>
+    (const ContinuousValidation::AddObstacle& delegate);
+
+    template <>
+    void ContinuousValidation::reset<ContinuousValidation::AddObstacle>();
+
+    template <>
+    void ContinuousValidation::add<ContinuousValidation::Initialize>
+    (const ContinuousValidation::Initialize& delegate);
+
+    template <>
+    void ContinuousValidation::reset<ContinuousValidation::Initialize>();
+
     template <class Delegate> void ContinuousValidation::add
     (const Delegate& delegate)
     {
