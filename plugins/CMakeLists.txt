@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Joseph Mirabel
+# Copyright (c) 2019, 2020 Joseph Mirabel, Guilhem Saurel, CNRS
 # Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 #
 # This file is part of hpp-core.
@@ -18,5 +18,4 @@ INCLUDE(hpp-core-plugin)
 
 HPP_ADD_PLUGIN(spline-gradient-based
   SOURCES spline-gradient-based.cc
-  LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl
-  PKG_CONFIG_DEPENDENCIES hpp-util hpp-pinocchio hpp-statistics hpp-constraints)
+  LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl)

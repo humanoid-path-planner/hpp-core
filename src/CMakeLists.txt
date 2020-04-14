@@ -83,7 +83,7 @@ path-validation/no-validation.hh
   problem-target/goal-configurations.cc #
   problem-target/task-target.cc #
   reeds-shepp-path.cc
-  relative-motion.cc  
+  relative-motion.cc
   kinodynamic-path.cc
   kinodynamic-oriented-path.cc
   steering-method/steering-kinodynamic.cc
