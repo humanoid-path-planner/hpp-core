@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2010, 2011 CNRS
-# Authors: Florent Lamiraux, Joseph Mirabel
+# Copyright (c) 2010, 2011, 2020 CNRS
+# Authors: Florent Lamiraux, Joseph Mirabel, Guilhem Saurel
 #
 #
 # This file is part of hpp-core
@@ -17,25 +17,33 @@
 # hpp-core  If not, see
 # <http://www.gnu.org/licenses/>.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 SET(CXX_DISABLE_WERROR TRUE)
 SET(DOXYGEN_USE_MATHJAX YES)
+SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
+SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 
 SET(PROJECT_NAME hpp-core)
 SET(PROJECT_DESCRIPTION "Implement basic classes for canonical path planning for kinematic chains.")
 
 INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
-INCLUDE(cmake/test.cmake)
 
 SET(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake-modules/
   ${CMAKE_MODULE_PATH})
 
-SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
+
+ADD_PROJECT_DEPENDENCY(hpp-pinocchio)
+ADD_PROJECT_DEPENDENCY(hpp-util)
+ADD_PROJECT_DEPENDENCY(hpp-statistics)
+ADD_PROJECT_DEPENDENCY(hpp-constraints)
+
+SET(BOOST_COMPONENTS system timer unit_test_framework)
+SEARCH_FOR_BOOST()
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
@@ -139,16 +147,118 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/time-parameterization/polynomial.hh
   )
 
-ADD_REQUIRED_DEPENDENCY("hpp-pinocchio >= 4")
-ADD_REQUIRED_DEPENDENCY("hpp-util >= 3")
-ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
-ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
-ADD_DOC_DEPENDENCY("pinocchio")
+SET(${PROJECT_NAME}_SOURCES
+  src/astar.hh
+  src/bi-rrt-planner.cc
+  src/collision-validation.cc
+  src/configuration-shooter/uniform.cc
+  src/configuration-shooter/gaussian.cc
+  src/config-projector.cc
+  src/config-validations.cc
+  src/connected-component.cc
+  src/constraint.cc
+  src/constraint-set.cc
+  src/continuous-validation.cc
+  src/continuous-validation/body-pair-collision.cc
+  src/continuous-validation/dichotomy.cc
+  src/continuous-validation/solid-solid-collision.cc
+  src/continuous-validation/progressive.cc
+  src/diffusing-planner.cc
+  src/distance/reeds-shepp.cc
+  src/distance-between-objects.cc
+  src/dubins.hh
+  src/dubins.cc
+  src/dubins-path.cc
+  src/extracted-path.hh
+  src/interpolated-path.cc
+  src/joint-bound-validation.cc
+  src/obstacle-user.cc
+  src/path-validations.cc
+  src/path-validation/discretized.cc
+  src/path-validation/discretized-collision-checking.cc
+  src/path-validation/discretized-joint-bound.cc
+  src/path-validation/no-validation.hh
+  src/nearest-neighbor/basic.hh #
+  src/nearest-neighbor/basic.cc #
+  # src/nearest-neighbor/k-d-tree.cc #
+  # src/nearest-neighbor/k-d-tree.hh #
+  src/node.cc #
+  src/parameter.cc #
+  src/path.cc #
+  src/path-optimizer.cc #
+  src/path-optimization/linear-constraint.cc #
+  src/path-optimization/spline-gradient-based-abstract.cc #
+  src/path-optimization/partial-shortcut.cc #
+  src/path-optimization/random-shortcut.cc
+  src/path-optimization/simple-shortcut.cc
+  src/path-optimization/simple-time-parameterization.cc#
+  src/path-planner.cc #
+  src/path-planner/k-prm-star.cc
+  src/path-vector.cc #
+  src/path/spline.cc
+  src/path/hermite.cc
+  src/plan-and-optimize.cc #
+  src/plugin.cc # TODO : addObstacle
+  src/problem.cc # TODO : addObstacle
+  src/problem-solver.cc # TODO : addObstacle
+  src/path-projector.cc
+  src/path-projector/dichotomy.cc #
+  src/path-projector/global.cc #
+  src/path-projector/progressive.cc #
+  src/path-projector/recursive-hermite.cc
+  src/path-projector.cc #
+  src/parser/roadmap-factory.cc #
+  src/problem-target/goal-configurations.cc #
+  src/problem-target/task-target.cc #
+  src/reeds-shepp-path.cc
+  src/relative-motion.cc
+  src/kinodynamic-path.cc
+  src/kinodynamic-oriented-path.cc
+  src/steering-method/steering-kinodynamic.cc
+  src/roadmap.cc
+  src/steering-method/reeds-shepp.cc # TODO access type of joint
+  src/steering-method/car-like.cc
+  src/steering-method/constant-curvature.cc
+  src/steering-method/dubins.cc
+  src/steering-method/snibud.cc
+  src/steering-method/spline.cc
+  src/steering-method/straight.cc
+  src/straight-path.cc
+  src/interpolated-path.cc
+  src/visibility-prm-planner.cc
+  src/weighed-distance.cc
+  src/kinodynamic-distance.cc
+  src/path-projector/progressive.cc
+  src/path-projector/dichotomy.cc
+  src/path-projector/global.cc
+  src/path-projector.cc
+  src/parser/roadmap-factory.cc
+  src/problem-target/goal-configurations.cc
+  src/problem-target/task-target.cc
+  )
 
-SET(BOOST_COMPONENTS system timer unit_test_framework)
-SEARCH_FOR_BOOST()
+ADD_LIBRARY(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PRIVATE src)
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_DL_LIBS}
+    hpp-util::hpp-util pinocchio::pinocchio hpp-statistics::hpp-statistics hpp-constraints::hpp-constraints)
 
-ADD_SUBDIRECTORY(src)
+INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
+
+# GPL licenced part
+SET(${PROJECT_NAME}_HEADERS_GPL
+  src/path-optimization/spline-gradient-based/eiquadprog_2011.hpp
+  )
+SET(${PROJECT_NAME}_HEADERS_GPL
+  src/path-optimization/quadratic-program.cc
+  src/path-optimization/spline-gradient-based.cc
+  )
+ADD_LIBRARY(${PROJECT_NAME}-gpl SHARED ${${PROJECT_NAME}_SOURCES_GPL} ${${PROJECT_NAME}_HEADERS_GPL})
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME}-gpl PRIVATE src)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}-gpl ${PROJECT_NAME})
+
+INSTALL(TARGETS ${PROJECT_NAME}-gpl EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
+
 ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(tests)
 
@@ -160,7 +270,9 @@ IF(INSTALL_DOCUMENTATION)
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
 ENDIF(INSTALL_DOCUMENTATION)
 
-SET(PKG_CONFIG_EXTRA "${PKG_CONFIG_EXTRA}\ncmake_plugin=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake/${PROJECT_NAME}-plugin.cmake")
+SET(HPP_CORE_CMAKE_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}/${PROJECT_NAME}-plugin.cmake")
+SET(PKG_CONFIG_EXTRA "${PKG_CONFIG_EXTRA}\ncmake_plugin=${HPP_CORE_CMAKE_PLUGIN}")
+SET(PACKAGE_EXTRA_MACROS "set(HPP_CORE_CMAKE_PLUGIN ${HPP_CORE_CMAKE_PLUGIN})")
 INSTALL(FILES cmake-modules/hpp-core-plugin.cmake
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake/
+  DESTINATION lib/cmake/${PROJECT_NAME}
   PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)

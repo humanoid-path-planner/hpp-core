@@ -1,6 +1,6 @@
-# Copyright 2012, 2013, 2014 CNRS-LAAS
+# Copyright 2012, 2013, 2014, 2020 CNRS-LAAS
 #
-# Author: Mathieu Geisert
+# Author: Mathieu Geisert, Guilhem Saurel
 #
 # This file is part of hpp-core
 # hpp-core is free software: you can redistribute it and/or modify
@@ -14,9 +14,6 @@
 # GNU General Lesser Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License
 # along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
-
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
 
 # Make Boost.Test generates the main function in test cases.
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
@@ -43,14 +40,8 @@ MACRO(ADD_TESTCASE NAME GENERATED)
   ELSE()
     ADD_UNIT_TEST(${NAME} ${NAME}.cc)
   ENDIF()
-
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-util)
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-pinocchio)
-  # Link against Boost and project library.
-  TARGET_LINK_LIBRARIES(${NAME}
-    ${Boost_LIBRARIES} hpp-core hpp-core-gpl
-    )
-
+  TARGET_INCLUDE_DIRECTORIES(${NAME} PRIVATE ../src)
+  TARGET_LINK_LIBRARIES(${NAME} ${Boost_LIBRARIES} ${PROJECT_NAME}-gpl)
 ENDMACRO(ADD_TESTCASE)
 
 FIND_PACKAGE(OpenMP)
