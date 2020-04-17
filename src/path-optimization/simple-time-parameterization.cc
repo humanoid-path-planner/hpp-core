@@ -33,6 +33,7 @@ namespace hpp {
   namespace core {
     namespace pathOptimization {
       using timeParameterization::Polynomial;
+      using std::isfinite;
 
       namespace {
         TimeParameterizationPtr_t computeTimeParameterizationFirstOrder (
