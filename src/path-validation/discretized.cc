@@ -44,72 +44,53 @@ namespace hpp {
       ValidationReportPtr_t configReport;
       assert (path);
       bool valid = true;
+      const value_type tmin = path->timeRange ().first;
+      const value_type tmax = path->timeRange ().second;
+      unsigned finished = 0;
+      Configuration_t q (path->outputSize());
+      value_type T1, step, lastValidTime;
       if (reverse) {
-	value_type tmin = path->timeRange ().first;
-	value_type tmax = path->timeRange ().second;
-	value_type lastValidTime = tmax;
-	value_type t = tmax;
-	unsigned finished = 0;
-        Configuration_t q (path->outputSize());
-	while (finished < 2 && valid) {
-          bool success = (*path) (q, t);
-          if (!success) {
-            validationReport = PathValidationReportPtr_t (
-                new PathValidationReport (t,
-                  ValidationReportPtr_t(new ProjectionError()))
-                );
-            valid = false;
-          } else if (!ConfigValidations::validate (q, configReport)) {
-            validationReport = CollisionPathValidationReportPtr_t
-              (new CollisionPathValidationReport (t, configReport));
-            valid = false;
-          } else {
-	    lastValidTime = t;
-	    t -= stepSize_;
-	  }
-	  if (t < tmin) {
-	    t = tmin;
-	    finished++;
-	  }
-	}
-	if (valid) {
-	  validPart = path;
-	  return true;
-	} else {
-	  validPart = path->extract (std::make_pair (lastValidTime, tmax));
-	  return false;
-	}
+        lastValidTime = tmax;
+        T1 = tmin;
+        step = -stepSize_;
       } else {
-          hppDout(notice,"path validation, else");
-	value_type tmin = path->timeRange ().first;
-	value_type tmax = path->timeRange ().second;
-	value_type lastValidTime = tmin;
-	value_type t = tmin;
-	unsigned finished = 0;
-        Configuration_t q (path->outputSize());
-	while (finished < 2 && valid) {
-	  bool success = (*path) (q, t);
-      if (!success || !ConfigValidations::validate (q, configReport)) {
-	validationReport = CollisionPathValidationReportPtr_t
-	  (new CollisionPathValidationReport (t, configReport));
-	    valid = false;
-	  } else {
-	    lastValidTime = t;
-	    t += stepSize_;
-	  }
-	  if (t > tmax) {
-	    t = tmax;
-	    finished ++;
-	  }
-	}
-    hppDout(notice,"path validation, end. Valid : "<<valid<<" ; lastValidTime : "<<lastValidTime);
-	if (valid) {
-	  validPart = path;
-	  return true;
-	} else {
-	  validPart = path->extract (std::make_pair (tmin, lastValidTime));
-	  return false;
-	}
+        lastValidTime = tmin;
+        T1 = tmax;
+        step = stepSize_;
+      }
+
+      value_type t = lastValidTime;
+      while (finished < 2 && valid) {
+        bool success = (*path) (q, t);
+        if (!success) {
+          validationReport = PathValidationReportPtr_t (
+              new PathValidationReport (t,
+                ValidationReportPtr_t(new ProjectionError()))
+              );
+          valid = false;
+        } else if (!ConfigValidations::validate (q, configReport)) {
+          validationReport = CollisionPathValidationReportPtr_t
+            (new CollisionPathValidationReport (t, configReport));
+          valid = false;
+        } else {
+          lastValidTime = t;
+          t += step;
+        }
+        if (   ( reverse && t < T1)
+            || (!reverse && t > T1)) {
+          t = T1;
+          finished++;
+        }
+      }
+      if (valid) {
+        validPart = path;
+        return true;
+      } else {
+        if (reverse)
+          validPart = path->extract (lastValidTime, tmax);
+        else
+	  validPart = path->extract (tmin, lastValidTime);
+        return false;
       }
     }
 
