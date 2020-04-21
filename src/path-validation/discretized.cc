@@ -22,6 +22,7 @@
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/path-validation/discretized.hh>
+#include <hpp/core/projection-error.hh>
 #include <hpp/util/debug.hh>
 
 namespace hpp {
@@ -52,11 +53,17 @@ namespace hpp {
         Configuration_t q (path->outputSize());
 	while (finished < 2 && valid) {
           bool success = (*path) (q, t);
-      if (!success || !ConfigValidations::validate (q, configReport)) {
-	validationReport = CollisionPathValidationReportPtr_t
-	  (new CollisionPathValidationReport (t, configReport));
-	    valid = false;
-	  } else {
+          if (!success) {
+            validationReport = PathValidationReportPtr_t (
+                new PathValidationReport (t,
+                  ValidationReportPtr_t(new ProjectionError()))
+                );
+            valid = false;
+          } else if (!ConfigValidations::validate (q, configReport)) {
+            validationReport = CollisionPathValidationReportPtr_t
+              (new CollisionPathValidationReport (t, configReport));
+            valid = false;
+          } else {
 	    lastValidTime = t;
 	    t -= stepSize_;
 	  }
