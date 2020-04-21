@@ -72,8 +72,11 @@ namespace hpp {
           bool success = (*path) (q, t);
           PathValidationReportPtr_t pathReport;
           interval_t interval;
-          if (!success ||
-              !validateConfiguration (bodyPairCollisions, q, t, interval, pathReport)) {
+          if (!success) {
+            report = PathValidationReportPtr_t (new PathValidationReport (t,
+                  ValidationReportPtr_t(new ProjectionError())));
+            valid = false;
+          } else if (!validateConfiguration (bodyPairCollisions, q, t, interval, pathReport)) {
             report = pathReport;
             valid = false;
           } else {
@@ -100,7 +103,7 @@ namespace hpp {
             tmin = tr.first;
             tmax = validSubset.list ().begin ()->second;
           }
-          validPart = path->extract (std::make_pair (tmin, tmax));
+          validPart = path->extract (tmin, tmax);
           return false;
         } else {
           validPart = path;
