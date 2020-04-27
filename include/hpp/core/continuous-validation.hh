@@ -101,9 +101,10 @@ namespace hpp {
         /// \li add it to class ContinuousValidation using method
         ///     ContinuousValidation::addIntervalValidation.
         virtual void doExecute() const;
+        ContinuousValidation & owner() const { return *owner_; }
         virtual ~Initialize () {}
       protected:
-        ContinuousValidation& owner_;
+        ContinuousValidation* owner_;
       }; // class Initialize
       /// Delegate class to add obstacle to ContinuousValidation instance
       ///
@@ -117,9 +118,10 @@ namespace hpp {
         /// Add the object to each collision pair a body of which is the
         /// environment.
         virtual void doExecute(const CollisionObjectConstPtr_t &object) const;
+        ContinuousValidation & owner() const { return *owner_; }
         virtual ~AddObstacle () {}
       protected:
-        ContinuousValidation& owner_;
+        ContinuousValidation* owner_;
         DeviceWkPtr_t robot_;
       }; // class AddObstacle
 

@@ -19,6 +19,7 @@
 #define HPP_CORE_PROJECTION_ERROR_HH
 
 #include <exception>
+#include <hpp/core/path-validation-report.hh>
 
 namespace hpp {
   namespace core {
@@ -41,6 +42,31 @@ namespace hpp {
 
       std::string msg_;
     };
+
+    /// \addtogroup validation
+    /// \{
+
+    /// Handles projection errors when evaluating a path.
+    struct HPP_CORE_DLLAPI ProjectionError :
+      public ValidationReport
+    {
+      ProjectionError (const std::string& msg = "")
+        : ValidationReport(), msg (msg)
+      {}
+
+      virtual ~ProjectionError () {};
+
+      virtual std::ostream& print (std::ostream& os) const
+      {
+        os << "Projection error";
+        if (!msg.empty())
+          os << " (" << msg << ')';
+	return os;
+      }
+
+      std::string msg;
+    }; // class ProjectionError
+    /// \}
   } // namespace core
 } // namespace hpp
 

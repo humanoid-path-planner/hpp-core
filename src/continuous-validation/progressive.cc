@@ -90,8 +90,11 @@ namespace hpp {
         while (finished < 2 && valid) {
           bool success = (*path) (q, t);
           value_type tprev = t;
-          if (!success ||
-              !validateConfiguration (bodyPairCollisions, q, t, interval, pathReport)) {
+          if (!success) {
+            report = PathValidationReportPtr_t (new PathValidationReport (t,
+                  ValidationReportPtr_t(new ProjectionError())));
+            valid = false;
+          } else if (!validateConfiguration (bodyPairCollisions, q, t, interval, pathReport)) {
             report = pathReport;
             valid = false;
           } else {
@@ -108,8 +111,8 @@ namespace hpp {
           return true;
         } else {
           validPart = reverse ? 
-              path->extract (std::make_pair (lastValidTime, tmax))
-            : path->extract (std::make_pair (tmin, lastValidTime));
+              path->extract (lastValidTime, tmax)
+            : path->extract (tmin, lastValidTime);
           return false;
         }
       }

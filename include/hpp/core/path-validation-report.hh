@@ -19,6 +19,7 @@
 #ifndef HPP_CORE_PATH_VALIDATION_REPORT_HH
 # define HPP_CORE_PATH_VALIDATION_REPORT_HH
 
+# include <hpp/util/indent.hh>
 # include <hpp/core/validation-report.hh>
 
 namespace hpp {
@@ -45,10 +46,11 @@ namespace hpp {
 
       virtual std::ostream& print (std::ostream& os) const
       {
-	os << "Invalid configuration at parameter " << parameter << std::endl;
+	os << "Invalid configuration at parameter " << parameter << iendl
+          << incindent;
         if (!configurationReport) os << "No ValidationReport";
         else os << *configurationReport;
-	return os;
+	return os << decindent;
       }
 
       value_type getParameter()
