@@ -36,7 +36,7 @@ namespace hpp {
 
     ContinuousValidation::Initialize::Initialize
     (ContinuousValidation& owner):
-      owner_(owner)
+      owner_(&owner)
     {
     }
 
@@ -59,7 +59,7 @@ namespace hpp {
 
     void ContinuousValidation::Initialize::doExecute() const
     {
-      DevicePtr_t robot = owner_.robot();
+      DevicePtr_t robot = owner().robot();
       const pinocchio::GeomModel &gmodel = robot->geomModel();
       const pinocchio::GeomData  &gdata  = robot->geomData();
       JointPtr_t joint1, joint2;
@@ -85,8 +85,8 @@ namespace hpp {
           if (!joint2) joint2.swap (joint1);
           assert(joint2);
           continuousValidation::SolidSolidCollisionPtr_t ss
-            (SolidSolidCollision::create(joint2, joint1, owner_.tolerance_));
-          owner_.addIntervalValidation(ss);
+            (SolidSolidCollision::create(joint2, joint1, owner().tolerance_));
+          owner().addIntervalValidation(ss);
           bodyPairMap[jp] = ss;
         }
         CollisionObjectConstPtr_t co1
@@ -99,7 +99,7 @@ namespace hpp {
 
     ContinuousValidation::AddObstacle::AddObstacle
     (ContinuousValidation& owner):
-      owner_(owner), robot_ (owner.robot())
+      owner_(&owner), robot_ (owner.robot())
     {
     }
 
@@ -114,9 +114,9 @@ namespace hpp {
         {
           ConstObjectStdVector_t objects;
           objects.push_back(object);
-          owner_.addIntervalValidation
+          owner().addIntervalValidation
             (SolidSolidCollision::create (joint, objects,
-                                          owner_.tolerance()));
+                                          owner().tolerance()));
         }
       }
     }
