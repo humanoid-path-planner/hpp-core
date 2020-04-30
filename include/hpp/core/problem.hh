@@ -243,6 +243,9 @@ namespace hpp {
       /// path validation instance (Problem::pathValidation).
       void filterCollisionPairs ();
 
+      /// \copydoc ObstacleUserInterface::setSecurityMargins
+      void setSecurityMargins(const matrix_t& securityMatrix);
+
       /// Vector of objects considered for collision detection
       const ObjectStdVector_t &collisionObstacles() const;
       /// Set the vector of objects considered for collision detection

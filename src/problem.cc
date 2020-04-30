@@ -202,6 +202,7 @@ namespace hpp {
 	configValidations_->removeObstacleFromJoint (joint, obstacle);
       }
     }
+
     // ======================================================================
 
     void Problem::filterCollisionPairs ()
@@ -215,6 +216,18 @@ namespace hpp {
       if (oui) oui->filterCollisionPairs (matrix);
       if (configValidations_) {
 	configValidations_->filterCollisionPairs (matrix);
+      }
+    }
+
+    // ======================================================================
+
+    void Problem::setSecurityMargins(const matrix_t& securityMatrix)
+    {
+      boost::shared_ptr<ObstacleUserInterface> oui =
+        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
+      if (oui) oui->setSecurityMargins (securityMatrix);
+      if (configValidations_) {
+	configValidations_->setSecurityMargins (securityMatrix);
       }
     }
 
