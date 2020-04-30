@@ -22,3 +22,13 @@ HPP_ADD_PLUGIN(spline-gradient-based
   LINK_DEPENDENCIES PUBLIC ${PROJECT_NAME} ${PROJECT_NAME}-gpl)
 
 PROJECT_INSTALL_COMPONENT(spline-gradient-based)
+
+find_package(toppra)
+if(toppra_FOUND)
+  HPP_ADD_PLUGIN(toppra
+    EXPORT toppraTargets
+    SOURCES toppra
+    LINK_DEPENDENCIES PUBLIC ${PROJECT_NAME} toppra::toppra)
+
+  PROJECT_INSTALL_COMPONENT(toppra)
+endif()
