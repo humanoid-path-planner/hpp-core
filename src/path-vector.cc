@@ -18,6 +18,8 @@
 
 #include <hpp/core/path-vector.hh>
 
+#include <hpp/util/indent.hh>
+
 #include <stdexcept>
 
 namespace hpp {
@@ -205,6 +207,16 @@ namespace hpp {
 	} while (i <= imax);
       }
       return path;
+    }
+
+    std::ostream& PathVector::print (std::ostream &os) const
+    {
+      Path::print (os << "PathVector:") << incendl;
+      for (Paths_t::const_iterator itPath = paths_.begin ();
+          itPath != paths_.end (); ++itPath) {
+        os << (**itPath) << iendl;
+      }
+      return os << decindent;
     }
   } //   namespace core
 } // namespace hpp

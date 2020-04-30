@@ -20,6 +20,7 @@
 
 #include <hpp/util/debug.hh>
 
+#include <hpp/pinocchio/util.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -181,6 +182,14 @@ namespace hpp {
     DevicePtr_t StraightPath::device () const
     {
       return device_;
+    }
+
+    std::ostream& StraightPath::print (std::ostream &os) const
+    {
+      Path::print (os << "StraightPath:") << incendl
+        << "initial configuration: " << one_line(initial_) << iendl
+        << "final configuration:   " << one_line(end_) << decendl;
+      return os;
     }
   } //   namespace core
 } // namespace hpp

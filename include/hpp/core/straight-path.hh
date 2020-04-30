@@ -214,14 +214,7 @@ namespace hpp {
 
     protected:
       /// Print path in a stream
-      virtual std::ostream& print (std::ostream &os) const
-      {
-	os << "StraightPath:" << std::endl;
-        Path::print (os);
-	os << "initial configuration: " << initial_.transpose () << std::endl;
-	os << "final configuration:   " << end_.transpose () << std::endl;
-	return os;
-      }
+      virtual std::ostream& print (std::ostream &os) const;
 
       /// Constructor
       StraightPath (LiegroupSpacePtr_t space, vectorIn_t init, vectorIn_t end,

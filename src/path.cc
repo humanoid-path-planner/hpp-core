@@ -19,6 +19,7 @@
 #include "extracted-path.hh"
 
 #include <hpp/util/debug.hh>
+#include <hpp/util/indent.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/time-parameterization.hh>
 #include <hpp/core/config-projector.hh>
@@ -271,7 +272,7 @@ namespace hpp {
       if (timeParam_)
         os << ", param in [ " << paramRange().first << ", "
           << paramRange().second << " ]";
-      os << std::endl;
+      os << iendl;
       return os;
     }
   } //   namespace core

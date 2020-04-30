@@ -138,16 +138,7 @@ namespace hpp {
 
     protected:
       /// Print path in a stream
-      virtual std::ostream& print (std::ostream &os) const
-      {
-	os << "PathVector:" << std::endl;
-        Path::print (os);
-	for (Paths_t::const_iterator itPath = paths_.begin ();
-	     itPath != paths_.end (); ++itPath) {
-	  os << (**itPath) << std::endl;
-	}
-	return os;
-      }
+      virtual std::ostream& print (std::ostream &os) const;
       /// Constructor
       PathVector (std::size_t outputSize, std::size_t outputDerivativeSize) :
 	parent_t (std::make_pair (0, 0), outputSize, outputDerivativeSize),
