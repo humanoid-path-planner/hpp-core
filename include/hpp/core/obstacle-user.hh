@@ -224,11 +224,7 @@ namespace hpp {
         /// \param relMotion square symmetric matrix of RelativeMotionType of size numberDof x numberDof
         virtual void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion);
 
-        /// Set different security margins for collision pairs
-        ///
-        /// This method enables users to choose different security margins
-        /// for each pair of robot body or each pair robot body - obstacle.
-        /// \sa hpp::fcl::CollisionRequest::security_margin.
+        /// \copydoc ObstacleUserInterface::setSecurityMargins
         virtual void setSecurityMargins(const matrix_t& securityMatrix);
       protected:
         /// Constructor of body pair collision

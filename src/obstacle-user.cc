@@ -17,6 +17,7 @@
 
 #include <hpp/core/obstacle-user.hh>
 
+#include <hpp/util/exception-factory.hh>
 #include <hpp/fcl/collision.h>
 
 #include <pinocchio/multibody/geometry.hpp>
@@ -164,6 +165,14 @@ namespace hpp {
 
     void ObstacleUser::setSecurityMargins(const matrix_t& securityMatrix)
     {
+      if (   securityMatrix.rows() != robot_->nbJoints()+1
+          || securityMatrix.cols() != robot_->nbJoints()+1)
+      {
+        HPP_THROW(std::invalid_argument, "Wrong size of security margin matrix."
+            " Expected " << robot_->nbJoints()+1 << 'x' << robot_->nbJoints()+1
+            << ". Got " << securityMatrix.rows() << 'x' << securityMatrix.cols()
+            );
+      }
       pinocchio::JointIndex j1, j2;
       fcl::CollisionResult unused;
       for (std::size_t i = 0; i < cPairs_.size(); ++i) {
