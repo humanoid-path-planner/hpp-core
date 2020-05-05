@@ -340,9 +340,9 @@ namespace hpp {
 
     /// Plane polygon represented by its vertices
     /// Used to model contact surfaces for manipulation applications
-    typedef std::vector<core::vector3_t> Shape_t;
-    typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
-    typedef std::list <JointAndShape_t> JointAndShapes_t;
+    typedef constraints::Shape_t Shape_t;
+    typedef constraints::JointAndShape_t JointAndShape_t;
+    typedef constraints::JointAndShapes_t JointAndShapes_t;
 
     typedef constraints::Implicit NumericalConstraint HPP_CORE_DEPRECATED;
     typedef constraints::ImplicitPtr_t NumericalConstraintPtr_t
