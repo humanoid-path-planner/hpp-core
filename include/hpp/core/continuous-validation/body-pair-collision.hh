@@ -121,6 +121,7 @@ namespace hpp {
           IntervalValidation(tolerance), m_ (new Model),
           collisionRequest_(fcl::DISTANCE_LOWER_BOUND, 1), maximalVelocity_(0)
         {
+          collisionRequest_.enable_cached_gjk_guess = true;
         }
 
         /// Copy constructor
@@ -171,7 +172,7 @@ namespace hpp {
         /// \return true if the bodies are not in collision, else false
         virtual bool computeDistanceLowerBound(value_type &distanceLowerBound,
           ValidationReportPtr_t& report,
-          const pinocchio::DeviceData& data) const;
+          const pinocchio::DeviceData& data);
 
       }; // class BodyPairCollision
 

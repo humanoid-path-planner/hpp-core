@@ -144,7 +144,7 @@ namespace hpp {
 
       bool BodyPairCollision::computeDistanceLowerBound(value_type &distanceLowerBound,
         ValidationReportPtr_t& report,
-        const pinocchio::DeviceData& data) const
+        const pinocchio::DeviceData& data)
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
