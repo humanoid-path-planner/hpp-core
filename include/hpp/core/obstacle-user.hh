@@ -160,7 +160,7 @@ namespace hpp {
         typedef std::vector<fcl::CollisionRequest> CollisionRequests_t;
 
         static bool collide (const CollisionPairs_t& pairs,
-            const CollisionRequests_t& reqs,
+            CollisionRequests_t& reqs,
             fcl::CollisionResult& res,
             std::size_t& i,
             pinocchio::DeviceData& data);
@@ -230,7 +230,9 @@ namespace hpp {
         /// Constructor of body pair collision
         ObstacleUser (DevicePtr_t robot)
           : robot_ (robot), defaultRequest_ (fcl::NO_REQUEST,1)
-        {}
+        {
+          defaultRequest_.enable_cached_gjk_guess = true;
+        }
 
         /// Copy constructor
         ObstacleUser (const ObstacleUser& other)

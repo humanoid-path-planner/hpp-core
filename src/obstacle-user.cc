@@ -21,6 +21,7 @@
 #include <hpp/fcl/collision.h>
 
 #include <pinocchio/multibody/geometry.hpp>
+#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
 
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/device.hh>
@@ -28,23 +29,25 @@
 
 namespace hpp {
   namespace core {
+    using ::pinocchio::toFclTransform3f;
     bool ObstacleUser::collide (const CollisionPairs_t& pairs,
-        const CollisionRequests_t& reqs,
+        CollisionRequests_t& reqs,
         fcl::CollisionResult& res,
         std::size_t& i,
         pinocchio::DeviceData& data)
     {
       for (i = 0; i < pairs.size(); ++i) {
         res.clear();
-        assert(!pairs[i].first ->fcl (data)->getTranslation().hasNaN());
-        assert(!pairs[i].first ->fcl (data)->getRotation().hasNaN());
-        assert(!pairs[i].second->fcl (data)->getTranslation().hasNaN());
-        assert(!pairs[i].second->fcl (data)->getRotation().hasNaN());
+        const CollisionObjectConstPtr_t& a (pairs[i].first );
+        const CollisionObjectConstPtr_t& b (pairs[i].second);
+        assert(!a->getTransform(data).translation().hasNaN());
+        assert(!a->getTransform(data).rotation   ().hasNaN());
+        assert(!b->getTransform(data).translation().hasNaN());
+        assert(!b->getTransform(data).rotation   ().hasNaN());
         if (fcl::collide (
-              pairs[i].first ->fcl (data),
-              pairs[i].second->fcl (data),
-              reqs[i], res) != 0)
-          return true;
+              a->geometry().get(), toFclTransform3f(a->getTransform (data)),
+              b->geometry().get(), toFclTransform3f(b->getTransform (data)),
+              reqs[i], res) != 0) return true;
       }
       return false;
     }

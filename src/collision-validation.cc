@@ -95,7 +95,9 @@ namespace hpp {
       checkParameterized_(false),
       computeAllContacts_(false)
     {
-      defaultRequest() = fcl::CollisionRequest(fcl::NO_REQUEST,1);
+      fcl::CollisionRequest req (fcl::NO_REQUEST,1); 
+      req.enable_cached_gjk_guess = true;
+      defaultRequest() = req;
       addRobotCollisionPairs();
     }
 
