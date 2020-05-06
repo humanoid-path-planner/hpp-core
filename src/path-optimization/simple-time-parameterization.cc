@@ -169,15 +169,6 @@ namespace hpp {
         vector_t ub ( robot->model().velocityLimit),
                  lb (-robot->model().velocityLimit),
                  cb ((ub + lb) / 2);
-        for (size_type i=0; i < cb.size(); ++i) {
-          if (std::isnan (cb [i])) {
-            HPP_THROW(std::runtime_error,
-              "in SimpleTimeParameterization::optimize:\n"
-              << "  the velocities of the input device should be bounded\n"
-              << "  velocity bounds at rank " << i << " are [" << lb[i]
-              << ", " << ub[i] << "].");
-          }
-        }
         assert (cb.size() + robot->extraConfigSpace().dimension()
             == robot->numberDof());
 
@@ -188,6 +179,16 @@ namespace hpp {
         // When ub or lb are NaN, set them to infinity.
         ub = (ub.array() == ub.array()).select(ub,  infinity);
         lb = (lb.array() == lb.array()).select(lb, -infinity);
+
+        for (size_type i=0; i < cb.size(); ++i) {
+          if (std::isnan (lb [i]) || std::isnan (ub [i])) {
+            HPP_THROW(std::runtime_error,
+              "in SimpleTimeParameterization::optimize:\n"
+              << "  the velocities of the input device should be bounded\n"
+              << "  velocity bounds at rank " << i << " are [" << lb[i]
+              << ", " << ub[i] << "].");
+          }
+        }
 
         hppDout (info, "Lower velocity bound :" << lb.transpose());
         hppDout (info, "Upper velocity bound :" << ub.transpose());
@@ -215,7 +216,7 @@ namespace hpp {
           const value_type B = std::min(
               ( ub.cwiseProduct(v_inv)).minCoeff(),
               (-lb.cwiseProduct(v_inv)).minCoeff());
-          if (B <= 0 || B != B) {
+          if (B <= 0 || B != B || !isfinite(B)) {
             HPP_THROW(std::runtime_error,"Invalid parametrization derivative "
                 "velocity bound: " << B);
           }
