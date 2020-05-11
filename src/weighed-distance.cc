@@ -112,23 +112,6 @@ namespace hpp {
         }
       };
 
-      template <> void ComputeWeightStep::algo< pinocchio::JointModelComposite>(
-          const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
-          const pinocchio::Model & model,
-          const pinocchio::Data & data,
-          const pinocchio::GeomData & geomData,
-          value_type & length)
-      {
-        hppDout(warning, "The weights for JointModelComposite are not correct."
-            " There should be one weight per subjoint.");
-        length = 0;
-        value_type tmp = 0;
-        for (size_t i = 0; i < jmodel.derived().joints.size(); ++i) {
-          ComputeWeightStep::run(jmodel.derived().joints[i], ArgsType(model, data, geomData, tmp));
-          length += tmp;
-        }
-      }
-
       template<> value_type ComputeWeightStep::largestSingularValue<0>(const Eigen::Matrix<value_type, 3, 0>&)
       {
         return 0;
@@ -161,19 +144,6 @@ namespace hpp {
         }
 
       };
-
-      template <>
-      void SquaredDistanceStep::algo< pinocchio::JointModelComposite>(
-          const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
-          ConfigurationIn_t q0,
-          ConfigurationIn_t q1,
-          const value_type & w,
-          value_type & distance)
-      {
-        ::pinocchio::details::Dispatch<SquaredDistanceStep>::run(
-            jmodel.derived(),
-            ArgsType(q0, q1, w, distance));
-      }
     }
 
     WeighedDistancePtr_t WeighedDistance::create (const DevicePtr_t& robot)
