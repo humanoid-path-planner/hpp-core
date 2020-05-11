@@ -23,14 +23,18 @@
 #include <pinocchio/serialization/eigen.hpp>
 
 #include <hpp/core/connected-component.hh>
+#include <hpp/core/distance.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/node.hh>
+#include <hpp/core/nearest-neighbor.hh>
+#include <hpp/core/roadmap.hh>
 
 #include <hpp/util/serialization.hh>
 
 BOOST_CLASS_EXPORT(hpp::core::Node)
 BOOST_CLASS_EXPORT(hpp::core::Edge)
 BOOST_CLASS_EXPORT(hpp::core::ConnectedComponent)
+BOOST_CLASS_EXPORT(hpp::core::Roadmap)
 
 namespace hpp {
 namespace core {
@@ -66,6 +70,21 @@ inline void ConnectedComponent::serialize(Archive& ar, const unsigned int versio
   ar & BOOST_SERIALIZATION_NVP(weak_);
 }
 HPP_SERIALIZATION_IMPLEMENT(ConnectedComponent);
+
+template <typename Archive>
+inline void Roadmap::serialize(Archive& ar, const unsigned int version)
+{
+  (void) version;
+  ar & boost::serialization::make_nvp("distance_", const_cast<DistancePtr_t&>(distance_));
+  ar & BOOST_SERIALIZATION_NVP(connectedComponents_);
+  ar & BOOST_SERIALIZATION_NVP(nodes_);
+  ar & BOOST_SERIALIZATION_NVP(edges_);
+  ar & BOOST_SERIALIZATION_NVP(initNode_);
+  ar & BOOST_SERIALIZATION_NVP(goalNodes_);
+  ar & BOOST_SERIALIZATION_NVP(nearestNeighbor_);
+  ar & BOOST_SERIALIZATION_NVP(weak_);
+}
+HPP_SERIALIZATION_IMPLEMENT(Roadmap);
 
 } //   namespace core
 } // namespace hpp
