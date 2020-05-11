@@ -24,6 +24,8 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/node.hh>
 
+# include <hpp/util/serialization-fwd.hh>
+
 namespace hpp {
   namespace core {
     /// \addtogroup steering_method
@@ -69,6 +71,8 @@ namespace hpp {
       {
         return impl_distance (*n1->configuration(), *n2->configuration());
       }
+
+      HPP_SERIALIZABLE();
     }; // class Distance
     /// \}
   } //   namespace core
