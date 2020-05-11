@@ -135,7 +135,9 @@ namespace hpp {
       const ConnectedComponentPtr_t& connectedComponent,
       NodePtr_t& nearest, bool reverse = false);
 
-
+    private:
+      KDTree();
+      HPP_SERIALIZABLE();
     }; // class KDTree
     } // namespace nearestNeighbor
   } // namespace core
