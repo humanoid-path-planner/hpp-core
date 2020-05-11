@@ -21,6 +21,7 @@
 
 # include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
+# include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -50,10 +51,15 @@ namespace hpp {
       {
 	return path_;
       }
+
+    protected:
+      Edge() {}
     private:
       NodePtr_t n1_;
       NodePtr_t n2_;
       PathPtr_t path_;
+
+      HPP_SERIALIZABLE();
     }; // class Edge
     /// \}
   } // namespace core
