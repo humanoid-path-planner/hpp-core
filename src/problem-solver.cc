@@ -985,22 +985,22 @@ namespace hpp {
       }
       ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
-      fcl::CollisionObject& fclobj = obstacleData_->collisionObjects[id];
+      fcl::Transform3f oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
+      fcl::CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].geometry;
+      fcl::CollisionObject fclobj (fclgeom, oMg);
       fclobj.computeAABB();
       if (!fclobj.getAABB().overlap(aabb)) {
         // No intersection. Geom should be removed.
         removeObstacle(name);
         return;
       }
-      fcl::CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].geometry;
-      fcl::CollisionGeometryPtr_t newgeom (extract(fclgeom.get(), fclobj.getTransform(), aabb));
+      fcl::CollisionGeometryPtr_t newgeom (extract(fclgeom.get(), oMg, aabb));
       if (!newgeom) {
         // No intersection. Geom should be removed.
         removeObstacle(name);
       } else {
         obstacleModel_->geometryObjects[id].geometry = newgeom;
-        obstacleData_->collisionObjects[id] =
-          fcl::CollisionObject(newgeom, ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]));
+        obstacleData_->collisionObjects[id] = fcl::CollisionObject(newgeom, oMg);
       }
     }
 
