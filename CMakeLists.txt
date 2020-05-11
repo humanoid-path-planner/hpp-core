@@ -42,7 +42,7 @@ ADD_PROJECT_DEPENDENCY(hpp-util)
 ADD_PROJECT_DEPENDENCY(hpp-statistics)
 ADD_PROJECT_DEPENDENCY(hpp-constraints)
 
-SET(BOOST_COMPONENTS system timer unit_test_framework)
+SET(BOOST_COMPONENTS system timer unit_test_framework serialization)
 SEARCH_FOR_BOOST()
 
 # Declare Headers
@@ -164,6 +164,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/continuous-validation/solid-solid-collision.cc
   src/continuous-validation/progressive.cc
   src/diffusing-planner.cc
+  src/distance/serialization.cc
   src/distance/reeds-shepp.cc
   src/distance-between-objects.cc
   src/dubins.hh
@@ -182,6 +183,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/nearest-neighbor/basic.cc #
   # src/nearest-neighbor/k-d-tree.cc #
   # src/nearest-neighbor/k-d-tree.hh #
+  src/nearest-neighbor/serialization.cc #
   src/node.cc #
   src/parameter.cc #
   src/path.cc #
@@ -214,6 +216,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/relative-motion.cc
   src/kinodynamic-path.cc
   src/kinodynamic-oriented-path.cc
+  src/serialization.cc
   src/steering-method/steering-kinodynamic.cc
   src/roadmap.cc
   src/steering-method/reeds-shepp.cc # TODO access type of joint
