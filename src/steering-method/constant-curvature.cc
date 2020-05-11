@@ -253,21 +253,25 @@ namespace hpp {
                 (c0 * s + s0 * c);
               dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * c - s0 * s);
+              break;
             case 3:
               dx = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * c - s0 * s);
               dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * s + s0 * c);
+              break;
             case 0:
               dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * s + s0 * c);
               dy = -alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * c - s0 * s);
+              break;
             case 1:
               dx =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * c - s0 * s);
               dy =  alpha * pow (curvature_ * beta, (value_type) (order - 1)) *
                 (c0 * s + s0 * c);
+              break;
           }
         }
 

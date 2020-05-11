@@ -146,7 +146,7 @@ namespace hpp {
         {
           res.setZero();
           if (k > Degree) return;
-          const size_type N = 2*NbCoeffs-1;
+          const int N = 2*NbCoeffs-1;
           static const typename binomials<N>::Factorials_t& factors = binomials<2*NbCoeffs-1>::factorials();
 
           Factorials_t among_k, among_n_minus_k;
