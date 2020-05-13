@@ -15,7 +15,6 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/relative-motion.hh>
-#include <hpp/constraints/explicit/relative-pose.hh>
 
 #include <pinocchio/multibody/model.hpp>
 
