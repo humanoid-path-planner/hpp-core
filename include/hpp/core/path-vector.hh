@@ -184,6 +184,11 @@ namespace hpp {
     private:
       Paths_t paths_;
       PathVectorWkPtr_t weak_;
+
+    protected:
+      PathVector() {}
+    private:
+      HPP_SERIALIZABLE();
     }; // class PathVector
     /// \}
   } //   namespace core

@@ -27,6 +27,7 @@
 #include <hpp/core/edge.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/nearest-neighbor.hh>
+#include <hpp/core/path.hh>
 #include <hpp/core/roadmap.hh>
 
 #include <hpp/util/serialization.hh>
@@ -56,7 +57,7 @@ inline void Edge::serialize(Archive& ar, const unsigned int version)
   (void) version;
   ar & BOOST_SERIALIZATION_NVP(n1_);
   ar & BOOST_SERIALIZATION_NVP(n2_);
-  //ar & BOOST_SERIALIZATION_NVP(path_);
+  ar & BOOST_SERIALIZATION_NVP(path_);
 }
 HPP_SERIALIZATION_IMPLEMENT(Edge);
 

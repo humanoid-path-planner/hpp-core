@@ -18,7 +18,11 @@
 
 #include <hpp/core/path-vector.hh>
 
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
 #include <hpp/util/indent.hh>
+#include <hpp/util/serialization.hh>
 
 #include <stdexcept>
 
@@ -218,5 +222,19 @@ namespace hpp {
       }
       return os << decindent;
     }
+
+    template<class Archive>
+    void PathVector::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<Path>(*this));
+      ar & BOOST_SERIALIZATION_NVP(paths_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(PathVector);
   } //   namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::core::PathVector)

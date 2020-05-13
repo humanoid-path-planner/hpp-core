@@ -18,13 +18,19 @@
 
 #include <hpp/core/straight-path.hh>
 
+#include <boost/serialization/weak_ptr.hpp>
+
+#include <pinocchio/serialization/eigen.hpp>
+
 #include <hpp/util/debug.hh>
+#include <hpp/util/exception.hh>
+#include <hpp/util/serialization.hh>
 
 #include <hpp/pinocchio/util.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/util/exception.hh>
+#include <hpp/pinocchio/serialization.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/projection-error.hh>
 
@@ -152,6 +158,21 @@ namespace hpp {
         << "final configuration:   " << one_line(end_) << decendl;
       return os;
     }
+
+    template<class Archive>
+    void StraightPath::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<Path>(*this));
+      ar & BOOST_SERIALIZATION_NVP(space_);
+      ar & BOOST_SERIALIZATION_NVP(initial_);
+      ar & BOOST_SERIALIZATION_NVP(end_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(StraightPath);
   } //   namespace core
 } // namespace hpp
 
+BOOST_CLASS_EXPORT(hpp::core::StraightPath)
