@@ -30,6 +30,15 @@
 
 namespace hpp {
   namespace core {
+    StraightPathPtr_t StraightPath::create (const DevicePtr_t& device,
+        ConfigurationIn_t init,
+        ConfigurationIn_t end,
+        interval_t interval,
+        ConstraintSetPtr_t constraints)
+    {
+      return create(device->RnxSOnConfigSpace(), init, end, interval, constraints);
+    }
+
     StraightPath::StraightPath (LiegroupSpacePtr_t space,
                                 vectorIn_t init,
                                 vectorIn_t end,
@@ -54,50 +63,8 @@ namespace hpp {
       assert (interval.second >= interval.first);
     }
 
-    StraightPath::StraightPath (const DevicePtr_t& device,
-				ConfigurationIn_t init,
-				ConfigurationIn_t end,
-				interval_t interval) :
-      parent_t (interval, device->configSize (),
-		device->numberDof ()),
-      device_ (device), space_ (device->RnxSOnConfigSpace()),
-      initial_ (init), end_ (end)
-    {
-      assert (device);
-      assert (interval.second >= interval.first);
-      assert (!constraints ());
-    }
-
-    StraightPath::StraightPath (const DevicePtr_t& device,
-				ConfigurationIn_t init,
-				ConfigurationIn_t end,
-				value_type length,
-				ConstraintSetPtr_t constraints) :
-      parent_t (interval_t(0, length), device->configSize (),
-		device->numberDof (), constraints),
-      device_ (device), space_ (device->RnxSOnConfigSpace()),
-      initial_ (init), end_ (end)
-    {
-      assert (device);
-      assert (length >= 0);
-    }
-
-    StraightPath::StraightPath (const DevicePtr_t& device,
-				ConfigurationIn_t init,
-				ConfigurationIn_t end,
-				interval_t interval,
-				ConstraintSetPtr_t constraints) :
-      parent_t (interval, device->configSize (),
-		device->numberDof (), constraints),
-      device_ (device), space_ (device->RnxSOnConfigSpace()),
-      initial_ (init), end_ (end)
-    {
-      assert (device);
-      assert (interval.second >= interval.first);
-    }
-
     StraightPath::StraightPath (const StraightPath& path) :
-      parent_t (path), device_ (path.device_), space_ (path.space_),
+      parent_t (path), space_ (path.space_),
       initial_ (path.initial_),
       end_ (path.end_)
     {
@@ -105,7 +72,7 @@ namespace hpp {
 
     StraightPath::StraightPath (const StraightPath& path,
 				const ConstraintSetPtr_t& constraints) :
-      parent_t (path, constraints), device_ (path.device_), space_ (path.space_),
+      parent_t (path, constraints), space_ (path.space_),
       initial_ (path.initial_), end_ (path.end_)
     {
       assert (constraints->isSatisfied (initial_));
@@ -175,13 +142,7 @@ namespace hpp {
       if (!success) throw projection_error
 		      ("Failed to apply constraints in StraightPath::extract");
       StraightPathPtr_t result = StraightPath::create (space_, q1, q2, interval_t(0,l), constraints ());
-      result->device_ = device_;
       return result;
-    }
-
-    DevicePtr_t StraightPath::device () const
-    {
-      return device_;
     }
 
     std::ostream& StraightPath::print (std::ostream &os) const

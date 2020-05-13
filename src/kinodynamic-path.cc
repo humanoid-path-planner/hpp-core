@@ -29,7 +29,7 @@ namespace hpp {
                                       ConfigurationIn_t init,
                                       ConfigurationIn_t end,
                                       value_type length, ConfigurationIn_t a1,ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim) :
-      parent_t (device,init,end,interval_t(0,length)),
+      parent_t (device->RnxSOnConfigSpace(),init,end,interval_t(0,length)),
       device_ (device),
       a1_(a1),t0_(t0),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
@@ -59,7 +59,7 @@ namespace hpp {
                                       ConfigurationIn_t end,
                                       value_type length, ConfigurationIn_t a1, ConfigurationIn_t t0, ConfigurationIn_t t1, ConfigurationIn_t tv, ConfigurationIn_t t2, ConfigurationIn_t vLim,
                                       ConstraintSetPtr_t constraints) :
-      parent_t (device,init,end,interval_t(0,length),constraints),
+      parent_t (device->RnxSOnConfigSpace(),init,end,interval_t(0,length),constraints),
       device_ (device),
       a1_(a1),t0_(t0),t1_(t1),tv_(tv),t2_(t2),vLim_(vLim)
     {
