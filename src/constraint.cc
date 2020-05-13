@@ -24,11 +24,5 @@ namespace hpp {
     {
       return impl_compute (configuration);
     }
-
-    void
-    Constraint::addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
-    {
-      constraintSet->constraints_.push_back (weak_.lock ());
-    }
   } // namespace core
 } // namespace core

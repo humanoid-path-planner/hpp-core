@@ -36,10 +36,6 @@
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
 
-#include <hpp/core/constraint-set.hh>
-// #include <hpp/constraints/explicit.hh>
-// #include <hpp/constraints/implicit.hh>
-
 namespace hpp {
   namespace core {
     using constraints::solver::BySubstitution;
@@ -275,23 +271,6 @@ namespace hpp {
 					   ConfigurationOut_t result)
     {
       solver_->projectOnKernel (from, to, result);
-    }
-
-    void ConfigProjector::addToConstraintSet
-    (const ConstraintSetPtr_t& constraintSet)
-    {
-      if (constraintSet->configProjector ()) {
-       std::ostringstream oss
-         ("Constraint set cannot store more than one config-projector");
-       oss << std::endl << *constraintSet;
-       throw std::runtime_error (oss.str ());
-      }
-      // The constraint is added at the end of the set.
-      Constraint::addToConstraintSet (constraintSet);
-      constraintSet->removeFirstElement ();
-      constraintSet->configProjectorIt_ = constraintSet->constraints_.end () - 1;
-      constraintSet->trivialOrNotConfigProjectorIt_ =
-	constraintSet->configProjectorIt_;
     }
 
     std::ostream& ConfigProjector::print (std::ostream& os) const

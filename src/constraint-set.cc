@@ -16,9 +16,10 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/constraint-set.hh>
+
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 
 namespace hpp {
@@ -39,42 +40,42 @@ namespace hpp {
 
     ConstraintSet::ConstraintSet (const DevicePtr_t& robot,
 				  const std::string& name) :
-      Constraint (name), constraints_ ()
+      Constraint (name), constraints_ (), configProjI_ (-1)
     {
       constraints_.push_back (ConfigProjector::create (robot, "Trivial", 1e-12, 0));
-      trivialOrNotConfigProjectorIt_ = constraints_.begin ();
-      configProjectorIt_ = constraints_.end ();
     }
 
     ConstraintSet::ConstraintSet (const ConstraintSet& other) :
-      Constraint (other), constraints_ ()
+      Constraint (other), constraints_ (), configProjI_ (other.configProjI_)
     {
       for (Constraints_t::const_iterator it = other.constraints_.begin ();
-	   it != other.constraints_.end (); ++it) {
+	   it != other.constraints_.end (); ++it)
 	constraints_.push_back ((*it)->copy ());
-      }
-
-      configProjectorIt_ = constraints_.begin ();
-      Constraints_t::const_iterator b = other.constraints_.begin(); 
-      Constraints_t::const_iterator it = other.configProjectorIt_; 
-      std::advance (configProjectorIt_, std::distance (b, it));
-
-      trivialOrNotConfigProjectorIt_ = constraints_.begin ();
-      b = other.constraints_.begin(); 
-      it = other.configProjectorIt_; 
-      std::advance (trivialOrNotConfigProjectorIt_, std::distance (b, it));
     }
 
-    void ConstraintSet::removeFirstElement ()
+    void ConstraintSet::addConstraint (const ConstraintPtr_t& c)
     {
-      constraints_.pop_front ();
+      ConfigProjectorPtr_t cp (HPP_DYNAMIC_PTR_CAST(ConfigProjector, c));
+      ConstraintSetPtr_t cs (HPP_DYNAMIC_PTR_CAST(ConstraintSet, c));
+      if (cp) {
+        if (configProjI_ >= 0)
+          throw std::runtime_error("Constraint set " + name() + " cannot store "
+              "more than one config-projector.");
+        constraints_.erase(constraints_.begin());
+        configProjI_ = static_cast<int>(constraints_.size());
+      } else if (cs) {
+        for (Constraints_t::iterator _c = cs->begin (); _c != cs->end (); ++_c)
+          addConstraint(*_c);
+        return;
+      }
+      constraints_.push_back(c);
     }
 
     ConfigProjectorPtr_t ConstraintSet::configProjector () const
     {
-      if (configProjectorIt_ != constraints_.end ())
-        return HPP_STATIC_PTR_CAST (ConfigProjector, *configProjectorIt_);
-      else return ConfigProjectorPtr_t ();
+      return (configProjI_ >= 0
+          ? HPP_STATIC_PTR_CAST (ConfigProjector, constraints_[configProjI_])
+          : ConfigProjectorPtr_t());
     }
 
     bool ConstraintSet::isSatisfied (ConfigurationIn_t configuration)
@@ -107,33 +108,32 @@ namespace hpp {
 
     size_type ConstraintSet::numberNonLockedDof () const
     {
-      return HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)
-        ->numberFreeVariables ();
+      return _configProj()->numberFreeVariables ();
     }
 
     void ConstraintSet::compressVector (vectorIn_t normal,
 					vectorOut_t small) const
     {
-      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->compressVector (normal, small);
+      _configProj()->compressVector (normal, small);
     }
 
     void ConstraintSet::uncompressVector (vectorIn_t small,
 					  vectorOut_t normal) const
     {
-      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->uncompressVector (small, normal);
+      _configProj()->uncompressVector (small, normal);
     }
 
     void ConstraintSet::compressMatrix (matrixIn_t normal, matrixOut_t small,
 					bool rows) const
     {
-      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->compressMatrix (normal, small, rows);
+      _configProj()->compressMatrix (normal, small, rows);
     }
 
     void ConstraintSet::uncompressMatrix (matrixIn_t small,
 					  matrixOut_t normal,
 					  bool rows) const
     {
-      HPP_STATIC_PTR_CAST (ConfigProjector, *trivialOrNotConfigProjectorIt_)->uncompressMatrix (small, normal, rows);
+      _configProj()->uncompressMatrix (small, normal, rows);
     }
 
     std::ostream& ConstraintSet::print (std::ostream& os) const
@@ -145,5 +145,11 @@ namespace hpp {
       }
       return os << decindent;
     }
+
+    ConfigProjectorPtr_t ConstraintSet::_configProj () const
+    {
+      return HPP_STATIC_PTR_CAST (ConfigProjector,
+          constraints_[configProjI_ >= 0 ? configProjI_ : 0]);
+    }
   } // namespace core
-} // namespace core
+} // namespace hpp

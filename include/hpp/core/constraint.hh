@@ -82,7 +82,6 @@ namespace hpp {
       }
     private:
       virtual std::ostream& print (std::ostream& os) const = 0;
-      virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
 
       virtual void addLockedJoint (const LockedJointPtr_t&)
       {
