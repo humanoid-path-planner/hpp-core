@@ -24,7 +24,6 @@
 #include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
-#include <hpp/constraints/implicit/relative-pose.hh>
 #include <hpp/constraints/explicit/relative-transformation.hh>
 
 #include <hpp/core/constraint-set.hh>
@@ -77,22 +76,6 @@ namespace hpp {
       };
     }
 
-    bool isRelativePoseConstraint (const constraints::ImplicitConstPtr_t& c,
-                                   size_type& i1, size_type& i2)
-    {
-      constraints::implicit::RelativePoseConstPtr_t t
-        (HPP_DYNAMIC_PTR_CAST(const constraints::implicit::RelativePose, c));
-      if (t) {
-        i1 = RelativeMotion::idx(t->joint1());
-        i2 = RelativeMotion::idx(t->joint2());
-        hppDout (info, "constraint " << t->functionPtr ()->name ()
-                     << " is a relative pose. i1="
-                     << i1 << ", i2=" << i2);
-        return true;
-      }
-      return false;
-    }
-
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
     {
       assert (dev);
@@ -125,7 +108,6 @@ namespace hpp {
       const NumericalConstraints_t& ncs = proj->numericalConstraints ();
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
-        using hpp::constraints::implicit::RelativePose;
         constraints::ImplicitConstPtr_t nc = *_ncs;
         size_type i1, i2;
         // Detect locked joints
@@ -154,19 +136,15 @@ namespace hpp {
           continue;
         }
 
-        if (!isRelativePoseConstraint (nc, i1, i2)) {
-          hppDout (info, "Constraint " << nc->functionPtr()->name ()
-                   << " is not of type RelativePose");
-          if (!check <Transformation>::is (nc->functionPtr (), i1, i2)) {
-            hppDout (info, "Constraint function " << nc->functionPtr()->name ()
-                     << " is not of type Transformation");
-            if (!check <RelativeTransformation>::is
-                (nc->functionPtr (), i1, i2)) {
-              hppDout (info, "Constraint function "
-                       << nc->functionPtr()->name ()
-                       << " is not of type RelativeTransformation");
-              continue;
-            }
+        if (!check <Transformation>::is (nc->functionPtr (), i1, i2)) {
+          hppDout (info, "Constraint function " << nc->functionPtr()->name ()
+                   << " is not of type Transformation");
+          if (!check <RelativeTransformation>::is
+              (nc->functionPtr (), i1, i2)) {
+            hppDout (info, "Constraint function "
+                     << nc->functionPtr()->name ()
+                     << " is not of type RelativeTransformation");
+            continue;
           }
         }
 
