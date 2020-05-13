@@ -22,6 +22,7 @@
 # include <ostream>
 # include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
+# include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -93,6 +94,9 @@ namespace hpp {
       friend class constraints::LockedJoint;
       friend class ConfigProjector;
       friend std::ostream& operator<< (std::ostream& os, const Constraint&);
+
+      Constraint() {}
+      HPP_SERIALIZABLE();
     }; // class Constraint
     inline std::ostream& operator<< (std::ostream& os,
 				     const Constraint& constraint)

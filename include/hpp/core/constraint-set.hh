@@ -148,6 +148,9 @@ namespace hpp {
       friend class constraints::LockedJoint;
       friend class Constraint;
       friend class ConfigProjector;
+
+      ConstraintSet() {}
+      HPP_SERIALIZABLE();
     }; // class ConstraintSet
     /// \}
   } // namespace core
