@@ -87,53 +87,22 @@ namespace hpp {
       static StraightPathPtr_t create (const DevicePtr_t& device,
 				       ConfigurationIn_t init,
 				       ConfigurationIn_t end,
-				       value_type length)
+				       value_type length,
+                                       ConstraintSetPtr_t constraints = ConstraintSetPtr_t())
       {
-        return create (device, init, end, interval_t (0, length));
+        return create (device, init, end, interval_t (0, length), constraints);
       }
 
       /// Create instance and return shared pointer
       /// \param device Robot corresponding to configurations
       /// \param init, end Start and end configurations of the path
       /// \param interval interval of definition.
-      static StraightPathPtr_t create (const DevicePtr_t& device,
-				       ConfigurationIn_t init,
-				       ConfigurationIn_t end,
-				       interval_t interval)
-      {
-	StraightPath* ptr = new StraightPath (device, init, end, interval);
-	StraightPathPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-        ptr->checkPath ();
-	return shPtr;
-      }
-
-      /// \copydoc create(const DevicePtr_t&, ConfigurationIn_t, ConfigurationIn_t, value_type)
       /// \param constraints the path is subject to
       static StraightPathPtr_t create (const DevicePtr_t& device,
 				       ConfigurationIn_t init,
 				       ConfigurationIn_t end,
-				       value_type length,
-				       ConstraintSetPtr_t constraints)
-      {
-        return create (device, init, end, interval_t (0, length), constraints);
-      }
-
-      /// \copydoc create(const DevicePtr_t&, ConfigurationIn_t, ConfigurationIn_t, interval_t)
-      /// \param constraints the path is subject to
-      static StraightPathPtr_t create (const DevicePtr_t& device,
-				       ConfigurationIn_t init,
-				       ConfigurationIn_t end,
-                                       interval_t interval,
-				       ConstraintSetPtr_t constraints)
-      {
-	StraightPath* ptr = new StraightPath (device, init, end, interval,
-					      constraints);
-	StraightPathPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-        ptr->checkPath ();
-	return shPtr;
-      }
+				       interval_t interval,
+                                       ConstraintSetPtr_t constraints = ConstraintSetPtr_t());
 
       /// Create copy and return shared pointer
       /// \param path path to copy
@@ -196,9 +165,6 @@ namespace hpp {
 	assert (end.size () == end_.size ());
 	end_ = end;
       }
-      
-      /// Return the internal robot.
-      DevicePtr_t device () const HPP_CORE_DEPRECATED;
 
       /// Get the initial configuration
       Configuration_t initial () const
@@ -223,20 +189,6 @@ namespace hpp {
       /// Constructor
       StraightPath (LiegroupSpacePtr_t space, vectorIn_t init, vectorIn_t end,
           interval_t interval, ConstraintSetPtr_t constraints);
-
-      /// Constructor
-      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, interval_t interval);
-
-      /// Constructor with constraints
-      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, value_type length,
-		    ConstraintSetPtr_t constraints);
-
-      /// Constructor with constraints
-      StraightPath (const DevicePtr_t& robot, ConfigurationIn_t init,
-		    ConfigurationIn_t end, interval_t interval,
-		    ConstraintSetPtr_t constraints);
 
       /// Copy constructor
       StraightPath (const StraightPath& path);
@@ -267,7 +219,6 @@ namespace hpp {
       PathPtr_t impl_extract (const interval_t& subInterval) const;
 
     protected:
-      DevicePtr_t device_;
       LiegroupSpacePtr_t space_;
       Configuration_t initial_;
       Configuration_t end_;

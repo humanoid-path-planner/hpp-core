@@ -109,7 +109,7 @@ namespace hpp {
     typedef boost::shared_ptr <Constraint> ConstraintPtr_t;
     typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef boost::shared_ptr <const ConstraintSet> ConstraintSetConstPtr_t;
-    typedef std::deque <ConstraintPtr_t> Constraints_t;
+    typedef std::vector<ConstraintPtr_t> Constraints_t;
     typedef pinocchio::Device Device_t;
     typedef pinocchio::DevicePtr_t DevicePtr_t;
     typedef pinocchio::DeviceWkPtr_t DeviceWkPtr_t;

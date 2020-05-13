@@ -59,10 +59,7 @@ namespace hpp {
       virtual ConstraintPtr_t copy () const;
 
       /// Add a constraint to the set
-      void addConstraint (const ConstraintPtr_t& constraint)
-      {
-	constraint->addToConstraintSet (weak_.lock ());
-      }
+      void addConstraint (const ConstraintPtr_t& constraint);
 
       /// Return pointer to config projector if any
       ConfigProjectorPtr_t configProjector () const;
@@ -142,19 +139,10 @@ namespace hpp {
 
       virtual std::ostream& print (std::ostream& os) const;
     private:
-      virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet)
-      {
-	for (Constraints_t::iterator itConstraint = constraints_.begin ();
-	     itConstraint != constraints_.end (); itConstraint ++) {
-	  (*itConstraint)->addToConstraintSet (constraintSet);
-	}
-      }
-
-      void removeFirstElement ();
+      ConfigProjectorPtr_t _configProj () const;
 
       Constraints_t constraints_;
-      Constraints_t::iterator configProjectorIt_;
-      Constraints_t::iterator trivialOrNotConfigProjectorIt_;
+      int configProjI_;
       ConstraintSetWkPtr_t weak_;
 
       friend class constraints::LockedJoint;

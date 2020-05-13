@@ -342,7 +342,6 @@ namespace hpp {
 
     private:
       virtual std::ostream& print (std::ostream& os) const;
-      virtual void addToConstraintSet (const ConstraintSetPtr_t& constraintSet);
 
       DevicePtr_t robot_;
       static LineSearchType defaultLineSearch_;
