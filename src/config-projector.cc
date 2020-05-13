@@ -48,61 +48,6 @@ namespace hpp {
     typedef constraints::solver::lineSearch::FixedSequence FixedSequence_t;
     typedef constraints::solver::lineSearch::Constant Constant_t;
 
-
-    namespace {
-
-      bool saturate (const DevicePtr_t& robot, vectorIn_t q, vectorOut_t qSat,
-                     Eigen::VectorXi& sat)
-      {
-        bool ret = false;
-        const pinocchio::Model& model = robot->model();
-
-        for (std::size_t i = 1; i < model.joints.size(); ++i) {
-          const size_type nq = model.joints[i].nq();
-          const size_type nv = model.joints[i].nv();
-          const size_type idx_q = model.joints[i].idx_q();
-          const size_type idx_v = model.joints[i].idx_v();
-          for (size_type j = 0; j < nq; ++j) {
-            const size_type iq = idx_q + j;
-            const size_type iv = idx_v + std::min(j,nv-1);
-            if        (q[iq] >= model.upperPositionLimit[iq]) {
-              qSat [iq] = model.upperPositionLimit[iq];
-              sat[iv] =  1;
-              ret = true;
-            } else if (q[iq] <= model.lowerPositionLimit[iq]) {
-              qSat [iq] = model.lowerPositionLimit[iq];
-              sat[iv] = -1;
-              ret = true;
-            } else {
-              qSat [iq] = q [iq];
-              sat[iv] =  0;
-            }
-          }
-        }
-
-        const hpp::pinocchio::ExtraConfigSpace& ecs = robot->extraConfigSpace();
-        const size_type& d = ecs.dimension();
-
-        for (size_type k = 0; k < d; ++k) {
-          const size_type iq = model.nq + k;
-          const size_type iv = model.nv + k;
-          if        (q[iq] >= ecs.upper(k)) {
-            sat[iv] =  1;
-            qSat [iq] = ecs.upper(k);
-            ret = true;
-          } else if (q[iq] <= ecs.lower(k)) {
-            qSat [iq] = ecs.lower(k);
-            sat[iv] = -1;
-            ret = true;
-          } else {
-            qSat [iq] = q [iq];
-            sat[iv] =  0;
-          }
-        }
-        return ret;
-      }
-    }
-
     ConfigProjector::LineSearchType ConfigProjector::defaultLineSearch_ = ConfigProjector::FixedSequence;
 
     void ConfigProjector::defaultLineSearch (LineSearchType ls)
@@ -148,7 +93,7 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->saturation(boost::bind(saturate, robot_, _1, _2, _3));
+      solver_->saturation(boost::make_shared<constraints::solver::saturation::Device>(robot_));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
