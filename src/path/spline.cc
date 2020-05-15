@@ -15,6 +15,7 @@
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
 # include <hpp/core/path/spline.hh>
+#include <hpp/core/path/math.hh>
 
 #include <hpp/util/serialization.hh>
 #include <pinocchio/serialization/eigen.hpp>
@@ -24,7 +25,6 @@
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/liegroup-space.hh>
 
-#include <path/math.hh>
 
 namespace hpp {
   namespace core {

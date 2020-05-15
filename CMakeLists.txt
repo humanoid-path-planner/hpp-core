@@ -107,6 +107,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-vector.hh
   include/hpp/core/path/spline.hh
   include/hpp/core/path/hermite.hh
+  include/hpp/core/path/math.hh
   include/hpp/core/reeds-shepp-path.hh
   include/hpp/core/kinodynamic-path.hh
   include/hpp/core/kinodynamic-oriented-path.hh
@@ -145,6 +146,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/problem-target/task-target.hh
   include/hpp/core/subchain-path.hh
   include/hpp/core/time-parameterization.hh
+  include/hpp/core/time-parameterization/piecewise-polynomial.hh
   include/hpp/core/time-parameterization/polynomial.hh
   )
 
