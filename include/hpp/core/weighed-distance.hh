@@ -75,6 +75,9 @@ namespace hpp {
       DevicePtr_t robot_;
       vector_t weights_;
       WeighedDistanceWkPtr_t weak_;
+
+      WeighedDistance() {}
+      HPP_SERIALIZABLE();
     }; // class WeighedDistance
     /// \}
   } //   namespace core

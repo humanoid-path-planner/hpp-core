@@ -16,10 +16,15 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/path.hh>
 #include "extracted-path.hh"
+
+#include <boost/serialization/weak_ptr.hpp>
+#include <boost/serialization/utility.hpp>
 
 #include <hpp/util/debug.hh>
 #include <hpp/util/indent.hh>
+#include <hpp/util/serialization.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/time-parameterization.hh>
 #include <hpp/core/config-projector.hh>
@@ -275,5 +280,23 @@ namespace hpp {
       os << iendl;
       return os;
     }
+
+    template<class Archive>
+    void Path::serialize(Archive & ar, const unsigned int version)
+    {
+      (void) version;
+      ar & BOOST_SERIALIZATION_NVP(paramRange_);
+      ar & BOOST_SERIALIZATION_NVP(timeRange_);
+      ar & BOOST_SERIALIZATION_NVP(outputSize_);
+      ar & BOOST_SERIALIZATION_NVP(outputDerivativeSize_);
+      ar & BOOST_SERIALIZATION_NVP(constraints_);
+      if (Archive::is_saving::value && timeParam_)
+        throw std::logic_error("At the moment, it is not possible to serialize "
+            "a Path with time parameterization.");
+      //ar & BOOST_SERIALIZATION_NVP(timeParam_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(Path);
   } //   namespace core
 } // namespace hpp

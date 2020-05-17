@@ -21,6 +21,7 @@
 
 # include <boost/concept_check.hpp>
 # include <hpp/util/exception.hh>
+# include <hpp/util/serialization-fwd.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/constraint-set.hh>
@@ -397,6 +398,11 @@ namespace hpp {
       PathWkPtr_t weak_;
       friend std::ostream& operator<< (std::ostream& os, const Path& path);
       friend class ExtractedPath;
+
+    protected:
+      Path() {}
+    private:
+      HPP_SERIALIZABLE();
     }; // class Path
     inline std::ostream& operator<< (std::ostream& os, const Path& path)
     {

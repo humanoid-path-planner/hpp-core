@@ -20,6 +20,7 @@
 # define HPP_CORE_NEAREST_NEIGHBOR_HH
 
 # include <hpp/core/fwd.hh>
+# include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -85,6 +86,8 @@ namespace hpp {
 
       virtual ~NearestNeighbor () {};
 
+    private:
+      HPP_SERIALIZABLE();
     }; // class NearestNeighbor
   } // namespace core
 } // namespace hpp

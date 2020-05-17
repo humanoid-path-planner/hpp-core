@@ -353,6 +353,9 @@ namespace hpp {
 
       ConfigProjectorWkPtr_t weak_;
       ::hpp::statistics::SuccessStatistics statistics_;
+
+      ConfigProjector() {}
+      HPP_SERIALIZABLE();
     }; // class ConfigProjector
     /// \}
   } // namespace core

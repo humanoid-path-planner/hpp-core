@@ -56,6 +56,9 @@ namespace hpp {
       private:
 	steeringMethod::ReedsSheppPtr_t sm_;
 	ReedsSheppWkPtr_t weak_;
+
+        ReedsShepp() {};
+        HPP_SERIALIZABLE();
       }; // class ReedsShepp
     /// \}
     } // namespace distance

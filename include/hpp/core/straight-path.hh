@@ -224,6 +224,11 @@ namespace hpp {
       Configuration_t end_;
     private:
       StraightPathWkPtr_t weak_;
+
+    protected:
+      StraightPath() {}
+    private:
+      HPP_SERIALIZABLE();
     }; // class StraightPath
     /// \}
   } //   namespace core

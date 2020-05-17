@@ -18,7 +18,11 @@
 
 #include <hpp/core/constraint-set.hh>
 
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
 #include <hpp/util/debug.hh>
+#include <hpp/util/serialization.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/config-projector.hh>
 
@@ -151,5 +155,20 @@ namespace hpp {
       return HPP_STATIC_PTR_CAST (ConfigProjector,
           constraints_[configProjI_ >= 0 ? configProjI_ : 0]);
     }
+
+    template<class Archive>
+    void ConstraintSet::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<Constraint>(*this));
+      ar & BOOST_SERIALIZATION_NVP(constraints_);
+      ar & BOOST_SERIALIZATION_NVP(configProjI_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(ConstraintSet);
   } // namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::core::ConstraintSet)

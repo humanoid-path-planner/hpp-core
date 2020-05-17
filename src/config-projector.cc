@@ -19,11 +19,13 @@
 #include <hpp/core/config-projector.hh>
 
 #include <limits>
+#include <boost/serialization/weak_ptr.hpp>
 
 #include <boost/bind.hpp>
 
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
+#include <hpp/util/serialization.hh>
 
 #include <pinocchio/multibody/model.hpp>
 
@@ -32,6 +34,7 @@
 #include <hpp/pinocchio/extra-config-space.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/joint-collection.hh>
+#include <hpp/pinocchio/serialization.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
@@ -438,5 +441,23 @@ namespace hpp {
     {
       return solver_->sigma();
     }
+
+    template<class Archive>
+    void ConfigProjector::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<Constraint>(*this));
+      ar & BOOST_SERIALIZATION_NVP(robot_);
+      ar & BOOST_SERIALIZATION_NVP(lineSearchType_);
+      ar & BOOST_SERIALIZATION_NVP(solver_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+      if (!Archive::is_saving::value)
+        statistics_.name_ = "ConfigProjector " + name();
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(ConfigProjector);
   } // namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::core::ConfigProjector)

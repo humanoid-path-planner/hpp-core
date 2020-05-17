@@ -18,11 +18,24 @@
 
 #include <hpp/core/constraint-set.hh>
 
+#include <boost/serialization/weak_ptr.hpp>
+#include <hpp/util/serialization.hh>
+
 namespace hpp {
   namespace core {
     bool Constraint::apply (ConfigurationOut_t configuration)
     {
       return impl_compute (configuration);
     }
+
+    template<class Archive>
+    void Constraint::serialize(Archive & ar, const unsigned int version)
+    {
+      (void) version;
+      ar & BOOST_SERIALIZATION_NVP(name_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(Constraint);
   } // namespace core
 } // namespace core

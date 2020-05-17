@@ -34,6 +34,18 @@
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
 
+// should we include
+// #include <hpp/core/serialization.hh>
+// instead of the following ?
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <hpp/pinocchio/serialization.hh>
+
 #define BOOST_TEST_MODULE roadmap-1
 #include <boost/test/included/unit_test.hpp>
 
@@ -378,7 +390,125 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
     BOOST_TEST_MESSAGE ("[" << q.transpose() << "] - dist : " << (*distance) (*nodes[0]->configuration(), q));
   }
 }
+
+template<typename Base>
+struct oarchive : Base, hpp::serialization::archive_device_wrapper
+{
+  oarchive(std::ostream& os) : Base (os) {}
+};
+template<typename Base>
+struct iarchive : Base, hpp::serialization::archive_device_wrapper
+{
+  iarchive(std::istream& is) : Base (is) {}
+};
+
+BOOST_AUTO_TEST_CASE (serialization) {
+  // Build robot
+  DevicePtr_t robot = createRobot();
+
+  // Create steering method
+  ProblemPtr_t p = Problem::create(robot);
+  StraightPtr_t sm = Straight::create (*p);
+  // create roadmap
+  hpp::core::DistancePtr_t distance (WeighedDistance::createWithWeight
+				     (robot, vector_t::Ones(2)));
+  RoadmapPtr_t r = Roadmap::create (distance, robot);
+
+  std::vector <NodePtr_t> nodes;
+
+  // nodes [0]
+  ConfigurationPtr_t q (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0; (*q) [1] = 0;
+  // Set init node
+  r->initNode (q);
+  nodes.push_back (r->initNode ());
+
+  // nodes [1]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 1; (*q) [1] = 0;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [2]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 0.5; (*q) [1] = 0.9;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [3]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = -0.1; (*q) [1] = -0.9;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [4]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 1.5; (*q) [1] = 2.9;
+  nodes.push_back (r->addNode (q));
+
+  // nodes [5]
+  q = ConfigurationPtr_t (new Configuration_t (robot->configSize ()));
+  (*q) [0] = 2.5; (*q) [1] = 2.9;
+  nodes.push_back (r->addNode (q));
+  r->addGoalNode (nodes [5]->configuration ());
+
+  // 1 -> 0
+  addEdge (r, *sm, nodes, 0, 1);
+  // 1 -> 2
+  addEdge (r, *sm, nodes, 1, 2);
+  // 2 -> 0
+  addEdge (r, *sm, nodes, 2, 0);
+  // 3 -> 5
+  addEdge (r, *sm, nodes, 3, 5);
+  // 4 -> 5
+  addEdge (r, *sm, nodes, 4, 5);
+
+  std::cout << *r << std::endl;
+
+  // save data to archive
+  {
+    std::ofstream ofs("filename.txt");
+    oarchive<boost::archive::text_oarchive> oa(ofs);
+    oa << r;
+  }
+
+  // save data to archive
+  {
+    std::ofstream ofs("filename.xml");
+    oarchive<boost::archive::xml_oarchive> oa(ofs);
+    oa << boost::serialization::make_nvp("roadmap", r);
+  }
+
+  // save data to archive
+  {
+    std::ofstream ofs("filename.bin");
+    oarchive<boost::archive::binary_oarchive> oa(ofs);
+    oa << r;
+  }
+}
+
+BOOST_AUTO_TEST_CASE (deserialization) {
+  DevicePtr_t device = createRobot();
+
+  RoadmapPtr_t nr;
+  {
+    std::ifstream ifs("filename.txt");
+    iarchive<boost::archive::text_iarchive> ia(ifs);
+    ia.device = device;
+    ia >> nr;
+    std::cout << *nr << std::endl;
+  }
+  {
+    std::ifstream ifs("filename.xml");
+    iarchive<boost::archive::xml_iarchive> ia(ifs);
+    ia.device = device;
+    ia >> boost::serialization::make_nvp("roadmap", nr);
+    std::cout << *nr << std::endl;
+  }
+  {
+    std::ifstream ifs("filename.bin");
+    iarchive<boost::archive::binary_iarchive> ia(ifs);
+    ia.device = device;
+    ia >> nr;
+    std::cout << *nr << std::endl;
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
-
-
-

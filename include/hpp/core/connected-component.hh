@@ -22,6 +22,7 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/node.hh>
+# include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -116,6 +117,8 @@ namespace hpp {
       mutable bool explored_;
       ConnectedComponentWkPtr_t weak_;
       friend class Roadmap;
+
+      HPP_SERIALIZABLE();
     }; // class ConnectedComponent
   } //   namespace core
 } // namespace hpp

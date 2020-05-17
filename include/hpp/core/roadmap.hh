@@ -20,10 +20,12 @@
 # define HPP_CORE_ROADMAP_HH
 
 # include <iostream>
+
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 
 # include <hpp/core/connected-component.hh>
+# include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
   namespace core {
@@ -226,6 +228,8 @@ namespace hpp {
       /// \param distance distance function for nearest neighbor computations
       Roadmap (const DistancePtr_t& distance, const DevicePtr_t& robot);
 
+      Roadmap () {};
+
       /// Add a new connected component in the roadmap.
       /// \param node node pointing to the connected component.
       /// \note The node is added in the connected component.
@@ -289,6 +293,8 @@ namespace hpp {
       NodeVector_t goalNodes_;
       NearestNeighborPtr_t nearestNeighbor_;
       RoadmapWkPtr_t weak_;
+
+      HPP_SERIALIZABLE();
     }; // class Roadmap
     std::ostream& operator<< (std::ostream& os, const Roadmap& r);
     /// \}

@@ -91,6 +91,9 @@ namespace hpp {
 
     private:
       const DistancePtr_t distance_;
+
+      Basic() {}
+      HPP_SERIALIZABLE();
     }; // class Basic
     } // namespace nearestNeighbor
   } // namespace core
