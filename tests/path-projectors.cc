@@ -55,6 +55,7 @@
 #include <hpp/core/path-projector/recursive-hermite.hh>
 
 using hpp::constraints::Implicit;
+using hpp::constraints::EqualToZero;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
@@ -311,7 +312,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
 
   ConstraintSetPtr_t c = createConstraints (dev);
   DifferentiableFunctionPtr_t func = traits::func (dev);
-  c->configProjector ()->add (Implicit::create (func));
+  c->configProjector ()->add (Implicit::create (func,
+    ComparisonTypes_t(func->outputSpace()->nv(), EqualToZero)));
   problem->steeringMethod(traits::SM_t::create (*problem));
   problem->steeringMethod ()->constraints (c);
 
