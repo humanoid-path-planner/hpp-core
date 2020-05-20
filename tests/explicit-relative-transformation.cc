@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE (two_freeflyers)
 
   ExplicitPtr_t enm (explicit_::RelativePose::create
                      ("explicit_relative_transformation", robot, object1,
-                      object2, M1inO1, M2inO2));
+                      object2, M1inO1, M2inO2, 6 * Equality));
   DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
 
   Configuration_t q     = robot->currentConfiguration (),
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE (two_frames_on_freeflyer)
 
   ExplicitPtr_t enm (explicit_::RelativePose::create
                      ("explicit_relative_transformation", robot, object1,
-                      object2, M1inO1, M2inO2));
+                      object2, M1inO1, M2inO2, 6 * Equality));
   DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
 
   Configuration_t q     = robot->currentConfiguration (),
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
 
   ExplicitPtr_t enm (explicit_::RelativePose::create
                      ("explicit_relative_transformation", robot, object1,
-                      object2, M1inO1, M2inO2));
+                      object2, M1inO1, M2inO2, 6 * Equality));
   DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
   DifferentiableFunctionPtr_t irt = enm->functionPtr();
   RelativeTransformation::Ptr_t rt = RelativeTransformation::create (

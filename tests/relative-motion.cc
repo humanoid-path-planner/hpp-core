@@ -34,11 +34,14 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
+#include <hpp/constraints/comparison-types.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
 
 using hpp::constraints::RelativeTransformation;
 using hpp::constraints::Implicit;
 using hpp::constraints::explicit_::RelativePose;
+using hpp::constraints::Equality;
+using hpp::constraints::EqualToZero;
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
@@ -195,14 +198,15 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   Transform3f tf2 (jb2->currentTransformation ());
   proj->add (Implicit::create
              (RelativeTransformation::create ("joint_a1 <->joint_b2", dev, ja1,
-                                              jb2, tf1, tf2)));
+                                              jb2, tf1, tf2),
+              EqualToZero << EqualToZero << 3*Equality << EqualToZero));
 
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
 
   if (verbose) std::cout << '\n' << m << std::endl;
 
-  BOOST_CHECK_EQUAL(m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Constrained);   // lock rt
+  BOOST_CHECK_EQUAL(m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Parameterized);   // lock rt
   BOOST_CHECK_EQUAL(m(jointid("joint_a0"),jointid("joint_b2")), RelativeMotion::Parameterized); // lock a1 + rt
   BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_a1")), RelativeMotion::Parameterized); // lock b1+b2+rt
   BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_a0")), RelativeMotion::Parameterized); // lock b1+b2+rt+a1
@@ -213,7 +217,8 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
   constraints = ConstraintSet::create (dev, "test");
   constraints->addConstraint(proj);
   proj->add (RelativePose::create
-             ("explicit joint_a1 <-> joint_b2", dev, ja1, jb2, tf1, tf2));
+             ("explicit joint_a1 <-> joint_b2", dev, ja1, jb2, tf1, tf2,
+              2 * Equality << 3 * EqualToZero << Equality));
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
   BOOST_CHECK_EQUAL (m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Parameterized);   // lock ert
