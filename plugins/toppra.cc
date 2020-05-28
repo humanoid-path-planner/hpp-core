@@ -31,6 +31,8 @@
 #include <toppra/toppra.hpp>
 #include <toppra/geometric_path.hpp>
 #include <toppra/algorithm/toppra.hpp>
+#include <toppra/solver/glpk-wrapper.hpp>
+#include <toppra/solver/qpOASES-wrapper.hpp>
 
 #include <toppra/constraint/linear_joint_velocity.hpp>
 #include <toppra/constraint/linear_joint_acceleration.hpp>
@@ -74,6 +76,8 @@ private:
   PathPtr_t path_;
 };
 
+#define PARAM_HEAD "PathOptimization/TOPPRA/"
+
 namespace pathOptimization
 {
 class TOPPRA;
@@ -89,23 +93,42 @@ class TOPPRA : public PathOptimizer
 
   PathVectorPtr_t optimize(const PathVectorPtr_t &path)
   {
+    const size_type solver = problem().getParameter(PARAM_HEAD "solver").intValue();
+    const value_type effortScale = problem().getParameter(PARAM_HEAD "effortScale").floatValue();
+    const value_type velScale = problem().getParameter(PARAM_HEAD "velocityScale").floatValue();
+
     using pinocchio::Model;
     const Model &model = problem().robot()->model();
 
     using namespace toppra::constraint;
 
     // Create the TOPPRA constraints
+    auto torqueConstraint = std::make_shared<jointTorque::Pinocchio<Model> >
+      (model, toppra::Vector::Constant(model.nv, 0.)); // No friction
+    torqueConstraint->lowerBounds(effortScale * torqueConstraint->lowerBounds());
+    torqueConstraint->upperBounds(effortScale * torqueConstraint->upperBounds());
+
     toppra::LinearConstraintPtrs v{
         std::make_shared<LinearJointVelocity>(
-            -model.velocityLimit, model.velocityLimit),
-        // std::make_shared<LinearJointAcceleration>(
-            // - 1000 * model.velocityLimit, 1000 * model.velocityLimit)};
-        std::make_shared<jointTorque::Pinocchio<Model>>(
-            model, toppra::Vector::Constant(model.nv, 0.00))};
-    PathWrapper pathWrapper(path);
+            -velScale * model.velocityLimit, velScale * model.velocityLimit)
+        //, std::make_shared<LinearJointAcceleration>(
+            //- 10 * model.velocityLimit, 10 * model.velocityLimit)
+        , torqueConstraint
+            };
+    std::shared_ptr<PathWrapper> pathWrapper (std::make_shared<PathWrapper>(path));
 
     toppra::algorithm::TOPPRA algo(v, pathWrapper);
-    algo.setN(50);
+    algo.setN((int)problem().getParameter(PARAM_HEAD "N").intValue());
+    switch(solver) {
+      default:
+        hppDout (error, "Solver " << solver << " does not exists. Using GLPK");
+      case 0:
+        algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
+        break;
+      case 1:
+        algo.solver(std::make_shared<toppra::solver::qpOASESWrapper>());
+        break;
+    }
     auto ret_code = algo.computePathParametrization();
     if (ret_code != toppra::ReturnCode::OK)
     {
@@ -149,10 +172,11 @@ class TOPPRA : public PathOptimizer
       params(1, i-1) = dp;
     }
 
-    path->timeParameterization(TimeParameterizationPtr_t(new timeparm(params, t)),
-                               interval_t(t[0], t[num_pts - 1]));
+    PathVectorPtr_t res = PathVector::createCopy(path);
+    res->timeParameterization(TimeParameterizationPtr_t(new timeparm(params, t)),
+                              interval_t(t[0], t[num_pts - 1]));
 
-    return path;
+    return res;
   }
 
 protected:
@@ -160,6 +184,26 @@ protected:
   {
   }
 };
+
+HPP_START_PARAMETER_DECLARATION(TOPPRA)
+Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+      PARAM_HEAD "effortScale",
+      "Effort rescaling value.",
+      Parameter((value_type)1)));
+Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+      PARAM_HEAD "velocityScale",
+      "Velocity rescaling value.",
+      Parameter((value_type)1)));
+Problem::declareParameter(ParameterDescription (Parameter::INT,
+      PARAM_HEAD "solver",
+      "0: GLPK\n"
+      "1: qpOASES",
+      Parameter((size_type)1)));
+Problem::declareParameter(ParameterDescription (Parameter::INT,
+      PARAM_HEAD "N",
+      "Number of sampling point.",
+      Parameter((size_type)50)));
+HPP_END_PARAMETER_DECLARATION(TOPPRA)
 } // namespace pathOptimization
 
 class TOPPRAPlugin : public ProblemSolverPlugin
