@@ -330,6 +330,9 @@ namespace hpp {
           mutable PowersOfT_t powersOfT_;
 
           friend class steeringMethod::Spline<_PolynomeBasis, _Order>;
+        private:
+          Spline() {}
+          HPP_SERIALIZABLE();
       }; // class Spline
       /// \}
     } //   namespace path

@@ -16,6 +16,10 @@
 
 # include <hpp/core/path/spline.hh>
 
+#include <hpp/util/serialization.hh>
+#include <pinocchio/serialization/eigen.hpp>
+
+#include <hpp/pinocchio/serialization.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/liegroup-space.hh>
@@ -434,12 +438,40 @@ namespace hpp {
         res = (base + velocity).vector();
       }
 
-      template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
-      template class Spline<CanonicalPolynomeBasis, 2>;
-      template class Spline<CanonicalPolynomeBasis, 3>;
+      template <int _SplineType, int _Order>
+      template<class Archive>
+      void Spline<_SplineType, _Order>::serialize(Archive & ar, const unsigned int version)
+      {
+        using namespace boost::serialization;
+        (void) version;
+        ar & make_nvp("base", base_object<Path>(*this));
+        ar & BOOST_SERIALIZATION_NVP(parameterSize_);
+        ar & BOOST_SERIALIZATION_NVP(robot_);
+        ar & BOOST_SERIALIZATION_NVP(base_);
+        ar & BOOST_SERIALIZATION_NVP(parameters_);
+        ar & BOOST_SERIALIZATION_NVP(velocity_);
+        ar & BOOST_SERIALIZATION_NVP(powersOfT_);
+        ar & BOOST_SERIALIZATION_NVP(weak_);
+      }
+
+      //template class Spline<CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
+      //template class Spline<CanonicalPolynomeBasis, 2>;
+      //template class Spline<CanonicalPolynomeBasis, 3>;
       template class Spline<BernsteinBasis, 1>; // equivalent to StraightPath
-      template class Spline<BernsteinBasis, 2>;
+      //template class Spline<BernsteinBasis, 2>;
       template class Spline<BernsteinBasis, 3>;
+      template class Spline<BernsteinBasis, 5>;
+      typedef Spline<BernsteinBasis, 1> Spline_BernsteinBasis_1; // equivalent to StraightPath
+      typedef Spline<BernsteinBasis, 3> Spline_BernsteinBasis_3;
+      typedef Spline<BernsteinBasis, 5> Spline_BernsteinBasis_5;
+
+      HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_1);
+      HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_3);
+      HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_5);
     } //   namespace path
   } //   namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_1)
+BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_3)
+BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_5)
