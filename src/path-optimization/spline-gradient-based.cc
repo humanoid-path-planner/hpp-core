@@ -611,6 +611,7 @@ namespace hpp {
       template class SplineGradientBased<path::BernsteinBasis, 1>; // equivalent to StraightPath
       // template class SplineGradientBased<path::BernsteinBasis, 2>;
       template class SplineGradientBased<path::BernsteinBasis, 3>;
+      template class SplineGradientBased<path::BernsteinBasis, 5>;
 
       // ----------- Declare parameters ------------------------------------- //
 
