@@ -158,19 +158,28 @@ class TOPPRA : public PathOptimizer
       t[i] = t[i - 1] + dt;
     }
 
-    // time parameterization based on linear interpolation
-    // TODO compute hermite cubic spline coefficients to build piecewise polynomial paramaterization
-    constexpr int order = 1;
+    // time parameterization based on hermite cubic spline interpolation
+    constexpr int order = 3;
     typedef timeParameterization::PiecewisePolynomial<order> timeparm;
     auto params = timeparm::ParameterMatrix_t(order + 1, num_pts - 1);
     const auto& s = out_data.gridpoints;
     for (auto i = 1ul; i < num_pts; ++i)
     {
-      const auto dt = t[i] - t[i-1];
-      const auto dp = (s[i] - s[i-1]) / dt;
-      params(0, i-1) = s[i-1] - t[i-1] * dp;
-      params(1, i-1) = dp;
+      const auto inv_dt = 1./(t[i] - t[i-1]);
+      const auto inv_dt2 = inv_dt*inv_dt;
+      const auto inv_dt3 = inv_dt2*inv_dt;
+      const auto t_p = t[i-1];
+      const auto t_p2 = t_p*t_p;
+      const auto t_p3 = t_p2*t_p;
+      const auto ds = (s[i] - s[i-1]);
+      const auto b = (2*sd[i-1] + sd[i])*inv_dt;
+      const auto c = (sd[i-1] + sd[i])*inv_dt2;
+      params(0, i-1) = 2*t_p3*ds*inv_dt3 + 3*t_p2*ds*inv_dt2 - t_p3*c -t_p2*b - t_p*sd[i-1] + s[i-1];
+      params(1, i-1) = -6*t_p2*ds*inv_dt3 - 6*t_p*ds*inv_dt2 + 3*t_p2*c + 2*t_p*b + sd[i-1];
+      params(2, i-1) = 6*t_p*ds*inv_dt3 + 3*ds*inv_dt2 - 3*t_p*c - b;
+      params(3, i-1) = -2*ds*inv_dt3 + c;
     }
+
 
     PathVectorPtr_t res = PathVector::createCopy(path);
     res->timeParameterization(TimeParameterizationPtr_t(new timeparm(params, t)),
