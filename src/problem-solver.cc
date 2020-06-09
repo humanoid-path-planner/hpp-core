@@ -973,6 +973,18 @@ namespace hpp {
 
       remove(collisionObstacles_, id);
       remove(distanceObstacles_, id);
+      for (ObjectStdVector_t::iterator _o = collisionObstacles_.begin();
+          _o != collisionObstacles_.end(); ++_o) {
+        pinocchio::GeomIndex oid = (*_o)->indexInModel();
+        if (oid > id)
+          _o->reset(new CollisionObject(obstacleModel_,obstacleData_,oid-1));
+      }
+      for (ObjectStdVector_t::iterator _o = distanceObstacles_.begin();
+          _o != distanceObstacles_.end(); ++_o) {
+        pinocchio::GeomIndex oid = (*_o)->indexInModel();
+        if (oid > id)
+          _o->reset(new CollisionObject(obstacleModel_,obstacleData_,oid-1));
+      }
       resetProblem(); // resets problem_ and distanceBetweenObjects_
       resetRoadmap();
     }
