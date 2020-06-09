@@ -66,6 +66,8 @@ namespace hpp {
 
     PathVectorPtr_t RandomShortcut::optimize (const PathVectorPtr_t& path)
     {
+      monitorExecution();
+
       using std::numeric_limits;
       using std::make_pair;
       bool finished = false;
@@ -85,7 +87,8 @@ namespace hpp {
       length.push_back (_PathLength<>::run (tmpPath, problem ().distance ()));
       PathVectorPtr_t result;
 
-      while (!interrupt_ && !finished && projectionError != 0) {
+      while (!shouldStop() && !finished && projectionError != 0) {
+        endIteration();
         t[0] = tmpPath->timeRange().first ;
         t[3] = tmpPath->timeRange().second;
         bool error = !shootTimes (tmpPath, t[0], t[1], t[2], t[3]);

@@ -366,6 +366,8 @@ namespace hpp {
       template <int _PB, int _SO>
       PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize (const PathVectorPtr_t& path)
       {
+        this->monitorExecution();
+
         // Get some parameters
         value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit").floatValue();
         bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst").boolValue();
@@ -377,8 +379,6 @@ namespace hpp {
 
         if (path->length() == 0) return path;
         PathVectorPtr_t input = Base::cleanInput (path);
-        size_type maxIterations = problem().getParameter
-          ("SplineGradientBased/maxIterations").intValue();
 
         robot_->controlComputation ((pinocchio::Computation_t)(robot_->computationFlag() | pinocchio::JACOBIAN));
         const size_type rDof = robot_->numberDof();
@@ -462,16 +462,14 @@ namespace hpp {
         QPc.computeLLT();
         QPc.solve(collisionReduced, boundConstraintReduced);
 
-        size_type iter = 0;
-        while (!(noCollision && minimumReached) && (!this->interrupt_)
-               && iter < maxIterations) {
+        while (!(noCollision && minimumReached) && !this->shouldStop()) {
           // 6.1
           if (computeOptimum) {
             // 6.2
             constraint.computeSolution(QPc.xStar);
             Base::updateSplines(collSplines, constraint.xSol);
             cost.value(costLowerBound, collSplines);
-            hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
+            hppDout (info, "Cost interval: [" << costLowerBound << ", " << optimalCost << "]");
             currentSplines = &collSplines;
             minimumReached = true;
             computeOptimum = false;
@@ -493,7 +491,7 @@ namespace hpp {
           }
           if (noCollision) {
             cost.value(optimalCost, *currentSplines);
-            hppDout (info, "Cost interval: [" << optimalCost << ", " << costLowerBound << "]");
+            hppDout (info, "Cost interval: [" << costLowerBound << ", " << optimalCost << "]");
             // Update the spline
             for (std::size_t i = 0; i < splines.size(); ++i)
               splines[i]->rowParameters((*currentSplines)[i]->rowParameters());
@@ -568,15 +566,12 @@ namespace hpp {
               computeInterpolatedSpline = true;
             }
           }
-          ++iter;
+          this->endIteration();
         }
 
         // 7
         HPP_DISPLAY_TIMECOUNTER(SGB_findNewConstraint);
-        if (iter < maxIterations) {
-          currentSplines = &splines;
-        }
-        return this->buildPathVector (*currentSplines);
+        return this->buildPathVector (splines);
       }
 
       // ----------- Convenience functions ---------------------------------- //
@@ -651,11 +646,6 @@ namespace hpp {
             "contains rows of zeros, in which case the "
             "corresponding DoF is considered passive.",
             Parameter(-1.)));
-      Problem::declareParameter (ParameterDescription (Parameter::INT,
-            "SplineGradientBased/maxIterations",
-            "Maximal number of iterations. Once reached the algorithm "
-            "returns the current path whether valid or not",
-            Parameter (std::numeric_limits <size_type>::max ())));
       HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
     } // namespace pathOptimization
   }  // namespace core
