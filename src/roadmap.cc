@@ -229,6 +229,13 @@ namespace hpp {
         (configuration, connectedComponent, k, d);
     }
 
+    NodeVector_t Roadmap::nodesWithinBall (const Configuration_t& q,
+                                           const ConnectedComponentPtr_t& cc,
+                                           value_type maxD)
+    {
+      return nearestNeighbor_->withinBall(q, cc, maxD);
+    }
+
     NodePtr_t Roadmap::addGoalNode (const ConfigurationPtr_t& config)
     {
       NodePtr_t node = addNode (config);

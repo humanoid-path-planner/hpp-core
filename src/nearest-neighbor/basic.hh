@@ -79,6 +79,10 @@ namespace hpp {
                                       const std::size_t K,
 			              value_type& distance);
 
+      NodeVector_t withinBall (const Configuration_t& configuration,
+                               const ConnectedComponentPtr_t& cc,
+                               value_type maxDistance);
+
       virtual void merge (ConnectedComponentPtr_t, ConnectedComponentPtr_t)
       {
       }

@@ -166,6 +166,21 @@ namespace hpp {
         }
         return nodes;
       }
+
+      NodeVector_t Basic::withinBall (const Configuration_t& q,
+                                      const ConnectedComponentPtr_t& cc,
+                                       value_type maxDistance)
+      {
+        const Distance& dist = *distance_;
+        NodeVector_t nodes;
+	for (NodeVector_t::const_iterator itNode = cc->nodes ().begin ();
+	     itNode != cc->nodes ().end (); ++itNode) {
+          NodePtr_t n = *itNode;
+	  if (dist (*n->configuration(), q) < maxDistance)
+            nodes.push_back (n);
+	}
+	return nodes;
+      }
     } // namespace nearestNeighbor
   } // namespace core
 } // namespace hpp
