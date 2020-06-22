@@ -101,6 +101,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/path-optimizer.hh
   include/hpp/core/path-planner.hh
   include/hpp/core/path-planner/k-prm-star.hh
+  include/hpp/core/path-planner/bi-rrt-star.hh
   include/hpp/core/path-validation.hh
   include/hpp/core/path-validation-report.hh
   include/hpp/core/path-vector.hh
@@ -196,6 +197,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/path-optimization/simple-time-parameterization.cc#
   src/path-planner.cc #
   src/path-planner/k-prm-star.cc
+  src/path-planner/bi-rrt-star.cc
   src/path-vector.cc #
   src/path/spline.cc
   src/path/hermite.cc
