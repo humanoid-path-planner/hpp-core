@@ -61,6 +61,8 @@ namespace hpp {
         void init (const BiRrtStarWkPtr_t& weak);
 
       private:
+        typedef std::map<NodePtr_t, EdgePtr_t> ParentMap_t;
+
         Configuration_t sample ();
 
         /// Get cost to reach \c n
@@ -76,24 +78,20 @@ namespace hpp {
         PathPtr_t buildPath(const Configuration_t& q0, const Configuration_t& q1,
             value_type maxLength, bool validatePath);
 
-        bool extend (ConnectedComponentPtr_t cc, Configuration_t& q);
+        bool extend (NodePtr_t target, ParentMap_t& parentMap, Configuration_t& q);
 
-        bool connect (NodePtr_t cc, const Configuration_t& q);
+        bool connect (NodePtr_t cc, ParentMap_t& parentMap, const Configuration_t& q);
+
+        bool improve (const Configuration_t& q);
 
         value_type gamma_;
         /// Maximal path length with using function \ref extend.
         value_type extendMaxLength_;
 
-        NodePtr_t a_, b_;
+        NodePtr_t roots_[2];
 
-        typedef std::map<NodePtr_t, value_type> Costs_t;
-        Costs_t costs_;
-        typedef std::map<NodePtr_t, NodePtr_t> ParentMap_t;
-
-        /// store relation <child, parent> that brings to node A
-        std::unique_ptr<ParentMap_t> toA_;
-        /// store relation <child, parent> that brings to node B
-        std::unique_ptr<ParentMap_t> toB_;
+        /// store relation <child, parent> that brings to node \c roots_[i]
+        std::vector<ParentMap_t> toRoot_;
 
         /// Weak pointer to itself
         BiRrtStarWkPtr_t weak_;
