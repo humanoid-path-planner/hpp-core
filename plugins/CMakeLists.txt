@@ -14,8 +14,11 @@
 # received a copy of the GNU Lesser General Public License along with
 # hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
-INCLUDE(hpp-core-plugin)
+include(hpp-core-plugin)
 
 HPP_ADD_PLUGIN(spline-gradient-based
+  EXPORT spline-gradient-basedTargets
   SOURCES spline-gradient-based.cc
-  LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl)
+  LINK_DEPENDENCIES PUBLIC ${PROJECT_NAME} ${PROJECT_NAME}-gpl)
+
+PROJECT_INSTALL_COMPONENT(spline-gradient-based)

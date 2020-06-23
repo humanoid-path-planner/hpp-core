@@ -37,6 +37,7 @@ namespace hpp {
           ps->pathOptimizers.add ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create);
           // ps->pathOptimizers.add ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<path::BernsteinBasis, 2>::create);
           ps->pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<path::BernsteinBasis, 3>::create);
+          ps->pathOptimizers.add ("SplineGradientBased_bezier5",pathOptimization::SplineGradientBased<path::BernsteinBasis, 5>::create);
           return true;
         }
     };

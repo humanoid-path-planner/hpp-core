@@ -118,12 +118,13 @@ namespace hpp {
         SteeringMethod (other), device_ (other.device_)
       {}
 
-      template class Spline<path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
-      template class Spline<path::CanonicalPolynomeBasis, 2>;
-      template class Spline<path::CanonicalPolynomeBasis, 3>;
+      //template class Spline<path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
+      //template class Spline<path::CanonicalPolynomeBasis, 2>;
+      //template class Spline<path::CanonicalPolynomeBasis, 3>;
       template class Spline<path::BernsteinBasis, 1>; // equivalent to StraightPath
-      template class Spline<path::BernsteinBasis, 2>;
+      //template class Spline<path::BernsteinBasis, 2>;
       template class Spline<path::BernsteinBasis, 3>;
+      template class Spline<path::BernsteinBasis, 5>;
     } // namespace steeringMethod
   } // namespace core
 } // namespace hpp

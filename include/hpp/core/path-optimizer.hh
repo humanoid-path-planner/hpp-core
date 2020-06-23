@@ -22,6 +22,8 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
 
+# include <boost/date_time/posix_time/ptime.hpp>
+
 namespace hpp {
   namespace core {
     /// \addtogroup path_optimization
@@ -39,10 +41,16 @@ namespace hpp {
       {
 	return problem_;
       }
+
       /// Optimize path
       virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path) = 0;
+
       /// Interrupt path optimization
       void interrupt () { interrupt_ = true; }
+      /// Set maximal number of iterations
+      void maxIterations (const unsigned long int& n);
+      /// set time out (in seconds)
+      void timeOut(const double& timeOut);
 
     protected:
       /// Whether to interrupt computation
@@ -50,14 +58,37 @@ namespace hpp {
       /// interrupt.
       bool interrupt_;
 
-      PathOptimizer (const Problem& problem) :
-        interrupt_ (false), problem_ (problem)
-      {}
+      PathOptimizer (const Problem& problem);
 
       PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
+      void monitorExecution();
+
+      void endIteration() { ++monitor_.iteration; }
+
+      bool shouldStop() const;
+
+      void initFromParameters ();
+
     private:
       const Problem& problem_;
+
+      /// Maximal number of iterations to solve a problem
+      /// reaching this bound raises an exception.
+      size_type maxIterations_;
+      /// Time out (in seconds) before interrupting the planning
+      double timeOut_;
+
+      /// Information used to monitor the execution of the algorithm.
+      /// This information is:
+      /// \li initialized by \ref monitorExecution
+      /// \li updated by \ref endIteration
+      /// \li read by \ref shouldStop
+      struct {
+        bool enabled;
+        size_type iteration;
+        boost::posix_time::ptime timeStart;
+      } monitor_;
     }; // class PathOptimizer;
     /// }
   } // namespace core
