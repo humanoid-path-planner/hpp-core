@@ -52,14 +52,20 @@ namespace hpp {
         gamma_ (1.),
         extendMaxLength_ (1.),
         toRoot_(2)
-      {}
+      {
+        maxIterations(100);
+        stopWhenProblemIsSolved(false);
+      }
 
       BiRrtStar::BiRrtStar (const Problem& problem, const RoadmapPtr_t& roadmap) :
         Parent_t (problem, roadmap),
         gamma_ (1.),
         extendMaxLength_ (1.),
         toRoot_(2)
-      {}
+      {
+        maxIterations(100);
+        stopWhenProblemIsSolved(false);
+      }
 
       void BiRrtStar::init (const BiRrtStarWkPtr_t& weak)
       {
