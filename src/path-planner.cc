@@ -45,7 +45,7 @@ namespace hpp {
       interrupt_ (false),
       maxIterations_ (uint_infty),
       timeOut_ (float_infty),
-      stopWhenLimitReached_ (true)
+      stopWhenProblemIsSolved_ (true)
     {
     }
 
@@ -55,7 +55,7 @@ namespace hpp {
       interrupt_ (false),
       maxIterations_ (uint_infty),
       timeOut_ (float_infty),
-      stopWhenLimitReached_ (true)
+      stopWhenProblemIsSolved_ (true)
     {
     }
 
@@ -99,7 +99,7 @@ namespace hpp {
       bpt::ptime timeStart(bpt::microsec_clock::universal_time());
       startSolve ();
       tryConnectInitAndGoals ();
-      solved = stopWhenLimitReached_ && problem_.target()->reached (roadmap());
+      solved = stopWhenProblemIsSolved_ && problem_.target()->reached (roadmap());
       if (solved ) {
 	hppDout (info, "tryConnectInitAndGoals succeeded");
       }
@@ -108,7 +108,7 @@ namespace hpp {
         // Check limits
         std::ostringstream oss;
         if (maxIterations_ != uint_infty && nIter >= maxIterations_) {
-          if (!stopWhenLimitReached_
+          if (!stopWhenProblemIsSolved_
               && problem_.target()->reached (roadmap())) break;
           oss << "Maximal number of iterations reached: " << maxIterations_;
           throw std::runtime_error (oss.str ().c_str ());
@@ -116,7 +116,7 @@ namespace hpp {
         bpt::ptime timeStop(bpt::microsec_clock::universal_time());
         if(static_cast<value_type>((timeStop - timeStart).total_milliseconds())
             > timeOut_*1000){
-          if (!stopWhenLimitReached_
+          if (!stopWhenProblemIsSolved_
               && problem_.target()->reached (roadmap())) break;
           oss << "time out reached : " << timeOut_<<" s";
           throw std::runtime_error (oss.str ().c_str ());
@@ -130,7 +130,7 @@ namespace hpp {
 
         // Check if problem is solved.
         ++nIter;
-        solved = stopWhenLimitReached_ && problem_.target()->reached (roadmap());
+        solved = stopWhenProblemIsSolved_ && problem_.target()->reached (roadmap());
         if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
@@ -144,26 +144,26 @@ namespace hpp {
 
     void PathPlanner::maxIterations (const unsigned long int& n)
     {
-      if (!stopWhenLimitReached_ && n == uint_infty && timeOut_ == float_infty)
-        throw std::invalid_argument("stopWhenLimitReached is disabled so "
+      if (!stopWhenProblemIsSolved_ && n == uint_infty && timeOut_ == float_infty)
+        throw std::invalid_argument("stopWhenProblemIsSolved is disabled so "
             "maxIterations or timeOut must be finite.");
       maxIterations_ = n;
     }
 
     void PathPlanner::timeOut (const double& time)
     {
-      if (!stopWhenLimitReached_ && maxIterations_ == uint_infty && time == float_infty)
-        throw std::invalid_argument("stopWhenLimitReached is disabled so "
+      if (!stopWhenProblemIsSolved_ && maxIterations_ == uint_infty && time == float_infty)
+        throw std::invalid_argument("stopWhenProblemIsSolved is disabled so "
             "maxIterations or timeOut must be finite.");
       timeOut_ = time;
     }
 
-    void PathPlanner::stopWhenLimitReached(bool enable)
+    void PathPlanner::stopWhenProblemIsSolved(bool enable)
     {
       if (!enable && maxIterations_ == uint_infty && timeOut_ == float_infty)
-        throw std::invalid_argument("Disabling stopWhenLimitReached is only "
+        throw std::invalid_argument("Disabling stopWhenProblemIsSolved is only "
             "possible when maxIterations or timeOut are set to a finite value.");
-      stopWhenLimitReached_ = enable;
+      stopWhenProblemIsSolved_ = enable;
     }
 
     PathVectorPtr_t PathPlanner::computePath () const
