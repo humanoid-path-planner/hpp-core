@@ -115,75 +115,83 @@ class TOPPRA : public PathOptimizer
             //- 10 * model.velocityLimit, 10 * model.velocityLimit)
         , torqueConstraint
             };
-    std::shared_ptr<PathWrapper> pathWrapper (std::make_shared<PathWrapper>(path));
-
-    toppra::algorithm::TOPPRA algo(v, pathWrapper);
-    algo.setN((int)problem().getParameter(PARAM_HEAD "N").intValue());
-    switch(solver) {
-      default:
-        hppDout (error, "Solver " << solver << " does not exists. Using GLPK");
-      case 0:
-        algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
-        break;
-      case 1:
-        algo.solver(std::make_shared<toppra::solver::qpOASESWrapper>());
-        break;
-    }
-    auto ret_code = algo.computePathParametrization();
-    if (ret_code != toppra::ReturnCode::OK)
+  
+    PathVectorPtr_t flatten_path = PathVector::create(path->outputSize(), path->outputDerivativeSize());
+    path->flatten(flatten_path);
+    PathVectorPtr_t res = PathVector::create(path->outputSize(), path->outputDerivativeSize());
+    for(auto idx_subpath = 0ul; idx_subpath < flatten_path->numberPaths(); ++idx_subpath)
     {
-      std::stringstream ss;
-      ss << "TOPPRA failed, returned code: " << static_cast<int>(ret_code) << std::endl;
-      throw std::runtime_error(ss.str());
-    }
-    const auto out_data = algo.getParameterizationData();
+      const auto subpath = flatten_path->pathAtRank(idx_subpath);
+      std::shared_ptr<PathWrapper> pathWrapper (std::make_shared<PathWrapper>(subpath));
 
-    // forward integration of time parameterization (trapezoidal integration)
-    assert(out_data.gridpoints.size() == out_data.parametrization.size());
-    const size_t num_pts = out_data.gridpoints.size();
-    auto sd = toppra::Vector(num_pts);
-    for (auto i = 0ul; i < num_pts; ++i)
-    {
-      sd[i] = std::sqrt(std::max(out_data.parametrization[i], 0.));
-    }
+      toppra::algorithm::TOPPRA algo(v, pathWrapper);
+      algo.setN((int)problem().getParameter(PARAM_HEAD "N").intValue());
+      switch(solver) {
+        default:
+          hppDout (error, "Solver " << solver << " does not exists. Using GLPK");
+        case 0:
+          algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
+          break;
+        case 1:
+          algo.solver(std::make_shared<toppra::solver::qpOASESWrapper>());
+          break;
+      }
+      auto ret_code = algo.computePathParametrization();
+      if (ret_code != toppra::ReturnCode::OK)
+      {
+        std::stringstream ss;
+        ss << "TOPPRA failed, returned code: " << static_cast<int>(ret_code) << std::endl;
+        throw std::runtime_error(ss.str());
+      }
+      const auto out_data = algo.getParameterizationData();
 
-    auto t = toppra::Vector(num_pts);
-    t[0] = 0.; // start time is 0
-    for (auto i = 1ul; i < num_pts; ++i)
-    {
-      const auto sd_avg = (sd[i - 1] + sd[i]) * 0.5;
-      const auto ds = out_data.gridpoints[i] - out_data.gridpoints[i - 1];
-      assert(sd_avg > 0.);
-      const auto dt = ds / sd_avg;    
-      t[i] = t[i - 1] + dt;
-    }
+      // forward integration of time parameterization (trapezoidal integration)
+      assert(out_data.gridpoints.size() == out_data.parametrization.size());
+      const size_t num_pts = out_data.gridpoints.size();
+      auto sd = toppra::Vector(num_pts);
+      for (auto i = 0ul; i < num_pts; ++i)
+      {
+        sd[i] = std::sqrt(std::max(out_data.parametrization[i], 0.));
+      }
 
-    // time parameterization based on hermite cubic spline interpolation
-    constexpr int order = 3;
-    typedef timeParameterization::PiecewisePolynomial<order> timeparm;
-    auto params = timeparm::ParameterMatrix_t(order + 1, num_pts - 1);
-    const auto& s = out_data.gridpoints;
-    for (auto i = 1ul; i < num_pts; ++i)
-    {
-      const auto inv_dt = 1./(t[i] - t[i-1]);
-      const auto inv_dt2 = inv_dt*inv_dt;
-      const auto inv_dt3 = inv_dt2*inv_dt;
-      const auto t_p = t[i-1];
-      const auto t_p2 = t_p*t_p;
-      const auto t_p3 = t_p2*t_p;
-      const auto ds = (s[i] - s[i-1]);
-      const auto b = (2*sd[i-1] + sd[i])*inv_dt;
-      const auto c = (sd[i-1] + sd[i])*inv_dt2;
-      params(0, i-1) = 2*t_p3*ds*inv_dt3 + 3*t_p2*ds*inv_dt2 - t_p3*c -t_p2*b - t_p*sd[i-1] + s[i-1];
-      params(1, i-1) = -6*t_p2*ds*inv_dt3 - 6*t_p*ds*inv_dt2 + 3*t_p2*c + 2*t_p*b + sd[i-1];
-      params(2, i-1) = 6*t_p*ds*inv_dt3 + 3*ds*inv_dt2 - 3*t_p*c - b;
-      params(3, i-1) = -2*ds*inv_dt3 + c;
-    }
+      auto t = toppra::Vector(num_pts);
+      t[0] = 0.; // start time is 0
+      for (auto i = 1ul; i < num_pts; ++i)
+      {
+        const auto sd_avg = (sd[i - 1] + sd[i]) * 0.5;
+        const auto ds = out_data.gridpoints[i] - out_data.gridpoints[i - 1];
+        assert(sd_avg > 0.);
+        const auto dt = ds / sd_avg;    
+        t[i] = t[i - 1] + dt;
+      }
 
+      // time parameterization based on hermite cubic spline interpolation
+      constexpr int order = 3;
+      typedef timeParameterization::PiecewisePolynomial<order> timeparam;
+      auto params = timeparam::ParameterMatrix_t(order + 1, num_pts - 1);
+      const auto& s = out_data.gridpoints;
+      for (auto i = 1ul; i < num_pts; ++i)
+      {
+        const auto inv_dt = 1./(t[i] - t[i-1]);
+        const auto inv_dt2 = inv_dt*inv_dt;
+        const auto inv_dt3 = inv_dt2*inv_dt;
+        const auto t_p = t[i-1];
+        const auto t_p2 = t_p*t_p;
+        const auto t_p3 = t_p2*t_p;
+        const auto ds = (s[i] - s[i-1]);
+        const auto b = (2*sd[i-1] + sd[i])*inv_dt;
+        const auto c = (sd[i-1] + sd[i])*inv_dt2;
+        params(0, i-1) = 2*t_p3*ds*inv_dt3 + 3*t_p2*ds*inv_dt2 - t_p3*c -t_p2*b - t_p*sd[i-1] + s[i-1];
+        params(1, i-1) = -6*t_p2*ds*inv_dt3 - 6*t_p*ds*inv_dt2 + 3*t_p2*c + 2*t_p*b + sd[i-1];
+        params(2, i-1) = 6*t_p*ds*inv_dt3 + 3*ds*inv_dt2 - 3*t_p*c - b;
+        params(3, i-1) = -2*ds*inv_dt3 + c;
+      }
 
-    PathVectorPtr_t res = PathVector::createCopy(path);
-    res->timeParameterization(TimeParameterizationPtr_t(new timeparm(params, t)),
+      subpath->timeParameterization(TimeParameterizationPtr_t(new timeparam(params, t)),
                               interval_t(t[0], t[num_pts - 1]));
+      res->appendPath(subpath);
+
+    }
 
     return res;
   }
