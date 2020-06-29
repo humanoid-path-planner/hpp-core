@@ -334,8 +334,9 @@ namespace hpp {
         if (paramLength() == 0)
           value (base_, parameters_, 0, res, velocity_);
         else {
-          assert(s >= paramRange().first - std::numeric_limits<value_type>::epsilon());
-          assert(s <= paramRange().second + std::numeric_limits<value_type>::epsilon());
+          assert(s >= paramRange().first - Eigen::NumTraits<value_type>::dummy_precision());
+          assert(s <= paramRange().second + Eigen::NumTraits<value_type>::dummy_precision());
+
           value_type u = (s - paramRange().first) / paramLength();
           // clamp u between 0 and 1.
           if      (u < 0.) u = 0.;
