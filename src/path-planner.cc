@@ -99,7 +99,12 @@ namespace hpp {
       bpt::ptime timeStart(bpt::microsec_clock::universal_time());
       startSolve ();
       tryConnectInitAndGoals ();
-      solved = stopWhenProblemIsSolved_ && problem_.target()->reached (roadmap());
+      // We choose to stop if a direct path solves the problem.
+      // We could also respect the stopWhenLimitReached_ attribute.
+      // It is ambiguous what should be done as it is case dependent.
+      // If the intent is to build a roadmap, then we should not stop.
+      // If the intent is to solve a optimal planning problem, then we should stop.
+      solved = problem_.target()->reached (roadmap());
       if (solved ) {
 	hppDout (info, "tryConnectInitAndGoals succeeded");
       }
