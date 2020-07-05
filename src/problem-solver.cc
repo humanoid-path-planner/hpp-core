@@ -153,10 +153,14 @@ namespace hpp {
     configurationShooter::GaussianPtr_t createGaussianConfigShooter (const Problem& p)
     {
       configurationShooter::GaussianPtr_t ptr = configurationShooter::Gaussian::create(p.robot());
+      static const std::string center = "ConfigurationShooter/Gaussian/center";
       static const std::string useVel = "ConfigurationShooter/Gaussian/useRobotVelocity";
       static const std::string stdDev = "ConfigurationShooter/Gaussian/standardDeviation";
       if (p.getParameter(useVel).boolValue())
+      {
         ptr->sigmas (p.robot()->currentVelocity());
+	ptr->center(p.getParameter(center).vectorValue());
+      }
       else if (p.parameters.has(stdDev))
         ptr->sigma (p.getParameter (stdDev).floatValue());
       return ptr;
@@ -1081,6 +1085,10 @@ namespace hpp {
     // ----------- Declare parameters ------------------------------------- //
 
     HPP_START_PARAMETER_DECLARATION(ProblemSolver)
+    Problem::declareParameter(ParameterDescription(Parameter::VECTOR,
+	  "ConfigurationShooter/Gaussian/center",
+	  "Center of gaussian random distribution.",
+          Parameter(vector_t())));
     Problem::declareParameter(ParameterDescription (Parameter::BOOL,
           "ConfigurationShooter/Gaussian/useRobotVelocity",
           "Use robot current velocity as standard velocity.",

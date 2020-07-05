@@ -117,6 +117,12 @@ namespace hpp {
         }
 
         config.resize(robot_->configSize ());
+	vector_t center (center_);
+	if (center.size() == 0)
+	{
+	  // center has not been initialized, use robot neutral configuration
+	  center = robot_->neutralConfiguration();
+	}
         ::hpp::pinocchio::integrate (robot_, center_, velocity, config);
         ::hpp::pinocchio::saturate  (robot_, config);
       }
