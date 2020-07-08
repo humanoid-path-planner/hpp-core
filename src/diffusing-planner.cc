@@ -114,6 +114,11 @@ namespace hpp {
       // Here, qProj_ is a configuration that satisfies the constraints
       // or target if there are no constraints.
       PathPtr_t path = (*sm) (*(near->configuration ()), qProj_);
+      value_type stepLength = problem().getParameter ("DiffusingPlanner/extensionStepLength").floatValue();
+      if (stepLength > 0 && path->length() > stepLength) {
+        value_type t0 = path->timeRange().first;
+        path = path->extract(t0, t0 + stepLength);
+      }
       PathProjectorPtr_t pp = problem ().pathProjector();
       if (pp) {
         PathPtr_t proj;
@@ -122,7 +127,6 @@ namespace hpp {
       }
       return path;
     }
-
 
     /// This method performs one step of RRT extension as follows
     ///  1. a random configuration "q_rand" is shot,
@@ -151,6 +155,8 @@ namespace hpp {
     void DiffusingPlanner::oneStep ()
     {
       HPP_START_TIMECOUNTER(oneStep);
+
+      value_type stepRatio = problem().getParameter ("DiffusingPlanner/extensionStepRatio").floatValue();
 
       typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
@@ -185,6 +191,10 @@ namespace hpp {
 	  // Insert new path to q_near in roadmap
 	  value_type t_final = validPath->timeRange ().second;
 	  if (t_final != path->timeRange ().first) {
+            if (!pathValid && stepRatio > 0 && stepRatio < 1.) {
+              value_type t0 = validPath->timeRange().first;
+              validPath = validPath->extract(t0, t0 + validPath->length()*stepRatio);
+            }
 	    ConfigurationPtr_t q_new (new Configuration_t
 				      (validPath->end ()));
 	    if (!pathValid || !belongs (q_new, newNodes)) {
@@ -299,6 +309,18 @@ namespace hpp {
       configurationShooter_ = shooter;
     }
 
-
+    HPP_START_PARAMETER_DECLARATION(DiffusingPlanner)
+    Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+          "DiffusingPlanner/extensionStepLength",
+          "Extension step length. "
+          "Not used if negative.",
+          Parameter(-1.)));
+    Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+          "DiffusingPlanner/extensionStepRatio",
+          "When path from q_near to q_rand is in collision, keep only this "
+          "amount of the valid part. "
+          "Should be in ]0,1[. Not used if negative.",
+          Parameter(-1.)));
+    HPP_END_PARAMETER_DECLARATION(DiffusingPlanner)
   } // namespace core
 } // namespace hpp

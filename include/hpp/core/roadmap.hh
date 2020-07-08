@@ -119,6 +119,12 @@ namespace hpp {
         return nearestNodes (*configuration, connectedComponent, k);
       }
 
+      /// Neighbor search.
+      /// \copydoc NearestNeighbor::withinBall
+      NodeVector_t nodesWithinBall (const Configuration_t& configuration,
+                                    const ConnectedComponentPtr_t& connectedComponent,
+                                    value_type maxDistance);
+
       /// Add a node and two edges
       /// \param from node from which the edge starts,
       /// \param to configuration to which the edge stops

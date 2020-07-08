@@ -68,6 +68,12 @@ namespace hpp {
       void maxIterations (const unsigned long int& n);
       /// set time out (in seconds)
       void timeOut(const double& timeOut);
+      /// Make the resolution stop when the problem is solved.
+      /// If set to \c false, the algorithm stops when \ref maxIterations
+      /// or \ref timeOut are reached and it is a success if the
+      /// \ref Problem::target is achieved.
+      void stopWhenProblemIsSolved(bool enable);
+
       /// Find a path in the roadmap and transform it in trajectory
       PathVectorPtr_t computePath () const;
     protected:
@@ -92,6 +98,8 @@ namespace hpp {
       unsigned long int maxIterations_;
       /// Time out (in seconds) before interrupting the planning
       double timeOut_;
+      /// \copydoc PathPlanner::stopWhenProblemIsSolved
+      bool stopWhenProblemIsSolved_;
 
       /// Store weak pointer to itself
       PathPlannerWkPtr_t weakPtr_;

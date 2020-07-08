@@ -49,6 +49,7 @@
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/path-planner/bi-rrt-star.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
@@ -210,6 +211,7 @@ namespace hpp {
       pathPlanners.add ("VisibilityPrmPlanner", VisibilityPrmPlanner::createWithRoadmap);
       pathPlanners.add ("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
       pathPlanners.add ("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
+      pathPlanners.add ("BiRRT*", pathPlanner::BiRrtStar::createWithRoadmap);
 
       configurationShooters.add ("Uniform" , createUniformConfigShooter);
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);

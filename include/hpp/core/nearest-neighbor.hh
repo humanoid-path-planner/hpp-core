@@ -77,6 +77,12 @@ namespace hpp {
                                       const std::size_t K,
 			              value_type& distance) = 0;
 
+      /// \return all the nodes closer than \c maxDistance to \c configuration
+      /// within \c connectedComponent.
+      virtual NodeVector_t withinBall (const Configuration_t& configuration,
+			               const ConnectedComponentPtr_t& cc,
+			               value_type maxDistance) = 0;
+
       // merge two connected components in the whole tree
       virtual void merge (ConnectedComponentPtr_t cc1,
 			  ConnectedComponentPtr_t cc2) = 0;
