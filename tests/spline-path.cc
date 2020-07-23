@@ -188,11 +188,6 @@ void check_velocity_bounds ()
   }
 }
 
-BOOST_AUTO_TEST_CASE (spline_canonical)
-{
-  compare_to_straight_path<path::CanonicalPolynomeBasis>();
-}
-
 BOOST_AUTO_TEST_CASE (spline_bernstein)
 {
   compare_to_straight_path<path::BernsteinBasis>();
