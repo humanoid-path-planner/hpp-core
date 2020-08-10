@@ -20,6 +20,8 @@
 
 #include <queue>
 
+#include <hpp/pinocchio/configuration.hh>
+
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/path-projector.hh>
@@ -171,6 +173,8 @@ namespace hpp {
         roots_[0] = roadmap()->initNode();
         roots_[1] = roadmap()->goalNodes()[0];
 
+        toRoot_[0].clear();
+        toRoot_[1].clear();
         setParent(toRoot_[0], roots_[0], EdgePtr_t());
         setParent(toRoot_[1], roots_[1], EdgePtr_t());
       }
@@ -204,8 +208,50 @@ namespace hpp {
 
       Configuration_t BiRrtStar::sample ()
       {
+        Configuration_t q (problem().robot()->configSize());
         ConfigurationShooterPtr_t shooter = problem().configurationShooter();
-        Configuration_t q;
+
+        if (roadmap()->connectedComponents().size() == 1
+            && value_type(rand())/INT_MAX > (value_type)0.2) {
+          // Compute best path and find one point
+          typedef ParentMap_t::const_iterator It_t;
+          int nedges = 0;
+          for (It_t current = toRoot_[0].find(roots_[1]); current->second;
+              current = toRoot_[0].find(current->second->from())) {
+            if (current == toRoot_[0].end()) {
+              shooter->shoot(q);
+              return q;
+            }
+            ++nedges;
+          }
+          if (nedges >= 2) {
+            int i = 1+(rand()%(nedges-1));
+            It_t edge1, edge0;
+            for (edge1 = toRoot_[0].find(roots_[1]); i != 1;
+                edge1 = toRoot_[0].find(edge1->second->from()))
+              --i;
+            edge0 = toRoot_[0].find(edge1->second->from());
+            if(edge0->second->to() != edge1->second->from())
+              throw std::logic_error("wrong parent map.");
+
+            // qm = (q0 + q2) / 2
+            pinocchio::interpolate(problem().robot(),
+                *edge0->second->from()->configuration(),
+                *edge1->second->to()->configuration(),
+                0.5, q);
+
+            // q = q1 + alpha * (qm - q1)
+            vector_t v (problem().robot()->numberDof());
+            pinocchio::difference(problem().robot(),
+                q, *edge0->second->to()->configuration(), v);
+            v.normalize();
+
+            value_type l (extendMaxLength_ - value_type(rand()) * extendMaxLength_ / (10 * (value_type)INT_MAX));
+            pinocchio::integrate(problem().robot(), *edge0->second->to()->configuration(), l*v, q);
+            return q;
+          }
+        }
+
         shooter->shoot(q);
         return q;
       }
