@@ -93,14 +93,17 @@ namespace hpp {
         return c;
       }
 
+      /// \param map the parent map to update
+      /// \param n a roadmap node
+      /// \param e a roadmap edge that ends at \c n.
+      /// \note if \c e is NULL, then \c n is considered a root of the parent
+      /// map.
       void setParent(ParentMap_t& map, NodePtr_t n, EdgePtr_t e)
       {
         if (e) {
           assert(e->to() == n);
-          if (map.find(e->from()) == map.end()) {
-            std::cout << "\n" << e->from()->configuration()->transpose() << std::endl;
-            throw std::logic_error("could not find node from of edge in parent map.");
-          }
+          if (map.find(e->from()) == map.end())
+            throw std::logic_error("could not find node from of edge in parent map. Did you start from a pre-built roadmap ?");
         }
         map[n] = e;
       }
@@ -166,7 +169,7 @@ namespace hpp {
           throw std::invalid_argument("there should be only one goal node.");
 
         extendMaxLength_ = problem().getParameter("BiRRT*/maxStepLength").floatValue();
-        if (extendMaxLength_ <= 0) 
+        if (extendMaxLength_ <= 0)
           extendMaxLength_ = std::sqrt(problem().robot()->numberDof());
         gamma_ = problem().getParameter("BiRRT*/gamma").floatValue();
 
@@ -376,19 +379,21 @@ namespace hpp {
       bool BiRrtStar::improve (const Configuration_t& q)
       {
         value_type dist;
-        NodePtr_t near = roadmap()->nearestNode(q, dist);
+        const NodePtr_t nearQ = roadmap()->nearestNode(q, dist);
         if (dist < 1e-16)
           return false;
 
-        PathPtr_t path = buildPath(*near->configuration(), q, extendMaxLength_, true);
-        if (!path || path->length() < 1e-10) return false;
+        const PathPtr_t nearQ_qnew = buildPath(*nearQ->configuration(), q, extendMaxLength_, true);
+        if (!nearQ_qnew || nearQ_qnew->length() < 1e-10) return false;
 
-        value_type n ((value_type)roadmap()->nodes().size());
-        NodeVector_t nearNodes = roadmap()->nodesWithinBall(q, roots_[0]->connectedComponent(),
+        const Configuration_t qnew (nearQ_qnew->end());
+
+        const value_type n ((value_type)roadmap()->nodes().size());
+        NodeVector_t nearNodes = roadmap()->nodesWithinBall(qnew, roots_[0]->connectedComponent(),
             std::min(gamma_ * std::pow(std::log(n)/n, 1./(value_type)problem().robot()->numberDof()),
               extendMaxLength_));
 
-        NodePtr_t qnew = roadmap()->addNode(boost::make_shared<Configuration_t>(q));
+        const NodePtr_t nnew = roadmap()->addNode(boost::make_shared<Configuration_t>(qnew));
 
         std::vector<ValidatedPath_t> paths;
         paths.reserve(nearNodes.size());
@@ -396,18 +401,18 @@ namespace hpp {
         for (int k = 0; k < 2; ++k) {
           paths.clear();
 
-          PathPtr_t toqnew (path);
-
-          value_type cost_q (computeCost(toRoot_[k], near) + toqnew->length());
+          NodePtr_t bestParent (nearQ);
+          PathPtr_t best_qnew(nearQ_qnew);
+          value_type cost_q (computeCost(toRoot_[k], nearQ) + nearQ_qnew->length());
 
           for (NodeVector_t::const_iterator _near = nearNodes.begin(); _near != nearNodes.end(); ++_near) {
             PathPtr_t near2new;
-            if (*_near == near) {
-              near2new = toqnew;
+            if (*_near == nearQ) {
+              near2new = nearQ_qnew;
               paths.push_back(ValidatedPath_t(true, near2new));
               continue;
             } else {
-              near2new = buildPath(*(*_near)->configuration(), q, -1, false);
+              near2new = buildPath(*(*_near)->configuration(), qnew, -1, false);
               paths.push_back(ValidatedPath_t(false, near2new));
             }
             if (!near2new) continue;
@@ -419,20 +424,20 @@ namespace hpp {
               if (validate (problem(), near2new)) {
                 // Path is valid and shorter.
                 cost_q = _cost_q;
-                near = *_near;
-                toqnew = near2new;
+                bestParent = *_near;
+                best_qnew = near2new;
               } else
                 paths.back().second.reset();
             }
           }
 
-          EdgePtr_t edge = roadmap()->addEdge(near, qnew, toqnew);
-          roadmap()->addEdge(qnew, near, toqnew->reverse());
-          assert(toRoot_[k].find(near) != toRoot_[k].end());
-          setParent(toRoot_[k], qnew, edge);
+          EdgePtr_t edge = roadmap()->addEdge(bestParent, nnew, best_qnew);
+          roadmap()->addEdge(nnew, bestParent, best_qnew->reverse());
+          assert(toRoot_[k].find(bestParent) != toRoot_[k].end());
+          setParent(toRoot_[k], nnew, edge);
 
           for (std::size_t i = 0; i < nearNodes.size(); ++i) {
-            if (nearNodes[i] == near || !paths[i].second) continue;
+            if (nearNodes[i] == bestParent || !paths[i].second) continue;
 
             value_type cost_q_near = cost_q + paths[i].second->length();
             if (cost_q_near < computeCost(toRoot_[k], nearNodes[i])) {
@@ -440,9 +445,9 @@ namespace hpp {
               if (!pathValid) // If path validation has not been run
                 pathValid = validate(problem(), paths[i].second);
               if (pathValid) {
-                roadmap()->addEdge(nearNodes[i], qnew, paths[i].second);
-                edge = roadmap()->addEdge(qnew, nearNodes[i], paths[i].second->reverse());
-                assert(toRoot_[k].find(qnew) != toRoot_[k].end());
+                roadmap()->addEdge(nearNodes[i], nnew, paths[i].second);
+                edge = roadmap()->addEdge(nnew, nearNodes[i], paths[i].second->reverse());
+                assert(toRoot_[k].find(nnew) != toRoot_[k].end());
                 setParent(toRoot_[k], nearNodes[i], edge);
               }
             }
