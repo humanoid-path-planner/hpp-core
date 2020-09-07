@@ -371,7 +371,7 @@ namespace hpp {
     {
       if (!robot_) throw std::logic_error ("You must provide a robot first");
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
-      problem_->resetConfigValidations();
+      problem_->clearConfigValidations();
       for (ConfigValidationTypes_t::const_iterator it =
           configValidationTypes_.begin (); it != configValidationTypes_.end ();
           ++it)

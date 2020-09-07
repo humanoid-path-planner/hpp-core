@@ -80,7 +80,7 @@ namespace hpp {
 
     // ======================================================================
     Problem::Problem (DevicePtr_t robot) :
-      robot_ (robot)
+      robot_ (robot), configValidations_ (ConfigValidations::create ())
     {
     }
 
@@ -95,8 +95,6 @@ namespace hpp {
       steeringMethod_ = steeringMethod::Straight::create (wkPtr_.lock());
       pathValidation_ = pathValidation::createDiscretizedCollisionChecking (robot_, 0.05);
       configurationShooter_ = configurationShooter::Uniform::create (robot_);
-
-      resetConfigValidations();
     }
 
     // ======================================================================
@@ -185,6 +183,7 @@ namespace hpp {
       boost::shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->addObstacle (object);
+      assert(configValidations_);
       if (configValidations_) {
 	configValidations_->addObstacle (object);
       }
@@ -198,6 +197,7 @@ namespace hpp {
       boost::shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->addObstacle (obstacle);
+      assert(configValidations_);
       if (configValidations_) {
 	configValidations_->removeObstacleFromJoint (joint, obstacle);
       }
@@ -214,6 +214,7 @@ namespace hpp {
       boost::shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->filterCollisionPairs (matrix);
+      assert(configValidations_);
       if (configValidations_) {
 	configValidations_->filterCollisionPairs (matrix);
       }
@@ -226,6 +227,7 @@ namespace hpp {
       boost::shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->setSecurityMargins (securityMatrix);
+      assert(configValidations_);
       if (configValidations_) {
 	configValidations_->setSecurityMargins (securityMatrix);
       }

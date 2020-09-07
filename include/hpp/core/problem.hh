@@ -140,7 +140,8 @@ namespace hpp {
 
       /// Reset the ConfigValidations
       /// by creating a new ConfigValidations using ConfigValidations::create
-      void resetConfigValidations ();
+      /// \deprecated Use clear instead.
+      void resetConfigValidations () HPP_CORE_DEPRECATED;
 
       /// Clear the ConfigValidations
       /// by calling ConfigValidations::clear
