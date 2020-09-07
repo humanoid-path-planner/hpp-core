@@ -420,6 +420,8 @@ namespace hpp {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       // If a robot is present, set config validation methods
       initConfigValidation ();
+      // Set obstacles
+      problem_->collisionObstacles(collisionObstacles_);
     }
 
     void ProblemSolver::clearConfigValidations ()
