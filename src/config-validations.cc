@@ -51,11 +51,6 @@ namespace hpp {
       return (size_type) validations_.size ();
     }
 
-    void ConfigValidations::clear ()
-    {
-      validations_.clear ();
-    }
-
     ConfigValidations::ConfigValidations ()
     {
     }
