@@ -42,8 +42,7 @@ ADD_PROJECT_DEPENDENCY(hpp-util)
 ADD_PROJECT_DEPENDENCY(hpp-statistics)
 ADD_PROJECT_DEPENDENCY(hpp-constraints)
 
-SET(BOOST_COMPONENTS system timer unit_test_framework serialization)
-SEARCH_FOR_BOOST()
+FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
