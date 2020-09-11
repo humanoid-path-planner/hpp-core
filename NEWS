@@ -1,4 +1,5 @@
                                                                 -*- outline -*-
+New in v4.10.0
 * Add a parameter to set the center of the Gaussiant configuration shooter.
 * Fix bug in Reeds and Shepp paths when curvature is not equal to 1.
 * Handle LockedJoint and Implicit instances in the same container in ProblemSolver class. make method ProblemSolver::addLockedJointToConfigProjector deprecated.
