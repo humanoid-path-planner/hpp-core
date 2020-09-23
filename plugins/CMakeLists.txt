@@ -16,9 +16,22 @@
 
 include(hpp-core-plugin)
 
-HPP_ADD_PLUGIN(spline-gradient-based
+hpp_add_plugin(spline-gradient-based
   EXPORT spline-gradient-basedTargets
   SOURCES spline-gradient-based.cc
   LINK_DEPENDENCIES PUBLIC ${PROJECT_NAME} ${PROJECT_NAME}-gpl)
 
-PROJECT_INSTALL_COMPONENT(spline-gradient-based)
+project_install_component(spline-gradient-based)
+
+add_project_dependency(toppra FOR_COMPONENT toppra)
+if(toppra_FOUND)
+  message(STATUS "Found toppra ${toppra_VERSION}")
+  hpp_add_plugin(toppra
+    EXPORT toppraTargets
+    SOURCES toppra
+    LINK_DEPENDENCIES PUBLIC ${PROJECT_NAME} toppra::toppra)
+
+  project_install_component(toppra)
+  install(FILES toppra.hh
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hpp/core/path-optimization/)
+endif()

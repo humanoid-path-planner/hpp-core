@@ -22,8 +22,7 @@
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
 # include <hpp/core/time-parameterization.hh>
-
-# include <path/math.hh>
+# include <hpp/core/path/math.hh>
 
 namespace hpp {
   namespace core {
