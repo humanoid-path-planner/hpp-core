@@ -1,38 +1,38 @@
-<?xml version='1.0'?> 
- <package format='2'> 
- <name>hpp-core</name> 
- <version>4.9.0</version> 
- <description>Implement basic classes for canonical path planning for kinematic chains. </description> 
- 
- <maintainer email='hpp@laas.fr'>Joseph Mirabel</maintainer> 
- <license>LGPL</license> 
- 
- <!-- <url type='website'>https://github.com/humanoid-path-planner/hpp-core </url> --> 
- 
- <author>Joseph Mirabel</author> 
- <author>Florent Lamiraux et al.</author> 
- 
- <buildtool_depend>catkin</buildtool_depend> 
- <build_depend>hpp-pinocchio</build_depend> 
- <exec_depend>hpp-pinocchio</exec_depend> 
+<?xml version='1.0'?>
+ <package format='2'>
+ <name>hpp-core</name>
+ <version>4.10.1</version>
+ <description>Implement basic classes for canonical path planning for kinematic chains. </description>
+
+ <maintainer email='hpp@laas.fr'>Joseph Mirabel</maintainer>
+ <license>LGPL</license>
+
+ <!-- <url type='website'>https://github.com/humanoid-path-planner/hpp-core </url> -->
+
+ <author>Joseph Mirabel</author>
+ <author>Florent Lamiraux et al.</author>
+
+ <buildtool_depend>catkin</buildtool_depend>
+ <build_depend>hpp-pinocchio</build_depend>
+ <exec_depend>hpp-pinocchio</exec_depend>
  <build_export_depend>hpp-pinocchio</build_export_depend>
- <build_depend>hpp-util</build_depend> 
- <exec_depend>hpp-util</exec_depend> 
+ <build_depend>hpp-util</build_depend>
+ <exec_depend>hpp-util</exec_depend>
  <build_export_depend>hpp-util</build_export_depend>
- <build_depend>hpp-statistics</build_depend> 
- <exec_depend>hpp-statistics</exec_depend> 
+ <build_depend>hpp-statistics</build_depend>
+ <exec_depend>hpp-statistics</exec_depend>
  <build_export_depend>hpp-statistics</build_export_depend>
- <build_depend>hpp-constraints</build_depend> 
- <exec_depend>hpp-constraints</exec_depend> 
+ <build_depend>hpp-constraints</build_depend>
+ <exec_depend>hpp-constraints</exec_depend>
  <build_export_depend>hpp-constraints</build_export_depend>
- <build_depend>eigen3</build_depend> 
- <exec_depend>eigen3</exec_depend> 
+ <build_depend>eigen3</build_depend>
+ <exec_depend>eigen3</exec_depend>
  <build_export_depend>eigen3</build_export_depend>
- <build_depend>urdfdom</build_depend> 
- <exec_depend>urdfdom</exec_depend> 
+ <build_depend>urdfdom</build_depend>
+ <exec_depend>urdfdom</exec_depend>
  <build_export_depend>urdfdom</build_export_depend>
- <build_depend>hpp-fcl</build_depend> 
- <exec_depend>hpp-fcl</exec_depend> 
+ <build_depend>hpp-fcl</build_depend>
+ <exec_depend>hpp-fcl</exec_depend>
  <build_export_depend>hpp-fcl</build_export_depend>
- <test_depend>romeo_description</test_depend> 
+ <test_depend>romeo_description</test_depend>
  </package>
