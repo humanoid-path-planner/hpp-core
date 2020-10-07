@@ -78,6 +78,41 @@ private:
   PathPtr_t path_;
 };
 
+namespace timeParameterization
+{
+class Extract : public TimeParameterization
+{
+  public:
+  Extract(TimeParameterizationPtr_t inner, value_type dt, value_type ds)
+    : inner_(inner), dt_(dt), ds_ (ds)
+  {}
+
+  value_type value (const value_type& t) const
+  {
+    return inner_->value(t+dt_) + ds_;
+  }
+
+  value_type derivative (const value_type& t, const size_type& order) const
+  {
+    return inner_->derivative(t+dt_, order);
+  }
+
+  value_type derivativeBound (const value_type& low, const value_type& up) const
+  {
+    return derivativeBound (low+dt_, up+dt_);
+  }
+
+  TimeParameterizationPtr_t copy () const
+  {
+    return TimeParameterizationPtr_t(new Extract(inner_, dt_, ds_));
+  }
+
+  private:
+  TimeParameterizationPtr_t inner_;
+  value_type dt_, ds_;
+};
+}
+
 #define PARAM_HEAD "PathOptimization/TOPPRA/"
 
 namespace pathOptimization
@@ -111,78 +146,104 @@ PathVectorPtr_t TOPPRA::optimize(const PathVectorPtr_t &path)
 
   PathVectorPtr_t flatten_path = PathVector::create(path->outputSize(), path->outputDerivativeSize());
   path->flatten(flatten_path);
-  PathVectorPtr_t res = PathVector::create(path->outputSize(), path->outputDerivativeSize());
-  for(auto idx_subpath = 0ul; idx_subpath < flatten_path->numberPaths(); ++idx_subpath)
+
+  size_type N = problem()->getParameter(PARAM_HEAD "N").intValue();
+
+  // 1. Compute TOPPRA grid points (in the parameter space).
+  std::vector<value_type> params;
+  params.reserve(N + flatten_path->numberPaths() - 1);
+  value_type dparams = flatten_path->length() / (value_type)N;
+  std::vector<size_type> id_subpaths;
+  id_subpaths.reserve(flatten_path->numberPaths()+1);
+
+  std::vector<PathPtr_t> paths (flatten_path->numberPaths());
+  params.push_back(0.);
+  id_subpaths.push_back(0);
+  for(auto i = 0ul; i < flatten_path->numberPaths(); ++i)
   {
-    const auto subpath = flatten_path->pathAtRank(idx_subpath);
-    std::shared_ptr<PathWrapper> pathWrapper (std::make_shared<PathWrapper>(subpath));
+    const auto subpath = (paths[i] = flatten_path->pathAtRank(i));
+    auto I = subpath->paramRange();
+    size_type n = size_type(std::ceil((I.second-I.first) / dparams));
+    value_type p0 = params.back();
+    for (size_type k = 1; k <= n; ++k)
+      params.push_back(p0 + ((I.second-I.first) * (value_type)k ) / (value_type)n);
+    id_subpaths.push_back(params.size() - 1);
+  }
+  toppra::Vector gridpoints (Eigen::Map<toppra::Vector>(params.data(), params.size()));
+  N = gridpoints.size() - 1;
 
-    toppra::algorithm::TOPPRA algo(v, pathWrapper);
-    algo.setN((int)problem()->getParameter(PARAM_HEAD "N").intValue());
-    switch(solver) {
-      default:
-        hppDout (error, "Solver " << solver << " does not exists. Using GLPK");
-      case 0:
-        algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
-        break;
-      case 1:
-        algo.solver(std::make_shared<toppra::solver::qpOASESWrapper>());
-        break;
-    }
-    auto ret_code = algo.computePathParametrization();
-    if (ret_code != toppra::ReturnCode::OK)
-    {
-      std::stringstream ss;
-      ss << "TOPPRA failed, returned code: " << static_cast<int>(ret_code) << std::endl;
-      throw std::runtime_error(ss.str());
-    }
-    const auto out_data = algo.getParameterizationData();
+  // 2. Apply TOPPRA on the full path
+  std::shared_ptr<PathWrapper> pathWrapper (std::make_shared<PathWrapper>(flatten_path));
+  toppra::algorithm::TOPPRA algo(v, pathWrapper);
+  algo.setN((int)N);
+  switch(solver) {
+    default:
+      hppDout (error, "Solver " << solver << " does not exists. Using GLPK");
+    case 0:
+      algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
+      break;
+    case 1:
+      algo.solver(std::make_shared<toppra::solver::qpOASESWrapper>());
+      break;
+  }
+  algo.setGridpoints(gridpoints);
+  auto ret_code = algo.computePathParametrization();
+  if (ret_code != toppra::ReturnCode::OK)
+  {
+    std::stringstream ss;
+    ss << "TOPPRA failed, returned code: " << static_cast<int>(ret_code) << std::endl;
+    throw std::runtime_error(ss.str());
+  }
+  const auto out_data = algo.getParameterizationData();
+  assert(out_data.gridpoints.size() == out_data.parametrization.size());
+  toppra::Vector sd (out_data.parametrization.cwiseMax(0.).cwiseSqrt());
 
-    // forward integration of time parameterization (trapezoidal integration)
-    assert(out_data.gridpoints.size() == out_data.parametrization.size());
-    const size_t num_pts = out_data.gridpoints.size();
-    auto sd = toppra::Vector(num_pts);
-    for (auto i = 0ul; i < num_pts; ++i)
-    {
-      sd[i] = std::sqrt(std::max(out_data.parametrization[i], 0.));
-    }
+  // 3. Build the parameterization function and apply it on each subpaths.
+  PathVectorPtr_t res = PathVector::create(path->outputSize(), path->outputDerivativeSize());
 
-    auto t = toppra::Vector(num_pts);
-    t[0] = 0.; // start time is 0
-    for (auto i = 1ul; i < num_pts; ++i)
-    {
-      const auto sd_avg = (sd[i - 1] + sd[i]) * 0.5;
-      const auto ds = out_data.gridpoints[i] - out_data.gridpoints[i - 1];
-      assert(sd_avg > 0.);
-      const auto dt = ds / sd_avg;    
-      t[i] = t[i - 1] + dt;
-    }
+  // 3.1 forward integration of time parameterization (trapezoidal integration)
+  vector_t t = vector_t(N+1);
+  t[0] = 0.; // start time is 0
+  for (size_type i = 1; i <= N; ++i)
+  {
+    const auto sd_avg = (sd[i - 1] + sd[i]) * 0.5;
+    const auto ds = out_data.gridpoints[i] - out_data.gridpoints[i - 1];
+    assert(sd_avg > 0.);
+    const auto dt = ds / sd_avg;    
+    t[i] = t[i - 1] + dt;
+  }
 
-    // time parameterization based on hermite cubic spline interpolation
-    constexpr int order = 3;
-    typedef timeParameterization::PiecewisePolynomial<order> timeparam;
-    auto params = timeparam::ParameterMatrix_t(order + 1, num_pts - 1);
-    const auto& s = out_data.gridpoints;
-    for (auto i = 1ul; i < num_pts; ++i)
-    {
-      const auto inv_dt = 1./(t[i] - t[i-1]);
-      const auto inv_dt2 = inv_dt*inv_dt;
-      const auto inv_dt3 = inv_dt2*inv_dt;
-      const auto t_p = t[i-1];
-      const auto t_p2 = t_p*t_p;
-      const auto t_p3 = t_p2*t_p;
-      const auto ds = (s[i] - s[i-1]);
-      const auto b = (2*sd[i-1] + sd[i])*inv_dt;
-      const auto c = (sd[i-1] + sd[i])*inv_dt2;
-      params(0, i-1) = 2*t_p3*ds*inv_dt3 + 3*t_p2*ds*inv_dt2 - t_p3*c -t_p2*b - t_p*sd[i-1] + s[i-1];
-      params(1, i-1) = -6*t_p2*ds*inv_dt3 - 6*t_p*ds*inv_dt2 + 3*t_p2*c + 2*t_p*b + sd[i-1];
-      params(2, i-1) = 6*t_p*ds*inv_dt3 + 3*ds*inv_dt2 - 3*t_p*c - b;
-      params(3, i-1) = -2*ds*inv_dt3 + c;
-    }
+  // 3.2 time parameterization based on hermite cubic spline interpolation
+  constexpr int order = 3;
+  typedef timeParameterization::PiecewisePolynomial<order> timeparam;
+  auto spline_coeffs = timeparam::ParameterMatrix_t(order + 1, N);
+  const auto& s = out_data.gridpoints;
+  for (size_type i = 1; i <= N; ++i)
+  {
+    const auto inv_dt = 1./(t[i] - t[i-1]);
+    const auto inv_dt2 = inv_dt*inv_dt;
+    const auto inv_dt3 = inv_dt2*inv_dt;
+    const auto t_p = t[i-1];
+    const auto t_p2 = t_p*t_p;
+    const auto t_p3 = t_p2*t_p;
+    const auto ds = (s[i] - s[i-1]);
+    const auto b = (2*sd[i-1] + sd[i])*inv_dt;
+    const auto c = (sd[i-1] + sd[i])*inv_dt2;
+    spline_coeffs(0, i-1) = 2*t_p3*ds*inv_dt3 + 3*t_p2*ds*inv_dt2 - t_p3*c -t_p2*b - t_p*sd[i-1] + s[i-1];
+    spline_coeffs(1, i-1) = -6*t_p2*ds*inv_dt3 - 6*t_p*ds*inv_dt2 + 3*t_p2*c + 2*t_p*b + sd[i-1];
+    spline_coeffs(2, i-1) = 6*t_p*ds*inv_dt3 + 3*ds*inv_dt2 - 3*t_p*c - b;
+    spline_coeffs(3, i-1) = -2*ds*inv_dt3 + c;
+  }
 
-    subpath->timeParameterization(TimeParameterizationPtr_t(new timeparam(params, t)),
-        interval_t(t[0], t[num_pts - 1]));
-    res->appendPath(subpath);
+  TimeParameterizationPtr_t global (new timeparam(spline_coeffs, t));
+  for(auto i = 0ul; i < paths.size(); ++i)
+  {
+    value_type t0 = t[id_subpaths[i]];
+    value_type p0 = -gridpoints[id_subpaths[i]];
+    paths[i]->timeParameterization(
+        TimeParameterizationPtr_t(new timeParameterization::Extract (global, t0, p0)),
+        interval_t(0, t[id_subpaths[i+1]]-t0));
+    res->appendPath(paths[i]);
 
   }
 
