@@ -74,6 +74,16 @@ namespace hpp {
       timeOut_ = problem().getParameter ("PathOptimizer/timeOut").floatValue();
     }
 
+    void PathOptimizer::maxIterations (const unsigned long int& n)
+    {
+      maxIterations_ = n;
+    }
+
+    void PathOptimizer::timeOut(const double& timeOut)
+    {
+      timeOut_ = timeOut;
+    }
+
     // ----------- Declare parameters ------------------------------------- //
 
     HPP_START_PARAMETER_DECLARATION(PathOptimizer)
