@@ -46,7 +46,7 @@ namespace hpp {
             << ". Check your LD_LIBRARY_PATH.");
       }
 
-      bool loadPlugin (const std::string& lib, ProblemSolver* ps)
+      bool loadPlugin (const std::string& lib, ProblemSolverPtr_t ps)
       {
         typedef ::hpp::core::ProblemSolverPlugin* (*PluginFunction_t) ();
 

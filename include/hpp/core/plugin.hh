@@ -89,7 +89,7 @@ namespace hpp {
       /// 1. Call \ref findPluginLibrary
       /// 2. Call dlopen and handle errors
       /// 3. ProblemSolverPlugin::initialize with \c ps
-      bool loadPlugin (const std::string& lib, ProblemSolver* ps);
+      bool loadPlugin (const std::string& lib, ProblemSolverPtr_t ps);
     } // namespace plugin
 
     /// \}
