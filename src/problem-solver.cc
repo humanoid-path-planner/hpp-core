@@ -176,7 +176,7 @@ namespace hpp {
 
     ProblemSolverPtr_t ProblemSolver::create ()
     {
-      return new ProblemSolver ();
+      return ProblemSolverPtr_t(new ProblemSolver ());
     }
 
     ProblemSolver::ProblemSolver () :

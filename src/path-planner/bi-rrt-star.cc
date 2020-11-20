@@ -302,6 +302,10 @@ namespace hpp {
         if (dist < 1e-16)
           return false;
 
+        if (problem().constraints()
+            && !problem().constraints()->apply(q))
+          return false;
+
         PathPtr_t path = buildPath(*near->configuration(), q, extendMaxLength_, true);
         if (!path || path->length() < 1e-10) return false;
         q = path->end();
