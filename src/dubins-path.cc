@@ -19,14 +19,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <hpp/core/dubins-path.hh>
+
 #include <math.h>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
+#include <pinocchio/spatial/se3.hpp>
+#include <pinocchio/serialization/eigen.hpp>
+
 #include <hpp/util/debug.hh>
+#include <hpp/util/serialization.hh>
+
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
-#include <hpp/core/dubins-path.hh>
+#include <hpp/pinocchio/serialization.hh>
+
 #include <hpp/core/steering-method/constant-curvature.hh>
-#include <pinocchio/spatial/se3.hpp>
+
 #include "dubins.hh"
 
 namespace hpp {
@@ -298,5 +309,31 @@ namespace hpp {
         v [2] = 0;
       }
     }
+
+    template<class Archive>
+    void DubinsPath::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<PathVector>(*this));
+      ar & BOOST_SERIALIZATION_NVP(device_);
+      ar & BOOST_SERIALIZATION_NVP(initial_);
+      ar & BOOST_SERIALIZATION_NVP(end_);
+      ar & make_nvp("xyId_", const_cast<size_type&>(xyId_));
+      ar & make_nvp("rzId_", const_cast<size_type&>(rzId_));
+      ar & BOOST_SERIALIZATION_NVP(dxyId_);
+      ar & BOOST_SERIALIZATION_NVP(drzId_);
+      ar & BOOST_SERIALIZATION_NVP(wheels_);
+      ar & BOOST_SERIALIZATION_NVP(typeId_);
+      ar & BOOST_SERIALIZATION_NVP(lengths_);
+      ar & BOOST_SERIALIZATION_NVP(extraLength_);
+      ar & BOOST_SERIALIZATION_NVP(rho_);
+      ar & BOOST_SERIALIZATION_NVP(qi_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(DubinsPath);
   } //   namespace hpp-core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::core::DubinsPath)

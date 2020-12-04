@@ -173,6 +173,9 @@ namespace hpp {
 
       void init (DubinsPathPtr_t self);
 
+      /// For serialization only.
+      DubinsPath() : xyId_(0), rzId_(0) {}
+
     private:
       void dubins_init_normalised (double alpha, double beta, double d);
       void dubins_init (vector3_t q0, vector3_t q1);
@@ -191,6 +194,7 @@ namespace hpp {
       vector3_t qi_;       // the initial configuration
       DubinsPathWkPtr_t weak_;
 
+      HPP_SERIALIZABLE();
     }; // class DubinsPath
 
     /// \}
