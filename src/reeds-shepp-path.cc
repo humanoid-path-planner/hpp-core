@@ -19,13 +19,18 @@
 #include <hpp/core/reeds-shepp-path.hh>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
+#include <pinocchio/serialization/eigen.hpp>
 
 #include <hpp/util/debug.hh>
+#include <hpp/util/serialization.hh>
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/serialization.hh>
 
 #include <hpp/core/reeds-shepp-path.hh>
 #include <hpp/core/steering-method/constant-curvature.hh>
@@ -728,5 +733,27 @@ namespace hpp {
       parent_t::impl_derivative (result, param, order);
     }
 
+    template<class Archive>
+    void ReedsSheppPath::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<PathVector>(*this));
+      ar & BOOST_SERIALIZATION_NVP(device_);
+      ar & BOOST_SERIALIZATION_NVP(initial_);
+      ar & BOOST_SERIALIZATION_NVP(end_);
+      ar & make_nvp("xyId_", const_cast<size_type&>(xyId_));
+      ar & make_nvp("rzId_", const_cast<size_type&>(rzId_));
+      ar & BOOST_SERIALIZATION_NVP(typeId_);
+      ar & BOOST_SERIALIZATION_NVP(lengths_);
+      ar & BOOST_SERIALIZATION_NVP(rsLength_);
+      ar & BOOST_SERIALIZATION_NVP(extraLength_);
+      ar & BOOST_SERIALIZATION_NVP(rho_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(ReedsSheppPath);
   } //   namespace hpp-core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::core::ReedsSheppPath)

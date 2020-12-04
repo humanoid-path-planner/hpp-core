@@ -173,6 +173,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/dubins.cc
   src/dubins-path.cc
   src/extracted-path.hh
+  src/extracted-path.cc
   src/interpolated-path.cc
   src/joint-bound-validation.cc
   src/obstacle-user.cc

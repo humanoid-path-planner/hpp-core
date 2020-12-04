@@ -160,6 +160,9 @@ namespace hpp {
           parent_t::init (weak);
           weak_ = weak;
         }
+
+        /// For serialization only.
+        ConstantCurvature() : curvature_(0), xyId_(0), rzId_(0) {}
     private:
         /// Set the wheel joints for a car-like vehicle.
         ///
@@ -168,7 +171,7 @@ namespace hpp {
         void setWheelJoints (const JointPtr_t rz,
                              const std::vector<JointPtr_t> wheels);
 
-        const DevicePtr_t robot_;
+        DevicePtr_t robot_;
         Configuration_t initial_;
         Configuration_t end_;
         value_type curveLength_;
@@ -183,6 +186,8 @@ namespace hpp {
         };
         std::vector<Wheels_t> wheels_;
         ConstantCurvatureWkPtr_t weak_;
+
+        HPP_SERIALIZABLE();
       }; // class ConstantCurvature
     } // namespace steeringMethod
   } // namespace core

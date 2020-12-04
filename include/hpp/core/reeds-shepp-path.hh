@@ -164,6 +164,9 @@ namespace hpp {
       virtual void impl_derivative (vectorOut_t result, const value_type& t,
 				    size_type order) const;
 
+      /// For serialization only.
+      ReedsSheppPath() : xyId_(0), rzId_(0) {}
+
     private:
       typedef Eigen::Matrix<value_type, 5, 1> Lengths_t;
 
@@ -196,6 +199,8 @@ namespace hpp {
       // Minimal radius of curvature
       value_type rho_;
       ReedsSheppPathWkPtr_t weak_;
+
+      HPP_SERIALIZABLE();
     }; // class ReedsSheppPath
     /// \}
   } //   namespace core

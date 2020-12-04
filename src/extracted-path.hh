@@ -183,6 +183,9 @@ namespace hpp {
 	weak_ = self;
       }
 
+      /// For serialization only.
+      ExtractedPath() {}
+
     private:
       inline value_type sInOriginalPath (const value_type& s) const
       {
@@ -194,6 +197,8 @@ namespace hpp {
       PathPtr_t original_;
       bool reversed_;
       ExtractedPathWkPtr_t weak_;
+
+      HPP_SERIALIZABLE();
     };
   } //   namespace core
 } // namespace hpp

@@ -18,12 +18,19 @@
 
 #include <hpp/core/steering-method/constant-curvature.hh>
 
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
 #include <pinocchio/spatial/se3.hpp>
+#include <pinocchio/serialization/eigen.hpp>
+
+#include <hpp/util/serialization.hh>
 
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
+#include <hpp/pinocchio/serialization.hh>
 
 namespace hpp {
   namespace core {
@@ -422,6 +429,41 @@ namespace hpp {
         }
       }
 
+      template<class Archive>
+      void ConstantCurvature::serialize(Archive & ar, const unsigned int version)
+      {
+        using namespace boost::serialization;
+        (void) version;
+        ar & make_nvp("base", base_object<Path>(*this));
+        ar & BOOST_SERIALIZATION_NVP(robot_);
+        ar & BOOST_SERIALIZATION_NVP(initial_);
+        ar & BOOST_SERIALIZATION_NVP(end_);
+        ar & BOOST_SERIALIZATION_NVP(curveLength_);
+        ar & make_nvp("curvature_", const_cast<value_type&>(curvature_));
+        ar & make_nvp("xyId_", const_cast<size_type&>(xyId_));
+        ar & make_nvp("rzId_", const_cast<size_type&>(rzId_));
+        ar & BOOST_SERIALIZATION_NVP(dxyId_);
+        ar & BOOST_SERIALIZATION_NVP(drzId_);
+        ar & BOOST_SERIALIZATION_NVP(forward_);
+        ar & BOOST_SERIALIZATION_NVP(wheels_);
+        ar & BOOST_SERIALIZATION_NVP(weak_);
+      }
+
+      HPP_SERIALIZATION_IMPLEMENT(ConstantCurvature);
     } // namespace steeringMethod
   } // namespace core
 } // namespace hpp
+
+namespace boost {
+namespace serialization {
+template<class Archive>
+void serialize (Archive & ar, hpp::core::steeringMethod::ConstantCurvature::Wheels_t& c, const unsigned int version)
+{
+  (void) version;
+  ar & make_nvp("value", c.value);
+  ar & make_nvp("joint", c.j);
+}
+}
+}
+
+BOOST_CLASS_EXPORT(hpp::core::steeringMethod::ConstantCurvature)
