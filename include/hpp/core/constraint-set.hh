@@ -138,6 +138,10 @@ namespace hpp {
       virtual bool impl_compute (ConfigurationOut_t configuration);
 
       virtual std::ostream& print (std::ostream& os) const;
+
+      /// Constructor for serialization only.
+      ConstraintSet() {}
+
     private:
       ConfigProjectorPtr_t _configProj () const;
 
@@ -149,7 +153,6 @@ namespace hpp {
       friend class Constraint;
       friend class ConfigProjector;
 
-      ConstraintSet() {}
       HPP_SERIALIZABLE();
     }; // class ConstraintSet
     /// \}
