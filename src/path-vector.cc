@@ -237,4 +237,4 @@ namespace hpp {
   } //   namespace core
 } // namespace hpp
 
-BOOST_CLASS_EXPORT(hpp::core::PathVector)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::core::PathVector)

@@ -336,4 +336,4 @@ namespace hpp {
   } //   namespace hpp-core
 } // namespace hpp
 
-BOOST_CLASS_EXPORT(hpp::core::DubinsPath)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::core::DubinsPath)

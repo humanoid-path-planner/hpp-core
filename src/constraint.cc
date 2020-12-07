@@ -38,4 +38,4 @@ namespace hpp {
 
     HPP_SERIALIZATION_IMPLEMENT(Constraint);
   } // namespace core
-} // namespace core
+} // namespace hpp

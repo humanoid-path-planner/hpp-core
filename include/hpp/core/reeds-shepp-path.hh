@@ -205,4 +205,7 @@ namespace hpp {
     /// \}
   } //   namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT_KEY(hpp::core::ReedsSheppPath)
+
 #endif // HPP_CORE_REEDS_SHEPP_PATH_HH

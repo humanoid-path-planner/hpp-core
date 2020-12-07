@@ -233,4 +233,7 @@ namespace hpp {
     /// \}
   } //   namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT_KEY(hpp::core::StraightPath)
+
 #endif // HPP_CORE_STRAIGHT_PATH_HH

@@ -193,4 +193,7 @@ namespace hpp {
     /// \}
   } //   namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT_KEY(hpp::core::PathVector)
+
 #endif // HPP_CORE_PATH_VECTOR_HH

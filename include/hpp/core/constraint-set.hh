@@ -159,4 +159,6 @@ namespace hpp {
   } // namespace core
 } // namespace hpp
 
+BOOST_CLASS_EXPORT_KEY(hpp::core::ConstraintSet)
+
 #endif // HPP_CORE_CONSTRAINT_SET_HH

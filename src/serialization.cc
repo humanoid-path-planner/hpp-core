@@ -33,11 +33,6 @@
 
 #include <hpp/util/serialization.hh>
 
-BOOST_CLASS_EXPORT(hpp::core::Node)
-BOOST_CLASS_EXPORT(hpp::core::Edge)
-BOOST_CLASS_EXPORT(hpp::core::ConnectedComponent)
-BOOST_CLASS_EXPORT(hpp::core::Roadmap)
-
 namespace hpp {
 namespace core {
 

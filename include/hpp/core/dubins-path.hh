@@ -200,4 +200,7 @@ namespace hpp {
     /// \}
   } //   namespace core
 } // namespace hpp
+
+BOOST_CLASS_EXPORT_KEY(hpp::core::DubinsPath)
+
 #endif // HPP_CORE_DUBINS_PATH_HH
