@@ -166,8 +166,8 @@ namespace hpp {
       (void) version;
       ar & make_nvp("base", base_object<Path>(*this));
       ar & BOOST_SERIALIZATION_NVP(space_);
-      ar & BOOST_SERIALIZATION_NVP(initial_);
-      ar & BOOST_SERIALIZATION_NVP(end_);
+      serialization::remove_duplicate::serialize_vector(ar, "initial", initial_, version);
+      serialization::remove_duplicate::serialize_vector(ar, "end", end_, version);
       ar & BOOST_SERIALIZATION_NVP(weak_);
     }
 

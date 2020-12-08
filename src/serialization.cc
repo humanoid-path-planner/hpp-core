@@ -23,6 +23,9 @@
 
 #include <pinocchio/serialization/eigen.hpp>
 
+#include <hpp/util/serialization.hh>
+#include <hpp/pinocchio/serialization.hh>
+
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/edge.hh>
@@ -31,8 +34,6 @@
 #include <hpp/core/path.hh>
 #include <hpp/core/roadmap.hh>
 
-#include <hpp/util/serialization.hh>
-
 namespace hpp {
 namespace core {
 
@@ -40,7 +41,10 @@ template <typename Archive>
 inline void Node::serialize(Archive& ar, const unsigned int version)
 {
   (void) version;
-  ar & BOOST_SERIALIZATION_NVP(configuration_);
+  if (!Archive::is_saving::value && !configuration_)
+    configuration_.reset (new Configuration_t);
+  Configuration_t& config (*configuration_);
+  serialization::remove_duplicate::serialize_vector(ar, "config", config, version);
   ar & BOOST_SERIALIZATION_NVP(outEdges_);
   ar & BOOST_SERIALIZATION_NVP(inEdges_);
   ar & BOOST_SERIALIZATION_NVP(connectedComponent_);

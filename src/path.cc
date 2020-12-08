@@ -285,7 +285,6 @@ namespace hpp {
     void Path::serialize(Archive & ar, const unsigned int version)
     {
       (void) version;
-      ar & BOOST_SERIALIZATION_NVP(paramRange_);
       ar & BOOST_SERIALIZATION_NVP(timeRange_);
       ar & BOOST_SERIALIZATION_NVP(outputSize_);
       ar & BOOST_SERIALIZATION_NVP(outputDerivativeSize_);
@@ -294,6 +293,9 @@ namespace hpp {
         throw std::logic_error("At the moment, it is not possible to serialize "
             "a Path with time parameterization.");
       //ar & BOOST_SERIALIZATION_NVP(timeParam_);
+      if (!Archive::is_saving::value) { // handles paramRange_
+        timeRange(timeRange_);
+      }
       ar & BOOST_SERIALIZATION_NVP(weak_);
     }
 

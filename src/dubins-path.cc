@@ -317,8 +317,8 @@ namespace hpp {
       (void) version;
       ar & make_nvp("base", base_object<PathVector>(*this));
       ar & BOOST_SERIALIZATION_NVP(device_);
-      ar & BOOST_SERIALIZATION_NVP(initial_);
-      ar & BOOST_SERIALIZATION_NVP(end_);
+      serialization::remove_duplicate::serialize_vector(ar, "initial", initial_, version);
+      serialization::remove_duplicate::serialize_vector(ar, "end", end_, version);
       ar & make_nvp("xyId_", const_cast<size_type&>(xyId_));
       ar & make_nvp("rzId_", const_cast<size_type&>(rzId_));
       ar & BOOST_SERIALIZATION_NVP(dxyId_);
