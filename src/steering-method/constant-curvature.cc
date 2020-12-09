@@ -375,16 +375,39 @@ namespace hpp {
           curveLength = ((tmax - tmin)/L * curveLength_);
           pathLength = fabs (tmax - tmin)/L * length ();
         }
-        Configuration_t init (robot_->configSize ());
-        bool res (impl_compute (init, tmin)); assert (res); (void)res;
-        Configuration_t end (robot_->configSize ());
-        res = impl_compute (end,tmax); assert (res);
+        Configuration_t init (robot_->configSize ()),
+                        end  (robot_->configSize ());
+        auto tr = timeRange();
+        bool res (true);
+        if (tmin == tr.first)       init = initial_;
+        else if (tmin == tr.second) init = end_;
+        else                        res = impl_compute (init, tmin);
+        assert (res); (void)res;
+        if (tmax == tr.first)       end = initial_;
+        else if (tmax == tr.second) end = end_;
+        else                        res = impl_compute (end,tmax);
+        assert (res);
         ConstantCurvaturePtr_t result (createCopy (weak_.lock ()));
-        result->initial_ = init;
-        result->end_ = end;
+        // swap to avoid memory allocation.
+        result->initial_.swap(init);
+        result->end_.swap(end);
         result->curveLength_ = curveLength;
         result->timeRange (interval_t (0, pathLength));
         result->forward_ = curveLength > 0 ? 1 : -1;
+        return result;
+      }
+
+      PathPtr_t ConstantCurvature::reverse () const
+      {
+        assert (!timeParameterization ());
+        assert (timeRange ().second - timeRange ().first >= 0);
+
+        ConstantCurvaturePtr_t result (createCopy (weak_.lock ()));
+        result->initial_ = end_;
+        result->end_ = initial_;
+        result->curveLength_ = - curveLength_;
+        result->timeRange (interval_t (0, length()));
+        result->forward_ = curveLength_ < 0 ? 1 : -1;
         return result;
       }
 

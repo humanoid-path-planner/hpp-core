@@ -86,6 +86,8 @@ namespace hpp {
           return end_;
         }
 
+        virtual PathPtr_t reverse () const;
+
       protected:
         /// Print path in a stream
         virtual std::ostream& print (std::ostream &os) const;
