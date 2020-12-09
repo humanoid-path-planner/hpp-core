@@ -136,6 +136,9 @@ namespace hpp {
       /// that there is no PathVector in the PathVector.
       void flatten (PathVectorPtr_t flattenedPath) const;
 
+      /// Reversion of a path
+      virtual PathPtr_t reverse () const;
+
     protected:
       /// Print path in a stream
       virtual std::ostream& print (std::ostream &os) const;
