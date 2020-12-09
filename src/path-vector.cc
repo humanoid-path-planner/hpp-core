@@ -143,72 +143,34 @@ namespace hpp {
       subpath->derivative (result, localParam, order);
     }
 
+    inline const value_type& Iinit(const interval_t& I, bool reverse) { return (reverse ? I.second : I.first); }
+    inline const value_type& Iend (const interval_t& I, bool reverse) { return (reverse ? I.first : I.second); }
+
     PathPtr_t PathVector::impl_extract (const interval_t& subInterval) const
     {
       assert(!timeParameterization());
-      using std::make_pair;
       PathVectorPtr_t path = create (outputSize (), outputDerivativeSize ());
       bool reversed = subInterval.first > subInterval.second ? true : false;
-      if (reversed) {
-	value_type tmin = subInterval.second;
-	value_type tmax = subInterval.first;
-	value_type localtmin, localtmax;
-	std::size_t imin = rankAtParam (tmin, localtmin);
-	std::size_t imax = rankAtParam (tmax, localtmax);
-	value_type t1min, t1max;
-	long int i = imax; // i should be a signed int otherwise the loop below
-	                   // fails.
-	do {
-	  // t1max >= t1min
-	  t1min = paths_ [i]->timeRange ().second;
-	  t1max = paths_ [i]->timeRange ().first;
-	  if (i == (long int) imax) {
-	    t1min = localtmax;
-	  }
-	  if (i == (long int) imin) {
-	    t1max = localtmin;
-	  }
-	  assert (t1max - paths_ [i]->timeRange ().first >
-		  -std::numeric_limits <float>::epsilon ());
-	  assert (t1min - paths_ [i]->timeRange ().second <
-		  std::numeric_limits <float>::epsilon ());
-	  t1min = std::max (t1min, paths_ [i]->timeRange ().first);
-	  t1max = std::min (t1max, paths_ [i]->timeRange ().second);
-          if (t1min != t1max || path->numberPaths() == 0) {
-            path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
-          }
-	  --i;
-	} while (i >= (long int) imin);
+
+      value_type localtinit, localtend;
+      std::size_t iinit = rankAtParam (subInterval.first , localtinit),
+                  iend  = rankAtParam (subInterval.second, localtend );
+      if (iinit == iend) {
+        path->appendPath(paths_[iinit]->extract(
+              localtinit,
+              localtend));
       } else {
-	value_type tmin = subInterval.first;
-	value_type tmax = subInterval.second;
-	value_type localtmin, localtmax;
-	std::size_t imin = rankAtParam (tmin, localtmin);
-	std::size_t imax = rankAtParam (tmax, localtmax);
-	value_type t1min, t1max;
-	std::size_t i = imin;
-	do {
-	  // t1max >= t1min
-	  t1min = paths_ [i]->timeRange ().first;
-	  t1max = paths_ [i]->timeRange ().second;
-	  if (i == imin) {
-	    t1min = localtmin;
-	  }
-	  if (i == imax) {
-	    t1max = localtmax;
-	  }
-	  // Check numerical precision
-	  assert (t1min - paths_ [i]->timeRange ().first >
-		  -std::numeric_limits <float>::epsilon ());
-	  assert (t1max - paths_ [i]->timeRange ().second <
-		  std::numeric_limits <float>::epsilon ());
-	  t1min = std::max (t1min, paths_ [i]->timeRange ().first);
-	  t1max = std::min (t1max, paths_ [i]->timeRange ().second);
-          if (t1min != t1max || path->numberPaths() == 0) {
-            path->appendPath (paths_ [i]->extract (make_pair (t1min, t1max)));
-          }
-	  ++i;
-	} while (i <= imax);
+        path->appendPath(paths_[iinit]->extract(
+              localtinit,
+              Iend(paths_[iinit]->timeRange(), reversed)));
+        int one = (reversed ? -1 : 1);
+        for (std::size_t i = iinit + one;
+            (reversed && i > iend) || i < iend;
+            i += one)
+          path->appendPath(reversed ?  paths_[i]->reverse() : paths_[i]);
+        path->appendPath(paths_[iend]->extract(
+              Iinit(paths_[iend]->timeRange(), reversed),
+              localtend));
       }
       return path;
     }
