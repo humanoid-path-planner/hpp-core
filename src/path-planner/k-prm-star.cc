@@ -181,7 +181,7 @@ namespace hpp {
               if (success) {
                 if (pathValidation->validate (projected, false, validPart,
                                               report)) {
-                  roadmap ()->addEdges (node, *itNeighbor_, p);
+                  roadmap ()->addEdges (node, *itNeighbor_, projected);
                 }
               }
             }
