@@ -257,7 +257,7 @@ namespace hpp {
       ///   // Your code here.
       /// }
       /// \endcode
-      virtual void addEdge (const EdgePtr_t& e);
+      virtual void impl_addEdge (const EdgePtr_t& e);
 
       /// Node factory
       /// Reimplement the function if you want to create an instance of a
