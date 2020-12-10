@@ -109,6 +109,7 @@ namespace hpp {
           }
 
         private:
+	  WeighedDistancePtr_t weighedDistance_;
           ReedsSheppWkPtr_t weak_;
       }; // ReedsShepp
       /// \}
