@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE (BFGS)
                         hpp::core::Parameter (1e-6));
   PathOptimizerPtr_t pathOptimizer
     (pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create
-     (*problem));
+     (problem));
   PathVectorPtr_t optimizedPath (pathOptimizer->optimize (path));
   Configuration_t p0 (robot->configSize ());
   Configuration_t p1 (robot->configSize ());

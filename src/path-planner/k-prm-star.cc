@@ -34,14 +34,14 @@ namespace hpp {
 
       const double kPrmStar::kPRM = 2 * exp (1);
 
-      kPrmStarPtr_t kPrmStar::create (const Problem& problem)
+      kPrmStarPtr_t kPrmStar::create (const ProblemConstPtr_t& problem)
       {
         kPrmStarPtr_t shPtr (new kPrmStar (problem));
         shPtr->init (shPtr);
         return shPtr;
       }
 
-      kPrmStarPtr_t kPrmStar::createWithRoadmap (const Problem& problem,
+      kPrmStarPtr_t kPrmStar::createWithRoadmap (const ProblemConstPtr_t& problem,
                                                  const RoadmapPtr_t& roadmap)
       {
         kPrmStarPtr_t shPtr (new kPrmStar (problem, roadmap));
@@ -52,7 +52,8 @@ namespace hpp {
       void kPrmStar::startSolve ()
       {
         Parent_t::startSolve ();
-        numberNodes_ = problem().getParameter ("kPRM*/numberOfNodes").intValue();
+        numberNodes_ = problem()->getParameter
+	  ("kPRM*/numberOfNodes").intValue();
         if (numberNodes_ == 0) {
           std::ostringstream oss;
           oss << "kPrmStar: Number nodes should be positive, got "
@@ -99,11 +100,11 @@ namespace hpp {
 	ValidationReportPtr_t validationReport;
 	// Configuration validation methods associated to the problem
 	ConfigValidationsPtr_t configValidations
-          (problem ().configValidations ());
+          (problem()->configValidations ());
 	// Get the constraints the robot is subject to
-	ConstraintSetPtr_t constraints (problem ().constraints ());
+	ConstraintSetPtr_t constraints (problem()->constraints ());
         // Get the problem shooter
-        ConfigurationShooterPtr_t shooter = problem().configurationShooter();
+        ConfigurationShooterPtr_t shooter = problem()->configurationShooter();
 	// Get roadmap
 	RoadmapPtr_t r (roadmap ());
         if (r->nodes ().size () < numberNodes_) {
@@ -155,13 +156,13 @@ namespace hpp {
       bool kPrmStar::connectNodeToClosestNeighbors (const NodePtr_t& node)
       {
 	// Retrieve the path validation algorithm associated to the problem
-	PathValidationPtr_t pathValidation (problem ().pathValidation ());
+	PathValidationPtr_t pathValidation (problem()->pathValidation ());
 	// Retrieve the steering method
-	SteeringMethodPtr_t sm (problem ().steeringMethod ());
+	SteeringMethodPtr_t sm (problem()->steeringMethod ());
 	// Retrieve the constraints the robot is subject to
-	ConstraintSetPtr_t constraints (problem ().constraints ());
+	ConstraintSetPtr_t constraints (problem()->constraints ());
         // Retrieve path projector
-        PathProjectorPtr_t pathProjector (problem ().pathProjector ());
+        PathProjectorPtr_t pathProjector (problem()->pathProjector ());
 
         if (itNeighbor_ != neighbors_.end ()) {
           // Connect only nodes that are not already connected
@@ -224,12 +225,12 @@ namespace hpp {
 	return state_;
       }
 
-      kPrmStar::kPrmStar (const Problem& problem) :
+      kPrmStar::kPrmStar (const ProblemConstPtr_t& problem) :
         Parent_t (problem),
         state_ (BUILD_ROADMAP)
       {}
 
-      kPrmStar::kPrmStar (const Problem& problem, const RoadmapPtr_t& roadmap) :
+      kPrmStar::kPrmStar (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap) :
         Parent_t (problem, roadmap),
         state_ (BUILD_ROADMAP)
       {}

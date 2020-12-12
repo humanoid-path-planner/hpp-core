@@ -65,12 +65,12 @@ namespace hpp {
         numberOfConsecutiveFailurePerJoints (5), progressionMargin (1e-3)
       {}
 
-      PartialShortcutPtr_t PartialShortcut::create (const Problem& problem)
+      PartialShortcutPtr_t PartialShortcut::create (const ProblemConstPtr_t& problem)
       {
         return createWithTraits <PartialShortcutTraits> (problem);
       }
 
-      PartialShortcut::PartialShortcut (const Problem& problem) :
+      PartialShortcut::PartialShortcut (const ProblemConstPtr_t& problem) :
         PathOptimizer (problem)
       {
       }
@@ -145,7 +145,7 @@ namespace hpp {
       JointStdVector_t PartialShortcut::generateJointVector
         (const PathVectorPtr_t& pv) const
       {
-        DevicePtr_t robot = problem().robot();
+        DevicePtr_t robot = problem()->robot();
 
         JointStdVector_t jv;
         ConfigProjectorPtr_t proj =
@@ -201,7 +201,7 @@ namespace hpp {
             PathValidationReportPtr_t report;
             if (!straight) valid = false;
             else {
-              valid = problem ().pathValidation ()->validate
+              valid = problem()->pathValidation ()->validate
                 (straight, false, validPart, report);
             }
           }
@@ -211,7 +211,7 @@ namespace hpp {
           }
           opted = straight;
 
-          hppDout (info, "length = " << pathLength (opted, problem ().distance ())
+          hppDout (info, "length = " << pathLength(opted, problem()->distance())
               << ", joint " << joint->name());
         }
         return opted;
@@ -226,7 +226,7 @@ namespace hpp {
         value_type t3;
         Configuration_t q0 = pv->initial ();
         Configuration_t q3 = pv->end ();
-        value_type length = pathLength (pv, problem ().distance ()),
+        value_type length = pathLength (pv, problem()->distance ()),
                    newLength = std::numeric_limits <value_type>::infinity ();
 
         hppDout (info, "random partial shorcut on " << jv.size () << " joints.");
@@ -268,7 +268,7 @@ namespace hpp {
             PathValidationReportPtr_t report;
             if (!straight [i]) valid[i] = false;
             else {
-              valid [i] = problem ().pathValidation ()->validate
+              valid [i] = problem()->pathValidation ()->validate
                 (straight [i], false, validPart, report);
             }
           }
@@ -295,7 +295,7 @@ namespace hpp {
             result->concatenate
 	      (current->extract (std::make_pair (t2, t3))-> as <PathVector> ());
 
-          newLength = pathLength (result, problem ().distance ());
+          newLength = pathLength (result, problem()->distance ());
           if (newLength >= length) {
             nbFail++;
             continue;

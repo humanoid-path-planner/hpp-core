@@ -50,7 +50,7 @@ namespace hpp {
 
           /// Return shared pointer to new object.
           /// Default cost is path length.
-          static Ptr_t create (const Problem& problem);
+          static Ptr_t create (const ProblemConstPtr_t& problem);
 
           /// Optimize path
           /// \li 1) Transform straight paths into splines
@@ -74,7 +74,7 @@ namespace hpp {
           using Base::robot_;
           using Base::problem;
 
-          SplineGradientBased (const Problem& problem);
+          SplineGradientBased (const ProblemConstPtr_t& problem);
 
           /// \name Constraint creation
           /// \{

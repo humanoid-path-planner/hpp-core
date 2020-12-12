@@ -49,20 +49,20 @@ namespace hpp {
       GlobalPtr_t Global::create (const DistancePtr_t& distance,
           const SteeringMethodPtr_t& steeringMethod, value_type step)
       {
-        value_type hessianBound = steeringMethod->problem()
-          .getParameter ("PathProjection/HessianBound").floatValue();
-        value_type thr_min = steeringMethod->problem()
-          .getParameter("PathProjection/MinimalDist").floatValue();
+        value_type hessianBound = steeringMethod->problem()->getParameter
+	  ("PathProjection/HessianBound").floatValue();
+        value_type thr_min = steeringMethod->problem()->getParameter
+	  ("PathProjection/MinimalDist").floatValue();
         hppDout (info, "Hessian bound is " << hessianBound);
         hppDout (info, "Min Dist is " << thr_min);
         return GlobalPtr_t (new Global (distance, steeringMethod,
               step, thr_min, hessianBound));
       }
 
-      GlobalPtr_t Global::create (const Problem& problem,
+      GlobalPtr_t Global::create (const ProblemConstPtr_t& problem,
           const value_type& step)
       {
-        return create (problem.distance(), problem.steeringMethod(), step);
+        return create (problem->distance(), problem->steeringMethod(), step);
       }
 
       Global::Global (const DistancePtr_t& distance,

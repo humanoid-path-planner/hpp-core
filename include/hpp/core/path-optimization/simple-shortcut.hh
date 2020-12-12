@@ -38,12 +38,12 @@ namespace hpp {
       {
       public:
         /// Return shared pointer to new object.
-        static SimpleShortcutPtr_t create (const Problem& problem);
+        static SimpleShortcutPtr_t create (const ProblemConstPtr_t& problem);
 
         /// Optimize path
         virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
       protected:
-        SimpleShortcut (const Problem& problem);
+        SimpleShortcut (const ProblemConstPtr_t& problem);
       }; // class SimpleShortcut
       /// \}
     } // namespace pathOptimization

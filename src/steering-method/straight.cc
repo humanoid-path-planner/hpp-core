@@ -27,7 +27,7 @@ namespace hpp {
     namespace steeringMethod {
       PathPtr_t Straight::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
-        value_type length = (*problem_.distance()) (q1, q2);
+        value_type length = (*problem()->distance()) (q1, q2);
         ConstraintSetPtr_t c;
         if (constraints() && constraints()->configProjector ()) {
           c = HPP_STATIC_PTR_CAST (ConstraintSet, constraints()->copy ());
@@ -37,7 +37,7 @@ namespace hpp {
           c = constraints ();
         }
         PathPtr_t path = StraightPath::create
-          (problem_.robot(), q1, q2, length, c);
+          (problem()->robot(), q1, q2, length, c);
         return path;
       }
     } // namespace steeringMethod

@@ -71,7 +71,7 @@ namespace hpp {
 
         protected:
 
-          SplineGradientBasedAbstract (const Problem& problem);
+          SplineGradientBasedAbstract (const ProblemConstPtr_t& problem);
 
           /// \name Spline creation
           /// \{

@@ -38,9 +38,9 @@ namespace hpp {
     {
     };
     typedef boost::function < DevicePtr_t (const std::string&) > RobotBuilder_t;
-    typedef boost::function < PathOptimizerPtr_t (const Problem&) >
+    typedef boost::function < PathOptimizerPtr_t (const ProblemConstPtr_t&) >
       PathOptimizerBuilder_t;
-    typedef boost::function < PathPlannerPtr_t (const Problem&,
+    typedef boost::function < PathPlannerPtr_t (const ProblemConstPtr_t&,
         const RoadmapPtr_t&) >
       PathPlannerBuilder_t;
     typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
@@ -48,14 +48,15 @@ namespace hpp {
       PathValidationBuilder_t;
     typedef boost::function < ConfigValidationPtr_t (const DevicePtr_t&) >
       ConfigValidationBuilder_t;
-    typedef boost::function <PathProjectorPtr_t (const Problem&,
+    typedef boost::function <PathProjectorPtr_t (const ProblemConstPtr_t&,
         const value_type&) >
       PathProjectorBuilder_t;
-    typedef boost::function <ConfigurationShooterPtr_t (const Problem&) >
+    typedef boost::function <ConfigurationShooterPtr_t
+			     (const ProblemConstPtr_t&) >
       ConfigurationShooterBuilder_t;
-  typedef boost::function <DistancePtr_t (const Problem&) >
+  typedef boost::function <DistancePtr_t (const ProblemConstPtr_t&) >
     DistanceBuilder_t;
-    typedef boost::function <SteeringMethodPtr_t (const Problem&) >
+    typedef boost::function <SteeringMethodPtr_t (const ProblemConstPtr_t&) >
       SteeringMethodBuilder_t;
     typedef std::vector<std::pair < std::string, CollisionObjectPtr_t > > AffordanceObjects_t;
     typedef vector3_t AffordanceConfig_t;

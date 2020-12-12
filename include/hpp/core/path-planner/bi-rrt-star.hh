@@ -36,12 +36,12 @@ namespace hpp {
 
         /// Return shared pointer to new instance
         /// \param problem the path planning problem
-        static BiRrtStarPtr_t create (const Problem& problem);
+        static BiRrtStarPtr_t create (const ProblemConstPtr_t& problem);
         /// Return shared pointer to new instance
         /// \param problem the path planning problem
         /// \param roadmap previously built roadmap
-        static BiRrtStarPtr_t createWithRoadmap (const Problem& problem,
-                                                const RoadmapPtr_t& roadmap);
+        static BiRrtStarPtr_t createWithRoadmap
+	  (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
 
         /// Initialize the problem resolution
         ///  \li call parent implementation
@@ -52,11 +52,11 @@ namespace hpp {
       protected:
         /// Protected constructor
         /// \param problem the path planning problem
-        BiRrtStar (const Problem& problem);
+        BiRrtStar (const ProblemConstPtr_t& problem);
         /// Protected constructor
         /// \param problem the path planning problem
         /// \param roadmap previously built roadmap
-        BiRrtStar (const Problem& problem, const RoadmapPtr_t& roadmap);
+        BiRrtStar (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
         /// Store weak pointer to itself
         void init (const BiRrtStarWkPtr_t& weak);
 

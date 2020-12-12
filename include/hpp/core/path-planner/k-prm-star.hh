@@ -41,12 +41,12 @@ namespace hpp {
         typedef PathPlanner Parent_t;
         /// Return shared pointer to new instance
         /// \param problem the path planning problem
-        static kPrmStarPtr_t create (const Problem& problem);
+        static kPrmStarPtr_t create (const ProblemConstPtr_t& problem);
         /// Return shared pointer to new instance
         /// \param problem the path planning problem
         /// \param roadmap previously built roadmap
-        static kPrmStarPtr_t createWithRoadmap (const Problem& problem,
-                                                const RoadmapPtr_t& roadmap);
+        static kPrmStarPtr_t createWithRoadmap
+	  (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
       /// Initialize the problem resolution
       ///  \li call parent implementation
       ///  \li get number nodes in problem parameter map
@@ -59,11 +59,11 @@ namespace hpp {
       protected:
         /// Protected constructor
         /// \param problem the path planning problem
-        kPrmStar (const Problem& problem);
+        kPrmStar (const ProblemConstPtr_t& problem);
         /// Protected constructor
         /// \param problem the path planning problem
         /// \param roadmap previously built roadmap
-        kPrmStar (const Problem& problem, const RoadmapPtr_t& roadmap);
+        kPrmStar (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
         /// Store weak pointer to itself
         void init (const kPrmStarWkPtr_t& weak);
 

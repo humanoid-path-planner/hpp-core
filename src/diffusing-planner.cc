@@ -50,30 +50,30 @@ namespace hpp {
     }
 
     DiffusingPlannerPtr_t DiffusingPlanner::createWithRoadmap
-    (const Problem& problem, const RoadmapPtr_t& roadmap)
+    (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap)
     {
       DiffusingPlanner* ptr = new DiffusingPlanner (problem, roadmap);
       return DiffusingPlannerPtr_t (ptr);
     }
 
-    DiffusingPlannerPtr_t DiffusingPlanner::create (const Problem& problem)
+    DiffusingPlannerPtr_t DiffusingPlanner::create (const ProblemConstPtr_t& problem)
     {
       DiffusingPlanner* ptr = new DiffusingPlanner (problem);
       return DiffusingPlannerPtr_t (ptr);
     }
 
-    DiffusingPlanner::DiffusingPlanner (const Problem& problem):
+    DiffusingPlanner::DiffusingPlanner (const ProblemConstPtr_t& problem):
       PathPlanner (problem),
-      configurationShooter_ (problem.configurationShooter()),
-      qProj_ (problem.robot ()->configSize ())
+      configurationShooter_ (problem->configurationShooter()),
+      qProj_ (problem->robot ()->configSize ())
     {
     }
 
-    DiffusingPlanner::DiffusingPlanner (const Problem& problem,
+    DiffusingPlanner::DiffusingPlanner (const ProblemConstPtr_t& problem,
 					const RoadmapPtr_t& roadmap) :
       PathPlanner (problem, roadmap),
-      configurationShooter_ (problem.configurationShooter()),
-      qProj_ (problem.robot ()->configSize ())
+      configurationShooter_ (problem->configurationShooter()),
+      qProj_ (problem->robot ()->configSize ())
     {
     }
 
@@ -95,7 +95,7 @@ namespace hpp {
     PathPtr_t DiffusingPlanner::extend (const NodePtr_t& near,
 					const Configuration_t& target)
     {
-      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      const SteeringMethodPtr_t& sm (problem()->steeringMethod ());
       const ConstraintSetPtr_t& constraints (sm->constraints ());
       if (constraints) {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
@@ -114,12 +114,13 @@ namespace hpp {
       // Here, qProj_ is a configuration that satisfies the constraints
       // or target if there are no constraints.
       PathPtr_t path = (*sm) (*(near->configuration ()), qProj_);
-      value_type stepLength = problem().getParameter ("DiffusingPlanner/extensionStepLength").floatValue();
+      value_type stepLength = problem()->getParameter
+	("DiffusingPlanner/extensionStepLength").floatValue();
       if (stepLength > 0 && path->length() > stepLength) {
         value_type t0 = path->timeRange().first;
         path = path->extract(t0, t0 + stepLength);
       }
-      PathProjectorPtr_t pp = problem ().pathProjector();
+      PathProjectorPtr_t pp = problem()->pathProjector();
       if (pp) {
         PathPtr_t proj;
         pp->apply (path, proj);
@@ -156,14 +157,15 @@ namespace hpp {
     {
       HPP_START_TIMECOUNTER(oneStep);
 
-      value_type stepRatio = problem().getParameter ("DiffusingPlanner/extensionStepRatio").floatValue();
+      value_type stepRatio = problem()->getParameter
+	("DiffusingPlanner/extensionStepRatio").floatValue();
 
       typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
       DelayedEdges_t delayedEdges;
-      DevicePtr_t robot (problem ().robot ());
-      PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      DevicePtr_t robot (problem()->robot ());
+      PathValidationPtr_t pathValidation (problem()->pathValidation ());
       Nodes_t newNodes, nearestNeighbors;
       PathPtr_t validPath, path;
       // Pick a random node
@@ -226,7 +228,7 @@ namespace hpp {
       // Second, try to connect new nodes together
       //
       HPP_START_TIMECOUNTER(tryConnect);
-      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      const SteeringMethodPtr_t& sm (problem()->steeringMethod ());
       for (Nodes_t::const_iterator itn1 = newNodes.begin ();
 	   itn1 != newNodes.end (); ++itn1) {
         /// Try connecting to the other new nodes.
@@ -238,7 +240,7 @@ namespace hpp {
 	  path = (*sm) (*q1, *q2);
           if (!path) continue;
 
-          PathProjectorPtr_t pp = problem ().pathProjector();
+          PathProjectorPtr_t pp = problem()->pathProjector();
           if (pp) {
             PathPtr_t proj;
             // If projection failed, continue
@@ -270,7 +272,7 @@ namespace hpp {
 	  path = (*sm) (*q1, *q2);
           if (!path) continue;
 
-          PathProjectorPtr_t pp = problem ().pathProjector();
+          PathProjectorPtr_t pp = problem()->pathProjector();
           if (pp) {
             PathPtr_t proj;
             // If projection failed, continue

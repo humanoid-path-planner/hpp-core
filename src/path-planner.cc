@@ -39,23 +39,29 @@ namespace hpp {
     unsigned long int uint_infty = std::numeric_limits <unsigned long int>::infinity ();
     value_type float_infty = std::numeric_limits <value_type>::infinity ();
 
-    PathPlanner::PathPlanner (const Problem& problem) :
-      problem_ (problem), roadmap_ (Roadmap::create (problem.distance (),
-						     problem.robot())),
+    PathPlanner::PathPlanner (const ProblemConstPtr_t& problem) :
+      problem_ (problem), roadmap_ (Roadmap::create (problem->distance (),
+						     problem->robot())),
       interrupt_ (false),
       maxIterations_ (uint_infty),
       timeOut_ (float_infty),
       stopWhenProblemIsSolved_ (true)
     {
+      assert(problem_.lock());
     }
 
-    PathPlanner::PathPlanner (const Problem& problem,
+    PathPlanner::PathPlanner (const ProblemConstPtr_t& problem,
 			      const RoadmapPtr_t& roadmap) :
       problem_ (problem), roadmap_ (roadmap),
       interrupt_ (false),
       maxIterations_ (uint_infty),
       timeOut_ (float_infty),
       stopWhenProblemIsSolved_ (true)
+    {
+      assert(problem_.lock());
+    }
+
+    PathPlanner::~PathPlanner ()
     {
     }
 
@@ -69,24 +75,24 @@ namespace hpp {
       return roadmap_;
     }
 
-    const Problem& PathPlanner::problem () const
+    ProblemConstPtr_t PathPlanner::problem () const
     {
-      return problem_;
+      return problem_.lock();
     }
 
     void PathPlanner::startSolve ()
     {
-      problem_.checkProblem ();
+      problem()->checkProblem ();
       // Tag init and goal configurations in the roadmap
       roadmap()->resetGoalNodes ();
-      roadmap()->initNode (problem_.initConfig ());
-      const Configurations_t goals (problem_.goalConfigs ());
+      roadmap()->initNode (problem()->initConfig ());
+      const Configurations_t goals (problem()->goalConfigs ());
       for (Configurations_t::const_iterator itGoal = goals.begin ();
           itGoal != goals.end (); ++itGoal) {
         roadmap()->addGoalNode (*itGoal);
       }
 
-      problem_.target()->check(roadmap());
+      problem()->target()->check(roadmap());
     }
 
     PathVectorPtr_t PathPlanner::solve ()
@@ -104,7 +110,7 @@ namespace hpp {
       // It is ambiguous what should be done as it is case dependent.
       // If the intent is to build a roadmap, then we should not stop.
       // If the intent is to solve a optimal planning problem, then we should stop.
-      solved = problem_.target()->reached (roadmap());
+      solved = problem()->target()->reached (roadmap());
       if (solved ) {
 	hppDout (info, "tryConnectInitAndGoals succeeded");
       }
@@ -114,7 +120,7 @@ namespace hpp {
         std::ostringstream oss;
         if (maxIterations_ != uint_infty && nIter >= maxIterations_) {
           if (!stopWhenProblemIsSolved_
-              && problem_.target()->reached (roadmap())) break;
+              && problem()->target()->reached (roadmap())) break;
           oss << "Maximal number of iterations reached: " << maxIterations_;
           throw std::runtime_error (oss.str ().c_str ());
         }
@@ -122,7 +128,7 @@ namespace hpp {
         if(static_cast<value_type>((timeStop - timeStart).total_milliseconds())
             > timeOut_*1000){
           if (!stopWhenProblemIsSolved_
-              && problem_.target()->reached (roadmap())) break;
+              && problem()->target()->reached (roadmap())) break;
           oss << "time out reached : " << timeOut_<<" s";
           throw std::runtime_error (oss.str ().c_str ());
         }
@@ -135,7 +141,7 @@ namespace hpp {
 
         // Check if problem is solved.
         ++nIter;
-        solved = stopWhenProblemIsSolved_ && problem_.target()->reached (roadmap());
+        solved = stopWhenProblemIsSolved_ && problem()->target()->reached (roadmap());
         if (interrupt_) throw std::runtime_error ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
@@ -173,7 +179,7 @@ namespace hpp {
 
     PathVectorPtr_t PathPlanner::computePath () const
     {
-      return problem_.target()->computePath(roadmap());
+      return problem()->target()->computePath(roadmap());
     }
 
     PathVectorPtr_t PathPlanner::finishSolve (const PathVectorPtr_t& path)
@@ -184,9 +190,9 @@ namespace hpp {
     void PathPlanner::tryDirectPath ()
     {
       // call steering method here to build a direct conexion
-      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      PathProjectorPtr_t pathProjector (problem ().pathProjector ());
+      const SteeringMethodPtr_t& sm (problem()->steeringMethod ());
+      PathValidationPtr_t pathValidation (problem()->pathValidation ());
+      PathProjectorPtr_t pathProjector (problem()->pathProjector ());
       PathPtr_t validPath, projPath, path;
       NodePtr_t initNode = roadmap ()->initNode();
       for (NodeVector_t::const_iterator itn = roadmap ()->goalNodes ().begin();
@@ -215,9 +221,9 @@ namespace hpp {
     void PathPlanner::tryConnectInitAndGoals ()
     {
       // call steering method here to build a direct conexion
-      const SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      PathProjectorPtr_t pathProjector (problem ().pathProjector ());
+      const SteeringMethodPtr_t& sm (problem()->steeringMethod ());
+      PathValidationPtr_t pathValidation (problem()->pathValidation ());
+      PathProjectorPtr_t pathProjector (problem()->pathProjector ());
       PathPtr_t validPath, projPath, path;
       NodePtr_t initNode = roadmap ()->initNode();
       NearestNeighborPtr_t nn (roadmap ()->nearestNeighbor ());

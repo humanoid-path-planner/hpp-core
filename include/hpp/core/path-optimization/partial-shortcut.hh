@@ -58,10 +58,11 @@ namespace hpp {
         public:
           /// Return shared pointer to new object.
           template < typename Traits > static
-            PartialShortcutPtr_t createWithTraits (const Problem& problem);
+            PartialShortcutPtr_t createWithTraits
+	      (const ProblemConstPtr_t& problem);
 
           /// Return shared pointer to new object.
-          static PartialShortcutPtr_t create (const Problem& problem);
+          static PartialShortcutPtr_t create (const ProblemConstPtr_t& problem);
 
           /// Optimize path
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
@@ -91,7 +92,7 @@ namespace hpp {
           } parameters;
 
         protected:
-          PartialShortcut (const Problem& problem);
+          PartialShortcut (const ProblemConstPtr_t& problem);
 
         private:
           PathVectorPtr_t generatePath (PathVectorPtr_t path, JointConstPtr_t joint,
@@ -119,7 +120,7 @@ namespace hpp {
       /// \}
 
       template < typename Traits > PartialShortcutPtr_t
-        PartialShortcut::createWithTraits (const Problem& problem)
+        PartialShortcut::createWithTraits (const ProblemConstPtr_t& problem)
       {
         PartialShortcut* ptr = new PartialShortcut (problem);
         ptr->parameters.removeLockedJoints = Traits::removeLockedJoints();

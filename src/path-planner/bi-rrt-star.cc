@@ -34,14 +34,14 @@
 namespace hpp {
   namespace core {
     namespace pathPlanner {
-      BiRrtStarPtr_t BiRrtStar::create (const Problem& problem)
+      BiRrtStarPtr_t BiRrtStar::create (const ProblemConstPtr_t& problem)
       {
         BiRrtStarPtr_t shPtr (new BiRrtStar (problem));
         shPtr->init (shPtr);
         return shPtr;
       }
 
-      BiRrtStarPtr_t BiRrtStar::createWithRoadmap (const Problem& problem,
+      BiRrtStarPtr_t BiRrtStar::createWithRoadmap (const ProblemConstPtr_t& problem,
                                                  const RoadmapPtr_t& roadmap)
       {
         BiRrtStarPtr_t shPtr (new BiRrtStar (problem, roadmap));
@@ -49,7 +49,7 @@ namespace hpp {
         return shPtr;
       }
 
-      BiRrtStar::BiRrtStar (const Problem& problem) :
+      BiRrtStar::BiRrtStar (const ProblemConstPtr_t& problem) :
         Parent_t (problem),
         gamma_ (1.),
         extendMaxLength_ (1.),
@@ -59,7 +59,7 @@ namespace hpp {
         stopWhenProblemIsSolved(false);
       }
 
-      BiRrtStar::BiRrtStar (const Problem& problem, const RoadmapPtr_t& roadmap) :
+      BiRrtStar::BiRrtStar (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap) :
         Parent_t (problem, roadmap),
         gamma_ (1.),
         extendMaxLength_ (1.),
@@ -168,10 +168,11 @@ namespace hpp {
         if (roadmap()->goalNodes().size() != 1)
           throw std::invalid_argument("there should be only one goal node.");
 
-        extendMaxLength_ = problem().getParameter("BiRRT*/maxStepLength").floatValue();
+        extendMaxLength_ = problem()->getParameter
+	  ("BiRRT*/maxStepLength").floatValue();
         if (extendMaxLength_ <= 0)
-          extendMaxLength_ = std::sqrt(problem().robot()->numberDof());
-        gamma_ = problem().getParameter("BiRRT*/gamma").floatValue();
+          extendMaxLength_ = std::sqrt(problem()->robot()->numberDof());
+        gamma_ = problem()->getParameter("BiRRT*/gamma").floatValue();
 
         roots_[0] = roadmap()->initNode();
         roots_[1] = roadmap()->goalNodes()[0];
@@ -211,8 +212,8 @@ namespace hpp {
 
       Configuration_t BiRrtStar::sample ()
       {
-        Configuration_t q (problem().robot()->configSize());
-        ConfigurationShooterPtr_t shooter = problem().configurationShooter();
+        Configuration_t q (problem()->robot()->configSize());
+        ConfigurationShooterPtr_t shooter = problem()->configurationShooter();
 
         if (roadmap()->connectedComponents().size() == 1
             && value_type(rand())/INT_MAX > (value_type)0.2) {
@@ -238,19 +239,19 @@ namespace hpp {
               throw std::logic_error("wrong parent map.");
 
             // qm = (q0 + q2) / 2
-            pinocchio::interpolate(problem().robot(),
+            pinocchio::interpolate(problem()->robot(),
                 *edge0->second->from()->configuration(),
                 *edge1->second->to()->configuration(),
                 0.5, q);
 
             // q = q1 + alpha * (qm - q1)
-            vector_t v (problem().robot()->numberDof());
-            pinocchio::difference(problem().robot(),
+            vector_t v (problem()->robot()->numberDof());
+            pinocchio::difference(problem()->robot(),
                 q, *edge0->second->to()->configuration(), v);
             v.normalize();
 
             value_type l (extendMaxLength_ - value_type(rand()) * extendMaxLength_ / (10 * (value_type)INT_MAX));
-            pinocchio::integrate(problem().robot(), *edge0->second->to()->configuration(), l*v, q);
+            pinocchio::integrate(problem()->robot(), *edge0->second->to()->configuration(), l*v, q);
             return q;
           }
         }
@@ -259,11 +260,11 @@ namespace hpp {
         return q;
       }
 
-      bool validate(const Problem& problem, const PathPtr_t& path)
+      bool validate(const ProblemConstPtr_t& problem, const PathPtr_t& path)
       {
         PathPtr_t validPart;
         PathValidationReportPtr_t report;
-        return problem.pathValidation()
+        return problem->pathValidation()
           ->validate (path, false, validPart, report);
       }
 
@@ -271,11 +272,11 @@ namespace hpp {
           value_type maxLength,
           bool validatePath)
       {
-        PathPtr_t path = problem().steeringMethod()->steer(q0, q1);
+        PathPtr_t path = problem()->steeringMethod()->steer(q0, q1);
         if (!path) return path;
-        if (problem().pathProjector()) { // path projection
+        if (problem()->pathProjector()) { // path projection
           PathPtr_t projected;
-          problem().pathProjector()->apply (path, projected);
+          problem()->pathProjector()->apply (path, projected);
           if (!projected) return projected;
           path = projected;
         }
@@ -289,7 +290,7 @@ namespace hpp {
 
         PathPtr_t validPart;
         PathValidationReportPtr_t report;
-        problem().pathValidation()->validate (path, false, validPart, report);
+        problem()->pathValidation()->validate (path, false, validPart, report);
         return validPart;
       }
 
@@ -302,8 +303,8 @@ namespace hpp {
         if (dist < 1e-16)
           return false;
 
-        if (problem().constraints()
-            && !problem().constraints()->apply(q))
+        if (problem()->constraints()
+            && !problem()->constraints()->apply(q))
           return false;
 
         PathPtr_t path = buildPath(*near->configuration(), q, extendMaxLength_, true);
@@ -312,7 +313,8 @@ namespace hpp {
 
         value_type n ((value_type)roadmap()->nodes().size());
         NodeVector_t nearNodes = roadmap()->nodesWithinBall(q, cc,
-            std::min(gamma_ * std::pow(std::log(n)/n, 1./(value_type)problem().robot()->numberDof()),
+            std::min(gamma_ * std::pow(std::log(n)/n, 1./(value_type)problem()
+				       ->robot()->numberDof()),
               extendMaxLength_));
 
         value_type cost_q (computeCost(parentMap, near) + path->length());
@@ -394,7 +396,8 @@ namespace hpp {
 
         const value_type n ((value_type)roadmap()->nodes().size());
         NodeVector_t nearNodes = roadmap()->nodesWithinBall(qnew, roots_[0]->connectedComponent(),
-            std::min(gamma_ * std::pow(std::log(n)/n, 1./(value_type)problem().robot()->numberDof()),
+            std::min(gamma_ * std::pow(std::log(n)/n, 1./(value_type)problem()
+				       ->robot()->numberDof()),
               extendMaxLength_));
 
         const NodePtr_t nnew = roadmap()->addNode(boost::make_shared<Configuration_t>(qnew));

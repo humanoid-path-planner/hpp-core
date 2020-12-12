@@ -34,17 +34,17 @@ namespace hpp {
       RecursiveHermitePtr_t RecursiveHermite::create (const DistancePtr_t& distance,
           const SteeringMethodPtr_t& steeringMethod, value_type step)
       {
-        value_type beta = steeringMethod->problem()
-          .getParameter ("PathProjection/RecursiveHermite/Beta").floatValue();
+        value_type beta = steeringMethod->problem()->getParameter
+	  ("PathProjection/RecursiveHermite/Beta").floatValue();
         hppDout (info, "beta is " << beta);
         return RecursiveHermitePtr_t (new RecursiveHermite
             (distance, steeringMethod, step, beta));
       }
 
       RecursiveHermitePtr_t RecursiveHermite::create (
-          const Problem& problem, const value_type& step)
+          const ProblemConstPtr_t& problem, const value_type& step)
       {
-        return create (problem.distance(), problem.steeringMethod(), step);
+        return create (problem->distance(), problem->steeringMethod(), step);
       }
 
       RecursiveHermite::RecursiveHermite (const DistancePtr_t& distance,

@@ -36,7 +36,7 @@ namespace hpp {
           static RecursiveHermitePtr_t create (const DistancePtr_t& distance,
               const SteeringMethodPtr_t& steeringMethod, value_type step);
 
-          static RecursiveHermitePtr_t create (const Problem& problem,
+          static RecursiveHermitePtr_t create (const ProblemConstPtr_t& problem,
               const value_type& step);
 
         protected:

@@ -38,7 +38,7 @@ KinodynamicDistancePtr_t KinodynamicDistance::create (const DevicePtr_t& robot)
     return shPtr;
 }
 
-KinodynamicDistancePtr_t KinodynamicDistance::createFromProblem (const Problem& problem)
+KinodynamicDistancePtr_t KinodynamicDistance::createFromProblem (const ProblemConstPtr_t& problem)
 {
     KinodynamicDistance* ptr = new KinodynamicDistance (problem);
     KinodynamicDistancePtr_t shPtr (ptr);
@@ -75,15 +75,15 @@ KinodynamicDistance::KinodynamicDistance (const DevicePtr_t& robot) :
     vMax_ = 1.;
 }
 
-KinodynamicDistance::KinodynamicDistance (const Problem& problem) :
-    robot_ (problem.robot())
+KinodynamicDistance::KinodynamicDistance (const ProblemConstPtr_t& problem) :
+    robot_ (problem->robot())
 {
     if(robot_->extraConfigSpace().dimension() <6){
         std::cout<<"Error : you need at least 6 extra DOF"<<std::endl;
         hppDout(error,"Error : you need at least 6 extra DOF");
     }
-    aMax_=problem.getParameter(std::string("Kinodynamic/accelerationBound")).floatValue();
-    vMax_ = problem.getParameter(std::string("Kinodynamic/velocityBound")).floatValue();
+    aMax_=problem->getParameter("Kinodynamic/accelerationBound").floatValue();
+    vMax_ = problem->getParameter("Kinodynamic/velocityBound").floatValue();
 }
 
 

@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   p->setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
   p->setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
 
-  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
-  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(*p);
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create(p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
 
   // try to connect several states : (notation : sx = (px, vx, ax)
   Configuration_t q0 (robot->currentConfiguration());
@@ -508,8 +508,8 @@ BOOST_AUTO_TEST_CASE (kinodynamic_aMax1) {
   p->setParameter(std::string("Kinodynamic/velocityBound"),Parameter(vMax));
   p->setParameter(std::string("Kinodynamic/accelerationBound"),Parameter(aMax));
 
-  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
-  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(*p);
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create(p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
 
   // try to connect several states : (notation : sx = (px, vx, ax)
   Configuration_t q0 (robot->currentConfiguration());
@@ -592,8 +592,8 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
   p->setParameter(std::string("Kinodynamic/forceAllOrientation"),Parameter(true));
 
 
-  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create (*p);
-  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(*p);
+  steeringMethod::KinodynamicPtr_t sm = steeringMethod::Kinodynamic::create(p);
+  KinodynamicDistancePtr_t dist = KinodynamicDistance::createFromProblem(p);
   KinodynamicOrientedPathPtr_t pathKino,extractedPathKino;
   PathPtr_t path,extractedPath;
 

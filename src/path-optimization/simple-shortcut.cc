@@ -31,21 +31,21 @@ namespace hpp {
   namespace core {
     namespace pathOptimization {
       SimpleShortcutPtr_t
-      SimpleShortcut::create (const Problem& problem)
+      SimpleShortcut::create (const ProblemConstPtr_t& problem)
       {
         SimpleShortcut* ptr = new SimpleShortcut (problem);
         return SimpleShortcutPtr_t (ptr);
       }
 
-      SimpleShortcut::SimpleShortcut (const Problem& problem) :
+      SimpleShortcut::SimpleShortcut (const ProblemConstPtr_t& problem) :
         PathOptimizer (problem)
       {
       }
 
       PathVectorPtr_t SimpleShortcut::optimize (const PathVectorPtr_t& path)
       {
-        RoadmapPtr_t roadmap (Roadmap::create (problem ().distance (),
-                                               problem ().robot ()));
+        RoadmapPtr_t roadmap (Roadmap::create (problem()->distance(),
+                                               problem()->robot()));
         std::vector <NodePtr_t> nodes;
         ConfigurationPtr_t qPtr (new Configuration_t (path->initial ()));
         roadmap->initNode (qPtr);
@@ -58,7 +58,7 @@ namespace hpp {
           nodes.push_back (node);
         }
         roadmap->addGoalNode (node->configuration ());
-        PathValidationPtr_t pv (problem ().pathValidation ());
+        PathValidationPtr_t pv (problem()->pathValidation ());
         for (std::size_t i=0; i < nodes.size () - 1; ++i) {
           for (std::size_t j=i+2; j < nodes.size (); ++j) {
             PathPtr_t path (steer (*(nodes [i]->configuration ()),
@@ -71,7 +71,7 @@ namespace hpp {
             }
           }
         }
-        PathVectorPtr_t result (problem ().target ()->computePath (roadmap));
+        PathVectorPtr_t result (problem()->target ()->computePath (roadmap));
         assert (result);
         return result;
       }

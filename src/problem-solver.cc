@@ -122,7 +122,7 @@ namespace hpp {
     // Struct that constructs an empty shared pointer to PathProjector.
     struct NonePathProjector
     {
-      static PathProjectorPtr_t create (const Problem&,
+      static PathProjectorPtr_t create (const ProblemConstPtr_t&,
 					const value_type&)
       {
 	return PathProjectorPtr_t ();
@@ -130,10 +130,10 @@ namespace hpp {
     }; // struct NonePathProjector
 
     template <typename Derived> struct Factory {
-      static boost::shared_ptr<Derived> create (const Problem& problem) { return Derived::create (problem); }
+      static boost::shared_ptr<Derived> create (const ProblemConstPtr_t& problem) { return Derived::create (problem); }
     };
     template <typename Derived> struct FactoryPP {
-      static boost::shared_ptr<Derived> create (const Problem& problem, const value_type& value) { return Derived::create (problem, value); }
+      static boost::shared_ptr<Derived> create (const ProblemConstPtr_t& problem, const value_type& value) { return Derived::create (problem, value); }
     };
 
     pathValidation::DiscretizedPtr_t createDiscretizedJointBoundAndCollisionChecking (
@@ -149,28 +149,35 @@ namespace hpp {
     }
 
     template <typename T>
-    boost::shared_ptr<T> createFromRobot (const Problem& p) { return T::create(p.robot()); }
-
-    configurationShooter::GaussianPtr_t createGaussianConfigShooter (const Problem& p)
+    boost::shared_ptr<T> createFromRobot (const ProblemConstPtr_t& p)
     {
-      configurationShooter::GaussianPtr_t ptr = configurationShooter::Gaussian::create(p.robot());
+      return T::create(p->robot());
+    }
+
+    configurationShooter::GaussianPtr_t createGaussianConfigShooter
+    (const ProblemConstPtr_t& p)
+    {
+      configurationShooter::GaussianPtr_t ptr
+	(configurationShooter::Gaussian::create(p->robot()));
       static const std::string center = "ConfigurationShooter/Gaussian/center";
       static const std::string useVel = "ConfigurationShooter/Gaussian/useRobotVelocity";
       static const std::string stdDev = "ConfigurationShooter/Gaussian/standardDeviation";
-      if (p.getParameter(useVel).boolValue())
+      if (p->getParameter(useVel).boolValue())
       {
-        ptr->sigmas (p.robot()->currentVelocity());
-	ptr->center(p.getParameter(center).vectorValue());
+        ptr->sigmas (p->robot()->currentVelocity());
+	ptr->center(p->getParameter(center).vectorValue());
       }
-      else if (p.parameters.has(stdDev))
-        ptr->sigma (p.getParameter (stdDev).floatValue());
+      else if (p->parameters.has(stdDev))
+        ptr->sigma (p->getParameter (stdDev).floatValue());
       return ptr;
     }
 
-    configurationShooter::UniformPtr_t createUniformConfigShooter (const Problem& p)
+    configurationShooter::UniformPtr_t createUniformConfigShooter (const ProblemConstPtr_t& p)
     {
-      configurationShooter::UniformPtr_t ptr = configurationShooter::Uniform::create(p.robot());
-      ptr->sampleExtraDOF(p.getParameter("ConfigurationShooter/sampleExtraDOF").boolValue());
+      configurationShooter::UniformPtr_t ptr
+	(configurationShooter::Uniform::create(p->robot()));
+      ptr->sampleExtraDOF(p->getParameter
+			  ("ConfigurationShooter/sampleExtraDOF").boolValue());
       return ptr;
     }
 
@@ -307,7 +314,7 @@ namespace hpp {
       configurationShooterType_ = type;
       if (robot_ && problem_) {
         problem_->configurationShooter
-          (configurationShooters.get (configurationShooterType_) (*problem_));
+          (configurationShooters.get (configurationShooterType_) (problem_));
       }
     }
 
@@ -695,14 +702,14 @@ namespace hpp {
           pathOptimizerTypes_.begin (); it != pathOptimizerTypes_.end ();
           ++it) {
         PathOptimizerBuilder_t createOptimizer = pathOptimizers.get (*it);
-        pathOptimizers_.push_back (createOptimizer (*problem_));
+        pathOptimizers_.push_back (createOptimizer (problem_));
       }
     }
 
     void ProblemSolver::initDistance ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
-      DistancePtr_t dist (distances.get (distanceType_) (*problem_));
+      DistancePtr_t dist (distances.get (distanceType_) (problem_));
       problem_->distance (dist);
     }
 
@@ -711,7 +718,7 @@ namespace hpp {
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       SteeringMethodPtr_t sm (
-          steeringMethods.get (steeringMethodType_) (*problem_)
+          steeringMethods.get (steeringMethodType_) (problem_)
           );
       problem_->steeringMethod (sm);
     }
@@ -727,7 +734,7 @@ namespace hpp {
       //   TODO The path projector should update the constraint according to the path they project.
       // - the steering method type must match the path projector type.
       PathProjectorPtr_t pathProjector_ =
-        createProjector (*problem_, pathProjectorTolerance_);
+        createProjector (problem_, pathProjectorTolerance_);
       problem_->pathProjector (pathProjector_);
     }
 
@@ -745,11 +752,11 @@ namespace hpp {
 
       // Set shooter
       problem_->configurationShooter
-        (configurationShooters.get (configurationShooterType_) (*problem_));
+        (configurationShooters.get (configurationShooterType_) (problem_));
       // Set steeringMethod
       initSteeringMethod ();
       PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
-      pathPlanner_ = createPlanner (*problem_, roadmap_);
+      pathPlanner_ = createPlanner (problem_, roadmap_);
       pathPlanner_->maxIterations (maxIterPathPlanning_);
       pathPlanner_->timeOut(timeOutPathPlanning_);
       roadmap_ = pathPlanner_->roadmap();

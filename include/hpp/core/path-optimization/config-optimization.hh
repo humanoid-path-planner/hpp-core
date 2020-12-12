@@ -61,10 +61,12 @@ namespace hpp {
         public:
           /// Return shared pointer to new object.
           template < typename Traits > static
-            ConfigOptimizationPtr_t createWithTraits (const Problem& problem);
+            ConfigOptimizationPtr_t createWithTraits
+	    (const ProblemConstPtr_t& problem);
 
           /// Return shared pointer to new object.
-          static ConfigOptimizationPtr_t create (const Problem& problem);
+          static ConfigOptimizationPtr_t create
+	    (const ProblemConstPtr_t& problem);
 
           /// Optimize path
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
@@ -92,7 +94,7 @@ namespace hpp {
           } parameters;
 
         protected:
-          ConfigOptimization (const Problem& problem);
+          ConfigOptimization (const ProblemConstPtr_t& problem);
 
           virtual constraints::ImplicitPtr_t createNumConstraint
             (const PathVector& path) const;
@@ -123,7 +125,7 @@ namespace hpp {
       /// \}
 
       template < typename Traits > ConfigOptimizationPtr_t
-        ConfigOptimization::createWithTraits (const Problem& problem)
+        ConfigOptimization::createWithTraits (const ProblemConstPtr_t& problem)
       {
         ConfigOptimization* ptr = new ConfigOptimization (problem);
         ptr->parameters.addConfigConstraintToPath =

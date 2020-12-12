@@ -92,7 +92,7 @@ namespace hpp {
 
       distance_       = WeighedDistance::create (robot_);
       target_         = problemTarget::GoalConfigurations::create (wkPtr_.lock());
-      steeringMethod_ = steeringMethod::Straight::create (*this);
+      steeringMethod_ = steeringMethod::Straight::create (wkPtr_.lock());
       pathValidation_ = pathValidation::createDiscretizedCollisionChecking (robot_, 0.05);
       configurationShooter_ = configurationShooter::Uniform::create (robot_);
 

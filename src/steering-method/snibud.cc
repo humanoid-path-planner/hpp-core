@@ -39,7 +39,7 @@ namespace hpp {
           qEnd [i] = q1 [i];
         }
         // The length corresponding to the non RS DoF
-        DistancePtr_t d (problem().distance());
+        DistancePtr_t d (problem()->distance());
         value_type extraL = (*d) (q1, qEnd);
         DubinsPathPtr_t path =
           DubinsPath::create (device_.lock (), q2, q1, extraL,
@@ -48,12 +48,12 @@ namespace hpp {
         return path->reverse ();
       }
 
-      Snibud::Snibud (const Problem& problem) :
+      Snibud::Snibud (const ProblemConstPtr_t& problem) :
         CarLike (problem), weak_ ()
       {
       }
 
-      Snibud::Snibud  (const Problem& problem,
+      Snibud::Snibud  (const ProblemConstPtr_t& problem,
           const value_type turningRadius,
           JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :

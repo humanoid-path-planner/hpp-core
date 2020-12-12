@@ -36,29 +36,29 @@ namespace hpp {
     using pinocchio::displayConfig;
 
     BiRRTPlannerPtr_t BiRRTPlanner::createWithRoadmap
-    (const Problem& problem, const RoadmapPtr_t& roadmap)
+    (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap)
     {
       BiRRTPlanner* ptr = new BiRRTPlanner (problem, roadmap);
       return BiRRTPlannerPtr_t (ptr);
     }
 
-    BiRRTPlannerPtr_t BiRRTPlanner::create (const Problem& problem)
+    BiRRTPlannerPtr_t BiRRTPlanner::create (const ProblemConstPtr_t& problem)
     {
       BiRRTPlanner* ptr = new BiRRTPlanner (problem);
       return BiRRTPlannerPtr_t (ptr);
     }
 
-    BiRRTPlanner::BiRRTPlanner (const Problem& problem):
+    BiRRTPlanner::BiRRTPlanner (const ProblemConstPtr_t& problem):
       PathPlanner (problem),
-      configurationShooter_ (problem.configurationShooter()),
-      qProj_ (problem.robot ()->configSize ())
+      configurationShooter_ (problem->configurationShooter()),
+      qProj_ (problem->robot ()->configSize ())
     {
     }
 
-    BiRRTPlanner::BiRRTPlanner (const Problem& problem, const RoadmapPtr_t& roadmap):
+    BiRRTPlanner::BiRRTPlanner (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap):
       PathPlanner (problem, roadmap),
-      configurationShooter_ (problem.configurationShooter()),
-      qProj_ (problem.robot ()->configSize ())
+      configurationShooter_ (problem->configurationShooter()),
+      qProj_ (problem->robot ()->configSize ())
     {
     }
 
@@ -112,7 +112,7 @@ namespace hpp {
     void BiRRTPlanner::oneStep ()
     {
         PathPtr_t validPath, path;
-        PathValidationPtr_t pathValidation (problem ().pathValidation ());
+        PathValidationPtr_t pathValidation (problem()->pathValidation ());
         value_type distance;
         NodePtr_t near, reachedNodeFromStart;
         bool startComponentConnected(false), pathValidFromStart(false);
@@ -121,7 +121,8 @@ namespace hpp {
         Configuration_t q_rand;
         configurationShooter_->shoot (q_rand);
         near = roadmap()->nearestNode (q_rand, startComponent_, distance);
-        path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand);
+        path = extendInternal (problem()->steeringMethod(), qProj_, near,
+			       q_rand);
         if (path)
         {
             PathValidationReportPtr_t report;
@@ -144,7 +145,8 @@ namespace hpp {
          itcc != endComponents_.end (); ++itcc)
         {
             near = roadmap()->nearestNode (q_rand, *itcc, distance,true);
-            path = extendInternal (problem().steeringMethod(), qProj_, near, q_rand, true);
+            path = extendInternal (problem()->steeringMethod(), qProj_, near,
+				   q_rand, true);
             if (path)
             {
                 PathValidationReportPtr_t report;
@@ -164,7 +166,8 @@ namespace hpp {
                         // now try to connect both nodes
                         if(startComponentConnected)
                         {
-                            path = (*(problem().steeringMethod())) (*q_new, *q_newEnd);
+                            path = (*(problem()->steeringMethod()))
+			      (*q_new, *q_newEnd);
                             if(path && pathValidation->validate (path, false, validPath, report))
                             {
                                 roadmap()->addEdge (reachedNodeFromStart, newNode, path);

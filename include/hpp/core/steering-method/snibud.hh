@@ -45,7 +45,7 @@ namespace hpp {
           /// - the 2 following parameters corresponds to the RZ unbounded
           ///   rotation joint.
           /// Use CarLike::setWheelJoints to set the wheel joints.
-          static SnibudPtr_t createWithGuess (const Problem& problem)
+          static SnibudPtr_t createWithGuess (const ProblemConstPtr_t& problem)
           {
             Snibud* ptr = new Snibud (problem);
             SnibudPtr_t shPtr (ptr);
@@ -56,7 +56,7 @@ namespace hpp {
           /// Create an instance
           ///
           /// This constructor does no assumption.
-          static SnibudPtr_t create (const Problem& problem,
+          static SnibudPtr_t create (const ProblemConstPtr_t& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
@@ -90,10 +90,10 @@ namespace hpp {
 
         protected:
           /// Constructor
-          Snibud (const Problem& problem);
+          Snibud (const ProblemConstPtr_t& problem);
 
           /// Constructor
-          Snibud (const Problem& problem,
+          Snibud (const ProblemConstPtr_t& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);

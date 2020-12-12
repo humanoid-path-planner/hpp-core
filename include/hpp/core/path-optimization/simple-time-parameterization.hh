@@ -176,13 +176,14 @@ namespace hpp {
       {
         public:
           /// Return shared pointer to new object.
-          static SimpleTimeParameterizationPtr_t create (const Problem& problem);
+          static SimpleTimeParameterizationPtr_t create
+	    (const ProblemConstPtr_t& problem);
 
           /// Optimize path
           virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
         protected:
-          SimpleTimeParameterization (const Problem& problem);
+          SimpleTimeParameterization (const ProblemConstPtr_t& problem);
       }; // class SimpleTimeParameterization
       /// \}
     } // namespace pathOptimization
