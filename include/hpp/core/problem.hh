@@ -324,6 +324,7 @@ namespace hpp {
       ConstraintSetPtr_t constraints_;
       /// Configuration shooter
       ConfigurationShooterPtr_t configurationShooter_;
+      HPP_SERIALIZABLE();
     }; // class Problem
     /// \}
   } // namespace core

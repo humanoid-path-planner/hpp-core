@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2020 CNRS
-// Authors: Joseph Mirabel
+// Authors: Joseph Mirabel, Florent Lamiraux
 //
 // This file is part of hpp-core
 // hpp-core is free software: you can redistribute it
@@ -22,52 +22,41 @@
 #include <hpp/util/serialization.hh>
 
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/serialization.hh> // For serialization of Device
 
 #include <hpp/core/distance.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
-#include <hpp/core/weighed-distance.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/weighed-distance.hh>
 
-BOOST_CLASS_EXPORT(hpp::core::WeighedDistance)
-BOOST_CLASS_EXPORT(hpp::core::distance::ReedsShepp)
+BOOST_CLASS_EXPORT(hpp::core::steeringMethod::ReedsShepp)
 
 namespace hpp {
 namespace core {
 
 template <typename Archive>
-inline void Distance::serialize(Archive& ar, const unsigned int version)
+inline void SteeringMethod::serialize(Archive& ar, const unsigned int version)
 {
   (void) version;
-  (void) ar;
-}
-
-template <typename Archive>
-inline void WeighedDistance::serialize(Archive& ar, const unsigned int version)
-{
-  (void) version;
-  ar & boost::serialization::make_nvp("base", boost::serialization::base_object<Distance>(*this));
-  ar & BOOST_SERIALIZATION_NVP(robot_);
-  ar & BOOST_SERIALIZATION_NVP(weights_);
+  ar & BOOST_SERIALIZATION_NVP(problem_);
+  ar & BOOST_SERIALIZATION_NVP(constraints_);
   ar & BOOST_SERIALIZATION_NVP(weak_);
 }
 
-HPP_SERIALIZATION_IMPLEMENT(WeighedDistance);
-
-namespace distance {
+namespace steeringMethod {
 
 template <typename Archive>
 inline void ReedsShepp::serialize(Archive& ar, const unsigned int version)
 {
   (void) version;
-  ar & boost::serialization::make_nvp("base", boost::serialization::base_object<Distance>(*this));
-  ar & BOOST_SERIALIZATION_NVP(sm_);
+  ar & boost::serialization::make_nvp("base", boost::serialization::base_object
+				      <SteeringMethod>(*this));
+  ar & BOOST_SERIALIZATION_NVP(weighedDistance_);
   ar & BOOST_SERIALIZATION_NVP(weak_);
 }
 
 HPP_SERIALIZATION_IMPLEMENT(ReedsShepp);
-
-} // namespace distance
+} // namespace steeringMethod
 
 } //   namespace core
 } // namespace hpp
