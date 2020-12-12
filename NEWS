@@ -1,6 +1,11 @@
                                                                 -*- outline -*-
+* Serialize several classes for save and loading roadmaps
+* use shared pointers to class Problem only. Classes previously storing const
+  references to Problem now store const weak pointers. Classes that use to
+  take a const reference to problem in the constructor now take a const
+  shared pointer.
 New in v4.10.0
-* Add a parameter to set the center of the Gaussiant configuration shooter.
+* Add a parameter to set the center of the Gaussian configuration shooter.
 * Fix bug in Reeds and Shepp paths when curvature is not equal to 1.
 * Handle LockedJoint and Implicit instances in the same container in ProblemSolver class. make method ProblemSolver::addLockedJointToConfigProjector deprecated.
 * Replace class ContinuousCollisionChecking by class ContinuousValidation for broader generalisation.
