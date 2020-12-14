@@ -59,7 +59,7 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
-      SplineGradientBased<_PB, _SO>::SplineGradientBased (const Problem& problem)
+      SplineGradientBased<_PB, _SO>::SplineGradientBased (const ProblemConstPtr_t& problem)
         : Base (problem)
         , checkOptimum_ (false)
       {}
@@ -170,7 +170,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       typename SplineGradientBased<_PB, _SO>::Ptr_t SplineGradientBased<_PB, _SO>::create
-      (const Problem& problem)
+      (const ProblemConstPtr_t& problem)
       {
 	SplineGradientBased* ptr = new SplineGradientBased (problem);
 	Ptr_t shPtr (ptr);
@@ -199,7 +199,7 @@ namespace hpp {
             const ExplicitConstraintSet& es = hs.explicitConstraintSet();
 
             // Get the active parameter row selection.
-            value_type guessThreshold = problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
+            value_type guessThreshold = problem()->getParameter ("SplineGradientBased/guessThreshold").floatValue();
             Eigen::RowBlockIndices select = computeActiveParameters (path, hs, guessThreshold);
 
             const size_type rDof = robot_->numberDof(),
@@ -369,13 +369,13 @@ namespace hpp {
         this->monitorExecution();
 
         // Get some parameters
-        value_type alphaInit = problem().getParameter ("SplineGradientBased/alphaInit").floatValue();
-        bool alwaysStopAtFirst = problem().getParameter ("SplineGradientBased/alwaysStopAtFirst").boolValue();
-        bool reorderIntervals = problem().getParameter ("SplineGradientBased/reorderIntervals").boolValue();
-        bool linearizeAtEachStep = problem().getParameter ("SplineGradientBased/linearizeAtEachStep").boolValue();
-        bool checkJointBound = problem().getParameter ("SplineGradientBased/checkJointBound").boolValue();
-        bool returnOptimum = problem().getParameter ("SplineGradientBased/returnOptimum").boolValue();
-        value_type costThreshold = problem().getParameter ("SplineGradientBased/costThreshold").floatValue();
+        value_type alphaInit = problem()->getParameter ("SplineGradientBased/alphaInit").floatValue();
+        bool alwaysStopAtFirst = problem()->getParameter ("SplineGradientBased/alwaysStopAtFirst").boolValue();
+        bool reorderIntervals = problem()->getParameter ("SplineGradientBased/reorderIntervals").boolValue();
+        bool linearizeAtEachStep = problem()->getParameter ("SplineGradientBased/linearizeAtEachStep").boolValue();
+        bool checkJointBound = problem()->getParameter ("SplineGradientBased/checkJointBound").boolValue();
+        bool returnOptimum = problem()->getParameter ("SplineGradientBased/returnOptimum").boolValue();
+        value_type costThreshold = problem()->getParameter ("SplineGradientBased/costThreshold").floatValue();
 
         if (path->length() == 0) return path;
         PathVectorPtr_t input = Base::cleanInput (path);

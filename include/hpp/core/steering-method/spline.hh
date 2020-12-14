@@ -48,7 +48,7 @@ namespace hpp {
           typedef boost::shared_ptr<Spline> Ptr_t;
           typedef boost::weak_ptr<Spline> WkPtr_t;
 
-          static Ptr_t create (const Problem& problem)
+          static Ptr_t create (const ProblemConstPtr_t& problem)
           {
             Spline* ptr = new Spline (problem);
             Ptr_t shPtr (ptr);
@@ -81,7 +81,7 @@ namespace hpp {
 
         protected:
           /// Constructor
-          Spline (const Problem& problem);
+          Spline (const ProblemConstPtr_t& problem);
 
           /// Copy constructor
           Spline (const Spline& other);

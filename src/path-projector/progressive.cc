@@ -42,20 +42,20 @@ namespace hpp {
       ProgressivePtr_t Progressive::create (const DistancePtr_t& distance,
           const SteeringMethodPtr_t& steeringMethod, value_type step)
       {
-        value_type hessianBound = steeringMethod->problem()
-          .getParameter ("PathProjection/HessianBound").floatValue();
-        value_type thr_min = steeringMethod->problem()
-          .getParameter("PathProjection/MinimalDist").floatValue();
+        value_type hessianBound = steeringMethod->problem()->getParameter
+	  ("PathProjection/HessianBound").floatValue();
+        value_type thr_min = steeringMethod->problem()->getParameter
+	  ("PathProjection/MinimalDist").floatValue();
         hppDout (info, "Hessian bound is " << hessianBound);
         hppDout (info, "Min Dist is " << thr_min);
         return ProgressivePtr_t (new Progressive (distance, steeringMethod,
               step, thr_min, hessianBound));
       }
 
-      ProgressivePtr_t Progressive::create (const Problem& problem,
+      ProgressivePtr_t Progressive::create (const ProblemConstPtr_t& problem,
           const value_type& step)
       {
-        return create (problem.distance(), problem.steeringMethod(), step);
+        return create (problem->distance(), problem->steeringMethod(), step);
       }
 
       Progressive::Progressive (const DistancePtr_t& distance,

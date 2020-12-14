@@ -37,7 +37,7 @@ namespace hpp {
       {
         public:
           /// Create instance and return shared pointer
-          static HermitePtr_t create  (const Problem& problem)
+          static HermitePtr_t create  (const ProblemConstPtr_t& problem)
           {
             Hermite* ptr = new Hermite (problem);
             HermitePtr_t shPtr (ptr);
@@ -65,7 +65,7 @@ namespace hpp {
               ConfigurationIn_t q2) const
           {
             path::HermitePtr_t path = path::Hermite::create
-              (problem_.robot(), q1, q2, constraints ());
+              (problem()->robot(), q1, q2, constraints ());
 
             path->computeHermiteLength();
             return path;
@@ -73,7 +73,7 @@ namespace hpp {
 
         protected:
           /// Constructor with weighed distance
-          Hermite (const Problem& problem) :
+          Hermite (const ProblemConstPtr_t& problem) :
             SteeringMethod (problem), weak_ ()
           {}
 

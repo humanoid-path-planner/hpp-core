@@ -21,6 +21,7 @@
 
 # include <hpp/util/debug.hh>
 # include <hpp/util/pointer.hh>
+# include <hpp/util/serialization-fwd.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
@@ -45,7 +46,8 @@ namespace hpp {
           /// - the 2 following parameters corresponds to the RZ unbounded
           ///   rotation joint.
           /// Use Carlike::setWheelJoints to set the wheel joints.
-          static ReedsSheppPtr_t createWithGuess (const Problem& problem)
+          static ReedsSheppPtr_t createWithGuess
+	    (const ProblemConstPtr_t& problem)
           {
             ReedsShepp* ptr = new ReedsShepp (problem);
             ReedsSheppPtr_t shPtr (ptr);
@@ -56,7 +58,7 @@ namespace hpp {
           /// Create an instance
           ///
           /// This constructor does no assumption.
-          static ReedsSheppPtr_t create (const Problem& problem,
+          static ReedsSheppPtr_t create (const ProblemConstPtr_t& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
@@ -88,12 +90,15 @@ namespace hpp {
           virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
               ConfigurationIn_t q2) const;
 
-        protected:
+	  /// For serialization only
+	  ReedsShepp() {}
+
+      protected:
           /// Constructor
-          ReedsShepp (const Problem& problem);
+          ReedsShepp (const ProblemConstPtr_t& problem);
 
           /// Constructor
-          ReedsShepp (const Problem& problem,
+          ReedsShepp (const ProblemConstPtr_t& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);
@@ -109,7 +114,9 @@ namespace hpp {
           }
 
         private:
+	  WeighedDistancePtr_t weighedDistance_;
           ReedsSheppWkPtr_t weak_;
+	  HPP_SERIALIZABLE();
       }; // ReedsShepp
       /// \}
     } // namespace steeringMethod

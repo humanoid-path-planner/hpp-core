@@ -144,7 +144,8 @@ namespace hpp {
         }
       }
 
-      SimpleTimeParameterizationPtr_t SimpleTimeParameterization::create (const Problem& problem)
+      SimpleTimeParameterizationPtr_t SimpleTimeParameterization::create
+      (const ProblemConstPtr_t& problem)
       {
         SimpleTimeParameterizationPtr_t ptr (new SimpleTimeParameterization(problem));
         return ptr;
@@ -157,15 +158,18 @@ namespace hpp {
         }
         const value_type infinity = std::numeric_limits<value_type>::infinity();
 
-        const value_type safety = problem().getParameter("SimpleTimeParameterization/safety").floatValue();
-        const size_type order = problem().getParameter("SimpleTimeParameterization/order").intValue();
-        const value_type maxAcc = problem().getParameter("SimpleTimeParameterization/maxAcceleration").floatValue();
+        const value_type safety = problem()->getParameter
+	  ("SimpleTimeParameterization/safety").floatValue();
+        const size_type order = problem()->getParameter
+	  ("SimpleTimeParameterization/order").intValue();
+        const value_type maxAcc = problem()->getParameter
+	  ("SimpleTimeParameterization/maxAcceleration").floatValue();
         if (order <= 1 && maxAcc > 0) {
           throw std::invalid_argument ("Maximum acceleration cannot be set when order is <= to 1. Please set parameter SimpleTimeParameterization/maxAcceleration to a negative value.");
         }
 
         // Retrieve velocity limits
-        const DevicePtr_t& robot = problem().robot();
+        const DevicePtr_t& robot = problem()->robot();
         vector_t ub ( robot->model().velocityLimit),
                  lb (-robot->model().velocityLimit),
                  cb ((ub + lb) / 2);
@@ -249,7 +253,8 @@ namespace hpp {
         return output;
       }
 
-      SimpleTimeParameterization::SimpleTimeParameterization (const Problem& problem):
+      SimpleTimeParameterization::SimpleTimeParameterization
+      (const ProblemConstPtr_t& problem):
         PathOptimizer(problem) {}
 
       // ----------- Declare parameters ------------------------------------- //

@@ -80,7 +80,8 @@ namespace hpp {
         hppDout(notice,"direction = "<<dir);
         interval_t infeasibleInterval;
         std::vector<interval_t> infIntervalsVector;
-        size_type configSize = problem_.robot()->configSize() - problem_.robot()->extraConfigSpace().dimension ();
+        size_type configSize = problem()->robot()->configSize() -
+	  problem()->robot()->extraConfigSpace().dimension ();
         // looking for Tmax
         hppDout(notice,"## Looking for Tmax :");
         hppDout(info,"between : "<<pinocchio::displayConfig(q1));
@@ -89,8 +90,8 @@ namespace hpp {
         // for all joints
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){ // FIX ME : only work for freeflyer
           size_type indexVel = indexConfig + configSize;
-          hppDout(notice,"For joint :"<<problem_.robot()->getJointAtConfigRank(indexConfig)->name());
-          if(problem_.robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
+          hppDout(notice,"For joint :"<<problem()->robot()->getJointAtConfigRank(indexConfig)->name());
+          if(problem()->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             T = computeMinTime(indexConfig,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&infeasibleInterval);
             infIntervalsVector.push_back(infeasibleInterval);
             if(T > Tmax)
@@ -136,8 +137,8 @@ namespace hpp {
         hppDout(info,"compute fixed end-time trajectory for each joint : ");
         for(int indexConfig = 0 ; indexConfig < 3 ; indexConfig++){
           size_type indexVel = indexConfig + configSize;
-          hppDout(notice,"For joint :"<<problem_.robot()->getJointAtConfigRank(indexConfig)->name());
-          if(problem_.robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
+          hppDout(notice,"For joint :"<<problem()->robot()->getJointAtConfigRank(indexConfig)->name());
+          if(problem()->robot()->getJointAtConfigRank(indexConfig)->name() != "base_joint_SO3"){
             fixedTimeTrajectory(indexConfig,length,q1[indexConfig],q2[indexConfig],q1[indexVel],q2[indexVel],&a1,&t0,&t1,&tv,&t2,&vLim);
             a1_t[indexConfig]=a1;
             t0_t[indexConfig]=t0;
@@ -169,27 +170,28 @@ namespace hpp {
       
       
       
-      Kinodynamic::Kinodynamic (const Problem& problem) :
-        SteeringMethod (problem), aMax_(Vector3::Ones(3)),vMax_(Vector3::Ones(3)), device_ (problem.robot ()), weak_ ()
+      Kinodynamic::Kinodynamic (const ProblemConstPtr_t& problem) :
+        SteeringMethod (problem), aMax_(Vector3::Ones(3)),
+	vMax_(Vector3::Ones(3)), device_(problem->robot ()), weak_ ()
       {
-        if(((problem.robot()->extraConfigSpace().dimension())) < 6){
+        if(((problem->robot()->extraConfigSpace().dimension())) < 6){
           std::cout<<"Error : you need at least "<<6<<" extra DOF to use this steering method"<<std::endl;
           hppDout(error,"Error : you need at least "<<6<<" extra DOF to use this steering method");
         }
 
         // get velocity and acceleration bounds from problem :
 
-        aMaxFixed_ = problem_.getParameter(std::string("Kinodynamic/accelerationBound")).floatValue();
+        aMaxFixed_ = problem->getParameter(std::string("Kinodynamic/accelerationBound")).floatValue();
         aMax_=Vector3::Ones(3)*aMaxFixed_;
-        aMaxFixed_Z_ = problem_.getParameter(std::string("Kinodynamic/verticalAccelerationBound")).floatValue();
-        vMax_ = Vector3::Ones(3) *  problem_.getParameter(std::string("Kinodynamic/velocityBound")).floatValue();
+        aMaxFixed_Z_ = problem->getParameter(std::string("Kinodynamic/verticalAccelerationBound")).floatValue();
+        vMax_ = Vector3::Ones(3) * problem->getParameter(std::string("Kinodynamic/velocityBound")).floatValue();
 
         hppDout(info,"#### create steering kinodynamic, vMax = "<<vMax_<< "; aMax_ = "<<aMax_);
 
-        synchronizeVerticalAxis_ = problem_.getParameter(std::string("Kinodynamic/synchronizeVerticalAxis")).boolValue();
+        synchronizeVerticalAxis_ = problem->getParameter(std::string("Kinodynamic/synchronizeVerticalAxis")).boolValue();
         hppDout(notice,"synchronizeVerticalAxis in steering method = "<<synchronizeVerticalAxis_);
-        orientedPath_  = problem_.getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue() ||  problem_.getParameter(std::string("Kinodynamic/forceYawOrientation")).boolValue();
-        orientationIgnoreZValue_ =  problem_.getParameter(std::string("Kinodynamic/forceYawOrientation")).boolValue() && !problem_.getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue() ;
+        orientedPath_  = problem->getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue() ||  problem->getParameter(std::string("Kinodynamic/forceYawOrientation")).boolValue();
+        orientationIgnoreZValue_ = problem->getParameter(std::string("Kinodynamic/forceYawOrientation")).boolValue() && !problem->getParameter(std::string("Kinodynamic/forceAllOrientation")).boolValue() ;
         hppDout(notice,"oriented path : "<<orientedPath_);
         hppDout(notice,"oriented path only constraint yaw (ignore z value) : "<<orientationIgnoreZValue_);
       }

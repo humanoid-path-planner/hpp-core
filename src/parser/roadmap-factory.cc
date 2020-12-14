@@ -91,7 +91,7 @@ namespace hpp {
           extraCSsize_ = boost::lexical_cast <size_type>
             (getAttribute ("extra_config_space"));
         }
-        if (extraCSsize_ != problem_->robot()->extraConfigSpace().dimension()) {
+        if (extraCSsize_ != problem()->robot()->extraConfigSpace().dimension()) {
           hppDout (error, "Robot extra config space do not match attribute "
               "\"extra_config_space\"");
           return false;
@@ -121,7 +121,7 @@ namespace hpp {
 
         /// Get all the edges and build a path
         ObjectFactory::ObjectFactoryList pathList = getChildrenOfType ("path");
-        SteeringMethodPtr_t sm = problem_->steeringMethod ();
+        SteeringMethodPtr_t sm = problem()->steeringMethod ();
         for (ObjectFactory::ObjectFactoryList::const_iterator
             it = pathList.begin(); it != pathList.end(); ++it) {
           ObjectFactory* p = *it;
@@ -174,9 +174,9 @@ namespace hpp {
           const std::vector <std::string>& jn)
       {
         size_t rank = 0;
-        permutation_ = SizeVector_t (problem_->robot()->configSize ());
+        permutation_ = SizeVector_t (problem()->robot()->configSize ());
         for (size_t i = 0; i < jn.size (); ++i) {
-          JointPtr_t j = problem_->robot()->getJointByName (jn[i]);
+          JointPtr_t j = problem()->robot()->getJointByName (jn[i]);
           if (!j) throw std::invalid_argument ("Joint " + jn[i] + " not found");
           for (size_type r = 0; r < j->configSize (); ++r)
             permutation_ [rank + r] = j->rankInConfiguration() + (std::size_t)r;
@@ -193,11 +193,11 @@ namespace hpp {
       ConfigurationPtr_t RoadmapFactory::permuteAndCreateConfiguration (
           const std::vector <double>& config)
       {
-        ConfigurationPtr_t cfg (new Configuration_t (problem_->robot()->configSize()));
+        ConfigurationPtr_t cfg (new Configuration_t (problem()->robot()->configSize()));
         Configuration_t& q =*cfg;
         for (size_type i = 0; i < q.size(); ++i)
           q[i] = config [permutation_[i]];
-	normalize (problem_->robot(), q);
+	normalize (problem()->robot(), q);
         return cfg;
       }
 
@@ -205,9 +205,9 @@ namespace hpp {
           const RoadmapPtr_t& roadmap, ObjectFactory* parent) :
         ObjectFactory ("roadmap", parent), problem_ (problem),
         roadmap_ (roadmap),
-        extraCSsize_ (problem_->robot()->extraConfigSpace().dimension())
+        extraCSsize_ (problem->robot()->extraConfigSpace().dimension())
       {
-        DevicePtr_t robot = problem_->robot();
+        DevicePtr_t robot = problem->robot();
         if (extraCSsize_ > 0)
           addAttribute ("extra_config_space",
               boost::lexical_cast <std::string> (extraCSsize_));

@@ -33,12 +33,12 @@ namespace hpp {
     /// set of goal configurations.
     class HPP_CORE_DLLAPI PathPlanner {
     public:
-      virtual ~PathPlanner () {};
+      virtual ~PathPlanner ();
 
       /// Get roadmap
       virtual const RoadmapPtr_t& roadmap () const;
       /// Get problem
-      const Problem& problem () const;
+      ProblemConstPtr_t problem () const;
       /// Initialize the problem resolution
       ///  \li Set initial and and goal nodes,
       ///  \li check problem consistency
@@ -80,16 +80,17 @@ namespace hpp {
       /// Constructor
       ///
       /// Create a new roadmap
-      PathPlanner (const Problem& problem);
+      PathPlanner (const ProblemConstPtr_t& problem);
       /// Constructor
       ///
       /// Store a given roadmap.
-      PathPlanner (const Problem& problem, const RoadmapPtr_t& roadmap);
+      PathPlanner (const ProblemConstPtr_t& problem,
+		   const RoadmapPtr_t& roadmap);
       /// Store weak pointer to itself
       void init (const PathPlannerWkPtr_t& weak);
     private:
       /// Reference to the problem
-      const Problem& problem_;
+      const ProblemConstWkPtr_t problem_;
       /// Pointer to the roadmap.
       const RoadmapPtr_t roadmap_;
       bool interrupt_;

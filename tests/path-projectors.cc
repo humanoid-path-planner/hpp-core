@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
   DifferentiableFunctionPtr_t func = traits::func (dev);
   c->configProjector ()->add (Implicit::create (func,
     ComparisonTypes_t(func->outputSpace()->nv(), EqualToZero)));
-  problem->steeringMethod(traits::SM_t::create (*problem));
+  problem->steeringMethod(traits::SM_t::create(problem));
   problem->steeringMethod ()->constraints (c);
 
   for (int c = 0; c < 2; ++c) {
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (projectors, traits, test_types)
       problem->setParameter ("PathProjection/HessianBound", Parameter(traits::K));
 
     typename traits::ProjPtr_t projector =
-      traits::Proj_t::create (*problem, traits::projection_step);
+      traits::Proj_t::create (problem, traits::projection_step);
 
     std::cout << "========================================\n";
 

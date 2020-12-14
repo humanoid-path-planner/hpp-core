@@ -59,11 +59,13 @@ namespace hpp {
           void computeRadius ();
 
         protected:
+	  /// For serialization only.
+	  CarLike() {}
           /// Constructor
-          CarLike (const Problem& problem);
+          CarLike (const ProblemConstPtr_t& problem);
 
           /// Constructor
-          CarLike (const Problem& problem,
+          CarLike (const ProblemConstPtr_t& problem,
               const value_type turningRadius,
               JointPtr_t xyJoint, JointPtr_t rzJoint,
               std::vector <JointPtr_t> wheels);

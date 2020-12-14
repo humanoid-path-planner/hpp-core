@@ -37,13 +37,13 @@ namespace hpp {
       public:
 	/// Return shared pointer to new object.
 	/// Default cost is path length.
-	static GradientBasedPtr_t create (const Problem& problem);
+	static GradientBasedPtr_t create (const ProblemConstPtr_t& problem);
 
 	/// Optimize path
 	virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
       protected:
-	GradientBased (const Problem& problem);
+	GradientBased (const ProblemConstPtr_t& problem);
 
       private:
 	typedef Eigen::JacobiSVD < matrix_t > Jacobi_t;

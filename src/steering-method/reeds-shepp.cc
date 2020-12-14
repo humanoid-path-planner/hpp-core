@@ -24,6 +24,7 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/reeds-shepp-path.hh>
+#include <hpp/core/weighed-distance.hh>
 
 namespace hpp {
   namespace core {
@@ -43,7 +44,7 @@ namespace hpp {
           qEnd [i] = q1 [i];
         }
         // The length corresponding to the non RS DoF
-        value_type extraL = (*problem().distance()) (q1, qEnd);
+        value_type extraL = (*weighedDistance_) (q1, qEnd);
 
         ReedsSheppPathPtr_t path =
           ReedsSheppPath::create (device_.lock (), q1, q2, extraL,
@@ -51,22 +52,24 @@ namespace hpp {
         return path;
       }
 
-      ReedsShepp::ReedsShepp (const Problem& problem) :
-        CarLike (problem), weak_ ()
+      ReedsShepp::ReedsShepp (const ProblemConstPtr_t& problem) :
+        CarLike (problem), weighedDistance_(WeighedDistance::create
+					    (problem->robot())),weak_ ()
       {
       }
 
-      ReedsShepp::ReedsShepp (const Problem& problem,
+      ReedsShepp::ReedsShepp (const ProblemConstPtr_t& problem,
           const value_type turningRadius,
           JointPtr_t xyJoint, JointPtr_t rzJoint,
           std::vector <JointPtr_t> wheels) :
-	CarLike (problem, turningRadius, xyJoint, rzJoint, wheels)
+	CarLike (problem, turningRadius, xyJoint, rzJoint, wheels),
+	weighedDistance_(WeighedDistance::create(problem->robot()))
       {
       }
 
       /// Copy constructor
       ReedsShepp::ReedsShepp (const ReedsShepp& other) :
-        CarLike (other)
+        CarLike (other), weighedDistance_(other.weighedDistance_)
       {
       }
 

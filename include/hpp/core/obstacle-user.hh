@@ -142,6 +142,12 @@ namespace hpp {
           }
         }
 
+        // Clear the vector of config validations
+        void clear ()
+        {
+          validations_.clear ();
+        }
+
       protected:
         typedef Derived value_t;
         typedef std::vector<value_t> values_t;

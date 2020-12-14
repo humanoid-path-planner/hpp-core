@@ -35,17 +35,17 @@ namespace hpp {
     public:
       /// Return shared pointer to new object.
       static VisibilityPrmPlannerPtr_t createWithRoadmap
-	(const Problem& problem, const RoadmapPtr_t& roadmap);
+	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
       /// Return shared pointer to new object.
-      static VisibilityPrmPlannerPtr_t create (const Problem& problem);
+      static VisibilityPrmPlannerPtr_t create(const ProblemConstPtr_t& problem);
       /// One step of extension.
       virtual void oneStep ();
     protected:
       /// Constructor
-      VisibilityPrmPlanner (const Problem& problem, 
+      VisibilityPrmPlanner (const ProblemConstPtr_t& problem, 
 			    const RoadmapPtr_t& roadmap);
       /// Constructor with roadmap
-      VisibilityPrmPlanner (const Problem& problem);
+      VisibilityPrmPlanner (const ProblemConstPtr_t& problem);
       /// Store weak pointer to itself
       void init (const VisibilityPrmPlannerWkPtr_t& weak);
     private:

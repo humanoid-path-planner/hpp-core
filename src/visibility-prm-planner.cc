@@ -36,25 +36,25 @@ namespace hpp {
     using pinocchio::displayConfig;
 
     VisibilityPrmPlannerPtr_t VisibilityPrmPlanner::createWithRoadmap
-    (const Problem& problem, const RoadmapPtr_t& roadmap)
+    (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap)
     {
       VisibilityPrmPlanner* ptr = new VisibilityPrmPlanner (problem, roadmap);
       return VisibilityPrmPlannerPtr_t (ptr);
     }
 
     VisibilityPrmPlannerPtr_t VisibilityPrmPlanner::create 
-    (const Problem& problem)
+    (const ProblemConstPtr_t& problem)
     {
       VisibilityPrmPlanner* ptr = new VisibilityPrmPlanner (problem);
       return VisibilityPrmPlannerPtr_t (ptr);
     }
 
-    VisibilityPrmPlanner::VisibilityPrmPlanner (const Problem& problem):
+    VisibilityPrmPlanner::VisibilityPrmPlanner (const ProblemConstPtr_t& problem):
       PathPlanner (problem)
     {
     }
 
-    VisibilityPrmPlanner::VisibilityPrmPlanner (const Problem& problem,
+    VisibilityPrmPlanner::VisibilityPrmPlanner (const ProblemConstPtr_t& problem,
 						const RoadmapPtr_t& roadmap) :
       PathPlanner (problem, roadmap)
     {
@@ -71,8 +71,8 @@ namespace hpp {
       PathPtr_t validPart;
       bool found = false; 
       value_type length = std::numeric_limits <value_type>::infinity ();
-      PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      SteeringMethodPtr_t sm (problem ().steeringMethod ());
+      PathValidationPtr_t pathValidation (problem()->pathValidation ());
+      SteeringMethodPtr_t sm (problem()->steeringMethod ());
       RoadmapPtr_t r (roadmap ());
       DelayedEdge_t delayedEdge;
 
@@ -107,7 +107,7 @@ namespace hpp {
     void VisibilityPrmPlanner::applyConstraints (const Configuration_t& qFrom,
         const Configuration_t& qTo, Configuration_t& qout)
     {
-      ConstraintSetPtr_t constraints (problem ().constraints ());
+      ConstraintSetPtr_t constraints (problem()->constraints ());
       if (constraints) {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
@@ -124,9 +124,9 @@ namespace hpp {
 
     void VisibilityPrmPlanner::oneStep ()
     {
-      DevicePtr_t robot (problem ().robot ());
-      ConfigurationShooterPtr_t configurationShooter (problem().configurationShooter());
-      ConfigValidationsPtr_t configValidations (problem ().configValidations());
+      DevicePtr_t robot (problem()->robot ());
+      ConfigurationShooterPtr_t configurationShooter (problem()->configurationShooter());
+      ConfigValidationsPtr_t configValidations (problem()->configValidations());
       RoadmapPtr_t r (roadmap ());
       value_type count; // number of times q has been seen
       constrApply_ = true; // stay true if no constraint in Problem

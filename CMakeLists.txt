@@ -227,6 +227,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/steering-method/car-like.cc
   src/steering-method/constant-curvature.cc
   src/steering-method/dubins.cc
+  src/steering-method/serialization.cc
   src/steering-method/snibud.cc
   src/steering-method/spline.cc
   src/steering-method/straight.cc

@@ -37,7 +37,7 @@ namespace hpp {
       virtual ~PathOptimizer () {};
 
       /// Get problem
-      const Problem& problem () const
+      ProblemConstPtr_t problem () const
       {
 	return problem_;
       }
@@ -58,7 +58,7 @@ namespace hpp {
       /// interrupt.
       bool interrupt_;
 
-      PathOptimizer (const Problem& problem);
+      PathOptimizer (const ProblemConstPtr_t& problem);
 
       PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
@@ -71,7 +71,7 @@ namespace hpp {
       void initFromParameters ();
 
     private:
-      const Problem& problem_;
+      ProblemConstPtr_t problem_;
 
       /// Maximal number of iterations to solve a problem
       /// reaching this bound raises an exception.

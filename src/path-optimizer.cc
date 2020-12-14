@@ -24,7 +24,7 @@ namespace bpt = boost::posix_time;
 
 namespace hpp {
   namespace core {
-    PathOptimizer::PathOptimizer (const Problem& problem) :
+    PathOptimizer::PathOptimizer (const ProblemConstPtr_t& problem) :
       interrupt_ (false), problem_ (problem),
       maxIterations_ (std::numeric_limits <unsigned long int>::infinity ()),
       timeOut_ (std::numeric_limits <double>::infinity ())
@@ -37,11 +37,11 @@ namespace hpp {
     PathPtr_t PathOptimizer::steer (ConfigurationIn_t q1,
         ConfigurationIn_t q2) const
     {
-      PathPtr_t dp = (*problem().steeringMethod())(q1,q2);
+      PathPtr_t dp = (*problem()->steeringMethod())(q1,q2);
       if (dp) {
-        if (!problem().pathProjector()) return dp;
+        if (!problem()->pathProjector()) return dp;
         PathPtr_t pp;
-        if (problem().pathProjector()->apply (dp, pp))
+        if (problem()->pathProjector()->apply (dp, pp))
           return pp;
       }
       return PathPtr_t ();
@@ -70,8 +70,10 @@ namespace hpp {
 
     void PathOptimizer::initFromParameters ()
     {
-      maxIterations_ = problem().getParameter ("PathOptimizer/maxIterations").intValue();
-      timeOut_ = problem().getParameter ("PathOptimizer/timeOut").floatValue();
+      maxIterations_ = problem()->getParameter
+	("PathOptimizer/maxIterations").intValue();
+      timeOut_ = problem()->getParameter
+	("PathOptimizer/timeOut").floatValue();
     }
 
     void PathOptimizer::maxIterations (const unsigned long int& n)

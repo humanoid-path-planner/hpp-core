@@ -53,13 +53,13 @@ namespace hpp {
     };
 
     RandomShortcutPtr_t
-    RandomShortcut::create (const Problem& problem)
+    RandomShortcut::create (const ProblemConstPtr_t& problem)
     {
       RandomShortcut* ptr = new RandomShortcut (problem);
       return RandomShortcutPtr_t (ptr);
     }
 
-    RandomShortcut::RandomShortcut (const Problem& problem) :
+    RandomShortcut::RandomShortcut (const ProblemConstPtr_t& problem) :
       PathOptimizer (problem)
     {
     }
@@ -80,11 +80,12 @@ namespace hpp {
       PathVectorPtr_t tmpPath = path;
 
       // Maximal number of iterations without improvements
-      const std::size_t n = problem().getParameter("PathOptimization/RandomShortcut/NumberOfLoops").intValue();
+      const std::size_t n = problem()->getParameter
+	("PathOptimization/RandomShortcut/NumberOfLoops").intValue();
       std::size_t projectionError = n;
       std::deque <value_type> length (n-1,
 				      numeric_limits <value_type>::infinity ());
-      length.push_back (_PathLength<>::run (tmpPath, problem ().distance ()));
+      length.push_back (_PathLength<>::run (tmpPath, problem()->distance ()));
       PathVectorPtr_t result;
 
       while (!shouldStop() && !finished && projectionError != 0) {
@@ -123,7 +124,7 @@ namespace hpp {
 	  PathValidationReportPtr_t report;
           if (!proj [i]) valid[i] = false;
           else
-            valid [i] = problem ().pathValidation ()->validate
+            valid [i] = problem()->pathValidation ()->validate
               (proj [i], false, validPart, report);
 	}
 	// Replace valid parts
@@ -145,7 +146,7 @@ namespace hpp {
           result = tmpPath;
           continue;
         }
-        value_type newLength = _PathLength<>::run (result, problem ().distance ());
+        value_type newLength = _PathLength<>::run(result,problem()->distance());
         if (length[n-1] <= newLength) {
           hppDout (info,  "the length would increase:" << length[n-1] << " " << newLength);
           result = tmpPath;

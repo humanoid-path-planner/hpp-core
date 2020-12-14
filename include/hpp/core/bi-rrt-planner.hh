@@ -34,18 +34,19 @@ namespace hpp {
     public:
       /// Return shared pointer to new object.
       static BiRRTPlannerPtr_t createWithRoadmap
-	(const Problem& problem, const RoadmapPtr_t& roadmap);
+	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
       /// Return shared pointer to new object.
-      static BiRRTPlannerPtr_t create (const Problem& problem);
+      static BiRRTPlannerPtr_t create (const ProblemConstPtr_t& problem);
       /// One step of extension.
       virtual void startSolve();
       /// One step of extension.
       virtual void oneStep ();
     protected:
       /// Constructor
-      BiRRTPlanner (const Problem& problem, const RoadmapPtr_t& roadmap);
+      BiRRTPlanner (const ProblemConstPtr_t& problem,
+		    const RoadmapPtr_t& roadmap);
       /// Constructor with roadmap
-      BiRRTPlanner (const Problem& problem);
+      BiRRTPlanner (const ProblemConstPtr_t& problem);
       /// Store weak pointer to itself
       void init (const BiRRTPlannerWkPtr_t& weak);
       PathPtr_t extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,

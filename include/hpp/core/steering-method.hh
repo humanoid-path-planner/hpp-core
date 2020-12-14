@@ -20,6 +20,7 @@
 # define HPP_CORE_STEERING_METHOD_HH
 
 # include <hpp/util/debug.hh>
+# include <hpp/util/serialization.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/path.hh>
@@ -67,9 +68,9 @@ namespace hpp {
       /// Copy instance and return shared pointer
       virtual SteeringMethodPtr_t copy () const = 0;
 
-      const Problem& problem() const
+      ProblemConstPtr_t problem() const
       {
-        return problem_;
+        return problem_.lock();
       }
 
       /// \name Constraints applicable to the robot.
@@ -91,8 +92,10 @@ namespace hpp {
       /// \}
 
     protected:
+      /// For serialization only
+      SteeringMethod() {}
       /// Constructor
-      SteeringMethod (const Problem& problem) :
+      SteeringMethod (const ProblemConstPtr_t& problem) :
         problem_ (problem), constraints_ (), weak_ ()
       {
       }
@@ -116,13 +119,13 @@ namespace hpp {
 	weak_ = weak;
       }
 
-      const Problem& problem_;
-
     private:
+      ProblemConstWkPtr_t problem_;
       /// Set of constraints to apply on the paths produced
       ConstraintSetPtr_t constraints_;
       /// Weak pointer to itself
       SteeringMethodWkPtr_t weak_;
+      HPP_SERIALIZABLE();
     }; // class SteeringMethod
     /// \}
   } // namespace core

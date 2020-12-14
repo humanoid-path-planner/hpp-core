@@ -177,6 +177,7 @@ namespace hpp {
     typedef boost::shared_ptr <const PathVector> PathVectorConstPtr_t;
     typedef boost::shared_ptr <PlanAndOptimize> PlanAndOptimizePtr_t;
     typedef boost::shared_ptr <Problem> ProblemPtr_t;
+    typedef boost::shared_ptr <const Problem> ProblemConstPtr_t;
     typedef ProblemSolver* ProblemSolverPtr_t;
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef boost::shared_ptr <StraightPath> StraightPathPtr_t;

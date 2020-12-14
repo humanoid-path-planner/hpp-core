@@ -32,18 +32,18 @@ namespace hpp {
     public:
       /// Return shared pointer to new object.
       static DiffusingPlannerPtr_t createWithRoadmap
-	(const Problem& problem, const RoadmapPtr_t& roadmap);
+	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
       /// Return shared pointer to new object.
-      static DiffusingPlannerPtr_t create (const Problem& problem);
+      static DiffusingPlannerPtr_t create (const ProblemConstPtr_t& problem);
       /// One step of extension.
       virtual void oneStep ();
       /// Set configuration shooter.
       void configurationShooter (const ConfigurationShooterPtr_t& shooter);
     protected:
       /// Constructor
-      DiffusingPlanner (const Problem& problem, const RoadmapPtr_t& roadmap);
+      DiffusingPlanner (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
       /// Constructor with roadmap
-      DiffusingPlanner (const Problem& problem);
+      DiffusingPlanner (const ProblemConstPtr_t& problem);
       /// Store weak pointer to itself
       void init (const DiffusingPlannerWkPtr_t& weak);
       /// Extend a node in the direction of a configuration

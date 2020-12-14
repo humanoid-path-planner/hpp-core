@@ -47,7 +47,7 @@ namespace hpp {
         
         
         /// Create an instance
-        static KinodynamicPtr_t create (const Problem& problem)
+        static KinodynamicPtr_t create (const ProblemConstPtr_t& problem)
         {
           Kinodynamic* ptr = new Kinodynamic (problem);
           KinodynamicPtr_t shPtr (ptr);
@@ -111,7 +111,7 @@ namespace hpp {
       protected:
         
         /// Constructor
-        Kinodynamic (const Problem& problem);
+        Kinodynamic (const ProblemConstPtr_t& problem);
         
         /// Copy constructor
         Kinodynamic (const Kinodynamic& other);

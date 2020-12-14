@@ -39,12 +39,12 @@ namespace hpp {
     {
     public:
       /// Return shared pointer to new object.
-      static RandomShortcutPtr_t create (const Problem& problem);
+      static RandomShortcutPtr_t create (const ProblemConstPtr_t& problem);
 
       /// Optimize path
       virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
     protected:
-      RandomShortcut (const Problem& problem);
+      RandomShortcut (const ProblemConstPtr_t& problem);
 
       /// Sample times along currentOpt
       /// \param currentOpt the current path

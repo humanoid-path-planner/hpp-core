@@ -96,7 +96,7 @@ template <int SplineType> void compare_to_straight_path ()
   // value_type length = sp->length();
 
   // Create linear spline
-  typename SM_t::Ptr_t sm (SM_t::create (*problem));
+  typename SM_t::Ptr_t sm (SM_t::create(problem));
   PathPtr_t ls_abstract = (*sm) (q1, q2);
   typename path_t::Ptr_t ls = HPP_DYNAMIC_PTR_CAST(path_t, ls_abstract);
 
@@ -164,7 +164,7 @@ void check_velocity_bounds ()
 
 
   // Create spline
-  typename SM_t::Ptr_t sm (SM_t::create (*problem));
+  typename SM_t::Ptr_t sm (SM_t::create(problem));
   PathPtr_t spline = sm->steer (q1, orders, v1, q2, orders, v2);
 
   vector_t vb1 (vector_t::Random(dev->numberDof())), vb2 = vb1;

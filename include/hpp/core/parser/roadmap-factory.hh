@@ -77,7 +77,11 @@ namespace hpp {
               const RoadmapPtr_t& roadmap, ObjectFactory* parent = NULL);
 
         private:
-          ProblemPtr_t problem_;
+	  ProblemPtr_t problem() const
+	  {
+	    return problem_.lock();
+	  }
+          ProblemWkPtr_t problem_;
 
           void computePermutation (const std::vector <std::string>& jointNames);
           ConfigurationPtr_t permuteAndCreateConfiguration

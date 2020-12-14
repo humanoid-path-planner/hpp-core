@@ -58,10 +58,10 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
-      SplineGradientBasedAbstract<_PB, _SO>::SplineGradientBasedAbstract (const Problem& problem)
+      SplineGradientBasedAbstract<_PB, _SO>::SplineGradientBasedAbstract (const ProblemConstPtr_t& problem)
         : PathOptimizer (problem),
         steeringMethod_(SSM_t::create(problem)),
-        robot_ (problem.robot())
+        robot_ (problem->robot())
       {}
 
       // ----------- Convenience class -------------------------------------- //
@@ -195,7 +195,7 @@ namespace hpp {
       {
         validations_.resize(splines.size());
         for (std::size_t i = 0; i < splines.size(); ++i) {
-          validations_[i] = problem ().pathValidation();
+          validations_[i] = problem()->pathValidation();
         }
       }
 

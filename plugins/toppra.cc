@@ -84,12 +84,15 @@ namespace pathOptimization
 {
 PathVectorPtr_t TOPPRA::optimize(const PathVectorPtr_t &path)
 {
-  const size_type solver = problem().getParameter(PARAM_HEAD "solver").intValue();
-  const value_type effortScale = problem().getParameter(PARAM_HEAD "effortScale").floatValue();
-  const value_type velScale = problem().getParameter(PARAM_HEAD "velocityScale").floatValue();
+  const size_type solver = problem()->getParameter
+    (PARAM_HEAD "solver").intValue();
+  const value_type effortScale = problem()->getParameter
+    (PARAM_HEAD "effortScale").floatValue();
+  const value_type velScale = problem()->getParameter
+    (PARAM_HEAD "velocityScale").floatValue();
 
   using pinocchio::Model;
-  const Model &model = problem().robot()->model();
+  const Model &model = problem()->robot()->model();
 
   using namespace toppra::constraint;
 
@@ -115,7 +118,7 @@ PathVectorPtr_t TOPPRA::optimize(const PathVectorPtr_t &path)
     std::shared_ptr<PathWrapper> pathWrapper (std::make_shared<PathWrapper>(subpath));
 
     toppra::algorithm::TOPPRA algo(v, pathWrapper);
-    algo.setN((int)problem().getParameter(PARAM_HEAD "N").intValue());
+    algo.setN((int)problem()->getParameter(PARAM_HEAD "N").intValue());
     switch(solver) {
       default:
         hppDout (error, "Solver " << solver << " does not exists. Using GLPK");

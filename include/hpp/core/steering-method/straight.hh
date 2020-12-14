@@ -36,7 +36,7 @@ namespace hpp {
       {
         public:
           /// Create instance and return shared pointer
-          static StraightPtr_t create (const Problem& problem)
+          static StraightPtr_t create (const ProblemConstPtr_t& problem)
           {
             Straight* ptr = new Straight (problem);
             StraightPtr_t shPtr (ptr);
@@ -65,7 +65,7 @@ namespace hpp {
         protected:
           /// Constructor with robot
           /// Weighed distance is created from robot
-          Straight (const Problem& problem) :
+          Straight (const ProblemConstPtr_t& problem) :
             SteeringMethod (problem), weak_ ()
         {
         }

@@ -66,7 +66,7 @@ namespace hpp {
         typedef Eigen::Matrix<value_type, Eigen::Dynamic, SplineOrder+1, Eigen::RowMajor> ConstraintMatrix_t;
         typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RhsMatrix_t;
 
-        DistancePtr_t d = problem_.distance();
+        DistancePtr_t d = problem()->distance();
         value_type length = (*d) (q1, q2);
         SplinePathPtr_t p = SplinePath::create
           (device_.lock(), interval_t (0, length), constraints());
@@ -108,8 +108,8 @@ namespace hpp {
       }
 
       template <int _PB, int _SO>
-      Spline<_PB, _SO>::Spline (const Problem& problem) :
-        SteeringMethod (problem), device_ (problem.robot ())
+      Spline<_PB, _SO>::Spline (const ProblemConstPtr_t& problem) :
+        SteeringMethod (problem), device_ (problem->robot ())
       {}
 
       /// Copy constructor

@@ -155,7 +155,7 @@ namespace hpp {
     }
 
     WeighedDistancePtr_t WeighedDistance::createFromProblem
-    (const Problem& problem)
+    (const ProblemConstPtr_t& problem)
     {
       WeighedDistance* ptr = new WeighedDistance (problem);
       WeighedDistancePtr_t shPtr (ptr);
@@ -272,8 +272,8 @@ namespace hpp {
       computeWeights ();
     }
 
-    WeighedDistance::WeighedDistance (const Problem& problem) :
-      robot_ (problem.robot()), weights_ ()
+    WeighedDistance::WeighedDistance (const ProblemConstPtr_t& problem) :
+      robot_ (problem->robot()), weights_ ()
     {
       computeWeights ();
     }
