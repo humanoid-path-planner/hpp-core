@@ -23,6 +23,7 @@
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/urdf/util.hh>
+#include <hpp/pinocchio/serialization.hh>
 #include <hpp/core/fwd.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
@@ -33,18 +34,7 @@
 
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
-
-// should we include
-// #include <hpp/core/serialization.hh>
-// instead of the following ?
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <hpp/pinocchio/serialization.hh>
+#include <hpp/core/parser/roadmap.hh>
 
 #define BOOST_TEST_MODULE roadmap-1
 #include <boost/test/included/unit_test.hpp>
@@ -391,17 +381,6 @@ BOOST_AUTO_TEST_CASE (nearestNeighbor) {
   }
 }
 
-template<typename Base>
-struct oarchive : Base, hpp::serialization::archive_device_wrapper
-{
-  oarchive(std::ostream& os) : Base (os) {}
-};
-template<typename Base>
-struct iarchive : Base, hpp::serialization::archive_device_wrapper
-{
-  iarchive(std::istream& is) : Base (is) {}
-};
-
 BOOST_AUTO_TEST_CASE (serialization) {
   // Build robot
   DevicePtr_t robot = createRobot();
@@ -463,52 +442,31 @@ BOOST_AUTO_TEST_CASE (serialization) {
   std::cout << *r << std::endl;
 
   // save data to archive
-  {
-    std::ofstream ofs("filename.txt");
-    oarchive<boost::archive::text_oarchive> oa(ofs);
-    oa << r;
-  }
+  parser::serializeRoadmap<hpp::serialization::text_oarchive>(r, "filename.txt", 
+     parser::make_nvp(robot->name(), robot.get()));
 
-  // save data to archive
-  {
-    std::ofstream ofs("filename.xml");
-    oarchive<boost::archive::xml_oarchive> oa(ofs);
-    oa << boost::serialization::make_nvp("roadmap", r);
-  }
+  parser::serializeRoadmap<hpp::serialization::xml_oarchive>(r, "filename.xml", 
+     parser::make_nvp(robot->name(), robot.get()));
 
-  // save data to archive
-  {
-    std::ofstream ofs("filename.bin");
-    oarchive<boost::archive::binary_oarchive> oa(ofs);
-    oa << r;
-  }
+  parser::serializeRoadmap<hpp::serialization::binary_oarchive>(r, "filename.bin", 
+     parser::make_nvp(robot->name(), robot.get()));
 }
 
 BOOST_AUTO_TEST_CASE (deserialization) {
-  DevicePtr_t device = createRobot();
+  DevicePtr_t robot = createRobot();
 
   RoadmapPtr_t nr;
-  {
-    std::ifstream ifs("filename.txt");
-    iarchive<boost::archive::text_iarchive> ia(ifs);
-    ia.device = device;
-    ia >> nr;
-    std::cout << *nr << std::endl;
-  }
-  {
-    std::ifstream ifs("filename.xml");
-    iarchive<boost::archive::xml_iarchive> ia(ifs);
-    ia.device = device;
-    ia >> boost::serialization::make_nvp("roadmap", nr);
-    std::cout << *nr << std::endl;
-  }
-  {
-    std::ifstream ifs("filename.bin");
-    iarchive<boost::archive::binary_iarchive> ia(ifs);
-    ia.device = device;
-    ia >> nr;
-    std::cout << *nr << std::endl;
-  }
+  parser::serializeRoadmap<hpp::serialization::text_iarchive>(nr, "filename.txt", 
+     parser::make_nvp(robot->name(), robot.get()));
+  std::cout << *nr << std::endl;
+
+  parser::serializeRoadmap<hpp::serialization::xml_iarchive>(nr, "filename.xml", 
+     parser::make_nvp(robot->name(), robot.get()));
+  std::cout << *nr << std::endl;
+
+  parser::serializeRoadmap<hpp::serialization::binary_iarchive>(nr, "filename.bin", 
+     parser::make_nvp(robot->name(), robot.get()));
+  std::cout << *nr << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
