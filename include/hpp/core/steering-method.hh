@@ -20,7 +20,6 @@
 # define HPP_CORE_STEERING_METHOD_HH
 
 # include <hpp/util/debug.hh>
-# include <hpp/util/serialization.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/path.hh>
@@ -92,8 +91,6 @@ namespace hpp {
       /// \}
 
     protected:
-      /// For serialization only
-      SteeringMethod() {}
       /// Constructor
       SteeringMethod (const ProblemConstPtr_t& problem) :
         problem_ (problem), constraints_ (), weak_ ()
@@ -125,7 +122,6 @@ namespace hpp {
       ConstraintSetPtr_t constraints_;
       /// Weak pointer to itself
       SteeringMethodWkPtr_t weak_;
-      HPP_SERIALIZABLE();
     }; // class SteeringMethod
     /// \}
   } // namespace core

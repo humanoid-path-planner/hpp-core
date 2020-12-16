@@ -21,7 +21,6 @@
 
 # include <hpp/util/debug.hh>
 # include <hpp/util/pointer.hh>
-# include <hpp/util/serialization-fwd.hh>
 
 # include <hpp/core/fwd.hh>
 # include <hpp/core/config.hh>
@@ -90,10 +89,7 @@ namespace hpp {
           virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
               ConfigurationIn_t q2) const;
 
-	  /// For serialization only
-	  ReedsShepp() {}
-
-      protected:
+        protected:
           /// Constructor
           ReedsShepp (const ProblemConstPtr_t& problem);
 
@@ -116,7 +112,6 @@ namespace hpp {
         private:
 	  WeighedDistancePtr_t weighedDistance_;
           ReedsSheppWkPtr_t weak_;
-	  HPP_SERIALIZABLE();
       }; // ReedsShepp
       /// \}
     } // namespace steeringMethod

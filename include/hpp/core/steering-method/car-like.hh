@@ -59,8 +59,6 @@ namespace hpp {
           void computeRadius ();
 
         protected:
-	  /// For serialization only.
-	  CarLike() {}
           /// Constructor
           CarLike (const ProblemConstPtr_t& problem);
 

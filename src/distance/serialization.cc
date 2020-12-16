@@ -27,7 +27,6 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/steering-method/reeds-shepp.hh>
 
 BOOST_CLASS_EXPORT(hpp::core::WeighedDistance)
 BOOST_CLASS_EXPORT(hpp::core::distance::ReedsShepp)
@@ -59,9 +58,10 @@ namespace distance {
 template <typename Archive>
 inline void ReedsShepp::serialize(Archive& ar, const unsigned int version)
 {
+  throw std::logic_error("ReedsShepp distance not serializable.");
   (void) version;
   ar & boost::serialization::make_nvp("base", boost::serialization::base_object<Distance>(*this));
-  ar & BOOST_SERIALIZATION_NVP(sm_);
+  //ar & BOOST_SERIALIZATION_NVP(sm_);
   ar & BOOST_SERIALIZATION_NVP(weak_);
 }
 

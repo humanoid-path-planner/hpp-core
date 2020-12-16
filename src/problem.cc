@@ -308,15 +308,5 @@ namespace hpp {
 
     // ======================================================================
 
-    template <typename Archive>
-    inline void Problem::serialize(Archive& ar, const unsigned int version)
-    {
-      (void) version;
-      ar & BOOST_SERIALIZATION_NVP(robot_);
-      ar & BOOST_SERIALIZATION_NVP(distance_);
-      ar & BOOST_SERIALIZATION_NVP(steeringMethod_);
-      ar & BOOST_SERIALIZATION_NVP(constraints_);
-    }
-    HPP_SERIALIZATION_IMPLEMENT(Problem);
   } // namespace core
 } // namespace hpp
