@@ -110,7 +110,7 @@ namespace hpp {
 
     PathPtr_t KinodynamicOrientedPath::impl_extract (const interval_t& subInterval) const{
       PathPtr_t path = parent_t::impl_extract(subInterval);
-      KinodynamicPathPtr_t kinoPath = boost::dynamic_pointer_cast<KinodynamicPath>(path);
+      KinodynamicPathPtr_t kinoPath = dynamic_pointer_cast<KinodynamicPath>(path);
       if(kinoPath)
         return KinodynamicOrientedPath::create(kinoPath,ignoreZValue_);
       else{

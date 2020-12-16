@@ -100,7 +100,7 @@ namespace hpp {
       {
         value_type lt1, lt2;
         // TODO: correct API so thatn these casts are no longer necessary!!
-        JointPtr_t j = boost::const_pointer_cast<pinocchio::Joint>(joint);
+        JointPtr_t j = const_pointer_cast<pinocchio::Joint>(joint);
         std::size_t rkAtP1 = path->rankAtParam (t1, lt1);
         std::size_t rkAtP2 = path->rankAtParam (t2, lt2);
         if (rkAtP2 == rkAtP1) return PathVectorPtr_t ();

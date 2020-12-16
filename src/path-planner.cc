@@ -16,7 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/nearest-neighbor.hh>
@@ -229,7 +229,7 @@ namespace hpp {
       NearestNeighborPtr_t nn (roadmap ()->nearestNeighbor ());
       // Register edges to add to roadmap and add them after iterating
       // among the connected components.
-      typedef boost::tuple <NodePtr_t, NodePtr_t, PathPtr_t> FutureEdge_t;
+      typedef std::tuple <NodePtr_t, NodePtr_t, PathPtr_t> FutureEdge_t;
       typedef std::vector <FutureEdge_t> FutureEdges_t;
       FutureEdges_t futureEdges;
       ConnectedComponentPtr_t initCC (initNode->connectedComponent ());
@@ -292,10 +292,8 @@ namespace hpp {
         }
       }
       // Add edges
-      for (FutureEdges_t::const_iterator it (futureEdges.begin ());
-           it != futureEdges.end (); ++it) {
-        roadmap ()->addEdge (it->get <0> (), it->get <1> (), it->get <2> ());
-      }
+      for (const auto& e : futureEdges)
+        roadmap ()->addEdge (std::get<0>(e), std::get<1>(e), std::get<2>(e));
     }
 
   } //   namespace core

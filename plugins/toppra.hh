@@ -25,7 +25,7 @@ namespace core {
 namespace pathOptimization {
 
 class TOPPRA;
-typedef boost::shared_ptr<TOPPRA> TOPPRAPtr_t;
+typedef shared_ptr<TOPPRA> TOPPRAPtr_t;
 
 class TOPPRA : public PathOptimizer
 {

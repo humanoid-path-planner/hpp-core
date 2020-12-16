@@ -16,7 +16,6 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <boost/tuple/tuple.hpp>
 #include <hpp/util/debug.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>

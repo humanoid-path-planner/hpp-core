@@ -97,8 +97,8 @@ namespace hpp {
           typedef Eigen::Map<const vector_t, Eigen::Aligned> ConstParameterVector_t;
           typedef Eigen::Map<      vector_t, Eigen::Aligned>      ParameterVector_t;
 
-          typedef boost::shared_ptr<Spline> Ptr_t;
-          typedef boost::weak_ptr<Spline> WkPtr_t;
+          typedef shared_ptr<Spline> Ptr_t;
+          typedef weak_ptr<Spline> WkPtr_t;
 
           size_type parameterSize () const
           {

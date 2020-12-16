@@ -53,7 +53,7 @@ namespace hpp {
       /// Check that a differentiable function defines a constraint of
       /// relative pose between two joints
       template <typename T > struct check {
-        typedef boost::shared_ptr<T> Ptr_t;
+        typedef shared_ptr<T> Ptr_t;
         /// Check that function defines relative pose constraint
         /// \param f Differentiable function,
         /// \return whether f defines a relative pose constraint,

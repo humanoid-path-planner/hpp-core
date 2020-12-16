@@ -143,7 +143,7 @@ namespace hpp {
         struct Model {
           CollisionPairs_t pairs;
         };
-        boost::shared_ptr<Model> m_;
+        shared_ptr<Model> m_;
         fcl::CollisionRequest collisionRequest_;
 
         mutable vector_t Vb_;

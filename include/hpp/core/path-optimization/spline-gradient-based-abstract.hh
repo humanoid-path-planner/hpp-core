@@ -157,7 +157,7 @@ namespace hpp {
             /// The set of constraint of the corresponding path.
             ConstraintSetPtr_t set;
             /// A copy of the explicit solver included in \ref set
-            boost::shared_ptr<constraints::ExplicitConstraintSet> es;
+            shared_ptr<constraints::ExplicitConstraintSet> es;
 
             /// Variable on which we can optimize.
             /// Other variables are fully constrained.

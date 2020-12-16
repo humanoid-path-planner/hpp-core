@@ -18,8 +18,6 @@
 
 #include <hpp/core/problem-solver.hh>
 
-#include <boost/bind.hpp>
-
 #include <hpp/fcl/collision_utility.h>
 
 #include <pinocchio/algorithm/frames.hpp>
@@ -81,7 +79,6 @@
 
 namespace hpp {
   namespace core {
-    using boost::bind;
     using pinocchio::GeomIndex;
 
     using pinocchio::Model;
@@ -130,10 +127,10 @@ namespace hpp {
     }; // struct NonePathProjector
 
     template <typename Derived> struct Factory {
-      static boost::shared_ptr<Derived> create (const ProblemConstPtr_t& problem) { return Derived::create (problem); }
+      static shared_ptr<Derived> create (const ProblemConstPtr_t& problem) { return Derived::create (problem); }
     };
     template <typename Derived> struct FactoryPP {
-      static boost::shared_ptr<Derived> create (const ProblemConstPtr_t& problem, const value_type& value) { return Derived::create (problem, value); }
+      static shared_ptr<Derived> create (const ProblemConstPtr_t& problem, const value_type& value) { return Derived::create (problem, value); }
     };
 
     pathValidation::DiscretizedPtr_t createDiscretizedJointBoundAndCollisionChecking (
@@ -149,7 +146,7 @@ namespace hpp {
     }
 
     template <typename T>
-    boost::shared_ptr<T> createFromRobot (const ProblemConstPtr_t& p)
+    shared_ptr<T> createFromRobot (const ProblemConstPtr_t& p)
     {
       return T::create(p->robot());
     }
@@ -228,7 +225,7 @@ namespace hpp {
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
-      distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
+      distances.add ("ReedsShepp",      std::bind (static_cast<distance::ReedsSheppPtr_t (*)(const ProblemConstPtr_t&)>(distance::ReedsShepp::create), std::placeholders::_1));
       distances.add ("Kinodynamic",     KinodynamicDistance::createFromProblem);
 
 

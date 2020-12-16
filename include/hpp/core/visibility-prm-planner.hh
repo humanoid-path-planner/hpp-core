@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_VISIBILITY_PRM_PLANNER_HH
 # define HPP_CORE_VISIBILITY_PRM_PLANNER_HH
 
-# include <boost/tuple/tuple.hpp>
+# include <tuple>
 # include <hpp/core/path-planner.hh>
 
 namespace hpp {
@@ -49,7 +49,7 @@ namespace hpp {
       /// Store weak pointer to itself
       void init (const VisibilityPrmPlannerWkPtr_t& weak);
     private:
-      typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
+      typedef std::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
       VisibilityPrmPlannerWkPtr_t weakPtr_;

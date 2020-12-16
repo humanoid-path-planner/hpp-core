@@ -21,8 +21,6 @@
 #include <limits>
 #include <boost/serialization/weak_ptr.hpp>
 
-#include <boost/bind.hpp>
-
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 #include <hpp/util/serialization.hh>
@@ -92,7 +90,7 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->saturation(boost::make_shared<constraints::solver::saturation::Device>(robot_));
+      solver_->saturation(make_shared<constraints::solver::saturation::Device>(robot_));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :

@@ -150,7 +150,7 @@ namespace hpp {
           JointIndices_t computeSequenceOfJoints () const;
           void computeCoefficients (const JointIndices_t& joints);
         };
-        boost::shared_ptr<Model> m_;
+        shared_ptr<Model> m_;
         SolidSolidCollisionWkPtr_t weak_;
       }; // class SolidSolidCollision
     } // namespace continuousValidation

@@ -93,7 +93,7 @@ namespace hpp {
         void addObstacle (const CollisionObjectConstPtr_t& object)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->addObstacle (object);
           }
@@ -108,7 +108,7 @@ namespace hpp {
             const CollisionObjectConstPtr_t& object)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->removeObstacleFromJoint (joint, object);
           }
@@ -122,7 +122,7 @@ namespace hpp {
         void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->filterCollisionPairs (relMotion);
           }
@@ -136,7 +136,7 @@ namespace hpp {
         void setSecurityMargins(const matrix_t& securityMatrix)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->setSecurityMargins (securityMatrix);
           }

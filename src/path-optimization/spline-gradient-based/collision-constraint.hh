@@ -39,7 +39,7 @@ namespace hpp {
       class CollisionFunction : public DifferentiableFunction
       {
       public:
-        typedef boost::shared_ptr <CollisionFunction> Ptr_t;
+        typedef shared_ptr <CollisionFunction> Ptr_t;
        virtual ~CollisionFunction () {}
        static Ptr_t create
        (const DevicePtr_t& robot, const SplinePtr_t& freeSpline,
