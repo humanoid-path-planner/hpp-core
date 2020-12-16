@@ -46,7 +46,6 @@ FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
 
 # Declare Headers
 SET(${PROJECT_NAME}_HEADERS
-  include/hpp/core/basic-configuration-shooter.hh # DEPRECATED
   include/hpp/core/bi-rrt-planner.hh
   include/hpp/core/collision-path-validation-report.hh
   include/hpp/core/collision-validation.hh
@@ -75,17 +74,13 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/core/distance-between-objects.hh
   include/hpp/core/dubins-path.hh
   include/hpp/core/edge.hh
-  include/hpp/core/explicit-numerical-constraint.hh
-  include/hpp/core/explicit-relative-transformation.hh
   include/hpp/core/fwd.hh
   include/hpp/core/joint-bound-validation.hh
-  include/hpp/core/equation.hh
   include/hpp/core/obstacle-user.hh
   include/hpp/core/path-validations.hh
   include/hpp/core/path-validation/discretized.hh
   include/hpp/core/path-validation/discretized-collision-checking.hh
   include/hpp/core/path-validation/discretized-joint-bound.hh
-  include/hpp/core/numerical-constraint.hh
   include/hpp/core/node.hh
   include/hpp/core/parameter.hh
   include/hpp/core/path.hh
