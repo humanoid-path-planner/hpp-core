@@ -213,7 +213,6 @@ SET(${PROJECT_NAME}_SOURCES
   src/path-projector/progressive.cc #
   src/path-projector/recursive-hermite.cc
   src/path-projector.cc #
-  src/parser/roadmap-factory.cc #
   src/problem-target/goal-configurations.cc #
   src/problem-target/task-target.cc #
   src/reeds-shepp-path.cc
@@ -240,7 +239,6 @@ SET(${PROJECT_NAME}_SOURCES
   src/path-projector/dichotomy.cc
   src/path-projector/global.cc
   src/path-projector.cc
-  src/parser/roadmap-factory.cc
   src/problem-target/goal-configurations.cc
   src/problem-target/task-target.cc
   )
