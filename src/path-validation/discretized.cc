@@ -36,6 +36,14 @@ namespace hpp {
       return DiscretizedPtr_t (ptr);
     }
 
+    DiscretizedPtr_t
+    Discretized::create (const value_type& stepSize,
+        std::initializer_list<ConfigValidationPtr_t> validations)
+    {
+      Discretized* ptr = new Discretized(stepSize, validations);
+      return DiscretizedPtr_t (ptr);
+    }
+
     bool Discretized::validate
     (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
@@ -93,12 +101,6 @@ namespace hpp {
         return false;
       }
     }
-
-    Discretized::Discretized (const value_type& stepSize) :
-      stepSize_ (stepSize)
-    {
-    }
-
     } // namespace pathValidation
   } // namespace core
 } // namespace hpp

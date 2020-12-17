@@ -35,7 +35,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI ObstacleUserInterface
     {
       public:
-        virtual ~ObstacleUserInterface () {}
+        virtual ~ObstacleUserInterface () = default;
 
         /// Add an obstacle
         /// \param object obstacle added
@@ -83,7 +83,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI ObstacleUserVector : public ObstacleUserInterface
     {
       public:
-        virtual ~ObstacleUserVector () {}
+        virtual ~ObstacleUserVector () = default;
 
         /// Add obstacle to each element
         ///
@@ -152,6 +152,11 @@ namespace hpp {
         typedef Derived value_t;
         typedef std::vector<value_t> values_t;
 
+        ObstacleUserVector() = default;
+        ObstacleUserVector(std::initializer_list<value_t> validations) :
+          validations_ (validations)
+        {};
+
         values_t validations_;
     }; // class ObstacleUserVector
 
@@ -159,7 +164,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface
     {
       public:
-        virtual ~ObstacleUser () {}
+        virtual ~ObstacleUser () = default;
 
         typedef std::pair<CollisionObjectConstPtr_t, CollisionObjectConstPtr_t> CollisionPair_t;
         typedef std::vector<CollisionPair_t> CollisionPairs_t;
