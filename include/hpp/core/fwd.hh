@@ -345,20 +345,6 @@ namespace hpp {
     typedef constraints::JointAndShape_t JointAndShape_t;
     typedef constraints::JointAndShapes_t JointAndShapes_t;
 
-    typedef constraints::Implicit NumericalConstraint HPP_CORE_DEPRECATED;
-    typedef constraints::ImplicitPtr_t NumericalConstraintPtr_t
-    HPP_CORE_DEPRECATED;
-    typedef constraints::Implicit Equation HPP_CORE_DEPRECATED;
-    typedef constraints::ImplicitPtr_t EquationPtr_t HPP_CORE_DEPRECATED;
-    typedef constraints::Explicit ExplicitNumericalConstraint
-    HPP_CORE_DEPRECATED;
-    typedef constraints::ExplicitPtr_t ExplicitNumericalConstraintPtr_t
-    HPP_CORE_DEPRECATED;
-    typedef hpp::constraints::explicit_::RelativePosePtr_t
-    ExplicitRelativeTransformationPtr_t HPP_CORE_DEPRECATED;
-    typedef hpp::constraints::explicit_::RelativePose
-    ExplicitRelativeTransformation HPP_CORE_DEPRECATED;
-    typedef ContinuousValidation ContinuousCollisionChecking HPP_CORE_DEPRECATED;
     namespace continuousCollisionChecking = continuousValidation;
 
   } // namespace core

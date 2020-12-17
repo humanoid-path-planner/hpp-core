@@ -248,19 +248,6 @@ namespace hpp {
 	(const std::string& configProjName, const std::string& constraintName,
          const std::size_t priority = 0);
 
-      /// Add locked joint to the config projector
-      /// \param configProjName Name given to config projector if created by
-      ///        this method.
-      /// \param lockedJointName name of the locked joint as stored in internal
-      ///        map.
-      /// Build the config projector if not yet constructed.
-      /// \deprecated LockedJoint instances are now handled as other numerical
-      ///             constraints. Call addNumericalConstraintToConfigProjector
-      ///             instead.
-      virtual void addLockedJointToConfigProjector
-	(const std::string& configProjName, const std::string& lockedJointName)
-        HPP_CORE_DEPRECATED;
-
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,
       /// \param constraint numerical constraint

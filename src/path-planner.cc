@@ -187,37 +187,6 @@ namespace hpp {
       return path;
     }
 
-    void PathPlanner::tryDirectPath ()
-    {
-      // call steering method here to build a direct conexion
-      const SteeringMethodPtr_t& sm (problem()->steeringMethod ());
-      PathValidationPtr_t pathValidation (problem()->pathValidation ());
-      PathProjectorPtr_t pathProjector (problem()->pathProjector ());
-      PathPtr_t validPath, projPath, path;
-      NodePtr_t initNode = roadmap ()->initNode();
-      for (NodeVector_t::const_iterator itn = roadmap ()->goalNodes ().begin();
-	   itn != roadmap ()->goalNodes ().end (); ++itn) {
-	ConfigurationPtr_t q1 ((initNode)->configuration ());
-	ConfigurationPtr_t q2 ((*itn)->configuration ());
-	path = (*sm) (*q1, *q2);
-        if (!path) continue;
-        if (pathProjector) {
-          if (!pathProjector->apply (path, projPath)) continue;
-        } else {
-          projPath = path;
-        }
-        if (projPath) {
-	  PathValidationReportPtr_t report;
-          bool pathValid = pathValidation->validate (projPath, false, validPath,
-						     report);
-          if (pathValid && validPath->length() > 0) {
-            roadmap ()->addEdge (initNode, *itn, projPath);
-            roadmap ()->addEdge (*itn, initNode, projPath->reverse());
-          }
-        }
-      }
-    }
-
     void PathPlanner::tryConnectInitAndGoals ()
     {
       // call steering method here to build a direct conexion

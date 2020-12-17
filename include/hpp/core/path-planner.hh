@@ -52,9 +52,6 @@ namespace hpp {
       /// Users can implement themselves the loop to avoid being trapped
       /// in an infinite loop when no solution is found.
       virtual PathVectorPtr_t solve ();
-      /// Try to make direct connection between init and goal
-      /// configurations, in order to avoid a random shoot.
-      virtual void tryDirectPath() HPP_CORE_DEPRECATED;
       /// Try to connect initial and goal configurations to existing roadmap
       virtual void tryConnectInitAndGoals ();
 

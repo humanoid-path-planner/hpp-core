@@ -572,14 +572,7 @@ namespace hpp {
                                 " does not exists";
         throw std::invalid_argument (ss.str());
       }
-      configProjector->add (numericalConstraints.get(constraintName),
-			    segments_t (0), priority);
-    }
-
-    void ProblemSolver::addLockedJointToConfigProjector
-    (const std::string& configProjName, const std::string& lockedJointName)
-    {
-      addNumericalConstraintToConfigProjector (configProjName, lockedJointName);
+      configProjector->add (numericalConstraints.get(constraintName), priority);
     }
 
     void ProblemSolver::comparisonType (const std::string& name,

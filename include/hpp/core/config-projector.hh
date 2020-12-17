@@ -92,13 +92,6 @@ namespace hpp {
       bool contains (const constraints::ImplicitPtr_t& numericalConstraint)
         const;
 
-      /// \copydoc ConfigProjector::add(const constraints::ImplicitPtr_t&, const std::size_t)
-      /// \param passiveDofs column indices of the jacobian vector that will be
-      ///        set to zero when solving.
-      bool add (const constraints::ImplicitPtr_t& numericalConstraint,
-		const segments_t& passiveDofs = segments_t (0),
-		const std::size_t priority = 0);
-
       /// Add a numerical constraint
       ///
       /// \note The intervals are interpreted as a list of couple
@@ -109,10 +102,7 @@ namespace hpp {
       ///        optional.
       /// \return false if numerical constraint had already been inserted.
       bool add (const constraints::ImplicitPtr_t& numericalConstraint,
-		const std::size_t priority)
-      {
-        return add (numericalConstraint, segments_t(0), priority);
-      }
+		const std::size_t priority = 0);
 
       void lastIsOptional (bool optional);
 
@@ -169,12 +159,6 @@ namespace hpp {
 				    vectorOut_t value,
 				    matrixOut_t reducedJacobian);
 
-      /// Execute one iteration of the projection algorithm
-      /// \return true if the constraints are satisfied
-      /// \deprecated use solver().oneStep is needed
-      bool oneStep (ConfigurationOut_t config, vectorOut_t dq,
-          const value_type& alpha) HPP_CORE_DEPRECATED;
-
       /// \name Compression of locked degrees of freedom
       ///
       /// Degrees of freedom related to locked joint are not taken into
@@ -185,10 +169,6 @@ namespace hpp {
 
       /// Return the number of free variables
       size_type numberFreeVariables () const;
-
-      /// Get number of non-locked degrees of freedom
-      /// \deprecated Call numberFreeVariables instead
-      size_type numberNonLockedDof () const HPP_CORE_DEPRECATED;
 
       /// Get constraint dimension
       size_type dimension () const;

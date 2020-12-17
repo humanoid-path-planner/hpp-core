@@ -40,10 +40,6 @@ namespace hpp {
       HPP_PREDEF_CLASS (Hermite);
       typedef shared_ptr <Hermite> HermitePtr_t;
     } // namespace steeringMethod
-
-    /// \deprecated use steeringMethod::Straight instead
-    typedef steeringMethod::Straight SteeringMethodStraight;
-    typedef steeringMethod::StraightPtr_t SteeringMethodStraightPtr_t;
   } // namespace core
 } // namespace hpp
 

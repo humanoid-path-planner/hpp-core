@@ -65,7 +65,7 @@ namespace hpp {
         thresholdMin_ (thresholdMin),
         hessianBound_ (hessianBound), withHessianBound_ (hessianBound > 0)
       {
-        SteeringMethodStraightPtr_t sm
+        steeringMethod::StraightPtr_t sm
           (HPP_DYNAMIC_PTR_CAST (steeringMethod::Straight, steeringMethod));
         if (!sm) throw std::logic_error ("The steering method should be of type"
                                          " Straight.");
