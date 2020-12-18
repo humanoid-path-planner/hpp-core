@@ -22,8 +22,8 @@
 #include <hpp/pinocchio/joint.hh>
 
 #include <hpp/core/distance.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/reeds-shepp-path.hh>
 #include <hpp/core/weighed-distance.hh>
 
 namespace hpp {
@@ -46,9 +46,11 @@ namespace hpp {
         // The length corresponding to the non RS DoF
         value_type extraL = (*weighedDistance_) (q1, qEnd);
 
-        ReedsSheppPathPtr_t path =
-          ReedsSheppPath::create (device_.lock (), q1, q2, extraL,
-                                  rho_ , xyId_, rzId_, wheels_, constraints ());
+	value_type distance;
+        PathVectorPtr_t path
+          (reedsSheppPathOrDistance(device_.lock (), q1, q2, extraL,
+	     rho_ , xyId_, rzId_, wheels_, constraints (),
+	     false, distance));
         return path;
       }
 

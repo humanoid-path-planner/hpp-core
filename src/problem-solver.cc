@@ -1124,6 +1124,14 @@ namespace hpp {
           "ConfigurationShooter/sampleExtraDOF",
           "If false, the value of the random configuration extraDOF are set to 0.",
           Parameter(true)));
+    Problem::declareParameter(ParameterDescription(Parameter::FLOAT,
+	  "SteeringMethod/Carlike/turningRadius",
+	  "Turning radius of a carlike robot for Reeds and Shepp and Dubins "
+	  "distances and steering methods.", Parameter(1.)));
+    Problem::declareParameter(ParameterDescription(Parameter::STRING,
+	  "SteeringMethod/Carlike/wheels",
+	  "Names of revolute joints that hold directional wheels separated by "
+	  "commas.", Parameter(std::string(""))));
     HPP_END_PARAMETER_DECLARATION(ProblemSolver)
   } //   namespace core
 } // namespace hpp

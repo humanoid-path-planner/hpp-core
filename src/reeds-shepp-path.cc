@@ -32,7 +32,7 @@
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/serialization.hh>
 
-#include <hpp/core/reeds-shepp-path.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/steering-method/constant-curvature.hh>
 
 namespace hpp {
@@ -40,6 +40,17 @@ namespace hpp {
     namespace {
       using steeringMethod::ConstantCurvature;
       using steeringMethod::ConstantCurvaturePtr_t;
+
+      struct Data
+      {
+	Data(const value_type& rho_) :
+	  rsLength(std::numeric_limits <value_type>::infinity ()), rho(rho_) {}
+	typedef Eigen::Matrix<value_type, 5, 1> Lengths_t;
+	std::size_t typeId;
+	Lengths_t lengths;
+	value_type rsLength;
+	value_type rho;
+      }; // struct Data
 
       value_type precision (sqrt(std::numeric_limits <value_type>::epsilon ()));
 
@@ -82,7 +93,6 @@ namespace hpp {
           return (vector2_t() <<   _U.dot(_CS),
                                  - _U(0)*_CS(1) + _U(1)*_CS(0)).finished();
         }
-    }
 
     inline value_type mod2pi(const value_type& x)
     {
@@ -147,55 +157,57 @@ namespace hpp {
       return false;
     }
 
-    void ReedsSheppPath::setupPath (const std::size_t& typeId, double t,
-                                    double u, double v, double w, double x)
+    void setupPath (Data& d, const std::size_t& typeId, double t,
+		    double u=0, double v=0, double w=0, double x=0)
     {
-      typeId_ = typeId;
-      lengths_(0) = t; lengths_(1) = u; lengths_(2) = v; lengths_(3) = w;
-      lengths_(4) = x;
-      rsLength_ = rho_ * lengths_.lpNorm<1> ();
+      d.typeId = typeId;
+      d.lengths(0) = t; d.lengths(1) = u; d.lengths(2) = v; d.lengths(3) = w;
+      d.lengths(4) = x;
+      d.rsLength = d.rho * d.lengths.lpNorm<1> ();
+      hppDout(info, "lengths = " << d.lengths.transpose());
     }
 
-    void ReedsSheppPath::CSC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
+    void CSC(Data& d, const vector2_t& xy, const vector2_t& csPhi,
+	     const value_type& phi)
     {
-      value_type t, u, v, Lmin = rsLength_, L;
+      value_type t, u, v, Lmin = d.rsLength, L;
       if (LpSpLp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(14, t, u, v);
+        setupPath(d, 14, t, u, v);
         Lmin = L;
       }
       if (LpSpLp(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(14, -t, -u, -v);
+        setupPath(d, 14, -t, -u, -v);
         Lmin = L;
       }
       if (LpSpLp(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(15, t, u, v);
+        setupPath(d, 15, t, u, v);
         Lmin = L;
       }
       if (LpSpLp(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
       {
-        setupPath(15, -t, -u, -v);
+        setupPath(d, 15, -t, -u, -v);
         Lmin = L;
       }
       if (LpSpRp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(12, t, u, v);
+        setupPath(d, 12, t, u, v);
         Lmin = L;
       }
       if (LpSpRp(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(12, -t, -u, -v);
+        setupPath(d, 12, -t, -u, -v);
         Lmin = L;
       }
       if (LpSpRp(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(13, t, u, v);
+        setupPath(d, 13, t, u, v);
         Lmin = L;
       }
       if (LpSpRp(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
-        setupPath(13, -t, -u, -v);
+        setupPath(d, 13, -t, -u, -v);
     }
     // formula 8.3 / 8.4  *** TYPO IN PAPER ***
     inline bool LpRmL(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi, value_type &t, value_type &u, value_type &v)
@@ -214,27 +226,28 @@ namespace hpp {
       }
       return false;
     }
-    void ReedsSheppPath::CCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
+    void CCC(Data& d, const vector2_t& xy, const vector2_t& csPhi,
+	     const value_type& phi)
     {
-      value_type t, u, v, Lmin = rsLength_, L;
+      value_type t, u, v, Lmin = d.rsLength, L;
       if (LpRmL(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(0, t, u, v);
+        setupPath(d, 0, t, u, v);
         Lmin = L;
       }
       if (LpRmL(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(0, -t, -u, -v);
+        setupPath(d, 0, -t, -u, -v);
         Lmin = L;
       }
       if (LpRmL(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(1, t, u, v);
+        setupPath(d, 1, t, u, v);
         Lmin = L;
       }
       if (LpRmL(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
       {
-        setupPath(1, -t, -u, -v);
+        setupPath(d, 1, -t, -u, -v);
         Lmin = L;
       }
 
@@ -244,21 +257,21 @@ namespace hpp {
       // value_type xb = xy(0)*csPhi(0) + xy(1)*csPhi(1), yb = xy(0)*csPhi(1) - xy(1)*csPhi(0);
       if (LpRmL(xyb, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(0, v, u, t);
+        setupPath(d, 0, v, u, t);
         Lmin = L;
       }
       if (LpRmL(xyb.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(0, -v, -u, -t);
+        setupPath(d, 0, -v, -u, -t);
         Lmin = L;
       }
       if (LpRmL(xyb.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(1, v, u, t);
+        setupPath(d, 1, v, u, t);
         Lmin = L;
       }
       if (LpRmL(-xyb, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
-        setupPath(1, -v, -u, -t);
+        setupPath(d, 1, -v, -u, -t);
     }
     // formula 8.7
     inline bool LpRupLumRm(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi, value_type &t, value_type &u, value_type &v)
@@ -293,47 +306,49 @@ namespace hpp {
       }
       return false;
     }
-    void ReedsSheppPath::CCCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
+
+    void CCCC(Data& d, const vector2_t& xy, const vector2_t& csPhi,
+	      const value_type& phi)
     {
-      value_type t, u, v, Lmin = rsLength_, L;
+      value_type t, u, v, Lmin = d.rsLength, L;
       if (LpRupLumRm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v)))
       {
-        setupPath(2, t, u, -u, v);
+        setupPath(d, 2, t, u, -u, v);
         Lmin = L;
       }
       if (LpRupLumRm(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(2, -t, -u, u, -v);
+        setupPath(d, 2, -t, -u, u, -v);
         Lmin = L;
       }
       if (LpRupLumRm(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v))) // reflect
       {
-        setupPath(3, t, u, -u, v);
+        setupPath(d, 3, t, u, -u, v);
         Lmin = L;
       }
       if (LpRupLumRm(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v))) // timeflip + reflect
       {
-        setupPath(3, -t, -u, u, -v);
+        setupPath(d, 3, -t, -u, u, -v);
         Lmin = L;
       }
 
       if (LpRumLumRp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v)))
       {
-        setupPath(2, t, u, u, v);
+        setupPath(d, 2, t, u, u, v);
         Lmin = L;
       }
       if (LpRumLumRp(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(2, -t, -u, -u, -v);
+        setupPath(d, 2, -t, -u, -u, -v);
         Lmin = L;
       }
       if (LpRumLumRp(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v))) // reflect
       {
-        setupPath(3, t, u, u, v);
+        setupPath(d, 3, t, u, u, v);
         Lmin = L;
       }
       if (LpRumLumRp(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + 2.*fabs(u) + fabs(v))) // timeflip + reflect
-        setupPath(3, -t, -u, -u, -v);
+        setupPath(d, 3, -t, -u, -u, -v);
     }
     // formula 8.9
     inline bool LpRmSmLm(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi, value_type &t, value_type &u, value_type &v)
@@ -370,48 +385,49 @@ namespace hpp {
       }
       return false;
     }
-    void ReedsSheppPath::CCSC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
+    void CCSC(Data& d, const vector2_t& xy, const vector2_t& csPhi,
+	      const value_type& phi)
     {
-      value_type t, u, v, Lmin = rsLength_ - .5*pi, L;
+      value_type t, u, v, Lmin = d.rsLength - .5*pi, L;
       if (LpRmSmLm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(4, t, -.5*pi, u, v);
+        setupPath(d, 4, t, -.5*pi, u, v);
         Lmin = L;
       }
       if (LpRmSmLm(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(4, -t, .5*pi, -u, -v);
+        setupPath(d, 4, -t, .5*pi, -u, -v);
         Lmin = L;
       }
       if (LpRmSmLm(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(5, t, -.5*pi, u, v);
+        setupPath(d, 5, t, -.5*pi, u, v);
         Lmin = L;
       }
       if (LpRmSmLm(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
       {
-        setupPath(5, -t, .5*pi, -u, -v);
+        setupPath(d, 5, -t, .5*pi, -u, -v);
         Lmin = L;
       }
 
       if (LpRmSmRm(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(8, t, -.5*pi, u, v);
+        setupPath(d, 8, t, -.5*pi, u, v);
         Lmin = L;
       }
       if (LpRmSmRm(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(8, -t, .5*pi, -u, -v);
+        setupPath(d, 8, -t, .5*pi, -u, -v);
         Lmin = L;
       }
       if (LpRmSmRm(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(9, t, -.5*pi, u, v);
+        setupPath(d, 9, t, -.5*pi, u, v);
         Lmin = L;
       }
       if (LpRmSmRm(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
       {
-        setupPath(9, -t, .5*pi, -u, -v);
+        setupPath(d, 9, -t, .5*pi, -u, -v);
         Lmin = L;
       }
 
@@ -423,42 +439,42 @@ namespace hpp {
       // std::cout << xy(0)*csPhi(0) + xy(1)*csPhi(1) << " " << xy(0)*csPhi(1) - xy(1)*csPhi(0) << std::endl;
       if (LpRmSmLm(xyb, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(6, v, u, -.5*pi, t);
+        setupPath(d, 6, v, u, -.5*pi, t);
         Lmin = L;
       }
       if (LpRmSmLm(xyb.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(6, -v, -u, .5*pi, -t);
+        setupPath(d, 6, -v, -u, .5*pi, -t);
         Lmin = L;
       }
       if (LpRmSmLm(xyb.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(7, v, u, -.5*pi, t);
+        setupPath(d, 7, v, u, -.5*pi, t);
         Lmin = L;
       }
       if (LpRmSmLm(-xyb, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
       {
-        setupPath(7, -v, -u, .5*pi, -t);
+        setupPath(d, 7, -v, -u, .5*pi, -t);
         Lmin = L;
       }
 
       if (LpRmSmRm(xyb, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(10, v, u, -.5*pi, t);
+        setupPath(d, 10, v, u, -.5*pi, t);
         Lmin = L;
       }
       if (LpRmSmRm(xyb.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(10, -v, -u, .5*pi, -t);
+        setupPath(d, 10, -v, -u, .5*pi, -t);
         Lmin = L;
       }
       if (LpRmSmRm(xyb.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(11, v, u, -.5*pi, t);
+        setupPath(d, 11, v, u, -.5*pi, t);
         Lmin = L;
       }
       if (LpRmSmRm(-xyb, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
-        setupPath(11, -v, -u, .5*pi, -t);
+        setupPath(d, 11, -v, -u, .5*pi, -t);
     }
     // formula 8.11 *** TYPO IN PAPER ***
     inline bool LpRmSLmRp(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi, value_type &t, value_type &u, value_type &v)
@@ -480,144 +496,27 @@ namespace hpp {
       }
       return false;
     }
-    void ReedsSheppPath::CCSCC(const vector2_t& xy, const vector2_t& csPhi, const value_type& phi)
+    void CCSCC(Data& d, const vector2_t& xy, const vector2_t& csPhi,
+	       const value_type& phi)
     {
-      value_type t, u, v, Lmin = rsLength_ - pi, L;
+      value_type t, u, v, Lmin = d.rsLength - pi, L;
       if (LpRmSLmRp(xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
       {
-        setupPath(16, t, -.5*pi, u, -.5*pi, v);
+        setupPath(d, 16, t, -.5*pi, u, -.5*pi, v);
         Lmin = L;
       }
       if (LpRmSLmRp(xy.cwiseProduct(oneMP), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip
       {
-        setupPath(16, -t, .5*pi, -u, .5*pi, -v);
+        setupPath(d, 16, -t, .5*pi, -u, .5*pi, -v);
         Lmin = L;
       }
       if (LpRmSLmRp(xy.cwiseProduct(onePM), csPhi.cwiseProduct(onePM), -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // reflect
       {
-        setupPath(17, t, -.5*pi, u, -.5*pi, v);
+        setupPath(d, 17, t, -.5*pi, u, -.5*pi, v);
         Lmin = L;
       }
       if (LpRmSLmRp(-xy, csPhi, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v))) // timeflip + reflect
-        setupPath(17, -t, .5*pi, -u, .5*pi, -v);
-    }
-
-    ReedsSheppPathPtr_t ReedsSheppPath::create (const pinocchio::DevicePtr_t& device,
-				    ConfigurationIn_t init,
-				    ConfigurationIn_t end,
-				    value_type extraLength,
-				    value_type rho,
-                                    size_type xyId, size_type rzId,
-                                    const std::vector<JointPtr_t> wheels)
-    {
-      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, extraLength,
-                                                rho, xyId, rzId, wheels);
-      ReedsSheppPathPtr_t shPtr (ptr);
-      try {
-	ptr->init (shPtr);
-      } catch (const std::exception& exc) {
-	shPtr.reset ();
-      }
-      return shPtr;
-    }
-
-    ReedsSheppPathPtr_t ReedsSheppPath::create (const DevicePtr_t& device,
-				    ConfigurationIn_t init,
-				    ConfigurationIn_t end,
-				    value_type extraLength,
-				    value_type rho,
-                                    size_type xyId, size_type rzId,
-                                    const std::vector<JointPtr_t> wheels,
-				    ConstraintSetPtr_t constraints)
-    {
-      ReedsSheppPath* ptr = new ReedsSheppPath (device, init, end, extraLength,
-                                                rho, xyId, rzId, wheels, constraints);
-      ReedsSheppPathPtr_t shPtr (ptr);
-      try {
-	ptr->init (shPtr);
-	hppDout (info, "success");
-      } catch (const std::exception& exc) {
-	hppDout (info, "failure");
-	shPtr.reset ();
-      }
-      return shPtr;
-    }
-
-    void ReedsSheppPath::init (ReedsSheppPathPtr_t self)
-    {
-      parent_t::init (self);
-      weak_ = self;
-    }
-
-    std::ostream& ReedsSheppPath::print (std::ostream &os) const
-    {
-      os << "ReedsSheppPath:" << std::endl;
-      return parent_t::print (os);
-    }
-
-    ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
-                                    ConfigurationIn_t init,
-                                    ConfigurationIn_t end,
-                                    value_type extraLength,
-                                    value_type rho,
-                                    size_type xyId, size_type rzId,
-                                    const std::vector<JointPtr_t> wheels) :
-      parent_t (device->configSize (), device->numberDof ()),
-      device_ (device), initial_ (init), end_ (end),
-      xyId_ (xyId), rzId_ (rzId), typeId_ (0), lengths_ (),
-      rsLength_ (std::numeric_limits <value_type>::infinity ()),
-      extraLength_ (extraLength), rho_ (rho)
-    {
-      assert (device);
-      assert (rho_ > 0);
-      lengths_.setZero ();
-      buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
-    }
-
-    ReedsSheppPath::ReedsSheppPath (const DevicePtr_t& device,
-                                    ConfigurationIn_t init,
-                                    ConfigurationIn_t end,
-                                    value_type extraLength,
-                                    value_type rho,
-                                    size_type xyId, size_type rzId,
-                                    const std::vector<JointPtr_t> wheels,
-                                    ConstraintSetPtr_t constraints) :
-      parent_t (device->configSize (), device->numberDof ()),
-      device_ (device), initial_ (init), end_ (end),
-      xyId_ (xyId), rzId_ (rzId), typeId_ (0),
-      rsLength_ (std::numeric_limits <value_type>::infinity ()),
-      extraLength_ (extraLength), rho_ (rho)
-    {
-      assert (device);
-      assert (rho_ > 0);
-      lengths_.setZero ();
-      buildReedsShepp (device->getJointAtConfigRank (rzId), wheels);
-      this->constraints (constraints);
-      assert (fabs (extraLength_ + rsLength_ - paramRange ().second) < 1e-8);
-    }
-
-    ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path) :
-      parent_t (path), device_ (path.device_), initial_ (path.initial_),
-      end_ (path.end_), xyId_ (path.xyId_), rzId_ (path.rzId_),
-      dxyId_ (path.dxyId_), drzId_ (path.drzId_),
-      typeId_ (path.typeId_), lengths_(path.lengths_),
-      rsLength_ (path.rsLength_),
-      extraLength_ (path.extraLength_), rho_ (path.rho_)
-    {
-    }
-
-    ReedsSheppPath::ReedsSheppPath (const ReedsSheppPath& path,
-			const ConstraintSetPtr_t& constraints) :
-      parent_t (path, constraints), device_ (path.device_),
-      initial_ (path.initial_), end_ (path.end_),
-      xyId_ (path.xyId_), rzId_ (path.rzId_),
-      typeId_ (path.typeId_), lengths_(path.lengths_),
-      extraLength_ (path.extraLength_), rho_ (path.rho_)
-    {
-      assert (constraints->apply (initial_));
-      assert (constraints->apply (end_));
-      assert (constraints->isSatisfied (initial_));
-      assert (constraints->isSatisfied (end_));
+        setupPath(d, 17, -t, .5*pi, -u, .5*pi, -v);
     }
 
     inline value_type meanBounds(const JointPtr_t& j, const size_type& i)
@@ -630,130 +529,104 @@ namespace hpp {
       return std::min(j->upperBound(i), std::max(j->lowerBound(i), v));
     }
 
-    void ReedsSheppPath::buildReedsShepp(const JointPtr_t rz,
-                                         const std::vector<JointPtr_t> wheels)
+    } // namespace
+    namespace steeringMethod
     {
-      // Find rank of translation and rotation in velocity vectors
-      // Hypothesis: degrees of freedom all belong to a planar joint or
-      // xyId_ belong to a tranlation joint, rzId_ belongs to a SO2 joint.
-      JointPtr_t joint (device_->getJointAtConfigRank (xyId_));
-      size_type offset (xyId_ - joint->rankInConfiguration ());
-      dxyId_ = joint->rankInVelocity () + offset;
-      joint = device_->getJointAtConfigRank (rzId_);
-      offset = rzId_ - joint->rankInConfiguration ();
-      drzId_ = joint->rankInVelocity () + offset;
-      // rotate
-      vector2_t xy =
-        rotate(end_.segment<2>(xyId_) - initial_.segment<2>(xyId_),
-          initial_.segment<2>(rzId_));
-      xy /= rho_;
-      vector2_t csPhi =
-        rotate(end_.segment<2>(rzId_), initial_.segment<2>(rzId_));
-      value_type phi = atan2(csPhi(1), csPhi(0));
+      PathVectorPtr_t reedsSheppPathOrDistance(const DevicePtr_t& device,
+        ConfigurationIn_t init, ConfigurationIn_t end,
+	value_type extraLength, value_type rho, size_type xyId, size_type rzId,
+	const std::vector<JointPtr_t> wheels, ConstraintSetPtr_t constraints,
+	bool computeDistance, value_type& distance)
+      {
+	Data d(rho);
+	PathVectorPtr_t res;
+	distance = 0;
+	if (!computeDistance)
+	{
+	  res = PathVector::create(device->configSize (), device->numberDof (),
+				   constraints);
+	}
+	// Find rank of translation and rotation in velocity vectors
+	// Hypothesis: degrees of freedom all belong to a planar joint or
+	// xyId_ belong to a tranlation joint, rzId belongs to a SO2 joint.
+	JointPtr_t xy (device->getJointAtConfigRank (xyId));
+	JointPtr_t rz (device->getJointAtConfigRank (rzId));
+	// rotate
+	vector2_t XY =
+	  rotate(end.segment<2>(xyId) - init.segment<2>(xyId),
+		 init.segment<2>(rzId));
+	XY /= d.rho;
+	vector2_t csPhi =
+	  rotate(end.segment<2>(rzId), init.segment<2>(rzId));
+	value_type phi = atan2(csPhi(1), csPhi(0));
 
-      Configuration_t qInit (initial_), qEnd (device_->configSize ());
+	Configuration_t qInit (init), qEnd (device->configSize ());
 
-      if (xy.squaredNorm () + phi*phi < 1e-8) {
-        ConstantCurvaturePtr_t segment
-          (ConstantCurvature::create (device_, qInit, end_, 0, extraLength_, 0,
-                                      xyId_, rzId_, rz, wheels,
-                                      ConstraintSetPtr_t ()));
-        appendPath (segment);
-        rsLength_ = 0;
-        return;
+	if (XY.squaredNorm () + phi*phi < 1e-8) {
+	  if (computeDistance)
+	  {
+	    distance = extraLength;
+	  } else
+	  {
+	    ConstantCurvaturePtr_t segment
+	      (ConstantCurvature::create (device, qInit, end, 0, extraLength, 0,
+					  xyId, rzId, rz, wheels,
+					  ConstraintSetPtr_t ()));
+	    res->appendPath (segment);
+	  }
+	  return res;
+	}
+	CSC  (d, XY, csPhi, phi);
+	CCC  (d, XY, csPhi, phi);
+	CCCC (d, XY, csPhi, phi);
+	CCSC (d, XY, csPhi, phi);
+	CCSCC(d, XY, csPhi, phi);
+	// build path vector
+	value_type L (d.rsLength), s (0.);
+	for (unsigned int i=0; i<5; ++i) {
+	  if (fabs (d.lengths [i]) > precision) {
+	    value_type l = d.rho * fabs (d.lengths [i]);
+	    s += l;
+	    if (types [d.typeId][i] == RS_NOP) break;
+	    value_type curvature;
+	    switch (types [d.typeId][i]) {
+	    case RS_LEFT:
+	      curvature = 1./d.rho;
+	      break;
+	    case RS_RIGHT:
+	      curvature = -1./d.rho;
+	      break;
+	    case RS_STRAIGHT:
+	      curvature = 0;
+	      break;
+	    case RS_NOP:
+	    default:
+	      abort ();
+	    }
+	    pinocchio::interpolate (device, init, end, s/L, qEnd);
+	    if (!computeDistance)
+	    {
+	      ConstantCurvaturePtr_t segment
+		(ConstantCurvature::create (device, qInit, qEnd,
+					    d.rho * d.lengths[i],
+					    l * (1 + extraLength / L),
+					    curvature, xyId, rzId, rz, wheels,
+					    ConstraintSetPtr_t ()));
+	      res->appendPath (segment);
+	      qInit = segment->end ();
+	    }
+	  }
+	}
+	if (computeDistance)
+	{
+	  distance = d.rsLength + extraLength;
+	}
+	else
+	{
+	  assert(res->numberPaths() > 0);
+	}
+	return res;
       }
-      CSC  (xy, csPhi, phi);
-      CCC  (xy, csPhi, phi);
-      CCCC (xy, csPhi, phi);
-      CCSC (xy, csPhi, phi);
-      CCSCC(xy, csPhi, phi);
-      // build path vector
-      value_type L (rsLength_), s (0.);
-      for (unsigned int i=0; i<5; ++i) {
-        if (fabs (lengths_ [i]) > precision) {
-          value_type l = rho_ * fabs (lengths_ [i]);
-          s += l;
-          if (types [typeId_][i] == RS_NOP) break;
-          value_type curvature;
-          switch (types [typeId_][i]) {
-          case RS_LEFT:
-            curvature = 1./rho_;
-            break;
-          case RS_RIGHT:
-            curvature = -1./rho_;
-            break;
-          case RS_STRAIGHT:
-            curvature = 0;
-            break;
-          case RS_NOP:
-          default:
-            abort ();
-          }
-          pinocchio::interpolate (device_, initial_, end_, s/L, qEnd);
-          ConstantCurvaturePtr_t segment
-            (ConstantCurvature::create (device_, qInit, qEnd,
-                                        rho_ * lengths_ [i],
-                                        l * (1 + extraLength_ / L),
-                                        curvature, xyId_, rzId_, rz, wheels,
-                                        ConstraintSetPtr_t ()));
-          appendPath (segment);
-          qInit = segment->end ();
-        }
-      }
-    }
-
-    void ReedsSheppPath::impl_derivative
-    (vectorOut_t result, const value_type& param, size_type order) const
-    {
-      value_type p (param);
-      if (order != 1) {
-	std::ostringstream oss;
-	oss << "derivative only implemented for order 1: got" << order;
-	HPP_THROW_EXCEPTION (hpp::Exception, oss.str ());
-      }
-      const value_type L = paramLength();
-      if (p <= paramRange ().first || L == 0) {
-	p = paramRange ().first;
-      }
-      if (p >= paramRange ().second - precision) {
-	p = paramRange ().second - precision;
-      }
-      // Does a linear interpolation on all the joints.
-      if (order > 1) {
-	result.setZero ();
-      }
-      else if (order == 1) {
-	pinocchio::difference <hpp::pinocchio::RnxSOnLieGroupMap>
-	  (device_, end_, initial_, result);
-	result *= (1/L);
-      } else {
-        assert (order > 0);
-        result.setZero ();
-      }
-      parent_t::impl_derivative (result, param, order);
-    }
-
-    template<class Archive>
-    void ReedsSheppPath::serialize(Archive & ar, const unsigned int version)
-    {
-      using namespace boost::serialization;
-      (void) version;
-      ar & make_nvp("base", base_object<PathVector>(*this));
-      ar & BOOST_SERIALIZATION_NVP(device_);
-      serialization::remove_duplicate::serialize_vector(ar, "initial", initial_, version);
-      serialization::remove_duplicate::serialize_vector(ar, "end", end_, version);
-      ar & make_nvp("xyId_", const_cast<size_type&>(xyId_));
-      ar & make_nvp("rzId_", const_cast<size_type&>(rzId_));
-      ar & BOOST_SERIALIZATION_NVP(typeId_);
-      ar & BOOST_SERIALIZATION_NVP(lengths_);
-      ar & BOOST_SERIALIZATION_NVP(rsLength_);
-      ar & BOOST_SERIALIZATION_NVP(extraLength_);
-      ar & BOOST_SERIALIZATION_NVP(rho_);
-      ar & BOOST_SERIALIZATION_NVP(weak_);
-    }
-
-    HPP_SERIALIZATION_IMPLEMENT(ReedsSheppPath);
+    } // namespace steeringMethod
   } //   namespace hpp-core
 } // namespace hpp
-
-BOOST_CLASS_EXPORT_IMPLEMENT(hpp::core::ReedsSheppPath)

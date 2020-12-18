@@ -112,7 +112,21 @@ namespace hpp {
         private:
 	  WeighedDistancePtr_t weighedDistance_;
           ReedsSheppWkPtr_t weak_;
-      }; // ReedsShepp
+      }; // class ReedsShepp
+
+      /// Create a Reeds and Shepp path and return shared pointer
+      /// \param device Robot corresponding to configurations,
+      /// \param init, end start and end configurations of the path,
+      /// \param extraLength the length of the path due to the non RS DoF,
+      /// \param rho The radius of a turn,
+      /// \param xyId, rzId indices in configuration vector of the joints
+      ///        corresponding to the translation and rotation of the car.
+      PathVectorPtr_t reedsSheppPathOrDistance(const DevicePtr_t& device,
+        ConfigurationIn_t init, ConfigurationIn_t end,
+	value_type extraLength, value_type rho, size_type xyId, size_type rzId,
+	const std::vector<JointPtr_t> wheels, ConstraintSetPtr_t constraints,
+	bool computeDistance, value_type& distance);
+
       /// \}
     } // namespace steeringMethod
   } // namespace core

@@ -14,6 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-core. If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/algorithm/string.hpp>
+
 #include <hpp/core/steering-method/car-like.hh>
 
 #include <pinocchio/spatial/se3.hpp>
@@ -35,8 +37,9 @@ namespace hpp {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(0);
         rz_ = d->getJointAtConfigRank(2);
-        guessWheels();
-        computeRadius();
+        wheels_  = getWheelsFromeParameter(problem, rz_);
+	rho_ = problem->getParameter("SteeringMethod/Carlike/turningRadius").
+	  floatValue();
       }
 
       CarLike::CarLike (const ProblemConstPtr_t& problem,
@@ -62,44 +65,38 @@ namespace hpp {
       {
       }
 
-      void CarLike::computeRadius ()
+      std::vector <JointPtr_t> getWheelsFromeParameter
+      (const ProblemConstPtr_t& problem, const JointPtr_t& rz)
       {
-        rho_ = 1;
-        if (wheels_.empty()) return;
-        rho_ = 0;
-        for (std::vector<JointPtr_t>::const_iterator _wheels = wheels_.begin();
-            _wheels != wheels_.end(); ++_wheels) {
-          rho_ = std::max (rho_, computeAngle(*_wheels));
-        }
-        hppDout (info, "rho_ = " << rho_);
-      }
+	std::vector <JointPtr_t> wheels;
+	std::string p(problem->getParameter("SteeringMethod/Carlike/wheels").
+		      stringValue());
+	std::vector<std::string> wheelNames;
+	boost::split(wheelNames, p, [](char c){return c == ',';});
 
-      inline value_type CarLike::computeAngle(const JointPtr_t wheel) const
-      {
-        // Compute wheel position in joint RZ
-        const Transform3f zt (rz_->currentTransformation ());
-        const Transform3f wt (zt.inverse () * wheel->currentTransformation ());
-        const vector3_t& wp (wt.translation ());
-
-        // Assume the non turning wheels are on the plane z = 0 of
-        // in joint rz.
-        const value_type alpha = (wheel->upperBound(0) - wheel->lowerBound(0)) / 2;
-        const value_type delta = std::abs(wp[1]);
-        const value_type beta = std::abs(wp[0]);
-
-        return delta + beta / std::tan(alpha);
-      }
-
-      inline void CarLike::guessWheels()
-      {
-        wheels_.clear();
-        for (std::size_t i = 0; i < rz_->numberChildJoints(); ++i) {
-          JointPtr_t j = rz_->childJoint(i);
-          if (j->configSize() != 1) continue;
-          if (!j->isBounded(0))     continue;
-          if (j->name().find("wheel") == std::string::npos) continue;
-          wheels_.push_back(j);
-        }
+        wheels.clear();
+	for(const std::string& name : wheelNames) {
+	  if (name == "") continue;
+	  bool found(false);
+	  for (std::size_t i = 0; i < rz->numberChildJoints(); ++i) {
+	    JointPtr_t j = rz->childJoint(i);
+	    if (j->name() == name) {
+	      found = true;
+	      if (j->configSize() != 1) {
+		throw std::runtime_error
+		  ("Carlike: wheel joint should be of dimension 1.");
+	      }
+	      wheels.push_back(j);
+	      hppDout(info, "wheel: " << name);
+	    }
+	  }
+	  if (!found) {
+	    std::ostringstream os;
+	    os << "CarLike: no joint with name \"" << name << "\".";
+	    throw std::runtime_error(os.str());
+	  }
+	}
+	return wheels;
       }
 
     } // namespace steeringMethod

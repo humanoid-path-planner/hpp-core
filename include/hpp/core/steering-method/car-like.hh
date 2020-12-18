@@ -48,16 +48,6 @@ namespace hpp {
             wheels_ = wheels;
           }
 
-          /// Compute the turning radius.
-          ///
-          /// The turning radius is the maximum of the turning radius of each
-          /// wheel. The turning radius of a wheel is the radius of the circle
-          /// defined by:
-          /// - its center is on the plane x = 0 in the frame of joint RZ,
-          /// - the origin of joint RZ is on the circle,
-          /// - the bounds of the joint wheel are saturated.
-          void computeRadius ();
-
         protected:
           /// Constructor
           CarLike (const ProblemConstPtr_t& problem);
@@ -84,10 +74,11 @@ namespace hpp {
           size_type xyId_, rzId_;
           std::vector<JointPtr_t> wheels_;
         private:
-          value_type computeAngle(const JointPtr_t wheel) const;
-          void guessWheels();
           CarLikeWkPtr_t weak_;
       }; // CarLike
+      std::vector <JointPtr_t> getWheelsFromeParameter
+      (const ProblemConstPtr_t& problem, const JointPtr_t& rz);
+
       /// \}
     } // namespace steeringMethod
   } // namespace core

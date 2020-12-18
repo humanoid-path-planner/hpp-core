@@ -38,15 +38,17 @@ namespace hpp {
 	virtual DistancePtr_t clone () const;
 	static ReedsSheppPtr_t create (const ProblemConstPtr_t& problem);
 	static ReedsSheppPtr_t create (const ProblemConstPtr_t& problem,
-				     const value_type& turningRadius,
-				     JointPtr_t xyJoint, JointPtr_t rzJoint);
+				       const value_type& turningRadius,
+				       JointPtr_t xyJoint, JointPtr_t rzJoint,
+				       std::vector <JointPtr_t> wheels);
 
 	static ReedsSheppPtr_t createCopy (const ReedsSheppPtr_t& distance);
       protected:
 	ReedsShepp (const ProblemConstPtr_t& problem);
 	ReedsShepp (const ProblemConstPtr_t& problem,
 		    const value_type& turningRadius,
-		    JointPtr_t xyJoint, JointPtr_t rzJoint);
+		    JointPtr_t xyJoint, JointPtr_t rzJoint,
+		    std::vector <JointPtr_t> wheels);
 	ReedsShepp (const ReedsShepp& distance);
 	
 	/// Derived class should implement this function
@@ -54,7 +56,12 @@ namespace hpp {
 					  ConfigurationIn_t q2) const;
 	void init (const ReedsSheppWkPtr_t& weak);
       private:
-	steeringMethod::ReedsSheppPtr_t sm_;
+	WeighedDistancePtr_t weighedDistance_;
+	DeviceWkPtr_t device_;
+	value_type rho_;
+	JointPtr_t xy_, rz_;
+	size_type xyId_, rzId_;
+	std::vector<JointPtr_t> wheels_;
 	ReedsSheppWkPtr_t weak_;
 
         ReedsShepp() {};
