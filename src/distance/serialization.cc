@@ -22,6 +22,7 @@
 #include <hpp/util/serialization.hh>
 
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/serialization.hh> // For serialization of Device
 
 #include <hpp/core/distance.hh>
@@ -58,10 +59,16 @@ namespace distance {
 template <typename Archive>
 inline void ReedsShepp::serialize(Archive& ar, const unsigned int version)
 {
-  throw std::logic_error("ReedsShepp distance not serializable.");
   (void) version;
   ar & boost::serialization::make_nvp("base", boost::serialization::base_object<Distance>(*this));
-  //ar & BOOST_SERIALIZATION_NVP(sm_);
+  ar & BOOST_SERIALIZATION_NVP(weighedDistance_);
+  ar & BOOST_SERIALIZATION_NVP(device_);
+  ar & BOOST_SERIALIZATION_NVP(rho_);
+  ar & BOOST_SERIALIZATION_NVP(xy_);
+  ar & BOOST_SERIALIZATION_NVP(rz_);
+  ar & BOOST_SERIALIZATION_NVP(xyId_);
+  ar & BOOST_SERIALIZATION_NVP(rzId_);
+  ar & BOOST_SERIALIZATION_NVP(wheels_);
   ar & BOOST_SERIALIZATION_NVP(weak_);
 }
 

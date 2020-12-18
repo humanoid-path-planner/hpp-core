@@ -16,8 +16,6 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/reeds-shepp-path.hh>
-
 #include <boost/math/constants/constants.hpp>
 #include <boost/serialization/weak_ptr.hpp>
 
