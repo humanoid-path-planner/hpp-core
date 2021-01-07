@@ -52,6 +52,10 @@ namespace hpp {
       /// \param robot robot associated to the path planning problem.
       static ProblemPtr_t create (DevicePtr_t robot);
 
+      /// Copy a path planning problem and return a shared pointer.
+      /// \param other problem to copy
+      static ProblemPtr_t createCopy(const ProblemConstPtr_t& other);
+
       /// Constructor without argument
       /// \warning do not use this constructor. It is necessary to define
       ///          std::pairs <Problem, OtherType>.
@@ -296,6 +300,8 @@ namespace hpp {
     protected:
       /// \copydoc Problem::create(DevicePtr_t);
       Problem (DevicePtr_t robot);
+      /// \copydoc Problem::create(DevicePtr_t);
+      Problem (const Problem& other);
 
       void init (ProblemWkPtr_t wkPtr);
 

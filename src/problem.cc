@@ -78,9 +78,31 @@ namespace hpp {
       return p;
     }
 
+    ProblemPtr_t Problem::createCopy(const ProblemConstPtr_t& other)
+    {
+      ProblemPtr_t p(new Problem(*other));
+      p->init(p);
+      return p;
+    }
+
     // ======================================================================
     Problem::Problem (DevicePtr_t robot) :
       robot_ (robot), configValidations_ (ConfigValidations::create ())
+    {
+    }
+
+    // ======================================================================
+    Problem::Problem (const Problem& other) :
+      robot_ (other.robot_), distance_(other.distance_),
+      initConf_(other.initConf_), goalConfigurations_
+      (other.goalConfigurations_), target_(other.target_),
+      steeringMethod_(other.steeringMethod_),
+      configValidations_ (other.configValidations()),
+      pathValidation_(other.pathValidation_),
+      pathProjector_(other.pathProjector_),
+      collisionObstacles_(other.collisionObstacles_),
+      constraints_(other.constraints_),
+      configurationShooter_(other.configurationShooter_)
     {
     }
 
