@@ -92,21 +92,6 @@ namespace hpp {
     }
 
     // ======================================================================
-    Problem::Problem (const Problem& other) :
-      robot_ (other.robot_), distance_(other.distance_),
-      initConf_(other.initConf_), goalConfigurations_
-      (other.goalConfigurations_), target_(other.target_),
-      steeringMethod_(other.steeringMethod_),
-      configValidations_ (other.configValidations()),
-      pathValidation_(other.pathValidation_),
-      pathProjector_(other.pathProjector_),
-      collisionObstacles_(other.collisionObstacles_),
-      constraints_(other.constraints_),
-      configurationShooter_(other.configurationShooter_)
-    {
-    }
-
-    // ======================================================================
 
     void Problem::init (ProblemWkPtr_t wkPtr)
     {

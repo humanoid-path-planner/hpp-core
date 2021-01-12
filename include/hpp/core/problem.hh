@@ -301,7 +301,7 @@ namespace hpp {
       /// \copydoc Problem::create(DevicePtr_t);
       Problem (DevicePtr_t robot);
       /// \copydoc Problem::create(DevicePtr_t);
-      Problem (const Problem& other);
+      Problem (const Problem& other) = default;
 
       void init (ProblemWkPtr_t wkPtr);
 
