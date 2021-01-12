@@ -35,6 +35,7 @@
 #include <toppra/algorithm/toppra.hpp>
 #include <toppra/solver/glpk-wrapper.hpp>
 #include <toppra/solver/qpOASES-wrapper.hpp>
+#include <toppra/solver/seidel.hpp>
 
 #include <toppra/constraint/linear_joint_velocity.hpp>
 #include <toppra/constraint/linear_joint_acceleration.hpp>
@@ -178,11 +179,14 @@ PathVectorPtr_t TOPPRA::optimize(const PathVectorPtr_t &path)
   algo.setN((int)N);
   switch(solver) {
     default:
-      hppDout (error, "Solver " << solver << " does not exists. Using GLPK");
+      hppDout (error, "Solver " << solver << " does not exists. Using Seidel");
     case 0:
-      algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
+      algo.solver(std::make_shared<toppra::solver::Seidel>());
       break;
     case 1:
+      algo.solver(std::make_shared<toppra::solver::GLPKWrapper>());
+      break;
+    case 2:
       algo.solver(std::make_shared<toppra::solver::qpOASESWrapper>());
       break;
   }
