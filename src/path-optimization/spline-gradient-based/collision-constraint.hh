@@ -80,7 +80,7 @@ namespace hpp {
         {
           const value_type& tColl = report->parameter;
           bool success;
-          qColl_ = (*collSpline) (tColl, success);
+          qColl_ = collSpline->eval(tColl, success);
           assert(success);
 
           CollisionValidationReportPtr_t collisionReport =
@@ -103,7 +103,7 @@ namespace hpp {
             collSpline->length();
           tFree = std::min(tFree, freeSpline->length()); // can be slightly above freeSpline length due to round-offs
 
-          qFree_ = (*freeSpline) (tFree, success);
+          qFree_ = freeSpline->eval(tFree, success);
           assert(success);
           hppDout (info, "qFree = " << pinocchio::displayConfig (qFree_));
           // Compute contact point in configuration qColl

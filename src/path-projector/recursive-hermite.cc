@@ -210,7 +210,7 @@ namespace hpp {
         } else {
           const value_type t = 0.5; //path->timeRange().first + path->length() / 2;
           bool success;
-          const Configuration_t q1((*path) (t, success));
+          const Configuration_t q1(path->eval(t, success));
           if (!success) {
             hppDout (info, "RHP stopped because it could not project a configuration");
             return false;

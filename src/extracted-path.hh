@@ -116,16 +116,16 @@ namespace hpp {
       inline Configuration_t initial () const
       {
 	bool success;
-        return (*original_)(reversed_?timeRange().second:timeRange().first,
-              success);
+        return original_->eval(reversed_?timeRange().second:
+			       timeRange().first, success);
       }
 
       /// Get the final configuration
       inline Configuration_t end () const
       {
 	bool success;
-        return (*original_)(reversed_?timeRange().first:timeRange().second,
-              success);
+        return original_->eval(reversed_?timeRange().first:
+			       timeRange().second, success);
       }
 
     protected:

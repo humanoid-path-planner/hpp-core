@@ -118,37 +118,36 @@ namespace hpp {
       /// \name Evalutation of the path
       /// \{
 
-      /// \deprecated Use operator()(value_type, bool)
-      Configuration_t operator () (const value_type& time) const
-        HPP_CORE_DEPRECATED
+      /// Configuration at time
+      /// \deprecated use configAtTime instead
+      Configuration_t operator () (const value_type& time, bool& success) const
+	HPP_CORE_DEPRECATED
       {
-        bool unused;
-        return (*this) (time, unused);
+        return eval (time, success);
       }
 
-      Configuration_t operator () (const value_type& time, bool& success) const
+      /// Configuration at time
+      /// \deprecated use eval instead
+      bool operator () (ConfigurationOut_t result, const value_type& time)
+       const
+      {
+	return eval(result, time);
+      }
+
+      /// Configuration at time
+      Configuration_t eval (const value_type& time, bool& success) const
       {
         return configAtParam (paramAtTime(time), success);
       }
 
-      bool operator () (ConfigurationOut_t result, const value_type& time)
+      /// Configuration at time
+      bool eval (ConfigurationOut_t result, const value_type& time)
        const
       {
         value_type s = paramAtTime (time);
 	bool success = impl_compute (result, s);
 	if (!success) return false;
         return applyConstraints (result, s);
-      }
-
-      Configuration_t eval (const value_type& time, bool& success) const
-      {
-        return this->operator() (time, success);
-      }
-
-      bool eval (ConfigurationOut_t result, const value_type& time)
-       const
-      {
-        return this->operator() (result, time);
       }
 
       /// Get the configuration at a parameter without applying the constraints.
