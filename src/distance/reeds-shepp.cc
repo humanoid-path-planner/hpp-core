@@ -71,7 +71,7 @@ namespace hpp {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(xyId_);
         rz_ = d->getJointAtConfigRank(rzId_);
-	wheels_  = steeringMethod::getWheelsFromeParameter(problem, rz_);
+	wheels_  = steeringMethod::getWheelsFromParameter(problem, rz_);
         turningRadius(problem->getParameter("SteeringMethod/Carlike/turningRadius").
             floatValue());
       }

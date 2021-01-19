@@ -81,7 +81,7 @@ namespace hpp {
         private:
           CarLikeWkPtr_t weak_;
       }; // CarLike
-      std::vector <JointPtr_t> getWheelsFromeParameter
+      std::vector <JointPtr_t> getWheelsFromParameter
       (const ProblemConstPtr_t& problem, const JointPtr_t& rz);
 
       /// \}

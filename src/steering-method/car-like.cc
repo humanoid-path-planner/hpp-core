@@ -37,7 +37,7 @@ namespace hpp {
         DevicePtr_t d (device_.lock());
         xy_ = d->getJointAtConfigRank(0);
         rz_ = d->getJointAtConfigRank(2);
-        wheels_  = getWheelsFromeParameter(problem, rz_);
+        wheels_  = getWheelsFromParameter(problem, rz_);
         turningRadius(problem->getParameter("SteeringMethod/Carlike/turningRadius").
             floatValue());
       }
@@ -72,7 +72,7 @@ namespace hpp {
         rho_ = rho;
       }
 
-      std::vector <JointPtr_t> getWheelsFromeParameter
+      std::vector <JointPtr_t> getWheelsFromParameter
       (const ProblemConstPtr_t& problem, const JointPtr_t& rz)
       {
 	std::vector <JointPtr_t> wheels;
