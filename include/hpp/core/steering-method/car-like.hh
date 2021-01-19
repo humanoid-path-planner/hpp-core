@@ -48,6 +48,10 @@ namespace hpp {
             wheels_ = wheels;
           }
 
+          void turningRadius(const value_type& rho);
+
+          inline value_type turningRadius() const { return rho_; }
+
         protected:
           /// Constructor
           CarLike (const ProblemConstPtr_t& problem);
@@ -69,6 +73,7 @@ namespace hpp {
           }
 
           DeviceWkPtr_t device_;
+          /// Turning radius
           value_type rho_;
           JointPtr_t xy_, rz_;
           size_type xyId_, rzId_;

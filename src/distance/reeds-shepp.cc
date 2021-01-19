@@ -72,8 +72,8 @@ namespace hpp {
         xy_ = d->getJointAtConfigRank(xyId_);
         rz_ = d->getJointAtConfigRank(rzId_);
 	wheels_  = steeringMethod::getWheelsFromeParameter(problem, rz_);
-	rho_ = problem->getParameter("SteeringMethod/Carlike/turningRadius").
-	  floatValue();
+        turningRadius(problem->getParameter("SteeringMethod/Carlike/turningRadius").
+            floatValue());
       }
 
       ReedsShepp::ReedsShepp (const ProblemConstPtr_t& problem,
@@ -100,6 +100,13 @@ namespace hpp {
 	rz_(other.rz_), xyId_(other.xyId_), rzId_(other.rzId_),
 	wheels_(other.wheels_), weak_()
       {
+      }
+
+      void ReedsShepp::turningRadius(const value_type& rho)
+      {
+        if (rho <= 0)
+          throw std::invalid_argument("Turning radius must be strictly positive.");
+        rho_ = rho;
       }
 
       value_type ReedsShepp::impl_distance (ConfigurationIn_t q1,

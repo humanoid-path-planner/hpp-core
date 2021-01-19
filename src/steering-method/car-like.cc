@@ -38,8 +38,8 @@ namespace hpp {
         xy_ = d->getJointAtConfigRank(0);
         rz_ = d->getJointAtConfigRank(2);
         wheels_  = getWheelsFromeParameter(problem, rz_);
-	rho_ = problem->getParameter("SteeringMethod/Carlike/turningRadius").
-	  floatValue();
+        turningRadius(problem->getParameter("SteeringMethod/Carlike/turningRadius").
+            floatValue());
       }
 
       CarLike::CarLike (const ProblemConstPtr_t& problem,
@@ -63,6 +63,13 @@ namespace hpp {
         rho_ (other.rho_), xy_ (other.xy_), rz_ (other.rz_),
         xyId_ (other.xyId_), rzId_ (other.rzId_)
       {
+      }
+
+      void CarLike::turningRadius(const value_type& rho)
+      {
+        if (rho <= 0)
+          throw std::invalid_argument("Turning radius must be strictly positive.");
+        rho_ = rho;
       }
 
       std::vector <JointPtr_t> getWheelsFromeParameter
