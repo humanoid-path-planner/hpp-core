@@ -910,10 +910,7 @@ namespace hpp {
         //data.distance_results(model.collisionPairs.size())
         //data.collision_results(model.collisionPairs.size())
         //data.radius()
-        data.collisionObjects.push_back (fcl::CollisionObject(
-              model.geometryObjects[id].geometry));
         data.oMg[id] =  model.geometryObjects[id].placement;
-        data.collisionObjects[id].setTransform( ::pinocchio::toFclTransform3f(data.oMg[id]) );
       }
       CollisionObjectPtr_t object (
           new CollisionObject(obstacleModel_,obstacleData_,id));
@@ -942,7 +939,6 @@ namespace hpp {
       remove(obstacleModel_->geometryObjects, id);
       obstacleModel_->ngeoms--;
       remove(obstacleData_->oMg, id);
-      remove(obstacleData_->collisionObjects, id);
 
       remove(collisionObstacles_, id);
       remove(distanceObstacles_, id);
@@ -985,7 +981,6 @@ namespace hpp {
         removeObstacle(name);
       } else {
         obstacleModel_->geometryObjects[id].geometry = newgeom;
-        obstacleData_->collisionObjects[id] = fcl::CollisionObject(newgeom, oMg);
       }
     }
 
