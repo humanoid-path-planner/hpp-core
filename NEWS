@@ -1,4 +1,5 @@
                                                                 -*- outline -*-
+* Make Path::operator() deprecated: use method Path::eval instead.
 * Serialize several classes for save and loading roadmaps
 * use shared pointers to class Problem only. Classes previously storing const
   references to Problem now store const weak pointers. Classes that use to
