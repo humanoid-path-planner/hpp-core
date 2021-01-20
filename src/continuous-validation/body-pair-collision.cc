@@ -23,6 +23,7 @@
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision.h>
+#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/collision-object.hh>
 
@@ -32,6 +33,7 @@
 namespace hpp {
   namespace core {
     namespace continuousValidation {
+      using ::pinocchio::toFclTransform3f;
 
       bool BodyPairCollision::validateConfiguration (const value_type& t, interval_t& interval,
                 ValidationReportPtr_t& report,
@@ -150,15 +152,12 @@ namespace hpp {
         distanceLowerBound = numeric_limits <value_type>::infinity ();
         assert (collisionRequest_.enable_distance_lower_bound == true);
         const CollisionPairs_t& prs (pairs());
-        for (CollisionPairs_t::const_iterator _pair = prs.begin();
-            _pair != prs.end(); ++_pair) {
-          pinocchio::FclConstCollisionObjectPtr_t object_a = _pair->first ->fcl (data);
-          pinocchio::FclConstCollisionObjectPtr_t object_b = _pair->second->fcl (data);
+        for (const auto& pair : prs) {
           fcl::CollisionResult result;
-          fcl::collide (object_a, object_b, collisionRequest_, result);
+          pair.collide(data, collisionRequest_, result);
           // Get result
           if (result.isCollision ()) {
-            setReport(report, result, *_pair);
+            setReport(report, result, pair);
             return false;
           }
           if (result.distance_lower_bound < distanceLowerBound) {

@@ -125,7 +125,9 @@ namespace hpp {
 	 fcl::CollisionResult result;
          fcl::CollisionRequestFlag flag = enableContact? fcl::CONTACT : fcl::NO_REQUEST ;
          fcl::CollisionRequest collisionRequest (flag, 1);
-         fcl::collide (object1_->fcl (), object2_->fcl (), collisionRequest, result);
+         fcl::collide (object1_->geometry().get(), object1_->getFclTransform(),
+             object2_->geometry().get(), object2_->getFclTransform(),
+             collisionRequest, result);
          return result;
        }
 

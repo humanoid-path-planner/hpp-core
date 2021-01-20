@@ -50,13 +50,16 @@ namespace hpp {
 
       fcl::CollisionResult collisionResult;
       std::size_t iPair = 0;
-      const ObstacleUser::CollisionPairs_t* pairs (&cPairs_);
+      const CollisionPairs_t* pairs (&cPairs_);
+      ObstacleUser::CollisionRequests_t* requests (&cRequests_);
+
       bool collide = ObstacleUser::collide (cPairs_, cRequests_,
           collisionResult, iPair, device.d());
       if (!collide && checkParameterized_) {
         collide = ObstacleUser::collide (pPairs_, pRequests_,
             collisionResult, iPair, device.d());
         pairs = &pPairs_;
+        requests = &pRequests_;
       }
       if (collide) {
         CollisionValidationReportPtr_t report (
@@ -69,12 +72,10 @@ namespace hpp {
           allReport->collisionReports.push_back(report);
           // then loop over all the remaining pairs :
           ++iPair;
-          for (;iPair < cPairs_.size(); ++iPair) {
+          for (;iPair < pairs->size(); ++iPair) {
             collisionResult.clear();
-            if (fcl::collide (
-                  cPairs_[iPair].first ->fcl (device.d()),
-                  cPairs_[iPair].second->fcl (device.d()),
-                  cRequests_[iPair], collisionResult) != 0) {
+            if ((*pairs)[iPair].collide(device.d(),
+                  (*requests)[iPair], collisionResult) != 0) {
               CollisionValidationReportPtr_t report (
                   new CollisionValidationReport ((*pairs)[iPair], collisionResult));
               allReport->collisionReports.push_back(report);

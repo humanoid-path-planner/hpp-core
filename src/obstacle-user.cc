@@ -38,16 +38,8 @@ namespace hpp {
     {
       for (i = 0; i < pairs.size(); ++i) {
         res.clear();
-        const CollisionObjectConstPtr_t& a (pairs[i].first );
-        const CollisionObjectConstPtr_t& b (pairs[i].second);
-        assert(!a->getTransform(data).translation().hasNaN());
-        assert(!a->getTransform(data).rotation   ().hasNaN());
-        assert(!b->getTransform(data).translation().hasNaN());
-        assert(!b->getTransform(data).rotation   ().hasNaN());
-        if (fcl::collide (
-              a->geometry().get(), toFclTransform3f(a->getTransform (data)),
-              b->geometry().get(), toFclTransform3f(b->getTransform (data)),
-              reqs[i], res) != 0) return true;
+        if (pairs[i].collide(data, reqs[i], res) != 0)
+          return true;
       }
       return false;
     }
@@ -147,8 +139,7 @@ namespace hpp {
               hppDout(info, "Disabling collision between "
                   << pair.first ->name() << " and "
                   << pair.second->name());
-              if (fcl::collide (pair.first ->fcl (), pair.second->fcl (),
-                    cRequests_[i], unused) != 0) {
+              if (pair.collide(cRequests_[i], unused) != 0) {
                 hppDout(warning, "Disabling collision detection between two "
                     "bodies in collision.");
               }

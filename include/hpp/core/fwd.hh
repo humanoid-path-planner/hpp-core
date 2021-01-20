@@ -216,8 +216,8 @@ namespace hpp {
     CenterOfMassComputationMap_t;
 
     // Collision pairs
-    typedef std::pair <CollisionObjectConstPtr_t, CollisionObjectConstPtr_t>
-    CollisionPair_t;
+    struct CollisionPair;
+    typedef CollisionPair CollisionPair_t; // For backward compatibility.
     typedef std::vector <CollisionPair_t> CollisionPairs_t;
 
     class ExtractedPath;

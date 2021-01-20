@@ -25,6 +25,8 @@
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 
+#include <hpp/core/collision-pair.hh>
+
 namespace hpp {
   namespace core {
     void DistanceBetweenObjects::addObstacle
@@ -36,7 +38,7 @@ namespace hpp {
 	BodyPtr_t body = joint->linkedBody ();
 	if (body) {
           for (size_type j = 0; j < body->nbInnerObjects(); ++j) {
-	    collisionPairs_.push_back (CollisionPair_t (body->innerObjectAt(j), object));
+	    collisionPairs_.emplace_back(body->innerObjectAt(j), object);
 	  }
 	}
       }
@@ -60,7 +62,8 @@ namespace hpp {
     const CollisionObjectConstPtr_t& obj1 = itCol->first;
     const CollisionObjectConstPtr_t& obj2 = itCol->second;
     distanceResults_[rank].clear ();
-    fcl::distance (obj1->fcl (), obj2->fcl (),
+    fcl::distance (obj1->geometry().get(), obj1->getFclTransform(),
+               obj2->geometry().get(), obj2->getFclTransform(),
                distanceRequest, distanceResults_[rank]);
     ++rank;
       }

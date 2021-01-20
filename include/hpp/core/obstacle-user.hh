@@ -23,6 +23,7 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/relative-motion.hh>
+# include <hpp/core/collision-pair.hh>
 
 namespace hpp {
   namespace core {
@@ -166,8 +167,6 @@ namespace hpp {
       public:
         virtual ~ObstacleUser () = default;
 
-        typedef std::pair<CollisionObjectConstPtr_t, CollisionObjectConstPtr_t> CollisionPair_t;
-        typedef std::vector<CollisionPair_t> CollisionPairs_t;
         typedef std::vector<fcl::CollisionRequest> CollisionRequests_t;
 
         static bool collide (const CollisionPairs_t& pairs,
