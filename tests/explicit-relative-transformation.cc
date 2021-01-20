@@ -283,9 +283,9 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
                       object2, M1inO1, M2inO2, 6 * Equality));
   DifferentiableFunctionPtr_t ert (enm->explicitFunction ());
   DifferentiableFunctionPtr_t irt = enm->functionPtr();
-  RelativeTransformation::Ptr_t rt = RelativeTransformation::create (
-      "relative_transformation", robot,
-      object1, object2, M1inO1, M2inO2);
+  RelativeTransformationR3xSO3::Ptr_t rt (RelativeTransformationR3xSO3::create(
+      "relative_transformation_R3xSO3", robot,
+      object1, object2, M1inO1, M2inO2));
 
   Configuration_t q     = robot->currentConfiguration (),
                   qrand = *cs->shoot(),
@@ -329,8 +329,8 @@ BOOST_AUTO_TEST_CASE (compare_to_relative_transform)
   rt ->value    (v1, q0);
   rt ->jacobian (J1, q0);
 
-  BOOST_CHECK (v0.vector().isZero(test_precision));
-  BOOST_CHECK (v1.vector().isZero(test_precision));
+  BOOST_CHECK (log(v0).isZero(test_precision));
+  BOOST_CHECK (log(v1).isZero(test_precision));
   EIGEN_IS_APPROX (J0, J1, test_precision);
 
   // Second at random configurations

@@ -91,6 +91,8 @@ namespace hpp {
     {
       using constraints::Transformation;
       using constraints::RelativeTransformation;
+      using constraints::TransformationR3xSO3;
+      using constraints::RelativeTransformationR3xSO3;
       assert (robot);
       assert (c);
 
@@ -129,22 +131,33 @@ namespace hpp {
           continue;
         }
         // Detect relative pose constraints
-        if (nc->functionPtr()->outputSize() != 6) {
+        if ((nc->functionPtr()->outputSize() != 6) &&
+	    (nc->functionPtr()->outputSize()) != 7) {
           hppDout (info, "Constraint " << nc->functionPtr()->name ()
-                   << " is not of dimension 6.");
+                   << " is neither of dimension 6 nor 7.");
           continue;
         }
 
         if (!check <Transformation>::is (nc->functionPtr (), i1, i2)) {
           hppDout (info, "Constraint function " << nc->functionPtr()->name ()
                    << " is not of type Transformation");
-          if (!check <RelativeTransformation>::is
-              (nc->functionPtr (), i1, i2)) {
-            hppDout (info, "Constraint function "
-                     << nc->functionPtr()->name ()
-                     << " is not of type RelativeTransformation");
-            continue;
-          }
+	  if (!check <TransformationR3xSO3>::is (nc->functionPtr (), i1, i2)) {
+	    hppDout (info, "Constraint function " << nc->functionPtr()->name ()
+		     << " is not of type TransformationR3xSO3");
+	    if (!check <RelativeTransformation>::is
+		(nc->functionPtr (), i1, i2)) {
+	      hppDout (info, "Constraint function "
+		       << nc->functionPtr()->name ()
+		       << " is not of type RelativeTransformation");
+	      if (!check <RelativeTransformationR3xSO3>::is
+		  (nc->functionPtr (), i1, i2)) {
+		hppDout (info, "Constraint function "
+			 << nc->functionPtr()->name ()
+			 << " is not of type RelativeTransformationR3xSO3");
+		continue;
+	      }
+	    }
+	  }
         }
 
         bool cstRHS (nc->parameterSize () == 0);
