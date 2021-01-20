@@ -540,10 +540,7 @@ namespace hpp {
 	PathVectorPtr_t res;
 	distance = 0;
 	if (!computeDistance)
-	{
-	  res = PathVector::create(device->configSize (), device->numberDof (),
-				   constraints);
-	}
+	  res = PathVector::create(device->configSize (), device->numberDof ());
 	// Find rank of translation and rotation in velocity vectors
 	// Hypothesis: degrees of freedom all belong to a planar joint or
 	// xyId_ belong to a tranlation joint, rzId belongs to a SO2 joint.
@@ -609,7 +606,7 @@ namespace hpp {
 					    d.rho * d.lengths[i],
 					    l * (1 + extraLength / L),
 					    curvature, xyId, rzId, rz, wheels,
-					    ConstraintSetPtr_t ()));
+                                            constraints));
 	      res->appendPath (segment);
 	      qInit = segment->end ();
 	    }
