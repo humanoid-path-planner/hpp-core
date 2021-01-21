@@ -18,8 +18,8 @@
 
 #include <hpp/core/diffusing-planner.hh>
 
-#include <boost/tuple/tuple.hpp>
-#include <boost/next_prior.hpp>
+#include <tuple>
+#include <iterator>
 
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
@@ -160,7 +160,7 @@ namespace hpp {
       value_type stepRatio = problem()->getParameter
 	("DiffusingPlanner/extensionStepRatio").floatValue();
 
-      typedef boost::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
+      typedef std::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
       DelayedEdges_t delayedEdges;
@@ -213,11 +213,10 @@ namespace hpp {
       }
       // Insert delayed edges
       HPP_START_TIMECOUNTER(delayedEdges);
-      for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
-	   itEdge != delayedEdges.end (); ++itEdge) {
-	const NodePtr_t& near = itEdge-> get <0> ();
-	const ConfigurationPtr_t& q_new = itEdge-> get <1> ();
-	const PathPtr_t& validPath = itEdge-> get <2> ();
+      for (const auto& edge : delayedEdges) {
+	const NodePtr_t& near = std::get<0>(edge);
+	const ConfigurationPtr_t& q_new = std::get<1>(edge);
+	const PathPtr_t& validPath = std::get<2>(edge);
 	NodePtr_t newNode = roadmap ()->addNode (q_new);
 	roadmap ()->addEdge (near, newNode, validPath);
 	roadmap ()->addEdge (newNode, near, validPath->reverse());
@@ -232,7 +231,7 @@ namespace hpp {
       for (Nodes_t::const_iterator itn1 = newNodes.begin ();
 	   itn1 != newNodes.end (); ++itn1) {
         /// Try connecting to the other new nodes.
-	for (Nodes_t::const_iterator itn2 = boost::next (itn1);
+	for (Nodes_t::const_iterator itn2 = std::next (itn1);
 	     itn2 != newNodes.end (); ++itn2) {
 	  ConfigurationPtr_t q1 ((*itn1)->configuration ());
 	  ConfigurationPtr_t q2 ((*itn2)->configuration ());

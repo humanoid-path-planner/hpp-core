@@ -24,6 +24,7 @@
 
 # include <hpp/fcl/collision_data.h>
 
+# include <hpp/core/collision-pair.hh>
 # include <hpp/core/collision-validation-report.hh>
 # include <hpp/core/continuous-validation/interval-validation.hh>
 
@@ -51,9 +52,6 @@ namespace hpp {
       class BodyPairCollision : public IntervalValidation
       {
       public:
-        typedef std::pair<CollisionObjectConstPtr_t, CollisionObjectConstPtr_t> CollisionPair_t;
-        typedef std::vector<CollisionPair_t> CollisionPairs_t;
-
         /// Validate interval centered on a path parameter
         /// \param t parameter value in the path interval of definition
         /// \param[in,out] interval as input, interval over which
@@ -143,7 +141,7 @@ namespace hpp {
         struct Model {
           CollisionPairs_t pairs;
         };
-        boost::shared_ptr<Model> m_;
+        shared_ptr<Model> m_;
         fcl::CollisionRequest collisionRequest_;
 
         mutable vector_t Vb_;

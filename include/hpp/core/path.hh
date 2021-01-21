@@ -19,7 +19,6 @@
 #ifndef HPP_CORE_PATH_HH
 # define HPP_CORE_PATH_HH
 
-# include <boost/concept_check.hpp>
 # include <hpp/util/exception.hh>
 # include <hpp/util/serialization-fwd.hh>
 # include <hpp/core/fwd.hh>
@@ -77,14 +76,14 @@ namespace hpp {
       virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const = 0;
 
       /// Static cast into a derived type
-      template <class T> boost::shared_ptr<T> as (void)
+      template <class T> shared_ptr<T> as (void)
       {
 	assert (HPP_DYNAMIC_PTR_CAST (T, weak_.lock ()));
 	return HPP_STATIC_PTR_CAST (T, weak_.lock ());
       }
 
       /// Static cast into a derived type
-      template <class T> boost::shared_ptr<const T> as (void) const
+      template <class T> shared_ptr<const T> as (void) const
       {
 	assert (HPP_DYNAMIC_PTR_CAST (const T, weak_.lock ()));
 	return HPP_STATIC_PTR_CAST (const T, weak_.lock ());

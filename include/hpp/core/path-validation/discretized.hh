@@ -38,6 +38,8 @@ namespace hpp {
     {
     public:
       static DiscretizedPtr_t create (const value_type& stepSize);
+      static DiscretizedPtr_t create (const value_type& stepSize, 
+          std::initializer_list<ConfigValidationPtr_t> validations);
 
       /// Compute the largest valid interval starting from the path beginning
       ///
@@ -54,7 +56,12 @@ namespace hpp {
 
       virtual ~Discretized () {};
     protected:
-      Discretized (const value_type& stepSize);
+      Discretized (const value_type& stepSize) : stepSize_ (stepSize) {}
+      Discretized (const value_type& stepSize,
+          std::initializer_list<ConfigValidationPtr_t> validations) :
+        ConfigValidations (validations),
+        stepSize_ (stepSize)
+      {};
 
       value_type stepSize_;
     }; // class Discretized

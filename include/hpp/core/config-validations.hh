@@ -52,7 +52,10 @@ namespace hpp {
       size_type numberConfigValidations() const;
 
     protected:
-      ConfigValidations ();
+      ConfigValidations () = default;
+      ConfigValidations(std::initializer_list<ConfigValidationPtr_t> validations) :
+        ObstacleUserVector (validations)
+      {};
     }; // class ConfigValidation
     /// \}
   } // namespace core

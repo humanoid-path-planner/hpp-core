@@ -28,7 +28,7 @@ namespace hpp {
   namespace core {
     namespace pathValidation {
       HPP_PREDEF_CLASS (NoValidation);
-      typedef boost::shared_ptr <NoValidation> NoValidationPtr_t;
+      typedef shared_ptr <NoValidation> NoValidationPtr_t;
       class NoValidation : public PathValidation
       {
       public:

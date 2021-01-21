@@ -19,7 +19,7 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_CONFIG_OPTIMIZATION_HH
 # define HPP_CORE_PATH_OPTIMIZATION_CONFIG_OPTIMIZATION_HH
 
-# include <boost/function.hpp>
+# include <functional>
 
 # include <hpp/core/path-optimizer.hh>
 # include <hpp/core/path-vector.hh>
@@ -81,13 +81,13 @@ namespace hpp {
 
             value_type alphaInit;
 
-            boost::function <Configuration_t (const PathVector&)> getGoal;
+            std::function <Configuration_t (const PathVector&)> getGoal;
 
-            boost::function <
+            std::function <
               ConfigProjectorPtr_t (const PathPtr_t&, const PathPtr_t&, bool&)
               > getConfigProjector;
 
-            boost::function <bool ( JointConstPtr_t, const size_type)>
+            std::function <bool ( JointConstPtr_t, const size_type)>
               shouldFilter;
 
             Parameters ();

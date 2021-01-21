@@ -187,7 +187,7 @@ namespace hpp {
       // Add object in local list
       collisionObstacles_.push_back (object);
       // Add obstacle to path validation method
-      boost::shared_ptr<ObstacleUserInterface> oui =
+      shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->addObstacle (object);
       assert(configValidations_);
@@ -201,7 +201,7 @@ namespace hpp {
     void Problem::removeObstacleFromJoint (const JointPtr_t& joint,
 					   const CollisionObjectConstPtr_t& obstacle)
     {
-      boost::shared_ptr<ObstacleUserInterface> oui =
+      shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->addObstacle (obstacle);
       assert(configValidations_);
@@ -218,7 +218,7 @@ namespace hpp {
       RelativeMotion::fromConstraint (matrix, robot_, constraints_);
       hppDout (info, "RelativeMotion matrix:\n" << matrix);
 
-      boost::shared_ptr<ObstacleUserInterface> oui =
+      shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->filterCollisionPairs (matrix);
       assert(configValidations_);
@@ -231,7 +231,7 @@ namespace hpp {
 
     void Problem::setSecurityMargins(const matrix_t& securityMatrix)
     {
-      boost::shared_ptr<ObstacleUserInterface> oui =
+      shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) oui->setSecurityMargins (securityMatrix);
       assert(configValidations_);
@@ -246,7 +246,7 @@ namespace hpp {
     {
       pathValidation_ = pathValidation;
       // Insert obstacles in path validation object
-      boost::shared_ptr<ObstacleUserInterface> oui =
+      shared_ptr<ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
       if (oui) {
         for (ObjectStdVector_t::const_iterator it =  collisionObstacles_.begin ();

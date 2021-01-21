@@ -50,10 +50,5 @@ namespace hpp {
     {
       return (size_type) validations_.size ();
     }
-
-    ConfigValidations::ConfigValidations ()
-    {
-    }
-
   } // namespace core
 } // namespace hpp

@@ -39,7 +39,7 @@ namespace hpp {
       class CollisionFunction : public DifferentiableFunction
       {
       public:
-        typedef boost::shared_ptr <CollisionFunction> Ptr_t;
+        typedef shared_ptr <CollisionFunction> Ptr_t;
        virtual ~CollisionFunction () {}
        static Ptr_t create
        (const DevicePtr_t& robot, const SplinePtr_t& freeSpline,
@@ -125,7 +125,9 @@ namespace hpp {
 	 fcl::CollisionResult result;
          fcl::CollisionRequestFlag flag = enableContact? fcl::CONTACT : fcl::NO_REQUEST ;
          fcl::CollisionRequest collisionRequest (flag, 1);
-         fcl::collide (object1_->fcl (), object2_->fcl (), collisionRequest, result);
+         fcl::collide (object1_->geometry().get(), object1_->getFclTransform(),
+             object2_->geometry().get(), object2_->getFclTransform(),
+             collisionRequest, result);
          return result;
        }
 

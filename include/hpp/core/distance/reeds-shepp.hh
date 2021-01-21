@@ -43,6 +43,11 @@ namespace hpp {
 				       std::vector <JointPtr_t> wheels);
 
 	static ReedsSheppPtr_t createCopy (const ReedsSheppPtr_t& distance);
+
+        void turningRadius(const value_type& rho);
+
+        inline value_type turningRadius() const { return rho_; }
+
       protected:
 	ReedsShepp (const ProblemConstPtr_t& problem);
 	ReedsShepp (const ProblemConstPtr_t& problem,
@@ -58,6 +63,7 @@ namespace hpp {
       private:
 	WeighedDistancePtr_t weighedDistance_;
 	DeviceWkPtr_t device_;
+        /// Turning radius
 	value_type rho_;
 	JointPtr_t xy_, rz_;
 	size_type xyId_, rzId_;

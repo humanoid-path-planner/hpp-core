@@ -24,6 +24,7 @@
 # include <hpp/pinocchio/collision-object.hh>
 # include <hpp/core/validation-report.hh>
 # include <hpp/fcl/collision_data.h>
+# include <hpp/core/collision-pair.hh>
 
 namespace hpp {
   namespace core {

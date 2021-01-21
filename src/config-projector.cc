@@ -21,8 +21,6 @@
 #include <limits>
 #include <boost/serialization/weak_ptr.hpp>
 
-#include <boost/bind.hpp>
-
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 #include <hpp/util/serialization.hh>
@@ -92,7 +90,7 @@ namespace hpp {
       errorThreshold (_errorThreshold);
       maxIterations  (_maxIterations);
       lastIsOptional (false);
-      solver_->saturation(boost::make_shared<constraints::solver::saturation::Device>(robot_));
+      solver_->saturation(make_shared<constraints::solver::saturation::Device>(robot_));
     }
 
     ConfigProjector::ConfigProjector (const ConfigProjector& cp) :
@@ -121,10 +119,9 @@ namespace hpp {
     }
 
     bool ConfigProjector::add (const constraints::ImplicitPtr_t& nm,
-			       const segments_t& passiveDofs,
 			       const std::size_t priority)
     {
-      return solver_->add (nm, passiveDofs, priority);
+      return solver_->add (nm, priority);
     }
 
     void ConfigProjector::computeValueAndJacobian
@@ -209,14 +206,6 @@ namespace hpp {
           break;
       }
       return false;
-    }
-
-    bool ConfigProjector::oneStep (ConfigurationOut_t configuration,
-        vectorOut_t dq, const value_type&)
-    {
-      bool ret = solverOneStep (configuration);
-      dq = solver_->lastStep ();
-      return ret;
     }
 
     bool ConfigProjector::optimize (ConfigurationOut_t configuration,
@@ -399,11 +388,6 @@ namespace hpp {
     size_type ConfigProjector::numberFreeVariables () const
     {
       return solver_->numberFreeVariables ();
-    }
-
-    size_type ConfigProjector::numberNonLockedDof () const
-    {
-      return numberFreeVariables ();
     }
 
     size_type ConfigProjector::dimension () const

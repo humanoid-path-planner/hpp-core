@@ -45,8 +45,8 @@ namespace hpp {
           typedef path::Spline<PolynomeBasis, SplineOrder> SplinePath;
           typedef typename SplinePath::Ptr_t SplinePathPtr_t;
 
-          typedef boost::shared_ptr<Spline> Ptr_t;
-          typedef boost::weak_ptr<Spline> WkPtr_t;
+          typedef shared_ptr<Spline> Ptr_t;
+          typedef weak_ptr<Spline> WkPtr_t;
 
           static Ptr_t create (const ProblemConstPtr_t& problem)
           {

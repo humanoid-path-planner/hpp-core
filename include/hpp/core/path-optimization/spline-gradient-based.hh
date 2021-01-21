@@ -42,7 +42,7 @@ namespace hpp {
             PolynomeBasis = _PolynomeBasis,
             SplineOrder = _SplineOrder
           };
-          typedef boost::shared_ptr<SplineGradientBased> Ptr_t;
+          typedef shared_ptr<SplineGradientBased> Ptr_t;
 
           using typename Base::Spline;
           using typename Base::SplinePtr_t;

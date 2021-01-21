@@ -20,7 +20,7 @@
 # define HPP_CORE_PROBLEM_SOLVER_HH
 
 # include <stdexcept>
-# include <boost/function.hpp>
+# include <functional>
 
 # include <hpp/pinocchio/fwd.hh>
 
@@ -37,26 +37,26 @@ namespace hpp {
     class Member_lockedJoints_in_class_ProblemSolver_has_been_removed_use_member_numericalConstraints_instead
     {
     };
-    typedef boost::function < DevicePtr_t (const std::string&) > RobotBuilder_t;
-    typedef boost::function < PathOptimizerPtr_t (const ProblemConstPtr_t&) >
+    typedef std::function < DevicePtr_t (const std::string&) > RobotBuilder_t;
+    typedef std::function < PathOptimizerPtr_t (const ProblemConstPtr_t&) >
       PathOptimizerBuilder_t;
-    typedef boost::function < PathPlannerPtr_t (const ProblemConstPtr_t&,
+    typedef std::function < PathPlannerPtr_t (const ProblemConstPtr_t&,
         const RoadmapPtr_t&) >
       PathPlannerBuilder_t;
-    typedef boost::function < PathValidationPtr_t (const DevicePtr_t&,
+    typedef std::function < PathValidationPtr_t (const DevicePtr_t&,
         const value_type&) >
       PathValidationBuilder_t;
-    typedef boost::function < ConfigValidationPtr_t (const DevicePtr_t&) >
+    typedef std::function < ConfigValidationPtr_t (const DevicePtr_t&) >
       ConfigValidationBuilder_t;
-    typedef boost::function <PathProjectorPtr_t (const ProblemConstPtr_t&,
+    typedef std::function <PathProjectorPtr_t (const ProblemConstPtr_t&,
         const value_type&) >
       PathProjectorBuilder_t;
-    typedef boost::function <ConfigurationShooterPtr_t
+    typedef std::function <ConfigurationShooterPtr_t
 			     (const ProblemConstPtr_t&) >
       ConfigurationShooterBuilder_t;
-  typedef boost::function <DistancePtr_t (const ProblemConstPtr_t&) >
+  typedef std::function <DistancePtr_t (const ProblemConstPtr_t&) >
     DistanceBuilder_t;
-    typedef boost::function <SteeringMethodPtr_t (const ProblemConstPtr_t&) >
+    typedef std::function <SteeringMethodPtr_t (const ProblemConstPtr_t&) >
       SteeringMethodBuilder_t;
     typedef std::vector<std::pair < std::string, CollisionObjectPtr_t > > AffordanceObjects_t;
     typedef vector3_t AffordanceConfig_t;
@@ -247,19 +247,6 @@ namespace hpp {
       virtual void addNumericalConstraintToConfigProjector
 	(const std::string& configProjName, const std::string& constraintName,
          const std::size_t priority = 0);
-
-      /// Add locked joint to the config projector
-      /// \param configProjName Name given to config projector if created by
-      ///        this method.
-      /// \param lockedJointName name of the locked joint as stored in internal
-      ///        map.
-      /// Build the config projector if not yet constructed.
-      /// \deprecated LockedJoint instances are now handled as other numerical
-      ///             constraints. Call addNumericalConstraintToConfigProjector
-      ///             instead.
-      virtual void addLockedJointToConfigProjector
-	(const std::string& configProjName, const std::string& lockedJointName)
-        HPP_CORE_DEPRECATED;
 
       /// Add a a numerical constraint in local map.
       /// \param name name of the numerical constraint as stored in local map,

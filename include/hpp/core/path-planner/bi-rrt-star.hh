@@ -25,7 +25,7 @@ namespace hpp {
   namespace core {
     namespace pathPlanner {
       HPP_PREDEF_CLASS (BiRrtStar);
-      typedef boost::shared_ptr <BiRrtStar> BiRrtStarPtr_t;
+      typedef shared_ptr <BiRrtStar> BiRrtStarPtr_t;
 
       /// Bi-RRT* path planning algorithm
       /// as described in http://www.golems.org/papers/AkgunIROS11-sampling.pdf

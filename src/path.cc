@@ -36,7 +36,7 @@ namespace hpp {
         public TimeParameterization
       {
         public:
-          typedef boost::shared_ptr<Shift> Ptr_t;
+          typedef shared_ptr<Shift> Ptr_t;
 
           static TimeParameterizationPtr_t createWithCheck (TimeParameterizationPtr_t tp, value_type t, value_type s)
           {

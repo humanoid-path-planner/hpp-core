@@ -18,7 +18,7 @@
 
 #include <hpp/core/problem-solver.hh>
 
-#include <boost/bind.hpp>
+#include <iterator>
 
 #include <hpp/fcl/collision_utility.h>
 
@@ -81,7 +81,6 @@
 
 namespace hpp {
   namespace core {
-    using boost::bind;
     using pinocchio::GeomIndex;
 
     using pinocchio::Model;
@@ -98,60 +97,26 @@ namespace hpp {
       template<typename Container> void remove(Container& vector, std::size_t pos)
       {
         assert (pos < vector.size());
-        typename Container::iterator it = vector.begin();
-        std::advance(it, pos);
-        vector.erase(it);
+        vector.erase(std::next(vector.begin(), pos));
       }
-
-      struct FindCollisionObject {
-        FindCollisionObject (const GeomIndex& i) : geomIdx_ (i) {}
-        bool operator() (const CollisionObjectPtr_t co) const {
-          return co->indexInModel() == geomIdx_;
-        }
-        GeomIndex geomIdx_;
-      };
 
       void remove(ObjectStdVector_t& vector, const GeomIndex& i)
       {
         ObjectStdVector_t::iterator it =
-          std::find_if(vector.begin(), vector.end(), FindCollisionObject(i));
+          std::find_if(vector.begin(), vector.end(),
+              [i](const CollisionObjectPtr_t& co) { return co->indexInModel() == i; });
         if (it != vector.end()) vector.erase(it);
       }
     }
-
-    // Struct that constructs an empty shared pointer to PathProjector.
-    struct NonePathProjector
-    {
-      static PathProjectorPtr_t create (const ProblemConstPtr_t&,
-					const value_type&)
-      {
-	return PathProjectorPtr_t ();
-      }
-    }; // struct NonePathProjector
-
-    template <typename Derived> struct Factory {
-      static boost::shared_ptr<Derived> create (const ProblemConstPtr_t& problem) { return Derived::create (problem); }
-    };
-    template <typename Derived> struct FactoryPP {
-      static boost::shared_ptr<Derived> create (const ProblemConstPtr_t& problem, const value_type& value) { return Derived::create (problem, value); }
-    };
 
     pathValidation::DiscretizedPtr_t createDiscretizedJointBoundAndCollisionChecking (
         const DevicePtr_t& robot, const value_type& stepSize)
     {
       using namespace pathValidation;
-      DiscretizedPtr_t pv (Discretized::create (stepSize));
-      JointBoundValidationPtr_t jbv (JointBoundValidation::create (robot));
-      pv->add (jbv);
-      CollisionValidationPtr_t cv (CollisionValidation::create (robot));
-      pv->add (cv);
-      return pv;
-    }
-
-    template <typename T>
-    boost::shared_ptr<T> createFromRobot (const ProblemConstPtr_t& p)
-    {
-      return T::create(p->robot());
+      return Discretized::create (stepSize, {
+          JointBoundValidation::create (robot),
+          CollisionValidation::create (robot),
+          });
     }
 
     configurationShooter::GaussianPtr_t createGaussianConfigShooter
@@ -228,11 +193,11 @@ namespace hpp {
       configurationShooters.add ("Gaussian", createGaussianConfigShooter);
 
       distances.add ("Weighed",         WeighedDistance::createFromProblem);
-      distances.add ("ReedsShepp",      bind (distance::ReedsShepp::create, _1));
+      distances.add ("ReedsShepp",      std::bind (static_cast<distance::ReedsSheppPtr_t (*)(const ProblemConstPtr_t&)>(distance::ReedsShepp::create), std::placeholders::_1));
       distances.add ("Kinodynamic",     KinodynamicDistance::createFromProblem);
 
 
-      steeringMethods.add ("Straight",   Factory<steeringMethod::Straight>::create);
+      steeringMethods.add ("Straight",   steeringMethod::Straight::create);
       steeringMethods.add ("ReedsShepp", steeringMethod::ReedsShepp::createWithGuess);
       steeringMethods.add ("Kinodynamic", steeringMethod::Kinodynamic::create);
       steeringMethods.add ("Dubins",     steeringMethod::Dubins::createWithGuess);
@@ -264,11 +229,11 @@ namespace hpp {
       configValidationTypes_.push_back("JointBoundValidation");
 
       // Store path projector methods in map.
-      pathProjectors.add ("None",             NonePathProjector::create);
-      pathProjectors.add ("Progressive",      FactoryPP<pathProjector::Progressive>::create);
-      pathProjectors.add ("Dichotomy",        FactoryPP<pathProjector::Dichotomy>::create);
-      pathProjectors.add ("Global",           FactoryPP<pathProjector::Global>::create);
-      pathProjectors.add ("RecursiveHermite", FactoryPP<pathProjector::RecursiveHermite>::create);
+      pathProjectors.add ("None",             [](const ProblemConstPtr_t&, const value_type&) { return PathProjectorPtr_t(); });
+      pathProjectors.add ("Progressive",      [](const ProblemConstPtr_t& p, const value_type& v) { return pathProjector::Progressive     ::create(p,v); });
+      pathProjectors.add ("Dichotomy",        [](const ProblemConstPtr_t& p, const value_type& v) { return pathProjector::Dichotomy       ::create(p,v); });
+      pathProjectors.add ("Global",           [](const ProblemConstPtr_t& p, const value_type& v) { return pathProjector::Global          ::create(p,v); });
+      pathProjectors.add ("RecursiveHermite", [](const ProblemConstPtr_t& p, const value_type& v) { return pathProjector::RecursiveHermite::create(p,v); });
     }
 
     ProblemSolver::~ProblemSolver ()
@@ -575,14 +540,7 @@ namespace hpp {
                                 " does not exists";
         throw std::invalid_argument (ss.str());
       }
-      configProjector->add (numericalConstraints.get(constraintName),
-			    segments_t (0), priority);
-    }
-
-    void ProblemSolver::addLockedJointToConfigProjector
-    (const std::string& configProjName, const std::string& lockedJointName)
-    {
-      addNumericalConstraintToConfigProjector (configProjName, lockedJointName);
+      configProjector->add (numericalConstraints.get(constraintName), priority);
     }
 
     void ProblemSolver::comparisonType (const std::string& name,
@@ -952,10 +910,7 @@ namespace hpp {
         //data.distance_results(model.collisionPairs.size())
         //data.collision_results(model.collisionPairs.size())
         //data.radius()
-        data.collisionObjects.push_back (fcl::CollisionObject(
-              model.geometryObjects[id].geometry));
         data.oMg[id] =  model.geometryObjects[id].placement;
-        data.collisionObjects[id].setTransform( ::pinocchio::toFclTransform3f(data.oMg[id]) );
       }
       CollisionObjectPtr_t object (
           new CollisionObject(obstacleModel_,obstacleData_,id));
@@ -984,7 +939,6 @@ namespace hpp {
       remove(obstacleModel_->geometryObjects, id);
       obstacleModel_->ngeoms--;
       remove(obstacleData_->oMg, id);
-      remove(obstacleData_->collisionObjects, id);
 
       remove(collisionObstacles_, id);
       remove(distanceObstacles_, id);
@@ -1027,7 +981,6 @@ namespace hpp {
         removeObstacle(name);
       } else {
         obstacleModel_->geometryObjects[id].geometry = newgeom;
-        obstacleData_->collisionObjects[id] = fcl::CollisionObject(newgeom, oMg);
       }
     }
 

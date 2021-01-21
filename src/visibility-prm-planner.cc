@@ -89,7 +89,7 @@ namespace hpp {
 	      length = path->length ();
 	      // Save shortest edge
 	      delayedEdge = DelayedEdge_t (*n_it,
-                  boost::make_shared<Configuration_t>(q),
+                  make_shared<Configuration_t>(q),
                   path->reverse ());
 	    }
 	    found = true;
@@ -169,11 +169,10 @@ namespace hpp {
       }
       if (count > 1){ // q visible several times
 	// Insert delayed edges from list and add q as a connection node
-	for (DelayedEdges_t::const_iterator itEdge = delayedEdges_.begin ();
-	     itEdge != delayedEdges_.end (); ++itEdge) {
-	  const NodePtr_t& near = itEdge-> get <0> ();
-	  const ConfigurationPtr_t& q_new = itEdge-> get <1> ();
-	  const PathPtr_t& validPath = itEdge-> get <2> ();
+	for (const auto& edge : delayedEdges_) {
+	  const NodePtr_t& near = std::get<0>(edge);
+	  const ConfigurationPtr_t& q_new = std::get<1>(edge);
+	  const PathPtr_t& validPath = std::get<2>(edge);
 	  NodePtr_t newNode = r->addNode (q_new);
 	  nodeStatus_ [newNode] = false;
 	  r->addEdge (near, newNode, validPath);

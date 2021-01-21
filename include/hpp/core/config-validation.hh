@@ -45,12 +45,10 @@ namespace hpp {
       virtual bool validate (const Configuration_t& config,
 			     ValidationReportPtr_t& validationReport) = 0;
 
-      virtual ~ConfigValidation () {};
+      virtual ~ConfigValidation () = default;
 
     protected:
-      ConfigValidation ()
-      {
-      }
+      ConfigValidation () = default;
     }; // class ConfigValidation
     /// \}
   } // namespace core

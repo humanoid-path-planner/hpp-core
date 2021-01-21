@@ -23,6 +23,7 @@
 # include <hpp/core/config.hh>
 # include <hpp/core/fwd.hh>
 # include <hpp/core/relative-motion.hh>
+# include <hpp/core/collision-pair.hh>
 
 namespace hpp {
   namespace core {
@@ -35,7 +36,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI ObstacleUserInterface
     {
       public:
-        virtual ~ObstacleUserInterface () {}
+        virtual ~ObstacleUserInterface () = default;
 
         /// Add an obstacle
         /// \param object obstacle added
@@ -83,7 +84,7 @@ namespace hpp {
     class HPP_CORE_DLLAPI ObstacleUserVector : public ObstacleUserInterface
     {
       public:
-        virtual ~ObstacleUserVector () {}
+        virtual ~ObstacleUserVector () = default;
 
         /// Add obstacle to each element
         ///
@@ -93,7 +94,7 @@ namespace hpp {
         void addObstacle (const CollisionObjectConstPtr_t& object)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->addObstacle (object);
           }
@@ -108,7 +109,7 @@ namespace hpp {
             const CollisionObjectConstPtr_t& object)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->removeObstacleFromJoint (joint, object);
           }
@@ -122,7 +123,7 @@ namespace hpp {
         void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->filterCollisionPairs (relMotion);
           }
@@ -136,7 +137,7 @@ namespace hpp {
         void setSecurityMargins(const matrix_t& securityMatrix)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
-            boost::shared_ptr<ObstacleUserInterface> oui =
+            shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->setSecurityMargins (securityMatrix);
           }
@@ -152,6 +153,11 @@ namespace hpp {
         typedef Derived value_t;
         typedef std::vector<value_t> values_t;
 
+        ObstacleUserVector() = default;
+        ObstacleUserVector(std::initializer_list<value_t> validations) :
+          validations_ (validations)
+        {};
+
         values_t validations_;
     }; // class ObstacleUserVector
 
@@ -159,10 +165,8 @@ namespace hpp {
     class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface
     {
       public:
-        virtual ~ObstacleUser () {}
+        virtual ~ObstacleUser () = default;
 
-        typedef std::pair<CollisionObjectConstPtr_t, CollisionObjectConstPtr_t> CollisionPair_t;
-        typedef std::vector<CollisionPair_t> CollisionPairs_t;
         typedef std::vector<fcl::CollisionRequest> CollisionRequests_t;
 
         static bool collide (const CollisionPairs_t& pairs,

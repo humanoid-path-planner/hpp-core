@@ -16,7 +16,7 @@
 // hpp-core  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/nearest-neighbor.hh>
@@ -187,37 +187,6 @@ namespace hpp {
       return path;
     }
 
-    void PathPlanner::tryDirectPath ()
-    {
-      // call steering method here to build a direct conexion
-      const SteeringMethodPtr_t& sm (problem()->steeringMethod ());
-      PathValidationPtr_t pathValidation (problem()->pathValidation ());
-      PathProjectorPtr_t pathProjector (problem()->pathProjector ());
-      PathPtr_t validPath, projPath, path;
-      NodePtr_t initNode = roadmap ()->initNode();
-      for (NodeVector_t::const_iterator itn = roadmap ()->goalNodes ().begin();
-	   itn != roadmap ()->goalNodes ().end (); ++itn) {
-	ConfigurationPtr_t q1 ((initNode)->configuration ());
-	ConfigurationPtr_t q2 ((*itn)->configuration ());
-	path = (*sm) (*q1, *q2);
-        if (!path) continue;
-        if (pathProjector) {
-          if (!pathProjector->apply (path, projPath)) continue;
-        } else {
-          projPath = path;
-        }
-        if (projPath) {
-	  PathValidationReportPtr_t report;
-          bool pathValid = pathValidation->validate (projPath, false, validPath,
-						     report);
-          if (pathValid && validPath->length() > 0) {
-            roadmap ()->addEdge (initNode, *itn, projPath);
-            roadmap ()->addEdge (*itn, initNode, projPath->reverse());
-          }
-        }
-      }
-    }
-
     void PathPlanner::tryConnectInitAndGoals ()
     {
       // call steering method here to build a direct conexion
@@ -229,7 +198,7 @@ namespace hpp {
       NearestNeighborPtr_t nn (roadmap ()->nearestNeighbor ());
       // Register edges to add to roadmap and add them after iterating
       // among the connected components.
-      typedef boost::tuple <NodePtr_t, NodePtr_t, PathPtr_t> FutureEdge_t;
+      typedef std::tuple <NodePtr_t, NodePtr_t, PathPtr_t> FutureEdge_t;
       typedef std::vector <FutureEdge_t> FutureEdges_t;
       FutureEdges_t futureEdges;
       ConnectedComponentPtr_t initCC (initNode->connectedComponent ());
@@ -292,10 +261,8 @@ namespace hpp {
         }
       }
       // Add edges
-      for (FutureEdges_t::const_iterator it (futureEdges.begin ());
-           it != futureEdges.end (); ++it) {
-        roadmap ()->addEdge (it->get <0> (), it->get <1> (), it->get <2> ());
-      }
+      for (const auto& e : futureEdges)
+        roadmap ()->addEdge (std::get<0>(e), std::get<1>(e), std::get<2>(e));
     }
 
   } //   namespace core

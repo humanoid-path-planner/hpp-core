@@ -346,7 +346,7 @@ namespace hpp {
           }
         }
 
-        NodePtr_t qnew = roadmap()->addNode(boost::make_shared<Configuration_t>(q));
+        NodePtr_t qnew = roadmap()->addNode(make_shared<Configuration_t>(q));
         EdgePtr_t edge = roadmap()->addEdge(near, qnew, path);
         roadmap()->addEdge(qnew, near, path->reverse());
         assert(parentMap.find(near) != parentMap.end());
@@ -400,7 +400,7 @@ namespace hpp {
 				       ->robot()->numberDof()),
               extendMaxLength_));
 
-        const NodePtr_t nnew = roadmap()->addNode(boost::make_shared<Configuration_t>(qnew));
+        const NodePtr_t nnew = roadmap()->addNode(make_shared<Configuration_t>(qnew));
 
         std::vector<ValidatedPath_t> paths;
         paths.reserve(nearNodes.size());

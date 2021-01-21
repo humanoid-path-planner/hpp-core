@@ -23,27 +23,23 @@ namespace hpp {
   namespace core {
     namespace steeringMethod {
       HPP_PREDEF_CLASS (Straight);
-      typedef boost::shared_ptr <Straight> StraightPtr_t;
+      typedef shared_ptr <Straight> StraightPtr_t;
       HPP_PREDEF_CLASS (Interpolated);
-      typedef boost::shared_ptr <Interpolated> InterpolatedPtr_t;
+      typedef shared_ptr <Interpolated> InterpolatedPtr_t;
       HPP_PREDEF_CLASS (CarLike);
-      typedef boost::shared_ptr <CarLike> CarLikePtr_t;
+      typedef shared_ptr <CarLike> CarLikePtr_t;
       HPP_PREDEF_CLASS (ConstantCurvature);
-      typedef boost::shared_ptr <ConstantCurvature> ConstantCurvaturePtr_t;
+      typedef shared_ptr <ConstantCurvature> ConstantCurvaturePtr_t;
       HPP_PREDEF_CLASS (Dubins);
-      typedef boost::shared_ptr <Dubins> DubinsPtr_t;
+      typedef shared_ptr <Dubins> DubinsPtr_t;
       HPP_PREDEF_CLASS (ReedsShepp);
-      typedef boost::shared_ptr <ReedsShepp> ReedsSheppPtr_t;
+      typedef shared_ptr <ReedsShepp> ReedsSheppPtr_t;
       HPP_PREDEF_CLASS (Snibud);
-      typedef boost::shared_ptr <Snibud> SnibudPtr_t;
+      typedef shared_ptr <Snibud> SnibudPtr_t;
       template <int _PolynomeBasis, int _Order> class Spline;
       HPP_PREDEF_CLASS (Hermite);
-      typedef boost::shared_ptr <Hermite> HermitePtr_t;
+      typedef shared_ptr <Hermite> HermitePtr_t;
     } // namespace steeringMethod
-
-    /// \deprecated use steeringMethod::Straight instead
-    typedef steeringMethod::Straight SteeringMethodStraight;
-    typedef steeringMethod::StraightPtr_t SteeringMethodStraightPtr_t;
   } // namespace core
 } // namespace hpp
 

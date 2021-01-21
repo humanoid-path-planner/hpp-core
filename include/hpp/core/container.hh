@@ -18,30 +18,21 @@
 # define HPP_CORE_CONTAINER_HH
 
 # include <map>
-# include <list>
 # include <stdexcept>
+# include <type_traits>
 
-# include <boost/smart_ptr/shared_ptr.hpp>
-
-# include <boost/mpl/inherit_linearly.hpp>
-# include <boost/mpl/fold.hpp>
-# include <boost/mpl/inherit.hpp>
-# include <boost/mpl/vector.hpp>
-# include <boost/mpl/for_each.hpp>
-# include <boost/type_traits/is_pointer.hpp>
-# include <boost/type_traits/remove_pointer.hpp>
-
+# include <hpp/util/pointer.hh>
 # include <hpp/core/config.hh>
 
 namespace hpp {
   namespace core {
     /// @cond INTERNAL
     namespace internal {
-      template <typename T> struct is_pointer : boost::is_pointer<T> {};
-      template <typename T> struct is_pointer<boost::shared_ptr<T> > : boost::true_type {};
-      template <typename T> struct remove_pointer : boost::remove_pointer<T> {};
-      template <typename T> struct remove_pointer<boost::shared_ptr<T> > { typedef T type; };
-      template <typename T> struct remove_pointer<const boost::shared_ptr<T> > { typedef T type; };
+      template <typename T> struct is_pointer : std::is_pointer<T> {};
+      template <typename T> struct is_pointer<shared_ptr<T> > : std::true_type {};
+      template <typename T> struct remove_pointer : std::remove_pointer<T> {};
+      template <typename T> struct remove_pointer<shared_ptr<T> > { typedef T type; };
+      template <typename T> struct remove_pointer<const shared_ptr<T> > { typedef T type; };
 
       template <bool deref_ptr> struct deref {
         template <typename T> static inline T get (T t) { return t; }
