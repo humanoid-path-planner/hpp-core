@@ -84,10 +84,10 @@ namespace hpp {
       {
         typedef ParentMap_t::const_iterator It_t;
         value_type c = 0;
-        for (It_t current = map.find(n); current->second; 
+        for (It_t current = map.find(n); current->second;
             current = map.find(current->second->from())) {
           if (current == map.end())
-            throw std::logic_error("this node has no parent.");
+            throw std::logic_error("BiRRT*: This node has no parent. You cannot use BiRRT* from a precomputed roadmap.");
           c += current->second->path()->length();
         }
         return c;
@@ -103,7 +103,7 @@ namespace hpp {
         if (e) {
           assert(e->to() == n);
           if (map.find(e->from()) == map.end())
-            throw std::logic_error("could not find node from of edge in parent map. Did you start from a pre-built roadmap ?");
+            throw std::logic_error("BiRRT*: Could not find node from of edge in parent map. You cannot use BiRRT* from a precomputed roadmap.");
         }
         map[n] = e;
       }
@@ -236,7 +236,7 @@ namespace hpp {
               --i;
             edge0 = toRoot_[0].find(edge1->second->from());
             if(edge0->second->to() != edge1->second->from())
-              throw std::logic_error("wrong parent map.");
+              throw std::logic_error("BiRRT*: wrong parent map.");
 
             // qm = (q0 + q2) / 2
             pinocchio::interpolate(problem()->robot(),
