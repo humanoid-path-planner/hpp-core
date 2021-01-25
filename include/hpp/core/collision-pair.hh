@@ -41,10 +41,10 @@ struct CollisionPair {
   inline auto collide(fcl::CollisionRequest& request, fcl::CollisionResult& result) const
     //decltype(computeCollision(tf1,tf2,request,result))
   {
-    assert(!first ->getTransform(d).translation().hasNaN());
-    assert(!first ->getTransform(d).rotation   ().hasNaN());
-    assert(!second->getTransform(d).translation().hasNaN());
-    assert(!second->getTransform(d).rotation   ().hasNaN());
+    assert(!first ->getTransform().translation().hasNaN());
+    assert(!first ->getTransform().rotation   ().hasNaN());
+    assert(!second->getTransform().translation().hasNaN());
+    assert(!second->getTransform().rotation   ().hasNaN());
     return computeCollision(
         first ->getFclTransform(),
         second->getFclTransform(),
