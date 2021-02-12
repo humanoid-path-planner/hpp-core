@@ -167,8 +167,6 @@ namespace hpp {
       public:
         virtual ~ObstacleUser () = default;
 
-        typedef std::vector<fcl::CollisionRequest> CollisionRequests_t;
-
         static bool collide (const CollisionPairs_t& pairs,
             CollisionRequests_t& reqs,
             fcl::CollisionResult& res,

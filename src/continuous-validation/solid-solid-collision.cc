@@ -100,7 +100,9 @@ namespace hpp {
       {
         // std::cout << "size = " << pairs().size() << std::endl;
         // std::cout << "capacity = " << pairs().capacity() << std::endl;
-        pairs().push_back (CollisionPair_t (left, right));
+        pairs().emplace_back (left, right);
+        requests().emplace_back (fcl::DISTANCE_LOWER_BOUND, 1);
+        requests().back().enable_cached_gjk_guess = true;
       }
 
       std::string SolidSolidCollision::name () const

@@ -79,6 +79,18 @@ namespace hpp {
           return m_->pairs;
         }
 
+        // Get requests checked for collision
+        const CollisionRequests_t& requests () const
+        {
+          return m_->requests;
+        }
+
+        // Get requests checked for collision
+        CollisionRequests_t& requests ()
+        {
+          return m_->requests;
+        }
+
         // Get maximal velocity
         value_type maximalVelocity () const
         {
@@ -100,15 +112,16 @@ namespace hpp {
         /// \name Security margin
         /// \{
 
-        /// Get security margin
+        /// Get security margin of the first pair of object.
         value_type securityMargin() const
         {
-          return collisionRequest_.security_margin;
+          return m_->requests[0].security_margin;
         }
         /// Set security margin
         void securityMargin(const value_type& securityMargin)
         {
-          collisionRequest_.security_margin = securityMargin;
+          for (auto& request : m_->requests)
+            request.security_margin = securityMargin;
         }
         /// \}
       protected:
@@ -117,15 +130,12 @@ namespace hpp {
         /// \param tolerance allowed penetration should be positive
         BodyPairCollision (value_type tolerance):
           IntervalValidation(tolerance), m_ (new Model),
-          collisionRequest_(fcl::DISTANCE_LOWER_BOUND, 1), maximalVelocity_(0)
-        {
-          collisionRequest_.enable_cached_gjk_guess = true;
-        }
+          maximalVelocity_(0)
+        {}
 
         /// Copy constructor
         BodyPairCollision (const BodyPairCollision& other):
           IntervalValidation(other), m_(other.m_),
-          collisionRequest_(other.collisionRequest_),
           maximalVelocity_(other.maximalVelocity_)
         {}
 
@@ -140,9 +150,9 @@ namespace hpp {
       private:
         struct Model {
           CollisionPairs_t pairs;
+          CollisionRequests_t requests;
         };
         shared_ptr<Model> m_;
-        fcl::CollisionRequest collisionRequest_;
 
         mutable vector_t Vb_;
         value_type maximalVelocity_;

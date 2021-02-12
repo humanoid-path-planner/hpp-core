@@ -51,7 +51,7 @@ namespace hpp {
       fcl::CollisionResult collisionResult;
       std::size_t iPair = 0;
       const CollisionPairs_t* pairs (&cPairs_);
-      ObstacleUser::CollisionRequests_t* requests (&cRequests_);
+      CollisionRequests_t* requests (&cRequests_);
 
       bool collide = ObstacleUser::collide (cPairs_, cRequests_,
           collisionResult, iPair, device.d());

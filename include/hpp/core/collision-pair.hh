@@ -29,6 +29,8 @@
 namespace hpp {
 namespace core {
 
+typedef std::vector<fcl::CollisionRequest> CollisionRequests_t;
+
 struct CollisionPair {
   CollisionObjectConstPtr_t first;
   CollisionObjectConstPtr_t second;

@@ -150,14 +150,15 @@ namespace hpp {
       {
         using std::numeric_limits;
         distanceLowerBound = numeric_limits <value_type>::infinity ();
-        assert (collisionRequest_.enable_distance_lower_bound == true);
         const CollisionPairs_t& prs (pairs());
-        for (const auto& pair : prs) {
+        CollisionRequests_t& rqsts (requests());
+        for (std::size_t i = 0; i < prs.size(); ++i) {
+          assert (rqsts[i].enable_distance_lower_bound == true);
           fcl::CollisionResult result;
-          pair.collide(data, collisionRequest_, result);
+          prs[i].collide(data, rqsts[i], result);
           // Get result
           if (result.isCollision ()) {
-            setReport(report, result, pair);
+            setReport(report, result, prs[i]);
             return false;
           }
           if (result.distance_lower_bound < distanceLowerBound) {
