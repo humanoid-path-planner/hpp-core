@@ -84,15 +84,24 @@ namespace hpp {
       bool SolidSolidCollision::removeObjectTo_b (const CollisionObjectConstPtr_t& object)
       {
         CollisionPairs_t& prs (pairs());
-        const std::size_t s = prs.size();
-        for (CollisionPairs_t::iterator _pair = prs.begin ();
-          _pair != prs.end ();) {
-          if (object == _pair->second)
-            _pair = prs.erase (_pair);
-          else
-            ++_pair;
+        CollisionRequests_t& rqsts (requests());
+        const int s = (int)prs.size();
+
+        // Remove all reference to object
+        int last = 0;
+        for (int i = 0; i < s; ++i) {
+          if (object != prs[i].second) { // Different -> keep
+            if (last != i) { // If one has been removed, then move.
+              prs[last] = std::move(prs[i]);
+              rqsts[last] = std::move(rqsts[i]);
+            }
+            last++;
+          }
         }
-        return prs.size() < s;
+        prs.erase(prs.begin() + last, prs.end());
+        rqsts.erase(rqsts.begin() + last, rqsts.end());
+
+        return last != s;
       }
 
       void SolidSolidCollision::addCollisionPair (const CollisionObjectConstPtr_t& left,
@@ -244,7 +253,7 @@ namespace hpp {
               it != objects_b.end (); ++it) {
             assert (!(*it)->joint () ||
                 (*it)->joint ()->robot () != joint_a->robot ());
-            pairs().push_back (CollisionPair_t(obj, *it));
+            addCollisionPair(obj, *it);
           }
         }
         // Find sequence of joints

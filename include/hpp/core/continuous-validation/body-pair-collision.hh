@@ -150,6 +150,8 @@ namespace hpp {
       private:
         struct Model {
           CollisionPairs_t pairs;
+          /// \todo The collision request is not part of the model since the
+          ///       request gjk guess is updated at each collision check.
           CollisionRequests_t requests;
         };
         shared_ptr<Model> m_;

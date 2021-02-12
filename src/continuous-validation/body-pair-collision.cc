@@ -152,6 +152,7 @@ namespace hpp {
         distanceLowerBound = numeric_limits <value_type>::infinity ();
         const CollisionPairs_t& prs (pairs());
         CollisionRequests_t& rqsts (requests());
+        assert (rqsts.size() == prs.size());
         for (std::size_t i = 0; i < prs.size(); ++i) {
           assert (rqsts[i].enable_distance_lower_bound == true);
           fcl::CollisionResult result;

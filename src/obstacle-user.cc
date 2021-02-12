@@ -206,8 +206,8 @@ namespace hpp {
         return false;
       };
       if (   setMargin(cPairs_, cRequests_)
-          && setMargin(pPairs_, pRequests_)
-          && setMargin(dPairs_, dRequests_)) return;
+          || setMargin(pPairs_, pRequests_)
+          || setMargin(dPairs_, dRequests_)) return;
       throw std::invalid_argument("Could not find a collision pair between body"
           " " + body_a + " and " + body_b);
     }

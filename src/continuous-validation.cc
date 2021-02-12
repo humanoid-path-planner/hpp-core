@@ -341,6 +341,11 @@ namespace hpp {
         value_type margin(securityMatrix(ia, ib));
         bpc->securityMargin(margin);
       }
+      // If the collision request is in the BodyPairCollision::Model, there is
+      // not need to clear this pool. However, it becomes required if it is
+      // moved outside, as suggested by a todo note.
+      // To avoid a hard-to-find bug when the todo is adressed, this line is
+      // kept.
       bodyPairCollisionPool_.clear();
     }
 
@@ -372,6 +377,11 @@ namespace hpp {
       if (!found)
         throw std::invalid_argument("Could not find a collision pair between "
             "body " + body_a + " and " + body_b);
+      // If the collision request is in the BodyPairCollision::Model, there is
+      // not need to clear this pool. However, it becomes required if it is
+      // moved outside, as suggested by a todo note.
+      // To avoid a hard-to-find bug when the todo is adressed, this line is
+      // kept.
       bodyPairCollisionPool_.clear();
     }
 
