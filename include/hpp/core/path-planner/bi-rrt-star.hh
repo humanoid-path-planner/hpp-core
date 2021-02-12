@@ -87,6 +87,8 @@ namespace hpp {
         value_type gamma_;
         /// Maximal path length with using function \ref extend.
         value_type extendMaxLength_;
+        /// Minimal path length added to the roadmap.
+        value_type minimalPathLength_;
 
         NodePtr_t roots_[2];
 

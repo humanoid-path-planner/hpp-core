@@ -53,6 +53,7 @@ namespace hpp {
         Parent_t (problem),
         gamma_ (1.),
         extendMaxLength_ (1.),
+        minimalPathLength_ (1e-5),
         toRoot_(2)
       {
         maxIterations(100);
@@ -63,6 +64,7 @@ namespace hpp {
         Parent_t (problem, roadmap),
         gamma_ (1.),
         extendMaxLength_ (1.),
+        minimalPathLength_ (1e-5),
         toRoot_(2)
       {
         maxIterations(100);
@@ -98,13 +100,15 @@ namespace hpp {
       /// \param e a roadmap edge that ends at \c n.
       /// \note if \c e is NULL, then \c n is considered a root of the parent
       /// map.
-      void setParent(ParentMap_t& map, NodePtr_t n, EdgePtr_t e)
+      void setParent(ParentMap_t& map, NodePtr_t n, EdgePtr_t e, bool newNode)
       {
         if (e) {
           assert(e->to() == n);
           if (map.find(e->from()) == map.end())
             throw std::logic_error("BiRRT*: Could not find node from of edge in parent map. You cannot use BiRRT* from a precomputed roadmap.");
         }
+        if (newNode && map.count(n)) 
+          throw std::logic_error("BiRRT*: This node already exists in the roadmap.");
         map[n] = e;
       }
 
@@ -173,14 +177,16 @@ namespace hpp {
         if (extendMaxLength_ <= 0)
           extendMaxLength_ = std::sqrt(problem()->robot()->numberDof());
         gamma_ = problem()->getParameter("BiRRT*/gamma").floatValue();
+        minimalPathLength_ = problem()->getParameter
+	  ("BiRRT*/minimalPathLength").floatValue();
 
         roots_[0] = roadmap()->initNode();
         roots_[1] = roadmap()->goalNodes()[0];
 
         toRoot_[0].clear();
         toRoot_[1].clear();
-        setParent(toRoot_[0], roots_[0], EdgePtr_t());
-        setParent(toRoot_[1], roots_[1], EdgePtr_t());
+        setParent(toRoot_[0], roots_[0], EdgePtr_t(), true);
+        setParent(toRoot_[1], roots_[1], EdgePtr_t(), true);
       }
 
       void BiRrtStar::oneStep ()
@@ -308,7 +314,7 @@ namespace hpp {
           return false;
 
         PathPtr_t path = buildPath(*near->configuration(), q, extendMaxLength_, true);
-        if (!path || path->length() < 1e-10) return false;
+        if (!path || path->length() < minimalPathLength_) return false;
         q = path->end();
 
         value_type n ((value_type)roadmap()->nodes().size());
@@ -350,7 +356,9 @@ namespace hpp {
         EdgePtr_t edge = roadmap()->addEdge(near, qnew, path);
         roadmap()->addEdge(qnew, near, path->reverse());
         assert(parentMap.find(near) != parentMap.end());
-        setParent(parentMap, qnew, edge);
+        if (parentMap.count(qnew))
+          return false;
+        setParent(parentMap, qnew, edge, true);
 
         for (std::size_t i = 0; i < nearNodes.size(); ++i) {
           if (nearNodes[i] == near || !paths[i].second) continue;
@@ -363,7 +371,7 @@ namespace hpp {
             if (pathValid) {
               roadmap()->addEdge(nearNodes[i], qnew, paths[i].second);
               edge = roadmap()->addEdge(qnew, nearNodes[i], paths[i].second->reverse());
-              setParent(parentMap, nearNodes[i], edge);
+              setParent(parentMap, nearNodes[i], edge, false);
             }
           }
         }
@@ -390,7 +398,7 @@ namespace hpp {
           return false;
 
         const PathPtr_t nearQ_qnew = buildPath(*nearQ->configuration(), q, extendMaxLength_, true);
-        if (!nearQ_qnew || nearQ_qnew->length() < 1e-10) return false;
+        if (!nearQ_qnew || nearQ_qnew->length() < minimalPathLength_) return false;
 
         const Configuration_t qnew (nearQ_qnew->end());
 
@@ -441,7 +449,9 @@ namespace hpp {
           EdgePtr_t edge = roadmap()->addEdge(bestParent, nnew, best_qnew);
           roadmap()->addEdge(nnew, bestParent, best_qnew->reverse());
           assert(toRoot_[k].find(bestParent) != toRoot_[k].end());
-          setParent(toRoot_[k], nnew, edge);
+          if (toRoot_[k].count(nnew))
+            continue;
+          setParent(toRoot_[k], nnew, edge, true);
 
           for (std::size_t i = 0; i < nearNodes.size(); ++i) {
             if (nearNodes[i] == bestParent || !paths[i].second) continue;
@@ -455,7 +465,7 @@ namespace hpp {
                 roadmap()->addEdge(nearNodes[i], nnew, paths[i].second);
                 edge = roadmap()->addEdge(nnew, nearNodes[i], paths[i].second->reverse());
                 assert(toRoot_[k].find(nnew) != toRoot_[k].end());
-                setParent(toRoot_[k], nearNodes[i], edge);
+                setParent(toRoot_[k], nearNodes[i], edge, false);
               }
             }
           }
@@ -474,6 +484,10 @@ namespace hpp {
             "BiRRT*/gamma",
             "",
             Parameter(1.)));
+      Problem::declareParameter(ParameterDescription (Parameter::FLOAT,
+            "BiRRT*/minimalPathLength",
+            "The minimum length between 2 configurations in the roadmap.",
+            Parameter(1e-4)));
       HPP_END_PARAMETER_DECLARATION(BiRrtStar)
     } // namespace pathPlanner
   } // namespace core
