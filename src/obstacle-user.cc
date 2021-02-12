@@ -189,6 +189,29 @@ namespace hpp {
       }
     }
 
+    void ObstacleUser::setSecurityMarginBetweenBodies(const std::string& body_a,
+        const std::string& body_b, const value_type& margin)
+    {
+      auto setMargin = [&body_a, &body_b, &margin](const CollisionPairs_t& pairs,
+          CollisionRequests_t& requests) {
+        for (std::size_t i = 0; i < pairs.size(); ++i) {
+          const CollisionPair_t& pair = pairs[i];
+          if (  (pair.first->name() == body_a && pair.second->name() == body_b)
+              ||(pair.first->name() == body_b && pair.second->name() == body_a))
+          {
+            requests[i].security_margin = margin;
+            return true;
+          }
+        }
+        return false;
+      };
+      if (   setMargin(cPairs_, cRequests_)
+          && setMargin(pPairs_, pRequests_)
+          && setMargin(dPairs_, dRequests_)) return;
+      throw std::invalid_argument("Could not find a collision pair between body"
+          " " + body_a + " and " + body_b);
+    }
+
     void ObstacleUser::addRobotCollisionPairs ()
     {
       const pinocchio::GeomModel& model = robot_->geomModel();

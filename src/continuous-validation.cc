@@ -344,6 +344,37 @@ namespace hpp {
       bodyPairCollisionPool_.clear();
     }
 
+    void ContinuousValidation::setSecurityMarginBetweenBodies(
+        const std::string& body_a, const std::string& body_b,
+        const value_type& margin)
+    {
+      // Loop over collision pairs and remove disabled ones.
+      bool found = true;
+      for (IntervalValidations_t::iterator _colPair
+             (intervalValidations_.begin());
+          _colPair != intervalValidations_.end(); ++_colPair)
+      {
+        BodyPairCollisionPtr_t bpc(HPP_DYNAMIC_PTR_CAST(BodyPairCollision,
+                                                        *_colPair));
+        if (!bpc) continue;
+        const CollisionPairs_t& prs (bpc->pairs());
+        CollisionRequests_t& requests (bpc->requests());
+        for (std::size_t i = 0; i < prs.size(); ++i) {
+          const CollisionPair& pair (prs[i]);
+          if (  (pair.first->name() == body_a && pair.second->name() == body_b)
+              ||(pair.first->name() == body_b && pair.second->name() == body_a))
+          {
+            requests[i].security_margin = margin;
+            found = true;
+          }
+        }
+      }
+      if (!found)
+        throw std::invalid_argument("Could not find a collision pair between "
+            "body " + body_a + " and " + body_b);
+      bodyPairCollisionPool_.clear();
+    }
+
     template <>
     void ContinuousValidation::add<ContinuousValidation::AddObstacle>
     (const AddObstacle& delegate)

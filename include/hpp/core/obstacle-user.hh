@@ -56,12 +56,24 @@ namespace hpp {
         ///
         /// \param relMotion square symmetric matrix of RelativeMotionType of size numberDof x numberDof
         virtual void filterCollisionPairs (const RelativeMotion::matrix_type& relMotion) = 0;
+
         /// Set different security margins for collision pairs
         ///
+        /// This function works joint-wise. If you need a finer control, use
+        /// \ref setSecurityMarginBetweenBodies
+        ///
         /// This method enables users to choose different security margins
-        /// for each pair of robot body or each pair robot body - obstacle.
+        /// for each pair of robot joint or each pair robot joint - obstacle.
         /// \sa hpp::fcl::CollisionRequest::security_margin.
         virtual void setSecurityMargins(const matrix_t& securityMatrix) = 0;
+
+
+        /// Set security margin for collision pair between the two bodies.
+        ///
+        /// \sa hpp::fcl::CollisionRequest::security_margin.
+        virtual void setSecurityMarginBetweenBodies(const std::string& body_a,
+                                                    const std::string& body_b,
+                                                    const value_type& margin) = 0;
     }; // class ObstacleUserInterface
 
     /// Vector of validation class instances.
@@ -129,17 +141,26 @@ namespace hpp {
           }
         }
 
-        /// Set different security margins for collision pairs
-        ///
-        /// This method enables users to choose different security margins
-        /// for each pair of robot body or each pair robot body - obstacle.
-        /// \sa hpp::fcl::CollisionRequest::security_margin.
+        /// \copydoc ObstacleUserInterface::setSecurityMargins
         void setSecurityMargins(const matrix_t& securityMatrix)
         {
           for (std::size_t i = 0; i < validations_.size(); ++i) {
             shared_ptr<ObstacleUserInterface> oui =
               HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
             if (oui) oui->setSecurityMargins (securityMatrix);
+          }
+        }
+
+        /// \copydoc ObstacleUserInterface::setSecurityMarginBetweenBodies
+        void setSecurityMarginBetweenBodies(const std::string& body_a,
+                                            const std::string& body_b,
+                                            const value_type& margin)
+        {
+          for (std::size_t i = 0; i < validations_.size(); ++i) {
+            shared_ptr<ObstacleUserInterface> oui =
+              HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, validations_[i]);
+            if (oui)
+              oui->setSecurityMarginBetweenBodies (body_a, body_b, margin);
           }
         }
 
@@ -234,6 +255,12 @@ namespace hpp {
 
         /// \copydoc ObstacleUserInterface::setSecurityMargins
         virtual void setSecurityMargins(const matrix_t& securityMatrix);
+
+        /// \copydoc ObstacleUserInterface::setSecurityMarginBetweenBodies
+        virtual void setSecurityMarginBetweenBodies(const std::string& body_a,
+                                                    const std::string& body_b,
+                                                    const value_type& margin);
+
       protected:
         /// Constructor of body pair collision
         ObstacleUser (DevicePtr_t robot)

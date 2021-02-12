@@ -163,6 +163,11 @@ namespace hpp {
       /// \copydoc ObstacleUserInterface::setSecurityMargins
       virtual void setSecurityMargins(const matrix_t& securityMatrix);
 
+      /// \copydoc ObstacleUserInterface::setSecurityMarginBetweenBodies
+      virtual void setSecurityMarginBetweenBodies(const std::string& body_a,
+                                                  const std::string& body_b,
+                                                  const value_type& margin);
+
       /// \name Delegate
       /// \{
 
