@@ -126,14 +126,12 @@ namespace hpp {
 
       std::ostream& SolidSolidCollision::print (std::ostream& os) const
       {
-        os << "SolidSolidCollision: " << m_->joint_a->name()
-          << " - " << (m_->joint_b ? m_->joint_b->name() : "World") << '\n';
         const pinocchio::Model& model = joint_a()->robot ()->model();
+        os << "SolidSolidCollision: " << m_->joint_a->name()
+          << " - " << (m_->joint_b ? m_->joint_b->name() : model.names[0]) << '\n';
         JointIndices_t joints = m_->computeSequenceOfJoints ();
-        for (std::size_t i = 0; i < joints.size (); ++i) {
-          if (i > 0) os << model.names[i] << ',';
-          else       os << "World"        << ',';
-        }
+        for (auto i : joints)
+          os << model.names[i] << ", ";
         os << '\n';
         for (std::size_t i = 0; i < m_->coefficients.size(); ++i)
           os << m_->coefficients[i].value_ << ", ";
@@ -144,9 +142,9 @@ namespace hpp {
       {
         JointIndices_t joints;
 
-        const pinocchio::Model& model = joint_a->robot ()->model();
         assert(joint_a);
-        const JointIndex id_a = (joint_a ? joint_a->index() : 0),
+        const pinocchio::Model& model = joint_a->robot ()->model();
+        const JointIndex id_a = joint_a->index(),
                          id_b = (joint_b ? joint_b->index() : 0);
         JointIndex ia = id_a, ib = id_b;
 
@@ -169,7 +167,7 @@ namespace hpp {
         else               assert (model.parents[fromB.back()] == ia);
 
         // Build sequence
-        joints = fromA;
+        joints = std::move(fromA);
         joints.insert(joints.end(), fromB.rbegin(), fromB.rend());
         assert(joints.front() == id_a);
         assert(joints.back() == id_b);

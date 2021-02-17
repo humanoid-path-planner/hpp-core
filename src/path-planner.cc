@@ -125,11 +125,13 @@ namespace hpp {
           throw std::runtime_error (oss.str ().c_str ());
         }
         bpt::ptime timeStop(bpt::microsec_clock::universal_time());
-        if(static_cast<value_type>((timeStop - timeStart).total_milliseconds())
-            > timeOut_*1000){
+        value_type elapsed_ms = static_cast<value_type>(
+            (timeStop - timeStart).total_milliseconds());
+        if(elapsed_ms > timeOut_*1000) {
           if (!stopWhenProblemIsSolved_
               && problem()->target()->reached (roadmap())) break;
-          oss << "time out reached : " << timeOut_<<" s";
+          oss << "time out (" << timeOut_ << "s) reached after " <<
+            elapsed_ms*1e-3 << "s";
           throw std::runtime_error (oss.str ().c_str ());
         }
 
