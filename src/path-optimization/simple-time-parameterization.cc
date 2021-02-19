@@ -214,6 +214,11 @@ namespace hpp {
           interval_t paramRange = p->paramRange();
           p->timeParameterization (TimeParameterizationPtr_t(), paramRange);
 
+          PathPtr_t pp = p->copy();
+          if (p->length() > 0) {
+            output->appendPath (pp);
+            continue;
+          }
           // Compute B
           p->velocityBound (v, paramRange.first, paramRange.second);
           v_inv = (v.array() == 0).select(infinity, v.cwiseInverse());
@@ -245,9 +250,7 @@ namespace hpp {
 
           checkTimeParameterization (tp, order, paramRange, B, maxAcc, T);
 
-          PathPtr_t pp = p->copy();
           pp->timeParameterization (tp, interval_t (0, T));
-
           output->appendPath (pp);
         }
         return output;

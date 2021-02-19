@@ -94,6 +94,14 @@ namespace hpp {
 	}
       }
 
+      void impl_velocityBound (vectorOut_t result, const value_type& t0, const value_type& t1) const override
+      {
+	value_type tmin = sInOriginalPath (t0),
+                   tmax = sInOriginalPath (t1);
+	if (tmin > tmax) std::swap (tmin, tmax);
+        original_->velocityBound(result, tmin, tmax);
+      }
+
       virtual PathPtr_t impl_extract (const interval_t& subInterval) const
       {
 	ExtractedPathPtr_t path = createCopy (weak_.lock ());
