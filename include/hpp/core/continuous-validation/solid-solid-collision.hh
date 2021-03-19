@@ -147,6 +147,7 @@ namespace hpp {
           JointPtr_t joint_a;
           JointPtr_t joint_b;
           CoefficientVelocities_t coefficients;
+          CoefficientVelocities_t coefficients_reverse;
           JointIndices_t computeSequenceOfJoints () const;
           void computeCoefficients (const JointIndices_t& joints);
         };
