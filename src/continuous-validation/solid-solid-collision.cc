@@ -72,22 +72,19 @@ namespace hpp {
       value_type SolidSolidCollision::computeMaximalVelocity(vector_t& Vb) const
       {
         value_type maximalVelocity_a_b = 0;
-        for (CoefficientVelocities_t::const_iterator itCoef =
-        m_->coefficients.begin (); itCoef != m_->coefficients.end (); ++itCoef) {
-          const JointPtr_t& joint = itCoef->joint_;
-          const value_type& value = itCoef->value_;
-          maximalVelocity_a_b += value * Vb.segment(joint->rankInVelocity(), joint->numberDof()).norm();
+        for (const auto& coeff : m_->coefficients) {
+            const JointPtr_t& joint = coeff.joint_;
+            maximalVelocity_a_b += coeff.value_ * Vb.segment(joint->rankInVelocity(), joint->numberDof()).norm();
         }
 
         if(m_->joint_b)
         {
           value_type maximalVelocity_b_a = 0;
-          for (CoefficientVelocities_t::const_iterator itCoef =
-          m_->coefficients_reverse.begin (); itCoef != m_->coefficients_reverse.end (); ++itCoef) {
-            const JointPtr_t& joint = itCoef->joint_;
-            const value_type& value = itCoef->value_;
-            maximalVelocity_b_a += value * Vb.segment(joint->rankInVelocity(), joint->numberDof()).norm();
+          for (const auto& coeff : m_->coefficients_reverse) {
+            const JointPtr_t& joint = coeff.joint_;
+            maximalVelocity_b_a += coeff.value_ * Vb.segment(joint->rankInVelocity(), joint->numberDof()).norm();
           }
+
           if (maximalVelocity_b_a < maximalVelocity_a_b)
           {
             return maximalVelocity_b_a;
@@ -190,14 +187,14 @@ namespace hpp {
         return joints;
       }
 
-      void SolidSolidCollision::Model::computeCoefficients (const JointIndices_t& joints)
+      CoefficientVelocities_t SolidSolidCollision::Model::computeCoefficients(const JointIndices_t& joints) const
       {
         const pinocchio::Model& model = joint_a->robot ()->model();
 
-        // Compute coefficients going from joint a to joint b
         JointPtr_t child;
         assert (joints.size () > 1);
-        coefficients.resize (joints.size () - 1);
+        CoefficientVelocities_t coeff;
+        coeff.resize (joints.size () - 1);
         pinocchio::DevicePtr_t robot =joint_a->robot ();
         // Store r0 + sum of T_{i/i+1} in a variable
         value_type cumulativeLength = joint_a->linkedBody ()->radius ();
@@ -211,48 +208,32 @@ namespace hpp {
           else
             abort ();
           assert(child);
-          coefficients [i].joint_ = child;
+          coeff [i].joint_ = child;
           // Go through all known types of joints
           //  TODO: REPLACE THESE FUNCTIONS WITH NEW API
           distance = child->maximalDistanceToParent ();
-          coefficients [i].value_ =
+          coeff [i].value_ =
             child->upperBoundLinearVelocity () +
             cumulativeLength * child->upperBoundAngularVelocity ();
           cumulativeLength += distance;
 
           ++i;
         }
+        return coeff;
+      }
+
+
+      void SolidSolidCollision::Model::setCoefficients (const JointIndices_t& joints)
+      {
+        // Compute coefficients going from joint a to joint b
+        coefficients = computeCoefficients (joints);
 
         // Compute coefficients going from joint b to joint a
         if(joint_b)
         {
           JointIndices_t joints_reverse(joints);
           std::reverse(joints_reverse.begin(),joints_reverse.end());
-          assert (joints_reverse.size () > 1);
-          coefficients_reverse.resize (joints_reverse.size () - 1);
-          robot =joint_b->robot ();
-          // Store r0 + sum of T_{i/i+1} in a variable
-          cumulativeLength = joint_b->linkedBody ()->radius ();
-          i = 0;
-          while (i + 1 < joints_reverse.size()) {
-            if (model.parents[joints_reverse[i]] == joints_reverse[i+1])
-              child = Joint::create (robot, joints_reverse[i]);
-            else if (model.parents[joints_reverse[i+1]] == joints_reverse[i])
-              child = Joint::create (robot, joints_reverse[i+1]);
-            else
-              abort ();
-            assert(child);
-            coefficients_reverse [i].joint_ = child;
-            // Go through all known types of joints
-            //  TODO: REPLACE THESE FUNCTIONS WITH NEW API
-            distance = child->maximalDistanceToParent ();
-            coefficients_reverse [i].value_ =
-              child->upperBoundLinearVelocity () +
-              cumulativeLength * child->upperBoundAngularVelocity ();
-            cumulativeLength += distance;
-
-            ++i;
-          }
+          coefficients_reverse = computeCoefficients (joints_reverse);
         }
       }
 
@@ -280,7 +261,7 @@ namespace hpp {
         if (joint_b) { assert(joint_b->linkedBody ()); }
         // Find sequence of joints
         JointIndices_t joints (m_->computeSequenceOfJoints ());
-        m_->computeCoefficients (joints);
+        m_->setCoefficients (joints);
       }
 
       SolidSolidCollision::SolidSolidCollision (const JointPtr_t& joint_a,

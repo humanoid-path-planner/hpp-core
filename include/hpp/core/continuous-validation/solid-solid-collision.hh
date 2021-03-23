@@ -149,7 +149,8 @@ namespace hpp {
           CoefficientVelocities_t coefficients;
           CoefficientVelocities_t coefficients_reverse;
           JointIndices_t computeSequenceOfJoints () const;
-          void computeCoefficients (const JointIndices_t& joints);
+          CoefficientVelocities_t computeCoefficients (const JointIndices_t& joints) const;
+          void setCoefficients (const JointIndices_t& joints);
         };
         shared_ptr<Model> m_;
         SolidSolidCollisionWkPtr_t weak_;
