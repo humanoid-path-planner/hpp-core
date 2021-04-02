@@ -51,6 +51,9 @@ namespace hpp {
       ///  \li call parent implementation
       ///  \li get number nodes in problem parameter map
       virtual void startSolve ();
+      /// Does nothing.
+      /// This step is performed by the main algorithm
+      virtual void tryConnectInitAndGoals ();
       /// One step of the algorithm
       virtual void oneStep ();
       /// get the computationnal state of the algorithm

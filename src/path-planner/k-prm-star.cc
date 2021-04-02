@@ -69,6 +69,10 @@ namespace hpp {
         }
       }
 
+      void kPrmStar::tryConnectInitAndGoals ()
+      {
+      }
+
       void kPrmStar::oneStep ()
       {
         std::ostringstream oss;
