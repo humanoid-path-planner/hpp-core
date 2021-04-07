@@ -285,7 +285,7 @@ namespace hpp {
         }
         // Find sequence of joints
         JointIndices_t joints (m_->computeSequenceOfJoints ());
-        m_->computeCoefficients (joints);
+        m_->setCoefficients (joints);
       }
 
       void SolidSolidCollision::init(const SolidSolidCollisionWkPtr_t& weak)
