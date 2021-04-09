@@ -277,6 +277,12 @@ namespace hpp {
     }
 
     bool ConfigProjector::isSatisfied (ConfigurationIn_t config,
+				       value_type errorThreshold)
+    {
+      return solver_->isSatisfied (config, errorThreshold);
+    }
+
+    bool ConfigProjector::isSatisfied (ConfigurationIn_t config,
 				       vector_t& error)
     {
       error.resize (solver_->dimension() +

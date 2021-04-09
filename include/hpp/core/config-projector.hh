@@ -261,7 +261,15 @@ namespace hpp {
       /// @}
 
       /// Check whether a configuration statisfies the constraint.
+      /// \param config the configuration to test,
       virtual bool isSatisfied (ConfigurationIn_t config);
+
+      /// Check whether a configuration statisfies the constraint.
+      /// \param config the configuration to test,
+      /// \param errorThreshold the threshold the norm of each constraint should
+      ///        stay below.
+      virtual bool isSatisfied (ConfigurationIn_t config, value_type
+				errorThreshold);
 
       /// Check whether a configuration statisfies the constraint.
       ///
