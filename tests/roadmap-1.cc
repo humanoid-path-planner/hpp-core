@@ -292,13 +292,13 @@ BOOST_AUTO_TEST_CASE (Roadmap1) {
   BOOST_TEST_MESSAGE(*r);
 
   // Check that memory if well deallocated.
-  std::set<ConnectedComponentWkPtr_t> ccs;
+  std::list<ConnectedComponentWkPtr_t> ccs;
   for (ConnectedComponents_t::const_iterator _cc = r->connectedComponents().begin();
       _cc != r->connectedComponents().end(); ++_cc)
-    ccs.insert(*_cc);
+    ccs.push_back(*_cc);
 
   r.reset();
-  for (std::set<ConnectedComponentWkPtr_t>::const_iterator _cc = ccs.begin();
+  for (std::list<ConnectedComponentWkPtr_t>::const_iterator _cc = ccs.begin();
       _cc != ccs.begin(); ++_cc) {
     BOOST_CHECK (! _cc->lock());
   }
