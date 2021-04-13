@@ -20,7 +20,7 @@
 #include <hpp/core/container.hh>
 
 typedef std::string Type1;
-typedef boost::shared_ptr<std::string> Type2;
+typedef std::shared_ptr<std::string> Type2;
 
 using hpp::core::Container;
 

@@ -40,7 +40,7 @@ using hpp::pinocchio::JointConstPtr_t;
 using namespace hpp::core;
 
 HPP_PREDEF_CLASS (LocalPath);
-typedef boost::shared_ptr <LocalPath> LocalPathPtr_t;
+typedef std::shared_ptr <LocalPath> LocalPathPtr_t;
 
 class LocalPath : public Path
 {

@@ -113,7 +113,7 @@ class Polynomial : public DifferentiableFunction {
       }
 };
 
-typedef boost::shared_ptr<Polynomial> PolynomialPtr_t;
+typedef std::shared_ptr<Polynomial> PolynomialPtr_t;
 
 /*
 bool checkContinuity (PathPtr_t path) {
