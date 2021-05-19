@@ -88,6 +88,12 @@ namespace hpp {
 
         virtual PathPtr_t reverse () const;
 
+        struct Wheels_t {
+          value_type value; // Constant value of the wheel angle
+          JointPtr_t j;
+          Wheels_t () : j () {}
+        };
+
       protected:
         /// Print path in a stream
         virtual std::ostream& print (std::ostream &os) const;
@@ -181,11 +187,6 @@ namespace hpp {
         const size_type xyId_,rzId_;
         size_type dxyId_,drzId_;
         value_type forward_;
-        struct Wheels_t {
-          value_type value; // Constant value of the wheel angle
-          JointPtr_t j;
-          Wheels_t () : j () {}
-        };
         std::vector<Wheels_t> wheels_;
         ConstantCurvatureWkPtr_t weak_;
 
