@@ -305,7 +305,14 @@ namespace hpp {
         ConfigurationIn_t config)
     {
       if (!solver_->rightHandSideFromConfig (nm, config)) {
-        throw std::runtime_error ("Function was not found in the solver.");
+        std::ostringstream os;
+        os << "Function \"" << nm->function().name()
+           << "\" was not found in the solver. Solver contains (";
+        for (auto constraint : solver_->constraints()) {
+          os << "\"" << constraint->function().name() << "\",";
+        }
+        os << ").";
+        throw std::runtime_error (os.str().c_str());
       }
     }
 
@@ -319,7 +326,13 @@ namespace hpp {
         vectorIn_t rhs)
     {
       if (!solver_->rightHandSide (nm, rhs)) {
-        throw std::runtime_error ("Function was not found in the solver. This is probably because it is an explicit function and rhs is not supported for this type of function.");
+        std::ostringstream os;
+        os << "Function \"" << nm->function().name()
+           << "\" was not found in the solver. Solver contains (";
+        for (auto constraint : solver_->constraints()) {
+          os << "\"" << constraint->function().name() << "\",";
+        }
+        os << ").";
       }
     }
 
