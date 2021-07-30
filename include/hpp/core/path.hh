@@ -118,7 +118,7 @@ namespace hpp {
       /// \{
 
       /// Configuration at time
-      /// \deprecated use configAtTime instead
+      /// \deprecated use eval instead
       Configuration_t operator () (const value_type& time, bool& success) const
 	HPP_CORE_DEPRECATED
       {
