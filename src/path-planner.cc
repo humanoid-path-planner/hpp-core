@@ -28,6 +28,7 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path-planning-failed.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/steering-method.hh>
@@ -114,7 +115,7 @@ namespace hpp {
       if (solved ) {
 	hppDout (info, "tryConnectInitAndGoals succeeded");
       }
-      if (interrupt_) throw std::runtime_error ("Interruption");
+      if (interrupt_) throw path_planning_failed ("Interruption");
       while (!solved) {
         // Check limits
         std::ostringstream oss;
@@ -122,7 +123,7 @@ namespace hpp {
           if (!stopWhenProblemIsSolved_
               && problem()->target()->reached (roadmap())) break;
           oss << "Maximal number of iterations reached: " << maxIterations_;
-          throw std::runtime_error (oss.str ().c_str ());
+          throw path_planning_failed (oss.str ().c_str ());
         }
         bpt::ptime timeStop(bpt::microsec_clock::universal_time());
         value_type elapsed_ms = static_cast<value_type>(
@@ -132,7 +133,7 @@ namespace hpp {
               && problem()->target()->reached (roadmap())) break;
           oss << "time out (" << timeOut_ << "s) reached after " <<
             elapsed_ms*1e-3 << "s";
-          throw std::runtime_error (oss.str ().c_str ());
+          throw path_planning_failed (oss.str ().c_str ());
         }
 
         // Execute one step
@@ -144,7 +145,7 @@ namespace hpp {
         // Check if problem is solved.
         ++nIter;
         solved = stopWhenProblemIsSolved_ && problem()->target()->reached (roadmap());
-        if (interrupt_) throw std::runtime_error ("Interruption");
+        if (interrupt_) throw path_planning_failed ("Interruption");
       }
       PathVectorPtr_t planned =  computePath ();
       return finishSolve (planned);
