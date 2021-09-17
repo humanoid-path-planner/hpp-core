@@ -146,6 +146,33 @@ namespace hpp {
     inline const value_type& Iinit(const interval_t& I, bool reverse) { return (reverse ? I.second : I.first); }
     inline const value_type& Iend (const interval_t& I, bool reverse) { return (reverse ? I.first : I.second); }
 
+    void PathVector::impl_velocityBound (vectorOut_t bound,
+                                        const value_type& param0,
+                                        const value_type& param1) const
+    {
+      assert(!timeParameterization());
+
+      bool reversed = param0 > param1 ? true : false;
+      value_type localtinit, localtend;
+      std::size_t iinit = rankAtParam (param0 , localtinit),
+                  iend  = rankAtParam (param1, localtend );
+      if (iinit == iend) {
+        paths_[iinit]->velocityBound(bound, localtinit, localtend);
+      } else {
+        paths_[iinit]->velocityBound(bound, localtinit, Iend(paths_[iinit]->timeRange(), reversed));
+        int one = (reversed ? -1 : 1);
+        vector_t localbound (vector_t::Zero(bound.size()));
+        for (std::size_t i = iinit + one;
+            (reversed && i > iend) || i < iend;
+            i += one) {
+          paths_[i]->velocityBound(localbound, paths_[i]->timeRange().first, paths_[i]->timeRange().second);
+          bound = bound.cwiseMax(localbound);
+        }
+        paths_[iend]->velocityBound(localbound, Iinit(paths_[iend]->timeRange(), reversed), localtend);
+        bound = bound.cwiseMax(localbound);
+      }
+    }
+
     PathPtr_t PathVector::impl_extract (const interval_t& subInterval) const
     {
       assert(!timeParameterization());
