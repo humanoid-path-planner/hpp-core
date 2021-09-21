@@ -177,6 +177,9 @@ namespace hpp {
       void addEdges (const NodePtr_t from, const NodePtr_t& to,
 		     const PathPtr_t& path);
 
+      /// Add the nodes and edges of a roadmap into this one.
+      void merge(const RoadmapPtr_t& other);
+
       /// Add a goal configuration
       /// \param config configuration
       /// If configuration is already in the roadmap, tag corresponding node
