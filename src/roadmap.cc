@@ -179,6 +179,22 @@ namespace hpp {
       return nodeFrom;
     }
 
+    void Roadmap::merge(const RoadmapPtr_t& other)
+    {
+      // Map nodes of other roadmap with nodes of this one
+      std::map<core::NodePtr_t, core::NodePtr_t> cNode;
+      for (const core::NodePtr_t& node: other->nodes()) {
+        cNode[node] = this->addNode(node->configuration());
+      }
+      for (const core::EdgePtr_t& edge: other->edges()) {
+        if (edge->path()->length() == 0)
+          assert (edge->from() == edge->to());
+        else
+          this->addEdges(cNode[edge->from()], cNode[edge->to()],
+                         edge->path());
+      }
+    }
+
     NodePtr_t
     Roadmap::nearestNode (const Configuration_t& configuration,
         value_type& minDistance, bool reverse)
