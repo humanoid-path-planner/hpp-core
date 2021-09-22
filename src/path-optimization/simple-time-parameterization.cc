@@ -215,10 +215,10 @@ namespace hpp {
           p->timeParameterization (TimeParameterizationPtr_t(), paramRange);
 
           PathPtr_t pp = p->copy();
-          if (p->length() > 0) {
-            output->appendPath (pp);
-            continue;
-          }
+          // if (p->length() > 0) {
+          //   output->appendPath (pp);
+          //   continue;
+          // }
           // Compute B
           p->velocityBound (v, paramRange.first, paramRange.second);
           v_inv = (v.array() == 0).select(infinity, v.cwiseInverse());
