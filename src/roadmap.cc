@@ -27,6 +27,7 @@
 #include <hpp/core/edge.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/roadmap.hh>
 
 #include <../src/nearest-neighbor/basic.hh>
@@ -192,6 +193,27 @@ namespace hpp {
         else
           this->addEdges(cNode[edge->from()], cNode[edge->to()],
                          edge->path());
+      }
+    }
+
+    void Roadmap::insertPathVector(const PathVectorPtr_t& path,
+                                   bool backAndForth)
+    {
+      if (path->constraints()) {
+        throw std::logic_error("Cannot insert a path vector with constraints"
+                               " in a roadmap.");
+      }
+      Configuration_t q_init(path->initial());
+      NodePtr_t n(addNode(q_init));
+      for (std::size_t i=0; i<path->numberPaths(); ++i) {
+        PathPtr_t p(path->pathAtRank(i));
+        if (backAndForth){
+          n = addNodeAndEdges(n, ConfigurationPtr_t(new Configuration_t
+                                                      (p->end())), p);
+        } else {
+          n = addNodeAndEdge(n, ConfigurationPtr_t(new Configuration_t
+                                                     (p->end())), p);
+        }
       }
     }
 

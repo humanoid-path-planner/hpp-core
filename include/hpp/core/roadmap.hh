@@ -180,6 +180,12 @@ namespace hpp {
       /// Add the nodes and edges of a roadmap into this one.
       void merge(const RoadmapPtr_t& other);
 
+      /// Add a PathVector instance in the roadmap
+      /// Waypoints are inserted as nodes,
+      /// each elementary path is inserted as an edge
+      /// \param backAndForth whether to insert the reverse path as well.
+      void insertPathVector(const PathVectorPtr_t& path, bool backAndForth);
+
       /// Add a goal configuration
       /// \param config configuration
       /// If configuration is already in the roadmap, tag corresponding node
