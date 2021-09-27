@@ -82,10 +82,11 @@ BOOST_AUTO_TEST_CASE (solid_solid_collision_1)
   ConstObjectStdVector_t obstacles;
   hpp::fcl::CollisionGeometryPtr_t box (new hpp::fcl::Box (.2, .4, .6));
   // FIXME this is a bit ugly.
-  int frame_id = robot->model().addFrame(::pinocchio::Frame("base_link",0,0,Transform3f::Identity(),::pinocchio::BODY));
+  Transform3f I3; I3.setIdentity();
+  int frame_id = robot->model().addFrame(::pinocchio::Frame("base_link",0,0,I3,::pinocchio::BODY));
   BOOST_CHECK(frame_id>=0);
   GeomIndex idObj = robot->geomModel().addGeometryObject
-    (::pinocchio::GeometryObject("obstacle", frame_id, 0, box, Transform3f::Identity(), "", vector3_t::Ones()),
+    (::pinocchio::GeometryObject("obstacle", frame_id, 0, box, I3, "", vector3_t::Ones()),
      robot->model());
   CollisionObjectPtr_t collObj (new CollisionObject(
         robot->geomModelPtr(), robot->geomDataPtr(), idObj));

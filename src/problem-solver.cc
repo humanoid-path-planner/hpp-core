@@ -323,12 +323,28 @@ namespace hpp {
       }
     }
 
+    // Initialize path validation with obstacles of problem
+    static void setObstaclesToPathValidation(const ProblemPtr_t& problem,
+                                             const PathValidationPtr_t& pv)
+    {
+      // Insert obstacles in path validation object
+      shared_ptr<ObstacleUserInterface> oui =
+        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pv);
+      if (oui) {
+        for (ObjectStdVector_t::const_iterator it =
+               problem->collisionObstacles().begin ();
+             it != problem->collisionObstacles().end(); ++it)
+          oui->addObstacle (*it);
+      }
+    }
+
     void ProblemSolver::initPathValidation ()
     {
       if (!problem_) throw std::runtime_error ("The problem is not defined.");
       PathValidationPtr_t pathValidation =
         pathValidations.get (pathValidationType_)
         (robot_, pathValidationTolerance_);
+      setObstaclesToPathValidation(problem_, pathValidation);
       problem_->pathValidation (pathValidation);
     }
 

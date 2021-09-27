@@ -245,14 +245,6 @@ namespace hpp {
     void Problem::pathValidation (const PathValidationPtr_t& pathValidation)
     {
       pathValidation_ = pathValidation;
-      // Insert obstacles in path validation object
-      shared_ptr<ObstacleUserInterface> oui =
-        HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
-      if (oui) {
-        for (ObjectStdVector_t::const_iterator it =  collisionObstacles_.begin ();
-            it != collisionObstacles_.end (); ++it)
-          oui->addObstacle (*it);
-      }
     }
 
     // ======================================================================

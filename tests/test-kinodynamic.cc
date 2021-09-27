@@ -320,7 +320,9 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
 
   BOOST_CHECK_EQUAL(extractedPath->length(),end-begin);
   BOOST_CHECK_EQUAL(extractedPath->initial(),path->initial());
-  BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3 ),(*path)(end,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
+  BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3 ),
+                    path->eval(end,success).head(indexECS + 3 ));
+  // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
   for(size_t i = 0 ; i < 3 ; i++){
     BOOST_CHECK_EQUAL(extractedPathKino->getA1()[i], pathKino->getA1()[i]);
     BOOST_CHECK_EQUAL(extractedPathKino->getT0()[i], pathKino->getT0()[i]);
@@ -343,7 +345,8 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
 
   BOOST_CHECK_EQUAL(extractedPath->length(),end-begin);
   BOOST_CHECK_EQUAL(extractedPath->initial(),path->initial());
-  BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3 ),(*path)(end,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
+  BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3 ),
+                    path->eval(end,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
   for(size_t i = 0 ; i < 3 ; i++){
     BOOST_CHECK_EQUAL(extractedPathKino->getA1()[i], pathKino->getA1()[i]);
     BOOST_CHECK_EQUAL(extractedPathKino->getT0()[i], pathKino->getT0()[i]);
@@ -367,7 +370,8 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
 
   BOOST_CHECK_EQUAL(extractedPath->length(),end-begin);
   BOOST_CHECK_EQUAL(extractedPath->end(),path->end());
-  BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3 ),(*path)(begin,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
+  BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3 ),
+                    path->eval(begin,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
   for(size_t i = 0 ; i < 3 ; i++){
     BOOST_CHECK_EQUAL(extractedPathKino->getA1()[i], pathKino->getA1()[i]);
     BOOST_CHECK_EQUAL(extractedPathKino->getT0()[i], pathKino->getT0()[i]);
@@ -390,8 +394,10 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
   BOOST_REQUIRE (extractedPathKino);
 
   BOOST_CHECK_EQUAL(extractedPath->length(),end-begin);
-  BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3 ),(*path)(end,success).head(indexECS + 3 ));
-  BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3 ),(*path)(begin,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
+  BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3 ),
+                    path->eval(end,success).head(indexECS + 3 ));
+  BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3 ),
+                    path->eval(begin,success).head(indexECS + 3 )); // ignore last 3 extraDof because acceleration is set to 0 in initial/end configuration
   for(size_t i = 0 ; i < 3 ; i++){
     BOOST_CHECK_EQUAL(extractedPathKino->getA1()[i], pathKino->getA1()[i]);
     BOOST_CHECK_EQUAL(extractedPathKino->getT0()[i], pathKino->getT0()[i]);
@@ -423,8 +429,10 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
     BOOST_CHECK(path->length() >= (*dist)(*qr0,*qr1));
     BOOST_CHECK_EQUAL(path->end().head(indexECS + 3),(*qr1).head(indexECS + 3));
     BOOST_CHECK_EQUAL(path->initial().head(indexECS + 3),(*qr0).head(indexECS + 3));
-    BOOST_CHECK_EQUAL((*path)(path->length(),success).head(indexECS + 3 ),(*qr1).head(indexECS + 3));
-    BOOST_CHECK_EQUAL((*path)(0.,success).head(indexECS + 3 ),(*qr0).head(indexECS + 3));
+    BOOST_CHECK_EQUAL(path->eval(path->length(),success).head(indexECS + 3 ),
+                      (*qr1).head(indexECS + 3));
+    BOOST_CHECK_EQUAL(path->eval(0.,success).head(indexECS + 3 ),
+                      (*qr0).head(indexECS + 3));
 
     for (size_t k = 0 ; k < 3 ; k++){
       BOOST_CHECK_EQUAL(pathKino->getT0()[k],0.);
@@ -448,10 +456,14 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
       BOOST_CHECK_EQUAL(extractedPath->length(),t2-t1);
       BOOST_CHECK_EQUAL(extractedPath->timeRange().first,0.);
       BOOST_CHECK_EQUAL(extractedPath->timeRange().second,t2-t1);
-      BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3),
+                        path->eval(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),
+                        path->eval(t2,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),
+                        path->eval(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),
+                        path->eval(t2,success).head(indexECS + 3));
 
       if(t1<t2){
         extractedPathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath,extractedPath);
@@ -620,8 +632,9 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
     BOOST_CHECK(path->length() >= (*dist)(*qr0,*qr1));
     BOOST_CHECK_EQUAL(path->end().head(3),(*qr1).head(3));
     BOOST_CHECK_EQUAL(path->initial().head(3),(*qr0).head(3));
-    BOOST_CHECK_EQUAL((*path)(path->length(),success).head(3),(*qr1).head(3));
-    BOOST_CHECK_EQUAL((*path)(0.,success).head(3),(*qr0).head(3));
+    BOOST_CHECK_EQUAL(path->eval(path->length(),success).head(3),
+                      (*qr1).head(3));
+    BOOST_CHECK_EQUAL(path->eval(0.,success).head(3),(*qr0).head(3));
     for(size_t j = 0 ; j < 10 ; j++){
       value_type a = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
       value_type b = ((value_type)rand ()/(value_type)RAND_MAX) * path->length();
@@ -637,10 +650,14 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
       BOOST_CHECK_EQUAL(extractedPath->length(),t2-t1);
       BOOST_CHECK_EQUAL(extractedPath->timeRange().first,0.);
       BOOST_CHECK_EQUAL(extractedPath->timeRange().second,t2-t1);
-      BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),(*path)(t1,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),(*path)(t2,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL(extractedPath->initial().head(indexECS + 3),
+                        path->eval(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),
+                        path->eval(t2,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),
+                        path->eval(t1,success).head(indexECS + 3));
+      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),
+                        path->eval(t2,success).head(indexECS + 3));
 
       if(t1<t2){
         extractedPathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicOrientedPath,extractedPath);

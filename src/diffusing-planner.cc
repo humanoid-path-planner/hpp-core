@@ -111,9 +111,13 @@ namespace hpp {
       } else {
         qProj_ = target;
       }
+      assert(!qProj_.hasNaN());
       // Here, qProj_ is a configuration that satisfies the constraints
       // or target if there are no constraints.
       PathPtr_t path = (*sm) (*(near->configuration ()), qProj_);
+      if (!path) {
+        return PathPtr_t ();
+      }
       value_type stepLength = problem()->getParameter
 	("DiffusingPlanner/extensionStepLength").floatValue();
       if (stepLength > 0 && path->length() > stepLength) {

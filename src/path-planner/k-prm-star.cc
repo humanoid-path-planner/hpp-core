@@ -22,6 +22,7 @@
 
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/config-validations.hh>
+#include <hpp/core/path-planning-failed.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-validation-report.hh>
@@ -92,7 +93,7 @@ namespace hpp {
           case FAILURE:
             oss << "kPRM* failed to solve problem with " << numberNodes_
                 << " nodes.";
-            throw std::runtime_error (oss.str ().c_str ());
+            throw path_planning_failed(oss.str ().c_str ());
           }
       }
 
@@ -123,7 +124,7 @@ namespace hpp {
 	    nbTry++;
           } while (!valid && nbTry < 10000);
           if (!valid) {
-            throw std::runtime_error
+            throw path_planning_failed
               ("Failed to generate free configuration after 10000 trials.");
           }
           r->addNode (qrand);
