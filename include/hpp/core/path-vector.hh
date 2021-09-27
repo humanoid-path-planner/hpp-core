@@ -204,6 +204,11 @@ namespace hpp {
       /// \param subInterval interval of definition of the extract path
       virtual PathPtr_t impl_extract (const interval_t& subInterval) const;
 
+      /// Virtual implementation of velocity bound
+      virtual void impl_velocityBound (vectorOut_t bound,
+                                       const value_type& param0,
+                                       const value_type& param1) const;
+
     private:
       Paths_t paths_;
       PathVectorWkPtr_t weak_;
