@@ -656,6 +656,28 @@ namespace hpp {
       distanceBetweenObjects_ = DistanceBetweenObjectsPtr_t
 	(new DistanceBetweenObjects (robot_));
       distanceBetweenObjects_->obstacles(distanceObstacles_);
+      // Set shooter
+      problem_->configurationShooter
+        (configurationShooters.get (configurationShooterType_) (problem_));
+      // Set steeringMethod
+      initSteeringMethod ();
+      PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
+      pathPlanner_ = createPlanner (problem_, roadmap_);
+      pathPlanner_->maxIterations (maxIterPathPlanning_);
+      pathPlanner_->timeOut(timeOutPathPlanning_);
+      roadmap_ = pathPlanner_->roadmap();
+      /// create Path projector
+      initPathProjector ();
+      /// create Path optimizer
+      // Reset init and goal configurations
+      problem_->initConfig (initConf_);
+      problem_->resetGoalConfigs ();
+      for (Configurations_t::const_iterator itConfig =
+	     goalConfigurations_.begin ();
+	   itConfig != goalConfigurations_.end (); ++itConfig) {
+	problem_->addGoalConfig (*itConfig);
+      }
+      initProblemTarget();
     }
 
     void ProblemSolver::problem (ProblemPtr_t problem)
@@ -721,38 +743,10 @@ namespace hpp {
       problem_->target (target_);
     }
 
-    void ProblemSolver::initProblem ()
-    {
-      if (!problem_) throw std::runtime_error ("The problem is not defined.");
-
-
-      // Set shooter
-      problem_->configurationShooter
-        (configurationShooters.get (configurationShooterType_) (problem_));
-      // Set steeringMethod
-      initSteeringMethod ();
-      PathPlannerBuilder_t createPlanner = pathPlanners.get (pathPlannerType_);
-      pathPlanner_ = createPlanner (problem_, roadmap_);
-      pathPlanner_->maxIterations (maxIterPathPlanning_);
-      pathPlanner_->timeOut(timeOutPathPlanning_);
-      roadmap_ = pathPlanner_->roadmap();
-      /// create Path projector
-      initPathProjector ();
-      /// create Path optimizer
-      // Reset init and goal configurations
-      problem_->initConfig (initConf_);
-      problem_->resetGoalConfigs ();
-      for (Configurations_t::const_iterator itConfig =
-	     goalConfigurations_.begin ();
-	   itConfig != goalConfigurations_.end (); ++itConfig) {
-	problem_->addGoalConfig (*itConfig);
-      }
-      initProblemTarget();
-    }
-
     bool ProblemSolver::prepareSolveStepByStep ()
     {
-      initProblem ();
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      initializeProblem (problem_);
 
       pathPlanner_->startSolve ();
       pathPlanner_->tryConnectInitAndGoals ();
@@ -775,7 +769,8 @@ namespace hpp {
 
     void ProblemSolver::solve ()
     {
-      initProblem ();
+      if (!problem_) throw std::runtime_error ("The problem is not defined.");
+      initializeProblem (problem_);
 
       PathVectorPtr_t path = pathPlanner_->solve ();
       paths_.push_back (path);
