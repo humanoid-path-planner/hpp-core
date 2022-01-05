@@ -148,6 +148,12 @@ PathVectorPtr_t TOPPRA::optimize(const PathVectorPtr_t &path)
   PathVectorPtr_t flatten_path = PathVector::create(path->outputSize(), path->outputDerivativeSize());
   path->flatten(flatten_path);
 
+  const value_type min_path_length = 1e-6;
+  if (path->length() < min_path_length)
+  {
+    return flatten_path;
+  }
+
   size_type N = problem()->getParameter(PARAM_HEAD "N").intValue();
 
   // 1. Compute TOPPRA grid points (in the parameter space).
