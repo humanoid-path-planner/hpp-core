@@ -56,10 +56,6 @@ BOOST_AUTO_TEST_CASE (ReedsAndShepp)
   problem->setParameter("SteeringMethod/Carlike/wheels",
     Parameter(std::string("wheel_frontright_joint,wheel_frontleft_joint")));
   // Rank of the wheels in the configuration vector
-  size_type i1 = robot->getJointByName("wheel_frontright_joint")->
-    rankInConfiguration();
-  size_type i2 = robot->getJointByName("wheel_frontleft_joint")->
-    rankInConfiguration();
   SteeringMethodPtr_t sm(SteeringMethod::createWithGuess(problem));
   DistancePtr_t dist(Distance::create(problem));
 

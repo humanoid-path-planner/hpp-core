@@ -460,9 +460,9 @@ BOOST_AUTO_TEST_CASE (kinodynamic) {
                         path->eval(t1,success).head(indexECS + 3));
       BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),
                         path->eval(t2,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),
+      BOOST_CHECK_EQUAL(extractedPath->eval(0.,success).head(indexECS + 3),
                         path->eval(t1,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),
+      BOOST_CHECK_EQUAL(extractedPath->eval(t2-t1,success).head(indexECS + 3),
                         path->eval(t2,success).head(indexECS + 3));
 
       if(t1<t2){
@@ -654,9 +654,9 @@ BOOST_AUTO_TEST_CASE (kinodynamicOriented) {
                         path->eval(t1,success).head(indexECS + 3));
       BOOST_CHECK_EQUAL(extractedPath->end().head(indexECS + 3),
                         path->eval(t2,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(0.,success).head(indexECS + 3),
+      BOOST_CHECK_EQUAL(extractedPath->eval(0.,success).head(indexECS + 3),
                         path->eval(t1,success).head(indexECS + 3));
-      BOOST_CHECK_EQUAL((*extractedPath)(t2-t1,success).head(indexECS + 3),
+      BOOST_CHECK_EQUAL(extractedPath->eval(t2-t1,success).head(indexECS + 3),
                         path->eval(t2,success).head(indexECS + 3));
 
       if(t1<t2){

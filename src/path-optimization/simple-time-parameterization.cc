@@ -212,6 +212,8 @@ namespace hpp {
         for (std::size_t i = 0; i < input->numberPaths(); ++i) {
           PathPtr_t p = input->pathAtRank(i);
           interval_t paramRange = p->paramRange();
+          // Skip sub path of 0 length.
+          if (paramRange.first == paramRange.second) continue;
           p->timeParameterization (TimeParameterizationPtr_t(), paramRange);
 
           PathPtr_t pp = p->copy();
