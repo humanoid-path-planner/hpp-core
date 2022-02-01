@@ -107,7 +107,7 @@ namespace hpp {
     // ======================================================================
 
     Problem::Problem () :
-      robot_ (), distance_ (), initConf_ (), goalConfigurations_ (), target_ (),
+      robot_ (), distance_ (), initConf_ (), target_ (),
       steeringMethod_ (), configValidations_ (), pathValidation_ (),
       collisionObstacles_ (), constraints_ (), configurationShooter_()
     {
@@ -128,23 +128,47 @@ namespace hpp {
 
     // ======================================================================
 
-    const Configurations_t& Problem::goalConfigs () const
+    const Configurations_t Problem::goalConfigs () const
     {
-      return goalConfigurations_;
+      problemTarget::GoalConfigurationsPtr_t gc
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
+                              target_));
+      if (gc) {
+        return gc->configurations();
+      }
+      return Configurations_t();
     }
 
     // ======================================================================
 
     void Problem::addGoalConfig (const ConfigurationPtr_t& config)
     {
-      goalConfigurations_.push_back (config);
+      problemTarget::GoalConfigurationsPtr_t gc
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
+                              target_));
+      // If target is not an instance of GoalConfigurations, create new
+      // instance
+      if (!gc){
+        gc = problemTarget::GoalConfigurations::create(wkPtr_.lock());
+        target_ = gc;
+      }
+      gc->addConfiguration(config);
     }
 
     // ======================================================================
 
     void Problem::resetGoalConfigs ()
     {
-      goalConfigurations_.clear ();
+      problemTarget::GoalConfigurationsPtr_t gc
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
+                              target_));
+      // If target is not an instance of GoalConfigurations, create new
+      // instance
+      if (!gc){
+        gc = problemTarget::GoalConfigurations::create(wkPtr_.lock());
+        target_ = gc;
+      }
+      gc->resetConfigurations();
     }
 
     // ======================================================================
@@ -284,17 +308,20 @@ namespace hpp {
 	throw std::runtime_error (oss.str ());
       }
 
-      for (ConfigConstIterator_t it = goalConfigurations_.begin ();
-	   it != goalConfigurations_.end (); it++) {
-	const ConfigurationPtr_t& goalConf (*it);
-	if (!configValidations_->validate (*goalConf, report)) {
-	  std::ostringstream oss;
-	  oss << *report;
-	  throw std::runtime_error (oss.str ());
-	}
+      problemTarget::GoalConfigurationsPtr_t gc
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
+                              target_));
+      if (gc) {
+        const Configurations_t goals (gc->configurations ());
+        for (auto config : gc->configurations ()) {
+          if (!configValidations_->validate (*config, report)) {
+            std::ostringstream oss;
+            oss << *report;
+            throw std::runtime_error (oss.str ());
+          }
+        }
       }
     }
-
     // ======================================================================
 
     void Problem::setParameter (const std::string& name, const Parameter& value)

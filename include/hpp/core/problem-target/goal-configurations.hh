@@ -43,15 +43,29 @@ namespace hpp {
 
           /// Check if the initial configuration and one of the goal are
           /// in the same connected component.
+          /// \note This test takes into account nodes of the roadmap that
+          ///       are tagged as goal nodes, not the configurations stored
+          ///       in this class. Be careful that those two sets are the
+          ///       same.
           bool reached (const RoadmapPtr_t& roadmap) const;
 
           PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
+          /// Get goal configurations.
+          const Configurations_t& configurations() const;
+          /// Add goal configuration.
+          void addConfiguration (const ConfigurationPtr_t& config);
+          /// Reset the set of goal configurations
+          void resetConfigurations ();
 
         protected:
           /// Constructor
           GoalConfigurations (const ProblemPtr_t& problem)
             : ProblemTarget (problem)
           {}
+        private:
+          /// Shared pointer to goal configuration.
+          Configurations_t configurations_;
+
       }; // class GoalConfigurations
       /// \}
     } // namespace problemTarget

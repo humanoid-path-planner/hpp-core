@@ -53,6 +53,9 @@ namespace hpp {
             constraints_ = c;
           }
 
+          /// Return the vector of numerical constraints that define the goal.
+          NumericalConstraints_t constraints() const;
+
         protected:
           /// Constructor
           TaskTarget (const ProblemPtr_t& problem)

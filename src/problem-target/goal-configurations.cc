@@ -73,6 +73,28 @@ namespace hpp {
         }
         return sol;
       }
+      // ======================================================================
+
+      const Configurations_t& GoalConfigurations::configurations () const
+      {
+        return configurations_;
+      }
+
+      // ======================================================================
+
+      void GoalConfigurations::addConfiguration
+      (const ConfigurationPtr_t& config)
+      {
+        configurations_.push_back (config);
+      }
+
+      // ======================================================================
+
+      void GoalConfigurations::resetConfigurations ()
+      {
+        configurations_.clear ();
+      }
+
     } // namespace problemTarget
   } // namespace core
 } // namespace hpp

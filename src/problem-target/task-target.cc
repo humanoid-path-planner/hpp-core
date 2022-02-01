@@ -23,6 +23,7 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/constraint-set.hh>
+#include <hpp/core/config-projector.hh>
 
 #include "../astar.hh"
 
@@ -50,6 +51,14 @@ namespace hpp {
       {
         // TODO
         return false;
+      }
+
+      NumericalConstraints_t TaskTarget::constraints() const
+      {
+        if ((!constraints_) || (!constraints_->configProjector())){
+          return NumericalConstraints_t();
+        }
+        return constraints_->configProjector()->numericalConstraints();
       }
 
       PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const

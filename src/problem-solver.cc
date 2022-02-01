@@ -62,7 +62,7 @@
 #include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/path-validation/discretized-joint-bound.hh>
 #include <hpp/core/path-validation-report.hh>
-// #include <hpp/core/problem-target/task-target.hh>
+#include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/dubins.hh>
@@ -458,7 +458,6 @@ namespace hpp {
 
     void ProblemSolver::addGoalConfig (const ConfigurationPtr_t& config)
     {
-      target_ = problemTarget::GoalConfigurations::create(ProblemPtr_t());
       goalConfigurations_.push_back (config);
     }
 
@@ -467,58 +466,27 @@ namespace hpp {
       goalConfigurations_.clear ();
     }
 
-    /* Setting goal constraint is disabled for now.
-     * To re-enable it :
-     * - add a function called setGoalConstraints that:
-     *   - takes all the constraints::ImplicitPtr_t and LockedJointPtr_t
-     *   - creates a TaskTarget and fills it.
-     * - remove all the addGoalConstraint
-    void ProblemSolver::addGoalConstraint (const ConstraintPtr_t& constraint)
+    void ProblemSolver::setGoalConstraints(const NumericalConstraints_t&
+                                           constraints)
     {
-      if (!goalConstraints_) {
-        if (!robot_) throw std::logic_error ("You must provide a robot first");
-        goalConstraints_ = ConstraintSet::create (robot_, "Goal constraint set");
+      problemTarget::TaskTargetPtr_t tt
+        (problemTarget::TaskTarget::create(problem_));
+      ConstraintSetPtr_t cs(ConstraintSet::create(problem_->robot(),
+					       "goalConstraints"));
+      ConfigProjectorPtr_t cp(ConfigProjector::create
+        (robot_, "Goal ConfigProjector", errorThreshold_, maxIterProjection_));
+      cs->addConstraint(cp);
+      for (auto c : constraints){
+        cp->add(c);
       }
-      goalConstraints_->addConstraint (constraint);
+      tt->constraints(cs);
+      target_ = tt;
     }
 
-    void ProblemSolver::addGoalConstraint (const LockedJointPtr_t& lj)
+    void ProblemSolver::resetGoalConstraints()
     {
-      if (!goalConstraints_) {
-        if (!robot_) throw std::logic_error ("You must provide a robot first");
-        goalConstraints_ = ConstraintSet::create (robot_, "Goal constraint set");
-      }
-      ConfigProjectorPtr_t  configProjector = goalConstraints_->configProjector ();
-      if (!configProjector) {
-	configProjector = ConfigProjector::create
-	  (robot_, "Goal ConfigProjector", errorThreshold_, maxIterProjection_);
-	goalConstraints_->addConstraint (configProjector);
-      }
-      configProjector->add (lj);
+      target_.reset();
     }
-
-    void ProblemSolver::addGoalConstraint (const std::string& constraintName,
-        const std::string& functionName, const std::size_t priority)
-    {
-      if (!goalConstraints_) {
-        if (!robot_) throw std::logic_error ("You must provide a robot first");
-        goalConstraints_ = ConstraintSet::create (robot_, "Goal constraint set");
-      }
-      ConfigProjectorPtr_t  configProjector = goalConstraints_->configProjector ();
-      if (!configProjector) {
-	configProjector = ConfigProjector::create
-	  (robot_, constraintName, errorThreshold_, maxIterProjection_);
-	goalConstraints_->addConstraint (configProjector);
-      }
-      configProjector->add (numericalConstraint (functionName),
-			    segments_t (0), priority);
-    }
-
-    void ProblemSolver::resetGoalConstraint ()
-    {
-      goalConstraints_.reset ();
-    }
-    */
 
     void ProblemSolver::addConstraint (const ConstraintPtr_t& constraint)
     {
@@ -671,11 +639,23 @@ namespace hpp {
       /// create Path optimizer
       // Reset init and goal configurations
       problem_->initConfig (initConf_);
-      problem_->resetGoalConfigs ();
-      for (Configurations_t::const_iterator itConfig =
-	     goalConfigurations_.begin ();
-	   itConfig != goalConfigurations_.end (); ++itConfig) {
-	problem_->addGoalConfig (*itConfig);
+      problemTarget::TaskTargetPtr_t tt
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::TaskTarget, target_));
+      if (!goalConfigurations_.empty() && tt){
+        throw std::logic_error("The goal is defined by goal configurations and"
+                               " by a task at the same time. This is not"
+                               " valid.");
+      }
+      if (!tt) {
+        // Create a goal with configurations
+        problemTarget::GoalConfigurationsPtr_t gc
+          (problemTarget::GoalConfigurations::create(problem_));
+        for (Configurations_t::const_iterator itConfig =
+               goalConfigurations_.begin ();
+             itConfig != goalConfigurations_.end (); ++itConfig) {
+          gc->addConfiguration(*itConfig);
+        }
+        target_ = gc;
       }
       initProblemTarget();
     }
