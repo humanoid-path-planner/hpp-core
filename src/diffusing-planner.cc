@@ -33,6 +33,7 @@
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/problem.hh>
+#include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method.hh>
 #include <hpp/core/configuration-shooter.hh>
@@ -131,6 +132,18 @@ namespace hpp {
         return proj;
       }
       return path;
+    }
+
+    void DiffusingPlanner::startSolve ()
+    {
+      Parent_t::startSolve ();
+      problemTarget::GoalConfigurationsPtr_t gc
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
+                              problem()->target()));
+      if (!gc) {
+        throw std::logic_error("DiffusingPlanner only accepts goals defined "
+                               "by goal configurations.");
+      }
     }
 
     /// This method performs one step of RRT extension as follows
