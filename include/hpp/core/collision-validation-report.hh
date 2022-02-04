@@ -64,6 +64,10 @@ namespace hpp {
 	   << (object2 ? object2->name() : objectName2);
 	return os;
       }
+      std::pair<std::string, std::string> getObjectNames() const
+      {
+        return std::pair<std::string, std::string> (object1 ? object1->name() : objectName1, object2 ? object2->name() : objectName2);
+      }
     }; // class CollisionValidationReport
 
     /// Validate a configuration with respect to collision
