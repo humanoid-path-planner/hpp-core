@@ -101,6 +101,13 @@ namespace hpp {
         return false;
       }
     }
+
+    bool Discretized::validate(ConfigurationIn_t q,
+                               ValidationReportPtr_t& report)
+    {
+      return ConfigValidations::validate(q, report);
+    }
+
     } // namespace pathValidation
   } // namespace core
 } // namespace hpp

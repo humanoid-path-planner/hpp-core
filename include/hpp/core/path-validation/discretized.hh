@@ -54,6 +54,13 @@ namespace hpp {
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
 
+      /// Validate a single configuration
+      /// \param q input configuration,
+      /// \retval report validation report.
+      /// The default implementation builds a straight path of length 0
+      /// with the input configuration and validates the path.
+      virtual bool validate(ConfigurationIn_t q, ValidationReportPtr_t& report);
+
       virtual ~Discretized () {};
     protected:
       Discretized (const value_type& stepSize) : stepSize_ (stepSize) {}

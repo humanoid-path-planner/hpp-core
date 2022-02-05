@@ -67,6 +67,16 @@ namespace hpp {
       return result;
     }
 
+    bool PathValidations::validate(ConfigurationIn_t q,
+                                   ValidationReportPtr_t& report)
+    {
+      for (auto pv : validations_){
+        bool res(pv->validate(q, report));
+        if (!res) return false;
+      }
+      return true;
+    }
+
     PathValidations::PathValidations ()
     {
     }

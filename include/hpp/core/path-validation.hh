@@ -32,6 +32,11 @@ namespace hpp {
     ///
     /// Instances of this class compute the latest valid configuration along
     /// a path.
+    ///
+    /// Method \code validate(ConfigurationIn_t q) \endcode is provided to
+    /// validate single configurations. It is particularly useful to test
+    /// the initial and goal configurations of a path planning problem using
+    /// this path validation.
     class HPP_CORE_DLLAPI PathValidation
     {
     public:
@@ -48,6 +53,12 @@ namespace hpp {
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report) = 0;
 
+      /// Validate a single configuration
+      /// \param q input configuration,
+      /// \retval report validation report.
+      /// The default implementation builds a straight path of length 0
+      /// with the input configuration and validates the path.
+      virtual bool validate(ConfigurationIn_t q, ValidationReportPtr_t& report);
       virtual ~PathValidation () {};
 
     protected:

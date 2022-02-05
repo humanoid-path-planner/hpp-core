@@ -25,6 +25,7 @@ namespace bpt = boost::posix_time;
 # include <omp.h>
 #endif
 
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/urdf/util.hh>
 
@@ -169,7 +170,13 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
     PathValidationReportPtr_t report1;
     PathValidationReportPtr_t report2;
     PathValidationReportPtr_t report3;
+    ValidationReportPtr_t report4;
+    ValidationReportPtr_t report5;
+    ValidationReportPtr_t report6;
     PathPtr_t path ((*sm) (q1, q2));
+    bool res4 (discretized->validate (q1, report4));
+    bool res5 (progressive->validate (q1, report5));
+    bool res6 (dichotomy->validate (q1, report6));
     PathPtr_t validPart;
     if (configValidation->validate (q1, collisionReport)) {
       bool res1 (discretized->validate (path, false, validPart, report1));
@@ -177,6 +184,23 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
       bool res3 (dichotomy->validate (path, false, validPart, report3));
 
 #pragma omp critical
+      // Check that PathValidation::validate(ConfigurationIn_t,...) returns
+      // the same result as config validation.
+      if (!res4){
+        std::cout << "q=" << hpp::pinocchio::displayConfig(q1) << std::endl;
+        std::cout << "report 4: " << *report4 << std::endl;
+         }
+      if (!res5){
+        std::cout << "q=" << hpp::pinocchio::displayConfig(q1) << std::endl;
+        std::cout << "report 5: " << *report5 << std::endl;
+         }
+      if (!res6){
+        std::cout << "q=" << hpp::pinocchio::displayConfig(q1) << std::endl;
+        std::cout << "report 6: " << *report6 << std::endl;
+      }
+      BOOST_CHECK(res4);
+      BOOST_CHECK(res5);
+      BOOST_CHECK(res6);
       if (!res1) {
         BOOST_CHECK (!res2);
         BOOST_CHECK (!res3);
@@ -208,6 +232,17 @@ BOOST_AUTO_TEST_CASE (continuous_validation_straight)
           hppDout (info, *report3);
         }
       }
+    }
+    else{
+      // Check that PathValidation::validate(ConfigurationIn_t,...) returns
+      // the same result as config validation.
+      if (res4 || res5 || res6) {
+        std::cout << "q=" << hpp::pinocchio::displayConfig(q1) << std::endl;
+        std::cout << "collisionReport: " << *collisionReport << std::endl;
+      }
+      BOOST_CHECK(!res4);
+      BOOST_CHECK(!res5);
+      BOOST_CHECK(!res6);
     }
     if (configValidation->validate (q2, collisionReport)) {
       bool res1 (discretized->validate (path, true, validPart, report1));
