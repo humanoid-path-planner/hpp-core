@@ -88,12 +88,21 @@ namespace hpp {
       {
         return target_;
       }
-      /// Get number of goal configuration.
-      const Configurations_t& goalConfigs () const;
+      /// Get goal configurations.
+      /// if problem target is an instance of problemTarget::GoalConfigurations,
+      /// return the vector of goal configurations. Otherwise return an empty
+      /// vector.
+      const Configurations_t goalConfigs () const;
       /// Add goal configuration.
+      /// if problem target is not an instance of
+      /// problemTarget::GoalConfigurations, set problem target as a new
+      /// instance of this class and add the given configuration as a goal.
       void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
-      void resetGoalConfigs ();
+      /// if problem target is not an instance of
+      /// problemTarget::GoalConfigurations, set problem target as a new
+      /// empty instance of this class.
+     void resetGoalConfigs ();
 
       /// \}
 
@@ -313,8 +322,6 @@ namespace hpp {
       DistancePtr_t distance_;
       /// Shared pointer to initial configuration.
       ConfigurationPtr_t initConf_;
-      /// Shared pointer to goal configuration.
-      Configurations_t goalConfigurations_;
       /// Shared pointer to problem target
       ProblemTargetPtr_t target_;
       /// Steering method associated to the problem

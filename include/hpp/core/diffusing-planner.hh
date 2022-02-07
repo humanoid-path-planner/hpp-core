@@ -30,11 +30,16 @@ namespace hpp {
     class HPP_CORE_DLLAPI DiffusingPlanner : public PathPlanner
     {
     public:
+      typedef PathPlanner Parent_t;
       /// Return shared pointer to new object.
       static DiffusingPlannerPtr_t createWithRoadmap
 	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
       /// Return shared pointer to new object.
       static DiffusingPlannerPtr_t create (const ProblemConstPtr_t& problem);
+      /// Initialize the problem resolution
+      /// Call parent implementation and check that goal is defined as
+      /// a set of configurations.
+      virtual void startSolve ();
       /// One step of extension.
       virtual void oneStep ();
       /// Set configuration shooter.

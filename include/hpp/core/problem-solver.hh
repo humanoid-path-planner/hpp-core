@@ -118,6 +118,10 @@ namespace hpp {
       virtual void addGoalConfig (const ConfigurationPtr_t& config);
       /// Reset the set of goal configurations
       void resetGoalConfigs ();
+      /// Set goal of path planning as a set of constraints
+      void setGoalConstraints(const NumericalConstraints_t& constraints);
+      /// Stop defining the goal of path planning as a set of constraints
+      void resetGoalConstraints();
       /*
       /// Add goal constraints
       void addGoalConstraint (const ConstraintPtr_t& constraint);

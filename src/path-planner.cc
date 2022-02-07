@@ -24,7 +24,7 @@
 
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/problem.hh>
-#include <hpp/core/problem-target.hh>
+#include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/path.hh>
@@ -87,12 +87,16 @@ namespace hpp {
       // Tag init and goal configurations in the roadmap
       roadmap()->resetGoalNodes ();
       roadmap()->initNode (problem()->initConfig ());
-      const Configurations_t goals (problem()->goalConfigs ());
-      for (Configurations_t::const_iterator itGoal = goals.begin ();
-          itGoal != goals.end (); ++itGoal) {
-        roadmap()->addGoalNode (*itGoal);
+      problemTarget::GoalConfigurationsPtr_t gc
+        (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
+                              problem()->target()));
+      if (gc) {
+        const Configurations_t goals (gc->configurations ());
+        for (Configurations_t::const_iterator itGoal = goals.begin ();
+             itGoal != goals.end (); ++itGoal) {
+          roadmap()->addGoalNode (*itGoal);
+        }
       }
-
       problem()->target()->check(roadmap());
     }
 
