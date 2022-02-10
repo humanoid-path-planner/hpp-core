@@ -209,6 +209,7 @@ SET(${PROJECT_NAME}_SOURCES
   src/path-projector/progressive.cc #
   src/path-projector/recursive-hermite.cc
   src/path-projector.cc #
+  src/path-validation.cc
   src/problem-target/goal-configurations.cc #
   src/problem-target/task-target.cc #
   src/reeds-shepp-path.cc
