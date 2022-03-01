@@ -30,8 +30,6 @@
 #include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-#include <boost/shared_ptr.hpp>
-
 #include <../tests/util.hh>
 
 // Force benchmark output

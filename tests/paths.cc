@@ -32,7 +32,6 @@
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
 
-#include <boost/shared_ptr.hpp>
 // Boost version 1.54
 // Cannot include boost CPU timers
 // #include <boost/timer/timer.hpp>
