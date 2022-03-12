@@ -32,6 +32,7 @@
 #include <iostream>
 
 #include <hpp/util/debug.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/joint-bound-validation.hh>
@@ -312,13 +313,23 @@ namespace hpp {
 	throw std::runtime_error (msg);
       }
 
+      // Check that initial configuration is valid
       ValidationReportPtr_t report;
       if (!configValidations_->validate (*initConf_, report)) {
 	std::ostringstream oss;
-  oss <<"init config invalid : "<< *report;
+        oss <<"init config invalid : "<< *report;
 	throw std::runtime_error (oss.str ());
       }
+      // Check that initial configuration sarisfies the constraints of the
+      // problem
+      if (!constraints_->isSatisfied(*initConf_)){
+        std::ostringstream os;
+        os << "Initial configuration " << pinocchio::displayConfig(*initConf_)
+           << " does not satisfy the constraints of the problem.";
+        throw std::logic_error(os.str().c_str());
+      }
 
+      // check that goal configurations satisfy are valid
       problemTarget::GoalConfigurationsPtr_t gc
         (HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations,
                               target_));
@@ -329,6 +340,14 @@ namespace hpp {
             std::ostringstream oss;
             oss << *report;
             throw std::runtime_error (oss.str ());
+          }
+          // Check that goal configurations sarisfy the constraints of the
+          // problem
+          if (!constraints_->isSatisfied(*config)){
+            std::ostringstream os;
+            os << "Goal configuration " << pinocchio::displayConfig(*config)
+               << " does not satisfy the constraints of the problem.";
+            throw std::logic_error(os.str().c_str());
           }
         }
       }
