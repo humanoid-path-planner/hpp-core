@@ -59,10 +59,19 @@ namespace hpp {
         }
       }
 
-      bool TaskTarget::reached (const RoadmapPtr_t& /*roadmap*/) const
+      bool TaskTarget::reached (const RoadmapPtr_t& roadmap) const
       {
-        // TODO
-        return false;
+        assert(roadmap->goalNodes().empty());
+        if (!roadmap->initNode ()) return false;
+        const ConnectedComponentPtr_t ccInit = roadmap->initNode ()->connectedComponent ();  // TODO
+        bool res(false);
+        for (auto node : ccInit->nodes()){
+          if ((*constraints_).isSatisfied(*(node->configuration()))){
+            roadmap->addGoalNode(node->configuration()); // temporarily add goal node to compute path
+            res = true;
+          }
+        }
+        return res;
       }
 
       NumericalConstraints_t TaskTarget::constraints() const
@@ -88,6 +97,7 @@ namespace hpp {
               (*problem->steeringMethod()) (*q, *q)
               );
         }
+        roadmap->resetGoalNodes(); // remove the temporary goal node
         return sol;
       }
     } // namespace problemTarget
