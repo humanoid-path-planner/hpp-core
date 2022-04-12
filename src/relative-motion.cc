@@ -61,30 +61,6 @@ namespace hpp {
         assert (m(i0,i1) == m(i1,i0));
         if (t < m(i0,i1)) m(i0,i1) = m(i1,i0) = t;
       }
-
-      /// Check that a differentiable function defines a constraint of
-      /// relative pose between two joints
-      template <typename T > struct check {
-        typedef shared_ptr<T> Ptr_t;
-        /// Check that function defines relative pose constraint
-        /// \param f Differentiable function,
-        /// \return whether f defines a relative pose constraint,
-        /// \retval i1, i2 indices of joints that are constrained if so.
-        static bool is (const DifferentiableFunctionPtr_t& f,
-                        size_type& i1, size_type& i2)
-        {
-          Ptr_t t = HPP_DYNAMIC_PTR_CAST(T, f);
-          if (t) {
-            i1 = RelativeMotion::idx(t->joint1());
-            i2 = RelativeMotion::idx(t->joint2());
-            hppDout (info, "function " << f->name ()
-                     << " is a (relative) transformation. i1="
-                     << i1 << ", i2=" << i2);
-            return true;
-          }
-          return false;
-        }
-      };
     }
 
     RelativeMotion::matrix_type RelativeMotion::matrix (const DevicePtr_t& dev)
@@ -115,63 +91,21 @@ namespace hpp {
       ConfigProjectorPtr_t proj = c->configProjector();
       if (!proj) return;
 
-      // Loop over the LockedJoint
-      const pinocchio::Model& model = robot->model();
       // Loop over the constraints
       const NumericalConstraints_t& ncs = proj->numericalConstraints ();
       for (NumericalConstraints_t::const_iterator _ncs = ncs.begin();
           _ncs != ncs.end(); ++_ncs) {
         constraints::ImplicitConstPtr_t nc = *_ncs;
         size_type i1, i2;
-        // Detect locked joints
-        LockedJointConstPtr_t lj (HPP_DYNAMIC_PTR_CAST (const LockedJoint, nc));
-        if (lj) {
-          const std::string& jointName = lj->jointName();
-          if (!model.existJointName(jointName)) {
-            // Extra dofs and partial locked joints have a name that won't be
-            // recognized by Device::getJointByName. So they can be filtered
-            // this way.
-            hppDout (info, "Joint of locked joint not found: " << *lj);
-            continue;
-          }
-          bool cstRHS (lj->parameterSize () == 0);
-
-          i1 = model.getJointId(jointName); i2 = model.parents[i1];
-          recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained :
-                                                Parameterized));
-          hppDout (info, "Locked joint found: " << lj->jointName ());
+        std::pair <JointConstPtr_t, JointConstPtr_t> joints =
+          nc->doesConstrainRelPoseBetween(robot);
+        i1 = Joint::index(joints.first);
+        i2 = Joint::index(joints.second);
+        if (i1 == i2) {
+          hppDout (info, "Constraint " << nc->function().name ()
+                  << " does not fully constrain any pair of joints.");
           continue;
         }
-        // Detect relative pose constraints
-        if ((nc->functionPtr()->outputSize() != 6) &&
-	    (nc->functionPtr()->outputSize()) != 7) {
-          hppDout (info, "Constraint " << nc->functionPtr()->name ()
-                   << " is neither of dimension 6 nor 7.");
-          continue;
-        }
-
-        if (!check <Transformation>::is (nc->functionPtr (), i1, i2)) {
-          hppDout (info, "Constraint function " << nc->functionPtr()->name ()
-                   << " is not of type Transformation");
-	  if (!check <TransformationR3xSO3>::is (nc->functionPtr (), i1, i2)) {
-	    hppDout (info, "Constraint function " << nc->functionPtr()->name ()
-		     << " is not of type TransformationR3xSO3");
-	    if (!check <RelativeTransformation>::is
-		(nc->functionPtr (), i1, i2)) {
-	      hppDout (info, "Constraint function "
-		       << nc->functionPtr()->name ()
-		       << " is not of type RelativeTransformation");
-	      if (!check <RelativeTransformationR3xSO3>::is
-		  (nc->functionPtr (), i1, i2)) {
-		hppDout (info, "Constraint function "
-			 << nc->functionPtr()->name ()
-			 << " is not of type RelativeTransformationR3xSO3");
-		continue;
-	      }
-	    }
-	  }
-        }
-
         bool cstRHS (nc->parameterSize () == 0);
         recurseSetRelMotion (matrix, i1, i2, (cstRHS ? Constrained : Parameterized));
       }
