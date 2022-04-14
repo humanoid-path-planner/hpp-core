@@ -32,6 +32,7 @@
 #include <queue>
 
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/liegroup-space.hh>
 
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/config-validations.hh>
@@ -320,9 +321,19 @@ namespace hpp {
         if (dist < 1e-16)
           return false;
 
-        if (problem()->constraints()
-            && !problem()->constraints()->apply(q))
-          return false;
+        if (problem()->constraints()){
+          // if the random configuration (alias q) is not successfully projected
+          // on the constraints, replace q by the middle configuration between
+          // q_near and q.
+          // The goal is to improve the success rate of the method for
+          // constraints that have a small basin of attraction
+          int i = 0;
+          while (!problem()->constraints()->apply(q) && i<10){
+            problem()->robot()->configSpace()->interpolate
+              (*(near->configuration()), q, .5, q);
+            ++i;
+          }
+        }
 
         PathPtr_t path = buildPath(*near->configuration(), q, extendMaxLength_, true);
         if (!path || path->length() < minimalPathLength_) return false;
