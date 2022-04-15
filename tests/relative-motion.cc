@@ -147,7 +147,7 @@ struct Jidx {
   DevicePtr_t dev;
   size_type operator() (const std::string& jointname)
   {
-    return RelativeMotion::idx(dev->getJointByName (jointname));
+    return Joint::index(dev->getJointByName (jointname));
   }
 };
 
@@ -202,12 +202,29 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   if (verbose) std::cout << '\n' << m << std::endl;
 
-  // Add a relative transformation
+  /// Add a relative transformation
   Configuration_t q = dev->neutralConfiguration();
   dev->currentConfiguration (q);
   dev->computeForwardKinematics ();
   Transform3f tf1 (ja1->currentTransformation ());
   Transform3f tf2 (jb2->currentTransformation ());
+  // mask is not full, relative motion not fully constrained
+  proj->add (Implicit::create
+             (RelativeTransformation::create ("joint_a1 <->joint_b2 not full",
+                                              dev, ja1, jb2, tf1, tf2),
+              EqualToZero << EqualToZero << 3*Equality << EqualToZero,
+              std::vector<bool> (6, false)));
+
+  m = RelativeMotion::matrix(dev);
+  RelativeMotion::fromConstraint (m, dev, constraints);
+
+  BOOST_CHECK_EQUAL(m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Unconstrained);
+  BOOST_CHECK_EQUAL(m(jointid("joint_a0"),jointid("joint_b2")), RelativeMotion::Unconstrained);
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_a1")), RelativeMotion::Unconstrained);
+  BOOST_CHECK_EQUAL(m(jointid("joint_b0"),jointid("joint_a0")), RelativeMotion::Unconstrained);
+
+  if (verbose) std::cout << '\n' << m << std::endl;
+  // full mask for relative transformation
   proj->add (Implicit::create
              (RelativeTransformation::create ("joint_a1 <->joint_b2", dev, ja1,
                                               jb2, tf1, tf2),
@@ -215,8 +232,6 @@ BOOST_AUTO_TEST_CASE (relativeMotion)
 
   m = RelativeMotion::matrix(dev);
   RelativeMotion::fromConstraint (m, dev, constraints);
-
-  if (verbose) std::cout << '\n' << m << std::endl;
 
   BOOST_CHECK_EQUAL(m(jointid("joint_a1"),jointid("joint_b2")), RelativeMotion::Parameterized);   // lock rt
   BOOST_CHECK_EQUAL(m(jointid("joint_a0"),jointid("joint_b2")), RelativeMotion::Parameterized); // lock a1 + rt
