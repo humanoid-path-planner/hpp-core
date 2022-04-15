@@ -138,10 +138,10 @@ namespace hpp {
       static const std::string center = "ConfigurationShooter/Gaussian/center";
       static const std::string useVel = "ConfigurationShooter/Gaussian/useRobotVelocity";
       static const std::string stdDev = "ConfigurationShooter/Gaussian/standardDeviation";
+      ptr->center(p->getParameter(center).vectorValue());
       if (p->getParameter(useVel).boolValue())
       {
         ptr->sigmas (p->robot()->currentVelocity());
-	ptr->center(p->getParameter(center).vectorValue());
       }
       else if (p->parameters.has(stdDev))
         ptr->sigma (p->getParameter (stdDev).floatValue());
