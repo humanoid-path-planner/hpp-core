@@ -304,6 +304,11 @@ namespace hpp {
         return *solver_;
       }
 
+      BySubstitution& solver ()
+      {
+        return *solver_;
+      }
+
       /// Set the line search type.
       void lineSearchType (LineSearchType ls)
       {
