@@ -32,6 +32,7 @@
 #include <hpp/core/config.hh>
 #include <hpp/util/pointer.hh>
 #include <map>
+#include <sstream>
 #include <stdexcept>
 #include <type_traits>
 
