@@ -29,6 +29,9 @@
 #ifndef HPP_CORE_PATH_MATH_HH
 #define HPP_CORE_PATH_MATH_HH
 
+#include <hpp/core/fwd.hh>
+#include <pinocchio/serialization/eigen.hpp>
+
 namespace hpp {
 namespace core {
 namespace path {
