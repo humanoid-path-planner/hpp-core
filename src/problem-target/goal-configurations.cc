@@ -26,87 +26,74 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <hpp/core/config-validations.hh>
+#include <hpp/core/connected-component.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
-
-#include <stdexcept>
-
-#include <hpp/util/debug.hh>
-
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/connected-component.hh>
-#include <hpp/core/config-validations.hh>
+#include <hpp/util/debug.hh>
+#include <stdexcept>
 
 #include "../astar.hh"
 
 namespace hpp {
-  namespace core {
-    namespace problemTarget {
-      GoalConfigurationsPtr_t GoalConfigurations::create
-        (const ProblemPtr_t& problem)
-      {
-        GoalConfigurations* gc = new GoalConfigurations (problem);
-        GoalConfigurationsPtr_t shPtr (gc);
-        gc->init (shPtr);
-        return shPtr;
-      }
+namespace core {
+namespace problemTarget {
+GoalConfigurationsPtr_t GoalConfigurations::create(
+    const ProblemPtr_t& problem) {
+  GoalConfigurations* gc = new GoalConfigurations(problem);
+  GoalConfigurationsPtr_t shPtr(gc);
+  gc->init(shPtr);
+  return shPtr;
+}
 
-      void GoalConfigurations::check (const RoadmapPtr_t& /*roadmap*/) const
-      {
-      }
+void GoalConfigurations::check(const RoadmapPtr_t& /*roadmap*/) const {}
 
-      bool GoalConfigurations::reached (const RoadmapPtr_t& roadmap) const
-      {
-        if (!roadmap->initNode ()) return false;
-        const ConnectedComponentPtr_t ccInit = roadmap->initNode ()->connectedComponent ();
-        const NodeVector_t& goals = roadmap->goalNodes();
-        for (NodeVector_t::const_iterator _goal = goals.begin (); _goal != goals.end (); ++_goal) {
-          if (ccInit->canReach ((*_goal)->connectedComponent ())) {
-            return true;
-          }
-        }
-        return false;
-      }
+bool GoalConfigurations::reached(const RoadmapPtr_t& roadmap) const {
+  if (!roadmap->initNode()) return false;
+  const ConnectedComponentPtr_t ccInit =
+      roadmap->initNode()->connectedComponent();
+  const NodeVector_t& goals = roadmap->goalNodes();
+  for (NodeVector_t::const_iterator _goal = goals.begin(); _goal != goals.end();
+       ++_goal) {
+    if (ccInit->canReach((*_goal)->connectedComponent())) {
+      return true;
+    }
+  }
+  return false;
+}
 
-      PathVectorPtr_t GoalConfigurations::computePath(const RoadmapPtr_t& roadmap) const
-      {
-        ProblemPtr_t problem (problem_.lock());
-        assert (problem);
-        Astar astar (roadmap, problem->distance ());
-        PathVectorPtr_t sol = PathVector::create (
-            problem->robot()->configSize(), problem->robot()->numberDof());
-        astar.solution (sol);
-        // This happens when q_init == q_goal
-        if (sol->numberPaths() == 0) {
-          ConfigurationPtr_t q (roadmap->initNode()->configuration ());
-          sol->appendPath(
-              (*problem->steeringMethod()) (*q, *q)
-              );
-        }
-        return sol;
-      }
-      // ======================================================================
+PathVectorPtr_t GoalConfigurations::computePath(
+    const RoadmapPtr_t& roadmap) const {
+  ProblemPtr_t problem(problem_.lock());
+  assert(problem);
+  Astar astar(roadmap, problem->distance());
+  PathVectorPtr_t sol = PathVector::create(problem->robot()->configSize(),
+                                           problem->robot()->numberDof());
+  astar.solution(sol);
+  // This happens when q_init == q_goal
+  if (sol->numberPaths() == 0) {
+    ConfigurationPtr_t q(roadmap->initNode()->configuration());
+    sol->appendPath((*problem->steeringMethod())(*q, *q));
+  }
+  return sol;
+}
+// ======================================================================
 
-      const Configurations_t& GoalConfigurations::configurations () const
-      {
-        return configurations_;
-      }
+const Configurations_t& GoalConfigurations::configurations() const {
+  return configurations_;
+}
 
-      // ======================================================================
+// ======================================================================
 
-      void GoalConfigurations::addConfiguration
-      (const ConfigurationPtr_t& config)
-      {
-        configurations_.push_back (config);
-      }
+void GoalConfigurations::addConfiguration(const ConfigurationPtr_t& config) {
+  configurations_.push_back(config);
+}
 
-      // ======================================================================
+// ======================================================================
 
-      void GoalConfigurations::resetConfigurations ()
-      {
-        configurations_.clear ();
-      }
+void GoalConfigurations::resetConfigurations() { configurations_.clear(); }
 
-    } // namespace problemTarget
-  } // namespace core
-} // namespace hpp
+}  // namespace problemTarget
+}  // namespace core
+}  // namespace hpp

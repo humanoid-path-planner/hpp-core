@@ -28,23 +28,23 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH
-# define HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH
+#define HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH
 
 #include <hpp/core/path-validation/discretized.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathValidation {
-      /// \addtogroup validation
-      /// \{
+namespace core {
+namespace pathValidation {
+/// \addtogroup validation
+/// \{
 
-      /// Validation of path by collision checking at discretized parameter values
-      DiscretizedPtr_t createDiscretizedCollisionChecking (
-          const DevicePtr_t& robot, const value_type& stepSize);
+/// Validation of path by collision checking at discretized parameter values
+DiscretizedPtr_t createDiscretizedCollisionChecking(const DevicePtr_t& robot,
+                                                    const value_type& stepSize);
 
-      /// \}
-    } // namespace pathValidation
-  } // namespace core
-} // namespace hpp
+/// \}
+}  // namespace pathValidation
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH
+#endif  // HPP_CORE_PATH_VALIDATION_DISCRETIZED_COLLISION_CHECKING_HH

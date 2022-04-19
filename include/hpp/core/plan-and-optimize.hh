@@ -28,42 +28,43 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PLAN_AND_OPTIMIZE_HH
-# define HPP_CORE_PLAN_AND_OPTIMIZE_HH
+#define HPP_CORE_PLAN_AND_OPTIMIZE_HH
 
-# include <vector>
-# include <hpp/core/config.hh>
-# include <hpp/core/path-planner.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/path-planner.hh>
+#include <vector>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_planning
-    /// \{
+namespace core {
+/// \addtogroup path_planning
+/// \{
 
-    /// Path planner and optimizer
-    ///
-    /// Plans a path and iteratively applies a series of optimizer on
-    /// the result.
-    class HPP_CORE_DLLAPI PlanAndOptimize : public PathPlanner
-    {
-    public:
-      /// Return shared pointer to new object.
-      static PlanAndOptimizePtr_t create (const PathPlannerPtr_t& pathPlanner);
-      /// Call internal path planner implementation
-      virtual void startSolve ();
-      /// One iteration of path planning or path optimization
-      virtual void oneStep ();
-      /// Optimize planned path
-      virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
-      void addPathOptimizer (const PathOptimizerPtr_t& optimizer);
-    protected:
-      PlanAndOptimize (const PathPlannerPtr_t& pathPlanner);
-    private:
-      typedef std::vector <PathOptimizerPtr_t> Optimizers_t;
-      const PathPlannerPtr_t pathPlanner_;
-      Optimizers_t optimizers_;
-    }; // class PlanAndOptimize
-    /// \}
-  } // namespace core
-} // namespace hpp
+/// Path planner and optimizer
+///
+/// Plans a path and iteratively applies a series of optimizer on
+/// the result.
+class HPP_CORE_DLLAPI PlanAndOptimize : public PathPlanner {
+ public:
+  /// Return shared pointer to new object.
+  static PlanAndOptimizePtr_t create(const PathPlannerPtr_t& pathPlanner);
+  /// Call internal path planner implementation
+  virtual void startSolve();
+  /// One iteration of path planning or path optimization
+  virtual void oneStep();
+  /// Optimize planned path
+  virtual PathVectorPtr_t finishSolve(const PathVectorPtr_t& path);
+  void addPathOptimizer(const PathOptimizerPtr_t& optimizer);
 
-# endif // HPP_CORE_PLAN_AND_OPTIMIZE_HH
+ protected:
+  PlanAndOptimize(const PathPlannerPtr_t& pathPlanner);
+
+ private:
+  typedef std::vector<PathOptimizerPtr_t> Optimizers_t;
+  const PathPlannerPtr_t pathPlanner_;
+  Optimizers_t optimizers_;
+};  // class PlanAndOptimize
+/// \}
+}  // namespace core
+}  // namespace hpp
+
+#endif  // HPP_CORE_PLAN_AND_OPTIMIZE_HH

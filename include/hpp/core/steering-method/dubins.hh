@@ -28,103 +28,91 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_DUBINS_HH
-# define HPP_CORE_STEERING_METHOD_DUBINS_HH
+#define HPP_CORE_STEERING_METHOD_DUBINS_HH
 
-# include <hpp/util/debug.hh>
-# include <hpp/util/pointer.hh>
-
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
-# include <hpp/core/steering-method/fwd.hh>
-# include <hpp/core/steering-method/car-like.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/steering-method/car-like.hh>
+#include <hpp/core/steering-method/fwd.hh>
+#include <hpp/util/debug.hh>
+#include <hpp/util/pointer.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      /// \addtogroup steering_method
-      /// \{
+namespace core {
+namespace steeringMethod {
+/// \addtogroup steering_method
+/// \{
 
-      /// Steering method that creates DubinsPath instances
-      ///
-      class HPP_CORE_DLLAPI Dubins : public CarLike
-      {
-        public:
-          /// Create an instance
-          ///
-          /// This constructor assumes that:
-          /// - the 2 parameters of the configurations corresponds to the XY
-          ///   translation joint,
-          /// - the 2 following parameters corresponds to the RZ unbounded
-          ///   rotation joint.
-          /// Use CarLike::setWheelJoints to set the wheel joints.
-          static DubinsPtr_t createWithGuess (const ProblemConstPtr_t& problem)
-          {
-            Dubins* ptr = new Dubins (problem);
-            DubinsPtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+/// Steering method that creates DubinsPath instances
+///
+class HPP_CORE_DLLAPI Dubins : public CarLike {
+ public:
+  /// Create an instance
+  ///
+  /// This constructor assumes that:
+  /// - the 2 parameters of the configurations corresponds to the XY
+  ///   translation joint,
+  /// - the 2 following parameters corresponds to the RZ unbounded
+  ///   rotation joint.
+  /// Use CarLike::setWheelJoints to set the wheel joints.
+  static DubinsPtr_t createWithGuess(const ProblemConstPtr_t& problem) {
+    Dubins* ptr = new Dubins(problem);
+    DubinsPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Create an instance
-          ///
-          /// This constructor does no assumption.
-          static DubinsPtr_t create (const ProblemConstPtr_t& problem,
-              const value_type turningRadius,
-              JointPtr_t xyJoint, JointPtr_t rzJoint,
-              std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
-          {
-            Dubins* ptr = new Dubins (problem, turningRadius,
-                xyJoint, rzJoint, wheels);
-            DubinsPtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+  /// Create an instance
+  ///
+  /// This constructor does no assumption.
+  static DubinsPtr_t create(
+      const ProblemConstPtr_t& problem, const value_type turningRadius,
+      JointPtr_t xyJoint, JointPtr_t rzJoint,
+      std::vector<JointPtr_t> wheels = std::vector<JointPtr_t>()) {
+    Dubins* ptr = new Dubins(problem, turningRadius, xyJoint, rzJoint, wheels);
+    DubinsPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Copy instance and return shared pointer
-          static DubinsPtr_t createCopy
-            (const DubinsPtr_t& other)
-            {
-              Dubins* ptr = new Dubins (*other);
-              DubinsPtr_t shPtr (ptr);
-              ptr->init (shPtr);
-              return shPtr;
-            }
+  /// Copy instance and return shared pointer
+  static DubinsPtr_t createCopy(const DubinsPtr_t& other) {
+    Dubins* ptr = new Dubins(*other);
+    DubinsPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Copy instance and return shared pointer
-          virtual SteeringMethodPtr_t copy () const
-          {
-            return createCopy (weak_.lock ());
-          }
+  /// Copy instance and return shared pointer
+  virtual SteeringMethodPtr_t copy() const { return createCopy(weak_.lock()); }
 
-          /// create a path between two configurations
-          virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
-              ConfigurationIn_t q2) const;
+  /// create a path between two configurations
+  virtual PathPtr_t impl_compute(ConfigurationIn_t q1,
+                                 ConfigurationIn_t q2) const;
 
-        protected:
-          /// Constructor
-          Dubins (const ProblemConstPtr_t& problem);
+ protected:
+  /// Constructor
+  Dubins(const ProblemConstPtr_t& problem);
 
-          /// Constructor
-          Dubins (const ProblemConstPtr_t& problem,
-              const value_type turningRadius,
-              JointPtr_t xyJoint, JointPtr_t rzJoint,
-              std::vector <JointPtr_t> wheels);
+  /// Constructor
+  Dubins(const ProblemConstPtr_t& problem, const value_type turningRadius,
+         JointPtr_t xyJoint, JointPtr_t rzJoint,
+         std::vector<JointPtr_t> wheels);
 
-          /// Copy constructor
-          Dubins (const Dubins& other);
+  /// Copy constructor
+  Dubins(const Dubins& other);
 
-          /// Store weak pointer to itself
-          void init (DubinsWkPtr_t weak)
-          {
-            CarLike::init (weak);
-            weak_ = weak;
-          }
+  /// Store weak pointer to itself
+  void init(DubinsWkPtr_t weak) {
+    CarLike::init(weak);
+    weak_ = weak;
+  }
 
-        private:
-          DubinsWkPtr_t weak_;
-      }; // Dubins
-      /// \}
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_STEERING_METHOD_DUBINS_HH
+ private:
+  DubinsWkPtr_t weak_;
+};  // Dubins
+/// \}
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_STEERING_METHOD_DUBINS_HH

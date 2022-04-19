@@ -27,15 +27,13 @@
 // DAMAGE.
 
 #define BOOST_TEST_MODULE configuration_shooters
-#include <pinocchio/fwd.hpp>
 #include <boost/test/included/unit_test.hpp>
-
-#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/configuration-shooter/gaussian.hh>
-
-#include <hpp/pinocchio/device.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/simple-device.hh>
+#include <pinocchio/fwd.hpp>
 
 using hpp::pinocchio::DevicePtr_t;
 
@@ -44,34 +42,30 @@ using namespace hpp::core::configurationShooter;
 namespace pin_test = hpp::pinocchio::unittest;
 
 template <typename CS_t>
-void basic_test (CS_t cs, DevicePtr_t robot)
-{
+void basic_test(CS_t cs, DevicePtr_t robot) {
   hpp::core::Configuration_t q;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     cs->shoot(q);
     hpp::pinocchio::ArrayXb unused(robot->numberDof());
     BOOST_CHECK(!hpp::pinocchio::saturate(robot, q, unused));
   }
 }
 
-BOOST_AUTO_TEST_CASE (uniform)
-{
+BOOST_AUTO_TEST_CASE(uniform) {
   DevicePtr_t robot = pin_test::makeDevice(pin_test::HumanoidSimple);
-  UniformPtr_t cs = Uniform::create (robot);
+  UniformPtr_t cs = Uniform::create(robot);
 
-  basic_test (cs, robot);
+  basic_test(cs, robot);
 }
 
-BOOST_AUTO_TEST_CASE (gaussian)
-{
+BOOST_AUTO_TEST_CASE(gaussian) {
   DevicePtr_t robot = pin_test::makeDevice(pin_test::HumanoidSimple);
 
-  GaussianPtr_t cs = Gaussian::create (robot);
+  GaussianPtr_t cs = Gaussian::create(robot);
 
-  basic_test (cs, robot);
+  basic_test(cs, robot);
 
-  cs->sigma (0);
+  cs->sigma(0);
 
   hpp::core::Configuration_t q;
   cs->shoot(q);

@@ -27,69 +27,63 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/pinocchio/device.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/config-validations.hh>
-#include <hpp/core/path.hh>
 #include <hpp/core/path-validations.hh>
+#include <hpp/core/path.hh>
+#include <hpp/pinocchio/device.hh>
 
 namespace hpp {
-  namespace core {
+namespace core {
 
-    PathValidationsPtr_t PathValidations::create ()
-    {
-      PathValidations* ptr = new PathValidations();
-      return PathValidationsPtr_t (ptr);
-    }
+PathValidationsPtr_t PathValidations::create() {
+  PathValidations* ptr = new PathValidations();
+  return PathValidationsPtr_t(ptr);
+}
 
-    void PathValidations::addPathValidation
-    (const PathValidationPtr_t& pathValidation)
-    {
-      validations_.push_back (pathValidation);
-    }
+void PathValidations::addPathValidation(
+    const PathValidationPtr_t& pathValidation) {
+  validations_.push_back(pathValidation);
+}
 
-    bool PathValidations::validate
-    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
-     PathValidationReportPtr_t& validationReport)
-    {
-      PathPtr_t tempPath = path;
-      PathPtr_t tempValidPart;
-      PathValidationReportPtr_t tempValidationReport;
+bool PathValidations::validate(const PathPtr_t& path, bool reverse,
+                               PathPtr_t& validPart,
+                               PathValidationReportPtr_t& validationReport) {
+  PathPtr_t tempPath = path;
+  PathPtr_t tempValidPart;
+  PathValidationReportPtr_t tempValidationReport;
 
-      bool result = true;
-      value_type lastValidTime = path->timeRange ().second;
-      value_type t = lastValidTime;
+  bool result = true;
+  value_type lastValidTime = path->timeRange().second;
+  value_type t = lastValidTime;
 
-      for (std::vector <PathValidationPtr_t>::iterator
-	     it = validations_.begin (); it != validations_.end (); ++it) {
-	    if ((*it)->validate (tempPath, reverse, tempValidPart, tempValidationReport) == false)
-        {
-          t = tempValidationReport->getParameter();
-          if ( t < lastValidTime ) {
-              lastValidTime = t;
-              tempPath = tempValidPart;
-          }
-          result = false;
-        }
+  for (std::vector<PathValidationPtr_t>::iterator it = validations_.begin();
+       it != validations_.end(); ++it) {
+    if ((*it)->validate(tempPath, reverse, tempValidPart,
+                        tempValidationReport) == false) {
+      t = tempValidationReport->getParameter();
+      if (t < lastValidTime) {
+        lastValidTime = t;
+        tempPath = tempValidPart;
       }
-      validPart = tempPath;
-      validationReport->setParameter(lastValidTime);
-      return result;
+      result = false;
     }
+  }
+  validPart = tempPath;
+  validationReport->setParameter(lastValidTime);
+  return result;
+}
 
-    bool PathValidations::validate(ConfigurationIn_t q,
-                                   ValidationReportPtr_t& report)
-    {
-      for (auto pv : validations_){
-        bool res(pv->validate(q, report));
-        if (!res) return false;
-      }
-      return true;
-    }
+bool PathValidations::validate(ConfigurationIn_t q,
+                               ValidationReportPtr_t& report) {
+  for (auto pv : validations_) {
+    bool res(pv->validate(q, report));
+    if (!res) return false;
+  }
+  return true;
+}
 
-    PathValidations::PathValidations ()
-    {
-    }
-  } // namespace core
-} // namespace hpp
+PathValidations::PathValidations() {}
+}  // namespace core
+}  // namespace hpp

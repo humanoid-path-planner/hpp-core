@@ -27,110 +27,120 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_CONTAINER_HH
-# define HPP_CORE_CONTAINER_HH
+#define HPP_CORE_CONTAINER_HH
 
-# include <map>
-# include <stdexcept>
-# include <type_traits>
-
-# include <hpp/util/pointer.hh>
-# include <hpp/core/config.hh>
+#include <hpp/core/config.hh>
+#include <hpp/util/pointer.hh>
+#include <map>
+#include <stdexcept>
+#include <type_traits>
 
 namespace hpp {
-  namespace core {
-    /// @cond INTERNAL
-    namespace internal {
-      template <typename T> struct is_pointer : std::is_pointer<T> {};
-      template <typename T> struct is_pointer<shared_ptr<T> > : std::true_type {};
-      template <typename T> struct remove_pointer : std::remove_pointer<T> {};
-      template <typename T> struct remove_pointer<shared_ptr<T> > { typedef T type; };
-      template <typename T> struct remove_pointer<const shared_ptr<T> > { typedef T type; };
+namespace core {
+/// @cond INTERNAL
+namespace internal {
+template <typename T>
+struct is_pointer : std::is_pointer<T> {};
+template <typename T>
+struct is_pointer<shared_ptr<T> > : std::true_type {};
+template <typename T>
+struct remove_pointer : std::remove_pointer<T> {};
+template <typename T>
+struct remove_pointer<shared_ptr<T> > {
+  typedef T type;
+};
+template <typename T>
+struct remove_pointer<const shared_ptr<T> > {
+  typedef T type;
+};
 
-      template <bool deref_ptr> struct deref {
-        template <typename T> static inline T get (T t) { return t; }
-      };
-      template <> struct deref <true> {
-        template <typename T> static inline typename remove_pointer<T>::type get (T t) { return *t; }
-      };
+template <bool deref_ptr>
+struct deref {
+  template <typename T>
+  static inline T get(T t) {
+    return t;
+  }
+};
+template <>
+struct deref<true> {
+  template <typename T>
+  static inline typename remove_pointer<T>::type get(T t) {
+    return *t;
+  }
+};
+}  // namespace internal
+/// @endcond
+
+template <typename Types, typename Key = std::string>
+struct Container {
+  typedef std::map<Key, Types> Map_t;
+  typedef typename Map_t::value_type value_type;
+  typedef typename Map_t::key_type key_type;
+  typedef typename Map_t::mapped_type mapped_type;
+  typedef typename Map_t::const_iterator const_iterator;
+  typedef typename Map_t::iterator iterator;
+
+  Map_t map;
+
+  /// Erase the element named name
+  void erase(const Key& name) { map.erase(name); }
+  /// Clear content of container
+  void clear() { map.clear(); }
+  /// Add an element
+  void add(const key_type& name, const mapped_type& element) {
+    std::pair<iterator, bool> ret = map.insert(value_type(name, element));
+    if (!ret.second) ret.first->second = element;
+  }
+  /// Return the element named name
+  bool has(const key_type& name) const { return (map.find(name) != map.end()); }
+
+  /// Return the element named name
+  const mapped_type& get(const key_type& name) const {
+    const_iterator _e = map.find(name);
+    if (_e == map.end()) {
+      std::stringstream ss;
+      ss << "Invalid key: " << name;
+      throw std::invalid_argument(ss.str());
     }
-    /// @endcond
+    return _e->second;
+  }
 
-    template <typename Types, typename Key = std::string > struct Container
-    {
-      typedef std::map <Key, Types> Map_t;
-      typedef typename Map_t::value_type value_type;
-      typedef typename Map_t::key_type key_type;
-      typedef typename Map_t::mapped_type mapped_type;
-      typedef typename Map_t::const_iterator const_iterator;
-      typedef typename Map_t::      iterator       iterator;
+  /// Return the element named name
+  const mapped_type& get(const key_type& name,
+                         const mapped_type& defaultValue) const {
+    const_iterator _e = map.find(name);
+    if (_e == map.end()) return defaultValue;
+    return _e->second;
+  }
 
-      Map_t map;
+  /// Return a list of all elements
+  /// \tparam ReturnType must have a push_back method.
+  template <typename ReturnType>
+  ReturnType getAllAs() const {
+    ReturnType l;
+    for (const_iterator _e = map.begin(); _e != map.end(); ++_e)
+      l.push_back(_e->second);
+    return l;
+  }
 
-      /// Erase the element named name
-      void erase (const Key& name) { map.erase (name); }
-      /// Clear content of container
-      void clear () { map.clear (); }
-      /// Add an element
-      void add (const key_type& name, const mapped_type& element)
-      {
-        std::pair<iterator, bool> ret = map.insert( value_type(name, element));
-        if (!ret.second)
-          ret.first->second = element;
-      }
-      /// Return the element named name
-      bool has (const key_type& name) const { return (map.find (name) != map.end ()); }
+  template <typename ReturnType>
+  ReturnType getKeys() const {
+    ReturnType l;
+    for (const_iterator _e = map.begin(); _e != map.end(); ++_e)
+      l.push_back(_e->first);
+    return l;
+  }
 
-      /// Return the element named name
-      const mapped_type& get (const key_type& name) const
-      {
-        const_iterator _e = map.find (name);
-        if (_e == map.end ()) {
-          std::stringstream ss; ss << "Invalid key: " << name;
-          throw std::invalid_argument (ss.str());
-        }
-        return _e->second;
-      }
-
-      /// Return the element named name
-      const mapped_type& get (const key_type& name, const mapped_type& defaultValue) const
-      {
-        const_iterator _e = map.find (name);
-        if (_e == map.end ()) return defaultValue;
-        return _e->second;
-      }
-
-      /// Return a list of all elements
-      /// \tparam ReturnType must have a push_back method.
-      template <typename ReturnType>
-        ReturnType getAllAs () const
-        {
-          ReturnType l;
-          for (const_iterator _e = map.begin (); _e != map.end (); ++_e)
-            l.push_back (_e->second);
-          return l;
-        }
-
-      template <typename ReturnType>
-        ReturnType getKeys () const
-        {
-          ReturnType l;
-          for (const_iterator _e = map.begin (); _e != map.end (); ++_e)
-            l.push_back (_e->first);
-          return l;
-        }
-
-      /// Print object in a stream
-      std::ostream& print (std::ostream& os) const
-      {
-        typedef internal::is_pointer<mapped_type> should_deref;
-        typedef internal::deref<should_deref::value> deref;
-        for (const_iterator _e = map.begin (); _e != map.end (); ++_e)
-          os << _e->first << ": "
-            << deref::template get<const mapped_type> (_e->second)
-            << std::endl;
-        return os;
-      }
-    };
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_CONTAINER_HH
+  /// Print object in a stream
+  std::ostream& print(std::ostream& os) const {
+    typedef internal::is_pointer<mapped_type> should_deref;
+    typedef internal::deref<should_deref::value> deref;
+    for (const_iterator _e = map.begin(); _e != map.end(); ++_e)
+      os << _e->first << ": "
+         << deref::template get<const mapped_type>(_e->second) << std::endl;
+    return os;
+  }
+};
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_CONTAINER_HH

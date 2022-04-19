@@ -28,58 +28,55 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PROBLEM_TARGET_GOAL_CONFIGURATIONS_HH
-# define HPP_CORE_PROBLEM_TARGET_GOAL_CONFIGURATIONS_HH
+#define HPP_CORE_PROBLEM_TARGET_GOAL_CONFIGURATIONS_HH
 
-# include <hpp/core/problem-target.hh>
-
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/problem-target.hh>
 
 namespace hpp {
-  namespace core {
-    namespace problemTarget {
-      /// \addtogroup path_planning
-      /// \{
+namespace core {
+namespace problemTarget {
+/// \addtogroup path_planning
+/// \{
 
-      /// Goal configurations
-      ///
-      /// This class defines a goal as a list of goal configurations.
-      class HPP_CORE_DLLAPI GoalConfigurations : public ProblemTarget {
-        public:
-          static GoalConfigurationsPtr_t create
-            (const ProblemPtr_t& problem);
+/// Goal configurations
+///
+/// This class defines a goal as a list of goal configurations.
+class HPP_CORE_DLLAPI GoalConfigurations : public ProblemTarget {
+ public:
+  static GoalConfigurationsPtr_t create(const ProblemPtr_t& problem);
 
-          /// Check if the problem target is well specified.
-          void check (const RoadmapPtr_t& roadmap) const;
+  /// Check if the problem target is well specified.
+  void check(const RoadmapPtr_t& roadmap) const;
 
-          /// Check if the initial configuration and one of the goal are
-          /// in the same connected component.
-          /// \note This test takes into account nodes of the roadmap that
-          ///       are tagged as goal nodes, not the configurations stored
-          ///       in this class. Be careful that those two sets are the
-          ///       same.
-          bool reached (const RoadmapPtr_t& roadmap) const;
+  /// Check if the initial configuration and one of the goal are
+  /// in the same connected component.
+  /// \note This test takes into account nodes of the roadmap that
+  ///       are tagged as goal nodes, not the configurations stored
+  ///       in this class. Be careful that those two sets are the
+  ///       same.
+  bool reached(const RoadmapPtr_t& roadmap) const;
 
-          PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
-          /// Get goal configurations.
-          const Configurations_t& configurations() const;
-          /// Add goal configuration.
-          void addConfiguration (const ConfigurationPtr_t& config);
-          /// Reset the set of goal configurations
-          void resetConfigurations ();
+  PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
+  /// Get goal configurations.
+  const Configurations_t& configurations() const;
+  /// Add goal configuration.
+  void addConfiguration(const ConfigurationPtr_t& config);
+  /// Reset the set of goal configurations
+  void resetConfigurations();
 
-        protected:
-          /// Constructor
-          GoalConfigurations (const ProblemPtr_t& problem)
-            : ProblemTarget (problem)
-          {}
-        private:
-          /// Shared pointer to goal configuration.
-          Configurations_t configurations_;
+ protected:
+  /// Constructor
+  GoalConfigurations(const ProblemPtr_t& problem) : ProblemTarget(problem) {}
 
-      }; // class GoalConfigurations
-      /// \}
-    } // namespace problemTarget
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_PROBLEM_TARGET_GOAL_CONFIGURATIONS_HH
+ private:
+  /// Shared pointer to goal configuration.
+  Configurations_t configurations_;
+
+};  // class GoalConfigurations
+/// \}
+}  // namespace problemTarget
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PROBLEM_TARGET_GOAL_CONFIGURATIONS_HH

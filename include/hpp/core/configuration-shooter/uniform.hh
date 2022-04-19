@@ -28,58 +28,50 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
-# define HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
+#define HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
 
-# include <sstream>
-
-# include <hpp/pinocchio/device.hh>
-
-# include <hpp/core/configuration-shooter.hh>
+#include <hpp/core/configuration-shooter.hh>
+#include <hpp/pinocchio/device.hh>
+#include <sstream>
 
 namespace hpp {
-  namespace core {
-    namespace configurationShooter {
-      /// \addtogroup configuration_sampling
-      /// \{
+namespace core {
+namespace configurationShooter {
+/// \addtogroup configuration_sampling
+/// \{
 
-      /// Uniformly sample with bounds of degrees of freedom.
-      class HPP_CORE_DLLAPI Uniform : public ConfigurationShooter
-      {
-      public:
-        static UniformPtr_t create (const DevicePtr_t& robot)
-        {
-          Uniform* ptr = new Uniform (robot);
-          UniformPtr_t shPtr (ptr);
-          ptr->init (shPtr);
-          return shPtr;
-        }
+/// Uniformly sample with bounds of degrees of freedom.
+class HPP_CORE_DLLAPI Uniform : public ConfigurationShooter {
+ public:
+  static UniformPtr_t create(const DevicePtr_t& robot) {
+    Uniform* ptr = new Uniform(robot);
+    UniformPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-        void sampleExtraDOF(bool sampleExtraDOF){
-            sampleExtraDOF_=sampleExtraDOF;
-        }
+  void sampleExtraDOF(bool sampleExtraDOF) { sampleExtraDOF_ = sampleExtraDOF; }
 
-      protected:
-        /// Uniformly sample configuration space
-        ///
-        /// Note that translation joints have to be bounded.
-        Uniform (const DevicePtr_t& robot) : robot_ (robot),sampleExtraDOF_(true)
-        {
-        }
-        void init (const UniformPtr_t& self)
-        {
-          ConfigurationShooter::init (self);
-          weak_ = self;
-        }
+ protected:
+  /// Uniformly sample configuration space
+  ///
+  /// Note that translation joints have to be bounded.
+  Uniform(const DevicePtr_t& robot) : robot_(robot), sampleExtraDOF_(true) {}
+  void init(const UniformPtr_t& self) {
+    ConfigurationShooter::init(self);
+    weak_ = self;
+  }
 
-        virtual void impl_shoot (Configuration_t& q) const;
-      private:
-        DevicePtr_t robot_;
-        bool sampleExtraDOF_;
-        UniformWkPtr_t weak_;
-      }; // class Uniform
-      /// \}
-    } // namespace configurationShooter
-  } //   namespace core
-} // namespace hpp
+  virtual void impl_shoot(Configuration_t& q) const;
 
-#endif // HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH
+ private:
+  DevicePtr_t robot_;
+  bool sampleExtraDOF_;
+  UniformWkPtr_t weak_;
+};  // class Uniform
+/// \}
+}  // namespace configurationShooter
+}  //   namespace core
+}  // namespace hpp
+
+#endif  // HPP_CORE_CONFIGURATION_SHOOTER_UNIFORM_HH

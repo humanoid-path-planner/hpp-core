@@ -28,48 +28,46 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_CONFIG_VALIDATIONS_HH
-# define HPP_CORE_CONFIG_VALIDATIONS_HH
+#define HPP_CORE_CONFIG_VALIDATIONS_HH
 
-# include <hpp/core/config-validation.hh>
-# include <hpp/core/obstacle-user.hh>
+#include <hpp/core/config-validation.hh>
+#include <hpp/core/obstacle-user.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Validate a configuration with respect to collision
-    ///
-    class HPP_CORE_DLLAPI ConfigValidations :
-      public ConfigValidation,
-      public ObstacleUserVector<ConfigValidationPtr_t>
-    {
-    public:
-      static ConfigValidationsPtr_t create ();
+/// Validate a configuration with respect to collision
+///
+class HPP_CORE_DLLAPI ConfigValidations
+    : public ConfigValidation,
+      public ObstacleUserVector<ConfigValidationPtr_t> {
+ public:
+  static ConfigValidationsPtr_t create();
 
-      /// Compute whether the configuration is valid
-      ///
-      /// \param config the config to check for validity,
-      /// \retval validationReport report on validation. If non valid,
-      ///         a validation report will be allocated and returned via this
-      ///         shared pointer.
-      /// \return whether the whole config is valid.
-      virtual bool validate (const Configuration_t& config,
-			     ValidationReportPtr_t& validationReport);
-      /// Add a configuration validation object
-      void add (const ConfigValidationPtr_t& configValidation);
+  /// Compute whether the configuration is valid
+  ///
+  /// \param config the config to check for validity,
+  /// \retval validationReport report on validation. If non valid,
+  ///         a validation report will be allocated and returned via this
+  ///         shared pointer.
+  /// \return whether the whole config is valid.
+  virtual bool validate(const Configuration_t& config,
+                        ValidationReportPtr_t& validationReport);
+  /// Add a configuration validation object
+  void add(const ConfigValidationPtr_t& configValidation);
 
-      /// Return the number of config validations
-      size_type numberConfigValidations() const;
+  /// Return the number of config validations
+  size_type numberConfigValidations() const;
 
-    protected:
-      ConfigValidations () = default;
-      ConfigValidations(std::initializer_list<ConfigValidationPtr_t> validations) :
-        ObstacleUserVector (validations)
-      {};
-    }; // class ConfigValidation
-    /// \}
-  } // namespace core
-} // namespace hpp
+ protected:
+  ConfigValidations() = default;
+  ConfigValidations(std::initializer_list<ConfigValidationPtr_t> validations)
+      : ObstacleUserVector(validations){};
+};  // class ConfigValidation
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_CONFIG_VALIDATIONS_HH
+#endif  // HPP_CORE_CONFIG_VALIDATIONS_HH

@@ -27,84 +27,73 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_HERMITE_HH
-# define HPP_CORE_STEERING_METHOD_HERMITE_HH
+#define HPP_CORE_STEERING_METHOD_HERMITE_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/problem.hh>
-# include <hpp/core/steering-method/fwd.hh>
-# include <hpp/core/steering-method.hh>
-# include <hpp/core/path/hermite.hh>
-# include <hpp/core/weighed-distance.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/path/hermite.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method/fwd.hh>
+#include <hpp/core/weighed-distance.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      /// \addtogroup steering_method
-      /// \{
+namespace core {
+namespace steeringMethod {
+/// \addtogroup steering_method
+/// \{
 
-      /// Steering method that creates path::Hermite instances
-      ///
-      class HPP_CORE_DLLAPI Hermite : public SteeringMethod
-      {
-        public:
-          /// Create instance and return shared pointer
-          static HermitePtr_t create  (const ProblemConstPtr_t& problem)
-          {
-            Hermite* ptr = new Hermite (problem);
-            HermitePtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+/// Steering method that creates path::Hermite instances
+///
+class HPP_CORE_DLLAPI Hermite : public SteeringMethod {
+ public:
+  /// Create instance and return shared pointer
+  static HermitePtr_t create(const ProblemConstPtr_t& problem) {
+    Hermite* ptr = new Hermite(problem);
+    HermitePtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Copy instance and return shared pointer
-          static HermitePtr_t createCopy (const HermitePtr_t& other)
-          {
-            Hermite* ptr = new Hermite (*other);
-            HermitePtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+  /// Copy instance and return shared pointer
+  static HermitePtr_t createCopy(const HermitePtr_t& other) {
+    Hermite* ptr = new Hermite(*other);
+    HermitePtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Copy instance and return shared pointer
-          virtual SteeringMethodPtr_t copy () const
-          {
-            return createCopy (weak_.lock ());
-          }
+  /// Copy instance and return shared pointer
+  virtual SteeringMethodPtr_t copy() const { return createCopy(weak_.lock()); }
 
-          /// create a path between two configurations
-          virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
-              ConfigurationIn_t q2) const
-          {
-            path::HermitePtr_t path = path::Hermite::create
-              (problem()->robot(), q1, q2, constraints ());
+  /// create a path between two configurations
+  virtual PathPtr_t impl_compute(ConfigurationIn_t q1,
+                                 ConfigurationIn_t q2) const {
+    path::HermitePtr_t path =
+        path::Hermite::create(problem()->robot(), q1, q2, constraints());
 
-            path->computeHermiteLength();
-            return path;
-          }
+    path->computeHermiteLength();
+    return path;
+  }
 
-        protected:
-          /// Constructor with weighed distance
-          Hermite (const ProblemConstPtr_t& problem) :
-            SteeringMethod (problem), weak_ ()
-          {}
+ protected:
+  /// Constructor with weighed distance
+  Hermite(const ProblemConstPtr_t& problem)
+      : SteeringMethod(problem), weak_() {}
 
-          /// Copy constructor
-          Hermite (const Hermite& other) :
-            SteeringMethod (other), weak_ ()
-          {}
+  /// Copy constructor
+  Hermite(const Hermite& other) : SteeringMethod(other), weak_() {}
 
-          /// Store weak pointer to itself
-          void init (HermiteWkPtr_t weak)
-          {
-            SteeringMethod::init (weak);
-            weak_ = weak;
-          }
+  /// Store weak pointer to itself
+  void init(HermiteWkPtr_t weak) {
+    SteeringMethod::init(weak);
+    weak_ = weak;
+  }
 
-        private:
-          HermiteWkPtr_t weak_;
-      }; // Hermite
-      /// \}
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_STEERING_METHOD_HERMITE_HH
+ private:
+  HermiteWkPtr_t weak_;
+};  // Hermite
+/// \}
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_STEERING_METHOD_HERMITE_HH

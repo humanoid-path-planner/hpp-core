@@ -28,23 +28,23 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_VALIDATION_DISCRETIZED_JOINT_BOUND_HH
-# define HPP_CORE_PATH_VALIDATION_DISCRETIZED_JOINT_BOUND_HH
+#define HPP_CORE_PATH_VALIDATION_DISCRETIZED_JOINT_BOUND_HH
 
 #include <hpp/core/path-validation/discretized.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathValidation {
-      /// \addtogroup validation
-      /// \{
+namespace core {
+namespace pathValidation {
+/// \addtogroup validation
+/// \{
 
-      /// Validation of path by checking joint bounds at discretized parameter values
-      DiscretizedPtr_t createDiscretizedJointBound (
-          const DevicePtr_t& robot, const value_type& stepSize);
+/// Validation of path by checking joint bounds at discretized parameter values
+DiscretizedPtr_t createDiscretizedJointBound(const DevicePtr_t& robot,
+                                             const value_type& stepSize);
 
-        /// \}
-    } // namespace pathValidation
-  } // namespace core
-} // namespace hpp
+/// \}
+}  // namespace pathValidation
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PATH_VALIDATION_DISCRETIZED_JOINT_BOUND_HH
+#endif  // HPP_CORE_PATH_VALIDATION_DISCRETIZED_JOINT_BOUND_HH

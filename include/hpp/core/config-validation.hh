@@ -28,41 +28,40 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_CONFIG_VALIDATION_HH
-# define HPP_CORE_CONFIG_VALIDATION_HH
+#define HPP_CORE_CONFIG_VALIDATION_HH
 
-# include <hpp/core/validation-report.hh>
-# include <hpp/core/relative-motion.hh>
-# include <hpp/core/deprecated.hh>
+#include <hpp/core/deprecated.hh>
+#include <hpp/core/relative-motion.hh>
+#include <hpp/core/validation-report.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Abstraction of configuration validation
-    ///
-    /// Instances of this class validate configurations with respect to some
-    /// criteria
-    class HPP_CORE_DLLAPI ConfigValidation
-    {
-    public:
-      /// Compute whether the configuration is valid
-      ///
-      /// \param config the config to check for validity,
-      /// \retval validationReport report on validation. If non valid,
-      ///         a validation report will be allocated and returned via this
-      ///         shared pointer.
-      /// \return whether the whole config is valid.
-      virtual bool validate (const Configuration_t& config,
-			     ValidationReportPtr_t& validationReport) = 0;
+/// Abstraction of configuration validation
+///
+/// Instances of this class validate configurations with respect to some
+/// criteria
+class HPP_CORE_DLLAPI ConfigValidation {
+ public:
+  /// Compute whether the configuration is valid
+  ///
+  /// \param config the config to check for validity,
+  /// \retval validationReport report on validation. If non valid,
+  ///         a validation report will be allocated and returned via this
+  ///         shared pointer.
+  /// \return whether the whole config is valid.
+  virtual bool validate(const Configuration_t& config,
+                        ValidationReportPtr_t& validationReport) = 0;
 
-      virtual ~ConfigValidation () = default;
+  virtual ~ConfigValidation() = default;
 
-    protected:
-      ConfigValidation () = default;
-    }; // class ConfigValidation
-    /// \}
-  } // namespace core
-} // namespace hpp
+ protected:
+  ConfigValidation() = default;
+};  // class ConfigValidation
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_CONFIG_VALIDATION_HH
+#endif  // HPP_CORE_CONFIG_VALIDATION_HH

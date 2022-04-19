@@ -28,55 +28,55 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_VALIDATIONS_HH
-# define HPP_CORE_PATH_VALIDATIONS_HH
+#define HPP_CORE_PATH_VALIDATIONS_HH
 
-# include <hpp/core/obstacle-user.hh>
-# include <hpp/core/path-validation.hh>
+#include <hpp/core/obstacle-user.hh>
+#include <hpp/core/path-validation.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Validation of a path with multiple path validation methods
-    ///
-    /// Apply several path validation methods to the path parameter
-    class HPP_CORE_DLLAPI PathValidations :
-      public PathValidation,
-      public ObstacleUserVector<PathValidationPtr_t>
-    {
-    public:
-      static PathValidationsPtr_t create ();
+/// Validation of a path with multiple path validation methods
+///
+/// Apply several path validation methods to the path parameter
+class HPP_CORE_DLLAPI PathValidations
+    : public PathValidation,
+      public ObstacleUserVector<PathValidationPtr_t> {
+ public:
+  static PathValidationsPtr_t create();
 
-      /// Compute the largest valid interval starting from the path beginning
-      ///
-      /// \param path the path to check for validity,
-      /// \param reverse if true check from the end,
-      /// \retval the extracted valid part of the path, pointer to path if
-      ///         path is valid.
-      /// \retval report information about the validation process. A report
-      ///         is allocated if the path is not valid.
-      /// \return whether the whole path is valid.
-      virtual bool validate (const PathPtr_t& path, bool reverse,
-			     PathPtr_t& validPart,
-			     PathValidationReportPtr_t& report);
+  /// Compute the largest valid interval starting from the path beginning
+  ///
+  /// \param path the path to check for validity,
+  /// \param reverse if true check from the end,
+  /// \retval the extracted valid part of the path, pointer to path if
+  ///         path is valid.
+  /// \retval report information about the validation process. A report
+  ///         is allocated if the path is not valid.
+  /// \return whether the whole path is valid.
+  virtual bool validate(const PathPtr_t& path, bool reverse,
+                        PathPtr_t& validPart,
+                        PathValidationReportPtr_t& report);
 
-      /// Validate a single configuration
-      /// \param q input configuration,
-      /// \retval report validation report.
-      /// The default implementation builds a straight path of length 0
-      /// with the input configuration and validates the path.
-      virtual bool validate(ConfigurationIn_t q, ValidationReportPtr_t& report);
+  /// Validate a single configuration
+  /// \param q input configuration,
+  /// \retval report validation report.
+  /// The default implementation builds a straight path of length 0
+  /// with the input configuration and validates the path.
+  virtual bool validate(ConfigurationIn_t q, ValidationReportPtr_t& report);
 
-      /// Add a path validation object
-      virtual void addPathValidation (const PathValidationPtr_t& pathValidation);
+  /// Add a path validation object
+  virtual void addPathValidation(const PathValidationPtr_t& pathValidation);
 
-      virtual ~PathValidations () {};
-    protected:
-      PathValidations ();
-    }; // class PathValidations
-    /// \}
-  } // namespace core
-} // namespace hpp
+  virtual ~PathValidations(){};
 
-#endif // HPP_CORE_PATH_VALIDATIONS_HH
+ protected:
+  PathValidations();
+};  // class PathValidations
+/// \}
+}  // namespace core
+}  // namespace hpp
+
+#endif  // HPP_CORE_PATH_VALIDATIONS_HH

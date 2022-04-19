@@ -28,63 +28,55 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_COLLISION_VALIDATION_HH
-# define HPP_CORE_COLLISION_VALIDATION_HH
+#define HPP_CORE_COLLISION_VALIDATION_HH
 
-# include <hpp/core/collision-validation-report.hh>
-# include <hpp/core/config-validation.hh>
-# include <hpp/core/obstacle-user.hh>
-# include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/collision_data.h>
+
+#include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/config-validation.hh>
+#include <hpp/core/obstacle-user.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Validate a configuration with respect to collision
-    ///
-    class HPP_CORE_DLLAPI CollisionValidation :
-      public ConfigValidation,
-      public ObstacleUser
-    {
-    public:
-      static CollisionValidationPtr_t create (const DevicePtr_t& robot);
+/// Validate a configuration with respect to collision
+///
+class HPP_CORE_DLLAPI CollisionValidation : public ConfigValidation,
+                                            public ObstacleUser {
+ public:
+  static CollisionValidationPtr_t create(const DevicePtr_t& robot);
 
-      /// Compute whether the configuration is valid
-      ///
-      /// \param config the config to check for validity,
-      /// \retval validationReport report on validation. If non valid,
-      ///         a validation report will be allocated and returned via this
-      ///         shared pointer.
-      /// \return whether the whole config is valid.
-      virtual bool validate (const Configuration_t& config,
-			     ValidationReportPtr_t& validationReport);
+  /// Compute whether the configuration is valid
+  ///
+  /// \param config the config to check for validity,
+  /// \retval validationReport report on validation. If non valid,
+  ///         a validation report will be allocated and returned via this
+  ///         shared pointer.
+  /// \return whether the whole config is valid.
+  virtual bool validate(const Configuration_t& config,
+                        ValidationReportPtr_t& validationReport);
 
-      void checkParameterized (bool active)
-      {
-        checkParameterized_ = active;
-      }
+  void checkParameterized(bool active) { checkParameterized_ = active; }
 
-      void computeAllContacts (bool computeAllContacts)
-      {
-        computeAllContacts_ = computeAllContacts;
-      }
+  void computeAllContacts(bool computeAllContacts) {
+    computeAllContacts_ = computeAllContacts;
+  }
 
-      bool checkParameterized () const
-      {
-        return checkParameterized_;
-      }
+  bool checkParameterized() const { return checkParameterized_; }
 
-    protected:
-      CollisionValidation (const DevicePtr_t& robot);
-      DevicePtr_t robot_;
+ protected:
+  CollisionValidation(const DevicePtr_t& robot);
+  DevicePtr_t robot_;
 
-    private:
-      bool checkParameterized_;
-      bool computeAllContacts_;
+ private:
+  bool checkParameterized_;
+  bool computeAllContacts_;
 
-    }; // class ConfigValidation
-    /// \}
-  } // namespace core
-} // namespace hpp
+};  // class ConfigValidation
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_COLLISION_VALIDATION_HH
+#endif  // HPP_CORE_COLLISION_VALIDATION_HH

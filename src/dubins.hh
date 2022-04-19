@@ -34,44 +34,39 @@
 #define R_SEG (2)
 
 // Error codes
-#define EDUBOK        (0)   // No error
-#define EDUBCOCONFIGS (1)   // Colocated configurations
-#define EDUBPARAM     (2)   // Path parameterisitation error
-#define EDUBBADRHO    (3)   // the rho value is invalid
-#define EDUBNOPATH    (4)   // no connection between configurations with this word
+#define EDUBOK (0)         // No error
+#define EDUBCOCONFIGS (1)  // Colocated configurations
+#define EDUBPARAM (2)      // Path parameterisitation error
+#define EDUBBADRHO (3)     // the rho value is invalid
+#define EDUBNOPATH (4)  // no connection between configurations with this word
 
 // The segment types for each of the Path types
-const int DIRDATA[][3] = {
-    { L_SEG, S_SEG, L_SEG },
-    { L_SEG, S_SEG, R_SEG },
-    { R_SEG, S_SEG, L_SEG },
-    { R_SEG, S_SEG, R_SEG },
-    { R_SEG, L_SEG, R_SEG },
-    { L_SEG, R_SEG, L_SEG }
-};
+const int DIRDATA[][3] = {{L_SEG, S_SEG, L_SEG}, {L_SEG, S_SEG, R_SEG},
+                          {R_SEG, S_SEG, L_SEG}, {R_SEG, S_SEG, R_SEG},
+                          {R_SEG, L_SEG, R_SEG}, {L_SEG, R_SEG, L_SEG}};
 
-#define UNPACK_INPUTS(alpha, beta)     \
-    double sa = sin(alpha);            \
-    double sb = sin(beta);             \
-    double ca = cos(alpha);            \
-    double cb = cos(beta);             \
-    double c_ab = cos(alpha - beta);   \
+#define UNPACK_INPUTS(alpha, beta) \
+  double sa = sin(alpha);          \
+  double sb = sin(beta);           \
+  double ca = cos(alpha);          \
+  double cb = cos(beta);           \
+  double c_ab = cos(alpha - beta);
 
-#define PACK_OUTPUTS(outputs)       \
-    outputs[0]  = t;                \
-    outputs[1]  = p;                \
-    outputs[2]  = q;
+#define PACK_OUTPUTS(outputs) \
+  outputs[0] = t;             \
+  outputs[1] = p;             \
+  outputs[2] = q;
 
 // The various types of solvers for each of the path types
-typedef int (*DubinsWord)(double, double, double, double* );
+typedef int (*DubinsWord)(double, double, double, double*);
 
 // A complete list of the possible solvers that could give optimal paths
 extern DubinsWord dubins_words[];
-int dubins_LSL( double alpha, double beta, double d, double* outputs );
-int dubins_RSR( double alpha, double beta, double d, double* outputs );
-int dubins_LSR( double alpha, double beta, double d, double* outputs );
-int dubins_RSL( double alpha, double beta, double d, double* outputs );
-int dubins_LRL( double alpha, double beta, double d, double* outputs );
-int dubins_RLR( double alpha, double beta, double d, double* outputs );
+int dubins_LSL(double alpha, double beta, double d, double* outputs);
+int dubins_RSR(double alpha, double beta, double d, double* outputs);
+int dubins_LSR(double alpha, double beta, double d, double* outputs);
+int dubins_RSL(double alpha, double beta, double d, double* outputs);
+int dubins_LRL(double alpha, double beta, double d, double* outputs);
+int dubins_RLR(double alpha, double beta, double d, double* outputs);
 
-#endif // DUBINS_H
+#endif  // DUBINS_H

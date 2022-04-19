@@ -27,7 +27,6 @@
 // DAMAGE.
 
 #include <hpp/core/path-optimization/quadratic-program.hh>
-
 #include <hpp/util/timer.hh>
 
 #pragma GCC diagnostic push
@@ -38,59 +37,56 @@
 #pragma GCC diagnostic pop
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_optimization
-    /// \{
-    namespace pathOptimization {
-      HPP_DEFINE_TIMECOUNTER(QuadraticProgram_decompose);
-      HPP_DEFINE_TIMECOUNTER(QuadraticProgram_computeLLT);
-      HPP_DEFINE_TIMECOUNTER(QuadraticProgram_solve_quadprog);
+namespace core {
+/// \addtogroup path_optimization
+/// \{
+namespace pathOptimization {
+HPP_DEFINE_TIMECOUNTER(QuadraticProgram_decompose);
+HPP_DEFINE_TIMECOUNTER(QuadraticProgram_computeLLT);
+HPP_DEFINE_TIMECOUNTER(QuadraticProgram_solve_quadprog);
 
-      QuadraticProgram::~QuadraticProgram ()
-      {
-        HPP_DISPLAY_TIMECOUNTER(QuadraticProgram_decompose);
-        HPP_DISPLAY_TIMECOUNTER(QuadraticProgram_computeLLT);
-        HPP_DISPLAY_TIMECOUNTER(QuadraticProgram_solve_quadprog);
-      }
+QuadraticProgram::~QuadraticProgram() {
+  HPP_DISPLAY_TIMECOUNTER(QuadraticProgram_decompose);
+  HPP_DISPLAY_TIMECOUNTER(QuadraticProgram_computeLLT);
+  HPP_DISPLAY_TIMECOUNTER(QuadraticProgram_solve_quadprog);
+}
 
-      void QuadraticProgram::decompose ()
-      {
-        HPP_SCOPE_TIMECOUNTER(QuadraticProgram_decompose);
-        dec.compute(H);
-        assert(dec.rank() == H.rows());
-      }
+void QuadraticProgram::decompose() {
+  HPP_SCOPE_TIMECOUNTER(QuadraticProgram_decompose);
+  dec.compute(H);
+  assert(dec.rank() == H.rows());
+}
 
-      void QuadraticProgram::computeLLT()
-      {
-        HPP_SCOPE_TIMECOUNTER(QuadraticProgram_computeLLT);
-        trace = H.trace();
-        llt.compute(H);
-      }
+void QuadraticProgram::computeLLT() {
+  HPP_SCOPE_TIMECOUNTER(QuadraticProgram_computeLLT);
+  trace = H.trace();
+  llt.compute(H);
+}
 
-      double QuadraticProgram::solve(const LinearConstraint& ce, const LinearConstraint& ci)
-      {
-        if (ce.J.rows() > ce.J.cols())
-          throw std::runtime_error ("The QP is over-constrained. QuadProg cannot handle it.");
-        HPP_SCOPE_TIMECOUNTER(QuadraticProgram_solve_quadprog);
-        // min   0.5 * x G x + g0 x
-        // s.t.  CE^T x + ce0 = 0
-        //       CI^T x + ci0 >= 0
-        Eigen::QuadProgStatus status;
-        double cost = solve_quadprog2 (llt, trace, b,
-            ce.J.transpose(), - ce.b,
-            ci.J.transpose(), - ci.b,
-            xStar, activeConstraint, activeSetSize, status);
-        switch (status) {
-          case Eigen::UNBOUNDED:
-            hppDout (warning, "Quadratic problem is not bounded");
-          case Eigen::CONVERGED:
-            break;
-          case Eigen::CONSTRAINT_LINEARLY_DEPENDENT:
-            hppDout (error, "Constraint of quadratic problem are linearly dependent.");
-            break;
-        }
-        return cost;
-      }
-    } // namespace pathOptimization
-  }  // namespace core
-} // namespace hpp
+double QuadraticProgram::solve(const LinearConstraint& ce,
+                               const LinearConstraint& ci) {
+  if (ce.J.rows() > ce.J.cols())
+    throw std::runtime_error(
+        "The QP is over-constrained. QuadProg cannot handle it.");
+  HPP_SCOPE_TIMECOUNTER(QuadraticProgram_solve_quadprog);
+  // min   0.5 * x G x + g0 x
+  // s.t.  CE^T x + ce0 = 0
+  //       CI^T x + ci0 >= 0
+  Eigen::QuadProgStatus status;
+  double cost =
+      solve_quadprog2(llt, trace, b, ce.J.transpose(), -ce.b, ci.J.transpose(),
+                      -ci.b, xStar, activeConstraint, activeSetSize, status);
+  switch (status) {
+    case Eigen::UNBOUNDED:
+      hppDout(warning, "Quadratic problem is not bounded");
+    case Eigen::CONVERGED:
+      break;
+    case Eigen::CONSTRAINT_LINEARLY_DEPENDENT:
+      hppDout(error, "Constraint of quadratic problem are linearly dependent.");
+      break;
+  }
+  return cost;
+}
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp

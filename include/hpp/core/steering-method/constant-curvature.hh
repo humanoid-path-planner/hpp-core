@@ -28,183 +28,170 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH
-# define HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH
+#define HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/path.hh>
-# include <hpp/core/steering-method/fwd.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/path.hh>
+#include <hpp/core/steering-method/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      /// Path of constant curvature for a carlike robot
-      class ConstantCurvature : public Path {
-      public:
-        typedef Path parent_t;
-        virtual ~ConstantCurvature () {}
-         /// Create instance and return shared pointer.
-        /// \param robot the carlike robot,
-        /// \param init, end Initial and final configurations of the path,
-        /// \param curveLength distance traveled by the middle of the rear
-        ///        wheel axis, negative values correspond to backward motions
-        /// \param pathLength length of the interval of definition. Should be
-        ///        positive,
-        /// \param curvature curvature of the path,
-        /// \param xyId id of degrees of freedom corresponding to (x,y)
-        /// coordinates of robot,
-        /// \param rzId id of degrees of freedom corresponding to orientation
-        /// of robot.
-        /// \param rz joint corresponding to orientation of robot,
-        /// \param wheels vector of joints corresponding to wheels,
-        /// \param constraints set of contraints the path is suject to.
-        static ConstantCurvaturePtr_t create
-        (const DevicePtr_t& robot, ConfigurationIn_t init,
-         ConfigurationIn_t end,
-         value_type curveLength, value_type pathLength,
-         value_type curvature, size_type xyId, size_type rzId,
-         const JointPtr_t rz, const std::vector<JointPtr_t> wheels,
-         const ConstraintSetPtr_t& constraints);
+namespace core {
+namespace steeringMethod {
+/// Path of constant curvature for a carlike robot
+class ConstantCurvature : public Path {
+ public:
+  typedef Path parent_t;
+  virtual ~ConstantCurvature() {}
+  /// Create instance and return shared pointer.
+  /// \param robot the carlike robot,
+  /// \param init, end Initial and final configurations of the path,
+  /// \param curveLength distance traveled by the middle of the rear
+  ///        wheel axis, negative values correspond to backward motions
+  /// \param pathLength length of the interval of definition. Should be
+  ///        positive,
+  /// \param curvature curvature of the path,
+  /// \param xyId id of degrees of freedom corresponding to (x,y)
+  /// coordinates of robot,
+  /// \param rzId id of degrees of freedom corresponding to orientation
+  /// of robot.
+  /// \param rz joint corresponding to orientation of robot,
+  /// \param wheels vector of joints corresponding to wheels,
+  /// \param constraints set of contraints the path is suject to.
+  static ConstantCurvaturePtr_t create(
+      const DevicePtr_t& robot, ConfigurationIn_t init, ConfigurationIn_t end,
+      value_type curveLength, value_type pathLength, value_type curvature,
+      size_type xyId, size_type rzId, const JointPtr_t rz,
+      const std::vector<JointPtr_t> wheels,
+      const ConstraintSetPtr_t& constraints);
 
-         /// Create instance and return shared pointer.
-        static ConstantCurvaturePtr_t createCopy
-        (const ConstantCurvaturePtr_t& other);
- 
-        /// Create instance and return shared pointer.
-        static ConstantCurvaturePtr_t createCopy
-        (const ConstantCurvaturePtr_t& other,
-         const ConstraintSetPtr_t& constraints);
- 
-        /// Return a shared pointer to a copy of this
-        virtual PathPtr_t copy () const;
+  /// Create instance and return shared pointer.
+  static ConstantCurvaturePtr_t createCopy(const ConstantCurvaturePtr_t& other);
 
-        /// Return a shared pointer to a copy of this with constraints
-        /// \param constraints constraints to apply to the copy
-        /// \pre *this should not have constraints.
-        virtual PathPtr_t copy (const ConstraintSetPtr_t& constraints) const
-        {
-	  return createCopy (weak_.lock (), constraints);
-        }
-      
-       /// Get the initial configuration
-        inline Configuration_t initial () const
-        {
-          return initial_;
-        }
+  /// Create instance and return shared pointer.
+  static ConstantCurvaturePtr_t createCopy(
+      const ConstantCurvaturePtr_t& other,
+      const ConstraintSetPtr_t& constraints);
 
-        /// Get the final configuration
-        inline Configuration_t end () const
-        {
-          return end_;
-        }
+  /// Return a shared pointer to a copy of this
+  virtual PathPtr_t copy() const;
 
-        virtual PathPtr_t reverse () const;
+  /// Return a shared pointer to a copy of this with constraints
+  /// \param constraints constraints to apply to the copy
+  /// \pre *this should not have constraints.
+  virtual PathPtr_t copy(const ConstraintSetPtr_t& constraints) const {
+    return createCopy(weak_.lock(), constraints);
+  }
 
-        struct Wheels_t {
-          value_type value; // Constant value of the wheel angle
-          JointPtr_t j;
-          Wheels_t () : j () {}
-        };
+  /// Get the initial configuration
+  inline Configuration_t initial() const { return initial_; }
 
-      protected:
-        /// Print path in a stream
-        virtual std::ostream& print (std::ostream &os) const;
+  /// Get the final configuration
+  inline Configuration_t end() const { return end_; }
 
-        /// Constructor
-        /// \param robot the carlike robot,
-        /// \param init, end Initial and final configurations of the path,
-        /// \param curveLength distance traveled by the middle of the rear
-        ///        wheel axis, negative values correspond to backward motions
-        /// \param pathLength length of the interval of definition. Should be
-        ///        positive,
-        /// \param curvature curvature of the path,
-        /// \param xyId id of degrees of freedom corresponding to (x,y)
-        /// coordinates of robot,
-        /// \param rzId id of degrees of freedom corresponding to orientation
-        /// of robot.
-        /// \param rz joint corresponding to orientation of robot,
-        /// \param wheels vector of joints corresponding to wheels.
-        ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
-                           ConfigurationIn_t end,
-                           value_type curveLength, value_type pathLength,
-                           value_type curvature, size_type xyId,
-                           size_type rzId, const JointPtr_t rz,
-                           const std::vector<JointPtr_t> wheels);
+  virtual PathPtr_t reverse() const;
 
-        /// Constructor
-        /// \param robot the carlike robot,
-        /// \param init, end Initial and final configurations of the path,
-        /// \param curveLength distance traveled by the middle of the rear
-        ///        wheel axis, negative values correspond to backward motions
-        /// \param pathLength length of the interval of definition. Should be
-        ///        positive,
-        /// \param curvature curvature of the path,
-        /// \param xyId id of degrees of freedom corresponding to (x,y)
-        /// coordinates of robot,
-        /// \param rzId id of degrees of freedom corresponding to orientation
-        /// of robot.
-        /// \param rz joint corresponding to orientation of robot,
-        /// \param wheels vector of joints corresponding to wheels,
-        /// \param constraints set of contraints the path is suject to.
-        ConstantCurvature (const DevicePtr_t& robot, ConfigurationIn_t init,
-                           ConfigurationIn_t end,
-                           value_type curveLength, value_type pathLength,
-                           value_type curvature, size_type xyId, size_type rzId,
-                           const JointPtr_t rz,
-                           const std::vector<JointPtr_t> wheels,
-                           ConstraintSetPtr_t constraints);
+  struct Wheels_t {
+    value_type value;  // Constant value of the wheel angle
+    JointPtr_t j;
+    Wheels_t() : j() {}
+  };
 
-        /// Copy constructor
-        ConstantCurvature (const ConstantCurvature& other);
+ protected:
+  /// Print path in a stream
+  virtual std::ostream& print(std::ostream& os) const;
 
-        /// Copy constructor with constraints
-        ConstantCurvature (const ConstantCurvature& other,
-                           const ConstraintSetPtr_t& constraints);
+  /// Constructor
+  /// \param robot the carlike robot,
+  /// \param init, end Initial and final configurations of the path,
+  /// \param curveLength distance traveled by the middle of the rear
+  ///        wheel axis, negative values correspond to backward motions
+  /// \param pathLength length of the interval of definition. Should be
+  ///        positive,
+  /// \param curvature curvature of the path,
+  /// \param xyId id of degrees of freedom corresponding to (x,y)
+  /// coordinates of robot,
+  /// \param rzId id of degrees of freedom corresponding to orientation
+  /// of robot.
+  /// \param rz joint corresponding to orientation of robot,
+  /// \param wheels vector of joints corresponding to wheels.
+  ConstantCurvature(const DevicePtr_t& robot, ConfigurationIn_t init,
+                    ConfigurationIn_t end, value_type curveLength,
+                    value_type pathLength, value_type curvature, size_type xyId,
+                    size_type rzId, const JointPtr_t rz,
+                    const std::vector<JointPtr_t> wheels);
 
-        virtual bool impl_compute (ConfigurationOut_t result,
-                                   value_type param) const;
-        /// Virtual implementation of derivative
-        virtual void impl_derivative
-        (vectorOut_t result, const value_type& param, size_type order) const;
-        /// Virtual implementation of velocity bound
-        virtual void impl_velocityBound (vectorOut_t bound,
-                                         const value_type& param0,
-                                         const value_type& param1) const;
+  /// Constructor
+  /// \param robot the carlike robot,
+  /// \param init, end Initial and final configurations of the path,
+  /// \param curveLength distance traveled by the middle of the rear
+  ///        wheel axis, negative values correspond to backward motions
+  /// \param pathLength length of the interval of definition. Should be
+  ///        positive,
+  /// \param curvature curvature of the path,
+  /// \param xyId id of degrees of freedom corresponding to (x,y)
+  /// coordinates of robot,
+  /// \param rzId id of degrees of freedom corresponding to orientation
+  /// of robot.
+  /// \param rz joint corresponding to orientation of robot,
+  /// \param wheels vector of joints corresponding to wheels,
+  /// \param constraints set of contraints the path is suject to.
+  ConstantCurvature(const DevicePtr_t& robot, ConfigurationIn_t init,
+                    ConfigurationIn_t end, value_type curveLength,
+                    value_type pathLength, value_type curvature, size_type xyId,
+                    size_type rzId, const JointPtr_t rz,
+                    const std::vector<JointPtr_t> wheels,
+                    ConstraintSetPtr_t constraints);
 
-        /// Virtual implementation of path extraction
-        virtual PathPtr_t impl_extract (const interval_t& paramInterval) const;
+  /// Copy constructor
+  ConstantCurvature(const ConstantCurvature& other);
 
-        /// store weak pointer to itself
-        void init (const ConstantCurvatureWkPtr_t& weak)
-        {
-          parent_t::init (weak);
-          weak_ = weak;
-        }
+  /// Copy constructor with constraints
+  ConstantCurvature(const ConstantCurvature& other,
+                    const ConstraintSetPtr_t& constraints);
 
-        /// For serialization only.
-        ConstantCurvature() : curvature_(0), xyId_(0), rzId_(0) {}
-    private:
-        /// Set the wheel joints for a car-like vehicle.
-        ///
-        /// \param rz joint from which the turning radius was computed.
-        /// \param wheels bounded rotation joints.
-        void setWheelJoints (const JointPtr_t rz,
-                             const std::vector<JointPtr_t> wheels);
+  virtual bool impl_compute(ConfigurationOut_t result, value_type param) const;
+  /// Virtual implementation of derivative
+  virtual void impl_derivative(vectorOut_t result, const value_type& param,
+                               size_type order) const;
+  /// Virtual implementation of velocity bound
+  virtual void impl_velocityBound(vectorOut_t bound, const value_type& param0,
+                                  const value_type& param1) const;
 
-        DevicePtr_t robot_;
-        Configuration_t initial_;
-        Configuration_t end_;
-        value_type curveLength_;
-        const value_type curvature_;
-        const size_type xyId_,rzId_;
-        size_type dxyId_,drzId_;
-        value_type forward_;
-        std::vector<Wheels_t> wheels_;
-        ConstantCurvatureWkPtr_t weak_;
+  /// Virtual implementation of path extraction
+  virtual PathPtr_t impl_extract(const interval_t& paramInterval) const;
 
-        HPP_SERIALIZABLE();
-      }; // class ConstantCurvature
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
+  /// store weak pointer to itself
+  void init(const ConstantCurvatureWkPtr_t& weak) {
+    parent_t::init(weak);
+    weak_ = weak;
+  }
 
-#endif // HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH
+  /// For serialization only.
+  ConstantCurvature() : curvature_(0), xyId_(0), rzId_(0) {}
+
+ private:
+  /// Set the wheel joints for a car-like vehicle.
+  ///
+  /// \param rz joint from which the turning radius was computed.
+  /// \param wheels bounded rotation joints.
+  void setWheelJoints(const JointPtr_t rz,
+                      const std::vector<JointPtr_t> wheels);
+
+  DevicePtr_t robot_;
+  Configuration_t initial_;
+  Configuration_t end_;
+  value_type curveLength_;
+  const value_type curvature_;
+  const size_type xyId_, rzId_;
+  size_type dxyId_, drzId_;
+  value_type forward_;
+  std::vector<Wheels_t> wheels_;
+  ConstantCurvatureWkPtr_t weak_;
+
+  HPP_SERIALIZABLE();
+};  // class ConstantCurvature
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp
+
+#endif  // HPP_CORE_STEERING_METHOD_CONSTANT_CURVATURE_HH

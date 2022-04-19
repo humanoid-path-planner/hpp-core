@@ -28,36 +28,36 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SIMPLE_SHORTCUT_HH
-# define HPP_CORE_PATH_OPTIMIZATION_SIMPLE_SHORTCUT_HH
+#define HPP_CORE_PATH_OPTIMIZATION_SIMPLE_SHORTCUT_HH
 
-# include <hpp/core/path-optimizer.hh>
+#include <hpp/core/path-optimizer.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathOptimization {
-      /// \addtogroup path_optimization
-      /// \{
-      /// Simple shortcut
-      ///
-      /// Find shortest path composed of direct paths between all pairs of
-      /// waypoints of input path.
-      ///
-      /// To do so, the optimizer builds a roadmap the nodes of which are the
-      /// input path waypoints and the edges of which are the collision-free
-      /// output of the steering method between all pairs of nodes.
-      class HPP_CORE_DLLAPI SimpleShortcut : public PathOptimizer
-      {
-      public:
-        /// Return shared pointer to new object.
-        static SimpleShortcutPtr_t create (const ProblemConstPtr_t& problem);
+namespace core {
+namespace pathOptimization {
+/// \addtogroup path_optimization
+/// \{
+/// Simple shortcut
+///
+/// Find shortest path composed of direct paths between all pairs of
+/// waypoints of input path.
+///
+/// To do so, the optimizer builds a roadmap the nodes of which are the
+/// input path waypoints and the edges of which are the collision-free
+/// output of the steering method between all pairs of nodes.
+class HPP_CORE_DLLAPI SimpleShortcut : public PathOptimizer {
+ public:
+  /// Return shared pointer to new object.
+  static SimpleShortcutPtr_t create(const ProblemConstPtr_t& problem);
 
-        /// Optimize path
-        virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
-      protected:
-        SimpleShortcut (const ProblemConstPtr_t& problem);
-      }; // class SimpleShortcut
-      /// \}
-    } // namespace pathOptimization
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_OPTIMIZATION_SIMPLE_SHORTCUT_HH
+  /// Optimize path
+  virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
+
+ protected:
+  SimpleShortcut(const ProblemConstPtr_t& problem);
+};  // class SimpleShortcut
+/// \}
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_OPTIMIZATION_SIMPLE_SHORTCUT_HH

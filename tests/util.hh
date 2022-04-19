@@ -27,35 +27,52 @@
 // DAMAGE.
 
 #ifndef TEST_UTIL_HH
-# define TEST_UTIL_HH
+#define TEST_UTIL_HH
 
-#define CONFIGURATION_VECTOR_IS_APPROX(robot, Qa, Qb, prec)                    \
-  BOOST_CHECK_MESSAGE(::hpp::pinocchio::isApprox(robot, Qa, Qb, prec),         \
-      "check isApprox(" #Qa ", " #Qb ") failed "                               \
-      "[\n" << (Qa).transpose() << "\n!=\n" << (Qb).transpose() << "\n]")
+#define CONFIGURATION_VECTOR_IS_APPROX(robot, Qa, Qb, prec)            \
+  BOOST_CHECK_MESSAGE(::hpp::pinocchio::isApprox(robot, Qa, Qb, prec), \
+                      "check isApprox(" #Qa ", " #Qb                   \
+                      ") failed "                                      \
+                      "[\n"                                            \
+                          << (Qa).transpose() << "\n!=\n"              \
+                          << (Qb).transpose() << "\n]")
 
-#define EIGEN_VECTOR_IS_APPROX(Va, Vb, prec)                                   \
-  BOOST_CHECK_MESSAGE((Va).isApprox(Vb, prec),                                 \
-      "check " #Va ".isApprox(" #Vb ") failed "                                \
-      "[\n" << (Va).transpose() << "\n!=\n" << (Vb).transpose() << "\n]")
+#define EIGEN_VECTOR_IS_APPROX(Va, Vb, prec)              \
+  BOOST_CHECK_MESSAGE((Va).isApprox(Vb, prec),            \
+                      "check " #Va ".isApprox(" #Vb       \
+                      ") failed "                         \
+                      "[\n"                               \
+                          << (Va).transpose() << "\n!=\n" \
+                          << (Vb).transpose() << "\n]")
 
-#define EIGEN_QUAT_IS_APPROX(Va, Vb, prec)                                     \
-  { value_type _inv = (Va.dot (Vb) > 0 ) ? 1 : -1;                             \
-    EIGEN_VECTOR_IS_APPROX(Va, _inv * Vb, prec); }
+#define EIGEN_QUAT_IS_APPROX(Va, Vb, prec)       \
+  {                                              \
+    value_type _inv = (Va.dot(Vb) > 0) ? 1 : -1; \
+    EIGEN_VECTOR_IS_APPROX(Va, _inv* Vb, prec);  \
+  }
 
-#define EIGEN_VECTOR_IS_NOT_APPROX(Va, Vb, prec)                               \
-  BOOST_CHECK_MESSAGE(!Va.isApprox(Vb, prec),                                  \
-      "check !" #Va ".isApprox(" #Vb ") failed "                               \
-      "[\n" << (Va).transpose() << "\n==\n" << (Vb).transpose() << "\n]")
+#define EIGEN_VECTOR_IS_NOT_APPROX(Va, Vb, prec)          \
+  BOOST_CHECK_MESSAGE(!Va.isApprox(Vb, prec),             \
+                      "check !" #Va ".isApprox(" #Vb      \
+                      ") failed "                         \
+                      "[\n"                               \
+                          << (Va).transpose() << "\n==\n" \
+                          << (Vb).transpose() << "\n]")
 
-#define EIGEN_IS_APPROX(matrixA, matrixB, prec)                                \
-  BOOST_CHECK_MESSAGE(matrixA.isApprox(matrixB, prec),                         \
-      "check " #matrixA ".isApprox(" #matrixB ") failed "                      \
-      "[\n" << matrixA << "\n!=\n" << matrixB << "\n]")
+#define EIGEN_IS_APPROX(matrixA, matrixB, prec)               \
+  BOOST_CHECK_MESSAGE(matrixA.isApprox(matrixB, prec),        \
+                      "check " #matrixA ".isApprox(" #matrixB \
+                      ") failed "                             \
+                      "[\n"                                   \
+                          << matrixA << "\n!=\n"              \
+                          << matrixB << "\n]")
 
-#define EIGEN_IS_NOT_APPROX(matrixA, matrixB, prec)                            \
-  BOOST_CHECK_MESSAGE(!matrixA.isApprox(matrixB, prec),                        \
-      "check !" #matrixA ".isApprox(" #matrixB ") failed "                     \
-      "[\n" << matrixA << "\n==\n" << matrixB << "\n]")
+#define EIGEN_IS_NOT_APPROX(matrixA, matrixB, prec)            \
+  BOOST_CHECK_MESSAGE(!matrixA.isApprox(matrixB, prec),        \
+                      "check !" #matrixA ".isApprox(" #matrixB \
+                      ") failed "                              \
+                      "[\n"                                    \
+                          << matrixA << "\n==\n"               \
+                          << matrixB << "\n]")
 
-#endif // TEST_UTIL_HH
+#endif  // TEST_UTIL_HH

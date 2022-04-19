@@ -31,46 +31,35 @@
 #include <hpp/core/plan-and-optimize.hh>
 
 namespace hpp {
-  namespace core {
+namespace core {
 
-    void PlanAndOptimize::oneStep ()
-    {
-      pathPlanner_->oneStep ();
-    }
+void PlanAndOptimize::oneStep() { pathPlanner_->oneStep(); }
 
-    void PlanAndOptimize::startSolve ()
-    {
-      pathPlanner_->startSolve ();
-    }
+void PlanAndOptimize::startSolve() { pathPlanner_->startSolve(); }
 
-    PathVectorPtr_t PlanAndOptimize::finishSolve (const PathVectorPtr_t& path)
-    {
-      PathVectorPtr_t result = path;
-      for (Optimizers_t::iterator itOpt = optimizers_.begin ();
-	   itOpt != optimizers_.end (); ++itOpt) {
-	result = (*itOpt)->optimize (result);
-      }
-      return result;
-    }
+PathVectorPtr_t PlanAndOptimize::finishSolve(const PathVectorPtr_t& path) {
+  PathVectorPtr_t result = path;
+  for (Optimizers_t::iterator itOpt = optimizers_.begin();
+       itOpt != optimizers_.end(); ++itOpt) {
+    result = (*itOpt)->optimize(result);
+  }
+  return result;
+}
 
-    void PlanAndOptimize::addPathOptimizer
-    (const PathOptimizerPtr_t& optimizer)
-    {
-      optimizers_.push_back (optimizer);
-    }
+void PlanAndOptimize::addPathOptimizer(const PathOptimizerPtr_t& optimizer) {
+  optimizers_.push_back(optimizer);
+}
 
-    PlanAndOptimizePtr_t
-    PlanAndOptimize::create (const PathPlannerPtr_t& pathPlanner)
-    {
-      PlanAndOptimize* ptr = new PlanAndOptimize (pathPlanner);
-      return PlanAndOptimizePtr_t (ptr);
-    }
+PlanAndOptimizePtr_t PlanAndOptimize::create(
+    const PathPlannerPtr_t& pathPlanner) {
+  PlanAndOptimize* ptr = new PlanAndOptimize(pathPlanner);
+  return PlanAndOptimizePtr_t(ptr);
+}
 
-    PlanAndOptimize::PlanAndOptimize (const PathPlannerPtr_t& pathPlanner) :
-      PathPlanner (pathPlanner->problem (), pathPlanner->roadmap ()),
-      pathPlanner_ (pathPlanner), optimizers_ ()
-    {
-    }
+PlanAndOptimize::PlanAndOptimize(const PathPlannerPtr_t& pathPlanner)
+    : PathPlanner(pathPlanner->problem(), pathPlanner->roadmap()),
+      pathPlanner_(pathPlanner),
+      optimizers_() {}
 
-  } // namespace core
-} // namespace hpp
+}  // namespace core
+}  // namespace hpp

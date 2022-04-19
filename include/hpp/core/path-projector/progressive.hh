@@ -27,44 +27,43 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH
-# define HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH
+#define HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH
 
-# include <hpp/core/path-projector.hh>
+#include <hpp/core/path-projector.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathProjector {
-      class HPP_CORE_DLLAPI Progressive : public PathProjector
-      {
-        public:
-          typedef hpp::core::StraightPath StraightPath;
-          typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
+namespace core {
+namespace pathProjector {
+class HPP_CORE_DLLAPI Progressive : public PathProjector {
+ public:
+  typedef hpp::core::StraightPath StraightPath;
+  typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
 
-          /// \todo See todo of pathProjector::Global::create
-          static ProgressivePtr_t create (const DistancePtr_t& distance,
-             const SteeringMethodPtr_t& steeringMethod, value_type step);
+  /// \todo See todo of pathProjector::Global::create
+  static ProgressivePtr_t create(const DistancePtr_t& distance,
+                                 const SteeringMethodPtr_t& steeringMethod,
+                                 value_type step);
 
-          static ProgressivePtr_t create (const ProblemConstPtr_t& problem,
-              const value_type& step);
+  static ProgressivePtr_t create(const ProblemConstPtr_t& problem,
+                                 const value_type& step);
 
-        protected:
-          bool impl_apply (const PathPtr_t& path,
-			   PathPtr_t& projection) const;
+ protected:
+  bool impl_apply(const PathPtr_t& path, PathPtr_t& projection) const;
 
-          Progressive (const DistancePtr_t& distance,
-		       const SteeringMethodPtr_t& steeringMethod,
-		       value_type step, value_type threshold, value_type hessianBound);
+  Progressive(const DistancePtr_t& distance,
+              const SteeringMethodPtr_t& steeringMethod, value_type step,
+              value_type threshold, value_type hessianBound);
 
-	  bool project (const PathPtr_t& path, PathPtr_t& proj) const;
+  bool project(const PathPtr_t& path, PathPtr_t& proj) const;
 
-        private:
-          value_type step_;
-          const value_type thresholdMin_;
-          const value_type hessianBound_;
-          const bool withHessianBound_;
-      };
-    } // namespace pathProjector
-  } // namespace core
-} // namespace hpp
+ private:
+  value_type step_;
+  const value_type thresholdMin_;
+  const value_type hessianBound_;
+  const bool withHessianBound_;
+};
+}  // namespace pathProjector
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH
+#endif  // HPP_CORE_PATHPROJECTOR_PROGRESSIVE_HH

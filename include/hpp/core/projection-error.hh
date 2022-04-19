@@ -33,52 +33,45 @@
 #include <hpp/core/path-validation-report.hh>
 
 namespace hpp {
-  namespace core {
-    struct HPP_CORE_DLLAPI projection_error : public std::exception
-    {
-      projection_error () : msg_ () {}
+namespace core {
+struct HPP_CORE_DLLAPI projection_error : public std::exception {
+  projection_error() : msg_() {}
 
-      projection_error (const std::string& msg) : msg_ (msg) {}
+  projection_error(const std::string& msg) : msg_(msg) {}
 
-      projection_error (const projection_error& other)
-        : std::exception (other), msg_ (other.msg_) {}
+  projection_error(const projection_error& other)
+      : std::exception(other), msg_(other.msg_) {}
 
-      virtual ~projection_error () _GLIBCXX_USE_NOEXCEPT {};
+  virtual ~projection_error() _GLIBCXX_USE_NOEXCEPT{};
 
 #if __cplusplus >= 201103L
-      virtual const char* what () const noexcept { return msg_.c_str (); };
+  virtual const char* what() const noexcept { return msg_.c_str(); };
 #else
-      virtual const char* what () const throw() { return msg_.c_str (); };
+  virtual const char* what() const throw() { return msg_.c_str(); };
 #endif
 
-      std::string msg_;
-    };
+  std::string msg_;
+};
 
-    /// \addtogroup validation
-    /// \{
+/// \addtogroup validation
+/// \{
 
-    /// Handles projection errors when evaluating a path.
-    struct HPP_CORE_DLLAPI ProjectionError :
-      public ValidationReport
-    {
-      ProjectionError (const std::string& msg = "")
-        : ValidationReport(), msg (msg)
-      {}
+/// Handles projection errors when evaluating a path.
+struct HPP_CORE_DLLAPI ProjectionError : public ValidationReport {
+  ProjectionError(const std::string& msg = "") : ValidationReport(), msg(msg) {}
 
-      virtual ~ProjectionError () {};
+  virtual ~ProjectionError(){};
 
-      virtual std::ostream& print (std::ostream& os) const
-      {
-        os << "Projection error";
-        if (!msg.empty())
-          os << " (" << msg << ')';
-	return os;
-      }
+  virtual std::ostream& print(std::ostream& os) const {
+    os << "Projection error";
+    if (!msg.empty()) os << " (" << msg << ')';
+    return os;
+  }
 
-      std::string msg;
-    }; // class ProjectionError
-    /// \}
-  } // namespace core
-} // namespace hpp
+  std::string msg;
+};  // class ProjectionError
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PROJECTION_ERROR_HH
+#endif  // HPP_CORE_PROJECTION_ERROR_HH

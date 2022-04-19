@@ -28,64 +28,58 @@
 // DAMAGE.
 
 #include <hpp/core/joint-bound-validation.hh>
-
-#include <sstream>
-
-#include <pinocchio/multibody/model.hpp>
-
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <pinocchio/multibody/model.hpp>
+#include <sstream>
 
 namespace hpp {
-  namespace core {
-    typedef pinocchio::JointConfiguration* JointConfigurationPtr_t;
-    JointBoundValidationPtr_t JointBoundValidation::create
-    (const DevicePtr_t& robot)
-    {
-      JointBoundValidation* ptr = new JointBoundValidation (robot);
-      return JointBoundValidationPtr_t (ptr);
-    }
+namespace core {
+typedef pinocchio::JointConfiguration* JointConfigurationPtr_t;
+JointBoundValidationPtr_t JointBoundValidation::create(
+    const DevicePtr_t& robot) {
+  JointBoundValidation* ptr = new JointBoundValidation(robot);
+  return JointBoundValidationPtr_t(ptr);
+}
 
-    bool JointBoundValidation::validate
-    (const Configuration_t& config, ValidationReportPtr_t& validationReport)
-    {
-      const pinocchio::Model& model = robot_->model();
-      // Check whether all config param are within boundaries.
-      for (std::size_t i = 0; i < (std::size_t)model.nq; ++i) {
-        if ( (model.upperPositionLimit[i] < config[i])
-          || (model.lowerPositionLimit[i] > config[i])) {
-          /// Find the joint at rank i
-          JointPtr_t joint = robot_->getJointAtConfigRank(i);
-          assert (i >= (std::size_t)joint->rankInConfiguration());
-          const std::size_t j = i - joint->rankInConfiguration();
+bool JointBoundValidation::validate(const Configuration_t& config,
+                                    ValidationReportPtr_t& validationReport) {
+  const pinocchio::Model& model = robot_->model();
+  // Check whether all config param are within boundaries.
+  for (std::size_t i = 0; i < (std::size_t)model.nq; ++i) {
+    if ((model.upperPositionLimit[i] < config[i]) ||
+        (model.lowerPositionLimit[i] > config[i])) {
+      /// Find the joint at rank i
+      JointPtr_t joint = robot_->getJointAtConfigRank(i);
+      assert(i >= (std::size_t)joint->rankInConfiguration());
+      const std::size_t j = i - joint->rankInConfiguration();
 
-          JointBoundValidationReportPtr_t report(new JointBoundValidationReport
-              (joint, j, model.lowerPositionLimit[i],
-               model.upperPositionLimit[i], config[i]));
-          validationReport = report;
-          return false;
-        }
-      }
-      const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace();
-      // Check the extra config space
-      // FIXME This was introduced at the same time as the integration of Pinocchio
-      size_type index = robot_->model().nq;
-      for (size_type i=0; i < ecs.dimension(); ++i) {
-        value_type lower = ecs.lower (i);
-        value_type upper = ecs.upper (i);
-        value_type value = config [index + i];
-        if (value < lower || upper < value) {
-          JointBoundValidationReportPtr_t report(new JointBoundValidationReport (JointPtr_t(), i, lower, upper, value));
-          validationReport = report;
-          return false;
-        }
-      }
-      return true;
+      JointBoundValidationReportPtr_t report(new JointBoundValidationReport(
+          joint, j, model.lowerPositionLimit[i], model.upperPositionLimit[i],
+          config[i]));
+      validationReport = report;
+      return false;
     }
+  }
+  const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace();
+  // Check the extra config space
+  // FIXME This was introduced at the same time as the integration of Pinocchio
+  size_type index = robot_->model().nq;
+  for (size_type i = 0; i < ecs.dimension(); ++i) {
+    value_type lower = ecs.lower(i);
+    value_type upper = ecs.upper(i);
+    value_type value = config[index + i];
+    if (value < lower || upper < value) {
+      JointBoundValidationReportPtr_t report(
+          new JointBoundValidationReport(JointPtr_t(), i, lower, upper, value));
+      validationReport = report;
+      return false;
+    }
+  }
+  return true;
+}
 
-    JointBoundValidation::JointBoundValidation (const DevicePtr_t& robot) :
-      robot_ (robot)
-    {
-    }
-  } // namespace core
-} // namespace hpp
+JointBoundValidation::JointBoundValidation(const DevicePtr_t& robot)
+    : robot_(robot) {}
+}  // namespace core
+}  // namespace hpp

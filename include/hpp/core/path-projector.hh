@@ -27,54 +27,54 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATHPROJECTOR_HH
-# define HPP_CORE_PATHPROJECTOR_HH
+#define HPP_CORE_PATHPROJECTOR_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// This class projects a path using constraints.
-    class HPP_CORE_DLLAPI PathProjector
-    {
-      public:
-        typedef hpp::core::Path Path;
-        typedef hpp::core::PathPtr_t PathPtr_t;
-        typedef hpp::core::PathVector PathVector;
-        typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
+namespace core {
+/// This class projects a path using constraints.
+class HPP_CORE_DLLAPI PathProjector {
+ public:
+  typedef hpp::core::Path Path;
+  typedef hpp::core::PathPtr_t PathPtr_t;
+  typedef hpp::core::PathVector PathVector;
+  typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
 
-        /// Destructor
-        virtual ~PathProjector ();
+  /// Destructor
+  virtual ~PathProjector();
 
-        /// Apply the constraints to the path.
-        /// \param[in] the input path,
-        /// \param[out] the output path.
-        /// \return True if projection succeded
-        bool apply (const PathPtr_t& path, PathPtr_t& projection) const;
+  /// Apply the constraints to the path.
+  /// \param[in] the input path,
+  /// \param[out] the output path.
+  /// \return True if projection succeded
+  bool apply(const PathPtr_t& path, PathPtr_t& projection) const;
 
-      protected:
-        /// Constructor
-	///
-	/// distance distance metric between configurations
-	/// steeringMethod steering method used to build new paths. The instance
-	///                is copied.
-	/// copySteeringMethodConstraints whether to keep the constraints of the
-	///                               input steering method.
-        PathProjector (const DistancePtr_t& distance,
-		       const SteeringMethodPtr_t& steeringMethod,
-		       bool keepSteeringMethodConstraints = false);
+ protected:
+  /// Constructor
+  ///
+  /// distance distance metric between configurations
+  /// steeringMethod steering method used to build new paths. The instance
+  ///                is copied.
+  /// copySteeringMethodConstraints whether to keep the constraints of the
+  ///                               input steering method.
+  PathProjector(const DistancePtr_t& distance,
+                const SteeringMethodPtr_t& steeringMethod,
+                bool keepSteeringMethodConstraints = false);
 
-        /// Method to be reimplemented by inherited class.
-        virtual bool impl_apply (const PathPtr_t& path,
-				 PathPtr_t& projection) const = 0;
+  /// Method to be reimplemented by inherited class.
+  virtual bool impl_apply(const PathPtr_t& path,
+                          PathPtr_t& projection) const = 0;
 
-        value_type d (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
-	PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
-	SteeringMethodPtr_t steeringMethod_;
-      private:
-        DistancePtr_t distance_;
-    };
-  } // namespace core
-} // namespace hpp
+  value_type d(ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+  PathPtr_t steer(ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+  SteeringMethodPtr_t steeringMethod_;
 
-#endif // HPP_CORE_PATHPROJECTOR_HH
+ private:
+  DistancePtr_t distance_;
+};
+}  // namespace core
+}  // namespace hpp
+
+#endif  // HPP_CORE_PATHPROJECTOR_HH

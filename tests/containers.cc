@@ -28,7 +28,6 @@
 
 #define BOOST_TEST_MODULE containers
 #include <boost/test/included/unit_test.hpp>
-
 #include <hpp/core/container.hh>
 
 typedef std::string Type1;
@@ -36,22 +35,19 @@ typedef std::shared_ptr<std::string> Type2;
 
 using hpp::core::Container;
 
-BOOST_AUTO_TEST_SUITE( test_hpp_core_container )
+BOOST_AUTO_TEST_SUITE(test_hpp_core_container)
 
-BOOST_AUTO_TEST_CASE (containers) {
+BOOST_AUTO_TEST_CASE(containers) {
   Container<Type1> c1;
   Container<Type2> c2;
-  c1.add ("key1", Type1 ("type1_1"));
-  c2.add ("key1", Type2 (new std::string ("type2_1")));
+  c1.add("key1", Type1("type1_1"));
+  c2.add("key1", Type2(new std::string("type2_1")));
 
-  c1.print (std::cout);
-  c2.print (std::cout);
+  c1.print(std::cout);
+  c2.print(std::cout);
 
-  c2.add ("key1", Type2 (new std::string ("type2_2")));
-  c2.print (std::cout);
+  c2.add("key1", Type2(new std::string("type2_2")));
+  c2.print(std::cout);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
-
-

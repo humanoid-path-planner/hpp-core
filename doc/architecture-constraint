@@ -13,13 +13,13 @@
     add (LockedJoint ld):                         addToSet (set):
       lockedJoints_.push_back (ld)                  for c in constraints_:
                                                       c.addToSet (set)
-    addToSet (set):       
+    addToSet (set):
       if set.configProjector_:                    addConstraint (c):
         throw                                       c.addToSet (self)
       Constraint.addToSet (set)
       set.removeFirstElement ()
-      set.configProjector_ = self                
-      Constraint::addToSet (set)                 
+      set.configProjector_ = self
+      Constraint::addToSet (set)
 
 
                              LockedJoint

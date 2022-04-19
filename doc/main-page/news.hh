@@ -11,7 +11,7 @@ New features from one version to another.
 \li Copy constructors have been implemented in classes related to constraints. Copying a path now implies to copy the associated constraints. This modification fixes some hazards in the use of constraints.
 
 \li A static method that creates a \c ProblemSolver instance has been added.
-    Using this method makes the latest created instance available by static 
+    Using this method makes the latest created instance available by static
     method \c ProblemSolver::latest.
 
 \li ConfigProjector::computeValueAndJacobian is now public. This enables users

@@ -27,39 +27,33 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/validation-report.hh>
 
 namespace hpp {
-  namespace core {
-    ConfigValidationsPtr_t ConfigValidations::create ()
-    {
-      ConfigValidations* ptr = new ConfigValidations;
-      return ConfigValidationsPtr_t (ptr);
-    }
+namespace core {
+ConfigValidationsPtr_t ConfigValidations::create() {
+  ConfigValidations* ptr = new ConfigValidations;
+  return ConfigValidationsPtr_t(ptr);
+}
 
-    bool ConfigValidations::validate (const Configuration_t& config,
-				      ValidationReportPtr_t& validationReport)
-    {
-      for (std::vector <ConfigValidationPtr_t>::iterator
-       it = validations_.begin (); it != validations_.end (); ++it) {
-	if ((*it)->validate (config, validationReport)
-	    == false) {
-	  return false;
-	}
-      }
-      return true;
+bool ConfigValidations::validate(const Configuration_t& config,
+                                 ValidationReportPtr_t& validationReport) {
+  for (std::vector<ConfigValidationPtr_t>::iterator it = validations_.begin();
+       it != validations_.end(); ++it) {
+    if ((*it)->validate(config, validationReport) == false) {
+      return false;
     }
+  }
+  return true;
+}
 
-    void ConfigValidations::add (const ConfigValidationPtr_t& configValidation)
-    {
-      validations_.push_back (configValidation);
-    }
+void ConfigValidations::add(const ConfigValidationPtr_t& configValidation) {
+  validations_.push_back(configValidation);
+}
 
-    size_type ConfigValidations::numberConfigValidations () const
-    {
-      return (size_type) validations_.size ();
-    }
-  } // namespace core
-} // namespace hpp
+size_type ConfigValidations::numberConfigValidations() const {
+  return (size_type)validations_.size();
+}
+}  // namespace core
+}  // namespace hpp

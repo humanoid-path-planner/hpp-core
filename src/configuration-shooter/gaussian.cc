@@ -26,128 +26,115 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/core/configuration-shooter/gaussian.hh>
-
 #include <math.h>
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
-
+#include <hpp/core/configuration-shooter/gaussian.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/joint-collection.hh>
+#include <hpp/pinocchio/liegroup.hh>
 #include <pinocchio/algorithm/joint-configuration.hpp>
-
 #include <pinocchio/multibody/model.hpp>
 
-#include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/liegroup.hh>
-# include <hpp/pinocchio/joint-collection.hh>
-
 namespace hpp {
-  namespace core {
-    namespace configurationShooter {
-      namespace liegroup = pinocchio::liegroup;
+namespace core {
+namespace configurationShooter {
+namespace liegroup = pinocchio::liegroup;
 
-      template <typename LG1, typename LG2>
-      void computeSigmasAlgo (liegroup::CartesianProductOperation<LG1, LG2> lg,
-            vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower);
+template <typename LG1, typename LG2>
+void computeSigmasAlgo(liegroup::CartesianProductOperation<LG1, LG2> lg,
+                       vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower);
 
-      template <int N>
-      void computeSigmasAlgo (liegroup::SpecialOrthogonalOperation<N>,
-            vectorOut_t sigmas, vectorIn_t, vectorIn_t)
-      {
-        sigmas.setConstant (2*M_PI/std::sqrt((value_type)N));
-      }
+template <int N>
+void computeSigmasAlgo(liegroup::SpecialOrthogonalOperation<N>,
+                       vectorOut_t sigmas, vectorIn_t, vectorIn_t) {
+  sigmas.setConstant(2 * M_PI / std::sqrt((value_type)N));
+}
 
-      template <int N>
-      void computeSigmasAlgo (liegroup::SpecialEuclideanOperation<N>,
-            vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower)
-      {
-        typedef liegroup::CartesianProductOperation<
-          liegroup::VectorSpaceOperation<N,true>,
-          liegroup::SpecialOrthogonalOperation<N>
-            > LG_t;
-        computeSigmasAlgo (LG_t(), sigmas, upper, lower);
-      }
+template <int N>
+void computeSigmasAlgo(liegroup::SpecialEuclideanOperation<N>,
+                       vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower) {
+  typedef liegroup::CartesianProductOperation<
+      liegroup::VectorSpaceOperation<N, true>,
+      liegroup::SpecialOrthogonalOperation<N> >
+      LG_t;
+  computeSigmasAlgo(LG_t(), sigmas, upper, lower);
+}
 
-      template <int N, bool rot>
-      void computeSigmasAlgo (liegroup::VectorSpaceOperation<N, rot>,
-            vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower)
-      {
-        // TODO isFinite was added after 3.2.4
-        // sigmas.array() =
-          // (upper.array().isFinite() && lower.array().isFinite())
-          // .select (upper - lower, 1);
-        for (size_type i = 0; i < sigmas.size(); ++i) {
-          if (Eigen::numext::isfinite (upper(i))
-              && Eigen::numext::isfinite (lower(i)))
-            sigmas(i) = upper(i)-lower(i);
-          else
-            sigmas(i) = 1.;
-        }
-      }
+template <int N, bool rot>
+void computeSigmasAlgo(liegroup::VectorSpaceOperation<N, rot>,
+                       vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower) {
+  // TODO isFinite was added after 3.2.4
+  // sigmas.array() =
+  // (upper.array().isFinite() && lower.array().isFinite())
+  // .select (upper - lower, 1);
+  for (size_type i = 0; i < sigmas.size(); ++i) {
+    if (Eigen::numext::isfinite(upper(i)) && Eigen::numext::isfinite(lower(i)))
+      sigmas(i) = upper(i) - lower(i);
+    else
+      sigmas(i) = 1.;
+  }
+}
 
-      template <typename LG1, typename LG2>
-      void computeSigmasAlgo (liegroup::CartesianProductOperation<LG1, LG2>,
-            vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower)
-      {
-        computeSigmasAlgo (LG1(), sigmas.head(LG1::NV), upper.head(LG1::NQ), lower.head(LG1::NQ));
-        computeSigmasAlgo (LG2(), sigmas.tail(LG2::NV), upper.tail(LG2::NQ), lower.tail(LG2::NQ));
-      }
+template <typename LG1, typename LG2>
+void computeSigmasAlgo(liegroup::CartesianProductOperation<LG1, LG2>,
+                       vectorOut_t sigmas, vectorIn_t upper, vectorIn_t lower) {
+  computeSigmasAlgo(LG1(), sigmas.head(LG1::NV), upper.head(LG1::NQ),
+                    lower.head(LG1::NQ));
+  computeSigmasAlgo(LG2(), sigmas.tail(LG2::NV), upper.tail(LG2::NQ),
+                    lower.tail(LG2::NQ));
+}
 
-      struct ComputeSigmasStep : public ::pinocchio::fusion::JointUnaryVisitorBase<ComputeSigmasStep>
-      {
-        typedef boost::fusion::vector<const pinocchio::Model&, vector_t&> ArgsType;
+struct ComputeSigmasStep
+    : public ::pinocchio::fusion::JointUnaryVisitorBase<ComputeSigmasStep> {
+  typedef boost::fusion::vector<const pinocchio::Model&, vector_t&> ArgsType;
 
-        template<typename JointModel>
-          static void algo(const ::pinocchio::JointModelBase<JointModel> & jmodel,
-              const pinocchio::Model& model,
-              vector_t& sigmas)
-          {
-            typedef typename pinocchio::DefaultLieGroupMap::operation<JointModel>::type LG_t;
-            computeSigmasAlgo (LG_t(), 
-                jmodel.jointVelocitySelector (sigmas),
-                jmodel.jointConfigSelector   (model.upperPositionLimit),
-                jmodel.jointConfigSelector   (model.lowerPositionLimit));
-          }
-      };
+  template <typename JointModel>
+  static void algo(const ::pinocchio::JointModelBase<JointModel>& jmodel,
+                   const pinocchio::Model& model, vector_t& sigmas) {
+    typedef typename pinocchio::DefaultLieGroupMap::operation<JointModel>::type
+        LG_t;
+    computeSigmasAlgo(LG_t(), jmodel.jointVelocitySelector(sigmas),
+                      jmodel.jointConfigSelector(model.upperPositionLimit),
+                      jmodel.jointConfigSelector(model.lowerPositionLimit));
+  }
+};
 
-      template<>
-      void ComputeSigmasStep::algo< pinocchio::JointModelComposite>(const ::pinocchio::JointModelBase< pinocchio::JointModelComposite> & jmodel,
-              const pinocchio::Model& model,
-              vector_t& sigmas)
-      {
-        ::pinocchio::details::Dispatch<ComputeSigmasStep>::run(jmodel.derived(), ComputeSigmasStep::ArgsType(model, sigmas));
-      }
+template <>
+void ComputeSigmasStep::algo<pinocchio::JointModelComposite>(
+    const ::pinocchio::JointModelBase<pinocchio::JointModelComposite>& jmodel,
+    const pinocchio::Model& model, vector_t& sigmas) {
+  ::pinocchio::details::Dispatch<ComputeSigmasStep>::run(
+      jmodel.derived(), ComputeSigmasStep::ArgsType(model, sigmas));
+}
 
-      void Gaussian::impl_shoot (Configuration_t& config) const
-      {
-        static boost::random::mt19937 eng;
-        vector_t velocity (robot_->numberDof());
-        for (size_type i = 0; i < velocity.size(); ++i)
-        {
-          boost::random::normal_distribution<value_type> distrib(0, sigmas_[i]);
-          velocity[i] = distrib (eng);
-        }
+void Gaussian::impl_shoot(Configuration_t& config) const {
+  static boost::random::mt19937 eng;
+  vector_t velocity(robot_->numberDof());
+  for (size_type i = 0; i < velocity.size(); ++i) {
+    boost::random::normal_distribution<value_type> distrib(0, sigmas_[i]);
+    velocity[i] = distrib(eng);
+  }
 
-        config.resize(robot_->configSize ());
-	vector_t center (center_);
-	if (center.size() == 0)
-	{
-	  // center has not been initialized, use robot neutral configuration
-	  center = robot_->neutralConfiguration();
-	}
-        ::hpp::pinocchio::integrate (robot_, center_, velocity, config);
-        ::hpp::pinocchio::saturate  (robot_, config);
-      }
+  config.resize(robot_->configSize());
+  vector_t center(center_);
+  if (center.size() == 0) {
+    // center has not been initialized, use robot neutral configuration
+    center = robot_->neutralConfiguration();
+  }
+  ::hpp::pinocchio::integrate(robot_, center_, velocity, config);
+  ::hpp::pinocchio::saturate(robot_, config);
+}
 
-      void Gaussian::sigma(const value_type& factor)
-      {
-        const pinocchio::Model& model = robot_->model();
-        ComputeSigmasStep::ArgsType args (model, sigmas_);
-        for(std::size_t i = 1; i < model.joints.size(); ++i)
-          ComputeSigmasStep::run (model.joints[i], args);
+void Gaussian::sigma(const value_type& factor) {
+  const pinocchio::Model& model = robot_->model();
+  ComputeSigmasStep::ArgsType args(model, sigmas_);
+  for (std::size_t i = 1; i < model.joints.size(); ++i)
+    ComputeSigmasStep::run(model.joints[i], args);
 
-        sigmas_ *= factor;
-      }
-    } //   namespace configurationShooter
-  } //   namespace core
-} // namespace hpp
+  sigmas_ *= factor;
+}
+}  //   namespace configurationShooter
+}  //   namespace core
+}  // namespace hpp

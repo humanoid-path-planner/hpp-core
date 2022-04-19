@@ -29,47 +29,45 @@
 
 #define BOOST_TEST_MODULE test_config_validations
 
-#include <pinocchio/fwd.hpp>
-
 #include <boost/test/included/unit_test.hpp>
-
-#include <hpp/core/problem.hh>
-#include <hpp/core/problem-solver.hh>
 #include <hpp/core/config-validations.hh>
+#include <hpp/core/problem-solver.hh>
+#include <hpp/core/problem.hh>
+#include <pinocchio/fwd.hpp>
 
 using namespace hpp::core;
 
-typedef std::vector <std::string> ConfigValidationTypes_t;
+typedef std::vector<std::string> ConfigValidationTypes_t;
 
-BOOST_AUTO_TEST_CASE (config_validations)
-{
-    ProblemSolverPtr_t ps = ProblemSolver::create ();
-    ps->robot ( ps->createRobot ("robot") );
-    ConfigValidationTypes_t configTypes = ps->configValidationTypes ();
-    BOOST_CHECK_MESSAGE (std::find(configTypes.begin(), configTypes.end(),"CollisionValidation")
-        !=configTypes.end(), "CollisionValidation is not present");
-    BOOST_CHECK_MESSAGE (std::find(configTypes.begin(), configTypes.end(),"JointBoundValidation")
-        !=configTypes.end(), "JointBoundValidation is not present");
+BOOST_AUTO_TEST_CASE(config_validations) {
+  ProblemSolverPtr_t ps = ProblemSolver::create();
+  ps->robot(ps->createRobot("robot"));
+  ConfigValidationTypes_t configTypes = ps->configValidationTypes();
+  BOOST_CHECK_MESSAGE(std::find(configTypes.begin(), configTypes.end(),
+                                "CollisionValidation") != configTypes.end(),
+                      "CollisionValidation is not present");
+  BOOST_CHECK_MESSAGE(std::find(configTypes.begin(), configTypes.end(),
+                                "JointBoundValidation") != configTypes.end(),
+                      "JointBoundValidation is not present");
 
-    ProblemPtr_t problem = ps->problem ();
-    ConfigValidationsPtr_t configValidations = problem->configValidations ();
-    BOOST_CHECK_MESSAGE (configValidations->numberConfigValidations () == 2,
-        "ConfigValidations not set right in Problem");
+  ProblemPtr_t problem = ps->problem();
+  ConfigValidationsPtr_t configValidations = problem->configValidations();
+  BOOST_CHECK_MESSAGE(configValidations->numberConfigValidations() == 2,
+                      "ConfigValidations not set right in Problem");
 }
 
-BOOST_AUTO_TEST_CASE ( test_add_config_validation )
-{
-    ProblemSolverPtr_t ps = ProblemSolver::create ();
-    ps->robot ( ps->createRobot ("robot") );
-    ProblemPtr_t problem = ps->problem ();
+BOOST_AUTO_TEST_CASE(test_add_config_validation) {
+  ProblemSolverPtr_t ps = ProblemSolver::create();
+  ps->robot(ps->createRobot("robot"));
+  ProblemPtr_t problem = ps->problem();
 
-    ps->clearConfigValidations ();
-    BOOST_CHECK_MESSAGE
-      (problem->configValidations ()->numberConfigValidations () == 0,
-       "Clearing ConfigValidations did not work");
+  ps->clearConfigValidations();
+  BOOST_CHECK_MESSAGE(
+      problem->configValidations()->numberConfigValidations() == 0,
+      "Clearing ConfigValidations did not work");
 
-    ps->addConfigValidation ("CollisionValidation");
-    BOOST_CHECK_MESSAGE
-      (problem->configValidations ()->numberConfigValidations () == 1,
-       "Adding CollisionValidation to the ProblemSolver did not work");
+  ps->addConfigValidation("CollisionValidation");
+  BOOST_CHECK_MESSAGE(
+      problem->configValidations()->numberConfigValidations() == 1,
+      "Adding CollisionValidation to the ProblemSolver did not work");
 }

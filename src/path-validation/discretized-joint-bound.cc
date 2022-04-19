@@ -27,21 +27,20 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/core/path-validation/discretized.hh>
-#include <hpp/core/path-validation/discretized-joint-bound.hh>
 #include <hpp/core/joint-bound-validation.hh>
+#include <hpp/core/path-validation/discretized-joint-bound.hh>
+#include <hpp/core/path-validation/discretized.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathValidation {
-      DiscretizedPtr_t createDiscretizedJointBound (
-          const DevicePtr_t& robot, const value_type& stepSize)
-      {
-        DiscretizedPtr_t pv (Discretized::create (stepSize));
-        JointBoundValidationPtr_t jbv (JointBoundValidation::create (robot));
-        pv->add (jbv);
-        return pv;
-      }
-    } // namespace pathValidation
-  } // namespace core
-} // namespace hpp
+namespace core {
+namespace pathValidation {
+DiscretizedPtr_t createDiscretizedJointBound(const DevicePtr_t& robot,
+                                             const value_type& stepSize) {
+  DiscretizedPtr_t pv(Discretized::create(stepSize));
+  JointBoundValidationPtr_t jbv(JointBoundValidation::create(robot));
+  pv->add(jbv);
+  return pv;
+}
+}  // namespace pathValidation
+}  // namespace core
+}  // namespace hpp

@@ -28,56 +28,51 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
-# define HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
+#define HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
-# include <hpp/core/problem-target.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/problem-target.hh>
 
 namespace hpp {
-  namespace core {
-    namespace problemTarget {
-      /// \addtogroup path_planning
-      /// \{
+namespace core {
+namespace problemTarget {
+/// \addtogroup path_planning
+/// \{
 
-      /// Task target
-      ///
-      /// This class defines a goal using constraints. The set of goal
-      /// configurations is a submanifold of the full configuration space.
-      /// \warning So far, this feature is not taken into account by
-      /// most planners. The supported planners are:
-      /// - DiffusingPlanner
-      class HPP_CORE_DLLAPI TaskTarget : public ProblemTarget {
-        public:
-          static TaskTargetPtr_t create (const ProblemPtr_t& problem);
+/// Task target
+///
+/// This class defines a goal using constraints. The set of goal
+/// configurations is a submanifold of the full configuration space.
+/// \warning So far, this feature is not taken into account by
+/// most planners. The supported planners are:
+/// - DiffusingPlanner
+class HPP_CORE_DLLAPI TaskTarget : public ProblemTarget {
+ public:
+  static TaskTargetPtr_t create(const ProblemPtr_t& problem);
 
-          /// Check if the problem target is well specified.
-          void check (const RoadmapPtr_t& roadmap) const;
+  /// Check if the problem target is well specified.
+  void check(const RoadmapPtr_t& roadmap) const;
 
-          /// Check whether the problem is solved.
-          bool reached (const RoadmapPtr_t& roadmap) const;
+  /// Check whether the problem is solved.
+  bool reached(const RoadmapPtr_t& roadmap) const;
 
-          PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
+  PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const;
 
-          void constraints (const ConstraintSetPtr_t& c)
-          {
-            constraints_ = c;
-          }
+  void constraints(const ConstraintSetPtr_t& c) { constraints_ = c; }
 
-          /// Return the vector of numerical constraints that define the goal.
-          NumericalConstraints_t constraints() const;
+  /// Return the vector of numerical constraints that define the goal.
+  NumericalConstraints_t constraints() const;
 
-        protected:
-          /// Constructor
-          TaskTarget (const ProblemPtr_t& problem)
-            : ProblemTarget (problem)
-          {}
+ protected:
+  /// Constructor
+  TaskTarget(const ProblemPtr_t& problem) : ProblemTarget(problem) {}
 
-        private:
-          ConstraintSetPtr_t constraints_;
-      }; // class TaskTarget
-      /// \}
-    } // namespace problemTarget
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH
+ private:
+  ConstraintSetPtr_t constraints_;
+};  // class TaskTarget
+/// \}
+}  // namespace problemTarget
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PROBLEM_TARGET_TASK_TARGET_HH

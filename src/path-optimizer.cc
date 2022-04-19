@@ -27,90 +27,79 @@
 // DAMAGE.
 
 #include <hpp/core/path-optimizer.hh>
-
-#include <hpp/core/problem.hh>
 #include <hpp/core/path-projector.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/steering-method.hh>
 
 namespace bpt = boost::posix_time;
 
 namespace hpp {
-  namespace core {
-    PathOptimizer::PathOptimizer (const ProblemConstPtr_t& problem) :
-      interrupt_ (false), problem_ (problem),
-      maxIterations_ (std::numeric_limits <unsigned long int>::infinity ()),
-      timeOut_ (std::numeric_limits <double>::infinity ())
-    {
-      monitor_.enabled = false;
+namespace core {
+PathOptimizer::PathOptimizer(const ProblemConstPtr_t& problem)
+    : interrupt_(false),
+      problem_(problem),
+      maxIterations_(std::numeric_limits<unsigned long int>::infinity()),
+      timeOut_(std::numeric_limits<double>::infinity()) {
+  monitor_.enabled = false;
 
-      initFromParameters();
-    }
+  initFromParameters();
+}
 
-    PathPtr_t PathOptimizer::steer (ConfigurationIn_t q1,
-        ConfigurationIn_t q2) const
-    {
-      PathPtr_t dp = (*problem()->steeringMethod())(q1,q2);
-      if (dp) {
-        if (!problem()->pathProjector()) return dp;
-        PathPtr_t pp;
-        if (problem()->pathProjector()->apply (dp, pp))
-          return pp;
-      }
-      return PathPtr_t ();
-    }
+PathPtr_t PathOptimizer::steer(ConfigurationIn_t q1,
+                               ConfigurationIn_t q2) const {
+  PathPtr_t dp = (*problem()->steeringMethod())(q1, q2);
+  if (dp) {
+    if (!problem()->pathProjector()) return dp;
+    PathPtr_t pp;
+    if (problem()->pathProjector()->apply(dp, pp)) return pp;
+  }
+  return PathPtr_t();
+}
 
-    void PathOptimizer::monitorExecution()
-    {
-      interrupt_ = false;
-      monitor_.enabled = true;
-      monitor_.iteration = 0;
-      monitor_.timeStart = bpt::microsec_clock::universal_time();
-    }
+void PathOptimizer::monitorExecution() {
+  interrupt_ = false;
+  monitor_.enabled = true;
+  monitor_.iteration = 0;
+  monitor_.timeStart = bpt::microsec_clock::universal_time();
+}
 
-    bool PathOptimizer::shouldStop() const
-    {
-      if (interrupt_) return true;
-      if (!monitor_.enabled) return false;
-      if (monitor_.iteration >= maxIterations_) return true;
+bool PathOptimizer::shouldStop() const {
+  if (interrupt_) return true;
+  if (!monitor_.enabled) return false;
+  if (monitor_.iteration >= maxIterations_) return true;
 
-      bpt::ptime timeStop(bpt::microsec_clock::universal_time());
-      if(static_cast<value_type>((timeStop - monitor_.timeStart)
-            .total_milliseconds()) > timeOut_*1e3)
-        return true;
-      return false;
-    }
+  bpt::ptime timeStop(bpt::microsec_clock::universal_time());
+  if (static_cast<value_type>(
+          (timeStop - monitor_.timeStart).total_milliseconds()) >
+      timeOut_ * 1e3)
+    return true;
+  return false;
+}
 
-    void PathOptimizer::initFromParameters ()
-    {
-      maxIterations_ = problem()->getParameter
-	("PathOptimizer/maxIterations").intValue();
-      timeOut_ = problem()->getParameter
-	("PathOptimizer/timeOut").floatValue();
-    }
+void PathOptimizer::initFromParameters() {
+  maxIterations_ =
+      problem()->getParameter("PathOptimizer/maxIterations").intValue();
+  timeOut_ = problem()->getParameter("PathOptimizer/timeOut").floatValue();
+}
 
-    void PathOptimizer::maxIterations (const unsigned long int& n)
-    {
-      maxIterations_ = n;
-    }
+void PathOptimizer::maxIterations(const unsigned long int& n) {
+  maxIterations_ = n;
+}
 
-    void PathOptimizer::timeOut(const double& timeOut)
-    {
-      timeOut_ = timeOut;
-    }
+void PathOptimizer::timeOut(const double& timeOut) { timeOut_ = timeOut; }
 
-    // ----------- Declare parameters ------------------------------------- //
+// ----------- Declare parameters ------------------------------------- //
 
-    HPP_START_PARAMETER_DECLARATION(PathOptimizer)
-    Problem::declareParameter (ParameterDescription (Parameter::INT,
-          "PathOptimizer/maxIterations",
-          "Maximal number of iterations.",
-          Parameter (std::numeric_limits <size_type>::max ())));
-    Problem::declareParameter (ParameterDescription (Parameter::FLOAT,
-          "PathOptimizer/timeOut",
-          "Duration in seconds above which execution will stop."
-          "The iteration at the moment the duration is elapsed will be completed.",
-          Parameter (std::numeric_limits <double>::infinity ())));
-    HPP_END_PARAMETER_DECLARATION(PathOptimizer)
-  } // namespace core
-} // namespace hpp
-
+HPP_START_PARAMETER_DECLARATION(PathOptimizer)
+Problem::declareParameter(
+    ParameterDescription(Parameter::INT, "PathOptimizer/maxIterations",
+                         "Maximal number of iterations.",
+                         Parameter(std::numeric_limits<size_type>::max())));
+Problem::declareParameter(ParameterDescription(
+    Parameter::FLOAT, "PathOptimizer/timeOut",
+    "Duration in seconds above which execution will stop."
+    "The iteration at the moment the duration is elapsed will be completed.",
+    Parameter(std::numeric_limits<double>::infinity())));
+HPP_END_PARAMETER_DECLARATION(PathOptimizer)
+}  // namespace core
+}  // namespace hpp

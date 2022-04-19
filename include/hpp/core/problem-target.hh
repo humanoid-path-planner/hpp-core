@@ -28,61 +28,53 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PROBLEM_TARGET_HH
-# define HPP_CORE_PROBLEM_TARGET_HH
+#define HPP_CORE_PROBLEM_TARGET_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_planning
-    /// \{
+namespace core {
+/// \addtogroup path_planning
+/// \{
 
-    /// Problem target
-    ///
-    /// This abstract class defines the goal to be reached by a planning
-    /// algorithm.
-    class HPP_CORE_DLLAPI ProblemTarget {
-    public:
-      virtual ~ProblemTarget () {};
+/// Problem target
+///
+/// This abstract class defines the goal to be reached by a planning
+/// algorithm.
+class HPP_CORE_DLLAPI ProblemTarget {
+ public:
+  virtual ~ProblemTarget(){};
 
-      /// Check if the problem target is well specified.
-      virtual void check (const RoadmapPtr_t& roadmap) const = 0;
+  /// Check if the problem target is well specified.
+  virtual void check(const RoadmapPtr_t& roadmap) const = 0;
 
-      /// Check whether the problem is solved.
-      virtual bool reached (const RoadmapPtr_t& roadmap) const = 0;
+  /// Check whether the problem is solved.
+  virtual bool reached(const RoadmapPtr_t& roadmap) const = 0;
 
-      /// Returns the solution path found.
-      /// Should be called when reached() returns true.
-      virtual PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const = 0;
+  /// Returns the solution path found.
+  /// Should be called when reached() returns true.
+  virtual PathVectorPtr_t computePath(const RoadmapPtr_t& roadmap) const = 0;
 
-      /// Set the problem
-      void problem (const ProblemPtr_t& problem)
-      {
-        problem_ = problem;
-      }
+  /// Set the problem
+  void problem(const ProblemPtr_t& problem) { problem_ = problem; }
 
-    protected:
-      /// Constructor
-      ProblemTarget (const ProblemPtr_t& problem)
-        : problem_ (problem)
-      {}
+ protected:
+  /// Constructor
+  ProblemTarget(const ProblemPtr_t& problem) : problem_(problem) {}
 
-      /// Store weak pointer to itself
-      void init (const ProblemTargetWkPtr_t& weak)
-      {
-        weakPtr_ = weak;
-      }
+  /// Store weak pointer to itself
+  void init(const ProblemTargetWkPtr_t& weak) { weakPtr_ = weak; }
 
-      /// Reference to the planner for access to problem and roadmap
-      ProblemWkPtr_t problem_;
+  /// Reference to the planner for access to problem and roadmap
+  ProblemWkPtr_t problem_;
 
-      /// Store weak pointer to itself
-      ProblemTargetWkPtr_t weakPtr_;
+  /// Store weak pointer to itself
+  ProblemTargetWkPtr_t weakPtr_;
 
-    private:
-    }; // class ProblemTarget
-    /// \}
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_PROBLEM_TARGET_HH
+ private:
+};  // class ProblemTarget
+/// \}
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PROBLEM_TARGET_HH
