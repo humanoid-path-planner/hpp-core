@@ -145,7 +145,7 @@ namespace hpp {
       /// \retval report information about the validation process. A report
       ///         is allocated if the path is not valid.
       /// \return true if the whole path is valid.
-      virtual bool validate (const PathPtr_t& path, bool reverse,
+      virtual bool validate (const PathConstPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report);
       /// Iteratively call method doExecute of delegate classes AddObstacle
@@ -228,7 +228,7 @@ namespace hpp {
       typedef continuousValidation::IntervalValidations_t IntervalValidations_t;
 
       static void setPath(IntervalValidations_t& intervalValidations,
-          const PathPtr_t &path, bool reverse);
+          const PathConstPtr_t &path, bool reverse);
 
       /// Constructor
       /// \param robot the robot for which validation is performed,
@@ -323,7 +323,7 @@ namespace hpp {
 
       virtual bool validateStraightPath
         (IntervalValidations_t& intervalValidations,
-          const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+          const PathConstPtr_t& path, bool reverse, PathPtr_t& validPart,
           PathValidationReportPtr_t& report) = 0;
 
       std::vector<Initialize> initialize_;

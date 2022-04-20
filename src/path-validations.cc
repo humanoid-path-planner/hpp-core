@@ -50,10 +50,10 @@ namespace hpp {
     }
 
     bool PathValidations::validate
-    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+    (const PathConstPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
     {
-      PathPtr_t tempPath = path;
+      PathConstPtr_t tempPath = path;
       PathPtr_t tempValidPart;
       PathValidationReportPtr_t tempValidationReport;
 
@@ -73,7 +73,7 @@ namespace hpp {
           result = false;
         }
       }
-      validPart = tempPath;
+      validPart = tempPath->copy();
       validationReport->setParameter(lastValidTime);
       return result;
     }

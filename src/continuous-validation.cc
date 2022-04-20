@@ -165,10 +165,11 @@ namespace hpp {
       return true;
     }
 
-    bool ContinuousValidation::validate(const PathPtr_t &path, bool reverse, PathPtr_t &validPart,
-                                              PathValidationReportPtr_t &report)
+    bool ContinuousValidation::validate(const PathConstPtr_t &path,
+        bool reverse, PathPtr_t &validPart, PathValidationReportPtr_t &report)
     {
-      if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST(PathVector, path))
+      if (PathVectorConstPtr_t pv = HPP_DYNAMIC_PTR_CAST
+          (const PathVector, path))
       {
         PathVectorPtr_t validPathVector = PathVector::create(path->outputSize(), path->outputDerivativeSize());
         validPart = validPathVector;
@@ -245,7 +246,7 @@ namespace hpp {
 
     void ContinuousValidation::setPath
     (IntervalValidations_t& intervalValidations,
-        const PathPtr_t &path, bool reverse)
+        const PathConstPtr_t &path, bool reverse)
     {
       for (IntervalValidations_t::iterator itPair(intervalValidations.begin ());
       itPair != intervalValidations.end (); ++itPair) {

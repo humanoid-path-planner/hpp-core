@@ -71,12 +71,12 @@ namespace hpp {
         // Weak pointer to itself
         ProgressiveWkPtr_t weak_;
         bool validateStraightPath (IntervalValidations_t& bodyPairCollisions,
-            const PathPtr_t& path, bool reverse,
+            const PathConstPtr_t& path, bool reverse,
             PathPtr_t& validPart,
             PathValidationReportPtr_t& report);
         template <bool reverse>
         bool validateStraightPath (IntervalValidations_t& bodyPairCollisions,
-            const PathPtr_t& path,
+            const PathConstPtr_t& path,
             PathPtr_t& validPart,
             PathValidationReportPtr_t& report);
       }; // class Progressive

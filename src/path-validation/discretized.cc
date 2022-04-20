@@ -56,7 +56,7 @@ namespace hpp {
     }
 
     bool Discretized::validate
-    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
+    (const PathConstPtr_t& path, bool reverse, PathPtr_t& validPart,
      PathValidationReportPtr_t& validationReport)
     {
         hppDout(notice,"path validation, reverse : "<<reverse);
@@ -102,7 +102,7 @@ namespace hpp {
         }
       }
       if (valid) {
-        validPart = path;
+        validPart = path->copy();
         return true;
       } else {
         if (reverse)

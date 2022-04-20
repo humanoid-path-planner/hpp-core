@@ -31,7 +31,7 @@
 # define HPP_CORE_EDGE_HH
 
 # include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
+# include <hpp/core/path.hh>
 # include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {

@@ -60,7 +60,7 @@ namespace hpp {
       /// \retval report information about the validation process. A report
       ///         is allocated if the path is not valid.
       /// \return whether the whole path is valid.
-      virtual bool validate (const PathPtr_t& path, bool reverse,
+      virtual bool validate (const PathConstPtr_t& path, bool reverse,
 			     PathPtr_t& validPart,
 			     PathValidationReportPtr_t& report) = 0;
 

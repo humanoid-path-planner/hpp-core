@@ -44,11 +44,11 @@ namespace hpp {
       {
       public:
         // Validate all paths
-        virtual bool validate (const PathPtr_t& path, bool,
+        virtual bool validate (const PathConstPtr_t& path, bool,
                                PathPtr_t& validPart,
                                PathValidationReportPtr_t&)
         {
-          validPart = path;
+          validPart = path->copy();
           return true;
         }
         static NoValidationPtr_t create (const DevicePtr_t&,

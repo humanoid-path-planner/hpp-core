@@ -107,7 +107,7 @@ namespace hpp {
 
       void BodyPairCollision::setupPath()
       {
-        if (HPP_DYNAMIC_PTR_CAST(StraightPath, path_)) refine_ = false;
+        if (HPP_DYNAMIC_PTR_CAST(const StraightPath, path_)) refine_ = false;
         Vb_ = vector_t (path_->outputDerivativeSize());
         value_type t0 = path_->timeRange ().first;
         value_type t1 = path_->timeRange ().second;

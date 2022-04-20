@@ -53,6 +53,7 @@ namespace hpp {
       assert (device);
       assert (length() >= 0);
       assert (!constraints ());
+      assert(timeRange.second > timeRange.first || init == end);
     }
 
     InterpolatedPath::InterpolatedPath (const DevicePtr_t& device,
@@ -69,6 +70,7 @@ namespace hpp {
       insert (timeRange.second, end);
       assert (device);
       assert (length() >= 0);
+      assert(timeRange.second > timeRange.first || init == end);
     }
 
     InterpolatedPath::InterpolatedPath (const PathPtr_t& path,

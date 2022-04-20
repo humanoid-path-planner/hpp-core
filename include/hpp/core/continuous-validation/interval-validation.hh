@@ -83,7 +83,7 @@ namespace hpp {
         /// Set path to validate
         /// \param path path to validate,
         /// \param reverse whether path is validated from end to beginning.
-        void path(const PathPtr_t &path, bool reverse)
+        void path(const PathConstPtr_t &path, bool reverse)
         {
           path_ = path;
           reverse_ = reverse;
@@ -110,7 +110,7 @@ namespace hpp {
       protected:
         typedef boost::icl::continuous_interval<value_type> continuous_interval;
         typedef boost::icl::interval_set<value_type> interval_set;
-        PathPtr_t path_;
+        PathConstPtr_t path_;
         value_type tolerance_;
         bool reverse_;
         bool refine_;

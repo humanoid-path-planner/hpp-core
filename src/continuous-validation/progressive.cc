@@ -67,7 +67,7 @@ namespace hpp {
       }
 
       bool Progressive::validateStraightPath
-      (IntervalValidations_t& bpc, const PathPtr_t& path,
+      (IntervalValidations_t& bpc, const PathConstPtr_t& path,
        bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report)
       {
         if (reverse) return validateStraightPath<true> (bpc, path, validPart, report);
@@ -76,7 +76,7 @@ namespace hpp {
 
       template <bool reverse>
       bool Progressive::validateStraightPath
-      (IntervalValidations_t& bodyPairCollisions, const PathPtr_t& path,
+      (IntervalValidations_t& bodyPairCollisions, const PathConstPtr_t& path,
        PathPtr_t& validPart, PathValidationReportPtr_t& report)
       {
         // for each IntervalValidation
@@ -118,7 +118,7 @@ namespace hpp {
           }
         }
         if (valid) {
-          validPart = path;
+          validPart = path->copy();
           return true;
         } else {
           validPart = reverse ? 
