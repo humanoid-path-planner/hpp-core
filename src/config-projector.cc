@@ -297,7 +297,7 @@ namespace hpp {
 				       vector_t& error)
     {
       error.resize (solver_->dimension() +
-                    solver_->explicitConstraintSet().outDers().nbIndices());
+                    solver_->explicitConstraintSet().errorSize());
       return solver_->isSatisfied (config, error);
     }
 

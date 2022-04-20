@@ -78,6 +78,7 @@ namespace hpp {
       initial_ (init), end_ (end)
     {
       assert (interval.second >= interval.first);
+      assert(interval.second > interval.first || init == end);
     }
 
     StraightPath::StraightPath (const StraightPath& path) :
