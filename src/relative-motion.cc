@@ -77,10 +77,6 @@ namespace hpp {
         const DevicePtr_t& robot,
         const ConstraintSetPtr_t& c)
     {
-      using constraints::Transformation;
-      using constraints::RelativeTransformation;
-      using constraints::TransformationR3xSO3;
-      using constraints::RelativeTransformationR3xSO3;
       assert (robot);
       assert (c);
 
