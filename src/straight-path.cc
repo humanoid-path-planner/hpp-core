@@ -111,6 +111,8 @@ namespace hpp {
       }
       value_type u = (param - paramRange().first) / L;
       if (L == 0) u = 0;
+      assert(hpp::pinocchio::checkNormalized(hpp::pinocchio::LiegroupElement(initial_, space_)));
+      assert(hpp::pinocchio::checkNormalized(hpp::pinocchio::LiegroupElement(end_, space_)));
       space_->interpolate(initial_, end_, u, result);
       return true;
     }
