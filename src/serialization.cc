@@ -26,6 +26,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 107400 && BOOST_VERSION < 107500
+#include <boost/serialization/library_version_type.hpp>
+#endif
 
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/serialization.hpp>
