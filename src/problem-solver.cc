@@ -74,6 +74,7 @@
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/joint-collection.hh>
+#include <hpp/pinocchio/shared-ptr.hh>
 #include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
 #include <iterator>
@@ -847,7 +848,8 @@ void ProblemSolver::addObstacle(const std::string& name,
 
   ::pinocchio::GeomIndex id = obstacleModel_->addGeometryObject(
       ::pinocchio::GeometryObject(
-          name, 1, 0, inObject.collisionGeometry(),
+          name, 1, 0,
+          hpp::pinocchio::as_boost_shared_ptr(inObject.collisionGeometry()),
           ::pinocchio::toPinocchioSE3(inObject.getTransform()), "",
           vector3_t::Ones()),
       *obstacleRModel_);
@@ -914,8 +916,8 @@ void ProblemSolver::cutObstacle(const std::string& name,
   ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
   fcl::Transform3f oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
-  fcl::CollisionGeometryPtr_t fclgeom =
-      obstacleModel_->geometryObjects[id].geometry;
+  fcl::CollisionGeometryPtr_t fclgeom = hpp::pinocchio::as_std_shared_ptr(
+      obstacleModel_->geometryObjects[id].geometry);
   fcl::CollisionObject fclobj(fclgeom, oMg);
   fclobj.computeAABB();
   if (!fclobj.getAABB().overlap(aabb)) {
@@ -928,7 +930,8 @@ void ProblemSolver::cutObstacle(const std::string& name,
     // No intersection. Geom should be removed.
     removeObstacle(name);
   } else {
-    obstacleModel_->geometryObjects[id].geometry = newgeom;
+    obstacleModel_->geometryObjects[id].geometry =
+        hpp::pinocchio::as_boost_shared_ptr(newgeom);
   }
 }
 

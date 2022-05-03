@@ -35,6 +35,7 @@
 #include <hpp/core/continuous-validation/solid-solid-collision.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/shared-ptr.hh>
 #include <hpp/pinocchio/simple-device.hh>
 #include <limits>
 #include <pinocchio/fwd.hpp>
@@ -95,8 +96,9 @@ BOOST_AUTO_TEST_CASE(solid_solid_collision_1) {
   pinocchio::FrameIndex frame_id = robot->model().addFrame(
       ::pinocchio::Frame("base_link", 0, 0, I3, ::pinocchio::BODY));
   GeomIndex idObj = robot->geomModel().addGeometryObject(
-      ::pinocchio::GeometryObject("obstacle", frame_id, 0, box, I3, "",
-                                  vector3_t::Ones()),
+      ::pinocchio::GeometryObject("obstacle", frame_id, 0,
+                                  hpp::pinocchio::as_boost_shared_ptr(box), I3,
+                                  "", vector3_t::Ones()),
       robot->model());
   CollisionObjectPtr_t collObj(
       new CollisionObject(robot->geomModelPtr(), robot->geomDataPtr(), idObj));
