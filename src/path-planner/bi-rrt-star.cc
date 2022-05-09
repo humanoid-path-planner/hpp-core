@@ -119,7 +119,7 @@ namespace hpp {
           if (map.find(e->from()) == map.end())
             throw std::logic_error("BiRRT*: Could not find node from of edge in parent map. You cannot use BiRRT* from a precomputed roadmap.");
         }
-        if (newNode && map.count(n)) 
+        if (newNode && map.count(n))
           throw std::logic_error("BiRRT*: This node already exists in the roadmap.");
         map[n] = e;
       }
@@ -286,16 +286,24 @@ namespace hpp {
           ->validate (path, false, validPart, report);
       }
 
-      PathPtr_t BiRrtStar::buildPath(const Configuration_t& q0, const Configuration_t& q1,
-          value_type maxLength,
-          bool validatePath)
+      bool BiRrtStar::buildPath(const Configuration_t& q0,
+          const Configuration_t& q1, value_type maxLength, bool validatePath,
+          PathPtr_t& result)
       {
+        result.reset();
+        bool allValid = true;
         PathPtr_t path = problem()->steeringMethod()->steer(q0, q1);
-        if (!path) return path;
+        if (!path){
+          result = path;
+          return false;
+        }
         if (problem()->pathProjector()) { // path projection
           PathPtr_t projected;
-          problem()->pathProjector()->apply (path, projected);
-          if (!projected) return projected;
+          allValid = problem()->pathProjector()->apply (path, projected);
+          if (!projected){
+            result.reset();
+            return false;
+          }
           path = projected;
         }
 
@@ -304,12 +312,19 @@ namespace hpp {
           path = path->extract(I.first, I.first + maxLength);
         }
 
-        if (!validatePath) return path;
+        if (!validatePath){
+          result =  path;
+          assert(!allValid || result->end() == q1);
+          return allValid;
+        }
 
         PathPtr_t validPart;
         PathValidationReportPtr_t report;
-        problem()->pathValidation()->validate (path, false, validPart, report);
-        return validPart;
+        allValid &= problem()->pathValidation()->validate
+          (path, false, validPart, report);
+        result = validPart;
+        assert(!allValid || result->end() == q1);
+        return allValid;
       }
 
       bool BiRrtStar::extend (NodePtr_t target, ParentMap_t& parentMap, Configuration_t& q)
@@ -335,9 +350,11 @@ namespace hpp {
           }
         }
 
-        PathPtr_t path = buildPath(*near->configuration(), q, extendMaxLength_, true);
+        PathPtr_t path;
+        buildPath(*near->configuration(), q, extendMaxLength_, true, path);
         if (!path || path->length() < minimalPathLength_) return false;
         q = path->end();
+        assert(path->end() == q);
 
         value_type n ((value_type)roadmap()->nodes().size());
         NodeVector_t nearNodes = roadmap()->nodesWithinBall(q, cc,
@@ -350,38 +367,48 @@ namespace hpp {
         paths.reserve(nearNodes.size());
         for (NodeVector_t::const_iterator _near = nearNodes.begin(); _near != nearNodes.end(); ++_near) {
           PathPtr_t near2new;
+          assert(!near2new);
           if (*_near == near) {
+            assert(path->end() == q);
             near2new = path;
+            assert(near2new->end() == q);
             paths.push_back(ValidatedPath_t(true, near2new));
             continue;
-          } else {
-            near2new = buildPath(*(*_near)->configuration(), q, -1, false);
+          } else if
+              (buildPath(*(*_near)->configuration(), q, -1, false, near2new)){
             paths.push_back(ValidatedPath_t(false, near2new));
+            assert(near2new->end() == q);
+          } else {
+            paths.push_back(ValidatedPath_t(false, PathPtr_t()));
+            continue;
           }
-          if (!near2new) continue;
+          assert(near2new->end() == q);
 
-          value_type _cost_q = computeCost(parentMap, *_near) + near2new->length();
-          if (_cost_q < cost_q) {
-            paths.back().first = true;
-            // Run path validation
-            if (validate (problem(), near2new)) {
-              // Path is valid and shorter.
-              cost_q = _cost_q;
-              near = *_near;
-              path = near2new;
-            } else
-              paths.back().second.reset();
+          if (paths.size() > 0){
+            value_type _cost_q = computeCost(parentMap, *_near) +
+              near2new->length();
+            if (_cost_q < cost_q) {
+              paths.back().first = true;
+              // Run path validation
+              if (validate (problem(), near2new)) {
+                // Path is valid and shorter.
+                cost_q = _cost_q;
+                near = *_near;
+                path = near2new;
+              } else
+                paths.back().second.reset();
+            }
           }
         }
 
-        NodePtr_t qnew = roadmap()->addNode(make_shared<Configuration_t>(q));
-        EdgePtr_t edge = roadmap()->addEdge(near, qnew, path);
-        roadmap()->addEdge(qnew, near, path->reverse());
+        NodePtr_t nnew = roadmap()->addNode(make_shared<Configuration_t>(q));
+        EdgePtr_t edge = roadmap()->addEdge(near, nnew, path);
+        roadmap()->addEdge(nnew, near, path->reverse());
         assert(parentMap.find(near) != parentMap.end());
-        if (parentMap.count(qnew))
+        if (parentMap.count(nnew))
           return false;
-        setParent(parentMap, qnew, edge, true);
-
+        setParent(parentMap, nnew, edge, true);
+        assert(paths.size() == nearNodes.size());
         for (std::size_t i = 0; i < nearNodes.size(); ++i) {
           if (nearNodes[i] == near || !paths[i].second) continue;
 
@@ -391,8 +418,8 @@ namespace hpp {
             if (!pathValid) // If path validation has not been run
               pathValid = validate(problem(), paths[i].second);
             if (pathValid) {
-              roadmap()->addEdge(nearNodes[i], qnew, paths[i].second);
-              edge = roadmap()->addEdge(qnew, nearNodes[i], paths[i].second->reverse());
+              roadmap()->addEdge(nearNodes[i], nnew, paths[i].second);
+              edge = roadmap()->addEdge(nnew, nearNodes[i], paths[i].second->reverse());
               setParent(parentMap, nearNodes[i], edge, false);
             }
           }
@@ -419,7 +446,9 @@ namespace hpp {
         if (dist < 1e-16)
           return false;
 
-        const PathPtr_t nearQ_qnew = buildPath(*nearQ->configuration(), q, extendMaxLength_, true);
+        PathPtr_t nearQ_qnew;
+        buildPath(*nearQ->configuration(), q, extendMaxLength_, true,
+                  nearQ_qnew);
         if (!nearQ_qnew || nearQ_qnew->length() < minimalPathLength_) return false;
 
         const Configuration_t qnew (nearQ_qnew->end());
@@ -446,25 +475,31 @@ namespace hpp {
             PathPtr_t near2new;
             if (*_near == nearQ) {
               near2new = nearQ_qnew;
+              assert(near2new->end() == qnew);
               paths.push_back(ValidatedPath_t(true, near2new));
               continue;
-            } else {
-              near2new = buildPath(*(*_near)->configuration(), qnew, -1, false);
+            } else if (buildPath(*(*_near)->configuration(), qnew, -1, false,
+                                 near2new)){
               paths.push_back(ValidatedPath_t(false, near2new));
+              assert(near2new->end() == qnew);
+            } else {
+              paths.push_back(ValidatedPath_t(false, PathPtr_t()));
+              continue;
             }
-            if (!near2new) continue;
-
-            value_type _cost_q = computeCost(toRoot_[k], *_near) + near2new->length();
-            if (_cost_q < cost_q) {
-              paths.back().first = true;
-              // Run path validation
-              if (validate (problem(), near2new)) {
-                // Path is valid and shorter.
-                cost_q = _cost_q;
-                bestParent = *_near;
-                best_qnew = near2new;
-              } else
-                paths.back().second.reset();
+            if (paths.size() > 0){
+              value_type _cost_q = computeCost(toRoot_[k], *_near) +
+                near2new->length();
+              if (_cost_q < cost_q) {
+                paths.back().first = true;
+                // Run path validation
+                if (validate (problem(), near2new)) {
+                  // Path is valid and shorter.
+                  cost_q = _cost_q;
+                  bestParent = *_near;
+                  best_qnew = near2new;
+                } else
+                  paths.back().second.reset();
+              }
             }
           }
 
@@ -475,6 +510,7 @@ namespace hpp {
             continue;
           setParent(toRoot_[k], nnew, edge, true);
 
+          assert(paths.size() == nearNodes.size());
           for (std::size_t i = 0; i < nearNodes.size(); ++i) {
             if (nearNodes[i] == bestParent || !paths[i].second) continue;
 
@@ -514,4 +550,3 @@ namespace hpp {
     } // namespace pathPlanner
   } // namespace core
 } // namespace hpp
-

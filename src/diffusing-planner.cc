@@ -32,6 +32,7 @@
 #include <tuple>
 #include <iterator>
 
+#include <pinocchio/math/quaternion.hpp>
 #include <hpp/util/debug.hh>
 #include <hpp/util/timer.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -112,8 +113,11 @@ namespace hpp {
       if (constraints) {
 	ConfigProjectorPtr_t configProjector (constraints->configProjector ());
 	if (configProjector) {
+    assert (isNormalized(problem()->robot(), target, PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
+    assert (isNormalized(problem()->robot(), *(near->configuration()), PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
 	  configProjector->projectOnKernel (*(near->configuration ()), target,
 					    qProj_);
+    assert (isNormalized(problem()->robot(), qProj_, PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
 	} else {
 	  qProj_ = target;
 	}

@@ -86,8 +86,13 @@ namespace hpp {
         /// It returns an empty path on failure.
         /// If \c validatePath is true, it returns only the valid part.
         /// If \c maxLength is positive, the returned path will be at most of this length.
-        PathPtr_t buildPath(const Configuration_t& q0, const Configuration_t& q1,
-            value_type maxLength, bool validatePath);
+        /// \param q0, q1 input configurations
+        /// \retval result resulting path.
+        /// \return whether the whole path from q0 to q1 is collision-free and
+        ///         continuous.
+        bool buildPath(const Configuration_t& q0, const Configuration_t& q1,
+                       value_type maxLength, bool validatePath,
+                       PathPtr_t& result);
 
         bool extend (NodePtr_t target, ParentMap_t& parentMap, Configuration_t& q);
 
