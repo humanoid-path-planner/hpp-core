@@ -620,6 +620,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
   CenterOfMassComputationMap_t comcMap_;
   /// Computation of distances to obstacles
   DistanceBetweenObjectsPtr_t distanceBetweenObjects_;
+  void initProblem();
 };  // class ProblemSolver
 }  // namespace core
 }  // namespace hpp
