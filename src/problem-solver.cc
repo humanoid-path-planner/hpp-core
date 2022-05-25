@@ -608,6 +608,10 @@ void ProblemSolver::initializeProblem(ProblemPtr_t problem) {
   distanceBetweenObjects_ =
       DistanceBetweenObjectsPtr_t(new DistanceBetweenObjects(robot_));
   distanceBetweenObjects_->obstacles(distanceObstacles_);
+}
+
+void ProblemSolver::initProblem() {
+  if (!problem_) throw std::runtime_error("The problem is not defined.");
   // Set shooter
   problem_->configurationShooter(
       configurationShooters.get(configurationShooterType_)(problem_));
@@ -696,8 +700,7 @@ void ProblemSolver::initProblemTarget() {
 }
 
 bool ProblemSolver::prepareSolveStepByStep() {
-  if (!problem_) throw std::runtime_error("The problem is not defined.");
-  initializeProblem(problem_);
+  initProblem();
 
   pathPlanner_->startSolve();
   pathPlanner_->tryConnectInitAndGoals();
@@ -716,8 +719,7 @@ void ProblemSolver::finishSolveStepByStep() {
 }
 
 void ProblemSolver::solve() {
-  if (!problem_) throw std::runtime_error("The problem is not defined.");
-  initializeProblem(problem_);
+  initProblem();
 
   PathVectorPtr_t path = pathPlanner_->solve();
   paths_.push_back(path);
