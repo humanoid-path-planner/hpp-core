@@ -27,21 +27,20 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/core/path-validation/discretized.hh>
-#include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/collision-validation.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathValidation {
-      DiscretizedPtr_t createDiscretizedCollisionChecking (
-          const DevicePtr_t& robot, const value_type& stepSize)
-      {
-        DiscretizedPtr_t pv (Discretized::create (stepSize));
-        CollisionValidationPtr_t cv (CollisionValidation::create (robot));
-        pv->add (cv);
-        return pv;
-      }
-    } // namespace pathValidation
-  } // namespace core
-} // namespace hpp
+namespace core {
+namespace pathValidation {
+DiscretizedPtr_t createDiscretizedCollisionChecking(
+    const DevicePtr_t& robot, const value_type& stepSize) {
+  DiscretizedPtr_t pv(Discretized::create(stepSize));
+  CollisionValidationPtr_t cv(CollisionValidation::create(robot));
+  pv->add(cv);
+  return pv;
+}
+}  // namespace pathValidation
+}  // namespace core
+}  // namespace hpp

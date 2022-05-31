@@ -28,60 +28,57 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_VISIBILITY_PRM_PLANNER_HH
-# define HPP_CORE_VISIBILITY_PRM_PLANNER_HH
+#define HPP_CORE_VISIBILITY_PRM_PLANNER_HH
 
-# include <tuple>
-# include <hpp/core/path-planner.hh>
+#include <hpp/core/path-planner.hh>
+#include <tuple>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_planning
-    /// \{
+namespace core {
+/// \addtogroup path_planning
+/// \{
 
-    /// Generic implementation of visibility-PRM algorithm,
-    /// based on guard nodes (which cannot see each other) and 
-    /// connection nodes between guards.
-    class HPP_CORE_DLLAPI VisibilityPrmPlanner : public PathPlanner
-    {
-    public:
-      /// Return shared pointer to new object.
-      static VisibilityPrmPlannerPtr_t createWithRoadmap
-	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
-      /// Return shared pointer to new object.
-      static VisibilityPrmPlannerPtr_t create(const ProblemConstPtr_t& problem);
-      /// One step of extension.
-      virtual void oneStep ();
-    protected:
-      /// Constructor
-      VisibilityPrmPlanner (const ProblemConstPtr_t& problem, 
-			    const RoadmapPtr_t& roadmap);
-      /// Constructor with roadmap
-      VisibilityPrmPlanner (const ProblemConstPtr_t& problem);
-      /// Store weak pointer to itself
-      void init (const VisibilityPrmPlannerWkPtr_t& weak);
-    private:
-      typedef std::tuple <NodePtr_t, ConfigurationPtr_t, PathPtr_t>
-	DelayedEdge_t;
-      typedef std::vector <DelayedEdge_t> DelayedEdges_t;
-      VisibilityPrmPlannerWkPtr_t weakPtr_;
-      DelayedEdges_t delayedEdges_;
-      std::map <NodePtr_t, bool> nodeStatus_; // true for guard node
+/// Generic implementation of visibility-PRM algorithm,
+/// based on guard nodes (which cannot see each other) and
+/// connection nodes between guards.
+class HPP_CORE_DLLAPI VisibilityPrmPlanner : public PathPlanner {
+ public:
+  /// Return shared pointer to new object.
+  static VisibilityPrmPlannerPtr_t createWithRoadmap(
+      const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
+  /// Return shared pointer to new object.
+  static VisibilityPrmPlannerPtr_t create(const ProblemConstPtr_t& problem);
+  /// One step of extension.
+  virtual void oneStep();
 
-      /// Return true if the configuration is visible from the given 
-      /// connected component.
-      bool visibleFromCC (const Configuration_t q, 
-			  const ConnectedComponentPtr_t cc);
-      
-      /// Apply the problem constraints on a given configuration qTo by 
-      /// projecting it on the tangent space of qFrom.
-      void applyConstraints (
-          const Configuration_t& qFrom, 
-          const Configuration_t& qTo,
-          Configuration_t& qOut);
+ protected:
+  /// Constructor
+  VisibilityPrmPlanner(const ProblemConstPtr_t& problem,
+                       const RoadmapPtr_t& roadmap);
+  /// Constructor with roadmap
+  VisibilityPrmPlanner(const ProblemConstPtr_t& problem);
+  /// Store weak pointer to itself
+  void init(const VisibilityPrmPlannerWkPtr_t& weak);
 
-      bool constrApply_; // True if applyConstraints has successed
-    };
-    /// \}
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_VISIBILITY_PRM_PLANNER_HH
+ private:
+  typedef std::tuple<NodePtr_t, ConfigurationPtr_t, PathPtr_t> DelayedEdge_t;
+  typedef std::vector<DelayedEdge_t> DelayedEdges_t;
+  VisibilityPrmPlannerWkPtr_t weakPtr_;
+  DelayedEdges_t delayedEdges_;
+  std::map<NodePtr_t, bool> nodeStatus_;  // true for guard node
+
+  /// Return true if the configuration is visible from the given
+  /// connected component.
+  bool visibleFromCC(const Configuration_t q, const ConnectedComponentPtr_t cc);
+
+  /// Apply the problem constraints on a given configuration qTo by
+  /// projecting it on the tangent space of qFrom.
+  void applyConstraints(const Configuration_t& qFrom,
+                        const Configuration_t& qTo, Configuration_t& qOut);
+
+  bool constrApply_;  // True if applyConstraints has successed
+};
+/// \}
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_VISIBILITY_PRM_PLANNER_HH

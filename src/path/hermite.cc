@@ -26,108 +26,93 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/path/hermite.hh>
-
+#include <hpp/core/projection-error.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/liegroup.hh>
 #include <hpp/util/debug.hh>
 
-#include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/liegroup.hh>
-
-#include <hpp/core/config-projector.hh>
-#include <hpp/core/projection-error.hh>
-
 namespace hpp {
-  namespace core {
-    namespace path {
-      Hermite::Hermite (const DevicePtr_t& device,
-                        ConfigurationIn_t init,
-                        ConfigurationIn_t end,
-                        ConstraintSetPtr_t constraints) :
-        parent_t (device, interval_t (0, 1), constraints),
-        init_ (init), end_ (end),
-        hermiteLength_ (-1)
-      {
-        assert (init.size() == robot_->configSize ());
-        assert (device);
+namespace core {
+namespace path {
+Hermite::Hermite(const DevicePtr_t& device, ConfigurationIn_t init,
+                 ConfigurationIn_t end, ConstraintSetPtr_t constraints)
+    : parent_t(device, interval_t(0, 1), constraints),
+      init_(init),
+      end_(end),
+      hermiteLength_(-1) {
+  assert(init.size() == robot_->configSize());
+  assert(device);
 
-        base (init);
-        parameters_.row(0).setZero();
-        pinocchio::difference<hpp::pinocchio::RnxSOnLieGroupMap>
-          (robot_, init, end, parameters_.row(3));
+  base(init);
+  parameters_.row(0).setZero();
+  pinocchio::difference<hpp::pinocchio::RnxSOnLieGroupMap>(robot_, init, end,
+                                                           parameters_.row(3));
 
-        projectVelocities(init, end);
-      }
+  projectVelocities(init, end);
+}
 
-      Hermite::Hermite (const Hermite& path) :
-        parent_t (path),
-        init_ (path.init_), end_ (path.end_),
-        hermiteLength_ (-1)
-      {}
+Hermite::Hermite(const Hermite& path)
+    : parent_t(path), init_(path.init_), end_(path.end_), hermiteLength_(-1) {}
 
-      Hermite::Hermite (const Hermite& path,
-                        const ConstraintSetPtr_t& constraints) :
-        parent_t (path, constraints),
-        init_ (path.init_), end_ (path.end_),
-        hermiteLength_ (-1)
-      {
-        projectVelocities(init_, end_);
-      }
+Hermite::Hermite(const Hermite& path, const ConstraintSetPtr_t& constraints)
+    : parent_t(path, constraints),
+      init_(path.init_),
+      end_(path.end_),
+      hermiteLength_(-1) {
+  projectVelocities(init_, end_);
+}
 
-      void Hermite::init (HermitePtr_t self)
-      {
-        parent_t::init (self);
-        weak_ = self;
-        checkPath ();
-      }
+void Hermite::init(HermitePtr_t self) {
+  parent_t::init(self);
+  weak_ = self;
+  checkPath();
+}
 
-      // void Hermite::computeVelocities (ConfigurationIn_t qi, ConfigurationIn_t qe)
-      void Hermite::projectVelocities (ConfigurationIn_t qi, ConfigurationIn_t qe)
-      {
-        // vector_t v_i2e (outputDerivativeSize());
-        // pinocchio::difference<hpp::pinocchio::LieGroupTpl> (robot_, qe, qi, v_i2e);
-        if (constraints() && constraints()->configProjector()) {
-          ConfigProjectorPtr_t proj = constraints()->configProjector();
-          vector_t v (outputDerivativeSize());
-          // Compute v0
-          // proj->projectVectorOnKernel (qi, v_i2e, v);
-          proj->projectVectorOnKernel (qi, parameters_.row(3), v);
-          v0 (v);
-          // Compute v1
-          proj->projectVectorOnKernel (qe, parameters_.row(3), v);
-          v1 (v);
-        } else {
-          v0(parameters_.row(3));
-          v1(parameters_.row(3));
-        }
-        assert (!parameters_.hasNaN());
-      }
+// void Hermite::computeVelocities (ConfigurationIn_t qi, ConfigurationIn_t qe)
+void Hermite::projectVelocities(ConfigurationIn_t qi, ConfigurationIn_t qe) {
+  // vector_t v_i2e (outputDerivativeSize());
+  // pinocchio::difference<hpp::pinocchio::LieGroupTpl> (robot_, qe, qi, v_i2e);
+  if (constraints() && constraints()->configProjector()) {
+    ConfigProjectorPtr_t proj = constraints()->configProjector();
+    vector_t v(outputDerivativeSize());
+    // Compute v0
+    // proj->projectVectorOnKernel (qi, v_i2e, v);
+    proj->projectVectorOnKernel(qi, parameters_.row(3), v);
+    v0(v);
+    // Compute v1
+    proj->projectVectorOnKernel(qe, parameters_.row(3), v);
+    v1(v);
+  } else {
+    v0(parameters_.row(3));
+    v1(parameters_.row(3));
+  }
+  assert(!parameters_.hasNaN());
+}
 
-      void Hermite::computeHermiteLength ()
-      {
-        hermiteLength_ = (parameters_.bottomRows<3>() - parameters_.topRows<3>()).rowwise().norm().sum();
-      }
+void Hermite::computeHermiteLength() {
+  hermiteLength_ = (parameters_.bottomRows<3>() - parameters_.topRows<3>())
+                       .rowwise()
+                       .norm()
+                       .sum();
+}
 
-      vector_t Hermite::velocity (const value_type& param) const
-      {
-        vector_t v (outputDerivativeSize());
-        derivative (v, param, 1);
-        if (constraints() && constraints()->configProjector()) {
-          ConfigProjectorPtr_t proj = constraints()->configProjector();
-          Configuration_t q (outputSize());
-          if (!(*this) (q, param))
-            throw projection_error ("Configuration does not satisfy the constraints");
-          proj->projectVectorOnKernel (q, v, v);
-        }
-        return v;
-      }
+vector_t Hermite::velocity(const value_type& param) const {
+  vector_t v(outputDerivativeSize());
+  derivative(v, param, 1);
+  if (constraints() && constraints()->configProjector()) {
+    ConfigProjectorPtr_t proj = constraints()->configProjector();
+    Configuration_t q(outputSize());
+    if (!(*this)(q, param))
+      throw projection_error("Configuration does not satisfy the constraints");
+    proj->projectVectorOnKernel(q, v, v);
+  }
+  return v;
+}
 
-      DevicePtr_t Hermite::device () const
-      {
-        return robot_;
-      }
-    } //   namespace path
-  } //   namespace core
-} // namespace hpp
-
-
+DevicePtr_t Hermite::device() const { return robot_; }
+}  //   namespace path
+}  //   namespace core
+}  // namespace hpp

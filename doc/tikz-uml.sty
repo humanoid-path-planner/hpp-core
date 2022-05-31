@@ -2,9 +2,9 @@
 % Start of tikz-uml.sty
 %
 % Some macros for UML Diagrams.
-% Home page of project : 
+% Home page of project :
 % Author: Nicolas Kielbasiewicz
-% Style from : 
+% Style from :
 % Fixed by Nicolas Kielbasiewicz (nicolas.kielbasiewicz@ensta-paristech.fr) in march 2016 to compile with pgf 3.00
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -254,7 +254,7 @@
 %                       to another node (automatically used with TikZ options above, below, left, right, below left, ...)
 \newenvironment{umlpackage}[2][]{%
   \pgfkeys{/tikzuml/package/.cd, x/.initial=\tikzumlDefaultX, y/.initial=\tikzumlDefaultX, style/.style={},%
-                                 name/.initial=tikzumlEmpty, type/.initial=\tikzumlPackageDefaultType, draw/.initial=\tikzumlDefaultDrawColor,% 
+                                 name/.initial=tikzumlEmpty, type/.initial=\tikzumlPackageDefaultType, draw/.initial=\tikzumlDefaultDrawColor,%
                                  fill/.initial=\tikzumlPackageDefaultFillColor, text/.initial=\tikzumlDefaultTextColor,%
                                  no coords/.is if=tikzumlpackageWithoutCoords,%
                                  no coords=false,%
@@ -312,7 +312,7 @@
   \fi%
   %
   \let\tikzumlPackage@nodeNameold\tikzumlPackage@nodeName%
-  %  
+  %
   \begingroup%
     \def\_{_}\edef\x{\endgroup%
       \def\noexpand\tikzumlPackage@nodeName{\tikzumlPackage@name}}\x%
@@ -417,7 +417,7 @@
     \fi%
   \fi%
   %
-  \pgfkeys{/tikzuml/class/.cd, x/.get=\tikzumlClassX, y/.get=\tikzumlClassY, width/.get=\tikzumlClassMinimumWidth,% 
+  \pgfkeys{/tikzuml/class/.cd, x/.get=\tikzumlClassX, y/.get=\tikzumlClassY, width/.get=\tikzumlClassMinimumWidth,%
                                type/.get=\tikzumlClassTypeTmp, tags/.get=\tikzumlClassTagsTmp, template/.get=\tikzumlClassTemplateFillColorParam,%
                                name/.get=\tikzumlClassName,%
                                draw/.get=\tikzumlClassDrawColor, fill/.get=\tikzumlClassFillColor,%
@@ -849,7 +849,7 @@
   }{%
     \def\stereotype{$\ll$\tikzumlRelationStereoType$\gg$}%
   }%
-  
+
   % def anchors macros
   \ifthenelse{\equal{\tikzumlRelationSrcAnchor}{tikzumlEmpty}}{%
     \def\tikzumlRelationSrcAnchor{}%
@@ -2154,7 +2154,7 @@
   \fi%
   %
   \xdef\tikzumlPath{(\tikzumlSrcClassNodeName\tikzumlCNRelationSrcAnchor) -- \tikzumlFirstArc (\tikzumlCNRelationName-2.base) -- \tikzumlLastArc (\tikzumlDestClassNodeName\tikzumlCNRelationDestAnchor) }%
-  
+
   \begin{pgfonlayer}{connections}%
   \ifthenelse{\equal{\tikzumlCNRelationStyle}{tikzuml nesting style}}{%
     \pgfarrowsdeclare{nested}{nested}{...}
@@ -2316,7 +2316,7 @@
         \draw (note-\thetikzumlNoteNum-coord\tikzumlNoteSrcAnchor)+(0,\tikzumlNoteArm) node[name=note-\thetikzumlNoteNum-tmp] {};
         \edef\tikzumlnotepath{-- (note-\thetikzumlNoteNum-tmp.center) -|}%
       }%
-      
+
       }{%
         \errmessage{TIKZUML ERROR : Unknown geometry value !!! It should be in the following list : --, |-, -|, |-|, -|-}%
       }%
@@ -2551,7 +2551,7 @@
         \draw (\tikzumlAssocClassNodeName\tikzumlAssocClassSrcAnchor)+(0,\tikzumlAssocClassArm) node[name=\tikzumlAssocClassNodeName-tmp] {};
         \edef\tikzumlassocclasspath{-- (\thetikzumlAssocClassNodeName-tmp.center) -|}%
       }%
-      
+
       }{%
         \errmessage{TIKZUML ERROR : Unknown geometry value !!! It should be in the following list : --, |-, -|, |-|, -|-}%
       }%
@@ -3114,7 +3114,7 @@
   \pgfkeys{/tikzuml/statedecision/.cd, x/.get=\tikzumlStateDecisionX, y/.get=\tikzumlStateDecisionY, width/.get=\tikzumlStateDecisionMinimumWidth,%
                                        name/.get=\tikzumlStateDecisionName, color/.get=\tikzumlStateDecisionColor%
   }%
-  %  
+  %
   \def\tikzumlStateDecisionPos{\tikzumlStateDecisionX,\tikzumlStateDecisionY}%
   %
   \iftikzumlstatedecisionWithoutCoords%
@@ -3175,7 +3175,7 @@
   \pgfkeys{/tikzuml/stateinitial/.cd, x/.get=\tikzumlStateInitialX, y/.get=\tikzumlStateInitialY, width/.get=\tikzumlStateInitialMinimumWidth,%
                                       name/.get=\tikzumlStateInitialName, color/.get=\tikzumlStateInitialColor%
   }%
-  %  
+  %
   \def\tikzumlStateInitialPos{\tikzumlStateInitialX,\tikzumlStateInitialY}%
   %
   \iftikzumlstateinitialWithoutCoords%
@@ -3235,7 +3235,7 @@
   \pgfkeys{/tikzuml/statefinal/.cd, x/.get=\tikzumlStateFinalX, y/.get=\tikzumlStateFinalY, width/.get=\tikzumlStateFinalMinimumWidth,%
                                        name/.get=\tikzumlStateFinalName, color/.get=\tikzumlStateFinalColor%
   }%
-  %  
+  %
   \def\tikzumlStateFinalPos{\tikzumlStateFinalX,\tikzumlStateFinalY}%
   %
   \iftikzumlstatefinalWithoutCoords%
@@ -3295,7 +3295,7 @@
   \pgfkeys{/tikzuml/stateenter/.cd, x/.get=\tikzumlStateEnterX, y/.get=\tikzumlStateEnterY, width/.get=\tikzumlStateEnterMinimumWidth,%
                                     name/.get=\tikzumlStateEnterName, color/.get=\tikzumlStateEnterColor%
   }%
-  %  
+  %
   \def\tikzumlStateEnterPos{\tikzumlStateEnterX,\tikzumlStateEnterY}%
   %
   \iftikzumlstateenterWithoutCoords%
@@ -3355,7 +3355,7 @@
   \pgfkeys{/tikzuml/stateexit/.cd, x/.get=\tikzumlStateExitX, y/.get=\tikzumlStateExitY, width/.get=\tikzumlStateExitMinimumWidth,%
                                    name/.get=\tikzumlStateExitName, color/.get=\tikzumlStateExitColor%
   }%
-  %  
+  %
   \def\tikzumlStateExitPos{\tikzumlStateExitX,\tikzumlStateExitY}%
   %
   \iftikzumlstateexitWithoutCoords%
@@ -3416,7 +3416,7 @@
   \pgfkeys{/tikzuml/stateend/.cd, x/.get=\tikzumlStateEndX, y/.get=\tikzumlStateEndY, width/.get=\tikzumlStateEndMinimumWidth,%
                                   name/.get=\tikzumlStateEndName, color/.get=\tikzumlStateEndColor%
   }%
-  %  
+  %
   \def\tikzumlStateEndPos{\tikzumlStateEndX,\tikzumlStateEndY}%
   %
   \iftikzumlstateendWithoutCoords%
@@ -3556,7 +3556,7 @@
   \pgfkeys{/tikzuml/statedeephistory/.cd, x/.get=\tikzumlStateDeepHistoryX, y/.get=\tikzumlStateDeepHistoryY, width/.get=\tikzumlStateDeepHistoryMinimumWidth,%
                                           name/.get=\tikzumlStateDeepHistoryName, color/.get=\tikzumlStateDeepHistoryColor%
   }%
-  %  
+  %
   \def\tikzumlStateDeepHistoryPos{\tikzumlStateDeepHistoryX,\tikzumlStateDeepHistoryY}%
   %
   \iftikzumlstatedeephistoryWithoutCoords%
@@ -3658,7 +3658,7 @@
   \def\tikzumlStateText{tikzumlEmpty}%
   \begin{scope}[xshift=\tikzumlStateXShift cm, yshift=\tikzumlStateYShift cm]%
 }{%
-  %  
+  %
   \def\tikzumlstaterootlabel{\phantom{\tikzumlState@nodeName}}%
   %
   \def\tikzumlstaterootinnerysep{0.5ex}%
@@ -3803,7 +3803,7 @@
 \newif\iftikzumlcreatecallNoDDots%
 %
 % define a sequence diagram
-% 
+%
 \newenvironment{umlseqdiag}{%
   \gdef\tikzumlInCreateCall{0}%
   \setcounter{tikzumlObjectNum}{0}%
@@ -3921,7 +3921,7 @@
   \begin{tikzpicture}[#1, decoration={markings, mark=at position 0.25 with {\arrow{>}}}]
   \node[fill, draw, circle, inner sep=0, minimum size=\tikzumlControlScale*5ex, postaction={decorate}] (center) at (0,0) {};
   \end{tikzpicture}
-}% 
+}%
 %
 % define a uml object for a sequence diagram
 % args : name of the object
@@ -4177,7 +4177,7 @@
   \def\tikzumlCallEndNodeName{#3}%
   \def\tikzumlcallheight{\tikzumlCallPadding}%
   %
-  % managing time delays from previous/parent fragments 
+  % managing time delays from previous/parent fragments
   \ifnum\thetikzumlCallStartFragmentNum>0%
     \let\tikzumlCallDTold\tikzumlCallDT%
     \pgfmathparse{0.5*\tikzumlFragment@paddingy+\tikzumlCallDTold}%
@@ -4250,9 +4250,9 @@
     % this test occurs a bug with latex package preview
     \ifthenelse{\equal{\tikzumlCallStartNodeName}{\tikzumlCallEndNodeName}}{%
       \draw (\tikzumlCallBottomSrc)+(0,-\tikzumlCallPadding ex) node[coordinate, name=tikzumlTmpNode] {};%
-      \node[tikzuml activity style] (eb-\tikzumlCall@nodeName) at (\tikzumlCallEndNodeName |- tikzumlTmpNode) {};% 
+      \node[tikzuml activity style] (eb-\tikzumlCall@nodeName) at (\tikzumlCallEndNodeName |- tikzumlTmpNode) {};%
       \draw (eb-\tikzumlCall@nodeName)+(0,-0.75*\tikzumlCallPadding ex) node[coordinate, name=tikzumlTmpNode] {};%
-      \node[tikzuml activity style] (sb-\tikzumlCall@nodeName) at (\tikzumlCallStartNodeName |- tikzumlTmpNode) {};% 
+      \node[tikzuml activity style] (sb-\tikzumlCall@nodeName) at (\tikzumlCallStartNodeName |- tikzumlTmpNode) {};%
     }{%
       \ifthenelse{\equal{\tikzumlCallReturn}{tikzumlEmpty}}{%
         \pgfmathsetmacro{\tikzumlCallPaddingd}{0.5*\tikzumlCallPadding}%
@@ -4346,7 +4346,7 @@
           \expandafter\xdef\csname tikzumlFragmentFit\tikzumlFragment@name \endcsname{\tikzumlFragmentFitOld (st-\tikzumlCall@nodeName) (et-\tikzumlCall@nodeName) (eb-\tikzumlCall@nodeName) (sb-\tikzumlCall@nodeName) (\tikzumlCall@nodeName-op) (\tikzumlCall@nodeName-return)}%
         \fi%
         %
-        \draw[tikzuml call return style, \tikzumldrawcall] (eb-\tikzumlCall@nodeName.east) -- ++(2.5*\tikzumlCallPadding ex,0) 
+        \draw[tikzuml call return style, \tikzumldrawcall] (eb-\tikzumlCall@nodeName.east) -- ++(2.5*\tikzumlCallPadding ex,0)
                                                            -- ++(0,-0.75*\tikzumlCallPadding ex) %
                                          node[font=\tikzumlDefaultFont, text=\tikzumltextcall, midway, right, name=\tikzumlCall@nodeName-return] {\tikzumlCallReturn} %
                                          -- (sb-\tikzumlCall@nodeName.east);%
@@ -4567,7 +4567,7 @@
     \def\_{_}\edef\x{\endgroup%
       \def\noexpand\tikzumlCreateCallSrc@nodeName{\tikzumlCreateCallSrc@name}}\x%
   %
-  % managing time delays from previous/parent fragments 
+  % managing time delays from previous/parent fragments
   \ifnum\thetikzumlCallStartFragmentNum>0%
     \let\tikzumlCreateCallDTold\tikzumlCreateCallDT%
     \pgfmathparse{0.5*\tikzumlFragment@paddingy+\tikzumlCreateCallDTold}%
@@ -4721,7 +4721,7 @@
   %
   \let\tikzumlComponent@nodeNameold\tikzumlComponent@nodeName%
   \def\tikzumlComponent@caption{#2}%
-  %  
+  %
   \begingroup%
     \def\_{_}\edef\x{\endgroup%
       \def\noexpand\tikzumlComponent@nodeName{\tikzumlComponent@name}}\x%

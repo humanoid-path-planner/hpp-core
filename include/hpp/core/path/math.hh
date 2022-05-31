@@ -30,32 +30,31 @@
 #define HPP_CORE_PATH_MATH_HH
 
 namespace hpp {
-  namespace core {
-    namespace path {
-      template <int N> struct binomials {
-        typedef Eigen::Matrix<size_type, N, 1> Factorials_t;
+namespace core {
+namespace path {
+template <int N>
+struct binomials {
+  typedef Eigen::Matrix<size_type, N, 1> Factorials_t;
 
-        static inline const Factorials_t& factorials ()
-        {
-          static Factorials_t ret (Factorials_t::Zero());
-          if (ret(0)==0) {
-            ret (0) = 1;
-            for (size_type i = 1; i < N; ++i) ret(i) = ret(i-1) * i;
-          }
-          return ret;
-        }
+  static inline const Factorials_t& factorials() {
+    static Factorials_t ret(Factorials_t::Zero());
+    if (ret(0) == 0) {
+      ret(0) = 1;
+      for (size_type i = 1; i < N; ++i) ret(i) = ret(i - 1) * i;
+    }
+    return ret;
+  }
 
-        static inline size_type binomial (size_type n, size_type k)
-        {
-          const Factorials_t& factors = factorials();
-          assert (n >= k && k >= 0);
-          assert (n < N);
-          size_type denom = factors(k) * factors(n - k);
-          return factors (n) / denom;
-        }
-      };
-    } //   namespace path
-  } //   namespace core
-} // namespace hpp
+  static inline size_type binomial(size_type n, size_type k) {
+    const Factorials_t& factors = factorials();
+    assert(n >= k && k >= 0);
+    assert(n < N);
+    size_type denom = factors(k) * factors(n - k);
+    return factors(n) / denom;
+  }
+};
+}  //   namespace path
+}  //   namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PATH_MATH_HH
+#endif  // HPP_CORE_PATH_MATH_HH

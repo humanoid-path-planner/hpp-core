@@ -28,109 +28,89 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_CONNECTED_COMPONENT_HH
-# define HPP_CORE_CONNECTED_COMPONENT_HH
+#define HPP_CORE_CONNECTED_COMPONENT_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
-# include <hpp/core/node.hh>
-# include <hpp/util/serialization-fwd.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/node.hh>
+#include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// Connected component
-    ///
-    /// Set of nodes reachable from one another.
-    class HPP_CORE_DLLAPI ConnectedComponent {
-    public:
-      typedef ConnectedComponent* RawPtr_t;
-      typedef std::set <RawPtr_t> RawPtrs_t;
+namespace core {
+/// Connected component
+///
+/// Set of nodes reachable from one another.
+class HPP_CORE_DLLAPI ConnectedComponent {
+ public:
+  typedef ConnectedComponent* RawPtr_t;
+  typedef std::set<RawPtr_t> RawPtrs_t;
 
-      // variable for ranking connected components
-      static unsigned int globalFinishTime_;
-      static ConnectedComponentPtr_t create ()
-      {
-	ConnectedComponent* ptr = new ConnectedComponent ();
-	ConnectedComponentPtr_t shPtr (ptr);
-	ptr->init (shPtr);
-	return shPtr;
-      }
-      /// Merge two connected components.
-      ///
-      /// \param other connected component to merge into this one.
-      /// \note other will be empty after calling this method.
-      virtual void merge (const ConnectedComponentPtr_t& other);
-      
-      virtual ~ConnectedComponent() {}
-      
-      /// Add node in connected component
-      /// \param node node to add.
-      virtual void addNode (const NodePtr_t& node)
-      {
-	nodes_.push_back (node);
-      }
-      /// Access to the nodes
-      const NodeVector_t& nodes () const
-      {
-	return nodes_;
-      }
+  // variable for ranking connected components
+  static unsigned int globalFinishTime_;
+  static ConnectedComponentPtr_t create() {
+    ConnectedComponent* ptr = new ConnectedComponent();
+    ConnectedComponentPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
+  /// Merge two connected components.
+  ///
+  /// \param other connected component to merge into this one.
+  /// \note other will be empty after calling this method.
+  virtual void merge(const ConnectedComponentPtr_t& other);
 
-      /// \name Reachability
-      /// \{
+  virtual ~ConnectedComponent() {}
 
-      /// Whether this connected component can reach cc
-      /// \param cc a connected component
-      bool canReach (const ConnectedComponentPtr_t& cc);
+  /// Add node in connected component
+  /// \param node node to add.
+  virtual void addNode(const NodePtr_t& node) { nodes_.push_back(node); }
+  /// Access to the nodes
+  const NodeVector_t& nodes() const { return nodes_; }
 
-      
-      /// Whether this connected component can reach cc
-      /// \param cc a connected component
-      /// \retval cc2Tocc1 list of connected components between cc2 and cc1
-      ///         that should be merged.
-      bool canReach (const ConnectedComponentPtr_t& cc,
-		     RawPtrs_t& cc2Tocc1);
+  /// \name Reachability
+  /// \{
 
-      // Get connected components reachable from this
-      const RawPtrs_t& reachableTo () const
-      {
-	return reachableTo_;
-      }
+  /// Whether this connected component can reach cc
+  /// \param cc a connected component
+  bool canReach(const ConnectedComponentPtr_t& cc);
 
-      // Get connected components that can reach this
-      const RawPtrs_t& reachableFrom () const
-      {
-	return reachableFrom_;
-      }
-      /// \}
+  /// Whether this connected component can reach cc
+  /// \param cc a connected component
+  /// \retval cc2Tocc1 list of connected components between cc2 and cc1
+  ///         that should be merged.
+  bool canReach(const ConnectedComponentPtr_t& cc, RawPtrs_t& cc2Tocc1);
 
-      ConnectedComponentPtr_t self ()
-      {
-        return weak_.lock ();
-      }
+  // Get connected components reachable from this
+  const RawPtrs_t& reachableTo() const { return reachableTo_; }
 
-    protected:
-      /// Constructor
-      ConnectedComponent () : nodes_ (), explored_ (false), weak_ ()
-	  {
-            nodes_.reserve (1000);
-	  }
-      void init (const ConnectedComponentPtr_t& shPtr){
-	weak_ = shPtr;
-      }
-    private:
-      static void clean (RawPtrs_t& set);
+  // Get connected components that can reach this
+  const RawPtrs_t& reachableFrom() const { return reachableFrom_; }
+  /// \}
 
-      NodeVector_t nodes_;
-      // List of CCs from which this connected component can be reached
-      RawPtrs_t reachableFrom_;
-      // List of CCs that can be reached from this connected component
-      RawPtrs_t reachableTo_;
-      // status variable to indicate whether or not CC has been visited
-      mutable bool explored_;
-      ConnectedComponentWkPtr_t weak_;
-      friend class Roadmap;
+  ConnectedComponentPtr_t self() { return weak_.lock(); }
 
-      HPP_SERIALIZABLE();
-    }; // class ConnectedComponent
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_CONNECTED_COMPONENT_HH
+ protected:
+  /// Constructor
+  ConnectedComponent() : nodes_(), explored_(false), weak_() {
+    nodes_.reserve(1000);
+  }
+  void init(const ConnectedComponentPtr_t& shPtr) { weak_ = shPtr; }
+
+ private:
+  static void clean(RawPtrs_t& set);
+
+  NodeVector_t nodes_;
+  // List of CCs from which this connected component can be reached
+  RawPtrs_t reachableFrom_;
+  // List of CCs that can be reached from this connected component
+  RawPtrs_t reachableTo_;
+  // status variable to indicate whether or not CC has been visited
+  mutable bool explored_;
+  ConnectedComponentWkPtr_t weak_;
+  friend class Roadmap;
+
+  HPP_SERIALIZABLE();
+};  // class ConnectedComponent
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_CONNECTED_COMPONENT_HH

@@ -28,31 +28,31 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_FWD_HH
-# define HPP_CORE_STEERING_METHOD_FWD_HH
+#define HPP_CORE_STEERING_METHOD_FWD_HH
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      HPP_PREDEF_CLASS (Straight);
-      typedef shared_ptr <Straight> StraightPtr_t;
-      HPP_PREDEF_CLASS (Interpolated);
-      typedef shared_ptr <Interpolated> InterpolatedPtr_t;
-      HPP_PREDEF_CLASS (CarLike);
-      typedef shared_ptr <CarLike> CarLikePtr_t;
-      HPP_PREDEF_CLASS (ConstantCurvature);
-      typedef shared_ptr <ConstantCurvature> ConstantCurvaturePtr_t;
-      HPP_PREDEF_CLASS (Dubins);
-      typedef shared_ptr <Dubins> DubinsPtr_t;
-      HPP_PREDEF_CLASS (ReedsShepp);
-      typedef shared_ptr <ReedsShepp> ReedsSheppPtr_t;
-      HPP_PREDEF_CLASS (Snibud);
-      typedef shared_ptr <Snibud> SnibudPtr_t;
-      template <int _PolynomeBasis, int _Order> class Spline;
-      HPP_PREDEF_CLASS (Hermite);
-      typedef shared_ptr <Hermite> HermitePtr_t;
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
+namespace core {
+namespace steeringMethod {
+HPP_PREDEF_CLASS(Straight);
+typedef shared_ptr<Straight> StraightPtr_t;
+HPP_PREDEF_CLASS(Interpolated);
+typedef shared_ptr<Interpolated> InterpolatedPtr_t;
+HPP_PREDEF_CLASS(CarLike);
+typedef shared_ptr<CarLike> CarLikePtr_t;
+HPP_PREDEF_CLASS(ConstantCurvature);
+typedef shared_ptr<ConstantCurvature> ConstantCurvaturePtr_t;
+HPP_PREDEF_CLASS(Dubins);
+typedef shared_ptr<Dubins> DubinsPtr_t;
+HPP_PREDEF_CLASS(ReedsShepp);
+typedef shared_ptr<ReedsShepp> ReedsSheppPtr_t;
+HPP_PREDEF_CLASS(Snibud);
+typedef shared_ptr<Snibud> SnibudPtr_t;
+template <int _PolynomeBasis, int _Order>
+class Spline;
+HPP_PREDEF_CLASS(Hermite);
+typedef shared_ptr<Hermite> HermitePtr_t;
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_STEERING_METHOD_FWD_HH
-
+#endif  // HPP_CORE_STEERING_METHOD_FWD_HH

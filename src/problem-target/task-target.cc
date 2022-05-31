@@ -26,80 +26,73 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/core/problem-target/task-target.hh>
-
-#include <stdexcept>
-
-#include <hpp/core/node.hh>
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/connected-component.hh>
+#include <hpp/core/constraint-set.hh>
+#include <hpp/core/node.hh>
+#include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/constraint-set.hh>
-#include <hpp/core/config-projector.hh>
+#include <stdexcept>
 
 #include "../astar.hh"
 
 namespace hpp {
-  namespace core {
-    namespace problemTarget {
-      TaskTargetPtr_t TaskTarget::create (const ProblemPtr_t& problem)
-      {
-        TaskTarget* tt = new TaskTarget (problem);
-        TaskTargetPtr_t shPtr (tt);
-        tt->init (shPtr);
-        return shPtr;
-      }
+namespace core {
+namespace problemTarget {
+TaskTargetPtr_t TaskTarget::create(const ProblemPtr_t& problem) {
+  TaskTarget* tt = new TaskTarget(problem);
+  TaskTargetPtr_t shPtr(tt);
+  tt->init(shPtr);
+  return shPtr;
+}
 
-      void TaskTarget::check (const RoadmapPtr_t&) const
-      {
-        if (!constraints_) {
-          std::string msg ("No constraints: task not specified.");
-          hppDout (error, msg);
-          throw std::runtime_error (msg);
-        }
-      }
+void TaskTarget::check(const RoadmapPtr_t&) const {
+  if (!constraints_) {
+    std::string msg("No constraints: task not specified.");
+    hppDout(error, msg);
+    throw std::runtime_error(msg);
+  }
+}
 
-      bool TaskTarget::reached (const RoadmapPtr_t& roadmap) const
-      {
-        assert(roadmap->goalNodes().empty());
-        if (!roadmap->initNode ()) return false;
-        const ConnectedComponentPtr_t ccInit = roadmap->initNode ()->connectedComponent ();  // TODO
-        bool res(false);
-        for (auto node : ccInit->nodes()){
-          if ((*constraints_).isSatisfied(*(node->configuration()))){
-            roadmap->addGoalNode(node->configuration()); // temporarily add goal node to compute path
-            res = true;
-          }
-        }
-        return res;
-      }
+bool TaskTarget::reached(const RoadmapPtr_t& roadmap) const {
+  assert(roadmap->goalNodes().empty());
+  if (!roadmap->initNode()) return false;
+  const ConnectedComponentPtr_t ccInit =
+      roadmap->initNode()->connectedComponent();  // TODO
+  bool res(false);
+  for (auto node : ccInit->nodes()) {
+    if ((*constraints_).isSatisfied(*(node->configuration()))) {
+      roadmap->addGoalNode(
+          node->configuration());  // temporarily add goal node to compute path
+      res = true;
+    }
+  }
+  return res;
+}
 
-      NumericalConstraints_t TaskTarget::constraints() const
-      {
-        if ((!constraints_) || (!constraints_->configProjector())){
-          return NumericalConstraints_t();
-        }
-        return constraints_->configProjector()->numericalConstraints();
-      }
+NumericalConstraints_t TaskTarget::constraints() const {
+  if ((!constraints_) || (!constraints_->configProjector())) {
+    return NumericalConstraints_t();
+  }
+  return constraints_->configProjector()->numericalConstraints();
+}
 
-      PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const
-      {
-        ProblemPtr_t problem (problem_.lock());
-        assert (problem);
-        Astar astar (roadmap, problem->distance ());
-        PathVectorPtr_t sol = PathVector::create (
-            problem->robot()->configSize(), problem->robot()->numberDof());
-        astar.solution (sol);
-        // This happens when q_init already satisfies the task.
-        if (sol->numberPaths() == 0) {
-          ConfigurationPtr_t q (roadmap->initNode()->configuration ());
-          sol->appendPath(
-              (*problem->steeringMethod()) (*q, *q)
-              );
-        }
-        roadmap->resetGoalNodes(); // remove the temporary goal node
-        return sol;
-      }
-    } // namespace problemTarget
-  } // namespace core
-} // namespace hpp
+PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const {
+  ProblemPtr_t problem(problem_.lock());
+  assert(problem);
+  Astar astar(roadmap, problem->distance());
+  PathVectorPtr_t sol = PathVector::create(problem->robot()->configSize(),
+                                           problem->robot()->numberDof());
+  astar.solution(sol);
+  // This happens when q_init already satisfies the task.
+  if (sol->numberPaths() == 0) {
+    ConfigurationPtr_t q(roadmap->initNode()->configuration());
+    sol->appendPath((*problem->steeringMethod())(*q, *q));
+  }
+  roadmap->resetGoalNodes();  // remove the temporary goal node
+  return sol;
+}
+}  // namespace problemTarget
+}  // namespace core
+}  // namespace hpp

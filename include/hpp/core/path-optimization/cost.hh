@@ -28,35 +28,32 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_OPTIMIZATION_COST_HH
-# define HPP_CORE_PATH_OPTIMIZATION_COST_HH
+#define HPP_CORE_PATH_OPTIMIZATION_COST_HH
 
-# include <hpp/constraints/differentiable-function.hh>
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
+#include <hpp/constraints/differentiable-function.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathOptimization {
-      /// numerical cost for path optimization
-      ///
-      /// Provides an initial guess for the Hessian to initialize quasi-Newton
-      /// methods.
-      class HPP_CORE_DLLAPI Cost : public DifferentiableFunction
-      {
-      public:
-	/// Return an approximation of the Hessian at minimum
-	/// \retval hessian Hessian matrix of right size
-	virtual void hessian (matrixOut_t hessian) const = 0;
+namespace core {
+namespace pathOptimization {
+/// numerical cost for path optimization
+///
+/// Provides an initial guess for the Hessian to initialize quasi-Newton
+/// methods.
+class HPP_CORE_DLLAPI Cost : public DifferentiableFunction {
+ public:
+  /// Return an approximation of the Hessian at minimum
+  /// \retval hessian Hessian matrix of right size
+  virtual void hessian(matrixOut_t hessian) const = 0;
 
-      protected:
-	Cost (size_type inputSize, size_type inputDerivativeSize,
-	      const std::string& name) :
-	  DifferentiableFunction (inputSize, inputDerivativeSize,
-                                  LiegroupSpace::R1 (), name)
-	{
-	}
-      }; // Cost
-    } // namespace pathOptimization
-  }  // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_OPTIMIZATION_COST_HH
+ protected:
+  Cost(size_type inputSize, size_type inputDerivativeSize,
+       const std::string& name)
+      : DifferentiableFunction(inputSize, inputDerivativeSize,
+                               LiegroupSpace::R1(), name) {}
+};  // Cost
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_OPTIMIZATION_COST_HH

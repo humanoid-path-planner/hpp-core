@@ -28,113 +28,95 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_HH
-# define HPP_CORE_STEERING_METHOD_HH
+#define HPP_CORE_STEERING_METHOD_HH
 
-# include <hpp/util/debug.hh>
-
-# include <hpp/core/fwd.hh>
-# include <hpp/core/path.hh>
-# include <hpp/core/projection-error.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/path.hh>
+#include <hpp/core/projection-error.hh>
+#include <hpp/util/debug.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup steering_method
-    /// \{
+namespace core {
+/// \addtogroup steering_method
+/// \{
 
-    /// Steering method
-    ///
-    /// A steering method creates paths between pairs of
-    /// configurations for a robot. They are usually used to take
-    /// into account nonholonomic constraints of some robots
-    class HPP_CORE_DLLAPI SteeringMethod
-    {
-    public:
-      /// create a path between two configurations
-      /// \return a Path from q1 to q2 if found. An empty
-      /// Path if Path could not be built.
-      /// \note if q1 == q2, the steering method should not return an empty
-      ///       shared pointer.
-      PathPtr_t operator() (ConfigurationIn_t q1,
-			    ConfigurationIn_t q2) const
-      {
-        PathPtr_t path;
-        try {
-          path = impl_compute (q1, q2);
-        } catch (const projection_error& e) {
-          hppDout (info, "Could not build path: " << e.what());
-        }
-        assert (q1 != q2 || path);
-	return path;
-      }
+/// Steering method
+///
+/// A steering method creates paths between pairs of
+/// configurations for a robot. They are usually used to take
+/// into account nonholonomic constraints of some robots
+class HPP_CORE_DLLAPI SteeringMethod {
+ public:
+  /// create a path between two configurations
+  /// \return a Path from q1 to q2 if found. An empty
+  /// Path if Path could not be built.
+  /// \note if q1 == q2, the steering method should not return an empty
+  ///       shared pointer.
+  PathPtr_t operator()(ConfigurationIn_t q1, ConfigurationIn_t q2) const {
+    PathPtr_t path;
+    try {
+      path = impl_compute(q1, q2);
+    } catch (const projection_error& e) {
+      hppDout(info, "Could not build path: " << e.what());
+    }
+    assert(q1 != q2 || path);
+    return path;
+  }
 
-      /// \copydoc SteeringMethod::operator()(ConfigurationIn_t,ConfigurationIn_t)
-      PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const
-      {
-        return this->operator() (q1, q2);
-      }
+  /// \copydoc SteeringMethod::operator()(ConfigurationIn_t,ConfigurationIn_t)
+  PathPtr_t steer(ConfigurationIn_t q1, ConfigurationIn_t q2) const {
+    return this->operator()(q1, q2);
+  }
 
-      virtual ~SteeringMethod () {};
+  virtual ~SteeringMethod(){};
 
-      /// Copy instance and return shared pointer
-      virtual SteeringMethodPtr_t copy () const = 0;
+  /// Copy instance and return shared pointer
+  virtual SteeringMethodPtr_t copy() const = 0;
 
-      ProblemConstPtr_t problem() const
-      {
-        return problem_.lock();
-      }
+  ProblemConstPtr_t problem() const { return problem_.lock(); }
 
-      /// \name Constraints applicable to the robot.
-      /// These constraints are not automatically taken into
-      /// account. Child class can use it if they need.
-      /// \{
+  /// \name Constraints applicable to the robot.
+  /// These constraints are not automatically taken into
+  /// account. Child class can use it if they need.
+  /// \{
 
-      /// Set constraint set
-      void constraints (const ConstraintSetPtr_t& constraints)
-      {
-	constraints_ = constraints;
-      }
+  /// Set constraint set
+  void constraints(const ConstraintSetPtr_t& constraints) {
+    constraints_ = constraints;
+  }
 
-      /// Get constraint set
-      const ConstraintSetPtr_t& constraints () const
-      {
-	return constraints_;
-      }
-      /// \}
+  /// Get constraint set
+  const ConstraintSetPtr_t& constraints() const { return constraints_; }
+  /// \}
 
-    protected:
-      /// Constructor
-      SteeringMethod (const ProblemConstPtr_t& problem) :
-        problem_ (problem), constraints_ (), weak_ ()
-      {
-      }
-      /// Copy constructor
-      ///
-      /// Constraints are copied
-      SteeringMethod (const SteeringMethod& other) :
-        problem_ (other.problem_), constraints_ (), weak_ ()
-	{
-	  if (other.constraints_) {
-	    constraints_ = HPP_DYNAMIC_PTR_CAST (ConstraintSet,
-						 other.constraints_->copy ());
-	  }
-	}
-      /// create a path between two configurations
-      virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
-				      ConfigurationIn_t q2) const = 0;
-      /// Store weak pointer to itself.
-      void init (SteeringMethodWkPtr_t weak)
-      {
-	weak_ = weak;
-      }
+ protected:
+  /// Constructor
+  SteeringMethod(const ProblemConstPtr_t& problem)
+      : problem_(problem), constraints_(), weak_() {}
+  /// Copy constructor
+  ///
+  /// Constraints are copied
+  SteeringMethod(const SteeringMethod& other)
+      : problem_(other.problem_), constraints_(), weak_() {
+    if (other.constraints_) {
+      constraints_ =
+          HPP_DYNAMIC_PTR_CAST(ConstraintSet, other.constraints_->copy());
+    }
+  }
+  /// create a path between two configurations
+  virtual PathPtr_t impl_compute(ConfigurationIn_t q1,
+                                 ConfigurationIn_t q2) const = 0;
+  /// Store weak pointer to itself.
+  void init(SteeringMethodWkPtr_t weak) { weak_ = weak; }
 
-    private:
-      ProblemConstWkPtr_t problem_;
-      /// Set of constraints to apply on the paths produced
-      ConstraintSetPtr_t constraints_;
-      /// Weak pointer to itself
-      SteeringMethodWkPtr_t weak_;
-    }; // class SteeringMethod
-    /// \}
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_STEERING_METHOD_HH
+ private:
+  ProblemConstWkPtr_t problem_;
+  /// Set of constraints to apply on the paths produced
+  ConstraintSetPtr_t constraints_;
+  /// Weak pointer to itself
+  SteeringMethodWkPtr_t weak_;
+};  // class SteeringMethod
+/// \}
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_STEERING_METHOD_HH

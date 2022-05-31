@@ -27,27 +27,27 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_TIME_PARAMETERIZATION_HH
-# define HPP_CORE_TIME_PARAMETERIZATION_HH
+#define HPP_CORE_TIME_PARAMETERIZATION_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    class HPP_CORE_DLLAPI TimeParameterization
-    {
-      public:
-        virtual value_type value (const value_type& t) const = 0;
-        virtual value_type derivative (const value_type& t, const size_type& order) const = 0;
-        virtual value_type derivativeBound (const value_type& low, const value_type& up) const
-        {
-          (void) low;
-          (void) up;
-          throw std::logic_error("not implemented");
-        }
+namespace core {
+class HPP_CORE_DLLAPI TimeParameterization {
+ public:
+  virtual value_type value(const value_type& t) const = 0;
+  virtual value_type derivative(const value_type& t,
+                                const size_type& order) const = 0;
+  virtual value_type derivativeBound(const value_type& low,
+                                     const value_type& up) const {
+    (void)low;
+    (void)up;
+    throw std::logic_error("not implemented");
+  }
 
-        virtual TimeParameterizationPtr_t copy () const = 0;
-    }; // class TimeParameterization
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_TIME_PARAMETERIZATION_HH
+  virtual TimeParameterizationPtr_t copy() const = 0;
+};  // class TimeParameterization
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_TIME_PARAMETERIZATION_HH

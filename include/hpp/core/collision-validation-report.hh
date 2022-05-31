@@ -28,86 +28,85 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_COLLISION_VALIDATION_REPORT_HH
-# define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
+#define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 
-# include <hpp/util/indent.hh>
+#include <hpp/fcl/collision_data.h>
 
-# include <hpp/pinocchio/collision-object.hh>
-# include <hpp/core/validation-report.hh>
-# include <hpp/fcl/collision_data.h>
-# include <hpp/core/collision-pair.hh>
+#include <hpp/core/collision-pair.hh>
+#include <hpp/core/validation-report.hh>
+#include <hpp/pinocchio/collision-object.hh>
+#include <hpp/util/indent.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Validate a configuration with respect to collision
-    ///
-    struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport
-    {
-      CollisionValidationReport () {}
+/// Validate a configuration with respect to collision
+///
+struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport {
+  CollisionValidationReport() {}
 
-      CollisionValidationReport (
-          CollisionObjectConstPtr_t o1, CollisionObjectConstPtr_t o2,
-          const fcl::CollisionResult& r) : object1 (o1), object2 (o2), result(r)
-      {}
+  CollisionValidationReport(CollisionObjectConstPtr_t o1,
+                            CollisionObjectConstPtr_t o2,
+                            const fcl::CollisionResult& r)
+      : object1(o1), object2(o2), result(r) {}
 
-      CollisionValidationReport (const CollisionPair_t& pair,
-          const fcl::CollisionResult& r) :
-        object1 (pair.first),
-        object2 (pair.second),
-        result(r)
-      {}
+  CollisionValidationReport(const CollisionPair_t& pair,
+                            const fcl::CollisionResult& r)
+      : object1(pair.first), object2(pair.second), result(r) {}
 
-      /// First object in collision
-      CollisionObjectConstPtr_t object1;
-      std::string objectName1;
-      /// Second object in collision
-      CollisionObjectConstPtr_t object2;
-      std::string objectName2;
-      /// fcl collision results
-      fcl::CollisionResult result;
-      /// Write report in a stream
-      virtual std::ostream& print (std::ostream& os) const
-      {
-	os << "Collision between object " << (object1 ? object1->name() : objectName1) << " and "
-	   << (object2 ? object2->name() : objectName2);
-	return os;
-      }
-      std::pair<std::string, std::string> getObjectNames() const
-      {
-        return std::pair<std::string, std::string> (object1 ? object1->name() : objectName1, object2 ? object2->name() : objectName2);
-      }
-    }; // class CollisionValidationReport
+  /// First object in collision
+  CollisionObjectConstPtr_t object1;
+  std::string objectName1;
+  /// Second object in collision
+  CollisionObjectConstPtr_t object2;
+  std::string objectName2;
+  /// fcl collision results
+  fcl::CollisionResult result;
+  /// Write report in a stream
+  virtual std::ostream& print(std::ostream& os) const {
+    os << "Collision between object "
+       << (object1 ? object1->name() : objectName1) << " and "
+       << (object2 ? object2->name() : objectName2);
+    return os;
+  }
+  std::pair<std::string, std::string> getObjectNames() const {
+    return std::pair<std::string, std::string>(
+        object1 ? object1->name() : objectName1,
+        object2 ? object2->name() : objectName2);
+  }
+};  // class CollisionValidationReport
 
-    /// Validate a configuration with respect to collision
-    ///
-    struct HPP_CORE_DLLAPI AllCollisionsValidationReport : public CollisionValidationReport
-    {
-      AllCollisionsValidationReport() {}
+/// Validate a configuration with respect to collision
+///
+struct HPP_CORE_DLLAPI AllCollisionsValidationReport
+    : public CollisionValidationReport {
+  AllCollisionsValidationReport() {}
 
-      AllCollisionsValidationReport (
-          CollisionObjectConstPtr_t o1, CollisionObjectConstPtr_t o2,
-          const fcl::CollisionResult& r) : CollisionValidationReport (o1, o2, r)
-      {}
+  AllCollisionsValidationReport(CollisionObjectConstPtr_t o1,
+                                CollisionObjectConstPtr_t o2,
+                                const fcl::CollisionResult& r)
+      : CollisionValidationReport(o1, o2, r) {}
 
-      AllCollisionsValidationReport (const CollisionPair_t& pair,
-          const fcl::CollisionResult& r) : CollisionValidationReport (pair, r)
-      {}
+  AllCollisionsValidationReport(const CollisionPair_t& pair,
+                                const fcl::CollisionResult& r)
+      : CollisionValidationReport(pair, r) {}
 
-      std::vector<CollisionValidationReportPtr_t> collisionReports;
-      virtual std::ostream& print (std::ostream& os) const
-      {
-        os <<" Number of collisions : "<<collisionReports.size()<<"."<<incendl;
-        for(std::vector<CollisionValidationReportPtr_t>::const_iterator it = collisionReports.begin() ; it != collisionReports.end() ; ++it){
-          os << **it << iendl;
-        }
-        return os << decindent;
-      }
-    }; // class AllCollisionsValidationReport
-    /// \}
-  } // namespace core
-} // namespace hpp
+  std::vector<CollisionValidationReportPtr_t> collisionReports;
+  virtual std::ostream& print(std::ostream& os) const {
+    os << " Number of collisions : " << collisionReports.size() << "."
+       << incendl;
+    for (std::vector<CollisionValidationReportPtr_t>::const_iterator it =
+             collisionReports.begin();
+         it != collisionReports.end(); ++it) {
+      os << **it << iendl;
+    }
+    return os << decindent;
+  }
+};  // class AllCollisionsValidationReport
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_COLLISION_VALIDATION_REPORT_HH
+#endif  // HPP_CORE_COLLISION_VALIDATION_REPORT_HH

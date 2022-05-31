@@ -27,40 +27,36 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/pinocchio/device.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/config-validations.hh>
-#include <hpp/core/path.hh>
 #include <hpp/core/path-validation/discretized.hh>
+#include <hpp/core/path.hh>
+#include <hpp/pinocchio/device.hh>
 #include <hpp/util/debug.hh>
 
 namespace hpp {
-  namespace core {
-    namespace pathValidation {
-      HPP_PREDEF_CLASS (NoValidation);
-      typedef shared_ptr <NoValidation> NoValidationPtr_t;
-      class NoValidation : public PathValidation
-      {
-      public:
-        // Validate all paths
-        virtual bool validate (const PathPtr_t& path, bool,
-                               PathPtr_t& validPart,
-                               PathValidationReportPtr_t&)
-        {
-          validPart = path;
-          return true;
-        }
-        static NoValidationPtr_t create (const DevicePtr_t&,
-                                         const value_type&)
-        {
-          NoValidation* ptr = new NoValidation ();
-          NoValidationPtr_t shPtr (ptr);
-          return shPtr;
-        }
-      protected:
-        NoValidation () {}
-      }; // class NoValidation
-    } // namespace pathValidation
-  } // namespace core
-} // namespace hpp
+namespace core {
+namespace pathValidation {
+HPP_PREDEF_CLASS(NoValidation);
+typedef shared_ptr<NoValidation> NoValidationPtr_t;
+class NoValidation : public PathValidation {
+ public:
+  // Validate all paths
+  virtual bool validate(const PathPtr_t& path, bool, PathPtr_t& validPart,
+                        PathValidationReportPtr_t&) {
+    validPart = path;
+    return true;
+  }
+  static NoValidationPtr_t create(const DevicePtr_t&, const value_type&) {
+    NoValidation* ptr = new NoValidation();
+    NoValidationPtr_t shPtr(ptr);
+    return shPtr;
+  }
+
+ protected:
+  NoValidation() {}
+};  // class NoValidation
+}  // namespace pathValidation
+}  // namespace core
+}  // namespace hpp

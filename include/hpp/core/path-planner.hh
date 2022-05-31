@@ -28,92 +28,93 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_PLANNER_HH
-# define HPP_CORE_PATH_PLANNER_HH
+#define HPP_CORE_PATH_PLANNER_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_planning
-    /// \{
+namespace core {
+/// \addtogroup path_planning
+/// \{
 
-    /// Path planner
-    ///
-    /// Algorithm that computes a path between an initial configuration and a
-    /// set of goal configurations.
-    class HPP_CORE_DLLAPI PathPlanner {
-    public:
-      virtual ~PathPlanner ();
+/// Path planner
+///
+/// Algorithm that computes a path between an initial configuration and a
+/// set of goal configurations.
+class HPP_CORE_DLLAPI PathPlanner {
+ public:
+  virtual ~PathPlanner();
 
-      /// Get roadmap
-      virtual const RoadmapPtr_t& roadmap () const;
-      /// Get problem
-      ProblemConstPtr_t problem () const;
-      /// Initialize the problem resolution
-      ///  \li Set initial and and goal nodes,
-      ///  \li check problem consistency
-      virtual void startSolve ();
-      /// Solve
-      ///
-      /// Call methods
-      /// \li startSolve,
-      /// \li oneStep until a solution is found,
-      /// \li finishSolve.
-      /// Users can implement themselves the loop to avoid being trapped
-      /// in an infinite loop when no solution is found.
-      virtual PathVectorPtr_t solve ();
-      /// Try to connect initial and goal configurations to existing roadmap
-      virtual void tryConnectInitAndGoals ();
+  /// Get roadmap
+  virtual const RoadmapPtr_t& roadmap() const;
+  /// Get problem
+  ProblemConstPtr_t problem() const;
+  /// Initialize the problem resolution
+  ///  \li Set initial and and goal nodes,
+  ///  \li check problem consistency
+  virtual void startSolve();
+  /// Solve
+  ///
+  /// Call methods
+  /// \li startSolve,
+  /// \li oneStep until a solution is found,
+  /// \li finishSolve.
+  /// Users can implement themselves the loop to avoid being trapped
+  /// in an infinite loop when no solution is found.
+  virtual PathVectorPtr_t solve();
+  /// Try to connect initial and goal configurations to existing roadmap
+  virtual void tryConnectInitAndGoals();
 
-      /// User implementation of one step of resolution
-      virtual void oneStep () = 0;
-      /// Post processing of the resulting path
-      virtual PathVectorPtr_t finishSolve (const PathVectorPtr_t& path);
-      /// Interrupt path planning
-      void interrupt ();
-      /// Set maximal number of iterations
-      void maxIterations (const unsigned long int& n);
-      /// set time out (in seconds)
-      void timeOut(const double& timeOut);
-      /// Make the resolution stop when the problem is solved.
-      /// If set to \c false, the algorithm stops when \ref maxIterations
-      /// or \ref timeOut are reached and it is a success if the
-      /// \ref Problem::target is achieved.
-      void stopWhenProblemIsSolved(bool enable);
+  /// User implementation of one step of resolution
+  virtual void oneStep() = 0;
+  /// Post processing of the resulting path
+  virtual PathVectorPtr_t finishSolve(const PathVectorPtr_t& path);
+  /// Interrupt path planning
+  void interrupt();
+  /// Set maximal number of iterations
+  void maxIterations(const unsigned long int& n);
+  /// set time out (in seconds)
+  void timeOut(const double& timeOut);
+  /// Make the resolution stop when the problem is solved.
+  /// If set to \c false, the algorithm stops when \ref maxIterations
+  /// or \ref timeOut are reached and it is a success if the
+  /// \ref Problem::target is achieved.
+  void stopWhenProblemIsSolved(bool enable);
 
-      /// Find a path in the roadmap and transform it in trajectory
-      PathVectorPtr_t computePath () const;
-    protected:
-      /// Constructor
-      ///
-      /// Create a new roadmap
-      PathPlanner (const ProblemConstPtr_t& problem);
-      /// Constructor
-      ///
-      /// Store a given roadmap.
-      PathPlanner (const ProblemConstPtr_t& problem,
-		   const RoadmapPtr_t& roadmap);
-      /// Store weak pointer to itself
-      void init (const PathPlannerWkPtr_t& weak);
-    private:
-      /// Reference to the problem
-      const ProblemConstWkPtr_t problem_;
-      /// Pointer to the roadmap.
-      const RoadmapPtr_t roadmap_;
-      bool interrupt_;
-      /// Maximal number of iterations to solve a problem
-      /// reaching this bound raises an exception.
-      unsigned long int maxIterations_;
-      /// Time out (in seconds) before interrupting the planning
-      double timeOut_;
-      /// \copydoc PathPlanner::stopWhenProblemIsSolved
-      bool stopWhenProblemIsSolved_;
+  /// Find a path in the roadmap and transform it in trajectory
+  PathVectorPtr_t computePath() const;
 
-      /// Store weak pointer to itself
-      PathPlannerWkPtr_t weakPtr_;
-    }; // class PathPlanner
-    /// \}
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_PLANNER_HH
+ protected:
+  /// Constructor
+  ///
+  /// Create a new roadmap
+  PathPlanner(const ProblemConstPtr_t& problem);
+  /// Constructor
+  ///
+  /// Store a given roadmap.
+  PathPlanner(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
+  /// Store weak pointer to itself
+  void init(const PathPlannerWkPtr_t& weak);
+
+ private:
+  /// Reference to the problem
+  const ProblemConstWkPtr_t problem_;
+  /// Pointer to the roadmap.
+  const RoadmapPtr_t roadmap_;
+  bool interrupt_;
+  /// Maximal number of iterations to solve a problem
+  /// reaching this bound raises an exception.
+  unsigned long int maxIterations_;
+  /// Time out (in seconds) before interrupting the planning
+  double timeOut_;
+  /// \copydoc PathPlanner::stopWhenProblemIsSolved
+  bool stopWhenProblemIsSolved_;
+
+  /// Store weak pointer to itself
+  PathPlannerWkPtr_t weakPtr_;
+};  // class PathPlanner
+/// \}
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_PLANNER_HH

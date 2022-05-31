@@ -28,17 +28,14 @@
 // DAMAGE.
 
 #include <boost/serialization/weak_ptr.hpp>
-#include <pinocchio/serialization/eigen.hpp>
-
-#include <hpp/util/serialization.hh>
-
-#include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint.hh>
-#include <hpp/pinocchio/serialization.hh> // For serialization of Device
-
 #include <hpp/core/distance.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/weighed-distance.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/serialization.hh>  // For serialization of Device
+#include <hpp/util/serialization.hh>
+#include <pinocchio/serialization/eigen.hpp>
 
 BOOST_CLASS_EXPORT(hpp::core::WeighedDistance)
 BOOST_CLASS_EXPORT(hpp::core::distance::ReedsShepp)
@@ -47,20 +44,20 @@ namespace hpp {
 namespace core {
 
 template <typename Archive>
-inline void Distance::serialize(Archive& ar, const unsigned int version)
-{
-  (void) version;
-  (void) ar;
+inline void Distance::serialize(Archive& ar, const unsigned int version) {
+  (void)version;
+  (void)ar;
 }
 
 template <typename Archive>
-inline void WeighedDistance::serialize(Archive& ar, const unsigned int version)
-{
-  (void) version;
-  ar & boost::serialization::make_nvp("base", boost::serialization::base_object<Distance>(*this));
-  ar & BOOST_SERIALIZATION_NVP(robot_);
-  ar & BOOST_SERIALIZATION_NVP(weights_);
-  ar & BOOST_SERIALIZATION_NVP(weak_);
+inline void WeighedDistance::serialize(Archive& ar,
+                                       const unsigned int version) {
+  (void)version;
+  ar& boost::serialization::make_nvp(
+      "base", boost::serialization::base_object<Distance>(*this));
+  ar& BOOST_SERIALIZATION_NVP(robot_);
+  ar& BOOST_SERIALIZATION_NVP(weights_);
+  ar& BOOST_SERIALIZATION_NVP(weak_);
 }
 
 HPP_SERIALIZATION_IMPLEMENT(WeighedDistance);
@@ -68,24 +65,24 @@ HPP_SERIALIZATION_IMPLEMENT(WeighedDistance);
 namespace distance {
 
 template <typename Archive>
-inline void ReedsShepp::serialize(Archive& ar, const unsigned int version)
-{
-  (void) version;
-  ar & boost::serialization::make_nvp("base", boost::serialization::base_object<Distance>(*this));
-  ar & BOOST_SERIALIZATION_NVP(weighedDistance_);
-  ar & BOOST_SERIALIZATION_NVP(device_);
-  ar & BOOST_SERIALIZATION_NVP(rho_);
-  ar & BOOST_SERIALIZATION_NVP(xy_);
-  ar & BOOST_SERIALIZATION_NVP(rz_);
-  ar & BOOST_SERIALIZATION_NVP(xyId_);
-  ar & BOOST_SERIALIZATION_NVP(rzId_);
-  ar & BOOST_SERIALIZATION_NVP(wheels_);
-  ar & BOOST_SERIALIZATION_NVP(weak_);
+inline void ReedsShepp::serialize(Archive& ar, const unsigned int version) {
+  (void)version;
+  ar& boost::serialization::make_nvp(
+      "base", boost::serialization::base_object<Distance>(*this));
+  ar& BOOST_SERIALIZATION_NVP(weighedDistance_);
+  ar& BOOST_SERIALIZATION_NVP(device_);
+  ar& BOOST_SERIALIZATION_NVP(rho_);
+  ar& BOOST_SERIALIZATION_NVP(xy_);
+  ar& BOOST_SERIALIZATION_NVP(rz_);
+  ar& BOOST_SERIALIZATION_NVP(xyId_);
+  ar& BOOST_SERIALIZATION_NVP(rzId_);
+  ar& BOOST_SERIALIZATION_NVP(wheels_);
+  ar& BOOST_SERIALIZATION_NVP(weak_);
 }
 
 HPP_SERIALIZATION_IMPLEMENT(ReedsShepp);
 
-} // namespace distance
+}  // namespace distance
 
-} //   namespace core
-} // namespace hpp
+}  //   namespace core
+}  // namespace hpp

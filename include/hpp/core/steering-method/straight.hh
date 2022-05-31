@@ -28,77 +28,63 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_STRAIGHT_HH
-# define HPP_CORE_STEERING_METHOD_STRAIGHT_HH
+#define HPP_CORE_STEERING_METHOD_STRAIGHT_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
-# include <hpp/core/steering-method/fwd.hh>
-# include <hpp/core/steering-method.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      /// \addtogroup steering_method
-      /// \{
+namespace core {
+namespace steeringMethod {
+/// \addtogroup steering_method
+/// \{
 
-      /// Steering method that creates StraightPath instances
-      ///
-      class HPP_CORE_DLLAPI Straight : public SteeringMethod
-      {
-        public:
-          /// Create instance and return shared pointer
-          static StraightPtr_t create (const ProblemConstPtr_t& problem)
-          {
-            Straight* ptr = new Straight (problem);
-            StraightPtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
-          /// Copy instance and return shared pointer
-          static StraightPtr_t createCopy
-            (const StraightPtr_t& other)
-            {
-              Straight* ptr = new Straight (*other);
-              StraightPtr_t shPtr (ptr);
-              ptr->init (shPtr);
-              return shPtr;
-            }
-          /// Copy instance and return shared pointer
-          virtual SteeringMethodPtr_t copy () const
-          {
-            return createCopy (weak_.lock ());
-          }
+/// Steering method that creates StraightPath instances
+///
+class HPP_CORE_DLLAPI Straight : public SteeringMethod {
+ public:
+  /// Create instance and return shared pointer
+  static StraightPtr_t create(const ProblemConstPtr_t& problem) {
+    Straight* ptr = new Straight(problem);
+    StraightPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
+  /// Copy instance and return shared pointer
+  static StraightPtr_t createCopy(const StraightPtr_t& other) {
+    Straight* ptr = new Straight(*other);
+    StraightPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
+  /// Copy instance and return shared pointer
+  virtual SteeringMethodPtr_t copy() const { return createCopy(weak_.lock()); }
 
-          /// create a path between two configurations
-          virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
-              ConfigurationIn_t q2) const;
+  /// create a path between two configurations
+  virtual PathPtr_t impl_compute(ConfigurationIn_t q1,
+                                 ConfigurationIn_t q2) const;
 
-        protected:
-          /// Constructor with robot
-          /// Weighed distance is created from robot
-          Straight (const ProblemConstPtr_t& problem) :
-            SteeringMethod (problem), weak_ ()
-        {
-        }
-          /// Copy constructor
-          Straight (const Straight& other) :
-            SteeringMethod (other), weak_ ()
-        {
-        }
+ protected:
+  /// Constructor with robot
+  /// Weighed distance is created from robot
+  Straight(const ProblemConstPtr_t& problem)
+      : SteeringMethod(problem), weak_() {}
+  /// Copy constructor
+  Straight(const Straight& other) : SteeringMethod(other), weak_() {}
 
-          /// Store weak pointer to itself
-          void init (StraightWkPtr_t weak)
-          {
-            SteeringMethod::init (weak);
-            weak_ = weak;
-          }
+  /// Store weak pointer to itself
+  void init(StraightWkPtr_t weak) {
+    SteeringMethod::init(weak);
+    weak_ = weak;
+  }
 
-        private:
-
-          StraightWkPtr_t weak_;
-      }; // Straight
-    }
-    /// \}
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_STEERING_METHOD_STRAIGHT_HH
+ private:
+  StraightWkPtr_t weak_;
+};  // Straight
+}  // namespace steeringMethod
+/// \}
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_STEERING_METHOD_STRAIGHT_HH

@@ -28,51 +28,53 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_DIFFUSING_PLANNER_HH
-# define HPP_CORE_DIFFUSING_PLANNER_HH
+#define HPP_CORE_DIFFUSING_PLANNER_HH
 
-# include <hpp/core/path-planner.hh>
+#include <hpp/core/path-planner.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_planning
-    /// \{
+namespace core {
+/// \addtogroup path_planning
+/// \{
 
-    /// Generic implementation of RRT algorithm
-    class HPP_CORE_DLLAPI DiffusingPlanner : public PathPlanner
-    {
-    public:
-      typedef PathPlanner Parent_t;
-      /// Return shared pointer to new object.
-      static DiffusingPlannerPtr_t createWithRoadmap
-	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
-      /// Return shared pointer to new object.
-      static DiffusingPlannerPtr_t create (const ProblemConstPtr_t& problem);
-      /// Initialize the problem resolution
-      /// Call parent implementation and check that goal is defined as
-      /// a set of configurations.
-      virtual void startSolve ();
-      /// One step of extension.
-      virtual void oneStep ();
-      /// Set configuration shooter.
-      void configurationShooter (const ConfigurationShooterPtr_t& shooter);
-    protected:
-      /// Constructor
-      DiffusingPlanner (const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
-      /// Constructor with roadmap
-      DiffusingPlanner (const ProblemConstPtr_t& problem);
-      /// Store weak pointer to itself
-      void init (const DiffusingPlannerWkPtr_t& weak);
-      /// Extend a node in the direction of a configuration
-      /// \param near node in the roadmap,
-      /// \param target target configuration
-      virtual PathPtr_t extend (const NodePtr_t& near,
-				const Configuration_t& target);
-    private:
-      ConfigurationShooterPtr_t configurationShooter_;
-      mutable Configuration_t qProj_;
-      DiffusingPlannerWkPtr_t weakPtr_;
-    };
-    /// \}
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_DIFFUSING_PLANNER_HH
+/// Generic implementation of RRT algorithm
+class HPP_CORE_DLLAPI DiffusingPlanner : public PathPlanner {
+ public:
+  typedef PathPlanner Parent_t;
+  /// Return shared pointer to new object.
+  static DiffusingPlannerPtr_t createWithRoadmap(
+      const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
+  /// Return shared pointer to new object.
+  static DiffusingPlannerPtr_t create(const ProblemConstPtr_t& problem);
+  /// Initialize the problem resolution
+  /// Call parent implementation and check that goal is defined as
+  /// a set of configurations.
+  virtual void startSolve();
+  /// One step of extension.
+  virtual void oneStep();
+  /// Set configuration shooter.
+  void configurationShooter(const ConfigurationShooterPtr_t& shooter);
+
+ protected:
+  /// Constructor
+  DiffusingPlanner(const ProblemConstPtr_t& problem,
+                   const RoadmapPtr_t& roadmap);
+  /// Constructor with roadmap
+  DiffusingPlanner(const ProblemConstPtr_t& problem);
+  /// Store weak pointer to itself
+  void init(const DiffusingPlannerWkPtr_t& weak);
+  /// Extend a node in the direction of a configuration
+  /// \param near node in the roadmap,
+  /// \param target target configuration
+  virtual PathPtr_t extend(const NodePtr_t& near,
+                           const Configuration_t& target);
+
+ private:
+  ConfigurationShooterPtr_t configurationShooter_;
+  mutable Configuration_t qProj_;
+  DiffusingPlannerWkPtr_t weakPtr_;
+};
+/// \}
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_DIFFUSING_PLANNER_HH

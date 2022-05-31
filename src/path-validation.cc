@@ -32,21 +32,20 @@
 #include <hpp/pinocchio/liegroup-space.hh>
 
 namespace hpp {
-  namespace core {
-    bool PathValidation::validate(ConfigurationIn_t q,
-                                  ValidationReportPtr_t& report)
-    {
-      // Create a straight path of length 0 with the configuration.
-      // The output space does not matter here since no Liegroup operation
-      // will be performed. Thus, we use Rn.
-      StraightPathPtr_t p(StraightPath::create
-        (LiegroupSpace::Rn(q.size()),q, q, std::make_pair<value_type,
-         value_type>(0,0)));
-      PathPtr_t unused;
-      PathValidationReportPtr_t r;
-      bool res(this->validate(p, false, unused, r));
-      if (r) report = r->configurationReport;
-      return res;
-    }
-  } // namespace core
-} // namespace hpp
+namespace core {
+bool PathValidation::validate(ConfigurationIn_t q,
+                              ValidationReportPtr_t& report) {
+  // Create a straight path of length 0 with the configuration.
+  // The output space does not matter here since no Liegroup operation
+  // will be performed. Thus, we use Rn.
+  StraightPathPtr_t p(
+      StraightPath::create(LiegroupSpace::Rn(q.size()), q, q,
+                           std::make_pair<value_type, value_type>(0, 0)));
+  PathPtr_t unused;
+  PathValidationReportPtr_t r;
+  bool res(this->validate(p, false, unused, r));
+  if (r) report = r->configurationReport;
+  return res;
+}
+}  // namespace core
+}  // namespace hpp

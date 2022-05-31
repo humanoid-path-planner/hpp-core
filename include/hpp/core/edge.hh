@@ -28,51 +28,40 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_EDGE_HH
-# define HPP_CORE_EDGE_HH
+#define HPP_CORE_EDGE_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
-# include <hpp/util/serialization-fwd.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup roadmap
-    /// \{
+namespace core {
+/// \addtogroup roadmap
+/// \{
 
-    /// Edge of a roadmap
-    ///
-    /// Links two nodes and stores a path linking the configurations stored in
-    /// the nodes the edge links.
-    class HPP_CORE_DLLAPI Edge
-    {
-    public:
-      Edge (NodePtr_t n1, NodePtr_t n2, const PathPtr_t& path) :
-	n1_ (n1), n2_ (n2), path_ (path)
-      {
-      }
-      NodePtr_t from () const
-      {
-	return n1_;
-      }
-      NodePtr_t to () const
-      {
-	return n2_;
-      }
-      PathPtr_t path () const
-      {
-	return path_;
-      }
+/// Edge of a roadmap
+///
+/// Links two nodes and stores a path linking the configurations stored in
+/// the nodes the edge links.
+class HPP_CORE_DLLAPI Edge {
+ public:
+  Edge(NodePtr_t n1, NodePtr_t n2, const PathPtr_t& path)
+      : n1_(n1), n2_(n2), path_(path) {}
+  NodePtr_t from() const { return n1_; }
+  NodePtr_t to() const { return n2_; }
+  PathPtr_t path() const { return path_; }
 
-    protected:
-      Edge() {}
-    private:
-      NodePtr_t n1_;
-      NodePtr_t n2_;
-      PathPtr_t path_;
+ protected:
+  Edge() {}
 
-      HPP_SERIALIZABLE();
-    }; // class Edge
-    /// \}
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_EDGE_HH
+ private:
+  NodePtr_t n1_;
+  NodePtr_t n2_;
+  PathPtr_t path_;
+
+  HPP_SERIALIZABLE();
+};  // class Edge
+/// \}
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_EDGE_HH

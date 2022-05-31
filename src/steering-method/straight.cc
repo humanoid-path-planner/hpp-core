@@ -26,31 +26,29 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/core/steering-method/straight.hh>
-
-#include <hpp/core/problem.hh>
-#include <hpp/core/straight-path.hh>
-#include <hpp/core/distance.hh>
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/distance.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/core/steering-method/straight.hh>
+#include <hpp/core/straight-path.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      PathPtr_t Straight::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
-      {
-        value_type length = (*problem()->distance()) (q1, q2);
-        ConstraintSetPtr_t c;
-        if (constraints() && constraints()->configProjector ()) {
-          c = HPP_STATIC_PTR_CAST (ConstraintSet, constraints()->copy ());
-          c->configProjector()->rightHandSideFromConfig (q1); 
-          c->configProjector()->lineSearchType (ConfigProjector::Backtracking);
-        } else {
-          c = constraints ();
-        }
-        PathPtr_t path = StraightPath::create
-          (problem()->robot(), q1, q2, length, c);
-        return path;
-      }
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
+namespace core {
+namespace steeringMethod {
+PathPtr_t Straight::impl_compute(ConfigurationIn_t q1,
+                                 ConfigurationIn_t q2) const {
+  value_type length = (*problem()->distance())(q1, q2);
+  ConstraintSetPtr_t c;
+  if (constraints() && constraints()->configProjector()) {
+    c = HPP_STATIC_PTR_CAST(ConstraintSet, constraints()->copy());
+    c->configProjector()->rightHandSideFromConfig(q1);
+    c->configProjector()->lineSearchType(ConfigProjector::Backtracking);
+  } else {
+    c = constraints();
+  }
+  PathPtr_t path = StraightPath::create(problem()->robot(), q1, q2, length, c);
+  return path;
+}
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp

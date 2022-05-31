@@ -27,52 +27,46 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATHPROJECTOR_DICHOTOMY_HH
-# define HPP_CORE_PATHPROJECTOR_DICHOTOMY_HH
+#define HPP_CORE_PATHPROJECTOR_DICHOTOMY_HH
 
-# include <hpp/core/path-projector.hh>
+#include <hpp/core/path-projector.hh>
 
-# include "hpp/core/problem.hh"
+#include "hpp/core/problem.hh"
 
 namespace hpp {
-  namespace core {
-    namespace pathProjector {
-      class HPP_CORE_DLLAPI Dichotomy : public PathProjector
-      {
-        public:
-        typedef hpp::core::StraightPath StraightPath;
-        typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
-          static DichotomyPtr_t create
-	    (const DistancePtr_t& distance,
-	     const SteeringMethodPtr_t& steeringMethod,
-	     value_type maxPathLength)
-          {
-            return DichotomyPtr_t (new Dichotomy (distance, steeringMethod,
-						  maxPathLength));
-          }
+namespace core {
+namespace pathProjector {
+class HPP_CORE_DLLAPI Dichotomy : public PathProjector {
+ public:
+  typedef hpp::core::StraightPath StraightPath;
+  typedef hpp::core::StraightPathPtr_t StraightPathPtr_t;
+  static DichotomyPtr_t create(const DistancePtr_t& distance,
+                               const SteeringMethodPtr_t& steeringMethod,
+                               value_type maxPathLength) {
+    return DichotomyPtr_t(
+        new Dichotomy(distance, steeringMethod, maxPathLength));
+  }
 
-          static DichotomyPtr_t create
-	    (const ProblemConstPtr_t& problem,
-	     value_type maxPathLength)
-          {
-            return create (problem->distance(), problem->steeringMethod(),
-			   maxPathLength);
-          }
+  static DichotomyPtr_t create(const ProblemConstPtr_t& problem,
+                               value_type maxPathLength) {
+    return create(problem->distance(), problem->steeringMethod(),
+                  maxPathLength);
+  }
 
-        protected:
-          bool impl_apply (const PathPtr_t& path,
-			   PathPtr_t& projection) const;
+ protected:
+  bool impl_apply(const PathPtr_t& path, PathPtr_t& projection) const;
 
-          Dichotomy (const DistancePtr_t& distance,
-		     const SteeringMethodPtr_t& steeringMethod,
-		     value_type maxPathLength);
+  Dichotomy(const DistancePtr_t& distance,
+            const SteeringMethodPtr_t& steeringMethod,
+            value_type maxPathLength);
 
-	  bool applyToStraightPath (const StraightPathPtr_t& path,
-				    PathPtr_t& projection) const;
+  bool applyToStraightPath(const StraightPathPtr_t& path,
+                           PathPtr_t& projection) const;
 
-        private:
-          value_type maxPathLength_;
-      };
-    } // namespace pathProjector
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATHPROJECTOR_DICHOTOMY_HH
+ private:
+  value_type maxPathLength_;
+};
+}  // namespace pathProjector
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATHPROJECTOR_DICHOTOMY_HH

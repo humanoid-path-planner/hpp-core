@@ -28,38 +28,34 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_VALIDATION_REPORT_HH
-# define HPP_CORE_VALIDATION_REPORT_HH
+#define HPP_CORE_VALIDATION_REPORT_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Abstraction of validation report for paths and configurations
-    ///
-    /// This class is aimed at being derived to store information relative to
-    /// various Validation derived classes
-    /// \li CollisionValidation,
-    /// \li collision related PathValidation classes.
-    class HPP_CORE_DLLAPI ValidationReport
-    {
-    public:
-      virtual ~ValidationReport ()
-      {
-      }
-      /// Write report in a stream
-      virtual std::ostream& print (std::ostream& os) const = 0;
-    }; // class ValidationReport
-    inline std::ostream& operator<< (std::ostream& os,
-				     const ValidationReport& report)
-    {
-      return report.print (os);
-    }
-    /// \}
-  } // namespace core
-} // namespace hpp
+/// Abstraction of validation report for paths and configurations
+///
+/// This class is aimed at being derived to store information relative to
+/// various Validation derived classes
+/// \li CollisionValidation,
+/// \li collision related PathValidation classes.
+class HPP_CORE_DLLAPI ValidationReport {
+ public:
+  virtual ~ValidationReport() {}
+  /// Write report in a stream
+  virtual std::ostream& print(std::ostream& os) const = 0;
+};  // class ValidationReport
+inline std::ostream& operator<<(std::ostream& os,
+                                const ValidationReport& report) {
+  return report.print(os);
+}
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_VALIDATION_REPORT_HH
+#endif  // HPP_CORE_VALIDATION_REPORT_HH

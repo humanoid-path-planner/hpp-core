@@ -26,58 +26,46 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-# include <hpp/core/steering-method/dubins.hh>
-
-# include <hpp/pinocchio/device.hh>
-# include <hpp/pinocchio/joint.hh>
-
-# include <hpp/core/distance.hh>
-# include <hpp/core/problem.hh>
-# include <hpp/core/dubins-path.hh>
+#include <hpp/core/distance.hh>
+#include <hpp/core/dubins-path.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/core/steering-method/dubins.hh>
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      PathPtr_t Dubins::impl_compute (ConfigurationIn_t q1,
-          ConfigurationIn_t q2) const
-      {
-        Configuration_t qEnd (q2);
-        qEnd.segment<2>(xyId_) = q1.segment<2>(xyId_);
-        qEnd.segment<2>(rzId_) = q1.segment<2>(rzId_);
-        // Do not take into account wheel joints in additional distance.
-        for (std::vector<JointPtr_t>::const_iterator it = wheels_.begin ();
-             it != wheels_.end (); ++it) {
-          size_type i = (*it)->rankInConfiguration ();
-          qEnd [i] = q1 [i];
-        }
-        // The length corresponding to the non RS DoF
-        DistancePtr_t d (problem()->distance());
-        value_type extraL = (*d) (q1, qEnd);
-        DubinsPathPtr_t path =
-          DubinsPath::create (device_.lock (), q1, q2, extraL,
-			      rho_ , xyId_, rzId_, wheels_, constraints ());
-        return path;
-      }
+namespace core {
+namespace steeringMethod {
+PathPtr_t Dubins::impl_compute(ConfigurationIn_t q1,
+                               ConfigurationIn_t q2) const {
+  Configuration_t qEnd(q2);
+  qEnd.segment<2>(xyId_) = q1.segment<2>(xyId_);
+  qEnd.segment<2>(rzId_) = q1.segment<2>(rzId_);
+  // Do not take into account wheel joints in additional distance.
+  for (std::vector<JointPtr_t>::const_iterator it = wheels_.begin();
+       it != wheels_.end(); ++it) {
+    size_type i = (*it)->rankInConfiguration();
+    qEnd[i] = q1[i];
+  }
+  // The length corresponding to the non RS DoF
+  DistancePtr_t d(problem()->distance());
+  value_type extraL = (*d)(q1, qEnd);
+  DubinsPathPtr_t path =
+      DubinsPath::create(device_.lock(), q1, q2, extraL, rho_, xyId_, rzId_,
+                         wheels_, constraints());
+  return path;
+}
 
-      Dubins::Dubins (const ProblemConstPtr_t& problem) :
-        CarLike (problem), weak_ ()
-      {
-      }
+Dubins::Dubins(const ProblemConstPtr_t& problem) : CarLike(problem), weak_() {}
 
-      Dubins::Dubins  (const ProblemConstPtr_t& problem,
-          const value_type turningRadius,
-          JointPtr_t xyJoint, JointPtr_t rzJoint,
-          std::vector <JointPtr_t> wheels) :
-	CarLike (problem, turningRadius, xyJoint, rzJoint, wheels)
-      {
-      }
+Dubins::Dubins(const ProblemConstPtr_t& problem, const value_type turningRadius,
+               JointPtr_t xyJoint, JointPtr_t rzJoint,
+               std::vector<JointPtr_t> wheels)
+    : CarLike(problem, turningRadius, xyJoint, rzJoint, wheels) {}
 
-      /// Copy constructor
-      Dubins::Dubins  (const Dubins& other) :
-        CarLike (other)
-      {
-      }
+/// Copy constructor
+Dubins::Dubins(const Dubins& other) : CarLike(other) {}
 
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp

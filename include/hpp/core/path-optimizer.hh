@@ -28,80 +28,75 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_OPTIMIZER_HH
-# define HPP_CORE_PATH_OPTIMIZER_HH
+#define HPP_CORE_PATH_OPTIMIZER_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
-
-# include <boost/date_time/posix_time/ptime.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_optimization
-    /// \{
+namespace core {
+/// \addtogroup path_optimization
+/// \{
 
-    /// Abstraction of path optimizer
-    ///
-    class HPP_CORE_DLLAPI PathOptimizer
-    {
-    public:
-      virtual ~PathOptimizer () {};
+/// Abstraction of path optimizer
+///
+class HPP_CORE_DLLAPI PathOptimizer {
+ public:
+  virtual ~PathOptimizer(){};
 
-      /// Get problem
-      ProblemConstPtr_t problem () const
-      {
-	return problem_;
-      }
+  /// Get problem
+  ProblemConstPtr_t problem() const { return problem_; }
 
-      /// Optimize path
-      virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path) = 0;
+  /// Optimize path
+  virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path) = 0;
 
-      /// Interrupt path optimization
-      void interrupt () { interrupt_ = true; }
-      /// Set maximal number of iterations
-      void maxIterations (const unsigned long int& n);
-      /// set time out (in seconds)
-      void timeOut(const double& timeOut);
+  /// Interrupt path optimization
+  void interrupt() { interrupt_ = true; }
+  /// Set maximal number of iterations
+  void maxIterations(const unsigned long int& n);
+  /// set time out (in seconds)
+  void timeOut(const double& timeOut);
 
-    protected:
-      /// Whether to interrupt computation
-      /// Set to false at start of optimize method, set to true by method
-      /// interrupt.
-      bool interrupt_;
+ protected:
+  /// Whether to interrupt computation
+  /// Set to false at start of optimize method, set to true by method
+  /// interrupt.
+  bool interrupt_;
 
-      PathOptimizer (const ProblemConstPtr_t& problem);
+  PathOptimizer(const ProblemConstPtr_t& problem);
 
-      PathPtr_t steer (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+  PathPtr_t steer(ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
-      void monitorExecution();
+  void monitorExecution();
 
-      void endIteration() { ++monitor_.iteration; }
+  void endIteration() { ++monitor_.iteration; }
 
-      bool shouldStop() const;
+  bool shouldStop() const;
 
-      void initFromParameters ();
+  void initFromParameters();
 
-    private:
-      ProblemConstPtr_t problem_;
+ private:
+  ProblemConstPtr_t problem_;
 
-      /// Maximal number of iterations to solve a problem
-      /// reaching this bound raises an exception.
-      size_type maxIterations_;
-      /// Time out (in seconds) before interrupting the planning
-      double timeOut_;
+  /// Maximal number of iterations to solve a problem
+  /// reaching this bound raises an exception.
+  size_type maxIterations_;
+  /// Time out (in seconds) before interrupting the planning
+  double timeOut_;
 
-      /// Information used to monitor the execution of the algorithm.
-      /// This information is:
-      /// \li initialized by \ref monitorExecution
-      /// \li updated by \ref endIteration
-      /// \li read by \ref shouldStop
-      struct {
-        bool enabled;
-        size_type iteration;
-        boost::posix_time::ptime timeStart;
-      } monitor_;
-    }; // class PathOptimizer;
-    /// }
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_OPTIMIZER_HH
+  /// Information used to monitor the execution of the algorithm.
+  /// This information is:
+  /// \li initialized by \ref monitorExecution
+  /// \li updated by \ref endIteration
+  /// \li read by \ref shouldStop
+  struct {
+    bool enabled;
+    size_type iteration;
+    boost::posix_time::ptime timeStart;
+  } monitor_;
+};  // class PathOptimizer;
+/// }
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_OPTIMIZER_HH

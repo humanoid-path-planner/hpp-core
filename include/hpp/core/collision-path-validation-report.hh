@@ -28,34 +28,30 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
-# define HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
+#define HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
 
-# include <hpp/core/path-validation-report.hh>
-# include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/collision-validation-report.hh>
+#include <hpp/core/path-validation-report.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup validation
-    /// \{
+namespace core {
+/// \addtogroup validation
+/// \{
 
-    /// Path validation report used for standard collision checking
-    struct HPP_CORE_DLLAPI CollisionPathValidationReport :
-      public PathValidationReport
-    {
-    CollisionPathValidationReport()
-    : PathValidationReport()
-      {
-	configurationReport = 
-	  CollisionValidationReportPtr_t (new CollisionValidationReport);
-      }
+/// Path validation report used for standard collision checking
+struct HPP_CORE_DLLAPI CollisionPathValidationReport
+    : public PathValidationReport {
+  CollisionPathValidationReport() : PathValidationReport() {
+    configurationReport =
+        CollisionValidationReportPtr_t(new CollisionValidationReport);
+  }
 
-      CollisionPathValidationReport (const value_type& param,
-				     const ValidationReportPtr_t& report) :
-	PathValidationReport (param, report)
-      {}
-    }; // struct CollisionPathValidationReport
-    /// \}
-  } // namespace core
-} // namespace hpp
+  CollisionPathValidationReport(const value_type& param,
+                                const ValidationReportPtr_t& report)
+      : PathValidationReport(param, report) {}
+};  // struct CollisionPathValidationReport
+/// \}
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH
+#endif  // HPP_CORE_COLLISION_PATH_VALIDATION_REPORT_HH

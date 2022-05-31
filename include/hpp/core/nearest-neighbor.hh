@@ -28,85 +28,77 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_NEAREST_NEIGHBOR_HH
-# define HPP_CORE_NEAREST_NEIGHBOR_HH
+#define HPP_CORE_NEAREST_NEIGHBOR_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/util/serialization-fwd.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/util/serialization-fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// Optimization of the nearest neighbor search
-    class NearestNeighbor
-    {
-    public:
-      virtual void clear () = 0;
-      virtual void addNode (const NodePtr_t& node) = 0;
+namespace core {
+/// Optimization of the nearest neighbor search
+class NearestNeighbor {
+ public:
+  virtual void clear() = 0;
+  virtual void addNode(const NodePtr_t& node) = 0;
 
-      /**
-       * @brief search Return the closest node of the given configuration
-       * @param configuration
-       * @param connectedComponent
-       * @param distance
-       * @param reverse if true, compute distance from given configuration to nodes in roadmap,
-       *  if false from nodes in roadmap to given configuration
-       * @return
-       */
-      virtual NodePtr_t search (const Configuration_t& configuration,
-			       const ConnectedComponentPtr_t&
-				connectedComponent,
-             value_type& distance,bool reverse = false) = 0;
+  /**
+   * @brief search Return the closest node of the given configuration
+   * @param configuration
+   * @param connectedComponent
+   * @param distance
+   * @param reverse if true, compute distance from given configuration to nodes
+   * in roadmap, if false from nodes in roadmap to given configuration
+   * @return
+   */
+  virtual NodePtr_t search(const Configuration_t& configuration,
+                           const ConnectedComponentPtr_t& connectedComponent,
+                           value_type& distance, bool reverse = false) = 0;
 
+  virtual NodePtr_t search(const NodePtr_t& node,
+                           const ConnectedComponentPtr_t& connectedComponent,
+                           value_type& distance) = 0;
 
-      virtual NodePtr_t search (const NodePtr_t& node,
-			       const ConnectedComponentPtr_t&
-				connectedComponent,
-			       value_type& distance) = 0;
+  /// \param[out] distance to the Kth closest neighbor
+  /// \return the K nearest neighbors
+  virtual Nodes_t KnearestSearch(
+      const Configuration_t& configuration,
+      const ConnectedComponentPtr_t& connectedComponent, const std::size_t K,
+      value_type& distance) = 0;
 
-      /// \param[out] distance to the Kth closest neighbor
-      /// \return the K nearest neighbors
-      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
-			              const ConnectedComponentPtr_t&
-                                        connectedComponent,
-                                      const std::size_t K,
-			              value_type& distance) = 0;
+  /// \param[out] distance to the Kth closest neighbor
+  /// \return the K nearest neighbors
+  virtual Nodes_t KnearestSearch(
+      const NodePtr_t& node, const ConnectedComponentPtr_t& connectedComponent,
+      const std::size_t K, value_type& distance) = 0;
 
-      /// \param[out] distance to the Kth closest neighbor
-      /// \return the K nearest neighbors
-      virtual Nodes_t KnearestSearch (const NodePtr_t& node,
-			              const ConnectedComponentPtr_t&
-                                        connectedComponent,
-                                      const std::size_t K,
-			              value_type& distance) = 0;
+  /// Return the K nearest nodes in the whole roadmap
+  /// \param configuration, the configuration to which distance is computed,
+  /// \param K the number of nearest neighbors to return
+  /// \retval distance to the Kth closest neighbor
+  /// \return the K nearest neighbors
+  virtual Nodes_t KnearestSearch(const Configuration_t& configuration,
+                                 const RoadmapPtr_t& roadmap,
+                                 const std::size_t K, value_type& distance) = 0;
 
-      /// Return the K nearest nodes in the whole roadmap
-      /// \param configuration, the configuration to which distance is computed,
-      /// \param K the number of nearest neighbors to return
-      /// \retval distance to the Kth closest neighbor
-      /// \return the K nearest neighbors
-      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
-                                      const RoadmapPtr_t& roadmap,
-                                      const std::size_t K,
-			              value_type& distance) = 0;
+  /// \return all the nodes closer than \c maxDistance to \c configuration
+  /// within \c connectedComponent.
+  virtual NodeVector_t withinBall(const Configuration_t& configuration,
+                                  const ConnectedComponentPtr_t& cc,
+                                  value_type maxDistance) = 0;
 
-      /// \return all the nodes closer than \c maxDistance to \c configuration
-      /// within \c connectedComponent.
-      virtual NodeVector_t withinBall (const Configuration_t& configuration,
-			               const ConnectedComponentPtr_t& cc,
-			               value_type maxDistance) = 0;
+  // merge two connected components in the whole tree
+  virtual void merge(ConnectedComponentPtr_t cc1,
+                     ConnectedComponentPtr_t cc2) = 0;
 
-      // merge two connected components in the whole tree
-      virtual void merge (ConnectedComponentPtr_t cc1,
-			  ConnectedComponentPtr_t cc2) = 0;
+  // Get distance function
+  virtual DistancePtr_t distance() const = 0;
 
-      // Get distance function
-      virtual DistancePtr_t distance () const = 0;
+  virtual ~NearestNeighbor(){};
 
-      virtual ~NearestNeighbor () {};
+ private:
+  HPP_SERIALIZABLE();
+};  // class NearestNeighbor
+}  // namespace core
+}  // namespace hpp
 
-    private:
-      HPP_SERIALIZABLE();
-    }; // class NearestNeighbor
-  } // namespace core
-} // namespace hpp
-
-#endif // HPP_CORE_NEAREST_NEIGHBOR_HH
+#endif  // HPP_CORE_NEAREST_NEIGHBOR_HH

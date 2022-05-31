@@ -28,90 +28,69 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH
-# define HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH
+#define HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH
 
-# include <hpp/core/fwd.hh>
-# include <hpp/core/nearest-neighbor.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/nearest-neighbor.hh>
 
 namespace hpp {
-  namespace core {
-    namespace nearestNeighbor {
-    /// Optimization of the nearest neighbor search
-    class Basic : public NearestNeighbor
-    {
-    public:
+namespace core {
+namespace nearestNeighbor {
+/// Optimization of the nearest neighbor search
+class Basic : public NearestNeighbor {
+ public:
+  Basic(const DistancePtr_t& distance) : distance_(distance) {}
 
-      Basic(const DistancePtr_t& distance) : distance_ (distance)
-      {
-      }
+  ~Basic() {}
 
-      ~Basic()
-      {
-      }
+  virtual void clear() {}
 
-      virtual void clear ()
-      {
-      }
+  void addNode(const NodePtr_t&) {}
 
-      void addNode (const NodePtr_t&)
-      {
-      }
+  virtual NodePtr_t search(const NodePtr_t& node,
+                           const ConnectedComponentPtr_t& connectedComponent,
+                           value_type& distance);
 
-      virtual NodePtr_t search (const NodePtr_t& node,
-             const ConnectedComponentPtr_t&
-        connectedComponent,
-             value_type& distance);
+  virtual NodePtr_t search(const Configuration_t& configuration,
+                           const ConnectedComponentPtr_t& connectedComponent,
+                           value_type& distance, bool reverse = false);
 
-      virtual NodePtr_t search (const Configuration_t& configuration,
-			       const ConnectedComponentPtr_t&
-				connectedComponent,
-             value_type& distance, bool reverse = false);
+  virtual Nodes_t KnearestSearch(
+      const Configuration_t& configuration,
+      const ConnectedComponentPtr_t& connectedComponent, const std::size_t K,
+      value_type& distance);
 
-      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
-                                      const ConnectedComponentPtr_t&
-                                        connectedComponent,
-                                      const std::size_t K,
-                                      value_type& distance);
+  virtual Nodes_t KnearestSearch(
+      const NodePtr_t& node, const ConnectedComponentPtr_t& connectedComponent,
+      const std::size_t K, value_type& distance);
 
-      virtual Nodes_t KnearestSearch (const NodePtr_t& node,
-                                      const ConnectedComponentPtr_t&
-                                        connectedComponent,
-                                      const std::size_t K,
-                                      value_type& distance);
+  /// Return the K nearest nodes in the whole roadmap
+  /// \param configuration, the configuration to which distance is computed,
+  /// \param roadmap in which nodes are searched,
+  /// \param K the number of nearest neighbors to return
+  /// \retval distance to the Kth closest neighbor
+  /// \return the K nearest neighbors
+  virtual Nodes_t KnearestSearch(const Configuration_t& configuration,
+                                 const RoadmapPtr_t& roadmap,
+                                 const std::size_t K, value_type& distance);
 
-      /// Return the K nearest nodes in the whole roadmap
-      /// \param configuration, the configuration to which distance is computed,
-      /// \param roadmap in which nodes are searched,
-      /// \param K the number of nearest neighbors to return
-      /// \retval distance to the Kth closest neighbor
-      /// \return the K nearest neighbors
-      virtual Nodes_t KnearestSearch (const Configuration_t& configuration,
-                                      const RoadmapPtr_t& roadmap,
-                                      const std::size_t K,
-			              value_type& distance);
+  NodeVector_t withinBall(const Configuration_t& configuration,
+                          const ConnectedComponentPtr_t& cc,
+                          value_type maxDistance);
 
-      NodeVector_t withinBall (const Configuration_t& configuration,
-                               const ConnectedComponentPtr_t& cc,
-                               value_type maxDistance);
+  virtual void merge(ConnectedComponentPtr_t, ConnectedComponentPtr_t) {}
 
-      virtual void merge (ConnectedComponentPtr_t, ConnectedComponentPtr_t)
-      {
-      }
+  // Get distance function
+  virtual DistancePtr_t distance() const { return distance_; }
 
-      // Get distance function
-      virtual DistancePtr_t distance () const
-      {
-	return distance_;
-      }
+ private:
+  const DistancePtr_t distance_;
 
-    private:
-      const DistancePtr_t distance_;
+  Basic() {}
+  HPP_SERIALIZABLE();
+};  // class Basic
+}  // namespace nearestNeighbor
+}  // namespace core
+}  // namespace hpp
 
-      Basic() {}
-      HPP_SERIALIZABLE();
-    }; // class Basic
-    } // namespace nearestNeighbor
-  } // namespace core
-} // namespace hpp
-
-#endif // HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH
+#endif  // HPP_CORE_NEAREST_NEIGHBOR_BASIC_HH

@@ -32,24 +32,23 @@
 #include <exception>
 
 namespace hpp {
-  namespace core {
-    struct HPP_CORE_DLLAPI path_planning_failed : public std::exception
-    {
-      path_planning_failed () : msg_ () {}
+namespace core {
+struct HPP_CORE_DLLAPI path_planning_failed : public std::exception {
+  path_planning_failed() : msg_() {}
 
-      path_planning_failed (const std::string& msg) : msg_ (msg) {}
+  path_planning_failed(const std::string& msg) : msg_(msg) {}
 
-      path_planning_failed (const path_planning_failed& other)
-        : std::exception (other), msg_ (other.msg_) {}
+  path_planning_failed(const path_planning_failed& other)
+      : std::exception(other), msg_(other.msg_) {}
 
-      virtual ~path_planning_failed () _GLIBCXX_USE_NOEXCEPT {};
+  virtual ~path_planning_failed() _GLIBCXX_USE_NOEXCEPT{};
 
-      virtual const char* what () const noexcept { return msg_.c_str (); };
+  virtual const char* what() const noexcept { return msg_.c_str(); };
 
-      std::string msg_;
-    };
+  std::string msg_;
+};
 
-  } // namespace core
-} // namespace hpp
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PATH_PLANNING_FAILED_HH
+#endif  // HPP_CORE_PATH_PLANNING_FAILED_HH

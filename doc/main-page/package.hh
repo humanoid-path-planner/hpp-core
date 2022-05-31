@@ -93,39 +93,39 @@
    <table cellspacing="20">
       <tbody><tr>
           <td>  <h4>Constraint
-    	</h4>
+        </h4>
           </td>
           <td><h4>ConstraintSet</h4>
           </td>
         </tr>
         <tr>
           <td>    addToSet (set):<br>
-    	&nbsp set.push_back (self)<br><br>
-    	addLockedJoint (lockedDof):<br>
-    	&nbsp pass</td>
+        &nbsp set.push_back (self)<br><br>
+        addLockedJoint (lockedDof):<br>
+        &nbsp pass</td>
           <td>addToSet (set):<br>
-    	&nbsp for c in constraints_:<br>
-    	&nbsp &nbsp c.addToSet (set)<br><br>
-    	addLockedJoint (ld):<br>
-    	&nbsp for c in constraints_:<br>
-    	&nbsp &nbsp c.addLockedJoint (ld) <br><br>
-    	addConstraint (c):<br>
-    	&nbsp c.addToSet (self)</td>
+        &nbsp for c in constraints_:<br>
+        &nbsp &nbsp c.addToSet (set)<br><br>
+        addLockedJoint (ld):<br>
+        &nbsp for c in constraints_:<br>
+        &nbsp &nbsp c.addLockedJoint (ld) <br><br>
+        addConstraint (c):<br>
+        &nbsp c.addToSet (self)</td>
         </tr>
         <tr>		<td><h4>ConfigProjector
-    	</h4>
-    	addToSet (set):<br>
-    	&nbsp if set.configProjector_:<br>
-    	&nbsp &nbsp throw <br>
-    	&nbsp if set.lockedDof_:<br>
-    	&nbsp &nbsp throw <br>
-    	&nbsp set.removeConfigProjector ()<br>
-    	&nbsp set.configProjector_ = self<br>
-    	&nbsp Constraint::addToSet (set)</td>
+        </h4>
+        addToSet (set):<br>
+        &nbsp if set.configProjector_:<br>
+        &nbsp &nbsp throw <br>
+        &nbsp if set.lockedDof_:<br>
+        &nbsp &nbsp throw <br>
+        &nbsp set.removeConfigProjector ()<br>
+        &nbsp set.configProjector_ = self<br>
+        &nbsp Constraint::addToSet (set)</td>
           <td><h4>LockedJoint</h4>
-    	addToSet (set):<br>
-    	&nbsp set.lockedJoint_ = true <br>
-    	&nbsp set.addLockedJoint (self)</td>
+        addToSet (set):<br>
+        &nbsp set.lockedJoint_ = true <br>
+        &nbsp set.addLockedJoint (self)</td>
         </tr>
       </tbody>
     </table>

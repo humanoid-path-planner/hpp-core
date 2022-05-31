@@ -28,40 +28,36 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH
-# define HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH
+#define HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH
 
-# include <hpp/core/fwd.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// Computation of distances between pairs of objects
-    class DistanceBetweenObjects
-    {
-    public:
-      DistanceBetweenObjects (const DevicePtr_t& robot);
-      /// Add an obstacle
-      /// \param object obstacle to add
-      /// Create distance computation pairs for each body of the robot
-      void addObstacle (const CollisionObjectConstPtr_t &object);
-      /// Add a list of obstacles
-      void obstacles (const ObjectStdVector_t &obstacles);
-      /// Compute distances between pairs of objects stored in bodies
-      void computeDistances ();
-      /// Get collision pairs
-      const CollisionPairs_t&
-	collisionPairs () const {return collisionPairs_;};
-      /// Get result of distance computations
-      const DistanceResults_t&
-	distanceResults () const {return distanceResults_;};
-      /// \}
+namespace core {
+/// Computation of distances between pairs of objects
+class DistanceBetweenObjects {
+ public:
+  DistanceBetweenObjects(const DevicePtr_t& robot);
+  /// Add an obstacle
+  /// \param object obstacle to add
+  /// Create distance computation pairs for each body of the robot
+  void addObstacle(const CollisionObjectConstPtr_t& object);
+  /// Add a list of obstacles
+  void obstacles(const ObjectStdVector_t& obstacles);
+  /// Compute distances between pairs of objects stored in bodies
+  void computeDistances();
+  /// Get collision pairs
+  const CollisionPairs_t& collisionPairs() const { return collisionPairs_; };
+  /// Get result of distance computations
+  const DistanceResults_t& distanceResults() const { return distanceResults_; };
+  /// \}
 
+ private:
+  DevicePtr_t robot_;
+  CollisionPairs_t collisionPairs_;
+  DistanceResults_t distanceResults_;
+};
+}  // namespace core
+}  // namespace hpp
 
-    private:
-      DevicePtr_t robot_;
-      CollisionPairs_t collisionPairs_;
-      DistanceResults_t distanceResults_;
-    };
-  } // namespace core
-} // namespace hpp
-
-#endif // HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH
+#endif  // HPP_CORE_DISTANCE_BETWEEN_OBJECTS_HH

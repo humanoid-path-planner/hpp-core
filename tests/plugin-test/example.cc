@@ -27,25 +27,21 @@
 // DAMAGE.
 
 #include <hpp/core/plugin.hh>
-
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/weighed-distance.hh>
 
 namespace foo {
-  class ExamplePlugin : public hpp::core::ProblemSolverPlugin
-  {
-    public:
-      ExamplePlugin ()
-        : ProblemSolverPlugin ("ExamplePlugin", "0.0")
-      {}
+class ExamplePlugin : public hpp::core::ProblemSolverPlugin {
+ public:
+  ExamplePlugin() : ProblemSolverPlugin("ExamplePlugin", "0.0") {}
 
-    protected:
-      virtual bool impl_initialize (hpp::core::ProblemSolverPtr_t ps)
-      {
-        ps->distances.add ("WeighedDuplicate", hpp::core::WeighedDistance::createFromProblem);
-        return true;
-      }
-  };
-}
+ protected:
+  virtual bool impl_initialize(hpp::core::ProblemSolverPtr_t ps) {
+    ps->distances.add("WeighedDuplicate",
+                      hpp::core::WeighedDistance::createFromProblem);
+    return true;
+  }
+};
+}  // namespace foo
 
 HPP_CORE_DEFINE_PLUGIN(foo::ExamplePlugin)

@@ -28,55 +28,50 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_CONFIGURATION_SHOOTER_HH
-# define HPP_CORE_CONFIGURATION_SHOOTER_HH
+#define HPP_CORE_CONFIGURATION_SHOOTER_HH
 
-# include <hpp/core/config.hh>
-# include <hpp/core/fwd.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup configuration_sampling
-    /// \{
+namespace core {
+/// \addtogroup configuration_sampling
+/// \{
 
-    /// Abstraction of configuration shooter
-    ///
-    /// Configuration shooters are used by random sampling algorithms to
-    /// generate new configurations
-    class HPP_CORE_DLLAPI ConfigurationShooter
-    {
-    public:
-      /// Shoot a random configuration
-      virtual ConfigurationPtr_t shoot () const
-      {
-        ConfigurationPtr_t q (new Configuration_t);
-        shoot (*q);
-        return q;
-      }
+/// Abstraction of configuration shooter
+///
+/// Configuration shooters are used by random sampling algorithms to
+/// generate new configurations
+class HPP_CORE_DLLAPI ConfigurationShooter {
+ public:
+  /// Shoot a random configuration
+  virtual ConfigurationPtr_t shoot() const {
+    ConfigurationPtr_t q(new Configuration_t);
+    shoot(*q);
+    return q;
+  }
 
-      /// Shoot a random configuration
-      /// \param q the configuration (resized if necessary).
-      ///
-      /// \deprecated This method is virtual for backward compatibility. It will
-      /// become non-virtual in the future. Child classes should rather implement
-      /// \ref impl_shoot so that both prototype of method shoot remain available.
-      virtual void shoot (Configuration_t& q) const { impl_shoot(q); }
+  /// Shoot a random configuration
+  /// \param q the configuration (resized if necessary).
+  ///
+  /// \deprecated This method is virtual for backward compatibility. It will
+  /// become non-virtual in the future. Child classes should rather implement
+  /// \ref impl_shoot so that both prototype of method shoot remain available.
+  virtual void shoot(Configuration_t& q) const { impl_shoot(q); }
 
-      virtual ~ConfigurationShooter () {};
-    protected:
-      ConfigurationShooter ()
-    {
-    }
-      /// Store weak pointer to itself
-      void init (const ConfigurationShooterWkPtr_t& weak)
-    {
-  weakPtr_ = weak;
-    }
+  virtual ~ConfigurationShooter(){};
 
-      virtual void impl_shoot (Configuration_t& q) const = 0;
-    private:
-      ConfigurationShooterWkPtr_t weakPtr_;
-    }; // class
-  } //   namespace core
-  /// \}
-} // namespace hpp
-#endif // HPP_CORE_CONFIGURATION_SHOOTER_HH
+ protected:
+  ConfigurationShooter() {}
+  /// Store weak pointer to itself
+  void init(const ConfigurationShooterWkPtr_t& weak) { weakPtr_ = weak; }
+
+  virtual void impl_shoot(Configuration_t& q) const = 0;
+
+ private:
+  ConfigurationShooterWkPtr_t weakPtr_;
+};  // class
+}  //   namespace core
+/// \}
+}  // namespace hpp
+#endif  // HPP_CORE_CONFIGURATION_SHOOTER_HH

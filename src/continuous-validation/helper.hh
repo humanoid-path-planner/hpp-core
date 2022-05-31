@@ -27,41 +27,37 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <iterator>
 #include <hpp/core/fwd.hh>
+#include <iterator>
 
 namespace hpp {
-  namespace core {
-    namespace continuousValidation {
-      inline const value_type& first  (const interval_t& I, bool reverse)
-      {
-        return reverse ? I.second : I.first;
-      }
-      inline const value_type& second (const interval_t& I, bool reverse)
-      {
-        return first(I, !reverse);
-      }
+namespace core {
+namespace continuousValidation {
+inline const value_type& first(const interval_t& I, bool reverse) {
+  return reverse ? I.second : I.first;
+}
+inline const value_type& second(const interval_t& I, bool reverse) {
+  return first(I, !reverse);
+}
 
-      inline const interval_t& begin (const std::list<interval_t>& I, bool reverse)
-      {
-        return reverse ? I.back() : I.front();
-      }
-      inline const interval_t& end   (const std::list<interval_t>& I, bool reverse)
-      {
-        return begin(I, !reverse);
-      }
-      inline const interval_t& Nth (const std::list<interval_t>& I, int N, bool reverse)
-      {
-        if (reverse) {
-          std::list<interval_t>::const_reverse_iterator it (I.rbegin());
-          std::advance(it, N);
-          return *it;
-        } else {
-          std::list<interval_t>::const_iterator         it (I. begin());
-          std::advance(it, N);
-          return *it;
-        }
-      }
-    } // namespace continuousValidation
-  } // namespace core
-} // namespace hpp
+inline const interval_t& begin(const std::list<interval_t>& I, bool reverse) {
+  return reverse ? I.back() : I.front();
+}
+inline const interval_t& end(const std::list<interval_t>& I, bool reverse) {
+  return begin(I, !reverse);
+}
+inline const interval_t& Nth(const std::list<interval_t>& I, int N,
+                             bool reverse) {
+  if (reverse) {
+    std::list<interval_t>::const_reverse_iterator it(I.rbegin());
+    std::advance(it, N);
+    return *it;
+  } else {
+    std::list<interval_t>::const_iterator it(I.begin());
+    std::advance(it, N);
+    return *it;
+  }
+}
+}  // namespace continuousValidation
+}  // namespace core
+}  // namespace hpp

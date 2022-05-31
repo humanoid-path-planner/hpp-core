@@ -28,70 +28,65 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_WEIGHED_DISTANCE_HH
-# define HPP_CORE_WEIGHED_DISTANCE_HH
+#define HPP_CORE_WEIGHED_DISTANCE_HH
 
-# include <hpp/core/distance.hh>
+#include <hpp/core/distance.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup steering_method
-    /// \{
+namespace core {
+/// \addtogroup steering_method
+/// \{
 
-    /// Weighed distance between configurations
-    ///
-    /// Euclidean distance between configurations seen as vectors.
-    /// Each degree of freedom is weighed by a positive value.
-    class HPP_CORE_DLLAPI WeighedDistance : public Distance {
-    public:
-      static WeighedDistancePtr_t createFromProblem
-	(const ProblemConstPtr_t& problem);
-      static WeighedDistancePtr_t create (const DevicePtr_t& robot);
-      static WeighedDistancePtr_t
-        createWithWeight (const DevicePtr_t& robot, const vector_t& weights);
-      static WeighedDistancePtr_t createCopy
-	(const WeighedDistancePtr_t& distance);
-      virtual DistancePtr_t clone () const;
-      /// Get weight of joint at given rank
-      /// \param rank rank of the joint in robot joint vector
-      value_type getWeight( size_type rank ) const;
-      /// Set weight of joint at given rank
-      /// \param rank rank of the joint in robot joint vector
-      void setWeight(size_type rank, value_type weight);
-      /// Get weights
-      const vector_t& weights() const;
-      /// Set weights
-      void weights(const vector_t& ws);
-      /// Get size of weight vector
-      size_type size () const
-      {
-	return weights_.size ();
-      }
+/// Weighed distance between configurations
+///
+/// Euclidean distance between configurations seen as vectors.
+/// Each degree of freedom is weighed by a positive value.
+class HPP_CORE_DLLAPI WeighedDistance : public Distance {
+ public:
+  static WeighedDistancePtr_t createFromProblem(
+      const ProblemConstPtr_t& problem);
+  static WeighedDistancePtr_t create(const DevicePtr_t& robot);
+  static WeighedDistancePtr_t createWithWeight(const DevicePtr_t& robot,
+                                               const vector_t& weights);
+  static WeighedDistancePtr_t createCopy(const WeighedDistancePtr_t& distance);
+  virtual DistancePtr_t clone() const;
+  /// Get weight of joint at given rank
+  /// \param rank rank of the joint in robot joint vector
+  value_type getWeight(size_type rank) const;
+  /// Set weight of joint at given rank
+  /// \param rank rank of the joint in robot joint vector
+  void setWeight(size_type rank, value_type weight);
+  /// Get weights
+  const vector_t& weights() const;
+  /// Set weights
+  void weights(const vector_t& ws);
+  /// Get size of weight vector
+  size_type size() const { return weights_.size(); }
 
-      /// Get robot
-      const DevicePtr_t& robot () const
-      {
-	return robot_;
-      }
-    protected:
-      WeighedDistance (const ProblemConstPtr_t& problem);
-      WeighedDistance (const DevicePtr_t& robot);
-      WeighedDistance (const DevicePtr_t& robot, const vector_t& weights);
-      WeighedDistance (const WeighedDistance& distance);
-      void init (WeighedDistanceWkPtr_t self);
-      /// Derived class should implement this function
-      virtual value_type impl_distance (ConfigurationIn_t q1,
-				    ConfigurationIn_t q2) const;
-      /// For serialization only.
-      WeighedDistance() {}
-    private:
-      void computeWeights ();
-      DevicePtr_t robot_;
-      vector_t weights_;
-      WeighedDistanceWkPtr_t weak_;
+  /// Get robot
+  const DevicePtr_t& robot() const { return robot_; }
 
-      HPP_SERIALIZABLE();
-    }; // class WeighedDistance
-    /// \}
-  } //   namespace core
-} // namespace hpp
-#endif // HPP_CORE_WEIGHED_DISTANCE_HH
+ protected:
+  WeighedDistance(const ProblemConstPtr_t& problem);
+  WeighedDistance(const DevicePtr_t& robot);
+  WeighedDistance(const DevicePtr_t& robot, const vector_t& weights);
+  WeighedDistance(const WeighedDistance& distance);
+  void init(WeighedDistanceWkPtr_t self);
+  /// Derived class should implement this function
+  virtual value_type impl_distance(ConfigurationIn_t q1,
+                                   ConfigurationIn_t q2) const;
+  /// For serialization only.
+  WeighedDistance() {}
+
+ private:
+  void computeWeights();
+  DevicePtr_t robot_;
+  vector_t weights_;
+  WeighedDistanceWkPtr_t weak_;
+
+  HPP_SERIALIZABLE();
+};  // class WeighedDistance
+/// \}
+}  //   namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_WEIGHED_DISTANCE_HH

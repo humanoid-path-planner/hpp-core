@@ -28,49 +28,50 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_BIRRT_PLANNER_HH
-# define HPP_CORE_BIRRT_PLANNER_HH
+#define HPP_CORE_BIRRT_PLANNER_HH
 
-# include <hpp/core/path-planner.hh>
+#include <hpp/core/path-planner.hh>
 
 namespace hpp {
-  namespace core {
-    /// \addtogroup path_planning
-    /// \{
+namespace core {
+/// \addtogroup path_planning
+/// \{
 
-    /// Implementation of directional bi-RRT algorithm
-    /// maintaining only two connected components for
-    /// respectively the start and goal configurations
-    class HPP_CORE_DLLAPI BiRRTPlanner : public PathPlanner
-    {
-    public:
-      /// Return shared pointer to new object.
-      static BiRRTPlannerPtr_t createWithRoadmap
-	(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
-      /// Return shared pointer to new object.
-      static BiRRTPlannerPtr_t create (const ProblemConstPtr_t& problem);
-      /// One step of extension.
-      virtual void startSolve();
-      /// One step of extension.
-      virtual void oneStep ();
-    protected:
-      /// Constructor
-      BiRRTPlanner (const ProblemConstPtr_t& problem,
-		    const RoadmapPtr_t& roadmap);
-      /// Constructor with roadmap
-      BiRRTPlanner (const ProblemConstPtr_t& problem);
-      /// Store weak pointer to itself
-      void init (const BiRRTPlannerWkPtr_t& weak);
-      PathPtr_t extendInternal (const SteeringMethodPtr_t& sm, Configuration_t& qProj_, const NodePtr_t& near,
-                      const Configuration_t& target, bool reverse=false);
+/// Implementation of directional bi-RRT algorithm
+/// maintaining only two connected components for
+/// respectively the start and goal configurations
+class HPP_CORE_DLLAPI BiRRTPlanner : public PathPlanner {
+ public:
+  /// Return shared pointer to new object.
+  static BiRRTPlannerPtr_t createWithRoadmap(const ProblemConstPtr_t& problem,
+                                             const RoadmapPtr_t& roadmap);
+  /// Return shared pointer to new object.
+  static BiRRTPlannerPtr_t create(const ProblemConstPtr_t& problem);
+  /// One step of extension.
+  virtual void startSolve();
+  /// One step of extension.
+  virtual void oneStep();
 
-      ConfigurationShooterPtr_t configurationShooter_;
-      ConnectedComponentPtr_t startComponent_;
-      std::vector<ConnectedComponentPtr_t> endComponents_;
-    private:
-      mutable Configuration_t qProj_;
-      BiRRTPlannerWkPtr_t weakPtr_;
-    };
-    /// \}
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_BIRRT_PLANNER_HH
+ protected:
+  /// Constructor
+  BiRRTPlanner(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap);
+  /// Constructor with roadmap
+  BiRRTPlanner(const ProblemConstPtr_t& problem);
+  /// Store weak pointer to itself
+  void init(const BiRRTPlannerWkPtr_t& weak);
+  PathPtr_t extendInternal(const SteeringMethodPtr_t& sm,
+                           Configuration_t& qProj_, const NodePtr_t& near,
+                           const Configuration_t& target, bool reverse = false);
+
+  ConfigurationShooterPtr_t configurationShooter_;
+  ConnectedComponentPtr_t startComponent_;
+  std::vector<ConnectedComponentPtr_t> endComponents_;
+
+ private:
+  mutable Configuration_t qProj_;
+  BiRRTPlannerWkPtr_t weakPtr_;
+};
+/// \}
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_BIRRT_PLANNER_HH

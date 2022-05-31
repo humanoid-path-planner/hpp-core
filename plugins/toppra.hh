@@ -39,22 +39,20 @@ namespace pathOptimization {
 class TOPPRA;
 typedef shared_ptr<TOPPRA> TOPPRAPtr_t;
 
-class TOPPRA : public PathOptimizer
-{
-  public:
-    static TOPPRAPtr_t create(const ProblemConstPtr_t&p)
-    {
-      return TOPPRAPtr_t(new TOPPRA(p));
-    }
+class TOPPRA : public PathOptimizer {
+ public:
+  static TOPPRAPtr_t create(const ProblemConstPtr_t &p) {
+    return TOPPRAPtr_t(new TOPPRA(p));
+  }
 
-    PathVectorPtr_t optimize(const PathVectorPtr_t &path);
+  PathVectorPtr_t optimize(const PathVectorPtr_t &path);
 
-protected:
-    using PathOptimizer::PathOptimizer;
-}; // class TOPPRA
+ protected:
+  using PathOptimizer::PathOptimizer;
+};  // class TOPPRA
 
-} // namespace pathOptimization
-} // namespace core
-} // namespace hpp
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp
 
-#endif // HPP_CORE_PATH_OPTIMIZATION_TOPPRA_HH
+#endif  // HPP_CORE_PATH_OPTIMIZATION_TOPPRA_HH

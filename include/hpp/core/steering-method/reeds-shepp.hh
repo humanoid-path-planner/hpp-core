@@ -28,118 +28,106 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
-# define HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
+#define HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
 
-# include <hpp/util/debug.hh>
-# include <hpp/util/pointer.hh>
-
-# include <hpp/core/fwd.hh>
-# include <hpp/core/config.hh>
-# include <hpp/core/steering-method/car-like.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/steering-method/car-like.hh>
+#include <hpp/util/debug.hh>
+#include <hpp/util/pointer.hh>
 
 namespace hpp {
-  namespace core {
-    namespace steeringMethod {
-      /// \addtogroup steering_method
-      /// \{
+namespace core {
+namespace steeringMethod {
+/// \addtogroup steering_method
+/// \{
 
-      /// Steering method that creates ReedsSheppPath instances
-      ///
-      class HPP_CORE_DLLAPI ReedsShepp : public CarLike
-      {
-        public:
-          /// Create an instance
-          ///
-          /// This constructor assumes that:
-          /// - the 2 parameters of the configurations corresponds to the XY
-          ///   translation joint,
-          /// - the 2 following parameters corresponds to the RZ unbounded
-          ///   rotation joint.
-          /// Use Carlike::setWheelJoints to set the wheel joints.
-          static ReedsSheppPtr_t createWithGuess
-	    (const ProblemConstPtr_t& problem)
-          {
-            ReedsShepp* ptr = new ReedsShepp (problem);
-            ReedsSheppPtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+/// Steering method that creates ReedsSheppPath instances
+///
+class HPP_CORE_DLLAPI ReedsShepp : public CarLike {
+ public:
+  /// Create an instance
+  ///
+  /// This constructor assumes that:
+  /// - the 2 parameters of the configurations corresponds to the XY
+  ///   translation joint,
+  /// - the 2 following parameters corresponds to the RZ unbounded
+  ///   rotation joint.
+  /// Use Carlike::setWheelJoints to set the wheel joints.
+  static ReedsSheppPtr_t createWithGuess(const ProblemConstPtr_t& problem) {
+    ReedsShepp* ptr = new ReedsShepp(problem);
+    ReedsSheppPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Create an instance
-          ///
-          /// This constructor does no assumption.
-          static ReedsSheppPtr_t create (const ProblemConstPtr_t& problem,
-              const value_type turningRadius,
-              JointPtr_t xyJoint, JointPtr_t rzJoint,
-              std::vector <JointPtr_t> wheels = std::vector<JointPtr_t>())
-          {
-            ReedsShepp* ptr = new ReedsShepp (problem, turningRadius,
-                xyJoint, rzJoint, wheels);
-            ReedsSheppPtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+  /// Create an instance
+  ///
+  /// This constructor does no assumption.
+  static ReedsSheppPtr_t create(
+      const ProblemConstPtr_t& problem, const value_type turningRadius,
+      JointPtr_t xyJoint, JointPtr_t rzJoint,
+      std::vector<JointPtr_t> wheels = std::vector<JointPtr_t>()) {
+    ReedsShepp* ptr =
+        new ReedsShepp(problem, turningRadius, xyJoint, rzJoint, wheels);
+    ReedsSheppPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Copy instance and return shared pointer
-          static ReedsSheppPtr_t createCopy
-            (const ReedsSheppPtr_t& other)
-            {
-              ReedsShepp* ptr = new ReedsShepp (*other);
-              ReedsSheppPtr_t shPtr (ptr);
-              ptr->init (shPtr);
-              return shPtr;
-            }
+  /// Copy instance and return shared pointer
+  static ReedsSheppPtr_t createCopy(const ReedsSheppPtr_t& other) {
+    ReedsShepp* ptr = new ReedsShepp(*other);
+    ReedsSheppPtr_t shPtr(ptr);
+    ptr->init(shPtr);
+    return shPtr;
+  }
 
-          /// Copy instance and return shared pointer
-          virtual SteeringMethodPtr_t copy () const
-          {
-            return createCopy (weak_.lock ());
-          }
+  /// Copy instance and return shared pointer
+  virtual SteeringMethodPtr_t copy() const { return createCopy(weak_.lock()); }
 
-          /// create a path between two configurations
-          virtual PathPtr_t impl_compute (ConfigurationIn_t q1,
-              ConfigurationIn_t q2) const;
+  /// create a path between two configurations
+  virtual PathPtr_t impl_compute(ConfigurationIn_t q1,
+                                 ConfigurationIn_t q2) const;
 
-        protected:
-          /// Constructor
-          ReedsShepp (const ProblemConstPtr_t& problem);
+ protected:
+  /// Constructor
+  ReedsShepp(const ProblemConstPtr_t& problem);
 
-          /// Constructor
-          ReedsShepp (const ProblemConstPtr_t& problem,
-              const value_type turningRadius,
-              JointPtr_t xyJoint, JointPtr_t rzJoint,
-              std::vector <JointPtr_t> wheels);
+  /// Constructor
+  ReedsShepp(const ProblemConstPtr_t& problem, const value_type turningRadius,
+             JointPtr_t xyJoint, JointPtr_t rzJoint,
+             std::vector<JointPtr_t> wheels);
 
-          /// Copy constructor
-          ReedsShepp (const ReedsShepp& other);
+  /// Copy constructor
+  ReedsShepp(const ReedsShepp& other);
 
-          /// Store weak pointer to itself
-          void init (ReedsSheppWkPtr_t weak)
-          {
-            CarLike::init (weak);
-            weak_ = weak;
-          }
+  /// Store weak pointer to itself
+  void init(ReedsSheppWkPtr_t weak) {
+    CarLike::init(weak);
+    weak_ = weak;
+  }
 
-        private:
-	  WeighedDistancePtr_t weighedDistance_;
-          ReedsSheppWkPtr_t weak_;
-      }; // class ReedsShepp
+ private:
+  WeighedDistancePtr_t weighedDistance_;
+  ReedsSheppWkPtr_t weak_;
+};  // class ReedsShepp
 
-      /// Create a Reeds and Shepp path and return shared pointer
-      /// \param device Robot corresponding to configurations,
-      /// \param init, end start and end configurations of the path,
-      /// \param extraLength the length of the path due to the non RS DoF,
-      /// \param rho The radius of a turn,
-      /// \param xyId, rzId indices in configuration vector of the joints
-      ///        corresponding to the translation and rotation of the car.
-      PathVectorPtr_t reedsSheppPathOrDistance(const DevicePtr_t& device,
-        ConfigurationIn_t init, ConfigurationIn_t end,
-	value_type extraLength, value_type rho, size_type xyId, size_type rzId,
-	const std::vector<JointPtr_t> wheels, ConstraintSetPtr_t constraints,
-	bool computeDistance, value_type& distance);
+/// Create a Reeds and Shepp path and return shared pointer
+/// \param device Robot corresponding to configurations,
+/// \param init, end start and end configurations of the path,
+/// \param extraLength the length of the path due to the non RS DoF,
+/// \param rho The radius of a turn,
+/// \param xyId, rzId indices in configuration vector of the joints
+///        corresponding to the translation and rotation of the car.
+PathVectorPtr_t reedsSheppPathOrDistance(
+    const DevicePtr_t& device, ConfigurationIn_t init, ConfigurationIn_t end,
+    value_type extraLength, value_type rho, size_type xyId, size_type rzId,
+    const std::vector<JointPtr_t> wheels, ConstraintSetPtr_t constraints,
+    bool computeDistance, value_type& distance);
 
-      /// \}
-    } // namespace steeringMethod
-  } // namespace core
-} // namespace hpp
-#endif // HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
+/// \}
+}  // namespace steeringMethod
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_STEERING_METHOD_REEDS_SHEPP_HH
