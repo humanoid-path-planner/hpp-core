@@ -107,7 +107,7 @@ PathVectorPtr_t PathPlanner::solve() {
   startSolve();
   tryConnectInitAndGoals();
   // We choose to stop if a direct path solves the problem.
-  // We could also respect the stopWhenLimitReached_ attribute.
+  // We could also respect the stopWhenProblemIsSolved_ attribute.
   // It is ambiguous what should be done as it is case dependent.
   // If the intent is to build a roadmap, then we should not stop.
   // If the intent is to solve a optimal planning problem, then we should stop.
@@ -116,11 +116,11 @@ PathVectorPtr_t PathPlanner::solve() {
     hppDout(info, "tryConnectInitAndGoals succeeded");
   }
   if (interrupt_) throw path_planning_failed("Interruption");
-  while (!solved) {
+  while (!stopWhenProblemIsSolved_ || !solved) {
     // Check limits
     std::ostringstream oss;
     if (maxIterations_ != uint_infty && nIter >= maxIterations_) {
-      if (!stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap()))
+      if (!stopWhenProblemIsSolved_ && solved)
         break;
       oss << "Maximal number of iterations reached: " << maxIterations_;
       throw path_planning_failed(oss.str().c_str());
@@ -129,7 +129,7 @@ PathVectorPtr_t PathPlanner::solve() {
     value_type elapsed_ms =
         static_cast<value_type>((timeStop - timeStart).total_milliseconds());
     if (elapsed_ms > timeOut_ * 1000) {
-      if (!stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap()))
+      if (!stopWhenProblemIsSolved_ && solved)
         break;
       oss << "time out (" << timeOut_ << "s) reached after "
           << elapsed_ms * 1e-3 << "s";
@@ -144,8 +144,7 @@ PathVectorPtr_t PathPlanner::solve() {
 
     // Check if problem is solved.
     ++nIter;
-    solved =
-        stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap());
+    solved = problem()->target()->reached(roadmap());
     if (interrupt_) throw path_planning_failed("Interruption");
   }
   PathVectorPtr_t planned = computePath();
