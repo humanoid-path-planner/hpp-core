@@ -89,9 +89,13 @@ class HPP_CORE_DLLAPI ConnectedComponent {
 
   ConnectedComponentPtr_t self() { return weak_.lock(); }
 
+  bool operator <(const ConnectedComponent& rhs) const {
+     return this->current_id < rhs.current_id;
+  }
+
  protected:
   /// Constructor
-  ConnectedComponent() : nodes_(), explored_(false), weak_() {
+  ConnectedComponent() : nodes_(), explored_(false), weak_(), current_id(static_id++) {
     nodes_.reserve(1000);
   }
   void init(const ConnectedComponentPtr_t& shPtr) { weak_ = shPtr; }
@@ -108,6 +112,9 @@ class HPP_CORE_DLLAPI ConnectedComponent {
   mutable bool explored_;
   ConnectedComponentWkPtr_t weak_;
   friend class Roadmap;
+
+   static int static_id;
+   const int current_id;
 
   HPP_SERIALIZABLE();
 };  // class ConnectedComponent
