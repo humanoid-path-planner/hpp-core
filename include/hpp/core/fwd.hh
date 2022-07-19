@@ -114,7 +114,15 @@ typedef shared_ptr<ConfigProjector> ConfigProjectorPtr_t;
 typedef shared_ptr<ConfigValidation> ConfigValidationPtr_t;
 typedef shared_ptr<ConfigValidations> ConfigValidationsPtr_t;
 typedef shared_ptr<ConnectedComponent> ConnectedComponentPtr_t;
-typedef std::set<ConnectedComponentPtr_t> ConnectedComponents_t;
+
+struct SharedComparator {
+    template <typename T>
+    bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) const {
+        return (*lhs) < (*rhs);
+    }
+};
+typedef std::set<ConnectedComponentPtr_t, SharedComparator> ConnectedComponents_t;
+
 typedef shared_ptr<Constraint> ConstraintPtr_t;
 typedef shared_ptr<ConstraintSet> ConstraintSetPtr_t;
 typedef shared_ptr<const ConstraintSet> ConstraintSetConstPtr_t;

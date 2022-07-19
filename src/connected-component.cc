@@ -172,5 +172,8 @@ bool ConnectedComponent::canReach(const ConnectedComponentPtr_t& cc,
   return true;
 }
 
+int ConnectedComponent::static_id = 0;
+
+
 }  //   namespace core
 }  // namespace hpp
