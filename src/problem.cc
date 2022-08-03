@@ -215,7 +215,7 @@ void Problem::removeObstacleFromJoint(
     const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle) {
   shared_ptr<ObstacleUserInterface> oui =
       HPP_DYNAMIC_PTR_CAST(ObstacleUserInterface, pathValidation_);
-  if (oui) oui->addObstacle(obstacle);
+  if (oui) oui->removeObstacleFromJoint(joint, obstacle);
   assert(configValidations_);
   if (configValidations_) {
     configValidations_->removeObstacleFromJoint(joint, obstacle);
