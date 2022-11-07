@@ -42,11 +42,11 @@ struct HPP_CORE_DLLAPI projection_error : public std::exception {
   projection_error(const projection_error& other)
       : std::exception(other), msg_(other.msg_) {}
 
-  virtual ~projection_error() _GLIBCXX_USE_NOEXCEPT{};
-
 #if __cplusplus >= 201103L
+  virtual ~projection_error() noexcept {};
   virtual const char* what() const noexcept { return msg_.c_str(); };
 #else
+  virtual ~projection_error() _GLIBCXX_USE_NOEXCEPT{};
   virtual const char* what() const throw() { return msg_.c_str(); };
 #endif
 
