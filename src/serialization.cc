@@ -27,6 +27,12 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <boost/serialization/version.hpp>
+#if BOOST_VERSION / 100 % 1000 == 74
+#include <boost/serialization/library_version_type.hpp>
+#endif
+// ref https://github.com/boostorg/serialization/issues/219
+
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/set.hpp>
