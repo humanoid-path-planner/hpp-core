@@ -129,7 +129,7 @@ class HPP_CORE_DLLAPI Path {
   /// Configuration at time
   /// \deprecated use eval instead
   HPP_CORE_DEPRECATED Configuration_t operator()(const value_type& time,
-                             bool& success) const {
+                                                 bool& success) const {
     return eval(time, success);
   }
 
