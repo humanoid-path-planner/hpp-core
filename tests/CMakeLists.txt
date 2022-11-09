@@ -41,6 +41,7 @@ add_definitions(-DTEST_DIRECTORY="${CMAKE_SOURCE_DIR}/tests/data")
 # This macro will create a binary from `NAME.cc', link it against Boost and add
 # it to the test suite.
 #
+find_library(RT_LIB rt)
 macro(ADD_TESTCASE NAME GENERATED)
   if(${GENERATED} STREQUAL TRUE)
     add_unit_test(${NAME} ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.cc)
@@ -48,7 +49,11 @@ macro(ADD_TESTCASE NAME GENERATED)
     add_unit_test(${NAME} ${NAME}.cc)
   endif()
   target_include_directories(${NAME} PRIVATE ../src Boost::unit_test_framework)
-  target_link_libraries(${NAME} ${PROJECT_NAME}-gpl)
+  if(RT_LIB)
+    target_link_libraries(${NAME} ${PROJECT_NAME}-gpl ${RT_LIB})
+  else()
+    target_link_libraries(${NAME} ${PROJECT_NAME}-gpl)
+  endif()
 endmacro(ADD_TESTCASE)
 
 find_package(OpenMP)
