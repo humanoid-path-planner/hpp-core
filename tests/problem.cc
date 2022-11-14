@@ -147,6 +147,35 @@ BOOST_AUTO_TEST_CASE(pointMass) {
   pointMassProblem("Straight", "Weighed", "Dichotomy", 0);
 }
 
+BOOST_AUTO_TEST_CASE(defaultProblem) {
+  const char* urdfString =
+      "<robot name='foo'><link name='base_link'>"
+      "<collision><geometry><sphere radius='0.01'/></geometry></collision>"
+      "</link></robot>";
+
+  DevicePtr_t robot = Device::create("point");
+  urdf::loadModelFromString(robot, 0, "", "translation3d", urdfString, "");
+  BOOST_REQUIRE_EQUAL(robot->configSize(), 3);
+  robot->rootJoint()->lowerBound(0, -10);
+  robot->rootJoint()->lowerBound(1, -10);
+  robot->rootJoint()->lowerBound(2, -10);
+  robot->rootJoint()->upperBound(0, 10);
+  robot->rootJoint()->upperBound(1, 10);
+  robot->rootJoint()->upperBound(2, 10);
+
+  ProblemPtr_t problem = Problem::create(robot);
+  BOOST_REQUIRE(problem->constraints());
+
+  ConfigurationPtr_t qinit(new Configuration_t(robot->neutralConfiguration()));
+  ConfigurationPtr_t qgoal(new Configuration_t(robot->neutralConfiguration()));
+  *qgoal << -4, 0, 0;
+
+  problem->initConfig(qinit);
+  problem->addGoalConfig(qgoal);
+
+  BOOST_CHECK_NO_THROW(problem->checkProblem());
+}
+
 BOOST_AUTO_TEST_CASE(carlike) {
   carLikeProblem("Straight", "Weighed", "Discretized", 0.05);
   carLikeProblem("Straight", "Weighed", "Progressive", 0.05);

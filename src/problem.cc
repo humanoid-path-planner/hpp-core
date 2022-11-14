@@ -102,6 +102,7 @@ void Problem::init(ProblemWkPtr_t wkPtr) {
   pathValidation_ =
       pathValidation::createDiscretizedCollisionChecking(robot_, 0.05);
   configurationShooter_ = configurationShooter::Uniform::create(robot_);
+  constraints(ConstraintSet::create(robot_, "default_constraint_set"));
 }
 
 // ======================================================================
