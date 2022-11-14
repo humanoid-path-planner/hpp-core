@@ -29,7 +29,6 @@
 #define BOOST_TEST_MODULE paths
 #include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/test_case_template.hpp>
 #include <pinocchio/fwd.hpp>
 
 // Boost version 1.54

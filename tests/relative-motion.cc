@@ -29,7 +29,6 @@
 #define BOOST_TEST_MODULE relativeMotion
 #include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/test_case_template.hpp>
 #include <hpp/constraints/comparison-types.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
 #include <hpp/constraints/generic-transformation.hh>
