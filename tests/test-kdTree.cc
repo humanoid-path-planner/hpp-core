@@ -31,7 +31,7 @@
 #include <sstream>
 #include <vector>
 
-//#include <Eigen/Core>
+// #include <Eigen/Core>
 
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/fwd.hh>
