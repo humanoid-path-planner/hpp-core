@@ -1,5 +1,5 @@
 #include "basic.hh"
-//#include "k-d-tree.hh"
+// #include "k-d-tree.hh"
 
 #include <hpp/core/distance.hh>
 #include <hpp/util/serialization.hh>
