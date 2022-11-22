@@ -41,8 +41,7 @@ struct HPP_CORE_DLLAPI path_planning_failed : public std::exception {
   path_planning_failed(const path_planning_failed& other)
       : std::exception(other), msg_(other.msg_) {}
 
-  virtual ~path_planning_failed() _GLIBCXX_USE_NOEXCEPT{};
-
+  virtual ~path_planning_failed() noexcept {};
   virtual const char* what() const noexcept { return msg_.c_str(); };
 
   std::string msg_;
