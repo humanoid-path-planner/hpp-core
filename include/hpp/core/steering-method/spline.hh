@@ -76,7 +76,11 @@ class HPP_CORE_DLLAPI Spline : public SteeringMethod {
   virtual PathPtr_t impl_compute(ConfigurationIn_t q1,
                                  ConfigurationIn_t q2) const;
 
-  /// create a path between two configurations
+  /// create a path between two configurations with desired derivatives at the
+  /// limits
+  /// \param q1, q2 robot configuration at each end
+  /// \param order1, order2 list of derivative orders
+  /// \param derivatives1, derivatives2 desired derivatives at each end
   PathPtr_t steer(ConfigurationIn_t q1, std::vector<int> order1,
                   matrixIn_t derivatives1, ConfigurationIn_t q2,
                   std::vector<int> order2, matrixIn_t derivatives2) const;

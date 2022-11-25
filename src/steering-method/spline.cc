@@ -60,8 +60,11 @@ PathPtr_t Spline<_PB, _SO>::steer(ConfigurationIn_t q1, std::vector<int> order1,
                                   matrixIn_t derivatives1, ConfigurationIn_t q2,
                                   std::vector<int> order2,
                                   matrixIn_t derivatives2) const {
-  // TODO check the size of the derivatives.
-  // If too small, they should be extended with columns of zeros.
+  // Check the size of the derivatives.
+  assert(q1.size() == device_.lock()->configSize());
+  assert(q1.size() == q2.size());
+  assert(derivatives1.rows() == device_.lock()->numberDof());
+  assert(derivatives2.rows() == device_.lock()->numberDof());
   return impl_compute(q1, order1, derivatives1, q2, order2, derivatives2);
 }
 
