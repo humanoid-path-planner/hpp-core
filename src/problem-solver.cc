@@ -68,6 +68,7 @@
 #include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
 #include <hpp/core/steering-method/snibud.hh>
+#include <hpp/core/steering-method/spline.hh>
 #include <hpp/core/steering-method/steering-kinodynamic.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/visibility-prm-planner.hh>
@@ -219,6 +220,8 @@ ProblemSolver::ProblemSolver()
   steeringMethods.add("Dubins", steeringMethod::Dubins::createWithGuess);
   steeringMethods.add("Snibud", steeringMethod::Snibud::createWithGuess);
   steeringMethods.add("Hermite", steeringMethod::Hermite::create);
+  steeringMethods.add("SplineBezier3", steeringMethod::Spline<path::BernsteinBasis, 3>::create);
+  steeringMethods.add("SplineBezier5", steeringMethod::Spline<path::BernsteinBasis, 5>::create);
 
   // Store path optimization methods in map.
   pathOptimizers.add("RandomShortcut",
