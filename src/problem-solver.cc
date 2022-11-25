@@ -828,18 +828,20 @@ void ProblemSolver::addObstacle(const DevicePtr_t& device, bool collision,
   // Detach objects from joints
   for (size_type i = 0; i < device->nbObjects(); ++i) {
     CollisionObjectPtr_t obj = device->objectAt(i);
-    addObstacle(prefix + obj->name(), *obj->fcl(), collision, distance);
+    addObstacle(prefix + obj->name(), obj->geometry(), obj->getTransform(),
+        collision, distance);
   }
 }
 
 void ProblemSolver::addObstacle(const CollisionObjectPtr_t& object,
                                 bool collision, bool distance) {
   // FIXME propagate object->mesh_path ?
-  addObstacle(object->name(), *object->fcl(), collision, distance);
+  addObstacle(object->name(), object->geometry(), object->getTransform(), collision, distance);
 }
 
 void ProblemSolver::addObstacle(const std::string& name,
-                                /*const*/ FclCollisionObject& inObject,
+                                const CollisionGeometryPtr_t& inObject,
+                                const Transform3f& pose,
                                 bool collision, bool distance) {
   if (obstacleModel_->existGeometryName(name)) {
     HPP_THROW(std::runtime_error,
@@ -848,9 +850,7 @@ void ProblemSolver::addObstacle(const std::string& name,
   }
 
   ::pinocchio::GeomIndex id = obstacleModel_->addGeometryObject(
-      ::pinocchio::GeometryObject(
-          name, 1, 0, inObject.collisionGeometry(),
-          ::pinocchio::toPinocchioSE3(inObject.getTransform()), "",
+      ::pinocchio::GeometryObject(name, 1, 0, inObject, pose, "",
           vector3_t::Ones()),
       *obstacleRModel_);
   // Update obstacleData_
@@ -916,16 +916,8 @@ void ProblemSolver::cutObstacle(const std::string& name,
   ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
   fcl::Transform3f oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
-  fcl::CollisionGeometryPtr_t fclgeom =
-      obstacleModel_->geometryObjects[id].geometry;
-  fcl::CollisionObject fclobj(fclgeom, oMg);
-  fclobj.computeAABB();
-  if (!fclobj.getAABB().overlap(aabb)) {
-    // No intersection. Geom should be removed.
-    removeObstacle(name);
-    return;
-  }
-  fcl::CollisionGeometryPtr_t newgeom(extract(fclgeom.get(), oMg, aabb));
+  CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].geometry;
+  CollisionGeometryPtr_t newgeom(extract(fclgeom.get(), oMg, aabb));
   if (!newgeom) {
     // No intersection. Geom should be removed.
     removeObstacle(name);

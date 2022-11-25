@@ -409,12 +409,14 @@ class HPP_CORE_DLLAPI ProblemSolver {
 
   /// Add obstacle to the list.
   /// \param inObject a new object.
+  /// \param pose the object pose.
   /// \param collision whether collision checking should be performed
   ///        for this object.
   /// \param distance whether distance computation should be performed
   ///        for this object.
   virtual void addObstacle(const std::string& name,
-                           /*const*/ FclCollisionObject& inObject,
+                           const CollisionGeometryPtr_t& inObject,
+                           const Transform3f& pose,
                            bool collision, bool distance);
 
   /// Remove collision pair between a joint and an obstacle
