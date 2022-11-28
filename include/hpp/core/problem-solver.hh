@@ -416,8 +416,8 @@ class HPP_CORE_DLLAPI ProblemSolver {
   ///        for this object.
   virtual void addObstacle(const std::string& name,
                            const CollisionGeometryPtr_t& inObject,
-                           const Transform3f& pose,
-                           bool collision, bool distance);
+                           const Transform3f& pose, bool collision,
+                           bool distance);
 
   /// Remove collision pair between a joint and an obstacle
   /// \param jointName name of the joint,
