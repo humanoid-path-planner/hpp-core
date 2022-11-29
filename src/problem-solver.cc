@@ -220,8 +220,10 @@ ProblemSolver::ProblemSolver()
   steeringMethods.add("Dubins", steeringMethod::Dubins::createWithGuess);
   steeringMethods.add("Snibud", steeringMethod::Snibud::createWithGuess);
   steeringMethods.add("Hermite", steeringMethod::Hermite::create);
-  steeringMethods.add("SplineBezier3", steeringMethod::Spline<path::BernsteinBasis, 3>::create);
-  steeringMethods.add("SplineBezier5", steeringMethod::Spline<path::BernsteinBasis, 5>::create);
+  steeringMethods.add("SplineBezier3",
+                      steeringMethod::Spline<path::BernsteinBasis, 3>::create);
+  steeringMethods.add("SplineBezier5",
+                      steeringMethod::Spline<path::BernsteinBasis, 5>::create);
 
   // Store path optimization methods in map.
   pathOptimizers.add("RandomShortcut",
@@ -832,20 +834,21 @@ void ProblemSolver::addObstacle(const DevicePtr_t& device, bool collision,
   for (size_type i = 0; i < device->nbObjects(); ++i) {
     CollisionObjectPtr_t obj = device->objectAt(i);
     addObstacle(prefix + obj->name(), obj->geometry(), obj->getTransform(),
-        collision, distance);
+                collision, distance);
   }
 }
 
 void ProblemSolver::addObstacle(const CollisionObjectPtr_t& object,
                                 bool collision, bool distance) {
   // FIXME propagate object->mesh_path ?
-  addObstacle(object->name(), object->geometry(), object->getTransform(), collision, distance);
+  addObstacle(object->name(), object->geometry(), object->getTransform(),
+              collision, distance);
 }
 
 void ProblemSolver::addObstacle(const std::string& name,
                                 const CollisionGeometryPtr_t& inObject,
-                                const Transform3f& pose,
-                                bool collision, bool distance) {
+                                const Transform3f& pose, bool collision,
+                                bool distance) {
   if (obstacleModel_->existGeometryName(name)) {
     HPP_THROW(std::runtime_error,
               "object with name "
@@ -854,7 +857,7 @@ void ProblemSolver::addObstacle(const std::string& name,
 
   ::pinocchio::GeomIndex id = obstacleModel_->addGeometryObject(
       ::pinocchio::GeometryObject(name, 1, 0, inObject, pose, "",
-          vector3_t::Ones()),
+                                  vector3_t::Ones()),
       *obstacleRModel_);
   // Update obstacleData_
   // FIXME This should be done in Pinocchio
