@@ -38,8 +38,9 @@ hpp_add_plugin(
 
 project_install_component(spline-gradient-based)
 
-add_project_dependency(toppra FOR_COMPONENT toppra)
-if(toppra_FOUND)
+option(BUILD_TOPPRA_PLUGIN "Build toppra plugin" OFF)
+if(BUILD_TOPPRA_PLUGIN)
+  add_project_dependency(toppra FOR_COMPONENT toppra)
   message(STATUS "Found toppra ${toppra_VERSION}")
   hpp_add_plugin(
     toppra
