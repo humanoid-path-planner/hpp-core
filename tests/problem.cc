@@ -86,10 +86,9 @@ void pointMassProblem(const char* steeringMethod, const char* distance,
   ps->steeringMethodType(steeringMethod);
   ps->distanceType(distance);
 
-  FclCollisionObject box(
-      hpp::fcl::CollisionGeometryPtr_t(new hpp::fcl::Box(0.3, 0.3, 0.3)),
-      matrix3_t::Identity(), vector3_t(-2, 0, 0));
-  ps->addObstacle("box", box, true, true);
+  CollisionGeometryPtr_t boxGeom(new hpp::fcl::Box(0.3, 0.3, 0.3));
+  SE3 boxTf(matrix3_t::Identity(), vector3_t(-2, 0, 0));
+  ps->addObstacle("box", boxGeom, boxTf, true, true);
 
   ConfigurationPtr_t qinit(new Configuration_t(robot->neutralConfiguration()));
   ConfigurationPtr_t qgoal(new Configuration_t(robot->neutralConfiguration()));
@@ -122,10 +121,9 @@ void carLikeProblem(const char* steeringMethod, const char* distance,
   ps->steeringMethodType(steeringMethod);
   ps->distanceType(distance);
 
-  FclCollisionObject box(
-      hpp::fcl::CollisionGeometryPtr_t(new hpp::fcl::Box(0.3, 0.3, 0.3)),
-      matrix3_t::Identity(), vector3_t(-2, 0, 0));
-  ps->addObstacle("box", box, true, true);
+  CollisionGeometryPtr_t boxGeom(new hpp::fcl::Box(0.3, 0.3, 0.3));
+  SE3 boxTf(matrix3_t::Identity(), vector3_t(-2, 0, 0));
+  ps->addObstacle("box", boxGeom, boxTf, true, true);
 
   ConfigurationPtr_t qinit(new Configuration_t(robot->neutralConfiguration()));
   ConfigurationPtr_t qgoal(new Configuration_t(robot->neutralConfiguration()));
