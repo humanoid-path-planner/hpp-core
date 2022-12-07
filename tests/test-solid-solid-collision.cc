@@ -27,10 +27,12 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <hpp/fcl/fwd.hh>
 #define BOOST_TEST_MODULE solid_solid_collision
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
+#include <boost/smart_ptr/make_shared.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/continuous-validation/solid-solid-collision.hh>
 #include <hpp/pinocchio/device.hh>
@@ -88,8 +90,7 @@ BOOST_AUTO_TEST_CASE(solid_solid_collision_1) {
   display(model, bpc->coefficients());
 
   ConstObjectStdVector_t obstacles;
-  hpp::fcl::CollisionGeometryPtr_t box(new hpp::fcl::Box(.2, .4, .6));
-  // FIXME this is a bit ugly.
+  auto box = boost::make_shared<hpp::fcl::Box>(.2, .4, .6);
   Transform3f I3;
   I3.setIdentity();
   pinocchio::FrameIndex frame_id = robot->model().addFrame(
