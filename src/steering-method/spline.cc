@@ -66,7 +66,8 @@ PathPtr_t Spline<_PB, _SO>::steer(ConfigurationIn_t q1, std::vector<int> order1,
   assert(q1.size() == q2.size());
   assert(derivatives1.rows() == device_.lock()->numberDof());
   assert(derivatives2.rows() == device_.lock()->numberDof());
-  return impl_compute(q1, order1, derivatives1, q2, order2, derivatives2, length);
+  return impl_compute(q1, order1, derivatives1, q2, order2, derivatives2,
+                      length);
 }
 
 template <int _PB, int _SO>
@@ -74,8 +75,7 @@ template <typename Derived>
 PathPtr_t Spline<_PB, _SO>::impl_compute(
     ConfigurationIn_t q1, std::vector<int> order1,
     const Eigen::MatrixBase<Derived>& derivatives1, ConfigurationIn_t q2,
-    std::vector<int> order2,
-    const Eigen::MatrixBase<Derived>& derivatives2,
+    std::vector<int> order2, const Eigen::MatrixBase<Derived>& derivatives2,
     value_type length) const {
   // Compute the decomposition
   // typedef Eigen::Matrix<value_type, SplineOrder+1, SplineOrder+1>
