@@ -81,9 +81,12 @@ class HPP_CORE_DLLAPI Spline : public SteeringMethod {
   /// \param q1, q2 robot configuration at each end
   /// \param order1, order2 list of derivative orders
   /// \param derivatives1, derivatives2 desired derivatives at each end
+  /// \param length if positive, this is the length of the returned path.
+  ///        Otherwise, the length is computed using \r Problem::distance
   PathPtr_t steer(ConfigurationIn_t q1, std::vector<int> order1,
                   matrixIn_t derivatives1, ConfigurationIn_t q2,
-                  std::vector<int> order2, matrixIn_t derivatives2) const;
+                  std::vector<int> order2, matrixIn_t derivatives2,
+                  value_type length = -1) const;
 
  protected:
   /// Constructor
@@ -104,7 +107,8 @@ class HPP_CORE_DLLAPI Spline : public SteeringMethod {
   PathPtr_t impl_compute(ConfigurationIn_t q1, std::vector<int> order1,
                          const Eigen::MatrixBase<Derived>& derivatives1,
                          ConfigurationIn_t q2, std::vector<int> order2,
-                         const Eigen::MatrixBase<Derived>& derivatives2) const;
+                         const Eigen::MatrixBase<Derived>& derivatives2,
+                         value_type length) const;
 
   DeviceWkPtr_t device_;
   WkPtr_t weak_;
