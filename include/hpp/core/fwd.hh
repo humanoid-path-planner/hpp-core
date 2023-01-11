@@ -98,6 +98,10 @@ typedef shared_ptr<AllCollisionsValidationReport>
 typedef pinocchio::CollisionObjectPtr_t CollisionObjectPtr_t;
 typedef pinocchio::CollisionObjectConstPtr_t CollisionObjectConstPtr_t;
 typedef pinocchio::CollisionGeometryPtr_t CollisionGeometryPtr_t;
+typedef pinocchio::FclCollisionObject FclCollisionObject;
+typedef FclCollisionObject* FclCollisionObjectPtr_t;
+typedef const FclCollisionObject* FclConstCollisionObjectPtr_t;
+typedef shared_ptr<FclCollisionObject> FclCollisionObjectSharePtr_t;
 
 typedef pinocchio::Configuration_t Configuration_t;
 typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
