@@ -32,7 +32,6 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include <boost/smart_ptr/make_shared.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/continuous-validation/solid-solid-collision.hh>
 #include <hpp/pinocchio/device.hh>
@@ -90,7 +89,7 @@ BOOST_AUTO_TEST_CASE(solid_solid_collision_1) {
   display(model, bpc->coefficients());
 
   ConstObjectStdVector_t obstacles;
-  auto box = boost::make_shared<hpp::fcl::Box>(.2, .4, .6);
+  auto box = hpp::fcl::make_shared<hpp::fcl::Box>(.2, .4, .6);
   Transform3f I3;
   I3.setIdentity();
   pinocchio::FrameIndex frame_id = robot->model().addFrame(
