@@ -885,6 +885,47 @@ void ProblemSolver::addObstacle(const std::string& name,
   }
 }
 
+void ProblemSolver::addObstacle(const std::string& name,
+                                /*const*/ FclCollisionObject& inObject,
+                                bool collision, bool distance) {
+  if (obstacleModel_->existGeometryName(name)) {
+    HPP_THROW(std::runtime_error,
+              "object with name "
+                  << name << " already added! Choose another name (prefix).");
+  }
+
+  ::pinocchio::GeomIndex id = obstacleModel_->addGeometryObject(
+      ::pinocchio::GeometryObject(
+          name, 1, 0, inObject.collisionGeometry(),
+          ::pinocchio::toPinocchioSE3(inObject.getTransform()), "",
+          vector3_t::Ones()),
+      *obstacleRModel_);
+  // Update obstacleData_
+  // FIXME This should be done in Pinocchio
+  {
+    ::pinocchio::GeometryModel& model = *obstacleModel_;
+    ::pinocchio::GeometryData& data = *obstacleData_;
+    data.oMg.resize(model.ngeoms);
+    // data.activeCollisionPairs.resize(model.collisionPairs.size(), true)
+    // data.distance_results(model.collisionPairs.size())
+    // data.collision_results(model.collisionPairs.size())
+    // data.radius()
+    data.oMg[id] = model.geometryObjects[id].placement;
+  }
+  CollisionObjectPtr_t object(
+      new CollisionObject(obstacleModel_, obstacleData_, id));
+
+  if (collision) {
+    collisionObstacles_.push_back(object);
+    resetRoadmap();
+  }
+  if (distance) distanceObstacles_.push_back(object);
+  if (problem()) problem()->addObstacle(object);
+  if (distanceBetweenObjects_) {
+    distanceBetweenObjects_->addObstacle(object);
+  }
+}
+
 void ProblemSolver::removeObstacle(const std::string& name) {
   if (!obstacleModel_->existGeometryName(name)) {
     HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
