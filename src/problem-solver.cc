@@ -926,7 +926,6 @@ void ProblemSolver::addObstacle(const std::string& name,
   }
 }
 
-
 void ProblemSolver::removeObstacle(const std::string& name) {
   if (!obstacleModel_->existGeometryName(name)) {
     HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
