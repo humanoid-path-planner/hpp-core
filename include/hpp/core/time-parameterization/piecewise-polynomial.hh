@@ -89,8 +89,21 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
     return Jac(t, order);
   }
 
+  /// Whether the polynomial should be shifted.
+  ///
+  /// If \c true, when evaluating the polynomials, the initial breakpoint time
+  /// of a polynomial is substracted. A polynomial defined between
+  /// \f$ [ t_k, t_{k+1} [ \f$ evaluates to
+  /// \f$ P(t) = \sum_{i=0}^n a_i (t - t_k)^i  \f$.
+  ///
+  /// This defaults to \c false.
+  bool polynomialsStartAtZero() const { return startAtZero_; }
+
+  /// See the corresponding getter.
+  void polynomialsStartAtZero(bool startAtZero) { startAtZero_ = startAtZero; }
+
  private:
-  value_type val(const value_type& t) const {
+  value_type val(value_type t) const {
     const size_t seg_index = findPolynomialIndex(t);
     const auto& poly_coeffs = parameters_.col(seg_index);
     value_type tn = 1;
@@ -105,7 +118,7 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
 
   value_type Jac(const value_type& t) const { return Jac(t, 1); }
 
-  value_type Jac(const value_type& t, const size_type& order) const {
+  value_type Jac(value_type t, const size_type& order) const {
     if (order >= parameters_.rows()) return 0;
     const size_type MaxOrder = 10;
     if (parameters_.rows() > MaxOrder)
@@ -126,7 +139,7 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
     return res;
   }
 
-  size_t findPolynomialIndex(const value_type& t) const {
+  size_t findPolynomialIndex(value_type& t) const {
     size_t seg_index = std::numeric_limits<size_t>::max();
     for (int i = 0; i < parameters_.size(); ++i) {
       if (breakpoints_[i] <= t && t <= breakpoints_[i + 1]) {
@@ -138,7 +151,10 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
       std::ostringstream oss;
       oss << "Position " << t << " is outside of range [ " << breakpoints_[0]
           << ", " << breakpoints_[breakpoints_.size() - 1] << ']';
-      throw std::runtime_error(oss.str());
+      throw std::invalid_argument(oss.str());
+    }
+    if (startAtZero_) {
+      t -= breakpoints_[seg_index];
     }
     return seg_index;
   }
@@ -148,6 +164,8 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   ///   number of columns = number of polynomials N
   ParameterMatrix_t parameters_;
   Vector_t breakpoints_;  // size N + 1
+  /// See the corresponding getter.
+  bool startAtZero_ = false;
 };                        // class PiecewisePolynomial
 }  // namespace timeParameterization
 }  //   namespace core
