@@ -229,6 +229,11 @@ class HPP_CORE_DLLAPI Path {
   /// \note The time parameterization defaults to identity.
   const interval_t& paramRange() const { return paramRange_; }
 
+  /// Get the time parameterization function
+  const TimeParameterizationPtr_t& timeParameterization() const {
+    return timeParam_;
+  }
+
   /// Set the time parameterization function
   void timeParameterization(const TimeParameterizationPtr_t& tp,
                             const interval_t& tr) {
@@ -295,10 +300,6 @@ class HPP_CORE_DLLAPI Path {
       paramRange_.second = timeParam_->value(timeRange_.second);
     } else
       paramRange_ = timeRange_;
-  }
-
-  const TimeParameterizationPtr_t& timeParameterization() const {
-    return timeParam_;
   }
 
   value_type paramLength() const {
