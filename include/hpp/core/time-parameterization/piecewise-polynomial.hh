@@ -59,8 +59,10 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
    */
   PiecewisePolynomial(const ParameterMatrix_t& parameters,
                       const Vector_t& breakpoints)
-      : parameters_(parameters), breakpoints_(breakpoints) {
-    assert(breakpoints_.size() == parameters_.cols() + 1);
+      : parameters_(parameters),
+        breakpoints_(breakpoints.data(),
+                     breakpoints.data() + breakpoints.size()) {
+    assert(size_type(breakpoints_.size()) == parameters_.cols() + 1);
     assert(parameters_.rows() == NbCoeffs);
 
     for (size_type j = 0; j < parameters_.cols(); ++j) {
@@ -76,6 +78,8 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   }
 
   const ParameterMatrix_t& parameters() const { return parameters_; }
+
+  const std::vector<value_type>& breakpoints() const { return breakpoints_; }
 
   TimeParameterizationPtr_t copy() const {
     return TimeParameterizationPtr_t(new PiecewisePolynomial(*this));
@@ -142,6 +146,7 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   size_t findPolynomialIndex(value_type& t) const {
     size_t seg_index = std::numeric_limits<size_t>::max();
     for (int i = 0; i < parameters_.size(); ++i) {
+      assert(i + 1 < breakpoints_.size());
       if (breakpoints_[i] <= t && t <= breakpoints_[i + 1]) {
         seg_index = i;
         break;
@@ -163,7 +168,7 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   ///   number of rows = degree of polynomial + 1
   ///   number of columns = number of polynomials N
   ParameterMatrix_t parameters_;
-  Vector_t breakpoints_;  // size N + 1
+  std::vector<value_type> breakpoints_;  // size N + 1
   /// See the corresponding getter.
   bool startAtZero_ = false;
 };                        // class PiecewisePolynomial
