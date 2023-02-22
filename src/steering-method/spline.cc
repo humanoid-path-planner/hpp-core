@@ -111,19 +111,16 @@ PathPtr_t Spline<_PB, _SO>::impl_compute(
   pinocchio::difference<pinocchio::RnxSOnLieGroupMap>(device_.lock(), q1,
                                                       p->base(), rhs.row(0));
   for (std::size_t i = 0; i < order1.size(); ++i)
-    p->basisFunctionDerivative(order1[i], 0,
-                                                coeffs.row(i + 1).transpose());
+    p->basisFunctionDerivative(order1[i], 0, coeffs.row(i + 1).transpose());
   rhs.middleRows(1, order1.size()).transpose() = derivatives1;
 
   size_type row = 1 + order1.size();
-  p->basisFunctionDerivative(0, 1,
-                                              coeffs.row(row).transpose());
+  p->basisFunctionDerivative(0, 1, coeffs.row(row).transpose());
   pinocchio::difference<pinocchio::RnxSOnLieGroupMap>(device_.lock(), q2,
                                                       p->base(), rhs.row(row));
   ++row;
   for (std::size_t i = 0; i < order2.size(); ++i)
-    p->basisFunctionDerivative(
-        order2[i], 1, coeffs.row(i + row).transpose());
+    p->basisFunctionDerivative(order2[i], 1, coeffs.row(i + row).transpose());
   rhs.middleRows(row, order2.size()).transpose() = derivatives2;
 
   // Solve the problem
