@@ -59,6 +59,12 @@ DevicePtr_t createRobot() {
   return robot;
 }
 
+DevicePtr_t createRobotArm() {
+  DevicePtr_t robot = unittest::makeDevice(unittest::ManipulatorArm2);
+  robot->controlComputation((Computation_t)(JOINT_POSITION | JACOBIAN));
+  return robot;
+}
+
 typedef std::pair<value_type, value_type> Pair_t;
 
 std::ostream& operator<<(std::ostream& os, const Pair_t& p) {
@@ -193,10 +199,61 @@ void check_velocity_bounds() {
   }
 }
 
+template <int SplineType, int Degree, int order>
+void check_steering_method() {
+  typedef steeringMethod::Spline<SplineType, Degree> SM_t;
+  std::vector<int> orders{1};
+  if (order == 2)
+    orders.push_back(2);
+
+  // Use the manipulator arm and not Romeo since steering method does not give
+  // correct values for vel/acc when the robot configuration contains a freeflyer
+  DevicePtr_t dev = createRobotArm();
+  BOOST_REQUIRE(dev);
+  ProblemPtr_t problem = Problem::create(dev);
+
+  // Create random configurations and velocities/accelerations
+  Configuration_t q1(::pinocchio::randomConfiguration(dev->model()));
+  Configuration_t q2(::pinocchio::randomConfiguration(dev->model()));
+  matrix_t deriv1(matrix_t::Random(dev->numberDof(), order)),
+         deriv2(matrix_t::Random(dev->numberDof(), order));
+  double length = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+  // Create spline
+  typename SM_t::Ptr_t sm(SM_t::create(problem));
+  PathPtr_t spline1 = sm->steer(q1, orders, deriv1, q2, orders, deriv2, length);
+
+  // Check length
+  double spline_length = spline1->length();
+  BOOST_CHECK_MESSAGE(abs(spline_length - length) < 0.0001,
+      "Path does not have desired length: " << spline_length << " instead of " << length);
+
+  // Check configuration at start/end
+  Configuration_t spline_q1 = spline1->initial();
+  Configuration_t spline_q2 = spline1->end();
+  EIGEN_VECTOR_IS_APPROX(q1, spline_q1, 1e-6);
+  EIGEN_VECTOR_IS_APPROX(q2, spline_q2, 1e-6);
+
+  // Check derivatives at start/end
+  for (int i=1; i <= order; i++) {
+    vector_t spline_v1(vector_t::Random(dev->numberDof())), spline_v2 = spline_v1;
+    spline1->derivative(spline_v1, 0, i);
+    spline1->derivative(spline_v2, spline_length, i);
+    EIGEN_VECTOR_IS_APPROX(deriv1.col(i-1), spline_v1, 1e-6);
+    EIGEN_VECTOR_IS_APPROX(deriv2.col(i-1), spline_v2, 1e-6);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(spline_bernstein) {
   compare_to_straight_path<path::BernsteinBasis>();
 }
 
 BOOST_AUTO_TEST_CASE(spline_bernstein_velocity) {
   check_velocity_bounds<path::BernsteinBasis, 3>();
+}
+
+BOOST_AUTO_TEST_CASE(steering_method) {
+  check_steering_method<path::BernsteinBasis, 3, 1>();
+  check_steering_method<path::BernsteinBasis, 5, 1>();
+  check_steering_method<path::BernsteinBasis, 5, 2>();
 }
