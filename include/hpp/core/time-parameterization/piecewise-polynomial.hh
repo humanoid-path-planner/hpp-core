@@ -144,24 +144,33 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   }
 
   size_t findPolynomialIndex(value_type& t) const {
-    size_t seg_index = std::numeric_limits<size_t>::max();
-    for (int i = 0; i < parameters_.size(); ++i) {
-      assert(i + 1 < breakpoints_.size());
-      if (breakpoints_[i] <= t && t <= breakpoints_[i + 1]) {
-        seg_index = i;
-        break;
-      }
+    size_t index;
+
+    // Points to the smallest element of breakpoints_ that is strictly greater than t
+    auto breakpointIter = std::lower_bound(breakpoints_.begin(), breakpoints_.end(), t, std::less_equal<double>());
+    if (breakpointIter == breakpoints_.begin()) {
+      // t is smaller than breakpoints_[0]
+      assert(t < breakpoints_[0]);
+      // Should we handle numerical issues, i.e. t is very close to breakpoints_[0] ?
+      index = breakpoints_.size();
+    } else if (breakpointIter == breakpoints_.end()) {
+      if (t > breakpoints_.back())
+        index = breakpoints_.size();
+      else 
+        index = breakpoints_.size()-2;
+    } else {
+      index = std::distance(breakpoints_.begin(), breakpointIter) - 1;
     }
-    if (seg_index == std::numeric_limits<size_t>::max()) {
+    if (index == breakpoints_.size()) {
       std::ostringstream oss;
       oss << "Position " << t << " is outside of range [ " << breakpoints_[0]
           << ", " << breakpoints_[breakpoints_.size() - 1] << ']';
       throw std::invalid_argument(oss.str());
     }
     if (startAtZero_) {
-      t -= breakpoints_[seg_index];
+      t -= breakpoints_[index];
     }
-    return seg_index;
+    return index;
   }
 
   /// Parameters of the polynomials are stored in a matrix
@@ -171,7 +180,7 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   std::vector<value_type> breakpoints_;  // size N + 1
   /// See the corresponding getter.
   bool startAtZero_ = false;
-};                        // class PiecewisePolynomial
+};  // class PiecewisePolynomial
 }  // namespace timeParameterization
 }  //   namespace core
 }  // namespace hpp
