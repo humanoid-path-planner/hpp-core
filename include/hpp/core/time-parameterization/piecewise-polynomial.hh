@@ -146,18 +146,21 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   size_t findPolynomialIndex(value_type& t) const {
     size_t index;
 
-    // Points to the smallest element of breakpoints_ that is strictly greater than t
-    auto breakpointIter = std::lower_bound(breakpoints_.begin(), breakpoints_.end(), t, std::less_equal<double>());
+    // Points to the smallest element of breakpoints_ that is strictly greater
+    // than t
+    auto breakpointIter = std::lower_bound(
+        breakpoints_.begin(), breakpoints_.end(), t, std::less_equal<double>());
     if (breakpointIter == breakpoints_.begin()) {
       // t is smaller than breakpoints_[0]
       assert(t < breakpoints_[0]);
-      // Should we handle numerical issues, i.e. t is very close to breakpoints_[0] ?
+      // Should we handle numerical issues, i.e. t is very close to
+      // breakpoints_[0] ?
       index = breakpoints_.size();
     } else if (breakpointIter == breakpoints_.end()) {
       if (t > breakpoints_.back())
         index = breakpoints_.size();
-      else 
-        index = breakpoints_.size()-2;
+      else
+        index = breakpoints_.size() - 2;
     } else {
       index = std::distance(breakpoints_.begin(), breakpointIter) - 1;
     }
