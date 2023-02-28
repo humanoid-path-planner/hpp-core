@@ -84,6 +84,9 @@ struct sbf_traits {
 ///
 /// The dimension of control points, corresponding to the robot number of
 /// degrees of freedom can be retrieved by getter Spline::parameterSize.
+///
+/// \warning Velocities for robots with non-vector configuration space are
+/// not correctly handled.
 template <int _PolynomeBasis, int _Order>
 class HPP_CORE_DLLAPI Spline : public Path {
  public:
