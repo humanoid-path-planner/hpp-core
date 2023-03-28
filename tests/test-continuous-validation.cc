@@ -132,7 +132,6 @@ static matrix_t m1(220, 6);
 static matrix_t m2(20, 6);
 
 BOOST_AUTO_TEST_CASE(continuous_validation_straight) {
-
 #include "../tests/random-numbers.hh"
   i1 = 0;
   i2 = 0;
