@@ -334,7 +334,7 @@ void ConstantCurvature::impl_velocityBound(vectorOut_t bound,
   value_type Mx = std::numeric_limits<value_type>::quiet_NaN(),
              My = std::numeric_limits<value_type>::quiet_NaN();
 
-  if (curvature_ == 0) {
+  if (curvature_ != 0) {
     value_type t0 = curvature_ * curveLength_ * (param0 - paramRange().first) /
                     L,
                t1 = curvature_ * curveLength_ * (param1 - paramRange().first) /
