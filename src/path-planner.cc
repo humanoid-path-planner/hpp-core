@@ -124,12 +124,6 @@ PathVectorPtr_t PathPlanner::solve() {
   while (!solved) {
     // Check limits
     std::ostringstream oss;
-    // if (maxIterations_ != uint_infty && nIter >= maxIterations_) {
-    //   if (!stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap()))
-    //     break;
-    //   oss << "Maximal number of iterations reached: " << maxIterations_;
-    //   throw path_planning_failed(oss.str().c_str());
-    // }
     if (maxIterations_ != uint_infty && nIter >= maxIterations_)
       // If the maximal nb of iterations is defined and reached
       {
@@ -145,13 +139,6 @@ PathVectorPtr_t PathPlanner::solve() {
     bpt::ptime timeStop(bpt::microsec_clock::universal_time());
     value_type elapsed_ms =
         static_cast<value_type>((timeStop - timeStart).total_milliseconds());
-    // if (elapsed_ms > timeOut_ * 1000) {
-    //   if (!stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap()))
-    //     break;
-    //   oss << "time out (" << timeOut_ << "s) reached after "
-    //       << elapsed_ms * 1e-3 << "s";
-    //   throw path_planning_failed(oss.str().c_str());
-    // }
     if (elapsed_ms > timeOut_ * 1000)
       // If the time limit has been reached
       {
