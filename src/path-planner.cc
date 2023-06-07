@@ -125,39 +125,38 @@ PathVectorPtr_t PathPlanner::solve() {
     // Check limits
     std::ostringstream oss;
     if (maxIterations_ != uint_infty && nIter >= maxIterations_)
-      // If the maximal nb of iterations is defined and reached
-      {
-	if (problem()->target()->reached(roadmap()))
-	  // but a solution has been found
-	  status = 1;
-	else{
-	  // and no solution has been found
-	  oss << "Maximal number of iterations reached: " << maxIterations_;
-	  status = 2;
-	}
+    // If the maximal nb of iterations is defined and reached
+    {
+      if (problem()->target()->reached(roadmap()))
+        // but a solution has been found
+        status = 1;
+      else {
+        // and no solution has been found
+        oss << "Maximal number of iterations reached: " << maxIterations_;
+        status = 2;
       }
+    }
     bpt::ptime timeStop(bpt::microsec_clock::universal_time());
     value_type elapsed_ms =
         static_cast<value_type>((timeStop - timeStart).total_milliseconds());
     if (elapsed_ms > timeOut_ * 1000)
-      // If the time limit has been reached
-      {
-	if (problem()->target()->reached(roadmap()))
-	  // but a solution has been found
-	  status = 1;
-	else{
-	  // and no solution has been found
-	  oss << "time out (" << timeOut_ << "s) reached after " << elapsed_ms * 1e-3 << "s";
-	  status = 2;
-	}
+    // If the time limit has been reached
+    {
+      if (problem()->target()->reached(roadmap()))
+        // but a solution has been found
+        status = 1;
+      else {
+        // and no solution has been found
+        oss << "time out (" << timeOut_ << "s) reached after "
+            << elapsed_ms * 1e-3 << "s";
+        status = 2;
       }
+    }
 
     // Check what to do
-    if (status==1)
-      break;
-    if (status==2)
-      throw path_planning_failed(oss.str().c_str());
-    if (status==0){ // Execute one step
+    if (status == 1) break;
+    if (status == 2) throw path_planning_failed(oss.str().c_str());
+    if (status == 0) {  // Execute one step
       hppStartBenchmark(ONE_STEP);
       oneStep();
       hppStopBenchmark(ONE_STEP);
@@ -166,7 +165,7 @@ PathVectorPtr_t PathPlanner::solve() {
       // Check if problem is solved.
       ++nIter;
       solved =
-        stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap());
+          stopWhenProblemIsSolved_ && problem()->target()->reached(roadmap());
     }
     if (interrupt_) throw path_planning_failed("Interruption");
   }
