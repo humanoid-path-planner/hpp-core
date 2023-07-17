@@ -423,8 +423,12 @@ template <int _SplineType, int _Order>
 void Spline<_SplineType, _Order>::impl_velocityBound(
     vectorOut_t res, const value_type& t0, const value_type& t1) const {
   BasisFunctionVector_t ub;
-  BasisFunction_t::bound(1, t0, t1, ub);
-  ub /= length();
+  const value_type u0 =
+      (length() == 0 ? 0 : (t0 - paramRange().first) / paramLength());
+  const value_type u1 =
+      (length() == 0 ? 0 : (t1 - paramRange().first) / paramLength());
+  BasisFunction_t::bound(1, u0, u1, ub);
+  ub /= paramLength();
   res.noalias() = parameters_.cwiseAbs().transpose() * ub;
 }
 
