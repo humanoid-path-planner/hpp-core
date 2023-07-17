@@ -206,6 +206,8 @@ void spline_basis_function<BernsteinBasis, Degree>::bound(
     Coeffs_t& res) {
   (void)order;  // Suppress unused warning when NDEBUG
   assert(order == 1);
+  assert(0 <= t0 && t0 <= 1);
+  assert(0 <= t1 && t1 <= 1);
   static const Coeffs_t b_up = absBound(true);
   static const Coeffs_t b_um = absBound(false);
   Coeffs_t bt0, bt1;

@@ -29,6 +29,7 @@
 #define BOOST_TEST_MODULE spline_path
 #include <../tests/util.hh>
 #include <boost/test/included/unit_test.hpp>
+#include <hpp/core/path/hermite.hh>
 #include <hpp/core/path/spline.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/spline.hh>
@@ -258,4 +259,20 @@ BOOST_AUTO_TEST_CASE(steering_method) {
   check_steering_method<path::BernsteinBasis, 3, 1>();
   check_steering_method<path::BernsteinBasis, 5, 1>();
   check_steering_method<path::BernsteinBasis, 5, 2>();
+}
+
+BOOST_AUTO_TEST_CASE(hermite_path) {
+  DevicePtr_t dev = createRobotArm();
+  ConstraintSetPtr_t constraint =
+      hpp::core::ConstraintSet::create(dev, "empty");
+
+  vector_t q1(vector_t::Zero(dev->configSize()));
+  vector_t q2(vector_t::Ones(dev->configSize()));
+
+  path::HermitePtr_t path =
+      hpp::core::path::Hermite::create(dev, q1, q2, constraint);
+  bool ok;
+  vector_t evaluated = path->eval(path->length(), ok);
+  BOOST_CHECK(ok);
+  CONFIGURATION_VECTOR_IS_APPROX(dev, evaluated, path->end(), 1e-12);
 }
