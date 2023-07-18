@@ -132,6 +132,7 @@ void spline_basis_function<BernsteinBasis, Degree>::eval(const value_type t,
 template <int Degree>
 void spline_basis_function<BernsteinBasis, Degree>::derivative(
     const size_type k, const value_type& t, Coeffs_t& res) {
+  assert(0 <= t && t <= 1);
   res.setZero();
   if (k > Degree) return;
   static Factorials_t factors = binomials<NbCoeffs>::factorials();
