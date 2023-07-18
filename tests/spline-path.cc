@@ -39,6 +39,7 @@
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/simple-device.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/fwd.hpp>
 
@@ -47,6 +48,26 @@
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
+
+DevicePtr_t createNDoFRobot(int ndof) {
+  std::ostringstream oss;
+  oss << "<robot name='test'>"
+      << "<link name='link0'/>";
+  for (int i = 0; i < ndof; ++i) {
+    oss << "<joint name='joint" << i << "' type='prismatic'>"
+        << "<parent link='link" << i << "'/>"
+        << "<child  link='link" << i + 1 << "'/>"
+        << "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+        << "</joint>"
+        << "<link name='link" << i + 1 << "'/>";
+  }
+  oss << "</robot>";
+  std::string urdf(oss.str());
+
+  DevicePtr_t robot = Device::create("test");
+  urdf::loadModelFromString(robot, 0, "", "anchor", urdf, "");
+  return robot;
+}
 
 DevicePtr_t createRobot() {
   DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidRomeo);
@@ -178,14 +199,18 @@ void check_velocity_bounds() {
   typename SM_t::Ptr_t sm(SM_t::create(problem));
   PathPtr_t spline = sm->steer(q1, orders, v1, q2, orders, v2);
 
-  vector_t vb1(vector_t::Random(dev->numberDof())), vb2 = vb1;
+  vector_t vb1(-vector_t::Ones(dev->numberDof())), vb2 = vb1;
   value_type t0 = spline->timeRange().first, t1 = spline->timeRange().second;
   spline->velocityBound(vb1, t0, t1);
+
+  BOOST_CHECK((vb1.array() >= 0).all());
 
   std::size_t N = 1000;
   value_type step = spline->length() / value_type(N);
   for (std::size_t i = 0; i < N; ++i) {
+    vb2.setConstant(-1);
     spline->velocityBound(vb2, t0, t1);
+    BOOST_CHECK((vb2.array() >= 0).all());
     BOOST_CHECK_MESSAGE(
         (vb2.array() <= vb1.array()).all(),
         "i=" << i << " Velocity bound should have decreased. Interval is ["
@@ -249,6 +274,69 @@ void check_steering_method() {
 
 BOOST_AUTO_TEST_CASE(spline_bernstein) {
   compare_to_straight_path<path::BernsteinBasis>();
+}
+
+void check_bernstein_polynomial_3rd(value_type p0, value_type p1, value_type p2,
+                                    value_type p3) {
+  // Degree 3
+  typedef path::Spline<path::BernsteinBasis, 3> path_t;
+
+  DevicePtr_t dev = createNDoFRobot(1);
+  vector_t q0(1);
+  q0 << 0.0;
+  path_t::ParameterMatrix_t m(4, 1);
+  m << p0, p1, p2, p3;
+  bool ok;
+
+  ConstraintSetPtr_t constraint = ConstraintSet::create(dev, "empty");
+  path_t::Ptr_t path = path_t::create(dev, interval_t(0, 1), constraint);
+  path->base(q0);
+  path->parameters(m);
+
+  // evaluation
+  BOOST_CHECK_CLOSE(path->eval(0.0, ok)[0], m(0, 0), 1e-8);
+  BOOST_CHECK_CLOSE(path->eval(0.5, ok)[0],
+                    0.125 * (m(0, 0) + 3 * m(1, 0) + 3 * m(2, 0) + m(3, 0)),
+                    1e-8);
+  BOOST_CHECK_CLOSE(path->eval(1.0, ok)[0], m(3, 0), 1e-8);
+
+  // derivative
+  vector_t der(1);
+  path->derivative(der, 0.0, ok);
+  BOOST_CHECK_CLOSE(der[0], 3 * (-m(0, 0) + m(1, 0)), 1e-8);
+  path->derivative(der, 0.5, ok);
+  BOOST_CHECK_CLOSE(der[0], 3 * (-m(0, 0) - m(1, 0) + m(2, 0) + m(3, 0)) / 4,
+                    1e-8);
+  path->derivative(der, 1.0, ok);
+  BOOST_CHECK_CLOSE(der[0], 3 * (-m(2, 0) + m(3, 0)), 1e-8);
+
+  // velocity bound
+  vector_t vb(1);
+  vector_t splineVbounds(4);
+  path->velocityBound(vb, 0.0, 1.0);
+  splineVbounds << 3, 3, 3, 3;
+  BOOST_CHECK_CLOSE(vb[0], (m.cwiseAbs().transpose() * splineVbounds)[0], 1e-8);
+
+  path->velocityBound(vb, 0.0, 0.5);
+  splineVbounds << 3, 3, 1, 0.75;
+  BOOST_CHECK_CLOSE(vb[0], (m.cwiseAbs().transpose() * splineVbounds)[0], 1e-8);
+
+  path->velocityBound(vb, 0.5, 1.0);
+  splineVbounds << 0.75, 1, 3, 3;
+  BOOST_CHECK_CLOSE(vb[0], (m.cwiseAbs().transpose() * splineVbounds)[0], 1e-8);
+
+  path->velocityBound(vb, 0.5, 0.6);
+  splineVbounds << 0.75, 0.96, 0.75, 1.08;
+  BOOST_CHECK_CLOSE(vb[0], (m.cwiseAbs().transpose() * splineVbounds)[0], 1e-8);
+}
+
+BOOST_AUTO_TEST_CASE(bernstein_polynomial) {
+  check_bernstein_polynomial_3rd(1.0, 0.0, 0.0, 0.0);
+  check_bernstein_polynomial_3rd(0.0, 1.0, 0.0, 0.0);
+  check_bernstein_polynomial_3rd(0.0, 0.0, 1.0, 0.0);
+  check_bernstein_polynomial_3rd(0.0, 0.0, 0.0, 1.0);
+
+  check_bernstein_polynomial_3rd(1.0, 0.3, 0.4, -0.5);
 }
 
 BOOST_AUTO_TEST_CASE(spline_bernstein_velocity) {
