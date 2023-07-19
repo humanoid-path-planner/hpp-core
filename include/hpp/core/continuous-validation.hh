@@ -211,6 +211,14 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   /// Get tolerance value
   value_type tolerance() const { return tolerance_; }
 
+  /// Get the break distance passed to collision checking.
+  /// \sa hpp::fcl::CollisionRequest::break_distance
+  value_type breakDistance() const { return breakDistance_; }
+
+  /// Set the break distance passed to collision checking.
+  /// \sa value_type breakDistance() const
+  void breakDistance(value_type distance);
+
   DevicePtr_t robot() const { return robot_; }
   /// Iteratively call method doExecute of delegate classes Initialize
   /// \sa ContinuousValidation::add, ContinuousValidation::Initialize.
@@ -291,6 +299,7 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
 
   DevicePtr_t robot_;
   value_type tolerance_;
+  value_type breakDistance_;
 
   /// Store weak pointer to itself.
   void init(ContinuousValidationWkPtr_t weak);

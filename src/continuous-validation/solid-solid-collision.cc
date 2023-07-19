@@ -121,6 +121,11 @@ bool SolidSolidCollision::removeObjectTo_b(
   return last != s;
 }
 
+void SolidSolidCollision::breakDistance(value_type breakDistance) {
+  for (fcl::CollisionRequest& req : requests())
+    req.break_distance = breakDistance;
+}
+
 void SolidSolidCollision::addCollisionPair(
     const CollisionObjectConstPtr_t& left,
     const CollisionObjectConstPtr_t& right) {
