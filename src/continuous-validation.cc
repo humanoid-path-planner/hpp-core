@@ -85,6 +85,7 @@ void ContinuousValidation::Initialize::doExecute() const {
       assert(joint2);
       continuousValidation::SolidSolidCollisionPtr_t ss(
           SolidSolidCollision::create(joint2, joint1, owner().tolerance_));
+      ss->breakDistance(owner().breakDistance());
       owner().addIntervalValidation(ss);
       bodyPairMap[jp] = ss;
     }
@@ -108,8 +109,10 @@ void ContinuousValidation::AddObstacle::doExecute(
     if (body) {
       ConstObjectStdVector_t objects;
       objects.push_back(object);
-      owner().addIntervalValidation(
+      continuousValidation::SolidSolidCollisionPtr_t ss(
           SolidSolidCollision::create(joint, objects, owner().tolerance()));
+      ss->breakDistance(owner().breakDistance());
+      owner().addIntervalValidation(ss);
     }
   }
 }
@@ -245,6 +248,18 @@ void ContinuousValidation::removeObstacleFromJoint(
         << obstacle->name() << "\" is not registered as obstacle for joint \""
         << joint->name() << "\".";
     throw std::runtime_error(oss.str());
+  }
+}
+
+void ContinuousValidation::breakDistance(value_type distance) {
+  assert(distance >= 0);
+  breakDistance_ = distance;
+
+  bodyPairCollisionPool_.clear();
+  for (IntervalValidationPtr_t &val : intervalValidations_) {
+    continuousValidation::SolidSolidCollisionPtr_t ss(
+        HPP_DYNAMIC_PTR_CAST(continuousValidation::SolidSolidCollision, val));
+    if (ss) ss->breakDistance(distance);
   }
 }
 
@@ -391,7 +406,11 @@ ContinuousValidation::~ContinuousValidation() {}
 
 ContinuousValidation::ContinuousValidation(const DevicePtr_t &robot,
                                            const value_type &tolerance)
-    : robot_(robot), tolerance_(tolerance), intervalValidations_(), weak_() {
+    : robot_(robot),
+      tolerance_(tolerance),
+      breakDistance_(1e-2),
+      intervalValidations_(),
+      weak_() {
   if (tolerance < 0) {
     throw std::runtime_error("tolerance should be non-negative.");
   }
