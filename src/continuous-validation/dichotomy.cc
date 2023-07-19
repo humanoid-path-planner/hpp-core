@@ -32,6 +32,7 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/util/debug.hh>
+#include <hpp/util/timer.hh>
 #include <iterator>
 
 #include "continuous-validation/helper.hh"
@@ -40,6 +41,9 @@
 namespace hpp {
 namespace core {
 namespace continuousValidation {
+
+HPP_DEFINE_TIMECOUNTER(CV_Dichotomy_validateStraightPath);
+
 DichotomyPtr_t Dichotomy::create(const DevicePtr_t& robot,
                                  const value_type& tolerance) {
   Dichotomy* ptr = new Dichotomy(robot, tolerance);
@@ -66,6 +70,8 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
                                      const PathPtr_t& path,
                                      PathPtr_t& validPart,
                                      PathValidationReportPtr_t& report) {
+  HPP_START_TIMECOUNTER(CV_Dichotomy_validateStraightPath);
+
   // start by validating end of path
   bool finished = false;
   bool valid = true;
@@ -76,7 +82,9 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
   validSubset.unionInterval(std::make_pair(t, t));
   Configuration_t q(path->outputSize());
   value_type t0, t1, tmin, tmax;
+  int niters = 0;
   while (!finished) {
+    ++niters;
     bool success = (*path)(q, t);
     PathValidationReportPtr_t pathReport;
     interval_t interval;
@@ -111,12 +119,16 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
       tmax = validSubset.list().begin()->second;
     }
     validPart = path->extract(tmin, tmax);
-    return false;
   } else {
     validPart = path;
-    return true;
   }
-  return false;
+  HPP_STOP_AND_DISPLAY_TIMECOUNTER(CV_Dichotomy_validateStraightPath);
+  if (niters > 1000) {
+    hppDout(notice,
+            "nb iterations, path length: " << niters << ", " << path->length());
+    hppDout(info, "path: " << *path);
+  }
+  return valid;
 }
 
 void Dichotomy::init(const DichotomyWkPtr_t weak) {
