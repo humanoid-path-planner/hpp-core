@@ -101,7 +101,10 @@ bool BodyPairCollision::validateConfiguration(
 }
 
 void BodyPairCollision::setupPath() {
-  if (HPP_DYNAMIC_PTR_CAST(StraightPath, path_)) refine_ = false;
+  if (HPP_DYNAMIC_PTR_CAST(StraightPath, path_))
+    refine_ = false;
+  else
+    refine_ = true;
   Vb_ = vector_t(path_->outputDerivativeSize());
   value_type t0 = path_->timeRange().first;
   value_type t1 = path_->timeRange().second;
@@ -118,32 +121,48 @@ void BodyPairCollision::setupPath() {
 value_type BodyPairCollision::collisionFreeInterval(
     const value_type& t, const value_type& distanceLowerBound,
     value_type& maxVelocity) const {
-  value_type T[3], Vm[2];
+  constexpr int Nrefine = 2;
+  value_type T[1 + 2 * Nrefine], Vm[1 + 2 * Nrefine];
   value_type tm, tM;
-  maxVelocity = maximalVelocity_;
+  Vm[0] = maxVelocity = maximalVelocity_;
   T[0] = distanceLowerBound / maxVelocity;
-  if (!refine_)
+  if (!refine_) {
+    if (T[0] < 1e-3) {
+      hppDout(notice,
+              "Small interval without refine: "
+              "maxVelocity = "
+                  << maxVelocity << " / T = " << T[0]
+                  << " / d = " << distanceLowerBound);
+    }
     return T[0];
-  else {
+  } else {
     tm = t - T[0];
     tM = t + T[0];
     bool leftIsValid = (tm < path_->timeRange().first);
     bool rightIsValid = (tM > path_->timeRange().second);
     if (leftIsValid && rightIsValid) return T[0];
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 2 * Nrefine; ++i) {
       tm = t - (leftIsValid ? 0 : T[i]);
       tM = t + (rightIsValid ? 0 : T[i]);
       path_->velocityBound(Vb_, tm, tM);
-      Vm[i] = computeMaximalVelocity(Vb_);
+      Vm[i + 1] = computeMaximalVelocity(Vb_);
       T[i + 1] = distanceLowerBound / Vm[i];
+      if (i % 2 == 1) {
+        assert(Vm[i - 1] >= Vm[i + 1] && Vm[i + 1] >= Vm[i] &&
+               T[i - 1] <= T[i + 1] && T[i + 1] <= T[i]);
+      }
     }
-    assert(maximalVelocity_ >= Vm[1] && Vm[1] >= Vm[0] && T[1] >= T[2] &&
-           T[2] >= T[0]);
-    // hppDout (info, "Refine changed the interval length of " << T[0] / T[2] <<
-    // ", from " << T[0] << " to " << T[2]);
-    maxVelocity = Vm[1];
-    return T[2];
+    constexpr int k = 2 * Nrefine;
+    maxVelocity = Vm[k];
+    if (T[k] < 1e-3) {
+      hppDout(notice,
+              "Small interval with refine: "
+              "maxVelocity = "
+                  << maxVelocity << " / T = " << T[k]
+                  << " / d = " << distanceLowerBound);
+    }
+    return T[k];
   }
 }
 
