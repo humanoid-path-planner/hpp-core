@@ -253,7 +253,7 @@ void WeighedDistance::computeWeights() {
       }
     }
   }
-  hppDout(info, "The weights are " << weights_);
+  hppDout(info, "The weights are " << weights_.transpose());
 }
 
 WeighedDistance::WeighedDistance(const DevicePtr_t& robot)
