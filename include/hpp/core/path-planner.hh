@@ -75,15 +75,11 @@ class HPP_CORE_DLLAPI PathPlanner {
   /// Set maximal number of iterations
   void maxIterations(const unsigned long int& n);
   /// Get maximal number of iterations
-  unsigned long int maxIterations() const {
-    return maxIterations_;
-  }
+  unsigned long int maxIterations() const { return maxIterations_; }
   /// set time out (in seconds)
   void timeOut(const double& timeOut);
   /// Get time out
-  double timeOut() const {
-    return timeOut_;
-  }
+  double timeOut() const { return timeOut_; }
   /// Make the resolution stop when the problem is solved.
   /// If set to \c false, the algorithm stops when \ref maxIterations
   /// or \ref timeOut are reached and it is a success if the
