@@ -61,6 +61,8 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/projection-error.hh
     include/hpp/core/configuration-shooter.hh
     include/hpp/core/configuration-shooter/uniform.hh
+    include/hpp/core/configuration-shooter/uniform-tpl.hh
+    include/hpp/core/configuration-shooter/uniform-tpl.hxx
     include/hpp/core/configuration-shooter/gaussian.hh
     include/hpp/core/config-projector.hh
     include/hpp/core/config-validation.hh
@@ -155,6 +157,7 @@ set(${PROJECT_NAME}_SOURCES
     src/bi-rrt-planner.cc
     src/collision-validation.cc
     src/configuration-shooter/uniform.cc
+    src/configuration-shooter/uniform-tpl.cc
     src/configuration-shooter/gaussian.cc
     src/config-projector.cc
     src/config-validations.cc
