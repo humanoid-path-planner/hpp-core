@@ -29,8 +29,8 @@
 #define BOOST_TEST_MODULE configuration_shooters
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/configuration-shooter/gaussian.hh>
-#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/configuration-shooter/uniform-tpl.hh>
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/simple-device.hh>
@@ -44,13 +44,13 @@ using namespace hpp::core::configurationShooter;
 
 namespace pin_test = hpp::pinocchio::unittest;
 
-
 hpp::pinocchio::DevicePtr_t makeDevice() {
   using namespace hpp::pinocchio;
 
   DevicePtr_t device = Device::create("test");
   urdf::loadModelFromString(device, 0, "", "prismatic_x",
-      "<robot name='n'><link name='base_link'/></robot>", "");
+                            "<robot name='n'><link name='base_link'/></robot>",
+                            "");
 
   return device;
 }
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(uniform_seedable) {
 
   hpp::core::Configuration_t q;
 
-  hpp::core::vector_t shoots (100);
+  hpp::core::vector_t shoots(100);
 
   shooter->seed(0);
   for (int i = 0; i < shoots.size(); ++i) {

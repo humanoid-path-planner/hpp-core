@@ -16,7 +16,7 @@ namespace configurationShooter {
 /// \{
 
 /// Uniformly sample with bounds of degrees of freedom using a custom generator.
-template<class generator_t>
+template <class generator_t>
 class HPP_CORE_DLLAPI UniformTpl : public ConfigurationShooter {
  public:
   typedef shared_ptr<UniformTpl<generator_t>> Ptr_t;
@@ -30,9 +30,7 @@ class HPP_CORE_DLLAPI UniformTpl : public ConfigurationShooter {
   }
 
   /// Set the generator seed.
-  void seed(typename generator_t::result_type seed) {
-    generator_.seed(seed);
-  }
+  void seed(typename generator_t::result_type seed) { generator_.seed(seed); }
 
  protected:
   /// Uniformly sample configuration space
