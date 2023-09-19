@@ -30,16 +30,30 @@
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/configuration-shooter/gaussian.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
+#include <hpp/core/configuration-shooter/uniform-tpl.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/simple-device.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 #include <pinocchio/fwd.hpp>
+#include <pinocchio/multibody/model.hpp>
 
 using hpp::pinocchio::DevicePtr_t;
 
 using namespace hpp::core::configurationShooter;
 
 namespace pin_test = hpp::pinocchio::unittest;
+
+
+hpp::pinocchio::DevicePtr_t makeDevice() {
+  using namespace hpp::pinocchio;
+
+  DevicePtr_t device = Device::create("test");
+  urdf::loadModelFromString(device, 0, "", "prismatic_x",
+      "<robot name='n'><link name='base_link'/></robot>", "");
+
+  return device;
+}
 
 template <typename CS_t>
 void basic_test(CS_t cs, DevicePtr_t robot) {
@@ -70,4 +84,33 @@ BOOST_AUTO_TEST_CASE(gaussian) {
   hpp::core::Configuration_t q;
   cs->shoot(q);
   BOOST_CHECK(q.isApprox(cs->center()));
+}
+
+BOOST_AUTO_TEST_CASE(uniform_seedable) {
+  DevicePtr_t robot = makeDevice();
+
+  robot->model().lowerPositionLimit[0] = -1.0;
+  robot->model().upperPositionLimit[0] = 1.0;
+
+  UniformSeedable::Ptr_t shooter = UniformSeedable::create(robot);
+  basic_test(shooter, robot);
+
+  hpp::core::Configuration_t q;
+
+  hpp::core::vector_t shoots (100);
+
+  shooter->seed(0);
+  for (int i = 0; i < shoots.size(); ++i) {
+    shooter->shoot(q);
+    shoots[i] = q[0];
+    BOOST_CHECK_LE(q[0], 1.0);
+    BOOST_CHECK_GE(q[0], -1.0);
+  }
+
+  // Check that setting the seed gives the same sequence of random values.
+  shooter->seed(0);
+  for (int i = 0; i < shoots.size(); ++i) {
+    shooter->shoot(q);
+    BOOST_CHECK_EQUAL(shoots[i], q[0]);
+  }
 }

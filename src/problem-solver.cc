@@ -38,6 +38,7 @@
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/configuration-shooter/gaussian.hh>
 #include <hpp/core/configuration-shooter/uniform.hh>
+#include <hpp/core/configuration-shooter/uniform-tpl.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/continuous-validation/dichotomy.hh>
 #include <hpp/core/continuous-validation/progressive.hh>
@@ -149,6 +150,14 @@ configurationShooter::UniformPtr_t createUniformConfigShooter(
   return ptr;
 }
 
+template<class generator_t>
+typename configurationShooter::UniformTpl<generator_t>::Ptr_t createUniformTpl(
+    const ProblemConstPtr_t& p) {
+  typedef configurationShooter::UniformTpl<generator_t> shooter_t;
+  typename shooter_t::Ptr_t ptr(shooter_t::create(p->robot()));
+  return ptr;
+}
+
 ProblemSolverPtr_t ProblemSolver::create() {
   return ProblemSolverPtr_t(new ProblemSolver());
 }
@@ -203,6 +212,7 @@ ProblemSolver::ProblemSolver()
 
   configurationShooters.add("Uniform", createUniformConfigShooter);
   configurationShooters.add("Gaussian", createGaussianConfigShooter);
+  configurationShooters.add("UniformSeedable", createUniformTpl<std::default_random_engine>);
 
   distances.add("Weighed", WeighedDistance::createFromProblem);
   distances.add(
