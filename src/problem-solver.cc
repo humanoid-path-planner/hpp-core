@@ -819,7 +819,7 @@ void ProblemSolver::interrupt() {
 
 void ProblemSolver::addObstacle(const DevicePtr_t& device, bool collision,
                                 bool distance) {
-  device->computeForwardKinematics();
+  device->computeForwardKinematics(pinocchio::JOINT_POSITION);
   device->computeFramesForwardKinematics();
   device->updateGeometryPlacements();
   const std::string& prefix = device->name();

@@ -49,7 +49,7 @@ bool CollisionValidation::validate(const Configuration_t& config,
                                    ValidationReportPtr_t& validationReport) {
   pinocchio::DeviceSync device(robot_);
   device.currentConfiguration(config);
-  device.computeForwardKinematics();
+  device.computeForwardKinematics(pinocchio::JOINT_POSITION);
   device.updateGeometryPlacements();
 
   fcl::CollisionResult collisionResult;

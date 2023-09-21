@@ -225,13 +225,7 @@ void WeighedDistance::computeWeights() {
     weights_.resize(0);
     return;
   }
-  // Store computation flag
-  pinocchio::Computation_t flag = robot_->computationFlag();
-  pinocchio::Computation_t newflag =
-      static_cast<pinocchio::Computation_t>(flag | pinocchio::JACOBIAN);
-  robot_->controlComputation(newflag);
-  robot_->computeForwardKinematics();
-  robot_->controlComputation(flag);
+  robot_->computeForwardKinematics(pinocchio::JOINT_POSITION | pinocchio::JACOBIAN);
   value_type minLength = std::numeric_limits<value_type>::infinity();
 
   const pinocchio::Model& model = robot_->model();

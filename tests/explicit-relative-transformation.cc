@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(two_freeflyers) {
 
   // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
-  robot->computeForwardKinematics();
+  robot->computeForwardKinematics(JOINT_POSITION);
   Transform3f diff = M1inO1.inverse() *
                      object1->currentTransformation().inverse() *
                      object2->currentTransformation() * M2inO2;
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(two_frames_on_freeflyer) {
 
   // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
-  robot->computeForwardKinematics();
+  robot->computeForwardKinematics(JOINT_POSITION);
   Transform3f diff = M1inO1.inverse() *
                      object1->currentTransformation().inverse() *
                      object2->currentTransformation() * M2inO2;
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(compare_to_relative_transform) {
 
   // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
-  robot->computeForwardKinematics();
+  robot->computeForwardKinematics(JOINT_POSITION);
   Transform3f diff = M1inO1.inverse() *
                      object1->currentTransformation().inverse() *
                      object2->currentTransformation() * M2inO2;

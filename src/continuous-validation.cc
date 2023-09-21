@@ -133,7 +133,7 @@ bool ContinuousValidation::validateConfiguration(
   interval.second = std::numeric_limits<value_type>::infinity();
   hpp::pinocchio::DeviceSync robot(robot_);
   robot.currentConfiguration(config);
-  robot.computeForwardKinematics();
+  robot.computeForwardKinematics(pinocchio::JOINT_POSITION);
   robot.updateGeometryPlacements();
   IntervalValidations_t::iterator smallestInterval(intervalValidations.begin());
   if (!validateIntervals(intervalValidations, t, interval, report,
