@@ -128,15 +128,19 @@ class CollisionFunction : public DifferentiableFunction {
 
   fcl::CollisionResult checkCollision(const Configuration_t& q,
                                       bool enableContact) {
-    robot_->currentConfiguration(q);
-    robot_->computeForwardKinematics();
-    robot_->updateGeometryPlacements();
+    pinocchio::DeviceSync device(robot_);
+    device.currentConfiguration(q);
+    device.computeForwardKinematics(pinocchio::JOINT_POSITION);
+    device.updateGeometryPlacements();
     fcl::CollisionResult result;
     fcl::CollisionRequestFlag flag =
         enableContact ? fcl::CONTACT : fcl::NO_REQUEST;
     fcl::CollisionRequest collisionRequest(flag, 1);
-    fcl::collide(object1_->geometry().get(), object1_->getFclTransform(),
-                 object2_->geometry().get(), object2_->getFclTransform(),
+    using ::pinocchio::toFclTransform3f;
+    fcl::collide(object1_->geometry().get(),
+                 toFclTransform3f(object1_->getTransform(device.d())),
+                 object2_->geometry().get(),
+                 toFclTransform3f(object2_->getTransform(device.d())),
                  collisionRequest, result);
     return result;
   }
@@ -147,8 +151,9 @@ class CollisionFunction : public DifferentiableFunction {
     DifferentiableFunctionPtr_t f;
     vector3_t u;
 
-    robot_->currentConfiguration(qColl_);
-    robot_->computeForwardKinematics();
+    pinocchio::DeviceSync device(robot_);
+    device.currentConfiguration(qColl_);
+    device.computeForwardKinematics(pinocchio::JOINT_POSITION | pinocchio::JACOBIAN);
 
     if (!object2_->joint() || object2_->joint()->index() == 0) {
       object1_.swap(object2_);
@@ -157,18 +162,18 @@ class CollisionFunction : public DifferentiableFunction {
     JointConstPtr_t joint1 = object1_->joint();
     JointConstPtr_t joint2 = object2_->joint();
     assert(joint2 && joint2->index() > 0);
-    Transform3f M2(joint2->currentTransformation());
+    Transform3f M2(joint2->currentTransformation(device.d()));
     vector3_t x2_J2(M2.actInv(contactPoint_));
 
     if (joint1 && joint1->index() > 0) {  // object1 = body part
-      Transform3f M1(joint1->currentTransformation());
+      Transform3f M1(joint1->currentTransformation(device.d()));
       // Position of contact point in each object local frame
       vector3_t x1_J1 = M1.actInv(contactPoint_);
       // Compute contact points in configuration qFree
-      robot_->currentConfiguration(qFree_);
-      robot_->computeForwardKinematics();
-      M2 = joint2->currentTransformation();
-      M1 = joint1->currentTransformation();
+      device.currentConfiguration(qFree_);
+      device.computeForwardKinematics(pinocchio::JOINT_POSITION);
+      M2 = joint2->currentTransformation(device.d());
+      M1 = joint1->currentTransformation(device.d());
       // Position of x1 in local frame of joint2
       vector3_t x1_J2(M2.actInv(M1.act(x1_J1)));
       hppDout(info, "x2 in J2 = " << x2_J2.transpose());
@@ -181,9 +186,9 @@ class CollisionFunction : public DifferentiableFunction {
     } else {  // object1 = fixed obstacle and has no joint
       vector3_t x1_J1(contactPoint_);
       // Compute contact points in configuration qFree
-      robot_->currentConfiguration(qFree_);
-      robot_->computeForwardKinematics();
-      Transform3f M2(joint2->currentTransformation());
+      device.currentConfiguration(qFree_);
+      device.computeForwardKinematics(pinocchio::JOINT_POSITION);
+      Transform3f M2(joint2->currentTransformation(device.d()));
       // position of x2 in global frame
       vector3_t x2_J1(M2.act(x2_J2));
       hppDout(info, "x2 in J1 = " << x2_J1.transpose());

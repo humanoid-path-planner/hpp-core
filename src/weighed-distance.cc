@@ -225,12 +225,13 @@ void WeighedDistance::computeWeights() {
     weights_.resize(0);
     return;
   }
-  robot_->computeForwardKinematics(pinocchio::JOINT_POSITION | pinocchio::JACOBIAN);
+  pinocchio::DeviceSync device(robot_);
+  device.computeForwardKinematics(pinocchio::JOINT_POSITION | pinocchio::JACOBIAN);
   value_type minLength = std::numeric_limits<value_type>::infinity();
 
-  const pinocchio::Model& model = robot_->model();
-  const pinocchio::Data& data = robot_->data();
-  const pinocchio::GeomData& geomData = robot_->geomData();
+  const pinocchio::Model& model = device.model();
+  const pinocchio::Data& data = device.data();
+  const pinocchio::GeomData& geomData = device.geomData();
   weights_.resize(model.joints.size() - 1);
   // TODO when there is only one freeflyer, and the body radius is 0,
   // the weights should be [0,].
