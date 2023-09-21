@@ -66,6 +66,7 @@ HPP_PREDEF_CLASS(Path);
 HPP_PREDEF_CLASS(TimeParameterization);
 HPP_PREDEF_CLASS(PathOptimizer);
 HPP_PREDEF_CLASS(PathPlanner);
+class Parameter;
 HPP_PREDEF_CLASS(ProblemTarget);
 HPP_PREDEF_CLASS(PathVector);
 HPP_PREDEF_CLASS(PlanAndOptimize);
