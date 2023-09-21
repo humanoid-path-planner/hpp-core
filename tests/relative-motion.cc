@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(relativeMotion) {
   /// Add a relative transformation
   Configuration_t q = dev->neutralConfiguration();
   dev->currentConfiguration(q);
-  dev->computeForwardKinematics();
+  dev->computeForwardKinematics(hpp::pinocchio::JOINT_POSITION);
   Transform3f tf1(ja1->currentTransformation());
   Transform3f tf2(jb2->currentTransformation());
   // mask is not full, relative motion not fully constrained
