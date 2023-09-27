@@ -148,8 +148,8 @@ void VisibilityPrmPlanner::oneStep() {
     configurationShooter->shoot(q_rand);
     applyConstraints(q_init, q_rand, q_proj);
     // Joseph: I don't think this is necessary.
-    //robot->currentConfiguration(q_proj);
-    //robot->computeForwardKinematics();
+    // robot->currentConfiguration(q_proj);
+    // robot->computeForwardKinematics();
   } while (!configValidations->validate(q_proj, report) || !constrApply_);
   count = 0;
 
