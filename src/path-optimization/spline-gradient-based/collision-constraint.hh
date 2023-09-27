@@ -153,7 +153,8 @@ class CollisionFunction : public DifferentiableFunction {
 
     pinocchio::DeviceSync device(robot_);
     device.currentConfiguration(qColl_);
-    device.computeForwardKinematics(pinocchio::JOINT_POSITION | pinocchio::JACOBIAN);
+    device.computeForwardKinematics(pinocchio::JOINT_POSITION |
+                                    pinocchio::JACOBIAN);
 
     if (!object2_->joint() || object2_->joint()->index() == 0) {
       object1_.swap(object2_);

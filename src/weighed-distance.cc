@@ -226,7 +226,8 @@ void WeighedDistance::computeWeights() {
     return;
   }
   pinocchio::DeviceSync device(robot_);
-  device.computeForwardKinematics(pinocchio::JOINT_POSITION | pinocchio::JACOBIAN);
+  device.computeForwardKinematics(pinocchio::JOINT_POSITION |
+                                  pinocchio::JACOBIAN);
   value_type minLength = std::numeric_limits<value_type>::infinity();
 
   const pinocchio::Model& model = device.model();
