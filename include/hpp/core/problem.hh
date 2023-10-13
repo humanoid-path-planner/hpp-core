@@ -138,11 +138,6 @@ class HPP_CORE_DLLAPI Problem {
     return configValidations_;
   }
 
-  /// Reset the ConfigValidations
-  /// by creating a new ConfigValidations using ConfigValidations::create
-  /// \deprecated Use clear instead.
-  HPP_CORE_DEPRECATED void resetConfigValidations();
-
   /// Clear the ConfigValidations
   /// by calling ConfigValidations::clear
   void clearConfigValidations();

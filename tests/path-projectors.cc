@@ -164,10 +164,10 @@ void displayPaths(PathPtr_t path, PathPtr_t projection,
   std::cerr << std::fixed << std::showpos << std::setprecision(4);
   const char* sep = "\t| ";
   for (std::size_t i = 0; i < 100; ++i) {
-    if (!(*path)(q, (value_type)i * stepPath))
+    if (!path->eval(q, (value_type)i * stepPath))
       std::cerr << "Could not project path at " << (value_type)i * stepPath
                 << "\n";
-    if (!(*projection)(qq, (value_type)i * stepProj))
+    if (!projection->eval(qq, (value_type)i * stepProj))
       std::cerr << "Could not project projection at "
                 << (value_type)i * stepProj << "\n";
     func->value(v1, q);

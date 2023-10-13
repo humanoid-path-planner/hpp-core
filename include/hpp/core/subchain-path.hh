@@ -84,7 +84,7 @@ class SubchainPath : public Path {
   }
 
   virtual bool impl_compute(ConfigurationOut_t result, value_type param) const {
-    bool success = (*original_)(q_, param);
+    bool success = original_->eval(q_, param);
     if (success) dofExtract(q_, result);
     return success;
   }

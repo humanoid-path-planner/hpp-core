@@ -76,7 +76,7 @@ bool Discretized::validate(const PathPtr_t& path, bool reverse,
 
   value_type t = lastValidTime;
   while (finished < 2 && valid) {
-    bool success = (*path)(q, t);
+    bool success = path->eval(q, t);
     if (!success) {
       validationReport = PathValidationReportPtr_t(new PathValidationReport(
           t, ValidationReportPtr_t(new ProjectionError())));

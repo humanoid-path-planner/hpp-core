@@ -85,7 +85,7 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
   int niters = 0;
   while (!finished) {
     ++niters;
-    bool success = (*path)(q, t);
+    bool success = path->eval(q, t);
     PathValidationReportPtr_t pathReport;
     interval_t interval;
     if (!success) {

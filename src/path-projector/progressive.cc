@@ -183,7 +183,7 @@ bool Progressive::project(const PathPtr_t& path, PathPtr_t& proj) const {
     /// of the constraint.
     do {
       if (dicC >= maxDichotomyTries) break;
-      (*toSplit)(qi, curStep);
+      toSplit->eval(qi, curStep);
       if (constraints->apply(qi)) curLength = d(qb, qi);
       curStep /= 2;
       dicC++;

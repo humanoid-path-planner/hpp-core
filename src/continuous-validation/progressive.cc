@@ -99,7 +99,7 @@ bool Progressive::validateStraightPath(
   // validate.
   if (reverse ? t <= tmin : t >= tmax) finished++;
   while (finished < 2 && valid) {
-    bool success = (*path)(q, t);
+    bool success = path->eval(q, t);
     value_type tprev = t;
     if (!success) {
       report = PathValidationReportPtr_t(new PathValidationReport(

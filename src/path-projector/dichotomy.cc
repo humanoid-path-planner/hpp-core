@@ -109,7 +109,7 @@ bool Dichotomy::applyToStraightPath(const StraightPathPtr_t& path,
     }
     timeRange = sPath->timeRange();
     const Configuration_t& qb = sPath->initial();
-    (*sPath)(qi, timeRange.first + l / 2);
+    sPath->eval(qi, timeRange.first + l / 2);
     const Configuration_t& qe = sPath->end();
     if (!constraints->apply(qi)) {
       pathIsFullyProjected = false;

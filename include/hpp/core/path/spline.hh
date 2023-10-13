@@ -199,7 +199,7 @@ class HPP_CORE_DLLAPI Spline : public Path {
 
   virtual Configuration_t initial() const {
     Configuration_t q(outputSize());
-    bool res = operator()(q, timeRange().first);
+    bool res = eval(q, timeRange().first);
     assert(res);
     (void)res;
     return q;
@@ -207,7 +207,7 @@ class HPP_CORE_DLLAPI Spline : public Path {
 
   virtual Configuration_t end() const {
     Configuration_t q(outputSize());
-    bool res = operator()(q, timeRange().second);
+    bool res = eval(q, timeRange().second);
     assert(res);
     (void)res;
     return q;

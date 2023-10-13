@@ -81,7 +81,7 @@ InterpolatedPath::InterpolatedPath(const PathPtr_t& path,
   Configuration_t q(device->configSize());
   for (std::size_t iS = 0; iS < nbSamples; ++iS) {
     const value_type u = timeRange().first + dl * (value_type)(iS + 1);
-    if (!(*path)(q, u))
+    if (!path->eval(q, u))
       throw projection_error("could not build InterpolatedPath");
     insert(u, q);
   }

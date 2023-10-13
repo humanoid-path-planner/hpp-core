@@ -67,7 +67,7 @@ struct ComputeWeightStep
       const pinocchio::JointIndex& j,
       Eigen::Matrix<value_type, 6, NR>& rBlock) {
     typedef
-        typename pinocchio::LieGroupTpl::template operation<JointModel>::type
+        typename pinocchio::RnxSOnLieGroupMap::template operation<JointModel>::type
             LGOp_t;
     typedef Eigen::Matrix<value_type, 6, JointModel::NV> Block_t;
     Block_t block;
@@ -97,7 +97,7 @@ struct ComputeWeightStep
                    const pinocchio::Model& model, const pinocchio::Data& data,
                    const pinocchio::GeomData& geomData, value_type& length) {
     typedef
-        typename pinocchio::LieGroupTpl::template operation<JointModel>::type
+        typename pinocchio::RnxSOnLieGroupMap::template operation<JointModel>::type
             LGOp_t;
     typedef Eigen::Matrix<value_type, 6, LGOp_t::NR> RBlock_t;
 
@@ -146,7 +146,7 @@ struct SquaredDistanceStep
   static void algo(const ::pinocchio::JointModelBase<JointModel>& jmodel,
                    ConfigurationIn_t q0, ConfigurationIn_t q1,
                    const value_type& w, value_type& distance) {
-    typedef typename ::hpp::pinocchio::LieGroupTpl::template operation<
+    typedef typename ::hpp::pinocchio::RnxSOnLieGroupMap::template operation<
         JointModel>::type LG_t;
     distance = LG_t().squaredDistance(jmodel.jointConfigSelector(q0),
                                       jmodel.jointConfigSelector(q1), w);

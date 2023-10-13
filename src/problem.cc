@@ -170,12 +170,6 @@ void Problem::resetGoalConfigs() {
 
 // ======================================================================
 
-void Problem::resetConfigValidations() {
-  configValidations_ = ConfigValidations::create();
-}
-
-// ======================================================================
-
 void Problem::clearConfigValidations() { configValidations_->clear(); }
 
 // ======================================================================

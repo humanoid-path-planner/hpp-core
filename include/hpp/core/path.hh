@@ -127,19 +127,6 @@ class HPP_CORE_DLLAPI Path {
   /// \{
 
   /// Configuration at time
-  /// \deprecated use eval instead
-  HPP_CORE_DEPRECATED Configuration_t operator()(const value_type& time,
-                                                 bool& success) const {
-    return eval(time, success);
-  }
-
-  /// Configuration at time
-  /// \deprecated use eval instead
-  bool operator()(ConfigurationOut_t result, const value_type& time) const {
-    return eval(result, time);
-  }
-
-  /// Configuration at time
   Configuration_t eval(const value_type& time, bool& success) const {
     return configAtParam(paramAtTime(time), success);
   }

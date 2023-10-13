@@ -95,14 +95,14 @@ std::ostream& operator<<(std::ostream& os, const Pair_t& p) {
 }
 
 void printAt(const PathPtr_t& p, ConfigurationOut_t q, value_type t) {
-  (*p)(q, t);
+  p->eval(q, t);
   std::cout << t << ":\t" << q.transpose() << std::endl;
 }
 void checkAt(const PathPtr_t orig, value_type to, const PathPtr_t extr,
              value_type te) {
   Configuration_t q1(orig->outputSize()), q2(orig->outputSize());
-  (*orig)(q1, to);
-  (*extr)(q2, te);
+  orig->eval(q1, to);
+  extr->eval(q2, te);
   BOOST_CHECK_MESSAGE(q2.isApprox(q1),
                       "\nPath 1: " << q1.head<10>().transpose() << "\nPath 2: "
                                    << q2.head<10>().transpose());
