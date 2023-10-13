@@ -117,7 +117,7 @@ struct SplineGradientBased<_PB, _SO>::CollisionFunctions {
     const value_type t = spline->length() * ratios[fIdx];
 
     q.resize(f->inputSize());
-    (*spline)(q, t);
+    spline->eval(q, t);
 
     // Evaluate explicit functions
     if (sod.es) sod.es->solve(q);

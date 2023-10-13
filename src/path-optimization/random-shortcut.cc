@@ -104,7 +104,7 @@ PathVectorPtr_t RandomShortcut::optimize(const PathVectorPtr_t& path) {
       continue;
     }
     for (int i = 1; i < 3; ++i) {
-      if (!(*tmpPath)(q[i], t[i])) {
+      if (!tmpPath->eval(q[i], t[i])) {
         hppDout(error,
                 "Configuration at param " << t[i] << " could not be projected");
         projectionError--;

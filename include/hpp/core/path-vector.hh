@@ -120,11 +120,6 @@ class HPP_CORE_DLLAPI PathVector : public Path {
   void appendPath(const PathPtr_t& path);
 
   /// Concatenate two vectors of path
-  /// \deprecated use void method concatenate (const PathVectorPtr_t& path)
-  ///             instead.
-  HPP_CORE_DEPRECATED void concatenate(const PathVector& path);
-
-  /// Concatenate two vectors of path
   /// \param path path to append at the end of this one
   ///
   /// Each element of path is appended to this one.

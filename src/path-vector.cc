@@ -95,12 +95,6 @@ PathPtr_t PathVector::pathAtRank(std::size_t rank) const {
   return copy;
 }
 
-void PathVector::concatenate(const PathVector& path) {
-  for (std::size_t i = 0; i < path.numberPaths(); ++i) {
-    appendPath(path.pathAtRank(i)->copy());
-  }
-}
-
 void PathVector::concatenate(const PathVectorPtr_t& path) {
   for (std::size_t i = 0; i < path->numberPaths(); ++i) {
     appendPath(path->pathAtRank(i)->copy());
@@ -128,7 +122,7 @@ bool PathVector::impl_compute(ConfigurationOut_t result,
   rank = rankAtParam(param, localParam);
 
   PathPtr_t subpath = paths_[rank];
-  return (*subpath)(result, localParam);
+  return subpath->eval(result, localParam);
 }
 
 void PathVector::impl_derivative(vectorOut_t result, const value_type& param,

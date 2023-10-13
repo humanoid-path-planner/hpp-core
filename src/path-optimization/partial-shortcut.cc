@@ -254,7 +254,7 @@ PathVectorPtr_t PartialShortcut::optimizeRandom(
       t1 = u2;
       t2 = u1;
     }
-    bool success = (*current)(q1, t1) && (*current)(q2, t2);
+    bool success = current->eval(q1, t1) && current->eval(q2, t2);
     if (success) {
       hppDout(warning,
               "The constraints could not be applied to the "

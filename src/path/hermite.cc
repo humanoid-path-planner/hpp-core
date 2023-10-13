@@ -105,7 +105,7 @@ vector_t Hermite::velocity(const value_type& param) const {
   if (constraints() && constraints()->configProjector()) {
     ConfigProjectorPtr_t proj = constraints()->configProjector();
     Configuration_t q(outputSize());
-    if (!(*this)(q, param))
+    if (!eval(q, param))
       throw projection_error("Configuration does not satisfy the constraints");
     proj->projectVectorOnKernel(q, v, v);
   }
