@@ -52,13 +52,13 @@ PathVectorPtr_t SimpleShortcut::optimize(const PathVectorPtr_t& path) {
   RoadmapPtr_t roadmap(
       Roadmap::create(problem()->distance(), problem()->robot()));
   std::vector<NodePtr_t> nodes;
-  ConfigurationPtr_t qPtr(new Configuration_t(path->initial()));
+  Configuration_t qPtr(path->initial());
   roadmap->initNode(qPtr);
   NodePtr_t node(roadmap->initNode());
   nodes.push_back(node);
   for (std::size_t i = 0; i < path->numberPaths(); ++i) {
     PathPtr_t p(path->pathAtRank(i));
-    qPtr = ConfigurationPtr_t(new Configuration_t(p->end()));
+    qPtr = Configuration_t(p->end());
     node = roadmap->addNodeAndEdge(node, qPtr, p);
     nodes.push_back(node);
   }
@@ -67,7 +67,7 @@ PathVectorPtr_t SimpleShortcut::optimize(const PathVectorPtr_t& path) {
   for (std::size_t i = 0; i < nodes.size() - 1; ++i) {
     for (std::size_t j = i + 2; j < nodes.size(); ++j) {
       PathPtr_t path(
-          steer(*(nodes[i]->configuration()), *(nodes[j]->configuration())));
+          steer(nodes[i]->configuration(), nodes[j]->configuration()));
       PathValidationReportPtr_t report;
       PathPtr_t unused;
       if ((path) && (pv->validate(path, false, unused, report))) {

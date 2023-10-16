@@ -251,19 +251,19 @@ Configuration_t BiRrtStar::sample() {
 
       // qm = (q0 + q2) / 2
       pinocchio::interpolate(problem()->robot(),
-                             *edge0->second->from()->configuration(),
-                             *edge1->second->to()->configuration(), 0.5, q);
+                             edge0->second->from()->configuration(),
+                             edge1->second->to()->configuration(), 0.5, q);
 
       // q = q1 + alpha * (qm - q1)
       vector_t v(problem()->robot()->numberDof());
       pinocchio::difference(problem()->robot(), q,
-                            *edge0->second->to()->configuration(), v);
+                            edge0->second->to()->configuration(), v);
       v.normalize();
 
       value_type l(extendMaxLength_ - value_type(rand()) * extendMaxLength_ /
                                           (10 * (value_type)INT_MAX));
       pinocchio::integrate(problem()->robot(),
-                           *edge0->second->to()->configuration(), l * v, q);
+                           edge0->second->to()->configuration(), l * v, q);
       return q;
     }
   }
@@ -334,14 +334,14 @@ bool BiRrtStar::extend(NodePtr_t target, ParentMap_t& parentMap,
     // constraints that have a small basin of attraction
     int i = 0;
     while (!problem()->constraints()->apply(q) && i < 10) {
-      problem()->robot()->configSpace()->interpolate(*(near->configuration()),
+      problem()->robot()->configSpace()->interpolate(near->configuration(),
                                                      q, .5, q);
       ++i;
     }
   }
 
   PathPtr_t path;
-  buildPath(*near->configuration(), q, extendMaxLength_, true, path);
+  buildPath(near->configuration(), q, extendMaxLength_, true, path);
   if (!path || path->length() < minimalPathLength_) return false;
   q = path->end();
   assert(path->end() == q);
@@ -367,7 +367,7 @@ bool BiRrtStar::extend(NodePtr_t target, ParentMap_t& parentMap,
       assert(near2new->end() == q);
       paths.push_back(ValidatedPath_t(true, near2new));
       continue;
-    } else if (buildPath(*(*_near)->configuration(), q, -1, false, near2new)) {
+    } else if (buildPath((*_near)->configuration(), q, -1, false, near2new)) {
       paths.push_back(ValidatedPath_t(false, near2new));
       assert(near2new->end() == q);
     } else {
@@ -392,7 +392,7 @@ bool BiRrtStar::extend(NodePtr_t target, ParentMap_t& parentMap,
     }
   }
 
-  NodePtr_t nnew = roadmap()->addNode(make_shared<Configuration_t>(q));
+  NodePtr_t nnew = roadmap()->addNode(q);
   EdgePtr_t edge = roadmap()->addEdge(near, nnew, path);
   roadmap()->addEdge(nnew, near, path->reverse());
   assert(parentMap.find(near) != parentMap.end());
@@ -436,7 +436,7 @@ bool BiRrtStar::improve(const Configuration_t& q) {
   if (dist < 1e-16) return false;
 
   PathPtr_t nearQ_qnew;
-  buildPath(*nearQ->configuration(), q, extendMaxLength_, true, nearQ_qnew);
+  buildPath(nearQ->configuration(), q, extendMaxLength_, true, nearQ_qnew);
   if (!nearQ_qnew || nearQ_qnew->length() < minimalPathLength_) return false;
 
   const Configuration_t qnew(nearQ_qnew->end());
@@ -449,7 +449,7 @@ bool BiRrtStar::improve(const Configuration_t& q) {
                             1. / (value_type)problem()->robot()->numberDof()),
           extendMaxLength_));
 
-  const NodePtr_t nnew = roadmap()->addNode(make_shared<Configuration_t>(qnew));
+  const NodePtr_t nnew = roadmap()->addNode(qnew);
 
   std::vector<ValidatedPath_t> paths;
   paths.reserve(nearNodes.size());
@@ -469,7 +469,7 @@ bool BiRrtStar::improve(const Configuration_t& q) {
         assert(near2new->end() == qnew);
         paths.push_back(ValidatedPath_t(true, near2new));
         continue;
-      } else if (buildPath(*(*_near)->configuration(), qnew, -1, false,
+      } else if (buildPath((*_near)->configuration(), qnew, -1, false,
                            near2new)) {
         paths.push_back(ValidatedPath_t(false, near2new));
         assert(near2new->end() == qnew);

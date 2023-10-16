@@ -61,7 +61,7 @@ class HPP_CORE_DLLAPI VisibilityPrmPlanner : public PathPlanner {
   void init(const VisibilityPrmPlannerWkPtr_t& weak);
 
  private:
-  typedef std::tuple<NodePtr_t, ConfigurationPtr_t, PathPtr_t> DelayedEdge_t;
+  typedef std::tuple<NodePtr_t, Configuration_t, PathPtr_t> DelayedEdge_t;
   typedef std::vector<DelayedEdge_t> DelayedEdges_t;
   VisibilityPrmPlannerWkPtr_t weakPtr_;
   DelayedEdges_t delayedEdges_;

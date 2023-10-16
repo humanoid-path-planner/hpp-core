@@ -227,11 +227,11 @@ void PathPlanner::tryConnectInitAndGoals() {
        itCC != roadmap()->connectedComponents().end(); ++itCC) {
     if (*itCC != initCC) {
       value_type d;
-      NodePtr_t near(nn->search(*initNode->configuration(), *itCC, d, true));
+      NodePtr_t near(nn->search(initNode->configuration(), *itCC, d, true));
       assert(near);
-      ConfigurationPtr_t q1(initNode->configuration());
-      ConfigurationPtr_t q2(near->configuration());
-      path = (*sm)(*q1, *q2);
+      Configuration_t q1(initNode->configuration());
+      Configuration_t q2(near->configuration());
+      path = (*sm)(q1, q2);
       if (!path) continue;
       if (pathProjector) {
         if (!pathProjector->apply(path, projPath)) continue;
@@ -256,11 +256,11 @@ void PathPlanner::tryConnectInitAndGoals() {
          itCC != roadmap()->connectedComponents().end(); ++itCC) {
       if (*itCC != goalCC) {
         value_type d;
-        NodePtr_t near(nn->search(*(*itn)->configuration(), *itCC, d, false));
+        NodePtr_t near(nn->search((*itn)->configuration(), *itCC, d, false));
         assert(near);
-        ConfigurationPtr_t q1(near->configuration());
-        ConfigurationPtr_t q2((*itn)->configuration());
-        path = (*sm)(*q1, *q2);
+        Configuration_t q1(near->configuration());
+        Configuration_t q2((*itn)->configuration());
+        path = (*sm)(q1, q2);
         if (!path) continue;
         if (pathProjector) {
           if (!pathProjector->apply(path, projPath)) continue;

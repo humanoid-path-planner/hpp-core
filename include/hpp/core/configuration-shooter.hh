@@ -45,9 +45,9 @@ namespace core {
 class HPP_CORE_DLLAPI ConfigurationShooter {
  public:
   /// Shoot a random configuration
-  virtual ConfigurationPtr_t shoot() const {
-    ConfigurationPtr_t q(new Configuration_t);
-    shoot(*q);
+  virtual ConfigurationOut_t shoot() const {
+    Configuration_t q;
+    shoot(q);
     return q;
   }
 

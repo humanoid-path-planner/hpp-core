@@ -85,7 +85,7 @@ matrix_t generateRandomConfig(const DevicePtr_t& robot, size_type n) {
   ConfigurationShooterPtr_t shooter(Uniform::create(robot));
   matrix_t m(n, robot->configSize());
   for (size_type i = 0; i < n; ++i) {
-    m.row(i) = *(shooter->shoot());
+    m.row(i) = shooter->shoot();
   }
   return m;
 }
@@ -160,7 +160,6 @@ BOOST_AUTO_TEST_CASE(continuous_validation_straight) {
   //  create random paths and test them with different validation instances
   Configuration_t q1(robot->configSize()), q2(robot->configSize());
   bpt::ptime t0 = bpt::microsec_clock::local_time();
-  int Nthreads = 1;
   for (size_type i = 0; i < n1; ++i) {
     {
       q1 = m1.row(i1);

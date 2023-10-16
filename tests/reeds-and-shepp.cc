@@ -42,7 +42,6 @@ using hpp::core::ProblemPtr_t;
 using hpp::core::size_type;
 using hpp::core::value_type;
 using hpp::pinocchio::Configuration_t;
-using hpp::pinocchio::ConfigurationPtr_t;
 using hpp::pinocchio::DevicePtr_t;
 
 typedef hpp::core::distance::ReedsShepp Distance;

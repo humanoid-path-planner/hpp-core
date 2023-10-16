@@ -73,8 +73,8 @@ PathVectorPtr_t GoalConfigurations::computePath(
   astar.solution(sol);
   // This happens when q_init == q_goal
   if (sol->numberPaths() == 0) {
-    ConfigurationPtr_t q(roadmap->initNode()->configuration());
-    sol->appendPath((*problem->steeringMethod())(*q, *q));
+    Configuration_t q(roadmap->initNode()->configuration());
+    sol->appendPath((*problem->steeringMethod())(q, q));
   }
   return sol;
 }
@@ -86,7 +86,7 @@ const Configurations_t& GoalConfigurations::configurations() const {
 
 // ======================================================================
 
-void GoalConfigurations::addConfiguration(const ConfigurationPtr_t& config) {
+void GoalConfigurations::addConfiguration(ConfigurationIn_t config) {
   configurations_.push_back(config);
 }
 

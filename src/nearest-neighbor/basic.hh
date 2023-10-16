@@ -51,12 +51,12 @@ class Basic : public NearestNeighbor {
                            const ConnectedComponentPtr_t& connectedComponent,
                            value_type& distance);
 
-  virtual NodePtr_t search(const Configuration_t& configuration,
+  virtual NodePtr_t search(ConfigurationIn_t configuration,
                            const ConnectedComponentPtr_t& connectedComponent,
                            value_type& distance, bool reverse = false);
 
   virtual Nodes_t KnearestSearch(
-      const Configuration_t& configuration,
+      ConfigurationIn_t configuration,
       const ConnectedComponentPtr_t& connectedComponent, const std::size_t K,
       value_type& distance);
 
@@ -70,11 +70,11 @@ class Basic : public NearestNeighbor {
   /// \param K the number of nearest neighbors to return
   /// \retval distance to the Kth closest neighbor
   /// \return the K nearest neighbors
-  virtual Nodes_t KnearestSearch(const Configuration_t& configuration,
+  virtual Nodes_t KnearestSearch(ConfigurationIn_t configuration,
                                  const RoadmapPtr_t& roadmap,
                                  const std::size_t K, value_type& distance);
 
-  NodeVector_t withinBall(const Configuration_t& configuration,
+  NodeVector_t withinBall(ConfigurationIn_t configuration,
                           const ConnectedComponentPtr_t& cc,
                           value_type maxDistance);
 

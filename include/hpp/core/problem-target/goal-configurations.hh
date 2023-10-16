@@ -62,7 +62,7 @@ class HPP_CORE_DLLAPI GoalConfigurations : public ProblemTarget {
   /// Get goal configurations.
   const Configurations_t& configurations() const;
   /// Add goal configuration.
-  void addConfiguration(const ConfigurationPtr_t& config);
+  void addConfiguration(ConfigurationIn_t config);
   /// Reset the set of goal configurations
   void resetConfigurations();
 

@@ -103,7 +103,7 @@ KDTreePtr_t KDTree::findLeaf(const NodePtr_t& node) {
   KDTreePtr_t CurrentTree = this;
   CurrentTree->nodesMap_[node->connectedComponent()];
   while (CurrentTree->supChild_ != NULL && CurrentTree->infChild_ != NULL) {
-    if ((*(node->configuration()))[CurrentTree->supChild_->splitDim_] >
+    if ((node->configuration())[CurrentTree->supChild_->splitDim_] >
         CurrentTree->supChild_
             ->lowerBounds_[CurrentTree->supChild_->splitDim_]) {
       CurrentTree = CurrentTree->supChild_;
@@ -163,7 +163,7 @@ void KDTree::split() {
     Nodes_t nodes = itCC->second;
     for (Nodes_t::const_iterator itNode = nodes.begin(); itNode != nodes.end();
          ++itNode) {
-      const Configuration_t& q(*((*itNode)->configuration()));
+      const Configuration_t& q((*itNode)->configuration());
       for (size_type i = 0; i < q.size(); ++i) {
         if (q[i] < actualLower[i]) {
           actualLower[i] = q[i];
@@ -215,7 +215,7 @@ void KDTree::findDeviceBounds() {
   }
 }
 
-value_type KDTree::distanceToBox(const Configuration_t& configuration) {
+value_type KDTree::distanceToBox(ConfigurationIn_t configuration) {
   value_type minDistance;
   value_type DistanceToUpperBound;
   value_type DistanceToLowerBound;
@@ -232,7 +232,7 @@ value_type KDTree::distanceToBox(const Configuration_t& configuration) {
   return minDistance;
 }
 
-NodePtr_t KDTree::search(const Configuration_t& configuration,
+NodePtr_t KDTree::search(ConfigurationIn_t configuration,
                          const ConnectedComponentPtr_t& connectedComponent,
                          value_type& minDistance, bool) {
   // Test if the configuration is in the root box
@@ -260,7 +260,7 @@ NodePtr_t KDTree::search(const Configuration_t& configuration,
 NodePtr_t KDTree::search(const NodePtr_t& node,
                          const ConnectedComponentPtr_t& connectedComponent,
                          value_type& minDistance) {
-  return search(*node->configuration(), connectedComponent, minDistance);
+  return search(node->configuration(), connectedComponent, minDistance);
 }
 
 Nodes_t KDTree::KnearestSearch(const NodePtr_t&, const ConnectedComponentPtr_t&,
@@ -268,20 +268,20 @@ Nodes_t KDTree::KnearestSearch(const NodePtr_t&, const ConnectedComponentPtr_t&,
   assert(false && "K-nearest neighbor in KD-tree: unimplemented features");
 }
 
-Nodes_t KDTree::KnearestSearch(const Configuration_t&,
+Nodes_t KDTree::KnearestSearch(ConfigurationIn_t,
                                const ConnectedComponentPtr_t&,
                                const std::size_t, value_type&) {
   assert(false && "K-nearest neighbor in KD-tree: unimplemented features");
 }
 
-Nodes_t KDTree::KnearestSearch(const Configuration_t& configuration,
+Nodes_t KDTree::KnearestSearch(ConfigurationIn_t configuration,
                                const RoadmapPtr_t& roadmap, const std::size_t K,
                                value_type& distance) {
   assert(false && "K-nearest neighbor in KD-tree: unimplemented features");
 }
 
 void KDTree::search(value_type boxDistance, value_type& minDistance,
-                    const Configuration_t& configuration,
+                    ConfigurationIn_t configuration,
                     const ConnectedComponentPtr_t& connectedComponent,
                     NodePtr_t& nearest, bool reverse) {
   if (boxDistance < minDistance * minDistance &&
@@ -292,9 +292,9 @@ void KDTree::search(value_type boxDistance, value_type& minDistance,
       for (Nodes_t::iterator itNode = nodesMap_[connectedComponent].begin();
            itNode != nodesMap_[connectedComponent].end(); ++itNode) {
         if (reverse)
-          distance = (*distance_)(configuration, *((*itNode)->configuration()));
+          distance = (*distance_)(configuration, (*itNode)->configuration());
         else
-          distance = (*distance_)(*((*itNode)->configuration()), configuration);
+          distance = (*distance_)((*itNode)->configuration(), configuration);
         if (distance < minDistance) {
           minDistance = distance;
           nearest = (*itNode);

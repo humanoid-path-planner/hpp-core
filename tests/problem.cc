@@ -90,9 +90,9 @@ void pointMassProblem(const char* steeringMethod, const char* distance,
   SE3 boxTf(matrix3_t::Identity(), vector3_t(-2, 0, 0));
   ps->addObstacle("box", boxGeom, boxTf, true, true);
 
-  ConfigurationPtr_t qinit(new Configuration_t(robot->neutralConfiguration()));
-  ConfigurationPtr_t qgoal(new Configuration_t(robot->neutralConfiguration()));
-  *qgoal << -4, 0, 0;
+  Configuration_t qinit(robot->neutralConfiguration());
+  Configuration_t qgoal(robot->neutralConfiguration());
+  qgoal << -4, 0, 0;
 
   ps->initConfig(qinit);
   ps->addGoalConfig(qgoal);
@@ -125,9 +125,9 @@ void carLikeProblem(const char* steeringMethod, const char* distance,
   SE3 boxTf(matrix3_t::Identity(), vector3_t(-2, 0, 0));
   ps->addObstacle("box", boxGeom, boxTf, true, true);
 
-  ConfigurationPtr_t qinit(new Configuration_t(robot->neutralConfiguration()));
-  ConfigurationPtr_t qgoal(new Configuration_t(robot->neutralConfiguration()));
-  *qgoal << -4, 0, 0, 1, 0, 0;
+  Configuration_t qinit(robot->neutralConfiguration());
+  Configuration_t qgoal(robot->neutralConfiguration());
+  qgoal << -4, 0, 0, 1, 0, 0;
 
   ps->initConfig(qinit);
   ps->addGoalConfig(qgoal);
@@ -164,9 +164,9 @@ BOOST_AUTO_TEST_CASE(defaultProblem) {
   ProblemPtr_t problem = Problem::create(robot);
   BOOST_REQUIRE(problem->constraints());
 
-  ConfigurationPtr_t qinit(new Configuration_t(robot->neutralConfiguration()));
-  ConfigurationPtr_t qgoal(new Configuration_t(robot->neutralConfiguration()));
-  *qgoal << -4, 0, 0;
+  Configuration_t qinit(robot->neutralConfiguration());
+  Configuration_t qgoal(robot->neutralConfiguration());
+  qgoal << -4, 0, 0;
 
   problem->initConfig(qinit);
   problem->addGoalConfig(qgoal);

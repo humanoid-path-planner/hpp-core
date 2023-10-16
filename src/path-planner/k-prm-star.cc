@@ -127,7 +127,7 @@ void kPrmStar::generateRandomConfig() {
   } else {
     state_ = LINK_NODES;
     linkingNodeIt_ = r->nodes().begin();
-    neighbors_ = roadmap()->nearestNodes(*(*linkingNodeIt_)->configuration(),
+    neighbors_ = roadmap()->nearestNodes((*linkingNodeIt_)->configuration(),
                                          numberNeighbors_);
     itNeighbor_ = neighbors_.begin();
   }
@@ -167,7 +167,7 @@ bool kPrmStar::connectNodeToClosestNeighbors(const NodePtr_t& node) {
     // Connect only nodes that are not already connected
     if (!(*itNeighbor_)->isOutNeighbor(node) && (node != *itNeighbor_)) {
       PathPtr_t p(
-          (*sm)(*node->configuration(), *(*itNeighbor_)->configuration()));
+          (*sm)(node->configuration(), (*itNeighbor_)->configuration()));
       PathValidationReportPtr_t report;
       PathPtr_t validPart, projected;
       if (p) {

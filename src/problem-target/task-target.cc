@@ -62,7 +62,7 @@ bool TaskTarget::reached(const RoadmapPtr_t& roadmap) const {
       roadmap->initNode()->connectedComponent();  // TODO
   bool res(false);
   for (auto node : ccInit->nodes()) {
-    if ((*constraints_).isSatisfied(*(node->configuration()))) {
+    if ((*constraints_).isSatisfied(node->configuration())) {
       roadmap->addGoalNode(
           node->configuration());  // temporarily add goal node to compute path
       res = true;
@@ -87,8 +87,8 @@ PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const {
   astar.solution(sol);
   // This happens when q_init already satisfies the task.
   if (sol->numberPaths() == 0) {
-    ConfigurationPtr_t q(roadmap->initNode()->configuration());
-    sol->appendPath((*problem->steeringMethod())(*q, *q));
+    Configuration_t q(roadmap->initNode()->configuration());
+    sol->appendPath((*problem->steeringMethod())(q, q));
   }
   roadmap->resetGoalNodes();  // remove the temporary goal node
   return sol;

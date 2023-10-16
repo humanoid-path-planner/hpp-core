@@ -49,7 +49,7 @@ typedef std::priority_queue<DistAndNode_t, std::vector<DistAndNode_t>,
     Queue_t;
 }  // namespace
 
-NodePtr_t Basic::search(const Configuration_t& configuration,
+NodePtr_t Basic::search(ConfigurationIn_t configuration,
                         const ConnectedComponentPtr_t& connectedComponent,
                         value_type& distance, bool reverse) {
   NodePtr_t result = NULL;
@@ -60,9 +60,9 @@ NodePtr_t Basic::search(const Configuration_t& configuration,
            connectedComponent->nodes().begin();
        itNode != connectedComponent->nodes().end(); ++itNode) {
     if (reverse)
-      d = dist(configuration, *(*itNode)->configuration());
+      d = dist(configuration, (*itNode)->configuration());
     else
-      d = dist(*(*itNode)->configuration(), configuration);
+      d = dist((*itNode)->configuration(), configuration);
     if (d < distance) {
       distance = d;
       result = *itNode;
@@ -91,7 +91,7 @@ NodePtr_t Basic::search(const NodePtr_t& node,
   return result;
 }
 
-Nodes_t Basic::KnearestSearch(const Configuration_t& q,
+Nodes_t Basic::KnearestSearch(ConfigurationIn_t q,
                               const ConnectedComponentPtr_t& connectedComponent,
                               const std::size_t K, value_type& distance) {
   Queue_t ns;
@@ -100,7 +100,7 @@ Nodes_t Basic::KnearestSearch(const Configuration_t& q,
   for (NodeVector_t::const_iterator itNode =
            connectedComponent->nodes().begin();
        itNode != connectedComponent->nodes().end(); ++itNode) {
-    value_type d = dist(*(*itNode)->configuration(), q);
+    value_type d = dist((*itNode)->configuration(), q);
     if (ns.size() < K)
       ns.push(DistAndNode_t(d, (*itNode)));
     else if (ns.top().first > d) {
@@ -143,7 +143,7 @@ Nodes_t Basic::KnearestSearch(const NodePtr_t& node,
   return nodes;
 }
 
-Nodes_t Basic::KnearestSearch(const Configuration_t& q,
+Nodes_t Basic::KnearestSearch(ConfigurationIn_t q,
                               const RoadmapPtr_t& roadmap, const std::size_t K,
                               value_type& distance) {
   Queue_t ns;
@@ -151,7 +151,7 @@ Nodes_t Basic::KnearestSearch(const Configuration_t& q,
   const Distance& dist = *distance_;
   for (Nodes_t::const_iterator itNode = roadmap->nodes().begin();
        itNode != roadmap->nodes().end(); ++itNode) {
-    value_type d = dist(*(*itNode)->configuration(), q);
+    value_type d = dist((*itNode)->configuration(), q);
     if (ns.size() < K)
       ns.push(DistAndNode_t(d, (*itNode)));
     else if (ns.top().first > d) {
@@ -168,7 +168,7 @@ Nodes_t Basic::KnearestSearch(const Configuration_t& q,
   return nodes;
 }
 
-NodeVector_t Basic::withinBall(const Configuration_t& q,
+NodeVector_t Basic::withinBall(ConfigurationIn_t q,
                                const ConnectedComponentPtr_t& cc,
                                value_type maxDistance) {
   const Distance& dist = *distance_;
@@ -176,7 +176,7 @@ NodeVector_t Basic::withinBall(const Configuration_t& q,
   for (NodeVector_t::const_iterator itNode = cc->nodes().begin();
        itNode != cc->nodes().end(); ++itNode) {
     NodePtr_t n = *itNode;
-    if (dist(*n->configuration(), q) < maxDistance) nodes.push_back(n);
+    if (dist(n->configuration(), q) < maxDistance) nodes.push_back(n);
   }
   return nodes;
 }
