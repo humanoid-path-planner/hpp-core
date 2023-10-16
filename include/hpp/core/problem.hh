@@ -78,9 +78,9 @@ class HPP_CORE_DLLAPI Problem {
   const DevicePtr_t& robot() const { return robot_; }
 
   /// Get shared pointer to initial configuration.
-  const ConfigurationPtr_t& initConfig() const { return initConf_; }
+  const Configuration_t& initConfig() const { return initConf_; }
   /// Set initial configuration.
-  void initConfig(const ConfigurationPtr_t& inConfig);
+  void initConfig(ConfigurationIn_t inConfig);
   /// Set the target
   void target(const ProblemTargetPtr_t& target) { target_ = target; }
   /// Get the target
@@ -94,7 +94,7 @@ class HPP_CORE_DLLAPI Problem {
   /// if problem target is not an instance of
   /// problemTarget::GoalConfigurations, set problem target as a new
   /// instance of this class and add the given configuration as a goal.
-  void addGoalConfig(const ConfigurationPtr_t& config);
+  void addGoalConfig(ConfigurationIn_t config);
   /// Reset the set of goal configurations
   /// if problem target is not an instance of
   /// problemTarget::GoalConfigurations, set problem target as a new
@@ -291,7 +291,7 @@ class HPP_CORE_DLLAPI Problem {
   /// Distance between configurations of the robot
   DistancePtr_t distance_;
   /// Shared pointer to initial configuration.
-  ConfigurationPtr_t initConf_;
+  Configuration_t initConf_;
   /// Shared pointer to problem target
   ProblemTargetPtr_t target_;
   /// Steering method associated to the problem

@@ -87,16 +87,16 @@ void DiffusingPlanner::init(const DiffusingPlannerWkPtr_t& weak) {
   weakPtr_ = weak;
 }
 
-bool belongs(const ConfigurationPtr_t& q, const Nodes_t& nodes) {
+bool belongs(ConfigurationIn_t q, const Nodes_t& nodes) {
   for (Nodes_t::const_iterator itNode = nodes.begin(); itNode != nodes.end();
        ++itNode) {
-    if (*((*itNode)->configuration()) == *q) return true;
+    if ((*itNode)->configuration() == q) return true;
   }
   return false;
 }
 
 PathPtr_t DiffusingPlanner::extend(const NodePtr_t& near,
-                                   const Configuration_t& target) {
+                                   ConfigurationIn_t target) {
   const SteeringMethodPtr_t& sm(problem()->steeringMethod());
   const ConstraintSetPtr_t& constraints(sm->constraints());
   if (constraints) {
@@ -106,7 +106,7 @@ PathPtr_t DiffusingPlanner::extend(const NodePtr_t& near,
                           PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
       assert(isNormalized(problem()->robot(), *(near->configuration()),
                           PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
-      configProjector->projectOnKernel(*(near->configuration()), target,
+      configProjector->projectOnKernel(near->configuration(), target,
                                        qProj_);
       assert(isNormalized(problem()->robot(), qProj_,
                           PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
@@ -122,7 +122,7 @@ PathPtr_t DiffusingPlanner::extend(const NodePtr_t& near,
   assert(!qProj_.hasNaN());
   // Here, qProj_ is a configuration that satisfies the constraints
   // or target if there are no constraints.
-  PathPtr_t path = (*sm)(*(near->configuration()), qProj_);
+  PathPtr_t path = (*sm)(near->configuration(), qProj_);
   if (!path) {
     return PathPtr_t();
   }
@@ -186,7 +186,7 @@ void DiffusingPlanner::oneStep() {
           ->getParameter("DiffusingPlanner/extensionStepRatio")
           .floatValue();
 
-  typedef std::tuple<NodePtr_t, ConfigurationPtr_t, PathPtr_t> DelayedEdge_t;
+  typedef std::tuple<NodePtr_t, Configuration_t, PathPtr_t> DelayedEdge_t;
   typedef std::vector<DelayedEdge_t> DelayedEdges_t;
   DelayedEdges_t delayedEdges;
   DevicePtr_t robot(problem()->robot());
@@ -222,7 +222,7 @@ void DiffusingPlanner::oneStep() {
           validPath =
               validPath->extract(t0, t0 + validPath->length() * stepRatio);
         }
-        ConfigurationPtr_t q_new(new Configuration_t(validPath->end()));
+        Configuration_t q_new(validPath->end());
         if (!pathValid || !belongs(q_new, newNodes)) {
           newNodes.push_back(
               roadmap()->addNodeAndEdges(near, q_new, validPath));
@@ -239,7 +239,7 @@ void DiffusingPlanner::oneStep() {
   HPP_START_TIMECOUNTER(delayedEdges);
   for (const auto& edge : delayedEdges) {
     const NodePtr_t& near = std::get<0>(edge);
-    const ConfigurationPtr_t& q_new = std::get<1>(edge);
+    Configuration_t q_new = std::get<1>(edge);
     const PathPtr_t& validPath = std::get<2>(edge);
     NodePtr_t newNode = roadmap()->addNode(q_new);
     roadmap()->addEdge(near, newNode, validPath);
@@ -257,10 +257,10 @@ void DiffusingPlanner::oneStep() {
     /// Try connecting to the other new nodes.
     for (Nodes_t::const_iterator itn2 = std::next(itn1); itn2 != newNodes.end();
          ++itn2) {
-      ConfigurationPtr_t q1((*itn1)->configuration());
-      ConfigurationPtr_t q2((*itn2)->configuration());
-      assert(*q1 != *q2);
-      path = (*sm)(*q1, *q2);
+      Configuration_t q1((*itn1)->configuration());
+      Configuration_t q2((*itn2)->configuration());
+      assert(q1 != q2);
+      path = (*sm)(q1, q2);
       if (!path) continue;
 
       PathProjectorPtr_t pp = problem()->pathProjector();
@@ -280,19 +280,19 @@ void DiffusingPlanner::oneStep() {
         roadmap()->addEdge(*itn2, *itn1, path->reverse());
       } else if (validPath && validPath->length() > 0) {
         // A -> B
-        ConfigurationPtr_t cfg(new Configuration_t(validPath->end()));
+        Configuration_t cfg(validPath->end());
         roadmap()->addNodeAndEdges(*itn1, cfg, validPath);
       }
     }
     /// Try connecting this node to the list of nearest neighbors.
     const ConnectedComponentPtr_t& cc1 = (*itn1)->connectedComponent();
-    ConfigurationPtr_t q1((*itn1)->configuration());
+    Configuration_t q1((*itn1)->configuration());
     for (Nodes_t::const_iterator itn2 = nearestNeighbors.begin();
          itn2 != nearestNeighbors.end(); ++itn2) {
       if (cc1 == (*itn2)->connectedComponent()) continue;
-      ConfigurationPtr_t q2((*itn2)->configuration());
-      assert(*q1 != *q2);
-      path = (*sm)(*q1, *q2);
+      Configuration_t q2((*itn2)->configuration());
+      assert(q1 != q2);
+      path = (*sm)(q1, q2);
       if (!path) continue;
 
       PathProjectorPtr_t pp = problem()->pathProjector();
@@ -312,7 +312,7 @@ void DiffusingPlanner::oneStep() {
         roadmap()->addEdge(*itn2, *itn1, path->reverse());
       } else if (validPath && validPath->length() > 0) {
         // A -> B
-        ConfigurationPtr_t cfg(new Configuration_t(validPath->end()));
+        Configuration_t cfg(validPath->end());
         roadmap()->addNodeAndEdges(*itn1, cfg, validPath);
       }
     }

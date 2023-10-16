@@ -59,7 +59,7 @@ void addEdge(const hpp::core::RoadmapPtr_t& r,
              const std::vector<NodePtr_t>& nodes, std::size_t i,
              std::size_t j) {
   r->addEdge(nodes[i], nodes[j],
-             sm(*(nodes[i]->configuration()), *(nodes[j]->configuration())));
+             sm(nodes[i]->configuration(), nodes[j]->configuration()));
 }
 
 DevicePtr_t createRobot() {
@@ -101,41 +101,41 @@ BOOST_AUTO_TEST_CASE(Roadmap1) {
   std::vector<NodePtr_t> nodes;
 
   // nodes [0]
-  ConfigurationPtr_t q(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0;
-  (*q)[1] = 0;
+  Configuration_t q(robot->configSize());
+  q[0] = 0;
+  q[1] = 0;
   // Set init node
   r->initNode(q);
   nodes.push_back(r->initNode());
 
   // nodes [1]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 1;
-  (*q)[1] = 0;
+  q = Configuration_t(robot->configSize());
+  q[0] = 1;
+  q[1] = 0;
   nodes.push_back(r->addNode(q));
 
   // nodes [2]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0.5;
-  (*q)[1] = 0.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 0.5;
+  q[1] = 0.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [3]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = -0.1;
-  (*q)[1] = -0.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = -0.1;
+  q[1] = -0.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [4]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 1.5;
-  (*q)[1] = 2.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 1.5;
+  q[1] = 2.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [5]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 2.5;
-  (*q)[1] = 2.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 2.5;
+  q[1] = 2.9;
   nodes.push_back(r->addNode(q));
   r->addGoalNode(nodes[5]->configuration());
 
@@ -314,46 +314,46 @@ BOOST_AUTO_TEST_CASE(nearestNeighbor) {
   std::vector<NodePtr_t> nodes;
 
   // nodes [0]
-  ConfigurationPtr_t q(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0;
-  (*q)[1] = 0;
+  Configuration_t q(robot->configSize());
+  q[0] = 0;
+  q[1] = 0;
   nodes.push_back(r->addNode(q));
 
   // nodes [1]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 1;
-  (*q)[1] = 0;
+  q = Configuration_t(robot->configSize());
+  q[0] = 1;
+  q[1] = 0;
   nodes.push_back(r->addNode(q));
 
   // nodes [2]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0.5;
-  (*q)[1] = 0.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 0.5;
+  q[1] = 0.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [3]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = -0.1;
-  (*q)[1] = -0.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = -0.1;
+  q[1] = -0.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [4]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 1.5;
-  (*q)[1] = 2.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 1.5;
+  q[1] = 2.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [5]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 2.5;
-  (*q)[1] = 2.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 2.5;
+  q[1] = 2.9;
   nodes.push_back(r->addNode(q));
   r->addGoalNode(nodes[5]->configuration());
 
   // nodes [6]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0;
-  (*q)[1] = 0.2;
+  q = Configuration_t(robot->configSize());
+  q[0] = 0;
+  q[1] = 0.2;
   nodes.push_back(r->addNode(q));
   r->addGoalNode(nodes[6]->configuration());
 
@@ -373,19 +373,19 @@ BOOST_AUTO_TEST_CASE(nearestNeighbor) {
   hpp::pinocchio::value_type dist;
   using hpp::core::Nodes_t;
   Nodes_t knearest = r->nearestNeighbor()->KnearestSearch(
-      *nodes[0]->configuration(), nodes[0]->connectedComponent(), 3, dist);
+      nodes[0]->configuration(), nodes[0]->connectedComponent(), 3, dist);
   for (Nodes_t::const_iterator it = knearest.begin(); it != knearest.end();
        ++it) {
-    BOOST_TEST_MESSAGE("q = [" << (*it)->configuration()->transpose()
+    BOOST_TEST_MESSAGE("q = [" << (*it)->configuration().transpose()
                                << "] - dist : "
-                               << (*distance)(*nodes[0]->configuration(),
-                                              *(*it)->configuration()));
+                               << (*distance)(nodes[0]->configuration(),
+                                              (*it)->configuration()));
   }
   for (std::vector<NodePtr_t>::const_iterator it = nodes.begin();
        it != nodes.end(); ++it) {
-    Configuration_t& q = *(*it)->configuration();
+    Configuration_t q = (*it)->configuration();
     BOOST_TEST_MESSAGE("[" << q.transpose() << "] - dist : "
-                           << (*distance)(*nodes[0]->configuration(), q));
+                           << (*distance)(nodes[0]->configuration(), q));
   }
 }
 
@@ -404,41 +404,41 @@ BOOST_AUTO_TEST_CASE(serialization) {
   std::vector<NodePtr_t> nodes;
 
   // nodes [0]
-  ConfigurationPtr_t q(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0;
-  (*q)[1] = 0;
+  Configuration_t q(robot->configSize());
+  q[0] = 0;
+  q[1] = 0;
   // Set init node
   r->initNode(q);
   nodes.push_back(r->initNode());
 
   // nodes [1]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 1;
-  (*q)[1] = 0;
+  q = Configuration_t(robot->configSize());
+  q[0] = 1;
+  q[1] = 0;
   nodes.push_back(r->addNode(q));
 
   // nodes [2]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 0.5;
-  (*q)[1] = 0.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 0.5;
+  q[1] = 0.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [3]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = -0.1;
-  (*q)[1] = -0.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = -0.1;
+  q[1] = -0.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [4]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 1.5;
-  (*q)[1] = 2.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 1.5;
+  q[1] = 2.9;
   nodes.push_back(r->addNode(q));
 
   // nodes [5]
-  q = ConfigurationPtr_t(new Configuration_t(robot->configSize()));
-  (*q)[0] = 2.5;
-  (*q)[1] = 2.9;
+  q = Configuration_t(robot->configSize());
+  q[0] = 2.5;
+  q[1] = 2.9;
   nodes.push_back(r->addNode(q));
   r->addGoalNode(nodes[5]->configuration());
 

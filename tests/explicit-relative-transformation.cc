@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(two_freeflyers) {
       M2inO2, 6 * Equality));
   DifferentiableFunctionPtr_t ert(enm->explicitFunction());
 
-  Configuration_t q = robot->currentConfiguration(), qrand = *cs->shoot(),
+  Configuration_t q = robot->currentConfiguration(), qrand = cs->shoot(),
                   qout = qrand;
 
   // Check the output value
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(two_freeflyers) {
   }
   // Second at random configurations
   for (size_type i = 0; i < NB_RANDOM_CONF; ++i) {
-    q0 = *cs->shoot();
+    q0 = cs->shoot();
     enm->function().jacobian(J, q0);
     std::cout << "J=" << std::endl << J << std::endl;
     std::cout << "q0=" << q0.transpose() << std::endl;
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(two_frames_on_freeflyer) {
       M2inO2, 6 * Equality));
   DifferentiableFunctionPtr_t ert(enm->explicitFunction());
 
-  Configuration_t q = robot->currentConfiguration(), qrand = *cs->shoot(),
+  Configuration_t q = robot->currentConfiguration(), qrand = cs->shoot(),
                   qout = qrand;
 
   // Check the output value
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(two_frames_on_freeflyer) {
   }
   // Second at random configurations
   for (size_type i = 0; i < NB_RANDOM_CONF; ++i) {
-    q0 = *cs->shoot();
+    q0 = cs->shoot();
     enm->function().jacobian(J, q0);
     std::cout << "J=" << std::endl << J << std::endl;
     std::cout << "q0=" << q0.transpose() << std::endl;
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(compare_to_relative_transform) {
       "relative_transformation_R3xSO3", robot, object1, object2, M1inO1,
       M2inO2));
 
-  Configuration_t q = robot->currentConfiguration(), qrand = *cs->shoot(),
+  Configuration_t q = robot->currentConfiguration(), qrand = cs->shoot(),
                   qout = qrand;
 
   // Check the output value
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(compare_to_relative_transform) {
 
   // Second at random configurations
   for (size_type i = 0; i < NB_RANDOM_CONF; ++i) {
-    q0 = *cs->shoot();
+    q0 = cs->shoot();
 
     irt->value(v0, q0);
     irt->jacobian(J0, q0);

@@ -101,16 +101,16 @@ void Roadmap::clear() {
   nearestNeighbor_->clear();
 }
 
-NodePtr_t Roadmap::addNode(const ConfigurationPtr_t& configuration) {
+NodePtr_t Roadmap::addNode(ConfigurationIn_t configuration) {
   value_type distance;
   if (nodes_.size() != 0) {
     NodePtr_t nearest = nearestNode(configuration, distance);
-    if (*(nearest->configuration()) == *configuration) {
+    if (nearest->configuration() == configuration) {
       return nearest;
     }
   }
   NodePtr_t node = createNode(configuration);
-  hppDout(info, "Added node: " << displayConfig(*configuration));
+  hppDout(info, "Added node: " << displayConfig(configuration));
   push_node(node);
   // Node constructor creates a new connected component. This new
   // connected component needs to be added in the roadmap and the
@@ -119,20 +119,20 @@ NodePtr_t Roadmap::addNode(const ConfigurationPtr_t& configuration) {
   return node;
 }
 
-NodePtr_t Roadmap::addNode(const ConfigurationPtr_t& configuration,
+NodePtr_t Roadmap::addNode(ConfigurationIn_t configuration,
                            ConnectedComponentPtr_t connectedComponent) {
   assert(connectedComponent);
   value_type distance;
   if (nodes_.size() != 0) {
     NodePtr_t nearest =
         nearestNode(configuration, connectedComponent, distance);
-    if (*(nearest->configuration()) == *configuration) {
+    if (nearest->configuration() == configuration) {
       return nearest;
     }
   }
   NodePtr_t node = createNode(configuration);
   node->connectedComponent(connectedComponent);
-  hppDout(info, "Added node: " << displayConfig(*configuration));
+  hppDout(info, "Added node: " << displayConfig(configuration));
   push_node(node);
   // The new node needs to be registered in the connected
   // component.
@@ -154,7 +154,7 @@ void Roadmap::addEdges(const NodePtr_t from, const NodePtr_t& to,
 }
 
 NodePtr_t Roadmap::addNodeAndEdges(const NodePtr_t from,
-                                   const ConfigurationPtr_t& to,
+                                   ConfigurationIn_t to,
                                    const PathPtr_t path) {
   NodePtr_t nodeTo = addNode(to, from->connectedComponent());
   addEdges(from, nodeTo, path);
@@ -162,14 +162,14 @@ NodePtr_t Roadmap::addNodeAndEdges(const NodePtr_t from,
 }
 
 NodePtr_t Roadmap::addNodeAndEdge(const NodePtr_t from,
-                                  const ConfigurationPtr_t& to,
+                                  ConfigurationIn_t to,
                                   const PathPtr_t path) {
   NodePtr_t nodeTo = addNode(to, from->connectedComponent());
   addEdge(from, nodeTo, path);
   return nodeTo;
 }
 
-NodePtr_t Roadmap::addNodeAndEdge(const ConfigurationPtr_t& from,
+NodePtr_t Roadmap::addNodeAndEdge(ConfigurationIn_t from,
                                   const NodePtr_t to, const PathPtr_t path) {
   NodePtr_t nodeFrom = addNode(from, to->connectedComponent());
   addEdge(nodeFrom, to, path);
@@ -201,16 +201,14 @@ void Roadmap::insertPathVector(const PathVectorPtr_t& path, bool backAndForth) {
   for (std::size_t i = 0; i < path->numberPaths(); ++i) {
     PathPtr_t p(path->pathAtRank(i));
     if (backAndForth) {
-      n = addNodeAndEdges(n, ConfigurationPtr_t(new Configuration_t(p->end())),
-                          p);
+      n = addNodeAndEdges(n, p->end(), p);
     } else {
-      n = addNodeAndEdge(n, ConfigurationPtr_t(new Configuration_t(p->end())),
-                         p);
+      n = addNodeAndEdge(n, p->end(), p);
     }
   }
 }
 
-NodePtr_t Roadmap::nearestNode(const Configuration_t& configuration,
+NodePtr_t Roadmap::nearestNode(ConfigurationIn_t configuration,
                                value_type& minDistance, bool reverse) {
   NodePtr_t closest = 0x0;
   minDistance = std::numeric_limits<value_type>::infinity();
@@ -229,7 +227,7 @@ NodePtr_t Roadmap::nearestNode(const Configuration_t& configuration,
 }
 
 NodePtr_t Roadmap::nearestNode(
-    const Configuration_t& configuration,
+    ConfigurationIn_t configuration,
     const ConnectedComponentPtr_t& connectedComponent, value_type& minDistance,
     bool reverse) {
   assert(connectedComponent);
@@ -239,13 +237,13 @@ NodePtr_t Roadmap::nearestNode(
   return closest;
 }
 
-Nodes_t Roadmap::nearestNodes(const Configuration_t& configuration,
+Nodes_t Roadmap::nearestNodes(ConfigurationIn_t configuration,
                               size_type k) {
   value_type d;
   return nearestNeighbor_->KnearestSearch(configuration, weak_.lock(), k, d);
 }
 
-Nodes_t Roadmap::nearestNodes(const Configuration_t& configuration,
+Nodes_t Roadmap::nearestNodes(ConfigurationIn_t configuration,
                               const ConnectedComponentPtr_t& connectedComponent,
                               size_type k) {
   value_type d;
@@ -253,13 +251,13 @@ Nodes_t Roadmap::nearestNodes(const Configuration_t& configuration,
                                           d);
 }
 
-NodeVector_t Roadmap::nodesWithinBall(const Configuration_t& q,
+NodeVector_t Roadmap::nodesWithinBall(ConfigurationIn_t q,
                                       const ConnectedComponentPtr_t& cc,
                                       value_type maxD) {
   return nearestNeighbor_->withinBall(q, cc, maxD);
 }
 
-NodePtr_t Roadmap::addGoalNode(const ConfigurationPtr_t& config) {
+NodePtr_t Roadmap::addGoalNode(ConfigurationIn_t config) {
   NodePtr_t node = addNode(config);
   goalNodes_.push_back(node);
   return node;
@@ -282,7 +280,7 @@ void Roadmap::addConnectedComponent(const NodePtr_t& node) {
   nearestNeighbor_->addNode(node);
 }
 
-NodePtr_t Roadmap::createNode(const ConfigurationPtr_t& configuration) const {
+NodePtr_t Roadmap::createNode(ConfigurationIn_t configuration) const {
   return NodePtr_t(new Node(configuration));
 }
 

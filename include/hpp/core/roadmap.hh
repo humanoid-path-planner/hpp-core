@@ -58,24 +58,15 @@ class HPP_CORE_DLLAPI Roadmap {
   /// If configuration is alread in the roadmap, return the node
   /// containing the configuration. Otherwise, create a new node and a new
   /// connected component with this node.
-  NodePtr_t addNode(const ConfigurationPtr_t& config);
-
-  NodePtr_t addNode(const Configuration_t& config) {
-    return addNode(ConfigurationPtr_t(new Configuration_t(config)));
-  }
+  NodePtr_t addNode(ConfigurationIn_t config);
 
   /// Get nearest node to a configuration in the roadmap.
   /// \param configuration configuration
   /// \param reverse if true, compute distance from given configuration to nodes
   /// in roadmap, if false from nodes in roadmap to given configuration \retval
   /// distance to the nearest node.
-  NodePtr_t nearestNode(const Configuration_t& configuration,
+  NodePtr_t nearestNode(ConfigurationIn_t configuration,
                         value_type& minDistance, bool reverse = false);
-
-  NodePtr_t nearestNode(const ConfigurationPtr_t& configuration,
-                        value_type& minDistance, bool reverse = false) {
-    return nearestNode(*configuration, minDistance, reverse);
-  }
 
   /// Get nearest node to a configuration in a connected component.
   /// \param configuration configuration
@@ -83,27 +74,16 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \param reverse if true, compute distance from given configuration to nodes
   /// in roadmap, if false from nodes in roadmap to given configuration \retval
   /// distance to the nearest node.
-  NodePtr_t nearestNode(const Configuration_t& configuration,
+  NodePtr_t nearestNode(ConfigurationIn_t configuration,
                         const ConnectedComponentPtr_t& connectedComponent,
                         value_type& minDistance, bool reverse = false);
-
-  NodePtr_t nearestNode(const ConfigurationPtr_t& configuration,
-                        const ConnectedComponentPtr_t& connectedComponent,
-                        value_type& minDistance, bool reverse = false) {
-    return nearestNode(*configuration, connectedComponent, minDistance,
-                       reverse);
-  }
 
   /// Get nearest node to a configuration in the roadmap.
   /// \param configuration configuration
   /// \param k number of nearest nodes to return
   /// if false from nodes in roadmap to given configuration
   /// \return k nearest nodes
-  Nodes_t nearestNodes(const Configuration_t& configuration, size_type k);
-
-  Nodes_t nearestNodes(const ConfigurationPtr_t& configuration, size_type k) {
-    return nearestNodes(*configuration, k);
-  }
+  Nodes_t nearestNodes(ConfigurationIn_t configuration, size_type k);
 
   /// Get nearest node to a configuration in a connected component.
   /// \param configuration configuration
@@ -111,20 +91,14 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \param k number of nearest nodes to return
   /// if false from nodes in roadmap to given configuration
   /// \return k nearest nodes in the connected component
-  Nodes_t nearestNodes(const Configuration_t& configuration,
+  Nodes_t nearestNodes(ConfigurationIn_t configuration,
                        const ConnectedComponentPtr_t& connectedComponent,
                        size_type k);
-
-  Nodes_t nearestNodes(const ConfigurationPtr_t& configuration,
-                       const ConnectedComponentPtr_t& connectedComponent,
-                       size_type k) {
-    return nearestNodes(*configuration, connectedComponent, k);
-  }
 
   /// Neighbor search.
   /// \copydoc NearestNeighbor::withinBall
   NodeVector_t nodesWithinBall(
-      const Configuration_t& configuration,
+      ConfigurationIn_t configuration,
       const ConnectedComponentPtr_t& connectedComponent,
       value_type maxDistance);
 
@@ -137,7 +111,7 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \note this function simplifies the management of connected components
   ///       since it adds the new node in the connected component of
   ///       <c>from</c>.
-  NodePtr_t addNodeAndEdges(const NodePtr_t from, const ConfigurationPtr_t& to,
+  NodePtr_t addNodeAndEdges(const NodePtr_t from, ConfigurationIn_t to,
                             const PathPtr_t path);
 
   /// Add a node and one edge
@@ -149,7 +123,7 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \note this function simplifies the management of connected components
   ///       since it adds the new node in the connected component of
   ///       <c>from</c>.
-  NodePtr_t addNodeAndEdge(const NodePtr_t from, const ConfigurationPtr_t& to,
+  NodePtr_t addNodeAndEdge(const NodePtr_t from, ConfigurationIn_t to,
                            const PathPtr_t path);
 
   /// Add a node and one edge
@@ -161,7 +135,7 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \note this function simplifies the management of connected components
   ///       since it adds the new node in the connected component of
   ///       <c>to</c>.
-  NodePtr_t addNodeAndEdge(const ConfigurationPtr_t& from, const NodePtr_t to,
+  NodePtr_t addNodeAndEdge(ConfigurationIn_t from, const NodePtr_t to,
                            const PathPtr_t path);
 
   /// Add an edge between two nodes.
@@ -189,11 +163,11 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \param config configuration
   /// If configuration is already in the roadmap, tag corresponding node
   /// as goal node. Otherwise create a new node.
-  NodePtr_t addGoalNode(const ConfigurationPtr_t& config);
+  NodePtr_t addGoalNode(ConfigurationIn_t config);
 
   void resetGoalNodes() { goalNodes_.clear(); }
 
-  void initNode(const ConfigurationPtr_t& config) {
+  void initNode(ConfigurationIn_t config) {
     initNode_ = addNode(config);
   }
 
@@ -251,7 +225,7 @@ class HPP_CORE_DLLAPI Roadmap {
   /// Node factory
   /// Reimplement the function if you want to create an instance of a
   /// child class of Node
-  virtual NodePtr_t createNode(const ConfigurationPtr_t& configuration) const;
+  virtual NodePtr_t createNode(ConfigurationIn_t configuration) const;
 
   /// Store weak pointer to itself
   void init(RoadmapWkPtr_t weak);
@@ -265,7 +239,7 @@ class HPP_CORE_DLLAPI Roadmap {
   /// If configuration is alread in the connected component, return the node
   /// containing the configuration. Otherwise, create a new node with given
   /// connected component.
-  NodePtr_t addNode(const ConfigurationPtr_t& config,
+  NodePtr_t addNode(ConfigurationIn_t config,
                     ConnectedComponentPtr_t connectedComponent);
 
   /// Update the graph of connected components after new connection

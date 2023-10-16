@@ -50,7 +50,7 @@ class NearestNeighbor {
    * in roadmap, if false from nodes in roadmap to given configuration
    * @return
    */
-  virtual NodePtr_t search(const Configuration_t& configuration,
+  virtual NodePtr_t search(ConfigurationIn_t configuration,
                            const ConnectedComponentPtr_t& connectedComponent,
                            value_type& distance, bool reverse = false) = 0;
 
@@ -61,7 +61,7 @@ class NearestNeighbor {
   /// \param[out] distance to the Kth closest neighbor
   /// \return the K nearest neighbors
   virtual Nodes_t KnearestSearch(
-      const Configuration_t& configuration,
+      ConfigurationIn_t configuration,
       const ConnectedComponentPtr_t& connectedComponent, const std::size_t K,
       value_type& distance) = 0;
 
@@ -76,13 +76,13 @@ class NearestNeighbor {
   /// \param K the number of nearest neighbors to return
   /// \retval distance to the Kth closest neighbor
   /// \return the K nearest neighbors
-  virtual Nodes_t KnearestSearch(const Configuration_t& configuration,
+  virtual Nodes_t KnearestSearch(ConfigurationIn_t configuration,
                                  const RoadmapPtr_t& roadmap,
                                  const std::size_t K, value_type& distance) = 0;
 
   /// \return all the nodes closer than \c maxDistance to \c configuration
   /// within \c connectedComponent.
-  virtual NodeVector_t withinBall(const Configuration_t& configuration,
+  virtual NodeVector_t withinBall(ConfigurationIn_t configuration,
                                   const ConnectedComponentPtr_t& cc,
                                   value_type maxDistance) = 0;
 

@@ -81,20 +81,20 @@ PathPtr_t BiRRTPlanner::extendInternal(const SteeringMethodPtr_t& sm,
   if (constraints) {
     ConfigProjectorPtr_t configProjector(constraints->configProjector());
     if (configProjector) {
-      configProjector->projectOnKernel(*(near->configuration()), target,
+      configProjector->projectOnKernel(near->configuration(), target,
                                        qProj_);
     } else {
       qProj_ = target;
     }
     if (constraints->apply(qProj_)) {
-      return reverse ? (*sm)(qProj_, *(near->configuration()))
-                     : (*sm)(*(near->configuration()), qProj_);
+      return reverse ? (*sm)(qProj_, near->configuration())
+                     : (*sm)(near->configuration(), qProj_);
     } else {
       return PathPtr_t();
     }
   }
-  return reverse ? (*sm)(target, *(near->configuration()))
-                 : (*sm)(*(near->configuration()), target);
+  return reverse ? (*sm)(target, near->configuration())
+                 : (*sm)(near->configuration(), target);
 }
 
 /// One step of extension.
@@ -113,7 +113,7 @@ void BiRRTPlanner::oneStep() {
   value_type distance;
   NodePtr_t near, reachedNodeFromStart;
   bool startComponentConnected(false), pathValidFromStart(false);
-  ConfigurationPtr_t q_new;
+  Configuration_t q_new;
   // first try to connect to start component
   Configuration_t q_rand;
   configurationShooter_->shoot(q_rand);
@@ -128,7 +128,7 @@ void BiRRTPlanner::oneStep() {
       value_type t_final = validPath->timeRange().second;
       if (t_final != path->timeRange().first) {
         startComponentConnected = true;
-        q_new = ConfigurationPtr_t(new Configuration_t(validPath->end()));
+        q_new = validPath->end();
         reachedNodeFromStart =
             roadmap()->addNodeAndEdge(near, q_new, validPath);
       }
@@ -152,13 +152,12 @@ void BiRRTPlanner::oneStep() {
       } else if (validPath) {
         value_type t_final = validPath->timeRange().second;
         if (t_final != path->timeRange().first) {
-          ConfigurationPtr_t q_newEnd =
-              ConfigurationPtr_t(new Configuration_t(validPath->initial()));
+          Configuration_t q_newEnd = validPath->initial();
           NodePtr_t newNode =
               roadmap()->addNodeAndEdge(q_newEnd, near, validPath);
           // now try to connect both nodes
           if (startComponentConnected) {
-            path = (*(problem()->steeringMethod()))(*q_new, *q_newEnd);
+            path = (*(problem()->steeringMethod()))(q_new, q_newEnd);
             if (path &&
                 pathValidation->validate(path, false, validPath, report)) {
               roadmap()->addEdge(reachedNodeFromStart, newNode, path);

@@ -470,7 +470,7 @@ void ProblemSolver::robot(const DevicePtr_t& robot) {
 
 const DevicePtr_t& ProblemSolver::robot() const { return robot_; }
 
-void ProblemSolver::initConfig(const ConfigurationPtr_t& config) {
+void ProblemSolver::initConfig(ConfigurationIn_t config) {
   initConf_ = config;
 }
 
@@ -478,7 +478,7 @@ const Configurations_t& ProblemSolver::goalConfigs() const {
   return goalConfigurations_;
 }
 
-void ProblemSolver::addGoalConfig(const ConfigurationPtr_t& config) {
+void ProblemSolver::addGoalConfig(ConfigurationIn_t config) {
   goalConfigurations_.push_back(config);
 }
 
@@ -788,12 +788,12 @@ bool ProblemSolver::directPath(ConfigurationIn_t start, ConfigurationIn_t end,
   return pathValid;
 }
 
-void ProblemSolver::addConfigToRoadmap(const ConfigurationPtr_t& config) {
+void ProblemSolver::addConfigToRoadmap(ConfigurationIn_t config) {
   roadmap_->addNode(config);
 }
 
-void ProblemSolver::addEdgeToRoadmap(const ConfigurationPtr_t& config1,
-                                     const ConfigurationPtr_t& config2,
+void ProblemSolver::addEdgeToRoadmap(ConfigurationIn_t config1,
+                                     ConfigurationIn_t config2,
                                      const PathPtr_t& path) {
   NodePtr_t node1, node2;
   value_type accuracy = 10e-6;

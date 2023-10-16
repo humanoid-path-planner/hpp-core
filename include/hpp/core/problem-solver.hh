@@ -110,13 +110,13 @@ class HPP_CORE_DLLAPI ProblemSolver {
   /// Get pointer to problem
   ProblemPtr_t problem() { return problem_; }
   /// Get shared pointer to initial configuration.
-  const ConfigurationPtr_t& initConfig() const { return initConf_; }
+  const Configuration_t& initConfig() const { return initConf_; }
   /// Set initial configuration.
-  virtual void initConfig(const ConfigurationPtr_t& config);
+  virtual void initConfig(ConfigurationIn_t config);
   /// Get number of goal configuration.
   const Configurations_t& goalConfigs() const;
   /// Add goal configuration.
-  virtual void addGoalConfig(const ConfigurationPtr_t& config);
+  virtual void addGoalConfig(ConfigurationIn_t config);
   /// Reset the set of goal configurations
   void resetGoalConfigs();
   /// Set goal of path planning as a set of constraints
@@ -347,7 +347,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
                   std::size_t& pathId, std::string& report);
 
   /// Add random configuration into roadmap as new node.
-  void addConfigToRoadmap(const ConfigurationPtr_t& config);
+  void addConfigToRoadmap(ConfigurationIn_t config);
 
   /// Add an edge between two roadmap nodes.
   ///
@@ -356,8 +356,8 @@ class HPP_CORE_DLLAPI ProblemSolver {
   /// \param path path to store in the edge.
   ///
   /// Check that nodes containing config1 and config2 exist in the roadmap.
-  void addEdgeToRoadmap(const ConfigurationPtr_t& config1,
-                        const ConfigurationPtr_t& config2,
+  void addEdgeToRoadmap(ConfigurationIn_t config1,
+                        ConfigurationIn_t config2,
                         const PathPtr_t& path);
 
   /// Interrupt path planning and path optimization
@@ -591,7 +591,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
 
  private:
   /// Shared pointer to initial configuration.
-  ConfigurationPtr_t initConf_;
+  Configuration_t initConf_;
   /// Shared pointer to goal configuration.
   Configurations_t goalConfigurations_;
   /// Robot type

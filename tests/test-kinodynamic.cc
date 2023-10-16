@@ -440,24 +440,24 @@ BOOST_AUTO_TEST_CASE(kinodynamic) {
 
   ConfigurationShooterPtr_t shooter =
       configurationShooter::Uniform::create(robot);
-  ConfigurationPtr_t qr1, qr0;
+  Configuration_t qr1, qr0;
   value_type t1, t2;
   for (size_t i = 0; i < 1000; i++) {
     qr0 = shooter->shoot();
     qr1 = shooter->shoot();
-    path = (*sm)(*qr0, *qr1);
+    path = (*sm)(qr0, qr1);
     BOOST_REQUIRE(path);
     pathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath, path);
     BOOST_REQUIRE(pathKino);
-    BOOST_CHECK(path->length() >= (*dist)(*qr0, *qr1));
+    BOOST_CHECK(path->length() >= (*dist)(qr0, qr1));
     BOOST_CHECK_EQUAL(path->end().head(indexECS + 3),
-                      (*qr1).head(indexECS + 3));
+                      (qr1).head(indexECS + 3));
     BOOST_CHECK_EQUAL(path->initial().head(indexECS + 3),
-                      (*qr0).head(indexECS + 3));
+                      (qr0).head(indexECS + 3));
     BOOST_CHECK_EQUAL(path->eval(path->length(), success).head(indexECS + 3),
-                      (*qr1).head(indexECS + 3));
+                      (qr1).head(indexECS + 3));
     BOOST_CHECK_EQUAL(path->eval(0., success).head(indexECS + 3),
-                      (*qr0).head(indexECS + 3));
+                      (qr0).head(indexECS + 3));
 
     for (size_t k = 0; k < 3; k++) {
       BOOST_CHECK_EQUAL(pathKino->getT0()[k], 0.);
@@ -649,21 +649,21 @@ BOOST_AUTO_TEST_CASE(kinodynamicOriented) {
 
   ConfigurationShooterPtr_t shooter =
       configurationShooter::Uniform::create(robot);
-  ConfigurationPtr_t qr1, qr0;
+  Configuration_t qr1, qr0;
   value_type t1, t2;
   for (size_t i = 0; i < 1000; i++) {
     qr0 = shooter->shoot();
     qr1 = shooter->shoot();
-    path = (*sm)(*qr0, *qr1);
+    path = (*sm)(qr0, qr1);
     BOOST_REQUIRE(path);
     pathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicOrientedPath, path);
     BOOST_REQUIRE(pathKino);
-    BOOST_CHECK(path->length() >= (*dist)(*qr0, *qr1));
-    BOOST_CHECK_EQUAL(path->end().head(3), (*qr1).head(3));
-    BOOST_CHECK_EQUAL(path->initial().head(3), (*qr0).head(3));
+    BOOST_CHECK(path->length() >= (*dist)(qr0, qr1));
+    BOOST_CHECK_EQUAL(path->end().head(3), (qr1).head(3));
+    BOOST_CHECK_EQUAL(path->initial().head(3), (qr0).head(3));
     BOOST_CHECK_EQUAL(path->eval(path->length(), success).head(3),
-                      (*qr1).head(3));
-    BOOST_CHECK_EQUAL(path->eval(0., success).head(3), (*qr0).head(3));
+                      (qr1).head(3));
+    BOOST_CHECK_EQUAL(path->eval(0., success).head(3), (qr0).head(3));
     for (size_t j = 0; j < 10; j++) {
       value_type a =
           ((value_type)rand() / (value_type)RAND_MAX) * path->length();

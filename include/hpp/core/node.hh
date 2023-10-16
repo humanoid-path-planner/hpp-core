@@ -50,11 +50,11 @@ class HPP_CORE_DLLAPI Node {
   /// \param configuration configuration stored in the new node
   /// \note A new connected component is created. For consistency, the
   ///       new node is not registered in the connected component.
-  Node(const ConfigurationPtr_t& configuration);
+  Node(ConfigurationIn_t configuration);
   /// Constructor
   /// \param configuration configuration stored in the new node
   /// \param connectedComponent connected component the node belongs to.
-  Node(const ConfigurationPtr_t& configuration,
+  Node(ConfigurationIn_t configuration,
        ConnectedComponentPtr_t connectedComponent);
   void addOutEdge(EdgePtr_t edge);
   void addInEdge(EdgePtr_t edge);
@@ -74,7 +74,7 @@ class HPP_CORE_DLLAPI Node {
   /// going to B.
   bool isInNeighbor(const NodePtr_t& n) const;
 
-  ConfigurationPtr_t configuration() const;
+  const Configuration_t& configuration() const;
   /// Print node in a stream
   std::ostream& print(std::ostream& os) const;
 
@@ -84,7 +84,7 @@ class HPP_CORE_DLLAPI Node {
   Node() {}
 
  private:
-  ConfigurationPtr_t configuration_;
+  Configuration_t configuration_;
   Edges_t outEdges_;
   Edges_t inEdges_;
   ConnectedComponentPtr_t connectedComponent_;

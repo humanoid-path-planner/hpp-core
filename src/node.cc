@@ -39,11 +39,11 @@ namespace core {
 
 using pinocchio::displayConfig;
 
-Node::Node(const ConfigurationPtr_t& configuration)
+Node::Node(ConfigurationIn_t configuration)
     : configuration_(configuration),
       connectedComponent_(ConnectedComponent::create()) {}
 
-Node::Node(const ConfigurationPtr_t& configuration,
+Node::Node(ConfigurationIn_t configuration,
            ConnectedComponentPtr_t connectedComponent)
     : configuration_(configuration), connectedComponent_(connectedComponent) {
   assert(connectedComponent_);
@@ -57,8 +57,8 @@ void Node::addOutEdge(EdgePtr_t edge) {
       std::string msg(
           "Attempt to insert an edge between two nodes already connected");
       hppDout(error, msg.c_str());
-      hppDout(error, "from: " << (*configuration_).transpose());
-      hppDout(error, "  to: " << (*(edge->to()->configuration())).transpose());
+      hppDout(error, "from: " << configuration_.transpose());
+      hppDout(error, "  to: " << edge->to()->configuration().transpose());
       throw std::runtime_error(msg.c_str());
     }
   }
@@ -108,10 +108,10 @@ bool Node::isInNeighbor(const NodePtr_t& n) const {
   return false;
 }
 
-ConfigurationPtr_t Node::configuration() const { return configuration_; }
+const Configuration_t& Node::configuration() const { return configuration_; }
 
 std::ostream& Node::print(std::ostream& os) const {
-  os << displayConfig(*configuration()) << std::endl;
+  os << displayConfig(configuration()) << std::endl;
   return os;
 }
 std::ostream& operator<<(std::ostream& os, const Node& n) {

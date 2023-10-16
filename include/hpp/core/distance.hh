@@ -70,7 +70,7 @@ class HPP_CORE_DLLAPI Distance {
   virtual value_type impl_distance(ConfigurationIn_t q1,
                                    ConfigurationIn_t q2) const = 0;
   virtual value_type impl_distance(NodePtr_t n1, NodePtr_t n2) const {
-    return impl_distance(*n1->configuration(), *n2->configuration());
+    return impl_distance(n1->configuration(), n2->configuration());
   }
 
   HPP_SERIALIZABLE();

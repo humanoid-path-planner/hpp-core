@@ -125,7 +125,7 @@ Problem::~Problem() {}
 
 // ======================================================================
 
-void Problem::initConfig(const ConfigurationPtr_t& config) {
+void Problem::initConfig(ConfigurationIn_t config) {
   initConf_ = config;
 }
 
@@ -142,7 +142,7 @@ const Configurations_t Problem::goalConfigs() const {
 
 // ======================================================================
 
-void Problem::addGoalConfig(const ConfigurationPtr_t& config) {
+void Problem::addGoalConfig(ConfigurationIn_t config) {
   problemTarget::GoalConfigurationsPtr_t gc(
       HPP_DYNAMIC_PTR_CAST(problemTarget::GoalConfigurations, target_));
   // If target is not an instance of GoalConfigurations, create new
@@ -274,7 +274,7 @@ void Problem::checkProblem() const {
     throw std::runtime_error(msg);
   }
 
-  if (!initConfig()) {
+  if (initConfig().size() == 0) {
     std::string msg("No init config in problem.");
     hppDout(error, msg);
     throw std::runtime_error(msg);
@@ -282,16 +282,16 @@ void Problem::checkProblem() const {
 
   // Check that initial configuration is valid
   ValidationReportPtr_t report;
-  if (!configValidations_->validate(*initConf_, report)) {
+  if (!configValidations_->validate(initConf_, report)) {
     std::ostringstream oss;
     oss << "init config invalid : " << *report;
     throw std::runtime_error(oss.str());
   }
   // Check that initial configuration sarisfies the constraints of the
   // problem
-  if (!constraints_->isSatisfied(*initConf_)) {
+  if (!constraints_->isSatisfied(initConf_)) {
     std::ostringstream os;
-    os << "Initial configuration " << pinocchio::displayConfig(*initConf_)
+    os << "Initial configuration " << pinocchio::displayConfig(initConf_)
        << " does not satisfy the constraints of the problem.";
     throw std::logic_error(os.str().c_str());
   }
@@ -302,16 +302,16 @@ void Problem::checkProblem() const {
   if (gc) {
     const Configurations_t goals(gc->configurations());
     for (auto config : gc->configurations()) {
-      if (!configValidations_->validate(*config, report)) {
+      if (!configValidations_->validate(config, report)) {
         std::ostringstream oss;
         oss << *report;
         throw std::runtime_error(oss.str());
       }
       // Check that goal configurations sarisfy the constraints of the
       // problem
-      if (!constraints_->isSatisfied(*config)) {
+      if (!constraints_->isSatisfied(config)) {
         std::ostringstream os;
-        os << "Goal configuration " << pinocchio::displayConfig(*config)
+        os << "Goal configuration " << pinocchio::displayConfig(config)
            << " does not satisfy the constraints of the problem.";
         throw std::logic_error(os.str().c_str());
       }

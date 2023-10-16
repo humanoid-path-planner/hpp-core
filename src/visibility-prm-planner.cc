@@ -83,16 +83,15 @@ bool VisibilityPrmPlanner::visibleFromCC(const Configuration_t q,
   for (NodeVector_t::const_iterator n_it = cc->nodes().begin();
        n_it != cc->nodes().end(); ++n_it) {
     if (nodeStatus_[*n_it]) {  // only iterate on guard nodes
-      ConfigurationPtr_t qCC = (*n_it)->configuration();
-      PathPtr_t path = (*sm)(q, *qCC);
+      Configuration_t qCC = (*n_it)->configuration();
+      PathPtr_t path = (*sm)(q, qCC);
       PathValidationReportPtr_t report;
       if (path && pathValidation->validate(path, false, validPart, report)) {
         // q and qCC see each other
         if (path->length() < length) {
           length = path->length();
           // Save shortest edge
-          delayedEdge = DelayedEdge_t(*n_it, make_shared<Configuration_t>(q),
-                                      path->reverse());
+          delayedEdge = DelayedEdge_t(*n_it, q, path->reverse());
         }
         found = true;
       }
@@ -132,7 +131,7 @@ void VisibilityPrmPlanner::oneStep() {
   RoadmapPtr_t r(roadmap());
   value_type count;     // number of times q has been seen
   constrApply_ = true;  // stay true if no constraint in Problem
-  Configuration_t q_init(*(r->initNode()->configuration())),
+  Configuration_t q_init(r->initNode()->configuration()),
       q_proj(robot->configSize()), q_rand(robot->configSize());
 
   /* Initialization of guard status */
@@ -172,15 +171,15 @@ void VisibilityPrmPlanner::oneStep() {
     // Insert delayed edges from list and add q as a connection node
     for (const auto& edge : delayedEdges_) {
       const NodePtr_t& near = std::get<0>(edge);
-      const ConfigurationPtr_t& q_new = std::get<1>(edge);
+      const Configuration_t& q_new = std::get<1>(edge);
       const PathPtr_t& validPath = std::get<2>(edge);
       NodePtr_t newNode = r->addNode(q_new);
       nodeStatus_[newNode] = false;
       r->addEdge(near, newNode, validPath);
       r->addEdge(newNode, near, validPath->reverse());
       hppDout(info, "connection between q1: "
-                        << displayConfig(*(near->configuration()))
-                        << "and q2: " << displayConfig(*q_new));
+                        << displayConfig(near->configuration())
+                        << "and q2: " << displayConfig(q_new));
     }
   }
   delayedEdges_.clear();
