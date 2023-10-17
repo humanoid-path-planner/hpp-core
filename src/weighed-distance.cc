@@ -66,9 +66,8 @@ struct ComputeWeightStep
       const Eigen::Matrix<value_type, 6, Eigen::Dynamic>& J,
       const pinocchio::JointIndex& j,
       Eigen::Matrix<value_type, 6, NR>& rBlock) {
-    typedef
-        typename pinocchio::RnxSOnLieGroupMap::template operation<JointModel>::type
-            LGOp_t;
+    typedef typename pinocchio::RnxSOnLieGroupMap::template operation<
+        JointModel>::type LGOp_t;
     typedef Eigen::Matrix<value_type, 6, JointModel::NV> Block_t;
     Block_t block;
     // Linear part
@@ -96,9 +95,8 @@ struct ComputeWeightStep
   static void algo(const ::pinocchio::JointModelBase<JointModel>& jmodel,
                    const pinocchio::Model& model, const pinocchio::Data& data,
                    const pinocchio::GeomData& geomData, value_type& length) {
-    typedef
-        typename pinocchio::RnxSOnLieGroupMap::template operation<JointModel>::type
-            LGOp_t;
+    typedef typename pinocchio::RnxSOnLieGroupMap::template operation<
+        JointModel>::type LGOp_t;
     typedef Eigen::Matrix<value_type, 6, LGOp_t::NR> RBlock_t;
 
     if (LGOp_t::NR == 0) {
