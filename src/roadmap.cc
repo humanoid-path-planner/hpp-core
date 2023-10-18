@@ -153,24 +153,22 @@ void Roadmap::addEdges(const NodePtr_t from, const NodePtr_t& to,
   impl_addEdge(edge);
 }
 
-NodePtr_t Roadmap::addNodeAndEdges(const NodePtr_t from,
-                                   ConfigurationIn_t to,
+NodePtr_t Roadmap::addNodeAndEdges(const NodePtr_t from, ConfigurationIn_t to,
                                    const PathPtr_t path) {
   NodePtr_t nodeTo = addNode(to, from->connectedComponent());
   addEdges(from, nodeTo, path);
   return nodeTo;
 }
 
-NodePtr_t Roadmap::addNodeAndEdge(const NodePtr_t from,
-                                  ConfigurationIn_t to,
+NodePtr_t Roadmap::addNodeAndEdge(const NodePtr_t from, ConfigurationIn_t to,
                                   const PathPtr_t path) {
   NodePtr_t nodeTo = addNode(to, from->connectedComponent());
   addEdge(from, nodeTo, path);
   return nodeTo;
 }
 
-NodePtr_t Roadmap::addNodeAndEdge(ConfigurationIn_t from,
-                                  const NodePtr_t to, const PathPtr_t path) {
+NodePtr_t Roadmap::addNodeAndEdge(ConfigurationIn_t from, const NodePtr_t to,
+                                  const PathPtr_t path) {
   NodePtr_t nodeFrom = addNode(from, to->connectedComponent());
   addEdge(nodeFrom, to, path);
   return nodeFrom;
@@ -237,8 +235,7 @@ NodePtr_t Roadmap::nearestNode(
   return closest;
 }
 
-Nodes_t Roadmap::nearestNodes(ConfigurationIn_t configuration,
-                              size_type k) {
+Nodes_t Roadmap::nearestNodes(ConfigurationIn_t configuration, size_type k) {
   value_type d;
   return nearestNeighbor_->KnearestSearch(configuration, weak_.lock(), k, d);
 }

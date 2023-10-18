@@ -66,8 +66,7 @@ class HPP_CORE_DLLAPI DiffusingPlanner : public PathPlanner {
   /// Extend a node in the direction of a configuration
   /// \param near node in the roadmap,
   /// \param target target configuration
-  virtual PathPtr_t extend(const NodePtr_t& near,
-                           ConfigurationIn_t target);
+  virtual PathPtr_t extend(const NodePtr_t& near, ConfigurationIn_t target);
 
  private:
   ConfigurationShooterPtr_t configurationShooter_;

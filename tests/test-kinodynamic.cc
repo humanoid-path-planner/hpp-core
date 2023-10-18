@@ -450,8 +450,7 @@ BOOST_AUTO_TEST_CASE(kinodynamic) {
     pathKino = HPP_DYNAMIC_PTR_CAST(KinodynamicPath, path);
     BOOST_REQUIRE(pathKino);
     BOOST_CHECK(path->length() >= (*dist)(qr0, qr1));
-    BOOST_CHECK_EQUAL(path->end().head(indexECS + 3),
-                      (qr1).head(indexECS + 3));
+    BOOST_CHECK_EQUAL(path->end().head(indexECS + 3), (qr1).head(indexECS + 3));
     BOOST_CHECK_EQUAL(path->initial().head(indexECS + 3),
                       (qr0).head(indexECS + 3));
     BOOST_CHECK_EQUAL(path->eval(path->length(), success).head(indexECS + 3),

@@ -81,8 +81,7 @@ PathPtr_t BiRRTPlanner::extendInternal(const SteeringMethodPtr_t& sm,
   if (constraints) {
     ConfigProjectorPtr_t configProjector(constraints->configProjector());
     if (configProjector) {
-      configProjector->projectOnKernel(near->configuration(), target,
-                                       qProj_);
+      configProjector->projectOnKernel(near->configuration(), target, qProj_);
     } else {
       qProj_ = target;
     }

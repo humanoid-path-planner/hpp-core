@@ -470,9 +470,7 @@ void ProblemSolver::robot(const DevicePtr_t& robot) {
 
 const DevicePtr_t& ProblemSolver::robot() const { return robot_; }
 
-void ProblemSolver::initConfig(ConfigurationIn_t config) {
-  initConf_ = config;
-}
+void ProblemSolver::initConfig(ConfigurationIn_t config) { initConf_ = config; }
 
 const Configurations_t& ProblemSolver::goalConfigs() const {
   return goalConfigurations_;
