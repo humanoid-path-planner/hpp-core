@@ -334,8 +334,8 @@ bool BiRrtStar::extend(NodePtr_t target, ParentMap_t& parentMap,
     // constraints that have a small basin of attraction
     int i = 0;
     while (!problem()->constraints()->apply(q) && i < 10) {
-      problem()->robot()->configSpace()->interpolate(near->configuration(),
-                                                     q, .5, q);
+      problem()->robot()->configSpace()->interpolate(near->configuration(), q,
+                                                     .5, q);
       ++i;
     }
   }

@@ -167,9 +167,7 @@ class HPP_CORE_DLLAPI Roadmap {
 
   void resetGoalNodes() { goalNodes_.clear(); }
 
-  void initNode(ConfigurationIn_t config) {
-    initNode_ = addNode(config);
-  }
+  void initNode(ConfigurationIn_t config) { initNode_ = addNode(config); }
 
   virtual ~Roadmap();
   /// Check that a path exists between the initial node and one goal node.

@@ -356,8 +356,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
   /// \param path path to store in the edge.
   ///
   /// Check that nodes containing config1 and config2 exist in the roadmap.
-  void addEdgeToRoadmap(ConfigurationIn_t config1,
-                        ConfigurationIn_t config2,
+  void addEdgeToRoadmap(ConfigurationIn_t config1, ConfigurationIn_t config2,
                         const PathPtr_t& path);
 
   /// Interrupt path planning and path optimization

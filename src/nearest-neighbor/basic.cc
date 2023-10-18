@@ -143,9 +143,8 @@ Nodes_t Basic::KnearestSearch(const NodePtr_t& node,
   return nodes;
 }
 
-Nodes_t Basic::KnearestSearch(ConfigurationIn_t q,
-                              const RoadmapPtr_t& roadmap, const std::size_t K,
-                              value_type& distance) {
+Nodes_t Basic::KnearestSearch(ConfigurationIn_t q, const RoadmapPtr_t& roadmap,
+                              const std::size_t K, value_type& distance) {
   Queue_t ns;
   distance = std::numeric_limits<value_type>::infinity();
   const Distance& dist = *distance_;

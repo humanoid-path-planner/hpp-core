@@ -177,9 +177,9 @@ void VisibilityPrmPlanner::oneStep() {
       nodeStatus_[newNode] = false;
       r->addEdge(near, newNode, validPath);
       r->addEdge(newNode, near, validPath->reverse());
-      hppDout(info, "connection between q1: "
-                        << displayConfig(near->configuration())
-                        << "and q2: " << displayConfig(q_new));
+      hppDout(info,
+              "connection between q1: " << displayConfig(near->configuration())
+                                        << "and q2: " << displayConfig(q_new));
     }
   }
   delayedEdges_.clear();

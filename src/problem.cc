@@ -125,9 +125,7 @@ Problem::~Problem() {}
 
 // ======================================================================
 
-void Problem::initConfig(ConfigurationIn_t config) {
-  initConf_ = config;
-}
+void Problem::initConfig(ConfigurationIn_t config) { initConf_ = config; }
 
 // ======================================================================
 
