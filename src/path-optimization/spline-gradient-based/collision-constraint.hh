@@ -175,6 +175,7 @@ class CollisionFunction : public DifferentiableFunction {
       device.computeForwardKinematics(pinocchio::JOINT_POSITION);
       M2 = joint2->currentTransformation(device.d());
       M1 = joint1->currentTransformation(device.d());
+      device.unlock();
       // Position of x1 in local frame of joint2
       vector3_t x1_J2(M2.actInv(M1.act(x1_J1)));
       hppDout(info, "x2 in J2 = " << x2_J2.transpose());
@@ -190,6 +191,7 @@ class CollisionFunction : public DifferentiableFunction {
       device.currentConfiguration(qFree_);
       device.computeForwardKinematics(pinocchio::JOINT_POSITION);
       Transform3f M2(joint2->currentTransformation(device.d()));
+      device.unlock();
       // position of x2 in global frame
       vector3_t x2_J1(M2.act(x2_J2));
       hppDout(info, "x2 in J1 = " << x2_J1.transpose());
