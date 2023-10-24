@@ -263,7 +263,7 @@ bool Progressive::project(const PathPtr_t& path, PathPtr_t& proj) const {
   bool success;
   Configuration_t q = proj->eval(proj->timeRange().second, success);
   if (!success) {
-    q = (*proj)(proj->timeRange().second, success);
+    q = proj->eval(proj->timeRange().second, success);
   }
   assert(success);
   vector_t error;

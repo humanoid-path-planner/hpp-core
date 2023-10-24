@@ -104,7 +104,7 @@ PathPtr_t DiffusingPlanner::extend(const NodePtr_t& near,
     if (configProjector) {
       assert(isNormalized(problem()->robot(), target,
                           PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
-      assert(isNormalized(problem()->robot(), *(near->configuration()),
+      assert(isNormalized(problem()->robot(), near->configuration(),
                           PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
       configProjector->projectOnKernel(near->configuration(), target, qProj_);
       assert(isNormalized(problem()->robot(), qProj_,

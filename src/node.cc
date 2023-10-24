@@ -74,8 +74,8 @@ void Node::addInEdge(EdgePtr_t edge) {
           "Attempt to insert an edge between two nodes already connected");
       hppDout(error, msg.c_str());
       hppDout(error,
-              "from: " << (*(edge->from()->configuration())).transpose());
-      hppDout(error, "  to: " << (*configuration_).transpose());
+              "from: " << (edge->from()->configuration()).transpose());
+      hppDout(error, "  to: " << configuration_.transpose());
       throw std::runtime_error(msg.c_str());
     }
   }
