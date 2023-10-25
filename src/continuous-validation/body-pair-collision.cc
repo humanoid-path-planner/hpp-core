@@ -171,10 +171,10 @@ value_type BodyPairCollision::collisionFreeInterval(
       Vm[i + 1] = computeMaximalVelocity(Vb_);
       T[i + 1] = distanceLowerBound / Vm[i + 1];
       if (i % 2 == 1) {
-        assert(T[i+1] >= T[i]);
-        assert(Vm[i+1] <= Vm[i]);
-        assert(T[i+2] <= T[i+1]);
-        assert(Vm[i+2] >= Vm[i+1]);
+        assert(T[i + 1] >= T[i]);
+        assert(Vm[i + 1] <= Vm[i]);
+        assert(T[i + 2] <= T[i + 1]);
+        assert(Vm[i + 2] >= Vm[i + 1]);
       }
     }
     constexpr int k = 2 * Nrefine;
