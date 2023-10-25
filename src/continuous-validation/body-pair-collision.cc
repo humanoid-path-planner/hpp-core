@@ -142,15 +142,39 @@ value_type BodyPairCollision::collisionFreeInterval(
     bool rightIsValid = (tM > path_->timeRange().second);
     if (leftIsValid && rightIsValid) return T[0];
 
+    // Refinement step
+    // Make Nrefine times the following actions
+    //
+    //  1. Recompute the maximal velocity on interval T[2*i+0] -> Vm[2*i+1]
+    //  2. T[2*i+1] <- distanceLowerBound / Vm[2*i+1]
+    //  3. Recompute the maximal velocity on interval T[2*i+1] -> Vm[2*i+2]
+    //  4. T[2*i+2] <- distanceLowerBound / Vm[2*i+1]
+    //
+    //  The following inequalities hold:
+    //    - T [2*i+1] >=  T [2*i+0],
+    //    - Vm[2*i+1] <=  Vm[2*i],
+    //    - T [2*i+2] <=  T [2*i+1],
+    //    - Vm[2*i+2] >=  Vm[2*i+1]
+    // since
+    //    - the maximal velocity over an interval is increasing with the
+    //      size of the interval and
+    //    - distanceLowerBound / Vm is decreasing when Vm increases.
+    //
+    // Note that steps 3 and 4 are compacted into one loop in the lines
+    // below. Performing those steps an even number of times ensures that
+    // the maximal velocity used to compute the result interval T[2*i+2]
+    // is evaluated on an superset of T[2*i+2].
     for (int i = 0; i < 2 * Nrefine; ++i) {
       tm = t - (leftIsValid ? 0 : T[i]);
       tM = t + (rightIsValid ? 0 : T[i]);
       path_->velocityBound(Vb_, tm, tM);
       Vm[i + 1] = computeMaximalVelocity(Vb_);
-      T[i + 1] = distanceLowerBound / Vm[i];
+      T[i + 1] = distanceLowerBound / Vm[i + 1];
       if (i % 2 == 1) {
-        assert(Vm[i - 1] >= Vm[i + 1] && Vm[i + 1] >= Vm[i] &&
-               T[i - 1] <= T[i + 1] && T[i + 1] <= T[i]);
+        assert(T[i+1] >= T[i]);
+        assert(Vm[i+1] <= Vm[i]);
+        assert(T[i+2] <= T[i+1]);
+        assert(Vm[i+2] >= Vm[i+1]);
       }
     }
     constexpr int k = 2 * Nrefine;
