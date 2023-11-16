@@ -380,6 +380,10 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       problem()
           ->getParameter("SplineGradientBased/alwaysStopAtFirst")
           .boolValue();
+  bool usePathLengthAsWeights =
+      problem()
+          ->getParameter("SplineGradientBased/usePathLengthAsWeights")
+          .boolValue();
   bool reorderIntervals =
       problem()
           ->getParameter("SplineGradientBased/reorderIntervals")
@@ -434,8 +438,10 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   CollisionFunctions collisionFunctions;
 
   // 4
-  // TODO add weights
   SquaredLength<Spline, 1> cost(splines, rDof, rDof);
+  if (usePathLengthAsWeights) {
+    cost.computeLambdasFromSplineLength(splines);
+  }
 
   // 5
   //
@@ -657,6 +663,10 @@ Problem::declareParameter(ParameterDescription(
     "If true, consider only one (not all) collision constraint at each "
     "iteration.",
     Parameter(true)));
+Problem::declareParameter(ParameterDescription(
+    Parameter::BOOL, "SplineGradientBased/usePathLengthAsWeights",
+    "If true, the initial path length are used to weight the splines.",
+    Parameter(false)));
 Problem::declareParameter(ParameterDescription(
     Parameter::BOOL, "SplineGradientBased/reorderIntervals",
     "If true, interval in collision are checked first at next iteration.",
