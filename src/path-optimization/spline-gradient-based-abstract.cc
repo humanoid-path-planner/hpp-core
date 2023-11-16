@@ -504,6 +504,7 @@ template class SplineGradientBasedAbstract<path::BernsteinBasis,
 // template class SplineGradientBased<path::BernsteinBasis, 2>;
 template class SplineGradientBasedAbstract<path::BernsteinBasis, 3>;
 template class SplineGradientBasedAbstract<path::BernsteinBasis, 5>;
+template class SplineGradientBasedAbstract<path::BernsteinBasis, 7>;
 }  // namespace pathOptimization
 }  // namespace core
 }  // namespace hpp

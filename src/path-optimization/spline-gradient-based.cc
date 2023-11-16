@@ -650,6 +650,7 @@ template class SplineGradientBased<path::BernsteinBasis,
 // template class SplineGradientBased<path::BernsteinBasis, 2>;
 template class SplineGradientBased<path::BernsteinBasis, 3>;
 template class SplineGradientBased<path::BernsteinBasis, 5>;
+template class SplineGradientBased<path::BernsteinBasis, 7>;
 
 // ----------- Declare parameters ------------------------------------- //
 
