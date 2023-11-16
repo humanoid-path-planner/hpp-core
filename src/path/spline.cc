@@ -492,14 +492,17 @@ template class Spline<BernsteinBasis, 1>;  // equivalent to StraightPath
 // template class Spline<BernsteinBasis, 2>;
 template class Spline<BernsteinBasis, 3>;
 template class Spline<BernsteinBasis, 5>;
+template class Spline<BernsteinBasis, 7>;
 typedef Spline<BernsteinBasis, 1>
     Spline_BernsteinBasis_1;  // equivalent to StraightPath
 typedef Spline<BernsteinBasis, 3> Spline_BernsteinBasis_3;
 typedef Spline<BernsteinBasis, 5> Spline_BernsteinBasis_5;
+typedef Spline<BernsteinBasis, 7> Spline_BernsteinBasis_7;
 
 HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_1);
 HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_3);
 HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_5);
+HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_7);
 }  //   namespace path
 }  //   namespace core
 }  // namespace hpp
@@ -507,3 +510,4 @@ HPP_SERIALIZATION_IMPLEMENT(Spline_BernsteinBasis_5);
 BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_1)
 BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_3)
 BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_5)
+BOOST_CLASS_EXPORT(hpp::core::path::Spline_BernsteinBasis_7)
