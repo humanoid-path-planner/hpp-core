@@ -380,6 +380,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       problem()
           ->getParameter("SplineGradientBased/alwaysStopAtFirst")
           .boolValue();
+  size_type costOrder =
+      problem()->getParameter("SplineGradientBased/costOrder").intValue();
   bool usePathLengthAsWeights =
       problem()
           ->getParameter("SplineGradientBased/usePathLengthAsWeights")
@@ -438,7 +440,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   CollisionFunctions collisionFunctions;
 
   // 4
-  SquaredLength<Spline, 1> cost(splines, rDof, rDof);
+  SquaredLength<Spline> cost(splines, rDof, rDof, costOrder);
   if (usePathLengthAsWeights) {
     cost.computeLambdasFromSplineLength(splines);
   }
@@ -663,6 +665,11 @@ Problem::declareParameter(ParameterDescription(
     "If true, consider only one (not all) collision constraint at each "
     "iteration.",
     Parameter(true)));
+Problem::declareParameter(ParameterDescription(
+    Parameter::INT, "SplineGradientBased/costOrder",
+    "The order of the derivative used for the optimized cost function. This is "
+    "most likely 1, 2 or 3",
+    Parameter((size_type)1)));
 Problem::declareParameter(ParameterDescription(
     Parameter::BOOL, "SplineGradientBased/usePathLengthAsWeights",
     "If true, the initial path length are used to weight the splines.",
