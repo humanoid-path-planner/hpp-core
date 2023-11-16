@@ -32,6 +32,7 @@
 #include <hpp/core/path-optimization/cost.hh>
 #include <hpp/core/path/spline.hh>
 #include <hpp/util/debug.hh>
+#include <hpp/util/exception-factory.hh>
 
 namespace hpp {
 namespace core {
@@ -40,7 +41,7 @@ namespace pathOptimization {
 /// The derivative of the cost is wrong when for freeflyer and planar
 /// joints. It lacks the derivative of the difference operator. The issue
 /// is that it is not a quadratic cost anymore.
-template <typename _Spline, int DerivativeOrder>
+template <typename _Spline>
 struct HPP_CORE_LOCAL SquaredLength  // : Cost
 {
   typedef _Spline Spline;
@@ -48,18 +49,24 @@ struct HPP_CORE_LOCAL SquaredLength  // : Cost
   typedef std::vector<SplinePtr_t> Splines_t;
 
   SquaredLength(const Splines_t& splines, size_type paramSize,
-                size_type paramDerivativeSize)
-      :  // SplineCost (size_type nSplines, size_type paramSize, size_type
-         // paramDerivativeSize, const std::string& name) : Cost (nSplines *
-         // Spline::NbCoeffs * paramSize, splines.size() * Spline::NbCoeffs *
-         // inputDerivativeSize, name),
-        lambda_(splines.size()),
+                size_type paramDerivativeSize, size_type derivativeOrder)
+      : lambda_(splines.size()),
         nSplines_(splines.size()),
         paramSize_(paramSize),
         paramDerivativeSize_(paramDerivativeSize),
         inputSize_(nSplines_ * Spline::NbCoeffs * paramSize),
         inputDerivativeSize_(nSplines_ * Spline::NbCoeffs *
-                             paramDerivativeSize) {
+                             paramDerivativeSize),
+        derivativeOrder_(derivativeOrder) {
+    assert(derivativeOrder_ > 0);
+    // Spline::NbPowerOfT = 2 * Spline::Order + 3
+    if (2 * derivativeOrder_ - 1 >= Spline::NbPowerOfT) {
+      HPP_THROW(std::invalid_argument,
+                "Cannot compute the squared norm of the "
+                    << derivativeOrder_
+                    << "th order derivative with splines of order "
+                    << Spline::Order);
+    }
     lambda_.setOnes();
   }
 
@@ -76,7 +83,7 @@ struct HPP_CORE_LOCAL SquaredLength  // : Cost
     assert(nSplines_ == splines.size());
     result = 0;
     for (std::size_t i = 0; i < nSplines_; ++i)
-      result += lambda_[i] * splines[i]->squaredNormIntegral(DerivativeOrder);
+      result += lambda_[i] * splines[i]->squaredNormIntegral(derivativeOrder_);
   }
 
   void jacobian(vectorOut_t J, const Splines_t& splines) const {
@@ -85,7 +92,7 @@ struct HPP_CORE_LOCAL SquaredLength  // : Cost
     size_type col = 0;
     size_type size = Spline::NbCoeffs * paramDerivativeSize_;
     for (std::size_t i = 0; i < nSplines_; ++i) {
-      splines[i]->squaredNormIntegralDerivative(DerivativeOrder,
+      splines[i]->squaredNormIntegralDerivative(derivativeOrder_,
                                                 J.segment(col, size));
       J.segment(col, size) *= lambda_[i];
       col += size;
@@ -100,7 +107,7 @@ struct HPP_CORE_LOCAL SquaredLength  // : Cost
     H.setZero();
 
     for (std::size_t k = 0; k < nSplines_; ++k) {
-      splines[k]->squaredNormBasisFunctionIntegral(DerivativeOrder, Ic);
+      splines[k]->squaredNormBasisFunctionIntegral(derivativeOrder_, Ic);
       Ic *= 2;
       const size_type shift = k * Spline::NbCoeffs * paramSize_;
       for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
@@ -119,7 +126,7 @@ struct HPP_CORE_LOCAL SquaredLength  // : Cost
                         splines[k]->rowParameters();
 
       value_type res2 =
-          splines[k]->squaredNormIntegral(DerivativeOrder) * lambda_[k];
+          splines[k]->squaredNormIntegral(derivativeOrder_) * lambda_[k];
 
       value_type diff = res1 - res2;
 
@@ -139,6 +146,7 @@ struct HPP_CORE_LOCAL SquaredLength  // : Cost
   const std::size_t nSplines_;
   const size_type paramSize_, paramDerivativeSize_;
   const size_type inputSize_, inputDerivativeSize_;
+  size_type derivativeOrder_;
 };
 }  // namespace pathOptimization
 }  // namespace core
