@@ -140,14 +140,37 @@ PathVectorPtr_t SplineGradientBasedAbstract<_PB, _SO>::cleanInput(
 }
 
 template <int _PB, int _SO>
+typename SplineGradientBasedAbstract<_PB, _SO>::SplinePtr_t
+SplineGradientBasedAbstract<_PB, _SO>::steer(ConfigurationIn_t q0,
+                                             ConfigurationIn_t q1,
+                                             value_type length) const {
+  enum { NDerivativeConstraintPerSide = int((SplineOrder + 1 - 2) / 2) };
+  typedef Eigen::Matrix<value_type, Eigen::Dynamic,
+                        NDerivativeConstraintPerSide>
+      DerMatrix_t;
+  typedef typename DerMatrix_t::ConstantReturnType DefaultDerivatives_t;
+
+  DefaultDerivatives_t defaultDer(
+      DerMatrix_t::Zero(robot_->numberDof(), NDerivativeConstraintPerSide));
+  std::vector<int> orders(NDerivativeConstraintPerSide);
+  for (std::size_t i = 0; i < NDerivativeConstraintPerSide; ++i)
+    orders[i] = int(i + 1);
+
+  PathPtr_t s = steeringMethod_->steer(q0, orders, defaultDer, q1, orders,
+                                       defaultDer, length);
+
+  return HPP_DYNAMIC_PTR_CAST(Spline, s);
+}
+
+template <int _PB, int _SO>
 void SplineGradientBasedAbstract<_PB, _SO>::appendEquivalentSpline(
     const StraightPathPtr_t& path, Splines_t& splines) const {
-  PathPtr_t s = steeringMethod_->impl_compute(path->initial(), path->end());
+  SplinePtr_t s = steer(path->initial(), path->end(), path->length());
   if (path->constraints()) {
     splines.push_back(
         HPP_DYNAMIC_PTR_CAST(Spline, s->copy(path->constraints())));
   } else {
-    splines.push_back(HPP_DYNAMIC_PTR_CAST(Spline, s));
+    splines.push_back(s);
   }
 }
 
@@ -159,12 +182,12 @@ void SplineGradientBasedAbstract<_PB, _SO>::appendEquivalentSpline(
               "Projected path with more than 2 IPs are not supported. "
                   << path->interpolationPoints().size() << ").");
   }
-  PathPtr_t s = steeringMethod_->impl_compute(path->initial(), path->end());
+  SplinePtr_t s = steer(path->initial(), path->end(), path->length());
   if (path->constraints()) {
     splines.push_back(
         HPP_DYNAMIC_PTR_CAST(Spline, s->copy(path->constraints())));
   } else {
-    splines.push_back(HPP_DYNAMIC_PTR_CAST(Spline, s));
+    splines.push_back(s);
   }
 }
 

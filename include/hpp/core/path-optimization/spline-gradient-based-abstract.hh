@@ -195,6 +195,9 @@ class HPP_CORE_DLLAPI SplineGradientBasedAbstract : public PathOptimizer {
   DevicePtr_t robot_;
 
  private:
+  SplinePtr_t steer(ConfigurationIn_t q0, ConfigurationIn_t q1,
+                    value_type length) const;
+
   /// Maybe
   // void addCollisionConstraint (const std::size_t idxSpline,
   // const SplinePtr_t& spline, const SplinePtr_t& nextSpline,
