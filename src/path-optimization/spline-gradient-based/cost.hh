@@ -42,14 +42,14 @@ namespace pathOptimization {
 /// joints. It lacks the derivative of the difference operator. The issue
 /// is that it is not a quadratic cost anymore.
 template <typename _Spline>
-struct HPP_CORE_LOCAL L2NormSquaredOfDerivative
-{
+struct HPP_CORE_LOCAL L2NormSquaredOfDerivative {
   typedef _Spline Spline;
   typedef typename Spline::Ptr_t SplinePtr_t;
   typedef std::vector<SplinePtr_t> Splines_t;
 
   L2NormSquaredOfDerivative(const Splines_t& splines, size_type paramSize,
-                size_type paramDerivativeSize, size_type derivativeOrder)
+                            size_type paramDerivativeSize,
+                            size_type derivativeOrder)
       : lambda_(splines.size()),
         nSplines_(splines.size()),
         paramSize_(paramSize),
