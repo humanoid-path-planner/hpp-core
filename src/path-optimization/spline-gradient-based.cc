@@ -440,7 +440,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   CollisionFunctions collisionFunctions;
 
   // 4
-  SquaredLength<Spline> cost(splines, rDof, rDof, costOrder);
+  L2NormSquaredOfDerivative<Spline> cost(splines, rDof, rDof, costOrder);
   if (usePathLengthAsWeights) {
     cost.computeLambdasFromSplineLength(splines);
   }
