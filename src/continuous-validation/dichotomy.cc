@@ -122,6 +122,7 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
   } else {
     validPart = path;
   }
+  std::cout << niters << '\n';
   HPP_STOP_AND_DISPLAY_TIMECOUNTER(CV_Dichotomy_validateStraightPath);
   if (niters > 1000) {
     hppDout(notice,

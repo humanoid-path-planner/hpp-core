@@ -49,11 +49,13 @@ namespace bpt = boost::posix_time;
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/urdf/util.hh>
+#include <hpp/util/debug.hh>
 
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
 
 using hpp::pinocchio::urdf::loadModel;
+using hpp::pinocchio::urdf::loadModelFromString;
 
 using hpp::core::CollisionValidation;
 using hpp::core::Configuration_t;
@@ -426,5 +428,59 @@ BOOST_AUTO_TEST_CASE(continuous_validation_spline) {
       hpp::core::steeringMethod::Spline<hpp::core::path::BernsteinBasis, 3> >();
 }
 #endif
+
+BOOST_AUTO_TEST_CASE(avoid_infinite_loop) {
+  //hpp::debug::setVerbosityLevel(60);
+  DevicePtr_t robot(Device::create("test"));
+  loadModelFromString(robot, 0, "", "anchor", R"(
+<robot name="test">
+<link name="base">
+  <collision>
+  <geometry><box size="1 1 1"/></geometry>
+  </collision>
+</link>
+<link name="middle"/>
+<link name="tail">
+  <collision>
+  <geometry><sphere radius="0.5"/></geometry>
+  </collision>
+</link>
+<joint name="joint1" type="prismatic">
+  <axis xyz="1 0 0"/>
+  <parent link="base"/>
+  <child link="middle"/>
+  <limit effort="30" velocity="1.0" lower="-3" upper="3" />
+</joint>
+<joint name="joint2" type="prismatic">
+  <axis xyz="0 1 0"/>
+  <parent link="middle"/>
+  <child link="tail"/>
+  <limit effort="30" velocity="1.0" lower="-3" upper="3" />
+</joint>
+</robot>
+)",
+                      "");
+
+  // create steering method
+  ProblemPtr_t problem = Problem::create(robot);
+  SteeringMethodPtr_t sm(Straight::create(problem));
+
+  Configuration_t q1(robot->configSize()), q2(robot->configSize());
+  for (hpp::core::value_type min_dist : {0.00101, 0.00099, 1e-6, 0.0}) {
+    q1 << -1, 1 + min_dist;
+    q2 << 1.1, 1 + min_dist;
+    PathPtr_t path((*sm)(q1, q2));
+
+    // create path validation objects
+    PathValidationPtr_t dichotomy(Dichotomy::create(robot, 0));
+
+    PathPtr_t validPart;
+    PathValidationReportPtr_t report;
+    bool res(dichotomy->validate(path, false, validPart, report));
+
+    BOOST_TEST_MESSAGE(min_dist << " - " << res);
+    if (report) BOOST_TEST_MESSAGE(*report);
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END()

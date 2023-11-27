@@ -194,6 +194,7 @@ bool BodyPairCollision::computeDistanceLowerBound(
   const CollisionPairs_t& prs(pairs());
   CollisionRequests_t& rqsts(requests());
   assert(rqsts.size() == prs.size());
+  std::size_t iSmallest = prs.size();
   for (std::size_t i = 0; i < prs.size(); ++i) {
     assert(rqsts[i].enable_distance_lower_bound == true);
     fcl::CollisionResult result;
@@ -204,9 +205,18 @@ bool BodyPairCollision::computeDistanceLowerBound(
       return false;
     }
     if (result.distance_lower_bound < distanceLowerBound) {
+      iSmallest = i;
       distanceLowerBound = result.distance_lower_bound;
       assert(distanceLowerBound > 0);
     }
+  }
+  if (distanceLowerBound < 0.001) {
+    fcl::CollisionRequest req (rqsts[iSmallest]);
+    req.security_margin += distanceLowerBound;
+    fcl::CollisionResult result;
+    prs[iSmallest].collide(data, req, result);
+    setReport(report, result, prs[iSmallest]);
+    return false;
   }
   return true;
 }
