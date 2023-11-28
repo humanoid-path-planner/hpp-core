@@ -219,6 +219,12 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   /// \sa value_type breakDistance() const
   void breakDistance(value_type distance);
 
+  /// TODO
+  value_type distanceLowerBoundThreshold() const { return distanceLowerBoundThr_; }
+
+  /// TODO
+  void distanceLowerBoundThreshold(value_type distance);
+
   DevicePtr_t robot() const { return robot_; }
   /// Iteratively call method doExecute of delegate classes Initialize
   /// \sa ContinuousValidation::add, ContinuousValidation::Initialize.
@@ -300,6 +306,7 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   DevicePtr_t robot_;
   value_type tolerance_;
   value_type breakDistance_;
+  value_type distanceLowerBoundThr_;
 
   /// Store weak pointer to itself.
   void init(ContinuousValidationWkPtr_t weak);

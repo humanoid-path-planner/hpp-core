@@ -42,6 +42,10 @@ namespace core {
 namespace continuousValidation {
 using ::pinocchio::toFclTransform3f;
 
+void BodyPairCollision::distanceLowerBoundThreshold(value_type distance) {
+  distanceLowerBoundThr_ = distance;
+}
+
 bool BodyPairCollision::validateConfiguration(
     const value_type& t, interval_t& interval, ValidationReportPtr_t& report,
     const pinocchio::DeviceData& data) {
@@ -210,11 +214,16 @@ bool BodyPairCollision::computeDistanceLowerBound(
       assert(distanceLowerBound > 0);
     }
   }
-  if (distanceLowerBound < 0.001) {
-    fcl::CollisionRequest req (rqsts[iSmallest]);
-    req.security_margin += distanceLowerBound;
+  if (distanceLowerBound < distanceLowerBoundThr_) {
+    fcl::CollisionRequest req(rqsts[iSmallest]);
+    req.security_margin += distanceLowerBoundThr_;
     fcl::CollisionResult result;
     prs[iSmallest].collide(data, req, result);
+    if (!result.isCollision()) {
+      hppDout(warning,
+              "No collision detected while distance lower bound is small.");
+      return true;
+    }
     setReport(report, result, prs[iSmallest]);
     return false;
   }

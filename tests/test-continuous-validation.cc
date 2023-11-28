@@ -49,7 +49,6 @@ namespace bpt = boost::posix_time;
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/urdf/util.hh>
-#include <hpp/util/debug.hh>
 
 using hpp::pinocchio::Device;
 using hpp::pinocchio::DevicePtr_t;
@@ -61,6 +60,7 @@ using hpp::core::CollisionValidation;
 using hpp::core::Configuration_t;
 using hpp::core::ConfigurationShooterPtr_t;
 using hpp::core::ConfigValidationPtr_t;
+using hpp::core::value_type;
 using hpp::core::matrix_t;
 using hpp::core::PathPtr_t;
 using hpp::core::PathValidationPtr_t;
@@ -72,10 +72,13 @@ using hpp::core::SteeringMethodPtr_t;
 using hpp::core::ValidationReportPtr_t;
 using hpp::core::vector_t;
 using hpp::core::configurationShooter::Uniform;
-using hpp::core::continuousCollisionChecking::Dichotomy;
+using hpp::core::continuousValidation::Dichotomy;
+using hpp::core::continuousValidation::DichotomyPtr_t;
 using hpp::core::continuousCollisionChecking::Progressive;
 using hpp::core::pathValidation::createDiscretizedCollisionChecking;
 using hpp::core::steeringMethod::Straight;
+
+namespace steeringMethod = hpp::core::steeringMethod;
 
 static size_type i1 = 0, n1 = 100;
 static size_type i2 = 0, n2 = 10;
@@ -429,10 +432,7 @@ BOOST_AUTO_TEST_CASE(continuous_validation_spline) {
 }
 #endif
 
-BOOST_AUTO_TEST_CASE(avoid_infinite_loop) {
-  //hpp::debug::setVerbosityLevel(60);
-  DevicePtr_t robot(Device::create("test"));
-  loadModelFromString(robot, 0, "", "anchor", R"(
+std::string avoid_infinite_loop_urdf_string = R"(
 <robot name="test">
 <link name="base">
   <collision>
@@ -458,12 +458,20 @@ BOOST_AUTO_TEST_CASE(avoid_infinite_loop) {
   <limit effort="30" velocity="1.0" lower="-3" upper="3" />
 </joint>
 </robot>
-)",
+)";
+
+BOOST_AUTO_TEST_CASE(avoid_infinite_loop_straight) {
+  DevicePtr_t robot(Device::create("test"));
+  loadModelFromString(robot, 0, "", "anchor", avoid_infinite_loop_urdf_string,
                       "");
 
   // create steering method
   ProblemPtr_t problem = Problem::create(robot);
   SteeringMethodPtr_t sm(Straight::create(problem));
+
+  // create path validation objects
+  DichotomyPtr_t dichotomy(Dichotomy::create(robot, 0));
+  dichotomy->distanceLowerBoundThreshold(0.001);
 
   Configuration_t q1(robot->configSize()), q2(robot->configSize());
   for (hpp::core::value_type min_dist : {0.00101, 0.00099, 1e-6, 0.0}) {
@@ -471,8 +479,49 @@ BOOST_AUTO_TEST_CASE(avoid_infinite_loop) {
     q2 << 1.1, 1 + min_dist;
     PathPtr_t path((*sm)(q1, q2));
 
-    // create path validation objects
-    PathValidationPtr_t dichotomy(Dichotomy::create(robot, 0));
+    PathPtr_t validPart;
+    PathValidationReportPtr_t report;
+    bool res(dichotomy->validate(path, false, validPart, report));
+
+    BOOST_TEST_MESSAGE(min_dist << " - " << res);
+    if (report) BOOST_TEST_MESSAGE(*report);
+    // TODO we want to check the number of iterations.
+  }
+}
+
+BOOST_AUTO_TEST_CASE(avoid_infinite_loop_spline) {
+  DevicePtr_t robot(Device::create("test"));
+  loadModelFromString(robot, 0, "", "anchor", avoid_infinite_loop_urdf_string,
+                      "");
+
+  // create steering method
+  ProblemPtr_t problem = Problem::create(robot);
+  typedef steeringMethod::Spline<hpp::core::path::BernsteinBasis, 3> SMSpline_t;
+  SMSpline_t::Ptr_t sm (SMSpline_t::create(problem));
+  Configuration_t q1(robot->configSize()), q2(robot->configSize());
+  PathPtr_t path;
+  bool ok;
+
+  // Calculate shift
+  std::vector<int> order = { 1 };
+  matrix_t D1(robot->numberDof(), 1), D2(robot->numberDof(), 1);
+
+  q1 << -1, 0;
+  q2 << 1.1, 0;
+  D1 << 0, -1;
+  D2 << 0,  1;
+  path = sm->steer(q1, order, D1, q2, order, D2, 1.0);
+  BOOST_REQUIRE_EQUAL(path->length(), 1.0);
+  value_type shift = - path->eval(0.5, ok)[1];
+
+  // create path validation objects
+  DichotomyPtr_t dichotomy(Dichotomy::create(robot, 0));
+  dichotomy->distanceLowerBoundThreshold(0.001);
+
+  for (hpp::core::value_type min_dist : {0.00101, 0.00099, 1e-6, 0.0}) {
+    q1 << -1, shift + 1 + min_dist;
+    q2 << 1.1, shift + 1 + min_dist;
+    path = sm->steer(q1, order, D1, q2, order, D2, 1.0);
 
     PathPtr_t validPart;
     PathValidationReportPtr_t report;
@@ -480,6 +529,7 @@ BOOST_AUTO_TEST_CASE(avoid_infinite_loop) {
 
     BOOST_TEST_MESSAGE(min_dist << " - " << res);
     if (report) BOOST_TEST_MESSAGE(*report);
+    // TODO we want to check the number of iterations.
   }
 }
 
