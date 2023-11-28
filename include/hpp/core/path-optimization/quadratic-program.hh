@@ -62,28 +62,43 @@ struct QuadraticProgram {
   typedef Eigen::JacobiSVD<matrix_t> Decomposition_t;
   typedef Eigen::LLT<matrix_t, Eigen::Lower> LLT_t;
 
-  QuadraticProgram(size_type inputSize)
+  /// Constructor
+  /// \param inputSize dimension of the space on which the quadratic cost is
+  ///                  defined,
+  /// \param useProxqp whether to use proxqp instead of eiquadprog_2011 as
+  ///                  the internal solver. This parameter will soon be removed
+  ///                  and proxqp be the internal solver.
+  QuadraticProgram(size_type inputSize, bool useProxqp=true)
       : H(inputSize, inputSize),
         b(inputSize),
         dec(inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
-        xStar(inputSize) {
+        xStar(inputSize), useProxqp_(useProxqp) {
     H.setZero();
     b.setZero();
     bIsZero = true;
   }
 
-  QuadraticProgram(const QuadraticProgram& QP, const LinearConstraint& lc)
+  /// Constructor
+  /// \param inputSize dimension of the space on which the quadratic cost is
+  ///                  defined,
+  /// \param lc        linear equality constraint,
+  /// \param useProxqp whether to use proxqp instead of eiquadprog_2011 as
+  ///                  the internal solver. This parameter will soon be removed
+  ///                  and proxqp be the internal solver.
+  QuadraticProgram(const QuadraticProgram& QP, const LinearConstraint& lc,
+                   bool useProxqp=true)
       : H(lc.PK.cols(), lc.PK.cols()),
         b(lc.PK.cols()),
         bIsZero(false),
         dec(lc.PK.cols(), lc.PK.cols(),
             Eigen::ComputeThinU | Eigen::ComputeThinV),
-        xStar(lc.PK.cols()) {
+        xStar(lc.PK.cols()), useProxqp_(useProxqp) {
     QP.reduced(lc, *this);
   }
 
   QuadraticProgram(const QuadraticProgram& QP)
-      : H(QP.H), b(QP.b), bIsZero(QP.bIsZero), dec(QP.dec), xStar(QP.xStar) {}
+    : H(QP.H), b(QP.b), bIsZero(QP.bIsZero), dec(QP.dec), xStar(QP.xStar),
+    useProxqp_(QP.useProxqp_) {}
 
   ~QuadraticProgram();
 
@@ -127,7 +142,10 @@ struct QuadraticProgram {
   /// Compute solution using quadprog
   /// \param ce equality constraints
   /// \param ci inequality constraints: \f$ ci.J * x \ge ci.b \f$
+  /// \return the cost of the solution.
+  ///
   /// \note \ref computeLLT must have been called before.
+  /// \note if the problem is ill-conditioned, member xStar is left unchanged.
   double solve(const LinearConstraint& ce, const LinearConstraint& ci);
 
   /// \}
@@ -152,6 +170,7 @@ struct QuadraticProgram {
   Decomposition_t dec;
   vector_t xStar;
   /// \}
+  bool useProxqp_;
 };
 }  // namespace pathOptimization
 }  // namespace core
