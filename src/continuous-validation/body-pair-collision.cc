@@ -127,7 +127,7 @@ value_type BodyPairCollision::collisionFreeInterval(
   Vm[0] = maxVelocity = maximalVelocity_;
   T[0] = distanceLowerBound / maxVelocity;
   if (!refine_) {
-    if (T[0] < 1e-3) {
+    if (T[0] < 1e-3 && T[0] != 0) {
       hppDout(notice,
               "Small interval without refine: "
               "maxVelocity = "
