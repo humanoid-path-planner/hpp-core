@@ -47,6 +47,7 @@ add_project_dependency(hpp-pinocchio)
 add_project_dependency(hpp-util)
 add_project_dependency(hpp-statistics)
 add_project_dependency(hpp-constraints)
+add_project_dependency(proxsuite)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 

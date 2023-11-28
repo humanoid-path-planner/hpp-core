@@ -427,6 +427,8 @@ void SplineGradientBasedAbstract<_PB, _SO>::jointBoundConstraint(
 
   matrix_t A(2 * rDof, rDof);
   vector_t b(2 * rDof);
+  // Only the number of inequality constraints (rows) is used after this
+  // call. Matrix A and vector b are not used, only resized.
   const size_type rows =
       jointBoundMatrices(robot_, robot_->neutralConfiguration(), A, b);
 

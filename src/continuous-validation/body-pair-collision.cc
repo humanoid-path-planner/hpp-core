@@ -26,8 +26,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#define HPP_DEBUG 1
-
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/collision_data.h>
 

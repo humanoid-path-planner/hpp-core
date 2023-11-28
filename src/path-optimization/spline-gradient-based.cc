@@ -402,12 +402,12 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       problem()->getParameter("SplineGradientBased/returnOptimum").boolValue();
   value_type costThreshold =
       problem()->getParameter("SplineGradientBased/costThreshold").floatValue();
+  bool useProxqp =
+    problem()->getParameter("SplineGradientBased/useProxqp").boolValue();
 
   if (path->length() == 0) return path;
   PathVectorPtr_t input = Base::cleanInput(path);
 
-  robot_->controlComputation((pinocchio::Computation_t)(
-      robot_->computationFlag() | pinocchio::JACOBIAN));
   const size_type rDof = robot_->numberDof();
 
   // 1
@@ -460,7 +460,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     if (!this->validateBounds(splines, boundConstraint).empty())
       throw std::invalid_argument("Input path does not satisfy joint bounds");
   }
-  LinearConstraint boundConstraintReduced(boundConstraint.PK.rows(), 0);
+  LinearConstraint boundConstraintReduced(constraint.PK.rows(), 0);
   constraint.reduceConstraint(boundConstraint, boundConstraintReduced, false);
 
   // 6
@@ -478,7 +478,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   Base::copy(splines, collSplines);
   Reports_t reports;
 
-  QuadraticProgram QP(cost.inputDerivativeSize_);
+  QuadraticProgram QP(cost.inputDerivativeSize_, useProxqp);
   value_type optimalCost, costLowerBound = 0;
   cost.value(optimalCost, splines);
   hppDout(info, "Initial cost is " << optimalCost);
@@ -487,7 +487,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   checkHessian(cost, QP.H, splines);
 #endif  // NDEBUG
 
-  QuadraticProgram QPc(QP, constraint);
+  QuadraticProgram QPc(QP, constraint, useProxqp);
   if (QPc.H.rows() == 0)
     // There are no variables left for optimization.
     return this->buildPathVector(splines);
@@ -702,6 +702,10 @@ Problem::declareParameter(
                          "contains rows of zeros, in which case the "
                          "corresponding DoF is considered passive.",
                          Parameter(-1.)));
+Problem::declareParameter(
+    ParameterDescription(Parameter::BOOL, "SplineGradientBased/useProxqp",
+        "Use proxqp QP solver instead of eiquadprog_2011. Temporary parameter "
+        "that will be removed soon.", Parameter(true)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization
 }  // namespace core
