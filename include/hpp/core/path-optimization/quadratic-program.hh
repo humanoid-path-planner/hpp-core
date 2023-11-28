@@ -37,23 +37,23 @@ namespace core {
 /// \addtogroup path_optimization
 /// \{
 namespace pathOptimization {
-/*/ Quadratic program
+  /** Quadratic program
  *
  *  This class stores a quadratic cost defined by
- *  \f$ 0.5 * x^T H x + b^T x \f$ where \f$ (H, b) \f$ are the parameters.
+ *  \f$ \frac{1}{2} x^T H x + b^T x \f$ where \f$ (H, b) \f$ are the parameters.
  *
  *  It can then solve the two following program:
  *  \li Program subject to linear equality constraints
  *  \f{eqnarray*}{
- *  min & 0.5 * x^T H x + b^T x \\
- *      & A_0 * x = b_0
+ *  \min & \frac{1}{2} x^T H x + b^T x \\
+ *      A_0 x = b_0
  *  \f}
  *  This is done via \ref reduced, \ref decompose and \ref solve methods
  *  \li Program subject to linear equality and inequality constraints:
  *  \f{eqnarray*}{
- *  min & 0.5 * x^T H x + b^T x \\
- *      & A_0 * x  =  b_0 \\
- *      & A_1 * x \ge b_1
+ *  \min & \frac{1}{2} x^T H x + b^T x \\
+ *      A_0 x  =  b_0 \\
+ *      A_1 x \ge b_1
  *  \f}
  *  This is done via \ref computeLLT and \ref solve methods
  *  and uses quadprog
@@ -99,8 +99,8 @@ struct QuadraticProgram {
 
   /*/ Compute the problem
    *  \f{eqnarray*}{
-   *  min & 0.5 * x^T H x + b^T x \\
-   *      & lc.J * x = lc.b
+   *  \min & \frac{1}{2} * x^T H x + b^T x \\
+   *      lc.J * x = lc.b
    *  \f}
    **/
   void reduced(const LinearConstraint& lc, QuadraticProgram& QPr) const {
