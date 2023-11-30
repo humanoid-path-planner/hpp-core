@@ -215,6 +215,8 @@ bool BodyPairCollision::computeDistanceLowerBound(
     }
   }
   if (distanceLowerBound < distanceLowerBoundThr_) {
+    hppDout(info, "Trigerring a fake collision because distance lower bound is "
+                      << distanceLowerBound);
     fcl::CollisionRequest req(rqsts[iSmallest]);
     req.security_margin += distanceLowerBoundThr_;
     fcl::CollisionResult result;
