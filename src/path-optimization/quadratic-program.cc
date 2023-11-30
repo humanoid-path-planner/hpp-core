@@ -29,7 +29,7 @@
 #include <iostream>
 #include <hpp/core/path-optimization/quadratic-program.hh>
 #include <hpp/util/timer.hh>
-#include <proxsuite/proxqp/dense/wrapper.hpp>
+#include <proxsuite/proxqp/sparse/wrapper.hpp>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -91,13 +91,20 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
     return cost;
   } else {
     using proxsuite::proxqp::QPSolverOutput;
-    proxsuite::proxqp::dense::QP<value_type> qp{H.rows(), ce.b.size(),
-                                                ci.b.size()};
+    proxsuite::proxqp::sparse::QP<value_type, long long> qp
+      {H.rows(), ce.b.size(), ci.b.size()};
     qp.settings.eps_abs = accuracy_;
     vector_t u = ci.b;
     u.fill(std::numeric_limits<value_type>::infinity());
 
-    qp.init(H, b, ce.J, ce.b, ci.J, ci.b, u);
+    // Conversion to sparse types
+    Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> H1
+      (H.sparseView());
+    Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> A1
+      (ce.J.sparseView());
+    Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> C1
+      (ci.J.sparseView());
+    qp.init(H1, b, A1, ce.b, C1, ci.b, u);
     qp.solve();
     value_type res(0);
     Eigen::IOFormat fullPrecision(Eigen::FullPrecision, Eigen::DontAlignCols,
