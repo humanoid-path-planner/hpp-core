@@ -128,6 +128,8 @@ BOOST_AUTO_TEST_CASE(spline_optimization) {
                         hpp::core::Parameter(1.));
   problem->setParameter("SplineGradientBased/costThreshold",
                         hpp::core::Parameter(1e-6));
+  problem->setParameter("SplineGradientBased/QPAccuracy",
+                        hpp::core::Parameter(1e-10));
   PathOptimizerPtr_t pathOptimizer1(
       pathOptimization::SplineGradientBased<path::BernsteinBasis, 1>::create(
           problem));
