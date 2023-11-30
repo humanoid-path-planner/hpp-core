@@ -72,7 +72,7 @@ struct QuadraticProgram {
       : H(inputSize, inputSize),
         b(inputSize),
         dec(inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
-        xStar(inputSize), useProxqp_(useProxqp) {
+        xStar(inputSize), accuracy_(1e-4), useProxqp_(useProxqp) {
     H.setZero();
     b.setZero();
     bIsZero = true;
@@ -92,16 +92,31 @@ struct QuadraticProgram {
         bIsZero(false),
         dec(lc.PK.cols(), lc.PK.cols(),
             Eigen::ComputeThinU | Eigen::ComputeThinV),
-        xStar(lc.PK.cols()), useProxqp_(useProxqp) {
+        xStar(lc.PK.cols()), accuracy_(1e-4), useProxqp_(useProxqp) {
     QP.reduced(lc, *this);
   }
 
   QuadraticProgram(const QuadraticProgram& QP)
     : H(QP.H), b(QP.b), bIsZero(QP.bIsZero), dec(QP.dec), xStar(QP.xStar),
-    useProxqp_(QP.useProxqp_) {}
+      accuracy_(QP.accuracy_), useProxqp_(QP.useProxqp_) {}
 
   ~QuadraticProgram();
 
+  /// Set accuracy of internal QP solver
+  /// \param acc the desired accuracy
+  /// \note only used by proxqp
+  /// The accuracy corresponds to \f$\epsilon_{abs}\f$ in \link
+  /// https://inria.hal.science/hal-03683733/file/Yet_another_QP_solver_for_robotics_and_beyond.pdf this paper \endlink (Equation (2)).
+  void accuracy(value_type acc) {
+    accuracy_ = acc;
+  }
+  /// Get accuracy of internal QP solver
+  /// \note only used by proxqp
+  /// The accuracy corresponds to \f$\epsilon_{abs}\f$ in \link
+  /// https://inria.hal.science/hal-03683733/file/Yet_another_QP_solver_for_robotics_and_beyond.pdf this paper \endlink (Equation (2)).
+  value_type accuracy() const {
+    return accuracy_;
+  }
   void addRows(const std::size_t& nbRows) {
     H.conservativeResize(H.rows() + nbRows, H.cols());
     b.conservativeResize(b.rows() + nbRows, b.cols());
@@ -170,6 +185,7 @@ struct QuadraticProgram {
   Decomposition_t dec;
   vector_t xStar;
   /// \}
+  value_type accuracy_;
   bool useProxqp_;
 };
 }  // namespace pathOptimization

@@ -404,7 +404,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       problem()->getParameter("SplineGradientBased/costThreshold").floatValue();
   bool useProxqp =
     problem()->getParameter("SplineGradientBased/useProxqp").boolValue();
-
+  value_type eps_abs(problem()->getParameter("SplineGradientBased/QPAccuracy").
+                     floatValue());
   if (path->length() == 0) return path;
   PathVectorPtr_t input = Base::cleanInput(path);
 
@@ -479,6 +480,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   Reports_t reports;
 
   QuadraticProgram QP(cost.inputDerivativeSize_, useProxqp);
+  QP.accuracy(eps_abs);
   value_type optimalCost, costLowerBound = 0;
   cost.value(optimalCost, splines);
   hppDout(info, "Initial cost is " << optimalCost);
@@ -488,6 +490,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 #endif  // NDEBUG
 
   QuadraticProgram QPc(QP, constraint, useProxqp);
+  QPc.accuracy(eps_abs);
+
   if (QPc.H.rows() == 0)
     // There are no variables left for optimization.
     return this->buildPathVector(splines);
@@ -706,6 +710,9 @@ Problem::declareParameter(
     ParameterDescription(Parameter::BOOL, "SplineGradientBased/useProxqp",
         "Use proxqp QP solver instead of eiquadprog_2011. Temporary parameter "
         "that will be removed soon.", Parameter(true)));
+Problem::declareParameter(
+    ParameterDescription(Parameter::FLOAT, "SplineGradientBased/QPAccuracy",
+        "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization
 }  // namespace core
