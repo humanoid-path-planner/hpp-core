@@ -66,7 +66,8 @@ void QuadraticProgram::computeLLT() {
 }
 
 double QuadraticProgram::solve(const LinearConstraint& ce,
-                               const LinearConstraint& ci) {
+                               const LinearConstraint& ci,
+                               bool& ok) {
   if (ce.J.rows() > ce.J.cols())
     throw std::runtime_error(
         "The QP is over-constrained. QuadProg cannot handle it.");
@@ -82,11 +83,15 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
     switch (status) {
       case Eigen::UNBOUNDED:
         hppDout(warning, "Quadratic problem is not bounded");
+        ok = false;
+        break;
       case Eigen::CONVERGED:
+        ok = true;
         break;
       case Eigen::CONSTRAINT_LINEARLY_DEPENDENT:
         hppDout(error,
                 "Constraint of quadratic problem are linearly dependent.");
+        ok = false;
         break;
     }
     return cost;
@@ -110,8 +115,10 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
     value_type res(0);
     Eigen::IOFormat fullPrecision(Eigen::FullPrecision, Eigen::DontAlignCols,
                                   ", ", ", ", "", "", " << ", ";");
+    ok = false;
     switch (qp.results.info.status) {
       case QPSolverOutput::PROXQP_SOLVED:
+        ok = true;
         xStar = qp.results.x;
         res += (.5 * xStar.transpose() * H * xStar)(0, 0);
         res += (b.transpose() * xStar)(0);
