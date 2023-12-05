@@ -43,11 +43,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake-modules/ ${CMAKE_MODULE_PATH})
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
-add_project_dependency(hpp-pinocchio)
-add_project_dependency(hpp-util)
-add_project_dependency(hpp-statistics)
-add_project_dependency(hpp-constraints)
-add_project_dependency(proxsuite)
+add_project_dependency(hpp-pinocchio REQUIRED)
+add_project_dependency(hpp-util REQUIRED)
+add_project_dependency(hpp-statistics REQUIRED)
+add_project_dependency(hpp-constraints REQUIRED)
+add_project_dependency(proxsuite REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
