@@ -403,9 +403,9 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   value_type costThreshold =
       problem()->getParameter("SplineGradientBased/costThreshold").floatValue();
   bool useProxqp =
-    problem()->getParameter("SplineGradientBased/useProxqp").boolValue();
-  value_type eps_abs(problem()->getParameter("SplineGradientBased/QPAccuracy").
-                     floatValue());
+      problem()->getParameter("SplineGradientBased/useProxqp").boolValue();
+  value_type eps_abs(
+      problem()->getParameter("SplineGradientBased/QPAccuracy").floatValue());
   if (path->length() == 0) return path;
   PathVectorPtr_t input = Base::cleanInput(path);
 
@@ -706,13 +706,14 @@ Problem::declareParameter(
                          "contains rows of zeros, in which case the "
                          "corresponding DoF is considered passive.",
                          Parameter(-1.)));
-Problem::declareParameter(
-    ParameterDescription(Parameter::BOOL, "SplineGradientBased/useProxqp",
-        "Use proxqp QP solver instead of eiquadprog_2011. Temporary parameter "
-        "that will be removed soon.", Parameter(true)));
-Problem::declareParameter(
-    ParameterDescription(Parameter::FLOAT, "SplineGradientBased/QPAccuracy",
-        "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
+Problem::declareParameter(ParameterDescription(
+    Parameter::BOOL, "SplineGradientBased/useProxqp",
+    "Use proxqp QP solver instead of eiquadprog_2011. Temporary parameter "
+    "that will be removed soon.",
+    Parameter(true)));
+Problem::declareParameter(ParameterDescription(
+    Parameter::FLOAT, "SplineGradientBased/QPAccuracy",
+    "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization
 }  // namespace core
