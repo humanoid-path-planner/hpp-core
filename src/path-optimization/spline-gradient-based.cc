@@ -461,7 +461,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     if (!this->validateBounds(splines, boundConstraint).empty())
       throw std::invalid_argument("Input path does not satisfy joint bounds");
   }
-  LinearConstraint boundConstraintReduced(constraint.PK.rows(), 0);
+  LinearConstraint boundConstraintReduced(0, 0);
   constraint.reduceConstraint(boundConstraint, boundConstraintReduced, false);
 
   // 6
