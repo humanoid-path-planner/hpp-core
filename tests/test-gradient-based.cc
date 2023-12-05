@@ -28,22 +28,23 @@
 // DAMAGE.
 
 #define BOOST_TEST_MODULE gradient_based
+#include <hpp/fcl/shape/geometric_shapes.h>
+
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
-#include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/straight.hh>
+#include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/urdf/util.hh>
-#include <pinocchio/fwd.hpp>
-#include <hpp/pinocchio/collision-object.hh>
 #include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/fcl.hpp>
 #include <pinocchio/multibody/geometry.hpp>
-#include <hpp/fcl/shape/geometric_shapes.h>
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
@@ -182,9 +183,8 @@ BOOST_AUTO_TEST_CASE(spline_optimization) {
   p31 = optimizedPath3->pathAtRank(3)->end();
   value_type L;
   vector_t v00(robot->numberDof()), v01(robot->numberDof()),
-    v10(robot->numberDof()), v11(robot->numberDof()),
-    v20(robot->numberDof()), v21(robot->numberDof()),
-    v30(robot->numberDof()), v31(robot->numberDof());
+      v10(robot->numberDof()), v11(robot->numberDof()), v20(robot->numberDof()),
+      v21(robot->numberDof()), v30(robot->numberDof()), v31(robot->numberDof());
   L = optimizedPath3->pathAtRank(0)->length();
   optimizedPath3->pathAtRank(0)->derivative(v00, 0, 1);
   optimizedPath3->pathAtRank(0)->derivative(v01, L, 1);
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(spline_optimization) {
   BOOST_CHECK((p31 - q4).norm() < 1e-10);
 
   vector_t v0(robot->numberDof()), v1(robot->numberDof()),
-    v2(robot->numberDof()), v3(robot->numberDof()), v4(robot->numberDof());
+      v2(robot->numberDof()), v3(robot->numberDof()), v4(robot->numberDof());
   v0 << 0, 0, 0;
   v1 << 0.562800733001311, 0, 0;
   v2 << 0.643200837715785, 0, 0;
@@ -280,7 +280,6 @@ BOOST_AUTO_TEST_CASE(spline_optimization) {
   BOOST_CHECK((v21 - v3).norm() < 1e-10);
   BOOST_CHECK((v30 - v3).norm() < 1e-10);
   BOOST_CHECK((v31 - v4).norm() < 1e-10);
-
 }
 
 //
@@ -296,7 +295,7 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   Configuration_t q3(robot->configSize());
   Configuration_t q4(robot->configSize());
   value_type s = sqrt(2) / 2;
-  value_type L, t, cost, dt=0.01;
+  value_type L, t, cost, dt = 0.01;
   q0(0) = -1;
   q0(1) = 0;
   q0(2) = 0;
@@ -323,20 +322,21 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   problem->pathValidation(pv);
   pinocchio::Model obstacleRModel;
   hpp::pinocchio::GeomModelPtr_t obstacleModel(new hpp::pinocchio::GeomModel);
-  hpp::pinocchio::GeomDataPtr_t obstacleData(new hpp::pinocchio::GeomData
-                                             (*obstacleModel));
-  pinocchio::GeometryObject::CollisionGeometryPtr cylinder
-    (new hpp::fcl::Cylinder(0.2, 0.2));
-  matrix3_t I3(matrix3_t::Identity(3,3));
-  vector3_t T; T << -.2, 0, 0;
+  hpp::pinocchio::GeomDataPtr_t obstacleData(
+      new hpp::pinocchio::GeomData(*obstacleModel));
+  pinocchio::GeometryObject::CollisionGeometryPtr cylinder(
+      new hpp::fcl::Cylinder(0.2, 0.2));
+  matrix3_t I3(matrix3_t::Identity(3, 3));
+  vector3_t T;
+  T << -.2, 0, 0;
   pinocchio::SE3 pose(I3, T);
-  ::pinocchio::GeomIndex id = obstacleModel->addGeometryObject
-      (::pinocchio::GeometryObject("obstacle", 0, cylinder, pose),
-       obstacleRModel);
+  ::pinocchio::GeomIndex id = obstacleModel->addGeometryObject(
+      ::pinocchio::GeometryObject("obstacle", 0, cylinder, pose),
+      obstacleRModel);
   obstacleData->oMg.resize(obstacleModel->ngeoms);
   obstacleData->oMg[id] = obstacleModel->geometryObjects[id].placement;
-  CollisionObjectPtr_t object(new CollisionObject(obstacleModel, obstacleData,
-                                                  id));
+  CollisionObjectPtr_t object(
+      new CollisionObject(obstacleModel, obstacleData, id));
   problem->addObstacle(object);
 
   SteeringMethodPtr_t sm = problem->steeringMethod();
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   L = optimizedPath1->length();
   t = 0;
   cost = 0;
-  while(t <= L) {
+  while (t <= L) {
     vector3_t v;
     optimizedPath1->derivative(v, t, 1);
     cost += dt * v.norm();
@@ -400,9 +400,8 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   p30 = optimizedPath3->pathAtRank(3)->initial();
   p31 = optimizedPath3->pathAtRank(3)->end();
   vector_t v00(robot->numberDof()), v01(robot->numberDof()),
-    v10(robot->numberDof()), v11(robot->numberDof()),
-    v20(robot->numberDof()), v21(robot->numberDof()),
-    v30(robot->numberDof()), v31(robot->numberDof());
+      v10(robot->numberDof()), v11(robot->numberDof()), v20(robot->numberDof()),
+      v21(robot->numberDof()), v30(robot->numberDof()), v31(robot->numberDof());
   L = optimizedPath3->pathAtRank(0)->length();
   optimizedPath3->pathAtRank(0)->derivative(v00, 0, 1);
   optimizedPath3->pathAtRank(0)->derivative(v01, L, 1);
@@ -424,7 +423,7 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   BOOST_CHECK((p31 - q4).norm() < 1e-10);
 
   vector_t v0(robot->numberDof()), v1(robot->numberDof()),
-    v2(robot->numberDof()), v3(robot->numberDof()), v4(robot->numberDof());
+      v2(robot->numberDof()), v3(robot->numberDof()), v4(robot->numberDof());
   v0 << 0, 0, 0;
   v4 << 0, 0, 0;
 
@@ -436,9 +435,9 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   BOOST_CHECK((v31 - v4).norm() < 1e-10);
 
   L = optimizedPath3->length();
-  t = 0, dt=0.01;
+  t = 0, dt = 0.01;
   cost = 0;
-  while(t <= L) {
+  while (t <= L) {
     vector3_t v;
     optimizedPath3->derivative(v, t, 1);
     cost += dt * v.norm();
@@ -486,15 +485,14 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   BOOST_CHECK((v31 - v4).norm() < 1e-10);
 
   L = optimizedPath5->length();
-  t = 0, dt=0.01;
+  t = 0, dt = 0.01;
   cost = 0;
-  while(t <= L) {
+  while (t <= L) {
     vector3_t v;
     optimizedPath5->derivative(v, t, 1);
     cost += dt * v.norm();
     t += dt;
   }
   BOOST_CHECK(cost <= 4.);
-
 }
 BOOST_AUTO_TEST_SUITE_END()
