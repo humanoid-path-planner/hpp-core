@@ -381,8 +381,12 @@ void Spline<_SplineType, _Order>::impl_derivative(vectorOut_t res,
   // at a higher order. At the d2+/dv2 is not available for SE(n) and SO(n).
   assert(order == 1 || robot_->configSpace()->isVectorSpace());
   BasisFunctionVector_t basisFunc;
-  const value_type u =
+  value_type u =
       (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
+  // Due to numerical errors, u might be outside range [0, 1]
+  assert(u >= -1e-12);
+  assert(u-1 <= 1e-12);
+  u = std::min(1.0, std::max(u, 0.0));
   basisFunctionDerivative(order, u, basisFunc);
   res.noalias() = parameters_.transpose() * basisFunc;
 
@@ -399,8 +403,12 @@ template <int _SplineType, int _Order>
 void Spline<_SplineType, _Order>::impl_paramDerivative(
     vectorOut_t res, const value_type& s) const {
   BasisFunctionVector_t basisFunc;
-  const value_type u =
+  value_type u =
       (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
+  // Due to numerical errors, u might be outside range [0, 1]
+  assert(u >= -1e-12);
+  assert(u-1 <= 1e-12);
+  u = std::min(1.0, std::max(u, 0.0));
   basisFunctionDerivative(0, u, basisFunc);
   res = basisFunc;
 
