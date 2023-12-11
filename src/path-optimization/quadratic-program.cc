@@ -66,8 +66,7 @@ void QuadraticProgram::computeLLT() {
 }
 
 double QuadraticProgram::solve(const LinearConstraint& ce,
-                               const LinearConstraint& ci,
-                               bool& ok) {
+                               const LinearConstraint& ci, bool& ok) {
   if (ce.J.rows() > ce.J.cols())
     throw std::runtime_error(
         "The QP is over-constrained. QuadProg cannot handle it.");

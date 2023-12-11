@@ -498,8 +498,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   QPc.computeLLT();
   bool qpSolved;
   QPc.solve(collisionReduced, boundConstraintReduced, qpSolved);
-  if (!qpSolved)
-    return this->buildPathVector(splines);
+  if (!qpSolved) return this->buildPathVector(splines);
 
   while (!(noCollision && minimumReached) && !this->shouldStop()) {
     // 6.1

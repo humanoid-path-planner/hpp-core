@@ -256,7 +256,8 @@ void ContinuousValidation::removeObstacleFromJoint(
 void ContinuousValidation::breakDistance(value_type distance) {
   assert(distance >= 0);
   if (distance <= distanceLowerBoundThr_) {
-    throw std::invalid_argument("Break distance must be strictly greater than "
+    throw std::invalid_argument(
+        "Break distance must be strictly greater than "
         "the distance lower bound threshold.");
   }
   breakDistance_ = distance;
@@ -272,7 +273,8 @@ void ContinuousValidation::breakDistance(value_type distance) {
 void ContinuousValidation::distanceLowerBoundThreshold(value_type distance) {
   assert(distance >= 0);
   if (distance >= breakDistance_) {
-    throw std::invalid_argument("Distance lower bound threshold must be "
+    throw std::invalid_argument(
+        "Distance lower bound threshold must be "
         "strictly smaller than the break distance.");
   }
   distanceLowerBoundThr_ = distance;

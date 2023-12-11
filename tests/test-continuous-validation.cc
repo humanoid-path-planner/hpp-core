@@ -60,7 +60,6 @@ using hpp::core::CollisionValidation;
 using hpp::core::Configuration_t;
 using hpp::core::ConfigurationShooterPtr_t;
 using hpp::core::ConfigValidationPtr_t;
-using hpp::core::value_type;
 using hpp::core::matrix_t;
 using hpp::core::PathPtr_t;
 using hpp::core::PathValidationPtr_t;
@@ -70,11 +69,12 @@ using hpp::core::ProblemPtr_t;
 using hpp::core::size_type;
 using hpp::core::SteeringMethodPtr_t;
 using hpp::core::ValidationReportPtr_t;
+using hpp::core::value_type;
 using hpp::core::vector_t;
 using hpp::core::configurationShooter::Uniform;
+using hpp::core::continuousCollisionChecking::Progressive;
 using hpp::core::continuousValidation::Dichotomy;
 using hpp::core::continuousValidation::DichotomyPtr_t;
-using hpp::core::continuousCollisionChecking::Progressive;
 using hpp::core::pathValidation::createDiscretizedCollisionChecking;
 using hpp::core::steeringMethod::Straight;
 
@@ -497,22 +497,22 @@ BOOST_AUTO_TEST_CASE(avoid_infinite_loop_spline) {
   // create steering method
   ProblemPtr_t problem = Problem::create(robot);
   typedef steeringMethod::Spline<hpp::core::path::BernsteinBasis, 3> SMSpline_t;
-  SMSpline_t::Ptr_t sm (SMSpline_t::create(problem));
+  SMSpline_t::Ptr_t sm(SMSpline_t::create(problem));
   Configuration_t q1(robot->configSize()), q2(robot->configSize());
   PathPtr_t path;
   bool ok;
 
   // Calculate shift
-  std::vector<int> order = { 1 };
+  std::vector<int> order = {1};
   matrix_t D1(robot->numberDof(), 1), D2(robot->numberDof(), 1);
 
   q1 << -1, 0;
   q2 << 1.1, 0;
   D1 << 0, -1;
-  D2 << 0,  1;
+  D2 << 0, 1;
   path = sm->steer(q1, order, D1, q2, order, D2, 1.0);
   BOOST_REQUIRE_EQUAL(path->length(), 1.0);
-  value_type shift = - path->eval(0.5, ok)[1];
+  value_type shift = -path->eval(0.5, ok)[1];
 
   // create path validation objects
   DichotomyPtr_t dichotomy(Dichotomy::create(robot, 0));

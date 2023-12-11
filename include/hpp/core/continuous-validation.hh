@@ -220,7 +220,9 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   void breakDistance(value_type distance);
 
   /// TODO
-  value_type distanceLowerBoundThreshold() const { return distanceLowerBoundThr_; }
+  value_type distanceLowerBoundThreshold() const {
+    return distanceLowerBoundThr_;
+  }
 
   /// TODO
   void distanceLowerBoundThreshold(value_type distance);

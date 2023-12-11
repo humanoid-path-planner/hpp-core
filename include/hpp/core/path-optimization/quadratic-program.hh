@@ -169,7 +169,8 @@ struct QuadraticProgram {
   ///
   /// \note \ref computeLLT must have been called before.
   /// \note if the problem is ill-conditioned, member xStar is left unchanged.
-  double solve(const LinearConstraint& ce, const LinearConstraint& ci, bool& ok);
+  double solve(const LinearConstraint& ce, const LinearConstraint& ci,
+               bool& ok);
 
   /// \}
 
