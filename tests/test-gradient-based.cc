@@ -39,8 +39,8 @@
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/joint-collection.hh>
+#include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/urdf/util.hh>
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/fwd.hpp>
