@@ -40,6 +40,7 @@
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/urdf/util.hh>
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/fwd.hpp>
@@ -320,7 +321,7 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   ProblemPtr_t problem = Problem::create(robot);
   PathValidationPtr_t pv(continuousValidation::Dichotomy::create(robot, 0));
   problem->pathValidation(pv);
-  pinocchio::Model obstacleRModel;
+  hpp::pinocchio::Model obstacleRModel;
   hpp::pinocchio::GeomModelPtr_t obstacleModel(new hpp::pinocchio::GeomModel);
   hpp::pinocchio::GeomDataPtr_t obstacleData(
       new hpp::pinocchio::GeomData(*obstacleModel));
