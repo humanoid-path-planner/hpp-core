@@ -254,7 +254,7 @@ bool KinodynamicPath::impl_compute(ConfigurationOut_t result,
         result[indexAcc] = 0;
       }
     }  // if not quaternion joint
-  }    // for all joints
+  }  // for all joints
 
   return true;
 }
