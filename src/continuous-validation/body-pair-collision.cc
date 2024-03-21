@@ -125,13 +125,6 @@ value_type BodyPairCollision::collisionFreeInterval(
   Vm[0] = maxVelocity = maximalVelocity_;
   T[0] = distanceLowerBound / maxVelocity;
   if (!refine_) {
-    if (T[0] < 1e-3 && T[0] != 0) {
-      hppDout(notice,
-              "Small interval without refine: "
-              "maxVelocity = "
-                  << maxVelocity << " / T = " << T[0]
-                  << " / d = " << distanceLowerBound);
-    }
     return T[0];
   } else {
     tm = t - T[0];
@@ -175,13 +168,6 @@ value_type BodyPairCollision::collisionFreeInterval(
     }
     constexpr int k = 2 * Nrefine;
     maxVelocity = Vm[k];
-    if (T[k] < 1e-3) {
-      hppDout(notice,
-              "Small interval with refine: "
-              "maxVelocity = "
-                  << maxVelocity << " / T = " << T[k]
-                  << " / d = " << distanceLowerBound);
-    }
     return T[k];
   }
 }
