@@ -275,6 +275,7 @@ add_subdirectory(plugins)
 if(BUILD_TESTING)
   find_package(Boost REQUIRED COMPONENTS unit_test_framework)
   find_package(example-robot-data REQUIRED)
+  find_package(hpp-environments REQUIRED)
   add_subdirectory(tests)
 endif()
 
