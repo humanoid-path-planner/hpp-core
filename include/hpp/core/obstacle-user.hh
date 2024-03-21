@@ -275,7 +275,7 @@ class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface {
   CollisionRequests_t cRequests_,  /// Active collision requests
       pRequests_,                  /// Parameterized collision requests
       dRequests_;                  /// Disabled collision requests
-};                                 // class ObstacleUser
+};  // class ObstacleUser
 }  // namespace core
 }  // namespace hpp
 #endif  // HPP_CORE_OBSTACLE_USER_HH
