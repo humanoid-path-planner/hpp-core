@@ -22,5 +22,11 @@ license = "BSD-2-Clause"
 name = "hpp-core"
 version = "5.0.0"
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+extend-exclude = ["cmake"]
+
+[tool.ruff.lint]
+extend-select = ["I", "NPY", "RUF", "UP", "W"]
+
+[tool.tomlsort]
+all = true
