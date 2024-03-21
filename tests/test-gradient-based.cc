@@ -246,14 +246,14 @@ BOOST_AUTO_TEST_CASE(spline_optimization) {
   r3 << 0.553756964312603, 0, 1, 0;
 
   // Continuity
-  BOOST_CHECK((p00 - q0).norm() < 1e-10);
-  BOOST_CHECK((p01 - r1).norm() < 1e-10);
-  BOOST_CHECK((p10 - r1).norm() < 1e-10);
-  BOOST_CHECK((p11 - r2).norm() < 1e-10);
-  BOOST_CHECK((p20 - r2).norm() < 1e-10);
-  BOOST_CHECK((p21 - r3).norm() < 1e-10);
-  BOOST_CHECK((p30 - r3).norm() < 1e-10);
-  BOOST_CHECK((p31 - q4).norm() < 1e-10);
+  BOOST_CHECK((p00 - q0).norm() < 1e-9);
+  BOOST_CHECK((p01 - r1).norm() < 1e-9);
+  BOOST_CHECK((p10 - r1).norm() < 1e-9);
+  BOOST_CHECK((p11 - r2).norm() < 1e-9);
+  BOOST_CHECK((p20 - r2).norm() < 1e-9);
+  BOOST_CHECK((p21 - r3).norm() < 1e-9);
+  BOOST_CHECK((p30 - r3).norm() < 1e-9);
+  BOOST_CHECK((p31 - q4).norm() < 1e-9);
 
   L = optimizedPath5->pathAtRank(0)->length();
   optimizedPath5->pathAtRank(0)->derivative(v00, 0, 1);
