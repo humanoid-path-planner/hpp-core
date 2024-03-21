@@ -43,12 +43,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake-modules/ ${CMAKE_MODULE_PATH})
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
-add_project_dependency(hpp-pinocchio)
-add_project_dependency(hpp-util)
-add_project_dependency(hpp-statistics)
 add_project_dependency(hpp-constraints)
-
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+add_project_dependency(hpp-pinocchio)
+add_project_dependency(hpp-statistics)
+add_project_dependency(hpp-util)
 
 # Declare Headers
 set(${PROJECT_NAME}_HEADERS
@@ -274,7 +272,11 @@ install(
   DESTINATION lib)
 
 add_subdirectory(plugins)
-add_subdirectory(tests)
+if(BUILD_TESTING)
+  find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+  find_package(example-robot-data REQUIRED)
+  add_subdirectory(tests)
+endif()
 
 # Add dependency toward hpp-core library in pkg-config file.
 pkg_config_append_libs("hpp-core")

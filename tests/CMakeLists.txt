@@ -48,6 +48,10 @@ macro(ADD_TESTCASE NAME GENERATED)
   else()
     add_unit_test(${NAME} ${NAME}.cc)
   endif()
+  set_tests_properties(
+    ${NAME}
+    PROPERTIES ENVIRONMENT
+               "ROS_PACKAGE_PATH=${example-robot-data_DIR}/../../../share")
   target_include_directories(${NAME} PRIVATE ../src Boost::unit_test_framework)
   if(RT_LIB)
     target_link_libraries(${NAME} ${PROJECT_NAME}-gpl ${RT_LIB})
