@@ -1,2 +1,26 @@
+[build-system]
+build-backend = "cmeel.build"
+requires = [
+  "cmeel-boost ~= 1.83.0",
+  "cmeel[build]",
+  "hpp-constraints[build]",
+  "hpp-pinocchio[build]",
+  "hpp-statistics[build]",
+  "hpp-util[build]"
+]
+
+[project]
+dependencies = [
+  "cmeel-boost ~= 1.83.0",
+  "hpp-constraints",
+  "hpp-pinocchio",
+  "hpp-statistics",
+  "hpp-util"
+]
+description = "Utility classes for testing (robust) equilibrium of a system in contact with the environment, and other centroidal dynamics methods."
+license = "BSD-2-Clause"
+name = "hpp-core"
+version = "5.0.0"
+
 [tool.isort]
 profile = "black"
