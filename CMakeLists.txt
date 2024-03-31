@@ -24,7 +24,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 
 set(CXX_DISABLE_WERROR TRUE)
 set(DOXYGEN_USE_MATHJAX YES)
@@ -35,21 +35,51 @@ set(PROJECT_NAME hpp-core)
 set(PROJECT_DESCRIPTION
     "Implement basic classes for canonical path planning for kinematic chains.")
 
-include(cmake/hpp.cmake)
-include(cmake/boost.cmake)
+# Check if the submodule cmake have been initialized
+set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
+if(EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
+  message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
+else()
+  find_package(jrl-cmakemodules QUIET CONFIG)
+  if(jrl-cmakemodules_FOUND)
+    get_property(
+      JRL_CMAKE_MODULES
+      TARGET jrl-cmakemodules::jrl-cmakemodules
+      PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}")
+  elseif(${CMAKE_VERSION} VERSION_LESS "3.14.0")
+    message(
+      FATAL_ERROR
+        "\nCan't find jrl-cmakemodules. Please either:\n"
+        "  - use git submodule: 'git submodule update --init'\n"
+        "  - or install https://github.com/jrl-umi3218/jrl-cmakemodules\n"
+        "  - or upgrade your CMake version to >= 3.14 to allow automatic fetching\n"
+    )
+  else()
+    message(STATUS "JRL cmakemodules not found. Let's fetch it.")
+    include(FetchContent)
+    FetchContent_Declare(
+      "jrl-cmakemodules"
+      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
+    FetchContent_MakeAvailable("jrl-cmakemodules")
+    FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
+  endif()
+endif()
+
+include("${JRL_CMAKE_MODULES}/hpp.cmake")
+include("${JRL_CMAKE_MODULES}/boost.cmake")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake-modules/ ${CMAKE_MODULE_PATH})
 
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
-add_project_dependency(hpp-pinocchio REQUIRED)
-add_project_dependency(hpp-util REQUIRED)
-add_project_dependency(hpp-statistics REQUIRED)
-add_project_dependency(hpp-constraints REQUIRED)
-add_project_dependency(proxsuite REQUIRED)
-
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+add_project_dependency(hpp-constraints REQUIRED)
+add_project_dependency(hpp-pinocchio REQUIRED)
+add_project_dependency(hpp-statistics REQUIRED)
+add_project_dependency(hpp-util REQUIRED)
+add_project_dependency(proxsuite REQUIRED)
 
 # Declare Headers
 set(${PROJECT_NAME}_HEADERS
@@ -249,7 +279,8 @@ set(${PROJECT_NAME}_SOURCES
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES}
                                    ${${PROJECT_NAME}_HEADERS})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
-target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(
   ${PROJECT_NAME} ${CMAKE_DL_LIBS} hpp-util::hpp-util pinocchio::pinocchio
   hpp-statistics::hpp-statistics hpp-constraints::hpp-constraints)
@@ -275,7 +306,12 @@ install(
   DESTINATION lib)
 
 add_subdirectory(plugins)
-add_subdirectory(tests)
+if(BUILD_TESTING)
+  find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+  find_package(example-robot-data REQUIRED)
+  find_package(hpp-environments REQUIRED)
+  add_subdirectory(tests)
+endif()
 
 # Add dependency toward hpp-core library in pkg-config file.
 pkg_config_append_libs("hpp-core")

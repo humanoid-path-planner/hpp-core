@@ -104,9 +104,9 @@ void generate_random_numbers() {
   // Load robot model (ur5)
   DevicePtr_t robot(Device::create("ur5"));
   loadModel(robot, 0, "", "anchor",
-            "package://example-robot-data/robots/ur_description/"
+            "package://ur_description/"
             "urdf/ur5_joint_limited_robot.urdf",
-            "package://example-robot-data/robots/ur_description/"
+            "package://ur_description/"
             "srdf/ur5_joint_limited_robot.srdf");
   matrix_t rand1 = generateRandomConfig(robot, 2 * (n1 + n2));
   matrix_t rand2 = generateRandomVelocities(robot, 2 * n2);
@@ -139,9 +139,9 @@ BOOST_AUTO_TEST_CASE(continuous_validation_straight) {
   // Load robot model (ur5)
   DevicePtr_t robot(Device::create("ur5"));
   loadModel(robot, 0, "", "anchor",
-            "package://example-robot-data/robots/ur_description/"
+            "package://ur_description/"
             "urdf/ur5_joint_limited_robot.urdf",
-            "package://example-robot-data/robots/ur_description/"
+            "package://ur_description/"
             "srdf/ur5_joint_limited_robot.srdf");
   robot->numberDeviceData(4);
 
@@ -294,9 +294,9 @@ void test_spline_steering_method() {
   // Load robot model (ur5)
   DevicePtr_t robot(Device::create("ur5"));
   loadModel(robot, 0, "", "anchor",
-            "package://example-robot-data/robots/ur_description/"
+            "package://ur_description/"
             "urdf/ur5_joint_limited_robot.urdf",
-            "package://example-robot-data/robots/ur_description/"
+            "package://ur_description/"
             "srdf/ur5_joint_limited_robot.srdf");
   robot->numberDeviceData(4);
 
