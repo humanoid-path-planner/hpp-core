@@ -181,10 +181,6 @@ void ConfigProjector::uncompressMatrix(matrixIn_t small, matrixOut_t normal,
 bool ConfigProjector::impl_compute(ConfigurationOut_t configuration) {
   // If configuration satisfies the constraint, do not modify it
   if (isSatisfied(configuration)) return true;
-  if (!(robot_->computationFlag() & pinocchio::JACOBIAN))
-    throw std::runtime_error(
-        "In ConfigProjector::apply: can't project a configuration if JACOBIAN "
-        "computation flag is not enabled.");
   BySubstitution::Status status =
       (BySubstitution::Status)solverSolve(configuration);
   switch (status) {

@@ -59,7 +59,6 @@ DevicePtr_t createRobot() {
   DevicePtr_t robot(Device::create("2-objects"));
   urdf::loadModel(robot, 0, "obj1/", "freeflyer",
                   "file://" DATA_DIR "/empty.urdf", "");
-  robot->controlComputation((Computation_t)(JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound(0, -10);
   robot->rootJoint()->lowerBound(1, -10);
   robot->rootJoint()->lowerBound(2, -10);
