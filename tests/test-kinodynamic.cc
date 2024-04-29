@@ -62,7 +62,6 @@ BOOST_AUTO_TEST_SUITE(test_hpp_core)
 
 BOOST_AUTO_TEST_CASE(kinodynamic) {
   DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
-  robot->controlComputation((Computation_t)(JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound(0, -10);
   robot->rootJoint()->lowerBound(1, -10);
   robot->rootJoint()->lowerBound(2, 0);
@@ -513,7 +512,6 @@ BOOST_AUTO_TEST_CASE(kinodynamic) {
 
 BOOST_AUTO_TEST_CASE(kinodynamic_aMax1) {
   DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
-  robot->controlComputation((Computation_t)(JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound(0, -10);
   robot->rootJoint()->lowerBound(1, -10);
   robot->rootJoint()->lowerBound(2, 0);
@@ -595,7 +593,6 @@ BOOST_AUTO_TEST_CASE(kinodynamic_aMax1) {
 
 BOOST_AUTO_TEST_CASE(kinodynamicOriented) {
   DevicePtr_t robot = unittest::makeDevice(unittest::HumanoidSimple);
-  robot->controlComputation((Computation_t)(JOINT_POSITION | JACOBIAN));
   robot->rootJoint()->lowerBound(0, -10);
   robot->rootJoint()->lowerBound(1, -10);
   robot->rootJoint()->lowerBound(2, 0);
