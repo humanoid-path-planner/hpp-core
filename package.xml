@@ -13,26 +13,15 @@
  <author>Florent Lamiraux et al.</author>
 
  <buildtool_depend>catkin</buildtool_depend>
- <build_depend>hpp-pinocchio</build_depend>
- <exec_depend>hpp-pinocchio</exec_depend>
- <build_export_depend>hpp-pinocchio</build_export_depend>
- <build_depend>hpp-util</build_depend>
- <exec_depend>hpp-util</exec_depend>
- <build_export_depend>hpp-util</build_export_depend>
- <build_depend>hpp-statistics</build_depend>
- <exec_depend>hpp-statistics</exec_depend>
- <build_export_depend>hpp-statistics</build_export_depend>
- <build_depend>hpp-constraints</build_depend>
- <exec_depend>hpp-constraints</exec_depend>
- <build_export_depend>hpp-constraints</build_export_depend>
- <build_depend>eigen3</build_depend>
- <exec_depend>eigen3</exec_depend>
- <build_export_depend>eigen3</build_export_depend>
- <build_depend>urdfdom</build_depend>
- <exec_depend>urdfdom</exec_depend>
- <build_export_depend>urdfdom</build_export_depend>
- <build_depend>hpp-fcl</build_depend>
- <exec_depend>hpp-fcl</exec_depend>
- <build_export_depend>hpp-fcl</build_export_depend>
+
+ <depend>hpp-pinocchio</depend>
+ <depend>hpp-util</depend>
+ <depend>hpp-statistics</depend>
+ <depend>hpp-constraints</depend>
+ <depend>eigen3</depend>
+ <depend>urdfdom</depend>
+ <depend>hpp-fcl</depend>
+ <depend>proxsuite</depend>
+
  <test_depend>romeo_description</test_depend>
  </package>
