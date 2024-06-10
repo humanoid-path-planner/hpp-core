@@ -43,7 +43,7 @@ namespace core {
 ///
 class HPP_CORE_DLLAPI PathOptimizer {
  public:
-  virtual ~PathOptimizer(){};
+  virtual ~PathOptimizer() {};
 
   /// Get problem
   ProblemConstPtr_t problem() const { return problem_; }

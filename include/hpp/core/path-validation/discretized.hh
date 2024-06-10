@@ -71,13 +71,13 @@ class HPP_CORE_DLLAPI Discretized : public PathValidation,
   /// with the input configuration and validates the path.
   virtual bool validate(ConfigurationIn_t q, ValidationReportPtr_t& report);
 
-  virtual ~Discretized(){};
+  virtual ~Discretized() {};
 
  protected:
   Discretized(const value_type& stepSize) : stepSize_(stepSize) {}
   Discretized(const value_type& stepSize,
               std::initializer_list<ConfigValidationPtr_t> validations)
-      : ConfigValidations(validations), stepSize_(stepSize){};
+      : ConfigValidations(validations), stepSize_(stepSize) {};
 
   value_type stepSize_;
 };  // class Discretized

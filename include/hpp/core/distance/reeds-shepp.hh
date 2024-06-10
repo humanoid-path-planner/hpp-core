@@ -80,7 +80,7 @@ class HPP_CORE_DLLAPI ReedsShepp : public Distance {
   std::vector<JointPtr_t> wheels_;
   ReedsSheppWkPtr_t weak_;
 
-  ReedsShepp(){};
+  ReedsShepp() {};
   HPP_SERIALIZABLE();
 };  // class ReedsShepp
 /// \}

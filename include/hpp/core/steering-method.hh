@@ -68,7 +68,7 @@ class HPP_CORE_DLLAPI SteeringMethod {
     return this->operator()(q1, q2);
   }
 
-  virtual ~SteeringMethod(){};
+  virtual ~SteeringMethod() {};
 
   /// Copy instance and return shared pointer
   virtual SteeringMethodPtr_t copy() const = 0;

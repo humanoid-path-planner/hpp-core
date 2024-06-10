@@ -70,7 +70,7 @@ class HPP_CORE_DLLAPI Constraint {
   /// return shared pointer to copy
   virtual ConstraintPtr_t copy() const = 0;
 
-  virtual ~Constraint(){};
+  virtual ~Constraint() {};
 
  protected:
   /// User defined implementation of the constraint.

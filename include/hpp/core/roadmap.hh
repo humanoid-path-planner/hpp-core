@@ -198,7 +198,7 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \param distance distance function for nearest neighbor computations
   Roadmap(const DistancePtr_t& distance, const DevicePtr_t& robot);
 
-  Roadmap(){};
+  Roadmap() {};
 
   /// Add a new connected component in the roadmap.
   /// \param node node pointing to the connected component.

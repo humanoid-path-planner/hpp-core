@@ -69,7 +69,7 @@ class HPP_CORE_DLLAPI PathValidation {
   /// The default implementation builds a straight path of length 0
   /// with the input configuration and validates the path.
   virtual bool validate(ConfigurationIn_t q, ValidationReportPtr_t& report);
-  virtual ~PathValidation(){};
+  virtual ~PathValidation() {};
 
  protected:
   PathValidation() {}

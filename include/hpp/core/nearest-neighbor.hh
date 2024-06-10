@@ -93,7 +93,7 @@ class NearestNeighbor {
   // Get distance function
   virtual DistancePtr_t distance() const = 0;
 
-  virtual ~NearestNeighbor(){};
+  virtual ~NearestNeighbor() {};
 
  private:
   HPP_SERIALIZABLE();
