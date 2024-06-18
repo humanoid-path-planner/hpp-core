@@ -62,7 +62,7 @@ class HPP_CORE_DLLAPI Distance {
 
   virtual DistancePtr_t clone() const = 0;
 
-  virtual ~Distance(){};
+  virtual ~Distance() {};
 
  protected:
   Distance() {}

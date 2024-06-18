@@ -64,7 +64,7 @@ class HPP_CORE_DLLAPI ConfigValidations
  protected:
   ConfigValidations() = default;
   ConfigValidations(std::initializer_list<ConfigValidationPtr_t> validations)
-      : ObstacleUserVector(validations){};
+      : ObstacleUserVector(validations) {};
 };  // class ConfigValidation
 /// \}
 }  // namespace core

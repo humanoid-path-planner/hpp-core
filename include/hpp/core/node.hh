@@ -78,7 +78,7 @@ class HPP_CORE_DLLAPI Node {
   /// Print node in a stream
   std::ostream& print(std::ostream& os) const;
 
-  virtual ~Node(){};
+  virtual ~Node() {};
 
  protected:
   Node() {}

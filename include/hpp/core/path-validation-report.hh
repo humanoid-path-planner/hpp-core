@@ -48,7 +48,7 @@ struct HPP_CORE_DLLAPI PathValidationReport : public ValidationReport {
                        const ValidationReportPtr_t& report)
       : parameter(param), configurationReport(report) {}
 
-  virtual ~PathValidationReport(){};
+  virtual ~PathValidationReport() {};
 
   virtual std::ostream& print(std::ostream& os) const {
     os << "Invalid configuration at parameter " << parameter << iendl

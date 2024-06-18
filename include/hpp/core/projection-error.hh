@@ -55,7 +55,7 @@ struct HPP_CORE_DLLAPI projection_error : public std::exception {
 struct HPP_CORE_DLLAPI ProjectionError : public ValidationReport {
   ProjectionError(const std::string& msg = "") : ValidationReport(), msg(msg) {}
 
-  virtual ~ProjectionError(){};
+  virtual ~ProjectionError() {};
 
   virtual std::ostream& print(std::ostream& os) const {
     os << "Projection error";

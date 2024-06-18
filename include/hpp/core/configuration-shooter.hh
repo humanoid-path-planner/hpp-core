@@ -59,7 +59,7 @@ class HPP_CORE_DLLAPI ConfigurationShooter {
   /// \ref impl_shoot so that both prototype of method shoot remain available.
   virtual void shoot(Configuration_t& q) const { impl_shoot(q); }
 
-  virtual ~ConfigurationShooter(){};
+  virtual ~ConfigurationShooter() {};
 
  protected:
   ConfigurationShooter() {}

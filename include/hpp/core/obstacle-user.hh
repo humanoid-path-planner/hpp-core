@@ -177,7 +177,7 @@ class HPP_CORE_DLLAPI ObstacleUserVector : public ObstacleUserInterface {
 
   ObstacleUserVector() = default;
   ObstacleUserVector(std::initializer_list<value_t> validations)
-      : validations_(validations){};
+      : validations_(validations) {};
 
   values_t validations_;
 };  // class ObstacleUserVector

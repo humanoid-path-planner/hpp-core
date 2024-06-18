@@ -101,14 +101,6 @@ struct ComputeSigmasStep
   }
 };
 
-template <>
-void ComputeSigmasStep::algo<pinocchio::JointModelComposite>(
-    const ::pinocchio::JointModelBase<pinocchio::JointModelComposite>& jmodel,
-    const pinocchio::Model& model, vector_t& sigmas) {
-  ::pinocchio::details::Dispatch<ComputeSigmasStep>::run(
-      jmodel.derived(), ComputeSigmasStep::ArgsType(model, sigmas));
-}
-
 void Gaussian::impl_shoot(Configuration_t& config) const {
   static boost::random::mt19937 eng;
   vector_t velocity(robot_->numberDof());

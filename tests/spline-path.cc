@@ -51,12 +51,15 @@ using namespace hpp::pinocchio;
 
 DevicePtr_t createNDoFRobot(int ndof) {
   std::ostringstream oss;
-  oss << "<robot name='test'>" << "<link name='link0'/>";
+  oss << "<robot name='test'>"
+      << "<link name='link0'/>";
   for (int i = 0; i < ndof; ++i) {
     oss << "<joint name='joint" << i << "' type='prismatic'>"
-        << "<parent link='link" << i << "'/>" << "<child  link='link" << i + 1
-        << "'/>" << "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
-        << "</joint>" << "<link name='link" << i + 1 << "'/>";
+        << "<parent link='link" << i << "'/>"
+        << "<child  link='link" << i + 1 << "'/>"
+        << "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+        << "</joint>"
+        << "<link name='link" << i + 1 << "'/>";
   }
   oss << "</robot>";
   std::string urdf(oss.str());

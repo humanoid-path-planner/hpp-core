@@ -70,7 +70,7 @@ class HPP_CORE_DLLAPI PathValidations
   /// Add a path validation object
   virtual void addPathValidation(const PathValidationPtr_t& pathValidation);
 
-  virtual ~PathValidations(){};
+  virtual ~PathValidations() {};
 
  protected:
   PathValidations();

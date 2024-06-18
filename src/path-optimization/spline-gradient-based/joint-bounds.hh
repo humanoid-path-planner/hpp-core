@@ -114,16 +114,6 @@ struct JointBoundConstraintStep
   }
 };
 
-template <>
-void JointBoundConstraintStep::algo<pinocchio::JointModelComposite>(
-    const ::pinocchio::JointModelBase<pinocchio::JointModelComposite>& jmodel,
-    vectorIn_t low, vectorIn_t up, vectorIn_t neutral, matrix_t& A, vector_t& b,
-    size_type& row) {
-  ::pinocchio::details::Dispatch<JointBoundConstraintStep>::run(
-      jmodel.derived(),
-      JointBoundConstraintStep::ArgsType(low, up, neutral, A, b, row));
-}
-
 // The bounds are satisfied iif A * v <= b, where v is the velocity from
 // the neutral configuration.
 // We consider only vector-space.
