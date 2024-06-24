@@ -49,6 +49,7 @@
 #include <hpp/core/kinodynamic-distance.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-optimization/random-shortcut.hh>
+#include <hpp/core/path-optimization/rs-time-parameterization.hh>
 #include <hpp/core/path-optimization/simple-shortcut.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
 #include <hpp/core/path-planner/bi-rrt-star.hh>
@@ -245,6 +246,8 @@ ProblemSolver::ProblemSolver()
                      pathOptimization::PartialShortcut::create);
   pathOptimizers.add("SimpleTimeParameterization",
                      pathOptimization::SimpleTimeParameterization::create);
+  pathOptimizers.add("RSTimeParameterization",
+                     pathOptimization::RSTimeParameterization::create);
 
   // Store path validation methods in map.
   pathValidations.add("NoValidation", pathValidation::NoValidation::create);

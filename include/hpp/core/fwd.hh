@@ -291,6 +291,8 @@ HPP_PREDEF_CLASS(PathLength);
 typedef shared_ptr<PathLength> PathLengthPtr_t;
 HPP_PREDEF_CLASS(PartialShortcut);
 typedef shared_ptr<PartialShortcut> PartialShortcutPtr_t;
+HPP_PREDEF_CLASS(RSTimeParameterization);
+typedef shared_ptr<RSTimeParameterization> RSTimeParameterizationPtr_t;
 HPP_PREDEF_CLASS(SimpleTimeParameterization);
 typedef shared_ptr<SimpleTimeParameterization> SimpleTimeParameterizationPtr_t;
 HPP_PREDEF_CLASS(ConfigOptimization);

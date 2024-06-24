@@ -128,6 +128,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/path-optimization/partial-shortcut.hh
     include/hpp/core/path-optimization/quadratic-program.hh
     include/hpp/core/path-optimization/random-shortcut.hh
+    include/hpp/core/path-optimization/rs-time-parameterization.hh
     include/hpp/core/path-optimization/simple-shortcut.hh
     include/hpp/core/path-optimization/simple-time-parameterization.hh
     include/hpp/core/path-optimization/spline-gradient-based.hh
@@ -229,6 +230,9 @@ set(${PROJECT_NAME}_SOURCES
     src/path-optimization/spline-gradient-based-abstract.cc #
     src/path-optimization/partial-shortcut.cc #
     src/path-optimization/random-shortcut.cc
+    src/path-optimization/reeds-shepp/piecewise-quadratic.cc
+    src/path-optimization/reeds-shepp/piecewise-quadratic.hh
+    src/path-optimization/rs-time-parameterization.cc
     src/path-optimization/simple-shortcut.cc
     src/path-optimization/simple-time-parameterization.cc #
     src/path-planner.cc #
