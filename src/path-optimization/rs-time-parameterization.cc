@@ -37,102 +37,106 @@ namespace hpp {
 namespace core {
 namespace pathOptimization {
 
-  RSTimeParameterizationPtr_t RSTimeParameterization::create(const ProblemConstPtr_t& problem)
-  {
-    RSTimeParameterization* pointer(new RSTimeParameterization(problem));
-    return RSTimeParameterizationPtr_t(pointer);
-  }
+RSTimeParameterizationPtr_t RSTimeParameterization::create(
+    const ProblemConstPtr_t& problem) {
+  RSTimeParameterization* pointer(new RSTimeParameterization(problem));
+  return RSTimeParameterizationPtr_t(pointer);
+}
 
-  PathVectorPtr_t RSTimeParameterization::optimize(const PathVectorPtr_t& path)
-  {
-    using reedsShepp::PiecewiseQuadratic;
-    using reedsShepp::PiecewiseQuadraticPtr_t;
-    value_type minLinVel_(problem()->getParameter("RSTimeParameterization/MinLinearVelocity").
-			  floatValue());
-    value_type maxLinVel_(problem()->getParameter("RSTimeParameterization/MaxLinearVelocity").
-			  floatValue());
-    value_type maxAngVel_(problem()->getParameter("RSTimeParameterization/MaxAngularVelocity").
-			  floatValue());
-    value_type linearAcceleration_(
-        problem()->getParameter("RSTimeParameterization/LinearAcceleration").floatValue());
-    value_type linearDeceleration_(
-        problem()->getParameter("RSTimeParameterization/LinearDeceleration").floatValue());
+PathVectorPtr_t RSTimeParameterization::optimize(const PathVectorPtr_t& path) {
+  using reedsShepp::PiecewiseQuadratic;
+  using reedsShepp::PiecewiseQuadraticPtr_t;
+  value_type minLinVel_(
+      problem()
+          ->getParameter("RSTimeParameterization/MinLinearVelocity")
+          .floatValue());
+  value_type maxLinVel_(
+      problem()
+          ->getParameter("RSTimeParameterization/MaxLinearVelocity")
+          .floatValue());
+  value_type maxAngVel_(
+      problem()
+          ->getParameter("RSTimeParameterization/MaxAngularVelocity")
+          .floatValue());
+  value_type linearAcceleration_(
+      problem()
+          ->getParameter("RSTimeParameterization/LinearAcceleration")
+          .floatValue());
+  value_type linearDeceleration_(
+      problem()
+          ->getParameter("RSTimeParameterization/LinearDeceleration")
+          .floatValue());
 
-    // Retrieve parameters from problem
-    
-    value_type eps (sqrt (std::numeric_limits <value_type>::epsilon ()));
-    PathVectorPtr_t flattenedPath (PathVector::create
-				   (path->outputSize (),
-				    path->outputDerivativeSize ()));
-    // Flatten input path in case it contains PathVector instances with
-    // ConstantCurvature instances.
-    path->flatten (flattenedPath);
-    PathVectorPtr_t result (PathVector::create
-			    (path->outputSize (),
-			     path->outputDerivativeSize ()));
+  // Retrieve parameters from problem
 
-    // Start with zero velocity and end first segment with the
-    // minimal velocity
-    value_type initVel(0), targetVel(minLinVel_), maxLinVel;
-    value_type linearAcceleration, linearDeceleration;
-    // Loop over each constant curvature segment
-    for (std::size_t i=0; i<flattenedPath->numberPaths (); ++i) {
-      // if last segment, end with 0 velocity
-      targetVel = 0;
-      PathPtr_t p (flattenedPath->pathAtRank (i)->copy ());
-      if (p->length () > eps) {
-	value_type t0 (p->timeRange ().second);
-	vector_t v0 (p->outputDerivativeSize ());
-	p->derivative (v0, t0, 1);
-	if (i != flattenedPath->numberPaths () - 1) {
-	  // If two consecutive segments are in the same direction (i.e.
-	  // forward or backward), decelerate to minLinVel_
-	  PathPtr_t next (flattenedPath->pathAtRank (i+1));
-	  value_type t1 (next->timeRange ().first);
-	  vector_t v1 (next->outputDerivativeSize ());
-	  next->derivative (v1, t1, 1);
-	  if ((v1-v0).head <2> ().norm () < 1e-3) {
-	    targetVel = minLinVel_;
-	  }
-	}
-	// Compute maximal linear velocity
-	value_type curvature (fabs (v0 [2]));
-	hppDout (info, "curvature=" << curvature);
-	if (curvature * maxLinVel_ < maxAngVel_) {
-	  // Sature linear velocity
-	  maxLinVel = maxLinVel_;
-	  linearAcceleration = linearAcceleration_;
-	  linearDeceleration = linearDeceleration_;
-	} else {
-	  // Saturate angular velocity
-	  maxLinVel = maxAngVel_/curvature;
-	  // reduce accelerations by the same ratio
-	  // We could also add maximal angular acceleration parameter
-	  linearAcceleration =
-	    linearAcceleration_ * maxLinVel/maxLinVel_;
-	  linearDeceleration =
-	    linearDeceleration_ * maxLinVel/maxLinVel_;
-	}
-	// Create one parameterization per segment
-	PiecewiseQuadraticPtr_t param
-	  (PiecewiseQuadratic::create (initVel));
-	param->addSegments (p->length (), linearAcceleration,
-			    linearDeceleration, maxLinVel,
-			    targetVel);
-	p->timeParameterization (param, param->definitionInterval ());
-	result->appendPath (p);
-	// From second segment, start at minimal velocity
-	initVel = minLinVel_;
+  value_type eps(sqrt(std::numeric_limits<value_type>::epsilon()));
+  PathVectorPtr_t flattenedPath(
+      PathVector::create(path->outputSize(), path->outputDerivativeSize()));
+  // Flatten input path in case it contains PathVector instances with
+  // ConstantCurvature instances.
+  path->flatten(flattenedPath);
+  PathVectorPtr_t result(
+      PathVector::create(path->outputSize(), path->outputDerivativeSize()));
+
+  // Start with zero velocity and end first segment with the
+  // minimal velocity
+  value_type initVel(0), targetVel(minLinVel_), maxLinVel;
+  value_type linearAcceleration, linearDeceleration;
+  // Loop over each constant curvature segment
+  for (std::size_t i = 0; i < flattenedPath->numberPaths(); ++i) {
+    // if last segment, end with 0 velocity
+    targetVel = 0;
+    PathPtr_t p(flattenedPath->pathAtRank(i)->copy());
+    if (p->length() > eps) {
+      value_type t0(p->timeRange().second);
+      vector_t v0(p->outputDerivativeSize());
+      p->derivative(v0, t0, 1);
+      if (i != flattenedPath->numberPaths() - 1) {
+        // If two consecutive segments are in the same direction (i.e.
+        // forward or backward), decelerate to minLinVel_
+        PathPtr_t next(flattenedPath->pathAtRank(i + 1));
+        value_type t1(next->timeRange().first);
+        vector_t v1(next->outputDerivativeSize());
+        next->derivative(v1, t1, 1);
+        if ((v1 - v0).head<2>().norm() < 1e-3) {
+          targetVel = minLinVel_;
+        }
       }
+      // Compute maximal linear velocity
+      value_type curvature(fabs(v0[2]));
+      hppDout(info, "curvature=" << curvature);
+      if (curvature * maxLinVel_ < maxAngVel_) {
+        // Sature linear velocity
+        maxLinVel = maxLinVel_;
+        linearAcceleration = linearAcceleration_;
+        linearDeceleration = linearDeceleration_;
+      } else {
+        // Saturate angular velocity
+        maxLinVel = maxAngVel_ / curvature;
+        // reduce accelerations by the same ratio
+        // We could also add maximal angular acceleration parameter
+        linearAcceleration = linearAcceleration_ * maxLinVel / maxLinVel_;
+        linearDeceleration = linearDeceleration_ * maxLinVel / maxLinVel_;
+      }
+      // Create one parameterization per segment
+      PiecewiseQuadraticPtr_t param(PiecewiseQuadratic::create(initVel));
+      param->addSegments(p->length(), linearAcceleration, linearDeceleration,
+                         maxLinVel, targetVel);
+      p->timeParameterization(param, param->definitionInterval());
+      result->appendPath(p);
+      // From second segment, start at minimal velocity
+      initVel = minLinVel_;
     }
-    return result;
   }
-  // ----------- Declare parameters ------------------------------------- //
+  return result;
+}
+// ----------- Declare parameters ------------------------------------- //
 
 HPP_START_PARAMETER_DECLARATION(RSTimeParameterization)
 Problem::declareParameter(ParameterDescription(
     Parameter::FLOAT, "RSTimeParameterization/MinLinearVelocity",
-    "Maximal linear velocity allowed when crossing a curvature discontinuity", Parameter(.1)));
+    "Maximal linear velocity allowed when crossing a curvature discontinuity",
+    Parameter(.1)));
 Problem::declareParameter(ParameterDescription(
     Parameter::FLOAT, "RSTimeParameterization/MaxLinearVelocity",
     "Maximal linear velocity", Parameter(1.)));
@@ -146,6 +150,6 @@ Problem::declareParameter(ParameterDescription(
     Parameter::FLOAT, "RSTimeParameterization/LinearDeceleration",
     "Linear deceleration", Parameter(1.)));
 HPP_END_PARAMETER_DECLARATION(RSTimeParameterization)
-} // namespace pathOptimization
-} // namespace core
-} // namespace hpp
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp
