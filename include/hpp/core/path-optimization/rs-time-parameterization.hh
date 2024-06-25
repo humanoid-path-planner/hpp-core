@@ -29,7 +29,7 @@
 // DAMAGE.
 
 #ifndef HPP_CORE_PATH_OPTIMIZATION_RS_TIME_PARAMETERIZATION_HH
-#define  HPP_CORE_PATH_OPTIMIZATION_RS_TIME_PARAMETERIZATION_HH
+#define HPP_CORE_PATH_OPTIMIZATION_RS_TIME_PARAMETERIZATION_HH
 
 #include <hpp/core/path-optimizer.hh>
 #include <hpp/core/steering-method/constant-curvature.hh>
@@ -37,37 +37,38 @@
 namespace hpp {
 namespace core {
 namespace pathOptimization {
-  /// Time parameterization of Reeds and Shepp paths
+/// Time parameterization of Reeds and Shepp paths
+///
+/// This class computes a time parameterization for a concatentation
+/// of Reeds and Shepp paths (in fact of constant curvature paths)
+class HPP_CORE_DLLAPI RSTimeParameterization : public PathOptimizer {
+ public:
+  /// Create instance and return shared pointer
+  static RSTimeParameterizationPtr_t create(const ProblemConstPtr_t& problem);
+  /// Compute the time parameterization of a path
   ///
-  /// This class computes a time parameterization for a concatentation
-  /// of Reeds and Shepp paths (in fact of constant curvature paths)
-  class HPP_CORE_DLLAPI RSTimeParameterization : public PathOptimizer
-  {
-  public:
-    /// Create instance and return shared pointer
-    static RSTimeParameterizationPtr_t create(const ProblemConstPtr_t& problem);
-    /// Compute the time parameterization of a path
-    ///
-    /// \param path input path,
-    /// \precond path should be a concatenation of
-    ///          hpp::core::ConstantCurvature instances
-    ///
-    /// The parameterized path starts and ends with velocity equal to 0.
-    /// On each segment, it accelerates, moves at maximal speed and
-    /// decelerates to the minimal velocity to pass curvature discontinuity.
-    virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
-  protected:
-    /// Constructor
-    /// \param minLinVel, maxLinVel minimal and maximal velocity.
-    ///        Minimal velocity is the linear velocity allowed when
-    ///        switching discontinuously the radius of curvature,
-    /// \param maxAngVel maximal angular velocity,
-    /// \param linearAcceletion linearDeceleration linear acceleration and
-    ///        deceleration that can be different.
-    RSTimeParameterization(const ProblemConstPtr_t& problem) : PathOptimizer(problem) {}
-  }; // class ReedsShepp
+  /// \param path input path,
+  /// \precond path should be a concatenation of
+  ///          hpp::core::ConstantCurvature instances
+  ///
+  /// The parameterized path starts and ends with velocity equal to 0.
+  /// On each segment, it accelerates, moves at maximal speed and
+  /// decelerates to the minimal velocity to pass curvature discontinuity.
+  virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
-} // namespace pathOptimization
-} // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_OPTIMIZATION_RS_TIME_PARAMETERIZATION_HH
+ protected:
+  /// Constructor
+  /// \param minLinVel, maxLinVel minimal and maximal velocity.
+  ///        Minimal velocity is the linear velocity allowed when
+  ///        switching discontinuously the radius of curvature,
+  /// \param maxAngVel maximal angular velocity,
+  /// \param linearAcceletion linearDeceleration linear acceleration and
+  ///        deceleration that can be different.
+  RSTimeParameterization(const ProblemConstPtr_t& problem)
+      : PathOptimizer(problem) {}
+};  // class ReedsShepp
+
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_OPTIMIZATION_RS_TIME_PARAMETERIZATION_HH

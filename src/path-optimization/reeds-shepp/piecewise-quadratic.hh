@@ -38,63 +38,64 @@ namespace core {
 namespace pathOptimization {
 namespace reedsShepp {
 
-  using hpp::core::interval_t;
-  HPP_PREDEF_CLASS (PiecewiseQuadratic);
-  typedef hpp::shared_ptr <PiecewiseQuadratic> PiecewiseQuadraticPtr_t;
+using hpp::core::interval_t;
+HPP_PREDEF_CLASS(PiecewiseQuadratic);
+typedef hpp::shared_ptr<PiecewiseQuadratic> PiecewiseQuadraticPtr_t;
 
-  /// Piecewise quadratic time parameterization
+/// Piecewise quadratic time parameterization
+///
+/// On each interval \f$[t_i,t_{i+1}], f (t) = a_i (t-t_i) + b_i(t-t_i) +
+/// c_i^2\f$.
+class PiecewiseQuadratic : public hpp::core::TimeParameterization {
+ public:
+  /// Create an instance
+  /// \param initVel initial velocity
+  static PiecewiseQuadraticPtr_t create(const value_type& initVel);
+  static PiecewiseQuadraticPtr_t createCopy(
+      const PiecewiseQuadraticPtr_t& other);
+  virtual hpp::core::TimeParameterizationPtr_t copy() const;
+  interval_t definitionInterval() const;
+  virtual value_type value(const value_type& t) const;
+  virtual value_type derivative(const value_type& t,
+                                const size_type& order) const;
+  virtual value_type derivativeBound(const value_type& low,
+                                     const value_type& up) const;
+  /// Add up to 3 constant acceleration segments
   ///
-  /// On each interval \f$[t_i,t_{i+1}], f (t) = a_i (t-t_i) + b_i(t-t_i) + c_i^2\f$.
-  class PiecewiseQuadratic : public hpp::core::TimeParameterization
-  {
-  public:
-    /// Create an instance
-    /// \param initVel initial velocity
-    static PiecewiseQuadraticPtr_t create (const value_type& initVel);
-    static PiecewiseQuadraticPtr_t createCopy
-    (const PiecewiseQuadraticPtr_t& other);
-    virtual hpp::core::TimeParameterizationPtr_t copy () const;
-    interval_t definitionInterval () const;
-    virtual value_type value (const value_type &t) const;
-    virtual value_type derivative
-    (const value_type &t, const size_type &order) const;
-    virtual value_type derivativeBound
-    (const value_type &low, const value_type &up) const;
-    /// Add up to 3 constant acceleration segments
-    ///
-    /// \param distance distance travelled on these segments,
-    /// \param accel constant acceleration on the first segment,
-    /// \param decel constant negative acceleration on the last segment,
-    /// \param maxVel constant velocity on the middle segment
-    /// \param targetVel velocity at the end of the segment
-    /// \note depending on the distance, one of the above segment might be
-    ///       of size 0, and therefore not represented.
-    void addSegments (const value_type& distance, const value_type& accel,
-		      const value_type& decel, const value_type& maxVel,
-		      const value_type& targetVel);
-  protected:
-    PiecewiseQuadratic (const value_type& initVel) :
-      initVel_ (initVel)
-    {
-      times_.push_back (0);
-    }
+  /// \param distance distance travelled on these segments,
+  /// \param accel constant acceleration on the first segment,
+  /// \param decel constant negative acceleration on the last segment,
+  /// \param maxVel constant velocity on the middle segment
+  /// \param targetVel velocity at the end of the segment
+  /// \note depending on the distance, one of the above segment might be
+  ///       of size 0, and therefore not represented.
+  void addSegments(const value_type& distance, const value_type& accel,
+                   const value_type& decel, const value_type& maxVel,
+                   const value_type& targetVel);
 
-    PiecewiseQuadratic (const PiecewiseQuadratic& other) :
-      hpp::core::TimeParameterization (other), times_ (other.times_),
-      a_ (other.a_), b_ (other.b_), c_ (other.c_),
-      initVel_ (other.initVel_)
-    {
-    }
-    void init (const PiecewiseQuadraticWkPtr_t& weak);
-  private:
-    size_type findInterval (value_type t) const;
-    std::vector <value_type> times_;
-    std::vector <value_type> a_, b_, c_;
-    value_type initVel_;
-    PiecewiseQuadraticWkPtr_t weak_;
-  }; // class PiecewiseQuadratic
-} // namespace reedsShepp
-} // namespace pathOptimization
-} // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_OPTIMIZATION_REEDS_SHEPP_PIECEWISE_QUADRATIC_HH
+ protected:
+  PiecewiseQuadratic(const value_type& initVel) : initVel_(initVel) {
+    times_.push_back(0);
+  }
+
+  PiecewiseQuadratic(const PiecewiseQuadratic& other)
+      : hpp::core::TimeParameterization(other),
+        times_(other.times_),
+        a_(other.a_),
+        b_(other.b_),
+        c_(other.c_),
+        initVel_(other.initVel_) {}
+  void init(const PiecewiseQuadraticWkPtr_t& weak);
+
+ private:
+  size_type findInterval(value_type t) const;
+  std::vector<value_type> times_;
+  std::vector<value_type> a_, b_, c_;
+  value_type initVel_;
+  PiecewiseQuadraticWkPtr_t weak_;
+};  // class PiecewiseQuadratic
+}  // namespace reedsShepp
+}  // namespace pathOptimization
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_OPTIMIZATION_REEDS_SHEPP_PIECEWISE_QUADRATIC_HH
