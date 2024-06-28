@@ -1,0 +1,20 @@
+name: "Nix CI"
+
+on: [pull_request, push]
+
+jobs:
+  tests:
+    name: "Nix build on ${{ matrix.os }}"
+    runs-on: "${{ matrix.os }}-latest"
+    strategy:
+      matrix:
+        os: [ubuntu]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            trusted-substituters = https://gepetto.cachix.org
+            trusted-public-keys = gepetto.cachix.org-1:toswMl31VewC0jGkN6+gOelO2Yom0SOHzPwJMY2XiDY=
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix build --accept-flake-config
