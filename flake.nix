@@ -13,7 +13,7 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
     hpp-constraints = {
-      url = "github:humanoid-path-planner/hpp-constraints/release/5.1.0";
+      url = "github:humanoid-path-planner/hpp-constraints";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
