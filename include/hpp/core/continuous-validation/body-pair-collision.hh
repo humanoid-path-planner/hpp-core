@@ -114,6 +114,9 @@ class BodyPairCollision : public IntervalValidation {
   void securityMargin(const value_type& securityMargin) {
     for (auto& request : m_->requests) request.security_margin = securityMargin;
   }
+
+  /// TODO
+  void distanceLowerBoundThreshold(value_type distance);
   /// \}
  protected:
   /// Constructor of body pair collision
@@ -126,7 +129,8 @@ class BodyPairCollision : public IntervalValidation {
   BodyPairCollision(const BodyPairCollision& other)
       : IntervalValidation(other),
         m_(other.m_),
-        maximalVelocity_(other.maximalVelocity_) {}
+        maximalVelocity_(other.maximalVelocity_),
+        distanceLowerBoundThr_(other.distanceLowerBoundThr_) {}
 
   virtual void setReport(ValidationReportPtr_t& report,
                          fcl::CollisionResult result,
@@ -146,6 +150,7 @@ class BodyPairCollision : public IntervalValidation {
 
   mutable vector_t Vb_;
   value_type maximalVelocity_;
+  value_type distanceLowerBoundThr_;
 
   /// Compute maximal velocity for a given velocity bound
   /// \param Vb velocity

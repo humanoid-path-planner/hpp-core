@@ -86,6 +86,7 @@ void ContinuousValidation::Initialize::doExecute() const {
       continuousValidation::SolidSolidCollisionPtr_t ss(
           SolidSolidCollision::create(joint2, joint1, owner().tolerance_));
       ss->breakDistance(owner().breakDistance());
+      ss->distanceLowerBoundThreshold(owner().distanceLowerBoundThreshold());
       owner().addIntervalValidation(ss);
       bodyPairMap[jp] = ss;
     }
@@ -112,6 +113,7 @@ void ContinuousValidation::AddObstacle::doExecute(
       continuousValidation::SolidSolidCollisionPtr_t ss(
           SolidSolidCollision::create(joint, objects, owner().tolerance()));
       ss->breakDistance(owner().breakDistance());
+      ss->distanceLowerBoundThreshold(owner().distanceLowerBoundThreshold());
       owner().addIntervalValidation(ss);
     }
   }
@@ -253,6 +255,11 @@ void ContinuousValidation::removeObstacleFromJoint(
 
 void ContinuousValidation::breakDistance(value_type distance) {
   assert(distance >= 0);
+  if (distance <= distanceLowerBoundThr_) {
+    throw std::invalid_argument(
+        "Break distance must be strictly greater than "
+        "the distance lower bound threshold.");
+  }
   breakDistance_ = distance;
 
   bodyPairCollisionPool_.clear();
@@ -260,6 +267,23 @@ void ContinuousValidation::breakDistance(value_type distance) {
     continuousValidation::SolidSolidCollisionPtr_t ss(
         HPP_DYNAMIC_PTR_CAST(continuousValidation::SolidSolidCollision, val));
     if (ss) ss->breakDistance(distance);
+  }
+}
+
+void ContinuousValidation::distanceLowerBoundThreshold(value_type distance) {
+  assert(distance >= 0);
+  if (distance >= breakDistance_) {
+    throw std::invalid_argument(
+        "Distance lower bound threshold must be "
+        "strictly smaller than the break distance.");
+  }
+  distanceLowerBoundThr_ = distance;
+
+  bodyPairCollisionPool_.clear();
+  for (IntervalValidationPtr_t &val : intervalValidations_) {
+    continuousValidation::BodyPairCollisionPtr_t bp(
+        HPP_DYNAMIC_PTR_CAST(continuousValidation::BodyPairCollision, val));
+    if (bp) bp->distanceLowerBoundThreshold(distance);
   }
 }
 
@@ -409,6 +433,7 @@ ContinuousValidation::ContinuousValidation(const DevicePtr_t &robot,
     : robot_(robot),
       tolerance_(tolerance),
       breakDistance_(1e-2),
+      distanceLowerBoundThr_(0.0),
       intervalValidations_(),
       weak_() {
   if (tolerance < 0) {
