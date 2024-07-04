@@ -1,0 +1,20 @@
+name: "Nix CI"
+
+on: [pull_request, push]
+
+jobs:
+  tests:
+    name: "Nix build on ${{ matrix.os }}"
+    runs-on: "${{ matrix.os }}-latest"
+    strategy:
+      matrix:
+        os: [ubuntu]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix --accept-flake-config build -L
+      - run: nix --accept-flake-config run .#cachix push gepetto $(readlink result)
+        if: github.repository_owner == 'humanoid-path-planner'
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
