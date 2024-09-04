@@ -82,8 +82,11 @@ class ProblemSolverPlugin {
 namespace plugin {
 /// Find the absolute path to a library named name.
 /// \param name
-/// \return name if it is an absolute path. Otherwise, for each path in
-///         LD_LIBRARY_PATH environment variable, look for path/hppPlugins/name.
+/// \return name if it is an absolute path.
+///         Otherwise, for each path in HPP_PLUGIN_DIRS environment variable,
+///         look for path/hppPlugins/name.
+///         Otherwise, for each path in LD_LIBRARY_PATH environment variable,
+///         look for path/hppPlugins/name.
 /// \throw std::invalid_argument if not valid file found.
 std::string findPluginLibrary(const std::string& name);
 

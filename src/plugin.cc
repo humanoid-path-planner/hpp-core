@@ -42,6 +42,15 @@ namespace core {
 namespace plugin {
 std::string findPluginLibrary(const std::string& name) {
   if (fs::path(name).is_absolute()) return name;
+  std::vector<std::string> ppaths =
+      ::pinocchio::extractPathFromEnvVar("HPP_PLUGIN_DIRS", ":");
+  for (std::size_t i = 0; i < ppaths.size(); ++i) {
+    fs::path lib(ppaths[i]);
+    lib /= "hppPlugins";
+    lib /= name;
+    if (fs::is_regular_file(lib)) return lib.native();
+  }
+
   std::vector<std::string> ldpaths =
       ::pinocchio::extractPathFromEnvVar("LD_LIBRARY_PATH", ":");
   for (std::size_t i = 0; i < ldpaths.size(); ++i) {
