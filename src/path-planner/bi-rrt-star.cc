@@ -305,7 +305,7 @@ bool BiRrtStar::buildPath(const Configuration_t& q0, const Configuration_t& q1,
 
   if (!validatePath) {
     result = path;
-    assert(!allValid || result->end() == q1);
+    assert(!allValid || maxLength > 0 || result->end() == q1);
     return allValid;
   }
 
@@ -314,7 +314,7 @@ bool BiRrtStar::buildPath(const Configuration_t& q0, const Configuration_t& q1,
   allValid &=
       problem()->pathValidation()->validate(path, false, validPart, report);
   result = validPart;
-  assert(!allValid || result->end() == q1);
+  assert(!allValid || maxLength > 0|| result->end() == q1);
   return allValid;
 }
 
