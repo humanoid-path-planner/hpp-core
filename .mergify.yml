@@ -1,0 +1,11 @@
+pull_request_rules:
+  - name: merge automatically when CI passes and PR is approved
+    conditions:
+      - check-success = "gitlab-ci"
+      - check-success = "Nix build on ubuntu"
+      - check-success = "pre-commit.ci - pr"
+      - or:
+        - author = pre-commit-ci[bot]
+        - author = dependabot[bot]
+    actions:
+      merge:
