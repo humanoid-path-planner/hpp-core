@@ -20,7 +20,7 @@ dependencies = [
 description = "Utility classes for testing (robust) equilibrium of a system in contact with the environment, and other centroidal dynamics methods."
 license = "BSD-2-Clause"
 name = "hpp-core"
-version = "5.1.0"
+version = "5.2.0"
 
 [tool.ruff]
 extend-exclude = ["cmake"]
