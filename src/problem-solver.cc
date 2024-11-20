@@ -54,6 +54,7 @@
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
 #include <hpp/core/path-planner/bi-rrt-star.hh>
 #include <hpp/core/path-planner/k-prm-star.hh>
+#include <hpp/core/path-planner/search-in-roadmap.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/progressive.hh>
@@ -210,6 +211,7 @@ ProblemSolver::ProblemSolver()
   pathPlanners.add("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
   pathPlanners.add("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
   pathPlanners.add("BiRRT*", pathPlanner::BiRrtStar::createWithRoadmap);
+  pathPlanners.add("SearchInRoadmap", hpp::core::pathPlanner::SearchInRoadmap::createWithRoadmap);
 
   configurationShooters.add("Uniform", createUniformConfigShooter);
   configurationShooters.add("Gaussian", createGaussianConfigShooter);
