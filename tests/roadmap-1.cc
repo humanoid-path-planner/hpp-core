@@ -32,12 +32,12 @@
 #include <hpp/core/nearest-neighbor.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/parser/roadmap.hh>
+#include <hpp/core/path-planner/search-in-roadmap.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/core/path-planner/search-in-roadmap.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
@@ -289,26 +289,34 @@ BOOST_AUTO_TEST_CASE(Roadmap1) {
 
   r->resetGoalNodes();
   // Check pathPlanner::SearchInRoadmap
-  q[0] = 0; q[1] = 0;
+  q[0] = 0;
+  q[1] = 0;
   p->initConfig(q);
-  q[0] = 2.5; q[1] = 2.9;
+  q[0] = 2.5;
+  q[1] = 2.9;
   p->addGoalConfig(q);
-  pathPlanner::SearchInRoadmapPtr_t planner(pathPlanner::SearchInRoadmap::createWithRoadmap(p, r));
+  pathPlanner::SearchInRoadmapPtr_t planner(
+      pathPlanner::SearchInRoadmap::createWithRoadmap(p, r));
   PathVectorPtr_t pv(planner->solve());
   BOOST_CHECK(pv);
   BOOST_CHECK(pv->numberPaths() == 4);
-  q[0] = 0; q[1] = 0;
+  q[0] = 0;
+  q[1] = 0;
   BOOST_CHECK(pv->pathAtRank(0)->initial() == q);
-  q[0] = 1; q[1] = 0;
+  q[0] = 1;
+  q[1] = 0;
   BOOST_CHECK(pv->pathAtRank(0)->end() == q);
   BOOST_CHECK(pv->pathAtRank(1)->initial() == q);
-  q[0] = .5; q[1] = .9;
+  q[0] = .5;
+  q[1] = .9;
   BOOST_CHECK(pv->pathAtRank(1)->end() == q);
   BOOST_CHECK(pv->pathAtRank(2)->initial() == q);
-  q[0] = 1.5; q[1] = 2.9;
+  q[0] = 1.5;
+  q[1] = 2.9;
   BOOST_CHECK(pv->pathAtRank(2)->end() == q);
   BOOST_CHECK(pv->pathAtRank(3)->initial() == q);
-  q[0] = 2.5; q[1] = 2.9;
+  q[0] = 2.5;
+  q[1] = 2.9;
   BOOST_CHECK(pv->pathAtRank(3)->end() == q);
 
   // Check that memory if well deallocated.
