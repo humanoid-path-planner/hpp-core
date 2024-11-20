@@ -138,6 +138,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/path-planning-failed.hh
     include/hpp/core/path-planner/k-prm-star.hh
     include/hpp/core/path-planner/bi-rrt-star.hh
+    include/hpp/core/path-planner/search-in-roadmap.hh
     include/hpp/core/path-validation.hh
     include/hpp/core/path-validation-report.hh
     include/hpp/core/path-vector.hh
