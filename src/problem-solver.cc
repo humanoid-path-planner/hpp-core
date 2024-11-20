@@ -211,7 +211,8 @@ ProblemSolver::ProblemSolver()
   pathPlanners.add("BiRRTPlanner", BiRRTPlanner::createWithRoadmap);
   pathPlanners.add("kPRM*", pathPlanner::kPrmStar::createWithRoadmap);
   pathPlanners.add("BiRRT*", pathPlanner::BiRrtStar::createWithRoadmap);
-  pathPlanners.add("SearchInRoadmap", hpp::core::pathPlanner::SearchInRoadmap::createWithRoadmap);
+  pathPlanners.add("SearchInRoadmap",
+                   hpp::core::pathPlanner::SearchInRoadmap::createWithRoadmap);
 
   configurationShooters.add("Uniform", createUniformConfigShooter);
   configurationShooters.add("Gaussian", createGaussianConfigShooter);

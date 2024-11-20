@@ -33,55 +33,51 @@
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/path-planning-failed.hh>
 
-namespace hpp{
+namespace hpp {
 namespace core {
-namespace pathPlanner{
-  HPP_PREDEF_CLASS(SearchInRoadmap);
-  typedef shared_ptr<SearchInRoadmap> SearchInRoadmapPtr_t;
-  /// \addtogroup path_planning
-  /// \{
+namespace pathPlanner {
+HPP_PREDEF_CLASS(SearchInRoadmap);
+typedef shared_ptr<SearchInRoadmap> SearchInRoadmapPtr_t;
+/// \addtogroup path_planning
+/// \{
 
-  /// Search in the roadmap without modifying it and without trying a direct connection priorly
-  ///
-  /// This planner is especially useful in some applications where the roadmap is constructed
-  /// externally like in coverage planning. This planner will return a path if one exists in the
-  /// roadmap or throw otherwise.
-  ///
-  /// \note One shortcoming of this planner (as all other planners), if the initial configuration
-  /// is the same as a goal configuration, the planner will return a path of length 0. This is not
-  /// desirable in coverage planning applications.
-  class SearchInRoadmap : public PathPlanner {
-  public:
-    static SearchInRoadmapPtr_t createWithRoadmap(const ProblemConstPtr_t& problem,
-						  const RoadmapPtr_t& roadmap)
-    {
-      return SearchInRoadmapPtr_t(new SearchInRoadmap(problem, roadmap));
-    }
-    /// This methods does nothing
-    virtual void tryConnectInitAndGoals()
-    {
-    }
-    /// This methods does nothing
-    virtual void oneStep()
-    {
-      throw path_planning_failed("SearchInRoadmap: no goal configuration in the connected component"
-				 "of initial configuration.");
-    }
-  protected:
-    SearchInRoadmap(const ProblemConstPtr_t& problem) : core::PathPlanner(problem)
-    {
-    }
-    SearchInRoadmap(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap) :
-      PathPlanner(problem, roadmap)
-    {
-    }
-  }; /// class SearchInRoadmap
+/// Search in the roadmap without modifying it and without trying a direct
+/// connection priorly
+///
+/// This planner is especially useful in some applications where the roadmap is
+/// constructed externally like in coverage planning. This planner will return a
+/// path if one exists in the roadmap or throw otherwise.
+///
+/// \note One shortcoming of this planner (as all other planners), if the
+/// initial configuration is the same as a goal configuration, the planner will
+/// return a path of length 0. This is not desirable in coverage planning
+/// applications.
+class SearchInRoadmap : public PathPlanner {
+ public:
+  static SearchInRoadmapPtr_t createWithRoadmap(
+      const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap) {
+    return SearchInRoadmapPtr_t(new SearchInRoadmap(problem, roadmap));
+  }
+  /// This methods does nothing
+  virtual void tryConnectInitAndGoals() {}
+  /// This methods does nothing
+  virtual void oneStep() {
+    throw path_planning_failed(
+        "SearchInRoadmap: no goal configuration in the connected component"
+        "of initial configuration.");
+  }
+
+ protected:
+  SearchInRoadmap(const ProblemConstPtr_t& problem)
+      : core::PathPlanner(problem) {}
+  SearchInRoadmap(const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap)
+      : PathPlanner(problem, roadmap) {}
+};  /// class SearchInRoadmap
 
 /// \}
-  
-}
-}
-}
-    
-#endif // HPP_CORE_PATH_PLANNER_SEARCH_IN_ROADMAP_HH
 
+}  // namespace pathPlanner
+}  // namespace core
+}  // namespace hpp
+
+#endif  // HPP_CORE_PATH_PLANNER_SEARCH_IN_ROADMAP_HH
