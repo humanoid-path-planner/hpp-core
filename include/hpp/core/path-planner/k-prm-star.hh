@@ -35,6 +35,10 @@
 namespace hpp {
 namespace core {
 namespace pathPlanner {
+
+/// \addtogroup path_planning
+/// \{
+
 /// k-PRM* path planning algorithm
 /// as described in https://arxiv.org/pdf/1105.1186.pdf.
 class HPP_CORE_DLLAPI kPrmStar : public PathPlanner {
@@ -107,6 +111,9 @@ class HPP_CORE_DLLAPI kPrmStar : public PathPlanner {
   /// Weak pointer to itself
   kPrmStarWkPtr_t weak_;
 };  // class kPrmStar
+
+/// \}
+
 }  // namespace pathPlanner
 }  // namespace core
 }  // namespace hpp

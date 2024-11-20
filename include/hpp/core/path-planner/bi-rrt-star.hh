@@ -38,6 +38,9 @@ namespace pathPlanner {
 HPP_PREDEF_CLASS(BiRrtStar);
 typedef shared_ptr<BiRrtStar> BiRrtStarPtr_t;
 
+/// \addtogroup path_planning
+/// \{
+
 /// Bi-RRT* path planning algorithm
 /// as described in http://www.golems.org/papers/AkgunIROS11-sampling.pdf
 class HPP_CORE_DLLAPI BiRrtStar : public PathPlanner {
@@ -111,6 +114,9 @@ class HPP_CORE_DLLAPI BiRrtStar : public PathPlanner {
   /// Weak pointer to itself
   BiRrtStarWkPtr_t weak_;
 };  // class BiRrtStar
+
+/// \}
+
 }  // namespace pathPlanner
 }  // namespace core
 }  // namespace hpp
