@@ -164,11 +164,13 @@ struct QuadraticProgram {
   /// Compute solution using quadprog
   /// \param ce equality constraints
   /// \param ci inequality constraints: \f$ ci.J * x \ge ci.b \f$
+  /// \param[out] ok is set to true if a solution has been found.
   /// \return the cost of the solution.
   ///
   /// \note \ref computeLLT must have been called before.
   /// \note if the problem is ill-conditioned, member xStar is left unchanged.
-  double solve(const LinearConstraint& ce, const LinearConstraint& ci);
+  double solve(const LinearConstraint& ce, const LinearConstraint& ci,
+               bool& ok);
 
   /// \}
 
