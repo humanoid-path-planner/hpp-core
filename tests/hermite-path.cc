@@ -51,7 +51,7 @@ DevicePtr_t createRobot() {
   DevicePtr_t robot = Device::create("test");
 
   const std::string& name = robot->name();
-  coal::Transform3f mat;
+  coal::Transform3s mat;
   mat.setIdentity();
   JointPtr_t joint;
   std::string jointName = name + "_xy";

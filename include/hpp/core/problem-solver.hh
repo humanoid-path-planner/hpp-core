@@ -415,7 +415,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
   ///        for this object.
   virtual void addObstacle(const std::string& name,
                            const CollisionGeometryPtr_t& inObject,
-                           const Transform3f& pose, bool collision,
+                           const Transform3s& pose, bool collision,
                            bool distance);
 
   /// Add obstacle to the list.
@@ -449,7 +449,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
 
   /// Get obstacle frame position by name
   /// Throws if obstacle frame does not exists.
-  const Transform3f& obstacleFramePosition(const std::string& name) const;
+  const Transform3s& obstacleFramePosition(const std::string& name) const;
 
   /// Get list of obstacle names
   ///

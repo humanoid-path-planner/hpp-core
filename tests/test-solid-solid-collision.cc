@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(solid_solid_collision_1) {
 
   ConstObjectStdVector_t obstacles;
   auto box = coal::make_shared<coal::Box>(.2, .4, .6);
-  Transform3f I3;
+  Transform3s I3;
   I3.setIdentity();
   pinocchio::FrameIndex frame_id = robot->model().addFrame(
       ::pinocchio::Frame("base_link", 0, 0, I3, ::pinocchio::BODY));

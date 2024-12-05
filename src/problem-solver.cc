@@ -201,7 +201,7 @@ ProblemSolver::ProblemSolver()
       comcMap_(),
       distanceBetweenObjects_() {
   obstacleRModel_->addFrame(::pinocchio::Frame(
-      "obstacle_frame", 0, 0, Transform3f::Identity(), ::pinocchio::BODY));
+      "obstacle_frame", 0, 0, Transform3s::Identity(), ::pinocchio::BODY));
   obstacleRData_.reset(new Data(*obstacleRModel_));
 
   robots.add(robotType_, Device_t::create);
@@ -467,7 +467,7 @@ void ProblemSolver::robot(const DevicePtr_t& robot) {
   // Reset obstacles
   obstacleRModel_.reset(new Model());
   obstacleRModel_->addFrame(::pinocchio::Frame(
-      "obstacle_frame", 0, 0, Transform3f::Identity(), ::pinocchio::BODY));
+      "obstacle_frame", 0, 0, Transform3s::Identity(), ::pinocchio::BODY));
   obstacleRData_.reset(new Data(*obstacleRModel_));
   obstacleModel_.reset(new GeomModel());
   obstacleData_.reset(new GeomData(*obstacleModel_));
@@ -862,7 +862,7 @@ void ProblemSolver::addObstacle(const CollisionObjectPtr_t& object,
 
 void ProblemSolver::addObstacle(const std::string& name,
                                 const CollisionGeometryPtr_t& inObject,
-                                const Transform3f& pose, bool collision,
+                                const Transform3s& pose, bool collision,
                                 bool distance) {
   if (obstacleModel_->existGeometryName(name)) {
     HPP_THROW(std::runtime_error,
@@ -977,7 +977,7 @@ void ProblemSolver::cutObstacle(const std::string& name,
   }
   ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
-  coal::Transform3f oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
+  coal::Transform3s oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
   CollisionGeometryPtr_t coalgeom =
       obstacleModel_->geometryObjects[id].geometry;
   CollisionGeometryPtr_t newgeom(extract(coalgeom.get(), oMg, aabb));
@@ -1022,7 +1022,7 @@ CollisionObjectPtr_t ProblemSolver::obstacle(const std::string& name) const {
   HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
 }
 
-const Transform3f& ProblemSolver::obstacleFramePosition(
+const Transform3s& ProblemSolver::obstacleFramePosition(
     const std::string& name) const {
   if (!obstacleRModel_->existFrame(name)) {
     HPP_THROW(std::invalid_argument, "No obstacle frame with name " << name);

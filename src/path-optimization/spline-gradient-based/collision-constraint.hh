@@ -163,11 +163,11 @@ class CollisionFunction : public DifferentiableFunction {
     JointConstPtr_t joint1 = object1_->joint();
     JointConstPtr_t joint2 = object2_->joint();
     assert(joint2 && joint2->index() > 0);
-    Transform3f M2(joint2->currentTransformation(device.d()));
+    Transform3s M2(joint2->currentTransformation(device.d()));
     vector3_t x2_J2(M2.actInv(contactPoint_));
 
     if (joint1 && joint1->index() > 0) {  // object1 = body part
-      Transform3f M1(joint1->currentTransformation(device.d()));
+      Transform3s M1(joint1->currentTransformation(device.d()));
       // Position of contact point in each object local frame
       vector3_t x1_J1 = M1.actInv(contactPoint_);
       // Compute contact points in configuration qFree
@@ -183,14 +183,14 @@ class CollisionFunction : public DifferentiableFunction {
 
       u = (x1_J2 - x2_J2).normalized();
       f = constraints::RelativePosition::create("", robot_, joint1, joint2,
-                                                Transform3f(I3, x1_J1),
-                                                Transform3f(I3, x2_J2));
+                                                Transform3s(I3, x1_J1),
+                                                Transform3s(I3, x2_J2));
     } else {  // object1 = fixed obstacle and has no joint
       vector3_t x1_J1(contactPoint_);
       // Compute contact points in configuration qFree
       device.currentConfiguration(qFree_);
       device.computeForwardKinematics(pinocchio::JOINT_POSITION);
-      Transform3f M2(joint2->currentTransformation(device.d()));
+      Transform3s M2(joint2->currentTransformation(device.d()));
       device.unlock();
       // position of x2 in global frame
       vector3_t x2_J1(M2.act(x2_J2));
@@ -198,7 +198,7 @@ class CollisionFunction : public DifferentiableFunction {
 
       u = (x2_J1 - x2_J2).normalized();
       f = constraints::Position::create(
-          "", robot_, joint2, Transform3f(I3, x2_J2), Transform3f(I3, x1_J1));
+          "", robot_, joint2, Transform3s(I3, x2_J2), Transform3s(I3, x1_J1));
     }
     matrix_t Jpos(f->outputSize(), f->inputDerivativeSize());
     f->jacobian(Jpos, qFree_);

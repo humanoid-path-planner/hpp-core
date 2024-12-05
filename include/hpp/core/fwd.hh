@@ -214,7 +214,7 @@ typedef shared_ptr<SteeringMethod> SteeringMethodPtr_t;
 typedef std::vector<PathPtr_t> Paths_t;
 typedef std::vector<PathVectorPtr_t> PathVectors_t;
 typedef std::vector<PathVectorPtr_t> PathVectors_t;
-typedef pinocchio::Transform3f Transform3f;
+typedef pinocchio::Transform3s Transform3s;
 typedef pinocchio::vector3_t vector3_t;
 typedef Eigen::Matrix<value_type, 2, 1> vector2_t;
 typedef pinocchio::vector_t vector_t;

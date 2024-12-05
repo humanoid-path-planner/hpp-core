@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(ref_zero) {
   ComparisonTypes_t ineq(3, constraints::Superior);
   BOOST_REQUIRE(dev);
   PositionPtr_t position =
-      Position::create("Position", dev, xyz, Transform3f(rot, zero));
+      Position::create("Position", dev, xyz, Transform3s(rot, zero));
 
   ineq[1] = constraints::Inferior;
   ConfigProjectorPtr_t projector =
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE(ref_not_zero) {
   ComparisonTypes_t ineq(3, constraints::Superior);
   BOOST_REQUIRE(dev);
   PositionPtr_t position =
-      Position::create("Position", dev, xyz, Transform3f(rot, zero),
-                       Transform3f(rot, vector3_t(1, 1, 1)));
+      Position::create("Position", dev, xyz, Transform3s(rot, zero),
+                       Transform3s(rot, vector3_t(1, 1, 1)));
 
   ref[0] = 0;
   ref[1] = 0;
@@ -178,8 +178,8 @@ BOOST_AUTO_TEST_CASE(copy) {
   vector3_t zero;
   zero.setZero();
   PositionPtr_t position(
-      Position::create("Position", dev, xyz, Transform3f(rot, zero),
-                       Transform3f(rot, vector3_t(1, 1, 1))));
+      Position::create("Position", dev, xyz, Transform3s(rot, zero),
+                       Transform3s(rot, vector3_t(1, 1, 1))));
   ComparisonTypes_t equality(3, constraints::Equality);
   ImplicitPtr_t constraint(Implicit::create(position, equality));
   projector->add(constraint);

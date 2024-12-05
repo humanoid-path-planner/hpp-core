@@ -101,8 +101,8 @@ BOOST_AUTO_TEST_CASE(two_freeflyers) {
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1 = robot->getJointByName("obj1/root_joint");
 
-  Transform3f M2inO2(Transform3f::Identity());
-  Transform3f M1inO1(Transform3f::Identity());
+  Transform3s M2inO2(Transform3s::Identity());
+  Transform3s M1inO1(Transform3s::Identity());
 
   ExplicitPtr_t enm(explicit_::RelativePose::create(
       "explicit_relative_transformation", robot, object1, object2, M1inO1,
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(two_freeflyers) {
   // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
   robot->computeForwardKinematics(JOINT_POSITION);
-  Transform3f diff = M1inO1.inverse() *
+  Transform3s diff = M1inO1.inverse() *
                      object1->currentTransformation().inverse() *
                      object2->currentTransformation() * M2inO2;
 
@@ -195,8 +195,8 @@ BOOST_AUTO_TEST_CASE(two_frames_on_freeflyer) {
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1 = robot->getJointByName("obj1/root_joint");
 
-  Transform3f M2inO2(Transform3f::Random());
-  Transform3f M1inO1(Transform3f::Random());
+  Transform3s M2inO2(Transform3s::Random());
+  Transform3s M1inO1(Transform3s::Random());
 
   std::cout << "M2inO2=" << M2inO2 << std::endl;
   std::cout << "M1inO1=" << M1inO1 << std::endl;
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(two_frames_on_freeflyer) {
   // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
   robot->computeForwardKinematics(JOINT_POSITION);
-  Transform3f diff = M1inO1.inverse() *
+  Transform3s diff = M1inO1.inverse() *
                      object1->currentTransformation().inverse() *
                      object2->currentTransformation() * M2inO2;
 
@@ -292,8 +292,8 @@ BOOST_AUTO_TEST_CASE(compare_to_relative_transform) {
   JointPtr_t object2 = robot->getJointByName("obj2/root_joint");
   JointPtr_t object1 = robot->getJointByName("obj1/root_joint");
 
-  Transform3f M2inO2(Transform3f::Random());
-  Transform3f M1inO1(Transform3f::Random());
+  Transform3s M2inO2(Transform3s::Random());
+  Transform3s M1inO1(Transform3s::Random());
 
   BOOST_TEST_MESSAGE("M2inO2=" << M2inO2);
   BOOST_TEST_MESSAGE("M1inO1=" << M1inO1);
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(compare_to_relative_transform) {
   // Test that at solution configuration, object2 and robot frames coincide.
   robot->currentConfiguration(qout);
   robot->computeForwardKinematics(JOINT_POSITION);
-  Transform3f diff = M1inO1.inverse() *
+  Transform3s diff = M1inO1.inverse() *
                      object1->currentTransformation().inverse() *
                      object2->currentTransformation() * M2inO2;
 

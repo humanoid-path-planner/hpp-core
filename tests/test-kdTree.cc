@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_SUITE(test_hpp_core)
 BOOST_AUTO_TEST_CASE(kdTree) {
   // Build Device
   /* DevicePtr_t robot = Device::create("robot");
-   JointPtr_t transJoint = new JointTranslation <3> (Transform3f());
+   JointPtr_t transJoint = new JointTranslation <3> (Transform3s());
    transJoint->isBounded (0, true);
    transJoint->lowerBound(0,-3.);
    transJoint->upperBound(0, 3.);
@@ -78,9 +78,9 @@ BOOST_AUTO_TEST_CASE(kdTree) {
    transJoint->isBounded (2, true);
    transJoint->lowerBound(2,-3.);
    transJoint->upperBound(2, 3.);
-   JointPtr_t so3Joint = new JointSO3(Transform3f());
+   JointPtr_t so3Joint = new JointSO3(Transform3s());
    JointPtr_t so2Joint = new jointRotation::UnBounded
-     (Transform3f (coal::Vec3f (0, 0, 1)));
+     (Transform3s (coal::Vec3f (0, 0, 1)));
    robot->rootJoint(transJoint);
    transJoint->addChildJoint (so3Joint);
    so3Joint->addChildJoint (so2Joint);
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(kdTree) {
   robot->setModel(m);
   robot->setGeomModel(gm);
   const std::string& name = robot->name();
-  Transform3f mat;
+  Transform3s mat;
   mat.setIdentity();
 
   JointModelTranslation::TangentVector_t max_effort_tr =

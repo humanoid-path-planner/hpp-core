@@ -440,7 +440,7 @@ inline value_type saturate(const value_type& v, const JointPtr_t& j,
 
 void ConstantCurvature::setWheelJoints(const JointPtr_t rz,
                                        const std::vector<JointPtr_t> wheels) {
-  Transform3f zt(rz->currentTransformation().inverse());
+  Transform3s zt(rz->currentTransformation().inverse());
   wheels_.resize(wheels.size());
   std::size_t rk = 0;
   if (curvature_ == 0) {
