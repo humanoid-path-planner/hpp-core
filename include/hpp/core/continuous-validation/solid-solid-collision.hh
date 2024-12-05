@@ -80,7 +80,7 @@ class HPP_CORE_DLLAPI SolidSolidCollision : public BodyPairCollision {
 
   bool removeObjectTo_b(const CollisionObjectConstPtr_t& object);
 
-  /// Set the break distance of each hpp::fcl::CollisionRequest
+  /// Set the break distance of each coal::CollisionRequest
   /// \sa void ContinuousValidation::breakDistance(value_type) const
   void breakDistance(value_type distance);
 

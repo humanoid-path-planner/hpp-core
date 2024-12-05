@@ -26,7 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/fcl/collision.h>
+#include <coal/collision.h>
 
 #include <hpp/core/obstacle-user.hh>
 #include <hpp/pinocchio/body.hh>
@@ -40,8 +40,9 @@ namespace hpp {
 namespace core {
 using ::pinocchio::toFclTransform3f;
 bool ObstacleUser::collide(const CollisionPairs_t& pairs,
-                           CollisionRequests_t& reqs, fcl::CollisionResult& res,
-                           std::size_t& i, pinocchio::DeviceData& data) {
+                           CollisionRequests_t& reqs,
+                           coal::CollisionResult& res, std::size_t& i,
+                           pinocchio::DeviceData& data) {
   for (i = 0; i < pairs.size(); ++i) {
     res.clear();
     if (pairs[i].collide(data, reqs[i], res) != 0) return true;
@@ -120,7 +121,7 @@ void ObstacleUser::filterCollisionPairs(
     const RelativeMotion::matrix_type& matrix) {
   // Loop over collision pairs and remove disabled ones.
   pinocchio::JointIndex j1, j2;
-  fcl::CollisionResult unused;
+  coal::CollisionResult unused;
   for (std::size_t i = 0; i < cPairs_.size();) {
     const CollisionPair_t& pair = cPairs_[i];
 
@@ -173,7 +174,7 @@ void ObstacleUser::setSecurityMargins(const matrix_t& securityMatrix) {
                   << securityMatrix.cols());
   }
   pinocchio::JointIndex j1, j2;
-  fcl::CollisionResult unused;
+  coal::CollisionResult unused;
   for (std::size_t i = 0; i < cPairs_.size(); ++i) {
     const CollisionPair_t& pair = cPairs_[i];
     j1 = pair.first->jointIndex();
@@ -233,7 +234,7 @@ void ObstacleUser::addRobotCollisionPairs() {
     }
 }
 
-void ObstacleUser::setRequests(const fcl::CollisionRequest& r) {
+void ObstacleUser::setRequests(const coal::CollisionRequest& r) {
   for (std::size_t i = 0; i < cRequests_.size(); ++i) cRequests_[i] = r;
   for (std::size_t i = 0; i < pRequests_.size(); ++i) pRequests_[i] = r;
   for (std::size_t i = 0; i < dRequests_.size(); ++i) dRequests_[i] = r;

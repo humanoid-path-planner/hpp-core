@@ -31,8 +31,8 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_COLLISION_CONSTRAINTS_HH
 #define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_COLLISION_CONSTRAINTS_HH
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include <coal/collision.h>
+#include <coal/distance.h>
 
 #include <hpp/constraints/generic-transformation.hh>
 #include <hpp/pinocchio/configuration.hh>
@@ -58,7 +58,7 @@ class CollisionFunction : public DifferentiableFunction {
   }
 
   void updateConstraint(const Configuration_t& q) {
-    fcl::CollisionResult result = checkCollision(q, true);
+    coal::CollisionResult result = checkCollision(q, true);
 
     if (result.numContacts() == 1) {  // Update qColl_
       qColl_ = q;
@@ -116,7 +116,7 @@ class CollisionFunction : public DifferentiableFunction {
     assert(success);
     hppDout(info, "qFree = " << pinocchio::displayConfig(qFree_));
     // Compute contact point in configuration qColl
-    const fcl::CollisionResult& result(collisionReport->result);
+    const coal::CollisionResult& result(collisionReport->result);
     if (result.numContacts() < 1) {
       abort();
     }
@@ -126,22 +126,22 @@ class CollisionFunction : public DifferentiableFunction {
     computeJacobian();
   }
 
-  fcl::CollisionResult checkCollision(const Configuration_t& q,
-                                      bool enableContact) {
+  coal::CollisionResult checkCollision(const Configuration_t& q,
+                                       bool enableContact) {
     pinocchio::DeviceSync device(robot_);
     device.currentConfiguration(q);
     device.computeForwardKinematics(pinocchio::JOINT_POSITION);
     device.updateGeometryPlacements();
-    fcl::CollisionResult result;
-    fcl::CollisionRequestFlag flag =
-        enableContact ? fcl::CONTACT : fcl::NO_REQUEST;
-    fcl::CollisionRequest collisionRequest(flag, 1);
+    coal::CollisionResult result;
+    coal::CollisionRequestFlag flag =
+        enableContact ? coal::CONTACT : coal::NO_REQUEST;
+    coal::CollisionRequest collisionRequest(flag, 1);
     using ::pinocchio::toFclTransform3f;
-    fcl::collide(object1_->geometry().get(),
-                 toFclTransform3f(object1_->getTransform(device.d())),
-                 object2_->geometry().get(),
-                 toFclTransform3f(object2_->getTransform(device.d())),
-                 collisionRequest, result);
+    coal::collide(object1_->geometry().get(),
+                  toFclTransform3f(object1_->getTransform(device.d())),
+                  object2_->geometry().get(),
+                  toFclTransform3f(object2_->getTransform(device.d())),
+                  collisionRequest, result);
     return result;
   }
 

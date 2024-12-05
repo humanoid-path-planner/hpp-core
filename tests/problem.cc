@@ -27,8 +27,8 @@
 // DAMAGE.
 
 #define BOOST_TEST_MODULE problem
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include <coal/collision_object.h>
+#include <coal/shape/geometric_shapes.h>
 
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/problem-solver.hh>
@@ -86,7 +86,7 @@ void pointMassProblem(const char* steeringMethod, const char* distance,
   ps->steeringMethodType(steeringMethod);
   ps->distanceType(distance);
 
-  CollisionGeometryPtr_t boxGeom(new hpp::fcl::Box(0.3, 0.3, 0.3));
+  CollisionGeometryPtr_t boxGeom(new coal::Box(0.3, 0.3, 0.3));
   SE3 boxTf(matrix3_t::Identity(), vector3_t(-2, 0, 0));
   ps->addObstacle("box", boxGeom, boxTf, true, true);
 
@@ -121,7 +121,7 @@ void carLikeProblem(const char* steeringMethod, const char* distance,
   ps->steeringMethodType(steeringMethod);
   ps->distanceType(distance);
 
-  CollisionGeometryPtr_t boxGeom(new hpp::fcl::Box(0.3, 0.3, 0.3));
+  CollisionGeometryPtr_t boxGeom(new coal::Box(0.3, 0.3, 0.3));
   SE3 boxTf(matrix3_t::Identity(), vector3_t(-2, 0, 0));
   ps->addObstacle("box", boxGeom, boxTf, true, true);
 

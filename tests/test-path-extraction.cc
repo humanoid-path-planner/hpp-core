@@ -29,7 +29,7 @@
 
 #define BOOST_TEST_MODULE path_extraction
 
-#include <hpp/fcl/math/transform.h>
+#include <coal/math/transform.h>
 
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/path-vector.hh>

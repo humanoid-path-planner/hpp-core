@@ -20,7 +20,7 @@
  <depend>hpp-constraints</depend>
  <depend>eigen3</depend>
  <depend>urdfdom</depend>
- <depend>hpp-fcl</depend>
+ <depend>coal</depend>
  <depend>proxsuite</depend>
 
  <test_depend>romeo_description</test_depend>

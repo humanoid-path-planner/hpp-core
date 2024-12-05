@@ -30,7 +30,7 @@
 #ifndef HPP_CORE_CONTINUOUS_VALIDATION_BODY_PAIR_COLLISION_HH
 #define HPP_CORE_CONTINUOUS_VALIDATION_BODY_PAIR_COLLISION_HH
 
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision_data.h>
 
 #include <boost/icl/continuous_interval.hpp>
 #include <boost/icl/interval_set.hpp>
@@ -129,7 +129,7 @@ class BodyPairCollision : public IntervalValidation {
         maximalVelocity_(other.maximalVelocity_) {}
 
   virtual void setReport(ValidationReportPtr_t& report,
-                         fcl::CollisionResult result,
+                         coal::CollisionResult result,
                          CollisionPair_t _pair) const {
     report = CollisionValidationReportPtr_t(
         new CollisionValidationReport(_pair, result));

@@ -30,7 +30,7 @@
 #ifndef HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 #define HPP_CORE_COLLISION_VALIDATION_REPORT_HH
 
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision_data.h>
 
 #include <hpp/core/collision-pair.hh>
 #include <hpp/core/validation-report.hh>
@@ -49,11 +49,11 @@ struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport {
 
   CollisionValidationReport(CollisionObjectConstPtr_t o1,
                             CollisionObjectConstPtr_t o2,
-                            const fcl::CollisionResult& r)
+                            const coal::CollisionResult& r)
       : object1(o1), object2(o2), result(r) {}
 
   CollisionValidationReport(const CollisionPair_t& pair,
-                            const fcl::CollisionResult& r)
+                            const coal::CollisionResult& r)
       : object1(pair.first), object2(pair.second), result(r) {}
 
   /// First object in collision
@@ -62,8 +62,8 @@ struct HPP_CORE_DLLAPI CollisionValidationReport : public ValidationReport {
   /// Second object in collision
   CollisionObjectConstPtr_t object2;
   std::string objectName2;
-  /// fcl collision results
-  fcl::CollisionResult result;
+  /// coal collision results
+  coal::CollisionResult result;
   /// Write report in a stream
   virtual std::ostream& print(std::ostream& os) const {
     os << "Collision between object "
@@ -86,11 +86,11 @@ struct HPP_CORE_DLLAPI AllCollisionsValidationReport
 
   AllCollisionsValidationReport(CollisionObjectConstPtr_t o1,
                                 CollisionObjectConstPtr_t o2,
-                                const fcl::CollisionResult& r)
+                                const coal::CollisionResult& r)
       : CollisionValidationReport(o1, o2, r) {}
 
   AllCollisionsValidationReport(const CollisionPair_t& pair,
-                                const fcl::CollisionResult& r)
+                                const coal::CollisionResult& r)
       : CollisionValidationReport(pair, r) {}
 
   std::vector<CollisionValidationReportPtr_t> collisionReports;

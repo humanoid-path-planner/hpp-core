@@ -29,7 +29,7 @@
 #ifndef HPP_CORE_OBSTACLE_USER_HH
 #define HPP_CORE_OBSTACLE_USER_HH
 
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision_data.h>
 
 #include <hpp/core/collision-pair.hh>
 #include <hpp/core/config.hh>
@@ -76,12 +76,12 @@ class HPP_CORE_DLLAPI ObstacleUserInterface {
   ///
   /// This method enables users to choose different security margins
   /// for each pair of robot joint or each pair robot joint - obstacle.
-  /// \sa hpp::fcl::CollisionRequest::security_margin.
+  /// \sa coal::CollisionRequest::security_margin.
   virtual void setSecurityMargins(const matrix_t& securityMatrix) = 0;
 
   /// Set security margin for collision pair between the two bodies.
   ///
-  /// \sa hpp::fcl::CollisionRequest::security_margin.
+  /// \sa coal::CollisionRequest::security_margin.
   virtual void setSecurityMarginBetweenBodies(const std::string& body_a,
                                               const std::string& body_b,
                                               const value_type& margin) = 0;
@@ -188,7 +188,7 @@ class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface {
   virtual ~ObstacleUser() = default;
 
   static bool collide(const CollisionPairs_t& pairs, CollisionRequests_t& reqs,
-                      fcl::CollisionResult& res, std::size_t& i,
+                      coal::CollisionResult& res, std::size_t& i,
                       pinocchio::DeviceData& data);
 
   // Get pairs checked for collision
@@ -203,9 +203,9 @@ class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface {
   // Get requests of collision pairs
   CollisionRequests_t& requests() { return cRequests_; }
 
-  fcl::CollisionRequest& defaultRequest() { return defaultRequest_; }
+  coal::CollisionRequest& defaultRequest() { return defaultRequest_; }
 
-  void setRequests(const fcl::CollisionRequest& r);
+  void setRequests(const coal::CollisionRequest& r);
 
   /// Add an obstacle
   /// \param object obstacle added
@@ -249,7 +249,7 @@ class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface {
  protected:
   /// Constructor of body pair collision
   ObstacleUser(DevicePtr_t robot)
-      : robot_(robot), defaultRequest_(fcl::NO_REQUEST, 1) {
+      : robot_(robot), defaultRequest_(coal::NO_REQUEST, 1) {
     defaultRequest_.enable_cached_gjk_guess = true;
   }
 
@@ -267,7 +267,7 @@ class HPP_CORE_DLLAPI ObstacleUser : public ObstacleUserInterface {
   void addRobotCollisionPairs();
 
   DevicePtr_t robot_;
-  fcl::CollisionRequest defaultRequest_;
+  coal::CollisionRequest defaultRequest_;
 
   CollisionPairs_t cPairs_,        /// Active collision pairs
       pPairs_,                     /// Parameterized collision pairs

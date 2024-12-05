@@ -27,7 +27,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/fcl/collision.h>
+#include <coal/collision.h>
 
 #include <hpp/core/collision-validation-report.hh>
 #include <hpp/core/collision-validation.hh>
@@ -52,7 +52,7 @@ bool CollisionValidation::validate(const Configuration_t& config,
   device.computeForwardKinematics(pinocchio::JOINT_POSITION);
   device.updateGeometryPlacements();
 
-  fcl::CollisionResult collisionResult;
+  coal::CollisionResult collisionResult;
   std::size_t iPair = 0;
   const CollisionPairs_t* pairs(&cPairs_);
   CollisionRequests_t* requests(&cRequests_);
@@ -99,7 +99,7 @@ CollisionValidation::CollisionValidation(const DevicePtr_t& robot)
       robot_(robot),
       checkParameterized_(false),
       computeAllContacts_(false) {
-  fcl::CollisionRequest req(fcl::NO_REQUEST, 1);
+  coal::CollisionRequest req(coal::NO_REQUEST, 1);
   req.enable_cached_gjk_guess = true;
   defaultRequest() = req;
   addRobotCollisionPairs();

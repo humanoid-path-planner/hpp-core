@@ -27,8 +27,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision.h>
+#include <coal/collision_data.h>
 
 #include <hpp/core/continuous-validation/solid-solid-collision.hh>
 #include <hpp/core/deprecated.hh>
@@ -122,7 +122,7 @@ bool SolidSolidCollision::removeObjectTo_b(
 }
 
 void SolidSolidCollision::breakDistance(value_type breakDistance) {
-  for (fcl::CollisionRequest& req : requests())
+  for (coal::CollisionRequest& req : requests())
     req.break_distance = breakDistance;
 }
 
@@ -132,7 +132,7 @@ void SolidSolidCollision::addCollisionPair(
   // std::cout << "size = " << pairs().size() << std::endl;
   // std::cout << "capacity = " << pairs().capacity() << std::endl;
   pairs().emplace_back(left, right);
-  requests().emplace_back(fcl::DISTANCE_LOWER_BOUND, 1);
+  requests().emplace_back(coal::DISTANCE_LOWER_BOUND, 1);
   requests().back().enable_cached_gjk_guess = true;
 }
 

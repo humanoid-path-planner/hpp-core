@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(kdTree) {
    transJoint->upperBound(2, 3.);
    JointPtr_t so3Joint = new JointSO3(Transform3f());
    JointPtr_t so2Joint = new jointRotation::UnBounded
-     (Transform3f (fcl::Vec3f (0, 0, 1)));
+     (Transform3f (coal::Vec3f (0, 0, 1)));
    robot->rootJoint(transJoint);
    transJoint->addChildJoint (so3Joint);
    so3Joint->addChildJoint (so2Joint);

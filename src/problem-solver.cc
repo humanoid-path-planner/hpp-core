@@ -27,7 +27,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/fcl/collision_utility.h>
+#include <coal/collision_utility.h>
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/implicit.hh>
@@ -971,15 +971,16 @@ void ProblemSolver::removeObstacle(const std::string& name) {
 }
 
 void ProblemSolver::cutObstacle(const std::string& name,
-                                const fcl::AABB& aabb) {
+                                const coal::AABB& aabb) {
   if (!obstacleModel_->existGeometryName(name)) {
     HPP_THROW(std::invalid_argument, "No obstacle with name " << name);
   }
   ::pinocchio::GeomIndex id = obstacleModel_->getGeometryId(name);
 
-  fcl::Transform3f oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
-  CollisionGeometryPtr_t fclgeom = obstacleModel_->geometryObjects[id].geometry;
-  CollisionGeometryPtr_t newgeom(extract(fclgeom.get(), oMg, aabb));
+  coal::Transform3f oMg = ::pinocchio::toFclTransform3f(obstacleData_->oMg[id]);
+  CollisionGeometryPtr_t coalgeom =
+      obstacleModel_->geometryObjects[id].geometry;
+  CollisionGeometryPtr_t newgeom(extract(coalgeom.get(), oMg, aabb));
   if (!newgeom) {
     // No intersection. Geom should be removed.
     removeObstacle(name);

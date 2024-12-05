@@ -51,12 +51,12 @@ DevicePtr_t createRobot() {
   DevicePtr_t robot = Device::create("test");
 
   const std::string& name = robot->name();
-  fcl::Transform3f mat;
+  coal::Transform3f mat;
   mat.setIdentity();
   JointPtr_t joint;
   std::string jointName = name + "_xy";
   // Translation along x
-  fcl::Matrix3f permutation;
+  coal::Matrix3f permutation;
   joint = objectFactory.createJointTranslation2(mat);
   joint->name(jointName);
 

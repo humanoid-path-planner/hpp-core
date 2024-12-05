@@ -436,7 +436,7 @@ class HPP_CORE_DLLAPI ProblemSolver {
 
   /// Extract from the obstacle the part that can collide with aabb
   /// \warning the obstacle is removed if there are not possible collision.
-  void cutObstacle(const std::string& name, const fcl::AABB& aabb);
+  void cutObstacle(const std::string& name, const coal::AABB& aabb);
 
   /// Build matrix of relative motions between joints
   ///

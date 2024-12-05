@@ -30,7 +30,7 @@
 #ifndef HPP_CORE_COLLISION_PAIR_HH
 #define HPP_CORE_COLLISION_PAIR_HH
 
-#include <hpp/fcl/collision.h>
+#include <coal/collision.h>
 
 #include <hpp/core/fwd.hh>
 #include <hpp/pinocchio/collision-object.hh>
@@ -40,20 +40,20 @@
 namespace hpp {
 namespace core {
 
-typedef std::vector<fcl::CollisionRequest> CollisionRequests_t;
+typedef std::vector<coal::CollisionRequest> CollisionRequests_t;
 
 struct CollisionPair {
   CollisionObjectConstPtr_t first;
   CollisionObjectConstPtr_t second;
-  fcl::ComputeCollision computeCollision;
+  coal::ComputeCollision computeCollision;
 
   inline CollisionPair(CollisionObjectConstPtr_t f, CollisionObjectConstPtr_t s)
       : first(f),
         second(s),
         computeCollision(f->geometry().get(), s->geometry().get()) {}
 
-  inline auto collide(fcl::CollisionRequest& request,
-                      fcl::CollisionResult& result) const
+  inline auto collide(coal::CollisionRequest& request,
+                      coal::CollisionResult& result) const
   // decltype(computeCollision(tf1,tf2,request,result))
   {
     assert(!first->getTransform().translation().hasNaN());
@@ -65,8 +65,8 @@ struct CollisionPair {
   }
 
   inline auto collide(const pinocchio::DeviceData& d,
-                      fcl::CollisionRequest& request,
-                      fcl::CollisionResult& result) const
+                      coal::CollisionRequest& request,
+                      coal::CollisionResult& result) const
   // decltype(computeCollision(tf1,tf2,request,result))
   {
     using ::pinocchio::toFclTransform3f;

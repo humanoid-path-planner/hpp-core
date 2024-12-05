@@ -26,8 +26,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision.h>
+#include <coal/collision_data.h>
 
 #include <hpp/core/continuous-validation/body-pair-collision.hh>
 #include <hpp/core/path.hh>
@@ -182,7 +182,7 @@ bool BodyPairCollision::computeDistanceLowerBound(
   assert(rqsts.size() == prs.size());
   for (std::size_t i = 0; i < prs.size(); ++i) {
     assert(rqsts[i].enable_distance_lower_bound == true);
-    fcl::CollisionResult result;
+    coal::CollisionResult result;
     prs[i].collide(data, rqsts[i], result);
     // Get result
     if (result.isCollision()) {

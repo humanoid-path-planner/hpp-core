@@ -28,7 +28,7 @@
 // DAMAGE.
 
 #define BOOST_TEST_MODULE gradient_based
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include <coal/shape/geometric_shapes.h>
 
 #include <boost/test/included/unit_test.hpp>
 #include <cmath>
@@ -326,7 +326,7 @@ BOOST_AUTO_TEST_CASE(spline_optimization_obstacle) {
   hpp::pinocchio::GeomDataPtr_t obstacleData(
       new hpp::pinocchio::GeomData(*obstacleModel));
   pinocchio::GeometryObject::CollisionGeometryPtr cylinder(
-      new hpp::fcl::Cylinder(0.2, 0.2));
+      new coal::Cylinder(0.2, 0.2));
   matrix3_t I3(matrix3_t::Identity(3, 3));
   vector3_t T;
   T << -.2, 0, 0;

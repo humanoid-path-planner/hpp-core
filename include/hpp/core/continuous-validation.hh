@@ -212,7 +212,7 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   value_type tolerance() const { return tolerance_; }
 
   /// Get the break distance passed to collision checking.
-  /// \sa hpp::fcl::CollisionRequest::break_distance
+  /// \sa coal::CollisionRequest::break_distance
   value_type breakDistance() const { return breakDistance_; }
 
   /// Set the break distance passed to collision checking.

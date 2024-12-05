@@ -30,8 +30,8 @@
 #ifndef HPP_CORE_CONTINUOUS_VALIDATION_INTERVAL_VALIDATION_HH
 #define HPP_CORE_CONTINUOUS_VALIDATION_INTERVAL_VALIDATION_HH
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision.h>
+#include <coal/collision_data.h>
 
 #include <boost/icl/continuous_interval.hpp>
 #include <boost/icl/interval_set.hpp>

@@ -27,7 +27,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/fcl/distance.h>
+#include <coal/distance.h>
 
 #include <hpp/core/collision-pair.hh>
 #include <hpp/core/distance-between-objects.hh>
@@ -62,15 +62,15 @@ void DistanceBetweenObjects::obstacles(const ObjectStdVector_t& obstacles) {
 void DistanceBetweenObjects::computeDistances() {
   distanceResults_.resize(collisionPairs_.size());
   std::size_t rank = 0;
-  fcl::DistanceRequest distanceRequest(true, 0, 0);
+  coal::DistanceRequest distanceRequest(true, 0, 0);
   for (CollisionPairs_t::const_iterator itCol = collisionPairs_.begin();
        itCol != collisionPairs_.end(); ++itCol) {
     const CollisionObjectConstPtr_t& obj1 = itCol->first;
     const CollisionObjectConstPtr_t& obj2 = itCol->second;
     distanceResults_[rank].clear();
-    fcl::distance(obj1->geometry().get(), obj1->getFclTransform(),
-                  obj2->geometry().get(), obj2->getFclTransform(),
-                  distanceRequest, distanceResults_[rank]);
+    coal::distance(obj1->geometry().get(), obj1->getFclTransform(),
+                   obj2->geometry().get(), obj2->getFclTransform(),
+                   distanceRequest, distanceResults_[rank]);
     ++rank;
   }
 }

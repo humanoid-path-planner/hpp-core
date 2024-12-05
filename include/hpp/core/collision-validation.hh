@@ -30,7 +30,7 @@
 #ifndef HPP_CORE_COLLISION_VALIDATION_HH
 #define HPP_CORE_COLLISION_VALIDATION_HH
 
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision_data.h>
 
 #include <hpp/core/collision-validation-report.hh>
 #include <hpp/core/config-validation.hh>
