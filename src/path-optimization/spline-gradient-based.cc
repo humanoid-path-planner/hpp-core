@@ -496,7 +496,9 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     // There are no variables left for optimization.
     return this->buildPathVector(splines);
   QPc.computeLLT();
-  QPc.solve(collisionReduced, boundConstraintReduced);
+  bool qpSolved;
+  QPc.solve(collisionReduced, boundConstraintReduced, qpSolved);
+  if (!qpSolved) return this->buildPathVector(splines);
 
   while (!(noCollision && minimumReached) && !this->shouldStop()) {
     // 6.1
@@ -537,7 +539,10 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       if (linearizeAtEachStep) {
         collisionFunctions.linearize(splines, solvers, collision);
         constraint.reduceConstraint(collision, collisionReduced);
-        QPc.solve(collisionReduced, boundConstraintReduced);
+        QPc.solve(collisionReduced, boundConstraintReduced, qpSolved);
+        if (!qpSolved) {
+          hppDout(error, "could not solve qp problem");
+        }
         hppDout(info, "linearized");
         computeOptimum = true;
       }
@@ -571,6 +576,13 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
               collisionFunctions.functions.size() - 1,
               splines[reports[i].second], solvers[reports[i].second]);
           if (!ok) break;
+          QPc.solve(collisionReduced, boundConstraintReduced, ok);
+          if (!ok) {
+            hppDout(info, "could not solve QP. Removing constraint");
+            collisionFunctions.removeLastConstraint(1, collision);
+            constraint.reduceConstraint(collision, collisionReduced);
+            break;
+          }
           if (QPc.H.rows() <= collisionReduced.rank) break;
         }
 
@@ -587,7 +599,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
           computeInterpolatedSpline = true;
         } else {
-          QPc.solve(collisionReduced, boundConstraintReduced);
+          QPc.solve(collisionReduced, boundConstraintReduced, qpSolved);
           hppDout(info, "Added " << reports.size()
                                  << " constraints. "
                                     "Constraints size "

@@ -42,6 +42,10 @@ namespace core {
 namespace continuousValidation {
 using ::pinocchio::toFclTransform3f;
 
+void BodyPairCollision::distanceLowerBoundThreshold(value_type distance) {
+  distanceLowerBoundThr_ = distance;
+}
+
 bool BodyPairCollision::validateConfiguration(
     const value_type& t, interval_t& interval, ValidationReportPtr_t& report,
     const pinocchio::DeviceData& data) {
@@ -180,6 +184,7 @@ bool BodyPairCollision::computeDistanceLowerBound(
   const CollisionPairs_t& prs(pairs());
   CollisionRequests_t& rqsts(requests());
   assert(rqsts.size() == prs.size());
+  std::size_t iSmallest = prs.size();
   for (std::size_t i = 0; i < prs.size(); ++i) {
     assert(rqsts[i].enable_distance_lower_bound == true);
     coal::CollisionResult result;
@@ -190,9 +195,25 @@ bool BodyPairCollision::computeDistanceLowerBound(
       return false;
     }
     if (result.distance_lower_bound < distanceLowerBound) {
+      iSmallest = i;
       distanceLowerBound = result.distance_lower_bound;
       assert(distanceLowerBound > 0);
     }
+  }
+  if (distanceLowerBound < distanceLowerBoundThr_) {
+    hppDout(info, "Trigerring a fake collision because distance lower bound is "
+                      << distanceLowerBound);
+    fcl::CollisionRequest req(rqsts[iSmallest]);
+    req.security_margin += distanceLowerBoundThr_;
+    fcl::CollisionResult result;
+    prs[iSmallest].collide(data, req, result);
+    if (!result.isCollision()) {
+      hppDout(warning,
+              "No collision detected while distance lower bound is small.");
+      return true;
+    }
+    setReport(report, result, prs[iSmallest]);
+    return false;
   }
   return true;
 }

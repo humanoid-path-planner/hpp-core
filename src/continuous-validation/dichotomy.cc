@@ -122,6 +122,7 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
   } else {
     validPart = path;
   }
+  std::cout << niters << '\n';
   HPP_STOP_AND_DISPLAY_TIMECOUNTER(CV_Dichotomy_validateStraightPath);
   if (niters > 1000) {
     hppDout(notice,
@@ -137,14 +138,14 @@ void Dichotomy::init(const DichotomyWkPtr_t weak) {
 }
 
 Dichotomy::Dichotomy(const DevicePtr_t& robot, const value_type& tolerance)
-    : ContinuousValidation(robot, tolerance), weak_() {
+    : ContinuousValidation(robot, 0.0), weak_() {
   // Tolerance should be equal to 0, otherwise end of valid
   // sub-path might be in collision.
-  if (tolerance != 0) {
+  if (tolerance > 0) {
     throw std::runtime_error(
-        "Dichotomy path validation method does not"
-        "support penetration.");
+        "Tolerance should be negative for continuous validation by dichotomy.");
   }
+  distanceLowerBoundThreshold(-tolerance);
 }
 }  // namespace continuousValidation
 }  // namespace core
