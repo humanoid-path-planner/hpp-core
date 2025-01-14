@@ -123,6 +123,14 @@ struct ComputeWeightStep
 };
 
 template <>
+void ComputeWeightStep::algo <::pinocchio::JointModelComposite>
+(const ::pinocchio::JointModelBase<::pinocchio::JointModelComposite>&,
+ const pinocchio::Model&, const pinocchio::Data&, const pinocchio::GeomData&, value_type&) {
+  throw std::runtime_error("hpp::core::WeighedDistance: JointModelComposite is not implemented.");
+}
+
+
+template <>
 value_type ComputeWeightStep::largestSingularValue<0>(
     const Eigen::Matrix<value_type, 3, 0>&) {
   return 0;
