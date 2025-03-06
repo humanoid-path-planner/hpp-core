@@ -64,12 +64,12 @@ PathPtr_t Spline<_PB, _SO>::steer(ConfigurationIn_t q1, std::vector<int> order1,
   // Check the size of the derivatives.
   assert(q1.size() == device_.lock()->configSize());
   assert(q1.size() == q2.size());
-  // For spline of degree 1 (linear interpolation), derivatives has zero columns. In this case,
-  // checking the number of lines is not necessary.
+  // For spline of degree 1 (linear interpolation), derivatives has zero
+  // columns. In this case, checking the number of lines is not necessary.
   assert(derivatives1.rows() == device_.lock()->numberDof() ||
-	 derivatives1.cols() == 0);
+         derivatives1.cols() == 0);
   assert(derivatives2.rows() == device_.lock()->numberDof() ||
-	 derivatives1.cols() == 0);
+         derivatives1.cols() == 0);
   return impl_compute(q1, order1, derivatives1, q2, order2, derivatives2,
                       length);
 }
@@ -116,7 +116,8 @@ PathPtr_t Spline<_PB, _SO>::impl_compute(
                                                       p->base(), rhs.row(0));
   for (std::size_t i = 0; i < order1.size(); ++i)
     p->basisFunctionDerivative(order1[i], 0, coeffs.row(i + 1).transpose());
-  // In case of linear interpolation order1 is of size 0 and the assignment below is wrong
+  // In case of linear interpolation order1 is of size 0 and the assignment
+  // below is wrong
   if (order1.size() > 0)
     rhs.middleRows(1, order1.size()).transpose() = derivatives1;
 
@@ -127,7 +128,8 @@ PathPtr_t Spline<_PB, _SO>::impl_compute(
   ++row;
   for (std::size_t i = 0; i < order2.size(); ++i)
     p->basisFunctionDerivative(order2[i], 1, coeffs.row(i + row).transpose());
-  // In case of linear interpolation order2 is of size 0 and the assignment below is wrong
+  // In case of linear interpolation order2 is of size 0 and the assignment
+  // below is wrong
   if (order2.size() > 0)
     rhs.middleRows(row, order2.size()).transpose() = derivatives2;
 
