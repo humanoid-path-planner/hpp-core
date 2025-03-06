@@ -254,13 +254,17 @@ class HPP_CORE_DLLAPI Spline : public Path {
 
   /// Create instance a return a shared pointer
   ///
-  /// \param robot robot for which the path comupted (defines the configuration space),
+  /// \param robot robot for which the path comupted (defines the configuration
+  /// space),
   /// \param interval interval of definition of the path,
   /// \param constraints constraints the path is subject to,
-  /// \param se3Output if true interpolation of freeflyer joints take place in \f$SE(3)\f$,
-  ///                  otherwise interpolation takes place in \f$\mathbf{R}^3\times SO(3)\f$.
+  /// \param se3Output if true interpolation of freeflyer joints take place in
+  /// \f$SE(3)\f$,
+  ///                  otherwise interpolation takes place in
+  ///                  \f$\mathbf{R}^3\times SO(3)\f$.
   static Ptr_t create(const DevicePtr_t& robot, const interval_t& interval,
-                      const ConstraintSetPtr_t& constraints, bool se3Output = false) {
+                      const ConstraintSetPtr_t& constraints,
+                      bool se3Output = false) {
     Ptr_t shPtr(new Spline(robot, interval, constraints, se3Output));
     shPtr->init(shPtr);
     return shPtr;
@@ -280,11 +284,14 @@ class HPP_CORE_DLLAPI Spline : public Path {
 
  protected:
   /// Constructor.
-  /// \param robot robot for which the path comupted (defines the configuration space),
+  /// \param robot robot for which the path comupted (defines the configuration
+  /// space),
   /// \param interval interval of definition of the path,
   /// \param constraints constraints the path is subject to,
-  /// \param se3Output if true interpolation of freeflyer joints take place in \f$SE(3)\f$,
-  ///                  otherwise interpolation takes place in \f$\mathbf{R}^3\times SO(3)\f$.
+  /// \param se3Output if true interpolation of freeflyer joints take place in
+  /// \f$SE(3)\f$,
+  ///                  otherwise interpolation takes place in
+  ///                  \f$\mathbf{R}^3\times SO(3)\f$.
   Spline(const DevicePtr_t& robot, const interval_t& interval,
          const ConstraintSetPtr_t& constraints, bool se3Output = false)
       : Path(interval, robot->configSize(), robot->numberDof(), constraints),
@@ -296,8 +303,7 @@ class HPP_CORE_DLLAPI Spline : public Path {
     powersOfT_(0) = 1;
     for (size_type i = 1; i < NbPowerOfT; ++i)
       powersOfT_(i) = powersOfT_(i - 1) * length();
-    if (se3Output)
-      base_ = robot->configSpace()->vectorSpacesMerged();
+    if (se3Output) base_ = robot->configSpace()->vectorSpacesMerged();
   }
 
   Spline(const Spline& path);

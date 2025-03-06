@@ -83,8 +83,10 @@ class HPP_CORE_DLLAPI Spline : public SteeringMethod {
   /// \param derivatives1, derivatives2 desired derivatives at each end
   /// \param length if positive, this is the length of the returned path.
   ///        Otherwise, the length is computed using \r Problem::distance
-  /// \param se3Output if true interpolation of freeflyer joints take place in \f$SE(3)\f$,
-  ///                  otherwise interpolation takes place in \f$\mathbf{R}^3\times SO(3)\f$.
+  /// \param se3Output if true interpolation of freeflyer joints take place in
+  /// \f$SE(3)\f$,
+  ///                  otherwise interpolation takes place in
+  ///                  \f$\mathbf{R}^3\times SO(3)\f$.
   PathPtr_t steer(ConfigurationIn_t q1, std::vector<int> order1,
                   matrixIn_t derivatives1, ConfigurationIn_t q2,
                   std::vector<int> order2, matrixIn_t derivatives2,
