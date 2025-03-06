@@ -60,7 +60,7 @@ PathPtr_t Spline<_PB, _SO>::steer(ConfigurationIn_t q1, std::vector<int> order1,
                                   matrixIn_t derivatives1, ConfigurationIn_t q2,
                                   std::vector<int> order2,
                                   matrixIn_t derivatives2,
-                                  value_type length) const {
+                                  value_type length, bool se3Output) const {
   // Check the size of the derivatives.
   assert(q1.size() == device_.lock()->configSize());
   assert(q1.size() == q2.size());
@@ -71,7 +71,7 @@ PathPtr_t Spline<_PB, _SO>::steer(ConfigurationIn_t q1, std::vector<int> order1,
   assert(derivatives2.rows() == device_.lock()->numberDof() ||
          derivatives1.cols() == 0);
   return impl_compute(q1, order1, derivatives1, q2, order2, derivatives2,
-                      length);
+                      length, se3Output);
 }
 
 template <int _PB, int _SO>
@@ -80,7 +80,7 @@ PathPtr_t Spline<_PB, _SO>::impl_compute(
     ConfigurationIn_t q1, std::vector<int> order1,
     const Eigen::MatrixBase<Derived>& derivatives1, ConfigurationIn_t q2,
     std::vector<int> order2, const Eigen::MatrixBase<Derived>& derivatives2,
-    value_type length) const {
+    value_type length, bool se3Output) const {
   // Compute the decomposition
   // typedef Eigen::Matrix<value_type, SplineOrder+1, SplineOrder+1>
   // ConstraintMatrix_t;
@@ -96,7 +96,7 @@ PathPtr_t Spline<_PB, _SO>::impl_compute(
     length = (*d)(q1, q2);
   }
   SplinePathPtr_t p =
-      SplinePath::create(device_.lock(), interval_t(0, length), constraints());
+      SplinePath::create(device_.lock(), interval_t(0, length), constraints(), se3Output);
 
   const size_type nbConstraints = 2 + derivatives1.cols() + derivatives2.cols();
   ConstraintMatrix_t coeffs(nbConstraints, SplineOrder + 1);
