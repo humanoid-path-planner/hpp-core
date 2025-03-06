@@ -59,8 +59,8 @@ template <int _PB, int _SO>
 PathPtr_t Spline<_PB, _SO>::steer(ConfigurationIn_t q1, std::vector<int> order1,
                                   matrixIn_t derivatives1, ConfigurationIn_t q2,
                                   std::vector<int> order2,
-                                  matrixIn_t derivatives2,
-                                  value_type length, bool se3Output) const {
+                                  matrixIn_t derivatives2, value_type length,
+                                  bool se3Output) const {
   // Check the size of the derivatives.
   assert(q1.size() == device_.lock()->configSize());
   assert(q1.size() == q2.size());
@@ -95,8 +95,8 @@ PathPtr_t Spline<_PB, _SO>::impl_compute(
     DistancePtr_t d = problem()->distance();
     length = (*d)(q1, q2);
   }
-  SplinePathPtr_t p =
-      SplinePath::create(device_.lock(), interval_t(0, length), constraints(), se3Output);
+  SplinePathPtr_t p = SplinePath::create(device_.lock(), interval_t(0, length),
+                                         constraints(), se3Output);
 
   const size_type nbConstraints = 2 + derivatives1.cols() + derivatives2.cols();
   ConstraintMatrix_t coeffs(nbConstraints, SplineOrder + 1);
