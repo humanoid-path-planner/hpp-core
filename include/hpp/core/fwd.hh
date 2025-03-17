@@ -245,6 +245,14 @@ class Spline;
 HPP_PREDEF_CLASS(Hermite);
 typedef shared_ptr<Hermite> HermitePtr_t;
 typedef shared_ptr<const Hermite> HermiteConstPtr_t;
+HPP_PREDEF_CLASS(Cost);
+typedef shared_ptr<Cost> CostPtr_t;
+typedef shared_ptr<const Cost> CostConstPtr_t;
+namespace cost {
+HPP_PREDEF_CLASS(Length);
+typedef shared_ptr<Length> LengthPtr_t;
+typedef shared_ptr<const Length> LengthConstPtr_t;
+}
 }  // namespace path
 
 HPP_PREDEF_CLASS(ContinuousValidation);

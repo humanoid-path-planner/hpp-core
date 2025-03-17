@@ -189,6 +189,10 @@ class HPP_CORE_DLLAPI Roadmap {
   /// \{
   /// Get distance function
   const DistancePtr_t& distance() const;
+  /// Get cost used to search for optimal path
+  const path::CostPtr_t cost() const;
+  /// Set cost used to search for optimal path
+  void cost(const path::CostPtr_t& cost);
   /// \}
   /// Print roadmap in a stream
   std::ostream& print(std::ostream& os) const;
@@ -253,6 +257,7 @@ class HPP_CORE_DLLAPI Roadmap {
              ConnectedComponent::RawPtrs_t& ccs);
 
   const DistancePtr_t distance_;
+  path::CostPtr_t cost_;
   ConnectedComponents_t connectedComponents_;
   Nodes_t nodes_;
   Edges_t edges_;
