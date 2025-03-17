@@ -34,6 +34,7 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path/cost.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/util/debug.hh>
@@ -53,6 +54,7 @@ RoadmapPtr_t Roadmap::create(const DistancePtr_t& distance,
 
 Roadmap::Roadmap(const DistancePtr_t& distance, const DevicePtr_t&)
     : distance_(distance),
+      cost_(path::cost::Length::create()),
       connectedComponents_(),
       nodes_(),
       edges_(),
@@ -270,6 +272,17 @@ EdgePtr_t Roadmap::addEdge(const NodePtr_t& n1, const NodePtr_t& n2,
   impl_addEdge(edge);
   return edge;
 }
+
+const path::CostPtr_t Roadmap::cost() const
+{
+  return cost_;;
+}
+
+void Roadmap::cost(const path::CostPtr_t& cost)
+{
+  cost_ = cost;
+}
+
 
 void Roadmap::addConnectedComponent(const NodePtr_t& node) {
   connectedComponents_.insert(node->connectedComponent());

@@ -36,6 +36,7 @@
 #include <hpp/core/fwd.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/path/cost.hh>
 #include <limits>
 
 namespace hpp {
@@ -148,7 +149,7 @@ class HPP_CORE_LOCAL Astar {
     return res;
   }
 
-  value_type edgeCost(const EdgePtr_t& edge) { return edge->path()->length(); }
+  value_type edgeCost(const EdgePtr_t& edge) { return roadmap_->cost()->eval(edge->path()); }
 };  // class Astar
 }  //   namespace core
 }  // namespace hpp

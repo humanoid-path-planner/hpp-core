@@ -141,6 +141,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/path-validation.hh
     include/hpp/core/path-validation-report.hh
     include/hpp/core/path-vector.hh
+    include/hpp/core/path/cost.hh
     include/hpp/core/path/spline.hh
     include/hpp/core/path/hermite.hh
     include/hpp/core/path/math.hh
