@@ -48,7 +48,7 @@
 #define EIGEN_QUAT_IS_APPROX(Va, Vb, prec)       \
   {                                              \
     value_type _inv = (Va.dot(Vb) > 0) ? 1 : -1; \
-    EIGEN_VECTOR_IS_APPROX(Va, _inv* Vb, prec);  \
+    EIGEN_VECTOR_IS_APPROX(Va, _inv * Vb, prec); \
   }
 
 #define EIGEN_VECTOR_IS_NOT_APPROX(Va, Vb, prec)          \
