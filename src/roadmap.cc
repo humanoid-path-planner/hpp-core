@@ -273,16 +273,12 @@ EdgePtr_t Roadmap::addEdge(const NodePtr_t& n1, const NodePtr_t& n2,
   return edge;
 }
 
-const path::CostPtr_t Roadmap::cost() const
-{
-  return cost_;;
+const path::CostPtr_t Roadmap::cost() const {
+  return cost_;
+  ;
 }
 
-void Roadmap::cost(const path::CostPtr_t& cost)
-{
-  cost_ = cost;
-}
-
+void Roadmap::cost(const path::CostPtr_t& cost) { cost_ = cost; }
 
 void Roadmap::addConnectedComponent(const NodePtr_t& node) {
   connectedComponents_.insert(node->connectedComponent());

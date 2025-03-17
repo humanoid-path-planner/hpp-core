@@ -38,24 +38,20 @@ namespace path {
 ///
 /// Useful for searching optimal path in a roadmap
 class HPP_CORE_DLLAPI Cost {
-public:
+ public:
   /// Evaluate the cost of a path
   virtual value_type eval(const PathConstPtr_t& path) = 0;
-}; //class Cost
+};  // class Cost
 
-namespace cost{
+namespace cost {
 /// Length of a path as cost
-  class HPP_CORE_DLLAPI Length : public Cost {
-public:
-  static LengthPtr_t create() {
-    return LengthPtr_t(new Length());
-  }
-  virtual value_type eval(const PathConstPtr_t& path) {
-    return path->length();
-  }
-}; // class Length
-} // namespace cost
-} // namespace path
-} // namespace core
-} // namespace hpp
-#endif // HPP_CORE_PATH_COST_HH
+class HPP_CORE_DLLAPI Length : public Cost {
+ public:
+  static LengthPtr_t create() { return LengthPtr_t(new Length()); }
+  virtual value_type eval(const PathConstPtr_t& path) { return path->length(); }
+};  // class Length
+}  // namespace cost
+}  // namespace path
+}  // namespace core
+}  // namespace hpp
+#endif  // HPP_CORE_PATH_COST_HH
