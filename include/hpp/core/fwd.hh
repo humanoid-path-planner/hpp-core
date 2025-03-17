@@ -252,7 +252,7 @@ namespace cost {
 HPP_PREDEF_CLASS(Length);
 typedef shared_ptr<Length> LengthPtr_t;
 typedef shared_ptr<const Length> LengthConstPtr_t;
-}
+}  // namespace cost
 }  // namespace path
 
 HPP_PREDEF_CLASS(ContinuousValidation);

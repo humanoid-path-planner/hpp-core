@@ -149,7 +149,9 @@ class HPP_CORE_LOCAL Astar {
     return res;
   }
 
-  value_type edgeCost(const EdgePtr_t& edge) { return roadmap_->cost()->eval(edge->path()); }
+  value_type edgeCost(const EdgePtr_t& edge) {
+    return roadmap_->cost()->eval(edge->path());
+  }
 };  // class Astar
 }  //   namespace core
 }  // namespace hpp
