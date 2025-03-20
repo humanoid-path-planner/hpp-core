@@ -29,7 +29,8 @@
 #ifndef HPP_CORE_PATH_COST_HH
 #define HPP_CORE_PATH_COST_HH
 
-#include <hpp/core/path/cost.hh>
+#include <hpp/core/config.hh>
+#include <hpp/core/path.hh>
 
 namespace hpp {
 namespace core {
