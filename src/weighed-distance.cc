@@ -131,6 +131,16 @@ void ComputeWeightStep::algo<::pinocchio::JointModelComposite>(
       "hpp::core::WeighedDistance: JointModelComposite is not implemented.");
 }
 
+#if PINOCCHIO_VERSION_AT_LEAST(3, 4, 1)
+template <>
+void ComputeWeightStep::algo<::pinocchio::JointModelMimic>(
+    const ::pinocchio::JointModelBase<::pinocchio::JointModelMimic>&,
+    const pinocchio::Model&, const pinocchio::Data&, const pinocchio::GeomData&,
+    value_type&) {
+  throw std::runtime_error(
+      "hpp::core::WeighedDistance: JointModelMimic is not implemented.");
+}
+#endif
 template <>
 value_type ComputeWeightStep::largestSingularValue<0>(
     const Eigen::Matrix<value_type, 3, 0>&) {
