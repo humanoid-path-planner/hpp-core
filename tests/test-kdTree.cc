@@ -33,61 +33,63 @@
 
 // #include <Eigen/Core>
 
+#include <hpp/core/configuration-shooter/uniform.hh>
 #include <hpp/core/connected-component.hh>
-#include <hpp/core/fwd.hh>
 #include <hpp/core/node.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/weighed-distance.hh>
-#include <hpp/model/device.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/util/debug.hh>
 
 #include "../src/nearest-neighbor/basic.hh"
 #include "../src/nearest-neighbor/k-d-tree.hh"
-#include "hpp/core/basic-configuration-shooter.hh"
 
 #define BOOST_TEST_MODULE kdTree
 #include <boost/test/included/unit_test.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 #include <pinocchio/multibody/model.hpp>
 
-using namespace hpp;
-using namespace core;
-using namespace pinocchio;
-using namespace std;
+using hpp::pinocchio::value_type;
 using ::pinocchio::JointIndex;
 using ::pinocchio::JointModelRUBZ;
 using ::pinocchio::JointModelSpherical;
 using ::pinocchio::JointModelTranslation;
 
+using hpp::core::ConfigurationShooterPtr_t;
+using hpp::core::NodePtr_t;
+using hpp::core::PathPtr_t;
+using hpp::core::Problem;
+using hpp::core::ProblemPtr_t;
+using hpp::core::Roadmap;
+using hpp::core::RoadmapPtr_t;
+using hpp::core::SteeringMethodPtr_t;
+using hpp::core::WeighedDistance;
+using hpp::core::WeighedDistancePtr_t;
+using hpp::core::nearestNeighbor::KDTree;
+using hpp::core::nearestNeighbor::KDTreePtr_t;
+
+using hpp::pinocchio::Configuration_t;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::displayConfig;
+using hpp::pinocchio::GeomModel;
+using hpp::pinocchio::GeomModelPtr_t;
+using hpp::pinocchio::Model;
+using hpp::pinocchio::ModelPtr_t;
+using hpp::pinocchio::Transform3s;
+
 BOOST_AUTO_TEST_SUITE(test_hpp_core)
 
 BOOST_AUTO_TEST_CASE(kdTree) {
   // Build Device
-  /* DevicePtr_t robot = Device::create("robot");
-   JointPtr_t transJoint = new JointTranslation <3> (Transform3s());
-   transJoint->isBounded (0, true);
-   transJoint->lowerBound(0,-3.);
-   transJoint->upperBound(0, 3.);
-   transJoint->isBounded (1, true);
-   transJoint->lowerBound(1,-3.);
-   transJoint->upperBound(1, 3.);
-   transJoint->isBounded (2, true);
-   transJoint->lowerBound(2,-3.);
-   transJoint->upperBound(2, 3.);
-   JointPtr_t so3Joint = new JointSO3(Transform3s());
-   JointPtr_t so2Joint = new jointRotation::UnBounded
-     (Transform3s (coal::Vec3f (0, 0, 1)));
-   robot->rootJoint(transJoint);
-   transJoint->addChildJoint (so3Joint);
-   so3Joint->addChildJoint (so2Joint);
- */
   DevicePtr_t robot = Device::create("robot");
   ModelPtr_t m = ModelPtr_t(new Model());
-  GeomModelPtr_t gm = GeomModelPtr_t(new GeomModel());
+  GeomModelPtr_t gm = GeomModelPtr_t(new hpp::pinocchio::GeomModel());
   robot->setModel(m);
   robot->setGeomModel(gm);
   const std::string& name = robot->name();
@@ -146,22 +148,22 @@ BOOST_AUTO_TEST_CASE(kdTree) {
   WeighedDistancePtr_t distance = WeighedDistance::create(robot);
   problem->distance(distance);
   ConfigurationShooterPtr_t confShoot = problem->configurationShooter();
-  nearestNeighbor::KDTree kdTree(robot, distance, 30);
-  nearestNeighbor::Basic basic(distance);
-  SteeringMethodPtr_t sm = steeringMethod::Straight::create(problem);
+  KDTreePtr_t kdTree(std::make_shared<KDTree>(robot, distance, 30));
+  hpp::core::nearestNeighbor::Basic basic(distance);
+  SteeringMethodPtr_t sm = hpp::core::steeringMethod::Straight::create(problem);
 
   // Add 4 connectedComponents with 2000 nodes each
-  ConfigurationPtr_t configuration;
+  Configuration_t configuration;
   NodePtr_t node;
   NodePtr_t rootNode[4];
   RoadmapPtr_t roadmap = Roadmap::create(distance, robot);
-  roadmap->nearestNeighbor(&kdTree);
+  roadmap->nearestNeighbor(kdTree);
   for (int i = 0; i < 4; i++) {
     configuration = confShoot->shoot();
     rootNode[i] = roadmap->addNode(configuration);
     for (int j = 1; j < 200; j++) {
       configuration = confShoot->shoot();
-      PathPtr_t path = (*sm)(*(rootNode[i]->configuration()), *configuration);
+      PathPtr_t path = (*sm)(rootNode[i]->configuration(), configuration);
       node = roadmap->addNodeAndEdges(rootNode[i], configuration, path);
       basic.addNode(node);
     }
@@ -183,7 +185,7 @@ BOOST_AUTO_TEST_CASE(kdTree) {
           configuration, rootNode[i]->connectedComponent(), minDistance2);
       BOOST_CHECK(node1 == node2);
       BOOST_CHECK(fabs(minDistance1 - minDistance2) < 1e-15);
-      std::cout << displayConfig(*(node1->configuration())) << std::endl;
+      std::cout << displayConfig(node1->configuration()) << std::endl;
       std::cout << minDistance1 << "," << minDistance2 << ","
                 << minDistance1 - minDistance2 << std::endl;
     }

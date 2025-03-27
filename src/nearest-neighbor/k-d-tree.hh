@@ -33,17 +33,20 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/nearest-neighbor.hh>
 #include <hpp/core/node.hh>
+#include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <memory>
 
 namespace hpp {
 namespace core {
 namespace nearestNeighbor {
 // Built an k-dimentional tree for the nearest neighbour research
-class KDTree : public NearestNeighbor {
+class KDTree : public NearestNeighbor,
+               public std::enable_shared_from_this<KDTree> {
  public:
   // constructor
-  KDTree(const KDTreePtr_t mother, size_type splitDim);
+  KDTree(const KDTreePtr_t& mother, size_type splitDim);
   KDTree(const DevicePtr_t& robot, const DistancePtr_t& distance_,
          int bucketSize);
 
@@ -86,6 +89,11 @@ class KDTree : public NearestNeighbor {
                                  const RoadmapPtr_t& roadmap,
                                  const std::size_t K, value_type& distance);
 
+  /// \return all the nodes closer than \c maxDistance to \c configuration
+  /// within \c connectedComponent.
+  virtual NodeVector_t withinBall(ConfigurationIn_t configuration,
+                                  const ConnectedComponentPtr_t& cc,
+                                  value_type maxDistance);
   // merge two connected components in the whole tree
   void merge(ConnectedComponentPtr_t cc1, ConnectedComponentPtr_t cc2);
   // Get distance function

@@ -221,7 +221,8 @@ set(${PROJECT_NAME}_SOURCES
     src/path-validation/no-validation.hh
     src/nearest-neighbor/basic.hh #
     src/nearest-neighbor/basic.cc #
-    # src/nearest-neighbor/k-d-tree.cc # src/nearest-neighbor/k-d-tree.hh #
+    src/nearest-neighbor/k-d-tree.cc #
+    src/nearest-neighbor/k-d-tree.hh #
     src/nearest-neighbor/serialization.cc #
     src/node.cc #
     src/parameter.cc #

@@ -32,11 +32,12 @@
 #include <fstream>
 #include <hpp/core/distance.hh>
 #include <hpp/core/node.hh>
-#include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/util/debug.hh>
 #include <iostream>
+#include <pinocchio/multibody/model.hpp>
 #include <stdexcept>
 
 using namespace std;
@@ -45,7 +46,7 @@ namespace hpp {
 namespace core {
 namespace nearestNeighbor {
 // Constructor with the mother tree node (same bounds)
-KDTree::KDTree(const KDTreePtr_t mother, size_type splitDim)
+KDTree::KDTree(const KDTreePtr_t& mother, size_type splitDim)
     : robot_(mother->robot_),
       dim_(mother->dim_),
       distance_(mother->distance_),
@@ -73,21 +74,17 @@ KDTree::KDTree(const DevicePtr_t& robot, const DistancePtr_t& distance,
       lowerBounds_(),
       supChild_(),
       infChild_() {
-  JointVector_t jointVector = robot_->getJointVector();
   if (!distance_) {
     // create a weighed distance with unit weighs.
-    distance_ = WeighedDistance::createWithWeight(
-        robot_, std::vector<value_type>(jointVector.size(), 1.0));
+    vector_t ones(robot_->model().njoints);
+    ones.fill(1.0);
+    distance_ = WeighedDistance::createWithWeight(robot_, ones);
   }
-  size_type i = 0;
   // Fill vector of weights. index of vector is configuration coordinate
   // and not joint rank in robot.
-  for (JointVector_t::const_iterator itJoint = jointVector.begin();
-       itJoint != jointVector.end(); ++itJoint) {
-    weights_
-        .segment((*itJoint)->rankInConfiguration(), (*itJoint)->configSize())
-        .setConstant(distance_->getWeight(i));
-    ++i;
+  for (int i = 1; i < robot_->model().njoints; ++i) {
+    weights_.segment(robot_->model().idx_qs[i], robot_->model().joints[i].nq())
+        .setConstant(distance_->getWeight(i - 1));
   }
   this->findDeviceBounds();
   dim_ = lowerBounds_.size();
@@ -100,7 +97,7 @@ KDTree::~KDTree() { clear(); }
 
 // find the leaf node in the tree for the configuration of the node
 KDTreePtr_t KDTree::findLeaf(const NodePtr_t& node) {
-  KDTreePtr_t CurrentTree = this;
+  KDTreePtr_t CurrentTree = shared_from_this();
   CurrentTree->nodesMap_[node->connectedComponent()];
   while (CurrentTree->supChild_ != NULL && CurrentTree->infChild_ != NULL) {
     if ((node->configuration())[CurrentTree->supChild_->splitDim_] >
@@ -135,17 +132,7 @@ void KDTree::addNode(const NodePtr_t& node) {
   }
 }
 
-void KDTree::clear() {
-  nodesMap_.clear();
-  if (infChild_ != NULL) {
-    delete infChild_;
-    infChild_ = NULL;
-  }
-  if (supChild_ != NULL) {
-    delete supChild_;
-    supChild_ = NULL;
-  }
-}
+void KDTree::clear() { nodesMap_.clear(); }
 
 void KDTree::split() {
   if (infChild_ != NULL || supChild_ != NULL) {
@@ -185,34 +172,24 @@ void KDTree::split() {
   }
 
   // Compute median value of coordinates
-  infChild_ = new KDTree(this, splitDim);
+  infChild_ = std::make_shared<KDTree>(shared_from_this(), splitDim);
   infChild_->upperBounds_[splitDim] =
       (actualUpper[splitDim] + actualLower[splitDim]) / 2;
-  supChild_ = new KDTree(this, splitDim);
+  supChild_ = std::make_shared<KDTree>(shared_from_this(), splitDim);
   supChild_->lowerBounds_[splitDim] =
       (actualUpper[splitDim] + actualLower[splitDim]) / 2;
 }
 
 // get joints limits
 void KDTree::findDeviceBounds() {
-  JointVector_t jv = robot_->getJointVector();
-  int i = 0;
   upperBounds_.resize(robot_->configSize());
   lowerBounds_.resize(robot_->configSize());
-  for (JointVector_t::const_iterator itJoint = jv.begin(); itJoint != jv.end();
-       ++itJoint) {
-    for (size_type rank = 0; rank < (*itJoint)->configSize(); rank++) {
-      upperBounds_[i] = (*itJoint)->upperBound(rank);
-      lowerBounds_[i] = (*itJoint)->lowerBound(rank);
-      ++i;
-    }
-  }
+  int nq = robot_->model().nq;
+  upperBounds_.head(nq) = robot_->model().upperPositionLimit;
+  lowerBounds_.head(nq) = robot_->model().lowerPositionLimit;
   const pinocchio::ExtraConfigSpace& ecs = robot_->extraConfigSpace();
-  for (size_type rank = 0; rank < ecs.dimension(); ++rank) {
-    upperBounds_[i] = ecs.upper(rank);
-    lowerBounds_[i] = ecs.lower(rank);
-    ++i;
-  }
+  upperBounds_.segment(nq, ecs.dimension()) = ecs.upper();
+  lowerBounds_.segment(nq, ecs.dimension()) = ecs.lower();
 }
 
 value_type KDTree::distanceToBox(ConfigurationIn_t configuration) {
@@ -266,18 +243,26 @@ NodePtr_t KDTree::search(const NodePtr_t& node,
 Nodes_t KDTree::KnearestSearch(const NodePtr_t&, const ConnectedComponentPtr_t&,
                                const std::size_t, value_type&) {
   assert(false && "K-nearest neighbor in KD-tree: unimplemented features");
+  return Nodes_t();
 }
 
 Nodes_t KDTree::KnearestSearch(ConfigurationIn_t,
                                const ConnectedComponentPtr_t&,
                                const std::size_t, value_type&) {
   assert(false && "K-nearest neighbor in KD-tree: unimplemented features");
+  return Nodes_t();
 }
 
-Nodes_t KDTree::KnearestSearch(ConfigurationIn_t configuration,
-                               const RoadmapPtr_t& roadmap, const std::size_t K,
-                               value_type& distance) {
+Nodes_t KDTree::KnearestSearch(ConfigurationIn_t, const RoadmapPtr_t&,
+                               const std::size_t, value_type&) {
   assert(false && "K-nearest neighbor in KD-tree: unimplemented features");
+  return Nodes_t();
+}
+
+NodeVector_t KDTree::withinBall(ConfigurationIn_t,
+                                const ConnectedComponentPtr_t&, value_type) {
+  assert(false && "withinBall in KD-tree: unimplemented features");
+  return NodeVector_t();
 }
 
 void KDTree::search(value_type boxDistance, value_type& minDistance,
