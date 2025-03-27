@@ -51,7 +51,7 @@ struct JointBoundConstraintAlgo<VectorSpaceOperation<Size, rot> > {
                   vectorIn_t neutral, matrix_t& A, vector_t& b,
                   size_type& row) {
     // size_type row;
-    for (std::size_t i = 0; i < Size; ++i) {
+    for (std::size_t i = 0; i < (std::size_t)Size; ++i) {
       if (!std::isinf(low(i))) {
         // row = A.rows();
         // A.conservativeResize(A.rows() + 1, A.cols());

@@ -67,7 +67,7 @@ if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-# ADD_TESTCASE (test-kdTree FALSE)
+add_testcase(test-kdTree FALSE)
 add_testcase(roadmap-1 FALSE)
 add_testcase(test-intervals FALSE)
 add_testcase(test-solid-solid-collision FALSE)

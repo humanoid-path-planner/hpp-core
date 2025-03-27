@@ -62,10 +62,7 @@ Roadmap::Roadmap(const DistancePtr_t& distance, const DevicePtr_t&)
       goalNodes_(),
       nearestNeighbor_(new nearestNeighbor::Basic(distance)) {}
 
-Roadmap::~Roadmap() {
-  clear();
-  delete nearestNeighbor_;
-}
+Roadmap::~Roadmap() { clear(); }
 
 const ConnectedComponents_t& Roadmap::connectedComponents() const {
   return connectedComponents_;
