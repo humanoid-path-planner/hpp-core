@@ -158,11 +158,16 @@ BOOST_AUTO_TEST_CASE(kdTree) {
   NodePtr_t rootNode[4];
   RoadmapPtr_t roadmap = Roadmap::create(distance, robot);
   roadmap->nearestNeighbor(kdTree);
+  int opposite = 0;
   for (int i = 0; i < 4; i++) {
     configuration = confShoot->shoot();
     rootNode[i] = roadmap->addNode(configuration);
     for (int j = 1; j < 200; j++) {
       configuration = confShoot->shoot();
+      if (opposite == 1) {
+	configuration.segment(3,4) *= -1.;
+      }
+      opposite = 1 -opposite;
       PathPtr_t path = (*sm)(rootNode[i]->configuration(), configuration);
       node = roadmap->addNodeAndEdges(rootNode[i], configuration, path);
       basic.addNode(node);
@@ -176,6 +181,10 @@ BOOST_AUTO_TEST_CASE(kdTree) {
   NodePtr_t node2;
   for (int j = 0; j < 200; j++) {
     configuration = confShoot->shoot();
+    if (opposite == 1) {
+      configuration.segment(3,4) *= -1.;
+    }
+    opposite = 1 - opposite;
     for (int i = 0; i < 4; i++) {
       minDistance1 = std::numeric_limits<value_type>::infinity();
       minDistance2 = std::numeric_limits<value_type>::infinity();
