@@ -165,9 +165,9 @@ BOOST_AUTO_TEST_CASE(kdTree) {
     for (int j = 1; j < 200; j++) {
       configuration = confShoot->shoot();
       if (opposite == 1) {
-	configuration.segment(3,4) *= -1.;
+        configuration.segment(3, 4) *= -1.;
       }
-      opposite = 1 -opposite;
+      opposite = 1 - opposite;
       PathPtr_t path = (*sm)(rootNode[i]->configuration(), configuration);
       node = roadmap->addNodeAndEdges(rootNode[i], configuration, path);
       basic.addNode(node);
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(kdTree) {
   for (int j = 0; j < 200; j++) {
     configuration = confShoot->shoot();
     if (opposite == 1) {
-      configuration.segment(3,4) *= -1.;
+      configuration.segment(3, 4) *= -1.;
     }
     opposite = 1 - opposite;
     for (int i = 0; i < 4; i++) {
