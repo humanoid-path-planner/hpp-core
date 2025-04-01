@@ -79,10 +79,7 @@ void Roadmap::nearestNeighbor(NearestNeighborPtr_t nearestNeighbor) {
         "The roadmap must be empty before setting a new NearestNeighbor "
         "object.");
   }
-  if (nearestNeighbor != NULL) {
-    delete nearestNeighbor_;
-    nearestNeighbor_ = nearestNeighbor;
-  }
+  nearestNeighbor_ = nearestNeighbor;
 }
 
 void Roadmap::clear() {

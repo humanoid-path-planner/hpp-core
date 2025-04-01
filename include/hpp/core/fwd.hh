@@ -278,12 +278,12 @@ typedef shared_ptr<ReedsShepp> ReedsSheppPtr_t;
 }  // namespace distance
 
 class NearestNeighbor;
-typedef NearestNeighbor* NearestNeighborPtr_t;
+typedef shared_ptr<NearestNeighbor> NearestNeighborPtr_t;
 namespace nearestNeighbor {
 class Basic;
 class KDTree;
-typedef KDTree* KDTreePtr_t;
-typedef Basic* BasicPtr_t;
+typedef shared_ptr<KDTree> KDTreePtr_t;
+typedef shared_ptr<Basic> BasicPtr_t;
 }  // namespace nearestNeighbor
 
 namespace pathOptimization {
