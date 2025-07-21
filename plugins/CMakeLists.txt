@@ -33,8 +33,7 @@ hpp_add_plugin(
   spline-gradient-based.cc
   LINK_DEPENDENCIES
   PUBLIC
-  ${PROJECT_NAME}
-  ${PROJECT_NAME}-gpl)
+  ${PROJECT_NAME})
 
 project_install_component(spline-gradient-based)
 

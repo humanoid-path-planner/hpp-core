@@ -65,16 +65,12 @@ struct QuadraticProgram {
   /// Constructor
   /// \param inputSize dimension of the space on which the quadratic cost is
   ///                  defined,
-  /// \param useProxqp whether to use proxqp instead of eiquadprog_2011 as
-  ///                  the internal solver. This parameter will soon be removed
-  ///                  and proxqp be the internal solver.
-  QuadraticProgram(size_type inputSize, bool useProxqp = true)
+  QuadraticProgram(size_type inputSize)
       : H(inputSize, inputSize),
         b(inputSize),
         dec(inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
         xStar(inputSize),
-        accuracy_(1e-4),
-        useProxqp_(useProxqp) {
+        accuracy_(1e-4) {
     H.setZero();
     b.setZero();
     bIsZero = true;
@@ -84,19 +80,14 @@ struct QuadraticProgram {
   /// \param inputSize dimension of the space on which the quadratic cost is
   ///                  defined,
   /// \param lc        linear equality constraint,
-  /// \param useProxqp whether to use proxqp instead of eiquadprog_2011 as
-  ///                  the internal solver. This parameter will soon be removed
-  ///                  and proxqp be the internal solver.
-  QuadraticProgram(const QuadraticProgram& QP, const LinearConstraint& lc,
-                   bool useProxqp = true)
+  QuadraticProgram(const QuadraticProgram& QP, const LinearConstraint& lc)
       : H(lc.PK.cols(), lc.PK.cols()),
         b(lc.PK.cols()),
         bIsZero(false),
         dec(lc.PK.cols(), lc.PK.cols(),
             Eigen::ComputeThinU | Eigen::ComputeThinV),
         xStar(lc.PK.cols()),
-        accuracy_(1e-4),
-        useProxqp_(useProxqp) {
+        accuracy_(1e-4) {
     QP.reduced(lc, *this);
   }
 
@@ -106,8 +97,7 @@ struct QuadraticProgram {
         bIsZero(QP.bIsZero),
         dec(QP.dec),
         xStar(QP.xStar),
-        accuracy_(QP.accuracy_),
-        useProxqp_(QP.useProxqp_) {}
+        accuracy_(QP.accuracy_) {}
 
   ~QuadraticProgram();
 
@@ -193,7 +183,6 @@ struct QuadraticProgram {
   vector_t xStar;
   /// \}
   value_type accuracy_;
-  bool useProxqp_;
 };
 }  // namespace pathOptimization
 }  // namespace core

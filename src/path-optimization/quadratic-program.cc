@@ -31,13 +31,6 @@
 #include <iostream>
 #include <proxsuite/proxqp/sparse/wrapper.hpp>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <path-optimization/spline-gradient-based/eiquadprog_2011.hpp>
-#pragma GCC diagnostic pop
-
 namespace hpp {
 namespace core {
 /// \addtogroup path_optimization
@@ -74,67 +67,49 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
   // min   0.5 * x H x + g x
   // s.t.  CE x + ce0 = 0
   //       CI x + ci0 >= 0
-  if (!useProxqp_) {
-    Eigen::QuadProgStatus status;
-    double cost = solve_quadprog2(llt, trace, b, ce.J.transpose(), -ce.b,
-                                  ci.J.transpose(), -ci.b, xStar,
-                                  activeConstraint, activeSetSize, status);
-    switch (status) {
-      case Eigen::UNBOUNDED:
-        hppDout(warning, "Quadratic problem is not bounded");
-      case Eigen::CONVERGED:
-        break;
-      case Eigen::CONSTRAINT_LINEARLY_DEPENDENT:
-        hppDout(error,
-                "Constraint of quadratic problem are linearly dependent.");
-        break;
-    }
-    return cost;
-  } else {
-    using proxsuite::proxqp::QPSolverOutput;
-    proxsuite::proxqp::sparse::QP<value_type, long long> qp{
-        H.rows(), ce.b.size(), ci.b.size()};
-    qp.settings.eps_abs = accuracy_;
-    vector_t u = ci.b;
-    u.fill(std::numeric_limits<value_type>::infinity());
+  using proxsuite::proxqp::QPSolverOutput;
+  proxsuite::proxqp::sparse::QP<value_type, long long> qp{
+    H.rows(), ce.b.size(), ci.b.size()};
+  qp.settings.eps_abs = accuracy_;
+  vector_t u = ci.b;
+  u.fill(std::numeric_limits<value_type>::infinity());
 
-    // Conversion to sparse types
-    Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> H1(
-        H.sparseView());
-    Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> A1(
-        ce.J.sparseView());
-    Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> C1(
-        ci.J.sparseView());
-    qp.init(H1, b, A1, ce.b, C1, ci.b, u);
-    qp.solve();
-    value_type res(0);
-    Eigen::IOFormat fullPrecision(Eigen::FullPrecision, Eigen::DontAlignCols,
-                                  ", ", ", ", "", "", " << ", ";");
-    switch (qp.results.info.status) {
-      case QPSolverOutput::PROXQP_SOLVED:
-        xStar = qp.results.x;
-        res += (.5 * xStar.transpose() * H * xStar)(0, 0);
-        res += (b.transpose() * xStar)(0);
-        return res;
-        break;
-      case QPSolverOutput::PROXQP_MAX_ITER_REACHED:
-        hppDout(warning, "PROXQP_MAX_ITER_REACHED");
-        break;
-      case QPSolverOutput::PROXQP_PRIMAL_INFEASIBLE:
-        hppDout(warning, "PROXQP_PRIMAL_INFEASIBLE");
-        break;
-      case QPSolverOutput::PROXQP_SOLVED_CLOSEST_PRIMAL_FEASIBLE:
-        hppDout(warning, "PROXQP_SOLVED_CLOSEST_PRIMAL_FEASIBLE");
-        break;
-      case QPSolverOutput::PROXQP_DUAL_INFEASIBLE:
-        hppDout(warning, "PROXQP_DUAL_INFEASIBLE");
-        break;
-      case QPSolverOutput::PROXQP_NOT_RUN:
-        hppDout(warning, "PROXQP_NOT_RUN");
-        break;
-      default:
-        abort();
-    }
+  // Conversion to sparse types
+  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> H1(
+                                                                 H.sparseView());
+  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> A1(
+                                                                 ce.J.sparseView());
+  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> C1(
+                                                                 ci.J.sparseView());
+  qp.init(H1, b, A1, ce.b, C1, ci.b, u);
+  qp.solve();
+  value_type res(0);
+  Eigen::IOFormat fullPrecision(Eigen::FullPrecision, Eigen::DontAlignCols,
+                                ", ", ", ", "", "", " << ", ";");
+  switch (qp.results.info.status) {
+  case QPSolverOutput::PROXQP_SOLVED:
+    xStar = qp.results.x;
+    res += (.5 * xStar.transpose() * H * xStar)(0, 0);
+    res += (b.transpose() * xStar)(0);
+    return res;
+    break;
+  case QPSolverOutput::PROXQP_MAX_ITER_REACHED:
+    hppDout(warning, "PROXQP_MAX_ITER_REACHED");
+    break;
+  case QPSolverOutput::PROXQP_PRIMAL_INFEASIBLE:
+    hppDout(warning, "PROXQP_PRIMAL_INFEASIBLE");
+    break;
+  case QPSolverOutput::PROXQP_SOLVED_CLOSEST_PRIMAL_FEASIBLE:
+    hppDout(warning, "PROXQP_SOLVED_CLOSEST_PRIMAL_FEASIBLE");
+    break;
+  case QPSolverOutput::PROXQP_DUAL_INFEASIBLE:
+    hppDout(warning, "PROXQP_DUAL_INFEASIBLE");
+    break;
+  case QPSolverOutput::PROXQP_NOT_RUN:
+    hppDout(warning, "PROXQP_NOT_RUN");
+    break;
+  default:
+    abort();
   }
   return std::numeric_limits<value_type>::infinity();
 }
