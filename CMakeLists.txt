@@ -222,7 +222,9 @@ set(${PROJECT_NAME}_SOURCES
     src/path-optimizer.cc #
     src/path-optimization/linear-constraint.cc #
     src/path-optimization/spline-gradient-based-abstract.cc #
+    src/path-optimization/spline-gradient-based.cc #
     src/path-optimization/partial-shortcut.cc #
+    src/path-optimization/quadratic-program.cc
     src/path-optimization/random-shortcut.cc
     src/path-optimization/reeds-shepp/piecewise-quadratic.cc
     src/path-optimization/reeds-shepp/piecewise-quadratic.hh
@@ -285,21 +287,6 @@ target_link_libraries(
 
 install(
   TARGETS ${PROJECT_NAME}
-  EXPORT ${TARGETS_EXPORT_NAME}
-  DESTINATION lib)
-
-# GPL licenced part
-set(${PROJECT_NAME}_HEADERS_GPL
-    src/path-optimization/spline-gradient-based/eiquadprog_2011.hpp)
-set(${PROJECT_NAME}_HEADERS_GPL src/path-optimization/quadratic-program.cc
-                                src/path-optimization/spline-gradient-based.cc)
-add_library(${PROJECT_NAME}-gpl SHARED ${${PROJECT_NAME}_SOURCES_GPL}
-                                       ${${PROJECT_NAME}_HEADERS_GPL})
-target_include_directories(${PROJECT_NAME}-gpl PRIVATE src)
-target_link_libraries(${PROJECT_NAME}-gpl ${PROJECT_NAME})
-
-install(
-  TARGETS ${PROJECT_NAME}-gpl
   EXPORT ${TARGETS_EXPORT_NAME}
   DESTINATION lib)
 

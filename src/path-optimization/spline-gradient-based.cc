@@ -402,8 +402,6 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       problem()->getParameter("SplineGradientBased/returnOptimum").boolValue();
   value_type costThreshold =
       problem()->getParameter("SplineGradientBased/costThreshold").floatValue();
-  bool useProxqp =
-      problem()->getParameter("SplineGradientBased/useProxqp").boolValue();
   value_type eps_abs(
       problem()->getParameter("SplineGradientBased/QPAccuracy").floatValue());
   if (path->length() == 0) return path;
@@ -479,7 +477,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   Base::copy(splines, collSplines);
   Reports_t reports;
 
-  QuadraticProgram QP(cost.inputDerivativeSize_, useProxqp);
+  QuadraticProgram QP(cost.inputDerivativeSize_);
   QP.accuracy(eps_abs);
   value_type optimalCost, costLowerBound = 0;
   cost.value(optimalCost, splines);
@@ -489,7 +487,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   checkHessian(cost, QP.H, splines);
 #endif  // NDEBUG
 
-  QuadraticProgram QPc(QP, constraint, useProxqp);
+  QuadraticProgram QPc(QP, constraint);
   QPc.accuracy(eps_abs);
 
   if (QPc.H.rows() == 0)
@@ -706,11 +704,6 @@ Problem::declareParameter(
                          "contains rows of zeros, in which case the "
                          "corresponding DoF is considered passive.",
                          Parameter(-1.)));
-Problem::declareParameter(ParameterDescription(
-    Parameter::BOOL, "SplineGradientBased/useProxqp",
-    "Use proxqp QP solver instead of eiquadprog_2011. Temporary parameter "
-    "that will be removed soon.",
-    Parameter(true)));
 Problem::declareParameter(ParameterDescription(
     Parameter::FLOAT, "SplineGradientBased/QPAccuracy",
     "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
