@@ -280,8 +280,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(
-  ${PROJECT_NAME} ${CMAKE_DL_LIBS} hpp-util::hpp-util pinocchio::pinocchio
-  hpp-statistics::hpp-statistics hpp-constraints::hpp-constraints
+  ${PROJECT_NAME}
+  ${CMAKE_DL_LIBS}
+  hpp-util::hpp-util
+  pinocchio::pinocchio
+  hpp-statistics::hpp-statistics
+  hpp-constraints::hpp-constraints
   proxsuite::proxsuite)
 
 install(
