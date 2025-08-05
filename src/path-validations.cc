@@ -50,28 +50,41 @@ void PathValidations::addPathValidation(
 bool PathValidations::validate(const PathPtr_t& path, bool reverse,
                                PathPtr_t& validPart,
                                PathValidationReportPtr_t& validationReport) {
-  PathPtr_t tempPath = path;
-  PathPtr_t tempValidPart;
+  PathPtr_t resValidPart = path, tempValidPart;
   PathValidationReportPtr_t tempValidationReport;
 
   bool result = true;
   value_type lastValidTime = path->timeRange().second;
   value_type t = lastValidTime;
 
+  // Iterate over all path validation instances
+  // Validate only valid part according to previous validations
   for (std::vector<PathValidationPtr_t>::iterator it = validations_.begin();
        it != validations_.end(); ++it) {
-    if ((*it)->validate(tempPath, reverse, tempValidPart,
+    if ((*it)->validate(resValidPart, reverse, tempValidPart,
                         tempValidationReport) == false) {
       t = tempValidationReport->getParameter();
-      if (t < lastValidTime) {
-        lastValidTime = t;
-        tempPath = tempValidPart;
+      validationReport = tempValidationReport;
+      assert(tempValidationReport);
+      if (!reverse) {
+	if (t < lastValidTime) {
+	  lastValidTime = t;
+	  resValidPart = tempValidPart;
+	}
+      }
+      else {
+	if (t > lastValidTime) {
+	  lastValidTime = t;
+	  resValidPart = tempValidPart;
+	}
       }
       result = false;
     }
   }
-  validPart = tempPath;
-  validationReport->setParameter(lastValidTime);
+  if (!result) {
+    validationReport->setParameter(lastValidTime);
+  }
+  validPart = resValidPart;
   return result;
 }
 
