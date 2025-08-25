@@ -26,6 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <hpp/constraints/solver/by-substitution.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/projection-error.hh>
@@ -112,13 +113,11 @@ InterpolatedPathPtr_t InterpolatedPath::create(const PathPtr_t& path,
 void InterpolatedPath::init(InterpolatedPathPtr_t self) {
   parent_t::init(self);
   weak_ = self;
-  checkPath();
 }
 
 void InterpolatedPath::initCopy(InterpolatedPathPtr_t self) {
   parent_t::init(self);
   weak_ = self;
-  checkPath();
 }
 
 bool InterpolatedPath::impl_compute(ConfigurationOut_t result,
@@ -258,6 +257,12 @@ PathPtr_t InterpolatedPath::reverse() const {
     InterpolationPoints_t::const_reverse_iterator itEnd = configs_.rend();
     --itEnd;
     for (; it != itEnd; ++it) result->insert(l - it->first, it->second);
+  }
+  // If some path constraints are time-varying, we need to update the time interval of
+  // the right hand side
+  if (result->constraints() && result->constraints()->configProjector()) {
+    result->constraints()->configProjector()->solver() =
+      constraints()->configProjector()->solver().extract(std::make_pair(l, 0));
   }
 
   return result;
