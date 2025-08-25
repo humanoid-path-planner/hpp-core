@@ -194,15 +194,6 @@ PathPtr_t PathVector::impl_extract(const interval_t& subInterval) const {
   return path;
 }
 
-PathPtr_t PathVector::reverse() const {
-  assert(!timeParameterization());
-  PathVectorPtr_t ret = create(outputSize(), outputDerivativeSize());
-  std::for_each(paths_.rbegin(), paths_.rend(), [&ret](const PathPtr_t& path) {
-    ret->appendPath(path->reverse());
-  });
-  return ret;
-}
-
 std::ostream& PathVector::print(std::ostream& os) const {
   Path::print(os << "PathVector:") << incendl;
   for (Paths_t::const_iterator itPath = paths_.begin(); itPath != paths_.end();
