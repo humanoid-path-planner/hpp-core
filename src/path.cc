@@ -224,6 +224,7 @@ PathPtr_t Path::extract(const interval_t& subInterval) const {
     res->constraints_->configProjector()->solver() =
       constraints_->configProjector()->solver().extract(subInterval);
   }
+  res->checkPath();
   return res;
 }
 
