@@ -29,6 +29,7 @@
 
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/weak_ptr.hpp>
+#include <hpp/constraints/solver/by-substitution.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/time-parameterization.hh>
@@ -216,6 +217,12 @@ PathPtr_t Path::extract(const interval_t& subInterval) const {
     assert(pr == res->paramRange());
   } else {
     res = this->impl_extract(subInterval);
+  }
+  // If some path constraints are time-varying, we need to update the time interval of
+  // the right hand side
+  if (res->constraints_ && res->constraints_->configProjector()) {
+    res->constraints_->configProjector()->solver() =
+      constraints_->configProjector()->solver().extract(subInterval);
   }
   return res;
 }
