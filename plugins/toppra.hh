@@ -41,11 +41,11 @@ typedef shared_ptr<TOPPRA> TOPPRAPtr_t;
 
 class TOPPRA : public PathOptimizer {
  public:
-  static TOPPRAPtr_t create(const ProblemConstPtr_t &p) {
+  static TOPPRAPtr_t create(const ProblemConstPtr_t& p) {
     return TOPPRAPtr_t(new TOPPRA(p));
   }
 
-  PathVectorPtr_t optimize(const PathVectorPtr_t &path);
+  PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
  protected:
   using PathOptimizer::PathOptimizer;

@@ -100,9 +100,8 @@ KDTreePtr_t KDTree::findLeaf(const NodePtr_t& node) {
   KDTreePtr_t CurrentTree = shared_from_this();
   CurrentTree->nodesMap_[node->connectedComponent()];
   while (CurrentTree->supChild_ != NULL && CurrentTree->infChild_ != NULL) {
-    if ((node->configuration())[CurrentTree->supChild_->splitDim_] >
-        CurrentTree->supChild_
-            ->lowerBounds_[CurrentTree->supChild_->splitDim_]) {
+    if ((node->configuration())[CurrentTree->supChild_->splitDim_] > CurrentTree
+        -> supChild_ -> lowerBounds_[CurrentTree->supChild_->splitDim_]) {
       CurrentTree = CurrentTree->supChild_;
       CurrentTree->nodesMap_[node->connectedComponent()];
     } else {
