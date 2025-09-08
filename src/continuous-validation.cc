@@ -43,14 +43,14 @@ using continuousValidation::BodyPairCollisionPtr_t;
 using continuousValidation::IntervalValidations_t;
 using continuousValidation::SolidSolidCollision;
 
-ContinuousValidation::Initialize::Initialize(ContinuousValidation &owner)
+ContinuousValidation::Initialize::Initialize(ContinuousValidation& owner)
     : owner_(&owner) {}
 
 typedef std::pair<pinocchio::JointIndex, pinocchio::JointIndex>
     JointIndexPair_t;
 struct JointIndexPairCompare_t {
-  bool operator()(const JointIndexPair_t &p0,
-                  const JointIndexPair_t &p1) const {
+  bool operator()(const JointIndexPair_t& p0,
+                  const JointIndexPair_t& p1) const {
     if (p0.first < p1.first) return true;
     if (p0.first > p1.first) return false;
     return (p0.second < p1.second);
@@ -62,14 +62,14 @@ typedef std::map<JointIndexPair_t, BodyPairCollisionPtr_t,
 
 void ContinuousValidation::Initialize::doExecute() const {
   DevicePtr_t robot = owner().robot();
-  const pinocchio::GeomModel &gmodel = robot->geomModel();
-  const pinocchio::GeomData &gdata = robot->geomData();
+  const pinocchio::GeomModel& gmodel = robot->geomModel();
+  const pinocchio::GeomData& gdata = robot->geomData();
   JointPtr_t joint1, joint2;
   BodyPairCollisionMap_t bodyPairMap;
   for (std::size_t i = 0; i < gmodel.collisionPairs.size(); ++i) {
     if (!gdata.activeCollisionPairs[i]) continue;
 
-    const ::pinocchio::CollisionPair &cp = gmodel.collisionPairs[i];
+    const ::pinocchio::CollisionPair& cp = gmodel.collisionPairs[i];
     JointIndexPair_t jp(gmodel.geometryObjects[cp.first].parentJoint,
                         gmodel.geometryObjects[cp.second].parentJoint);
 
@@ -97,11 +97,11 @@ void ContinuousValidation::Initialize::doExecute() const {
   }
 }
 
-ContinuousValidation::AddObstacle::AddObstacle(ContinuousValidation &owner)
+ContinuousValidation::AddObstacle::AddObstacle(ContinuousValidation& owner)
     : owner_(&owner), robot_(owner.robot()) {}
 
 void ContinuousValidation::AddObstacle::doExecute(
-    const CollisionObjectConstPtr_t &object) const {
+    const CollisionObjectConstPtr_t& object) const {
   DevicePtr_t robot(robot_.lock());
   for (size_type idx = 0; idx < robot->nbJoints(); ++idx) {
     JointPtr_t joint = robot->jointAt(idx);
@@ -126,9 +126,9 @@ void ContinuousValidation::AddObstacle::doExecute(
 /// \return true if the configuration is collision free for this parameter
 ///         value, false otherwise.
 bool ContinuousValidation::validateConfiguration(
-    IntervalValidations_t &intervalValidations, const Configuration_t &config,
-    const value_type &t, interval_t &interval,
-    PathValidationReportPtr_t &report) {
+    IntervalValidations_t& intervalValidations, const Configuration_t& config,
+    const value_type& t, interval_t& interval,
+    PathValidationReportPtr_t& report) {
   interval.first = -std::numeric_limits<value_type>::infinity();
   interval.second = std::numeric_limits<value_type>::infinity();
   hpp::pinocchio::DeviceSync robot(robot_);
@@ -147,9 +147,9 @@ bool ContinuousValidation::validateConfiguration(
   return true;
 }
 
-bool ContinuousValidation::validate(const PathPtr_t &path, bool reverse,
-                                    PathPtr_t &validPart,
-                                    PathValidationReportPtr_t &report) {
+bool ContinuousValidation::validate(const PathPtr_t& path, bool reverse,
+                                    PathPtr_t& validPart,
+                                    PathValidationReportPtr_t& report) {
   if (PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST(PathVector, path)) {
     PathVectorPtr_t validPathVector =
         PathVector::create(path->outputSize(), path->outputDerivativeSize());
@@ -191,7 +191,7 @@ bool ContinuousValidation::validate(const PathPtr_t &path, bool reverse,
     }
   }
   // Copy list of BodyPairCollision instances in a pool for thread safety.
-  IntervalValidations_t *bpc;
+  IntervalValidations_t* bpc;
   if (!bodyPairCollisionPool_.available()) {
     // Add an element
     bpc = new IntervalValidations_t(intervalValidations_.size());
@@ -206,15 +206,15 @@ bool ContinuousValidation::validate(const PathPtr_t &path, bool reverse,
 }
 
 void ContinuousValidation::addObstacle(
-    const CollisionObjectConstPtr_t &object) {
+    const CollisionObjectConstPtr_t& object) {
   for (std::vector<AddObstacle>::const_iterator it(addObstacle_.begin());
        it != addObstacle_.end(); ++it) {
     it->doExecute(object);
   }
 }
 
-void ContinuousValidation::setPath(IntervalValidations_t &intervalValidations,
-                                   const PathPtr_t &path, bool reverse) {
+void ContinuousValidation::setPath(IntervalValidations_t& intervalValidations,
+                                   const PathPtr_t& path, bool reverse) {
   for (IntervalValidations_t::iterator itPair(intervalValidations.begin());
        itPair != intervalValidations.end(); ++itPair) {
     (*itPair)->path(path, reverse);
@@ -222,7 +222,7 @@ void ContinuousValidation::setPath(IntervalValidations_t &intervalValidations,
 }
 
 void ContinuousValidation::removeObstacleFromJoint(
-    const JointPtr_t &joint, const CollisionObjectConstPtr_t &obstacle) {
+    const JointPtr_t& joint, const CollisionObjectConstPtr_t& obstacle) {
   assert(joint);
   bool removed = false;
   for (IntervalValidations_t::iterator itPair(intervalValidations_.begin());
@@ -256,7 +256,7 @@ void ContinuousValidation::breakDistance(value_type distance) {
   breakDistance_ = distance;
 
   bodyPairCollisionPool_.clear();
-  for (IntervalValidationPtr_t &val : intervalValidations_) {
+  for (IntervalValidationPtr_t& val : intervalValidations_) {
     continuousValidation::SolidSolidCollisionPtr_t ss(
         HPP_DYNAMIC_PTR_CAST(continuousValidation::SolidSolidCollision, val));
     if (ss) ss->breakDistance(distance);
@@ -264,7 +264,7 @@ void ContinuousValidation::breakDistance(value_type distance) {
 }
 
 void ContinuousValidation::filterCollisionPairs(
-    const RelativeMotion::matrix_type &relMotion) {
+    const RelativeMotion::matrix_type& relMotion) {
   // Loop over collision pairs and remove disabled ones.
   size_type ia, ib;
   for (IntervalValidations_t::iterator _colPair(intervalValidations_.begin());
@@ -298,7 +298,7 @@ void ContinuousValidation::filterCollisionPairs(
   bodyPairCollisionPool_.clear();
 }
 
-void ContinuousValidation::setSecurityMargins(const matrix_t &securityMatrix) {
+void ContinuousValidation::setSecurityMargins(const matrix_t& securityMatrix) {
   if (securityMatrix.rows() != robot_->nbJoints() + 1 ||
       securityMatrix.cols() != robot_->nbJoints() + 1) {
     HPP_THROW(std::invalid_argument,
@@ -330,8 +330,8 @@ void ContinuousValidation::setSecurityMargins(const matrix_t &securityMatrix) {
 }
 
 void ContinuousValidation::setSecurityMarginBetweenBodies(
-    const std::string &body_a, const std::string &body_b,
-    const value_type &margin) {
+    const std::string& body_a, const std::string& body_b,
+    const value_type& margin) {
   // Loop over collision pairs and remove disabled ones.
   bool found = true;
   for (IntervalValidations_t::iterator _colPair(intervalValidations_.begin());
@@ -339,10 +339,10 @@ void ContinuousValidation::setSecurityMarginBetweenBodies(
     BodyPairCollisionPtr_t bpc(
         HPP_DYNAMIC_PTR_CAST(BodyPairCollision, *_colPair));
     if (!bpc) continue;
-    const CollisionPairs_t &prs(bpc->pairs());
-    CollisionRequests_t &requests(bpc->requests());
+    const CollisionPairs_t& prs(bpc->pairs());
+    CollisionRequests_t& requests(bpc->requests());
     for (std::size_t i = 0; i < prs.size(); ++i) {
-      const CollisionPair &pair(prs[i]);
+      const CollisionPair& pair(prs[i]);
       if ((pair.first->name() == body_a && pair.second->name() == body_b) ||
           (pair.first->name() == body_b && pair.second->name() == body_a)) {
         requests[i].security_margin = margin;
@@ -365,7 +365,7 @@ void ContinuousValidation::setSecurityMarginBetweenBodies(
 
 template <>
 void ContinuousValidation::add<ContinuousValidation::AddObstacle>(
-    const AddObstacle &delegate) {
+    const AddObstacle& delegate) {
   addObstacle_.push_back(delegate);
 }
 
@@ -376,7 +376,7 @@ void ContinuousValidation::reset<ContinuousValidation::AddObstacle>() {
 
 template <>
 void ContinuousValidation::add<ContinuousValidation::Initialize>(
-    const Initialize &delegate) {
+    const Initialize& delegate) {
   initialize_.push_back(delegate);
 }
 
@@ -390,7 +390,7 @@ void ContinuousValidation::init(ContinuousValidationWkPtr_t weak) {
 }
 
 void ContinuousValidation::addIntervalValidation(
-    const IntervalValidationPtr_t &intervalValidation) {
+    const IntervalValidationPtr_t& intervalValidation) {
   intervalValidations_.push_back(intervalValidation);
   bodyPairCollisionPool_.clear();
 }
@@ -404,8 +404,8 @@ void ContinuousValidation::initialize() {
 
 ContinuousValidation::~ContinuousValidation() {}
 
-ContinuousValidation::ContinuousValidation(const DevicePtr_t &robot,
-                                           const value_type &tolerance)
+ContinuousValidation::ContinuousValidation(const DevicePtr_t& robot,
+                                           const value_type& tolerance)
     : robot_(robot),
       tolerance_(tolerance),
       breakDistance_(1e-2),

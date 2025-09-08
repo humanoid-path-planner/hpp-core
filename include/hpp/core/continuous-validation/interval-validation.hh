@@ -74,14 +74,14 @@ class IntervalValidation {
   ///         at parameter t
   /// \param data data resulting from forward kinematics computed at
   ///        parameter t.
-  virtual bool validateConfiguration(const value_type &t, interval_t &interval,
-                                     ValidationReportPtr_t &report,
-                                     const pinocchio::DeviceData &data) = 0;
+  virtual bool validateConfiguration(const value_type& t, interval_t& interval,
+                                     ValidationReportPtr_t& report,
+                                     const pinocchio::DeviceData& data) = 0;
 
   /// Set path to validate
   /// \param path path to validate,
   /// \param reverse whether path is validated from end to beginning.
-  void path(const PathPtr_t &path, bool reverse) {
+  void path(const PathPtr_t& path, bool reverse) {
     path_ = path;
     reverse_ = reverse;
     valid_ = false;
@@ -95,7 +95,7 @@ class IntervalValidation {
   value_type tolerance() const { return tolerance_; }
 
   virtual std::string name() const = 0;
-  virtual std::ostream &print(std::ostream &os) const = 0;
+  virtual std::ostream& print(std::ostream& os) const = 0;
   virtual IntervalValidationPtr_t copy() const = 0;
 
  protected:
@@ -117,7 +117,7 @@ class IntervalValidation {
     }
   }
 
-  IntervalValidation(const IntervalValidation &other)
+  IntervalValidation(const IntervalValidation& other)
       : tolerance_(other.tolerance_), refine_(true) {
     if (tolerance_ < 0) {
       throw std::runtime_error("tolerance should be non-negative.");
@@ -128,7 +128,7 @@ class IntervalValidation {
   virtual void setupPath() = 0;
 };  // class IntervalValidation
 
-inline std::ostream &operator<<(std::ostream &os, const IntervalValidation &b) {
+inline std::ostream& operator<<(std::ostream& os, const IntervalValidation& b) {
   return b.print(os);
 }
 }  // namespace continuousValidation

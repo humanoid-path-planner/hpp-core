@@ -181,7 +181,7 @@ PathPtr_t Kinodynamic::impl_compute(ConfigurationIn_t q1,
   }
 }
 
-Kinodynamic::Kinodynamic(const ProblemConstPtr_t &problem)
+Kinodynamic::Kinodynamic(const ProblemConstPtr_t& problem)
     : SteeringMethod(problem),
       aMax_(Vector3::Ones(3)),
       vMax_(Vector3::Ones(3)),
@@ -232,7 +232,7 @@ Kinodynamic::Kinodynamic(const ProblemConstPtr_t &problem)
 }
 
 /// Copy constructor
-Kinodynamic::Kinodynamic(const Kinodynamic &other)
+Kinodynamic::Kinodynamic(const Kinodynamic& other)
     : SteeringMethod(other),
       aMax_(other.aMax_),
       vMax_(other.vMax_),
@@ -242,7 +242,7 @@ Kinodynamic::Kinodynamic(const Kinodynamic &other)
       device_(other.device_) {}
 
 double Kinodynamic::computeMinTime(int index, double p1, double p2, double v1,
-                                   double v2, interval_t *infInterval) const {
+                                   double v2, interval_t* infInterval) const {
   hppDout(info, "p1 = " << p1 << "  p2 = " << p2 << "   ; v1 = " << v1
                         << "    v2 = " << v2);
   // compute the sign of each acceleration
@@ -390,9 +390,9 @@ double Kinodynamic::computeMinTime(int index, double p1, double p2, double v1,
 }
 
 void Kinodynamic::fixedTimeTrajectory(int index, double T, double p1, double p2,
-                                      double v1, double v2, double *a1,
-                                      double *t0, double *t1, double *tv,
-                                      double *t2, double *vLim) const {
+                                      double v1, double v2, double* a1,
+                                      double* t0, double* t1, double* tv,
+                                      double* t2, double* vLim) const {
   hppDout(info, "p1 = " << p1 << "  p2 = " << p2 << "   ; v1 = " << v1
                         << "    v2 = " << v2 << " T = " << T);
   double v12 = v1 + v2;
