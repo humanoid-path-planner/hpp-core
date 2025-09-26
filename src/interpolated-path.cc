@@ -258,11 +258,12 @@ PathPtr_t InterpolatedPath::reverse() const {
     --itEnd;
     for (; it != itEnd; ++it) result->insert(l - it->first, it->second);
   }
-  // If some path constraints are time-varying, we need to update the time interval of
-  // the right hand side
+  // If some path constraints are time-varying, we need to update the time
+  // interval of the right hand side
   if (result->constraints() && result->constraints()->configProjector()) {
     result->constraints()->configProjector()->solver() =
-      constraints()->configProjector()->solver().extract(std::make_pair(l, 0));
+        constraints()->configProjector()->solver().extract(
+            std::make_pair(l, 0));
   }
 
   return result;

@@ -218,11 +218,11 @@ PathPtr_t Path::extract(const interval_t& subInterval) const {
   } else {
     res = this->impl_extract(subInterval);
   }
-  // If some path constraints are time-varying, we need to update the time interval of
-  // the right hand side
+  // If some path constraints are time-varying, we need to update the time
+  // interval of the right hand side
   if (res->constraints_ && res->constraints_->configProjector()) {
     res->constraints_->configProjector()->solver() =
-      constraints_->configProjector()->solver().extract(subInterval);
+        constraints_->configProjector()->solver().extract(subInterval);
   }
   res->checkPath();
   return res;

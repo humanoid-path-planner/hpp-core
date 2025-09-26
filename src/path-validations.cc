@@ -67,16 +67,15 @@ bool PathValidations::validate(const PathPtr_t& path, bool reverse,
       validationReport = tempValidationReport;
       assert(tempValidationReport);
       if (!reverse) {
-	if (t < lastValidTime) {
-	  lastValidTime = t;
-	  resValidPart = tempValidPart;
-	}
-      }
-      else {
-	if (t > lastValidTime) {
-	  lastValidTime = t;
-	  resValidPart = tempValidPart;
-	}
+        if (t < lastValidTime) {
+          lastValidTime = t;
+          resValidPart = tempValidPart;
+        }
+      } else {
+        if (t > lastValidTime) {
+          lastValidTime = t;
+          resValidPart = tempValidPart;
+        }
       }
       result = false;
     }
