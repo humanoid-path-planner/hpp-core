@@ -29,6 +29,8 @@
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
+#include <hpp/constraints/solver/by-substitution.hh>
+#include <hpp/core/config-projector.hh>
 #include <hpp/core/steering-method/constant-curvature.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
@@ -426,6 +428,12 @@ PathPtr_t ConstantCurvature::reverse() const {
   result->curveLength_ = -curveLength_;
   result->timeRange(interval_t(0, length()));
   result->forward_ = curveLength_ < 0 ? 1 : -1;
+  // If some path constraints are time-varying, we need to update the time interval of
+  // the right hand side
+  if (result->constraints() && result->constraints()->configProjector()) {
+    result->constraints()->configProjector()->solver() =
+      constraints()->configProjector()->solver().extract(std::make_pair(length(), 0));
+  }
   return result;
 }
 
