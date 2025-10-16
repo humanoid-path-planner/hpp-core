@@ -29,10 +29,10 @@
 
 #define BOOST_TEST_MODULE path_extraction
 
-#include <cmath>
 #include <coal/math/transform.h>
 
 #include <boost/test/included/unit_test.hpp>
+#include <cmath>
 #include <hpp/constraints/affine-function.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/config-projector.hh>
@@ -55,10 +55,10 @@ using hpp::constraints::DifferentiableFunctionPtr_t;
 using hpp::constraints::Identity;
 using hpp::constraints::Implicit;
 using hpp::constraints::ImplicitPtr_t;
-using hpp::core::ConstraintSet;
-using hpp::core::ConstraintSetPtr_t;
 using hpp::core::ConfigProjector;
 using hpp::core::ConfigProjectorPtr_t;
+using hpp::core::ConstraintSet;
+using hpp::core::ConstraintSetPtr_t;
 using hpp::core::InterpolatedPath;
 using hpp::pinocchio::Configuration_t;
 using hpp::pinocchio::ConfigurationOut_t;
@@ -75,7 +75,7 @@ typedef std::shared_ptr<LocalPath> LocalPathPtr_t;
 
 // Linear interpolation between two points
 class LocalPath : public Path {
-  public:
+ public:
   virtual ~LocalPath() {}
   virtual bool impl_compute(ConfigurationOut_t configuration,
                             value_type t) const {
@@ -95,7 +95,8 @@ class LocalPath : public Path {
 
   // Create a linear interpolation between q1 and q2
   static LocalPathPtr_t create(const interval_t& interval, ConfigurationIn_t q1,
-			       ConfigurationIn_t q2, ConstraintSetPtr_t constraints) {
+                               ConfigurationIn_t q2,
+                               ConstraintSetPtr_t constraints) {
     LocalPath* ptr(new LocalPath(interval, q1, q2, constraints));
     LocalPathPtr_t shPtr(ptr);
     ptr->init(shPtr);
@@ -129,10 +130,9 @@ class LocalPath : public Path {
     q2_[0] = interval.second;
   }
 
-  LocalPath(const interval_t& interval, ConfigurationIn_t q1, ConfigurationIn_t q2,
-	    const ConstraintSetPtr_t& constraints) :
-    Path(interval, q1.size(), q1.size(), constraints), q1_(q1), q2_(q2) {
-  }
+  LocalPath(const interval_t& interval, ConfigurationIn_t q1,
+            ConfigurationIn_t q2, const ConstraintSetPtr_t& constraints)
+      : Path(interval, q1.size(), q1.size(), constraints), q1_(q1), q2_(q2) {}
 
   LocalPath(const LocalPath& other)
       : Path(other), q1_(other.q1_), q2_(other.q2_) {}
@@ -223,26 +223,26 @@ BOOST_AUTO_TEST_CASE(path_extraction_2) {
 }
 
 class Rhs : public DifferentiableFunction {
-public:
+ public:
   static DifferentiableFunctionPtr_t create(value_type t0) {
     return DifferentiableFunctionPtr_t(new Rhs(t0));
   }
-protected:
-  Rhs(value_type t0) : DifferentiableFunction(1, 1, LiegroupSpace::R2(), "rhs"), t0_(t0) {
-  }
-  void impl_compute(LiegroupElementRef result,
-		    vectorIn_t argument) const {
+
+ protected:
+  Rhs(value_type t0)
+      : DifferentiableFunction(1, 1, LiegroupSpace::R2(), "rhs"), t0_(t0) {}
+  void impl_compute(LiegroupElementRef result, vectorIn_t argument) const {
     value_type t = argument[0] + t0_;
     result.vector()[0] = cos(t);
     result.vector()[1] = sin(t);
   }
   void impl_jacobian(matrixOut_t jacobian, vectorIn_t arg) const {
     value_type t = arg[0];
-    jacobian(0,0) = -sin(t);
-    jacobian(1,0) =  cos(t);
+    jacobian(0, 0) = -sin(t);
+    jacobian(1, 0) = cos(t);
   }
   value_type t0_;
-}; // class Rhs
+};  // class Rhs
 
 BOOST_AUTO_TEST_CASE(path_extraction_3) {
   // Build planar robot with 2 prismatic joints.
@@ -253,33 +253,44 @@ BOOST_AUTO_TEST_CASE(path_extraction_3) {
       "  <link name=\"lx\"/>\n"
       "  <link name=\"ly\"/>\n"
       "  <joint name=\"px\" type=\"prismatic\">\n"
-      "    <limit effort=\"1.0\" lower=\"-2.0\" upper=\"2.0\" velocity=\"2.0\"/>\n"
+      "    <limit effort=\"1.0\" lower=\"-2.0\" upper=\"2.0\" "
+      "velocity=\"2.0\"/>\n"
       "    <axis xyz=\"1 0 0\"/>\n"
       "    <parent link=\"base_link\"/>\n"
       "    <child link=\"lx\"/>\n"
       "  </joint>\n"
       "  <joint name=\"py\" type=\"prismatic\">\n"
-      "    <limit effort=\"1.0\" lower=\"-2.0\" upper=\"2.0\" velocity=\"2.0\"/>\n"
+      "    <limit effort=\"1.0\" lower=\"-2.0\" upper=\"2.0\" "
+      "velocity=\"2.0\"/>\n"
       "    <axis xyz=\"0 1 0\"/>"
       "    <parent link=\"lx\"/>\n"
       "    <child link=\"ly\"/>\n"
       "  </joint>\n"
       "</robot>");
 
-  hpp::pinocchio::urdf::loadModelFromString(robot, 0, "robot", "anchor", urdfString, "");
-  vector2_t q0; q0 << 1, 0;
-  vector2_t q1; q1 << 0, 1;
-  vector2_t q2; q2 << -1, 0;
-  vector2_t q3; q3 << 0, -1;
+  hpp::pinocchio::urdf::loadModelFromString(robot, 0, "robot", "anchor",
+                                            urdfString, "");
+  vector2_t q0;
+  q0 << 1, 0;
+  vector2_t q1;
+  q1 << 0, 1;
+  vector2_t q2;
+  q2 << -1, 0;
+  vector2_t q3;
+  q3 << 0, -1;
   ConstraintSetPtr_t cs0(ConstraintSet::create(robot, "cs0"));
   ConstraintSetPtr_t cs1(ConstraintSet::create(robot, "cs1"));
   ConstraintSetPtr_t cs2(ConstraintSet::create(robot, "cs2"));
   ConstraintSetPtr_t cs3(ConstraintSet::create(robot, "cs3"));
   value_type threshold = 1e-4;
-  ConfigProjectorPtr_t cp0(ConfigProjector::create(robot, "cp0", threshold, 50));
-  ConfigProjectorPtr_t cp1(ConfigProjector::create(robot, "cp1", threshold, 50));
-  ConfigProjectorPtr_t cp2(ConfigProjector::create(robot, "cp2", threshold, 50));
-  ConfigProjectorPtr_t cp3(ConfigProjector::create(robot, "cp3", threshold, 50));
+  ConfigProjectorPtr_t cp0(
+      ConfigProjector::create(robot, "cp0", threshold, 50));
+  ConfigProjectorPtr_t cp1(
+      ConfigProjector::create(robot, "cp1", threshold, 50));
+  ConfigProjectorPtr_t cp2(
+      ConfigProjector::create(robot, "cp2", threshold, 50));
+  ConfigProjectorPtr_t cp3(
+      ConfigProjector::create(robot, "cp3", threshold, 50));
   cs0->addConstraint(cp0);
   cs1->addConstraint(cp1);
   cs2->addConstraint(cp2);
@@ -291,30 +302,30 @@ BOOST_AUTO_TEST_CASE(path_extraction_3) {
   */
   ImplicitPtr_t f0(
       Implicit::create(Identity::create(LiegroupSpace::R2(), "I2"),
-          ComparisonTypes_t(2, hpp::constraints::Equality)));
+                       ComparisonTypes_t(2, hpp::constraints::Equality)));
   f0->rightHandSideFunction(Rhs::create(0));
   cp0->add(f0);
   ImplicitPtr_t f1(
       Implicit::create(Identity::create(LiegroupSpace::R2(), "I2"),
-          ComparisonTypes_t(2, hpp::constraints::Equality)));
-  f1->rightHandSideFunction(Rhs::create(M_PI/2));
+                       ComparisonTypes_t(2, hpp::constraints::Equality)));
+  f1->rightHandSideFunction(Rhs::create(M_PI / 2));
   cp1->add(f1);
   ImplicitPtr_t f2(
       Implicit::create(Identity::create(LiegroupSpace::R2(), "I2"),
-          ComparisonTypes_t(2, hpp::constraints::Equality)));
+                       ComparisonTypes_t(2, hpp::constraints::Equality)));
   f2->rightHandSideFunction(Rhs::create(M_PI));
   cp2->add(f2);
   ImplicitPtr_t f3(
       Implicit::create(Identity::create(LiegroupSpace::R2(), "I2"),
-          ComparisonTypes_t(2, hpp::constraints::Equality)));
-  f3->rightHandSideFunction(Rhs::create(3*M_PI/2));
+                       ComparisonTypes_t(2, hpp::constraints::Equality)));
+  f3->rightHandSideFunction(Rhs::create(3 * M_PI / 2));
   cp3->add(f3);
 
   // Create a constrained paths between qi and q{i+1}
-  PathPtr_t p0(LocalPath::create(std::make_pair(0, M_PI/2), q0, q1, cs0));
-  PathPtr_t p1(LocalPath::create(std::make_pair(0, M_PI/2), q1, q2, cs1));
-  PathPtr_t p2(LocalPath::create(std::make_pair(0, M_PI/2), q2, q3, cs2));
-  PathPtr_t p3(LocalPath::create(std::make_pair(0, M_PI/2), q3, q0, cs3));
+  PathPtr_t p0(LocalPath::create(std::make_pair(0, M_PI / 2), q0, q1, cs0));
+  PathPtr_t p1(LocalPath::create(std::make_pair(0, M_PI / 2), q1, q2, cs1));
+  PathPtr_t p2(LocalPath::create(std::make_pair(0, M_PI / 2), q2, q3, cs2));
+  PathPtr_t p3(LocalPath::create(std::make_pair(0, M_PI / 2), q3, q0, cs3));
   // Convert them into interpolated paths
   PathPtr_t ip0(InterpolatedPath::create(p0, robot, 4));
   PathPtr_t ip1(InterpolatedPath::create(p1, robot, 4));
@@ -326,23 +337,21 @@ BOOST_AUTO_TEST_CASE(path_extraction_3) {
   pv->appendPath(ip1);
   pv->appendPath(ip2);
   pv->appendPath(ip3);
-  PathPtr_t ep0(pv->extract(M_PI/4, 5*M_PI/4));
-   PathPtr_t ep1(ep0->reverse());
-  BOOST_CHECK_CLOSE(ep0->length(), M_PI,
-                    std::numeric_limits<float>::epsilon());
-  BOOST_CHECK_CLOSE(ep1->length(), M_PI,
-                    std::numeric_limits<float>::epsilon());
-  for (size_type i=0; i<=50; ++i) {
+  PathPtr_t ep0(pv->extract(M_PI / 4, 5 * M_PI / 4));
+  PathPtr_t ep1(ep0->reverse());
+  BOOST_CHECK_CLOSE(ep0->length(), M_PI, std::numeric_limits<float>::epsilon());
+  BOOST_CHECK_CLOSE(ep1->length(), M_PI, std::numeric_limits<float>::epsilon());
+  for (size_type i = 0; i <= 50; ++i) {
     bool success;
-    value_type s = ((value_type)i)*M_PI/50;
+    value_type s = ((value_type)i) * M_PI / 50;
     Configuration_t q = ep0->eval(s, success);
     assert(success);
-    BOOST_CHECK(fabs(q[0] - cos(M_PI/4 + s)) <= threshold);
-    BOOST_CHECK(fabs(q[1] - sin(M_PI/4 + s)) <= threshold);
+    BOOST_CHECK(fabs(q[0] - cos(M_PI / 4 + s)) <= threshold);
+    BOOST_CHECK(fabs(q[1] - sin(M_PI / 4 + s)) <= threshold);
     q = ep1->eval(s, success);
     assert(success);
-    BOOST_CHECK(fabs(q[0] - cos(5*M_PI/4 - s)) <= threshold);
-    BOOST_CHECK(fabs(q[1] - sin(5*M_PI/4 - s)) <= threshold);
+    BOOST_CHECK(fabs(q[0] - cos(5 * M_PI / 4 - s)) <= threshold);
+    BOOST_CHECK(fabs(q[1] - sin(5 * M_PI / 4 - s)) <= threshold);
   }
 }
 

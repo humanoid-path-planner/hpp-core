@@ -66,7 +66,8 @@ class ExtractedPath : public Path {
     ExtractedPathPtr_t shPtr(ptr);
     ptr->init(shPtr);
     if (path->constraints()) {
-      ConstraintSetPtr_t cs(HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints()->copy()));
+      ConstraintSetPtr_t cs(
+          HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints()->copy()));
       assert(cs);
       shPtr->constraints(cs);
     }
