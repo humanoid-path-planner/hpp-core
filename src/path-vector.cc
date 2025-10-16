@@ -174,6 +174,11 @@ void PathVector::impl_velocityBound(vectorOut_t bound, const value_type& param0,
 PathPtr_t PathVector::impl_extract(const interval_t& subInterval) const {
   assert(!timeParameterization());
   PathVectorPtr_t path = create(outputSize(), outputDerivativeSize());
+  if (constraints()) {
+    ConstraintSetPtr_t cs(HPP_DYNAMIC_PTR_CAST(ConstraintSet, constraints()->copy()));
+    assert(cs);
+    path->constraints(cs);
+  }
   bool reversed = subInterval.first > subInterval.second ? true : false;
 
   value_type localtinit, localtend;

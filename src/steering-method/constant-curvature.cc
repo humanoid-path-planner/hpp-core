@@ -92,6 +92,11 @@ ConstantCurvaturePtr_t ConstantCurvature::createCopy(
   ConstantCurvature* ptr(new ConstantCurvature(*other));
   ConstantCurvaturePtr_t shPtr(ptr);
   ptr->init(shPtr);
+  if (other->constraints()) {
+    ConstraintSetPtr_t cs = HPP_DYNAMIC_PTR_CAST(ConstraintSet, other->constraints()->copy());
+    assert(cs);
+    shPtr->constraints(cs);
+  }
   return shPtr;
 }
 

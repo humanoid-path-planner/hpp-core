@@ -134,6 +134,10 @@ class HPP_CORE_DLLAPI KinodynamicOrientedPath : public KinodynamicPath {
   void ignoreZValue(bool ignoreZValue) { ignoreZValue_ = ignoreZValue; }
 
  protected:
+  // Make this method accessible to this class
+  void constraints(const ConstraintSetPtr_t& constr) {
+    parent_t::constraints(constr);
+  }
   /// Print path in a stream
   virtual std::ostream& print(std::ostream& os) const {
     os << "KinodynamicOrientedPath:" << std::endl;

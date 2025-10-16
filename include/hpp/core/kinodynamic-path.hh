@@ -152,6 +152,11 @@ class HPP_CORE_DLLAPI KinodynamicPath : public StraightPath {
   vector_t getA1() { return a1_; }
 
  protected:
+  // Make this method accessible to this class
+  void constraints(const ConstraintSetPtr_t& constr) {
+    this->parent_t::constraints(constr);
+  }
+
   /// Print path in a stream
   virtual std::ostream& print(std::ostream& os) const {
     os << "KinodynamicPath:" << std::endl;
