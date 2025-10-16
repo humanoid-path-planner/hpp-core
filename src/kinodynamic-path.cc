@@ -280,8 +280,9 @@ PathPtr_t KinodynamicPath::impl_extract(const interval_t& subInterval) const {
       cs = HPP_DYNAMIC_PTR_CAST(ConstraintSet, Path::constraints()->copy());
       assert(cs);
     }
-    PathPtr_t result = StraightPath::create(device_, (eval(subInterval.first, success)),
-					    (eval(subInterval.first, success)), 0., cs);
+    PathPtr_t result =
+        StraightPath::create(device_, (eval(subInterval.first, success)),
+                             (eval(subInterval.first, success)), 0., cs);
     return result;
   }
 

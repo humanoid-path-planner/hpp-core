@@ -93,7 +93,8 @@ ConstantCurvaturePtr_t ConstantCurvature::createCopy(
   ConstantCurvaturePtr_t shPtr(ptr);
   ptr->init(shPtr);
   if (other->constraints()) {
-    ConstraintSetPtr_t cs = HPP_DYNAMIC_PTR_CAST(ConstraintSet, other->constraints()->copy());
+    ConstraintSetPtr_t cs =
+        HPP_DYNAMIC_PTR_CAST(ConstraintSet, other->constraints()->copy());
     assert(cs);
     shPtr->constraints(cs);
   }
@@ -433,11 +434,12 @@ PathPtr_t ConstantCurvature::reverse() const {
   result->curveLength_ = -curveLength_;
   result->timeRange(interval_t(0, length()));
   result->forward_ = curveLength_ < 0 ? 1 : -1;
-  // If some path constraints are time-varying, we need to update the time interval of
-  // the right hand side
+  // If some path constraints are time-varying, we need to update the time
+  // interval of the right hand side
   if (result->constraints() && result->constraints()->configProjector()) {
     result->constraints()->configProjector()->solver() =
-      constraints()->configProjector()->solver().extract(std::make_pair(length(), 0));
+        constraints()->configProjector()->solver().extract(
+            std::make_pair(length(), 0));
   }
   return result;
 }

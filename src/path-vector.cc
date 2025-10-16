@@ -175,7 +175,8 @@ PathPtr_t PathVector::impl_extract(const interval_t& subInterval) const {
   assert(!timeParameterization());
   PathVectorPtr_t path = create(outputSize(), outputDerivativeSize());
   if (constraints()) {
-    ConstraintSetPtr_t cs(HPP_DYNAMIC_PTR_CAST(ConstraintSet, constraints()->copy()));
+    ConstraintSetPtr_t cs(
+        HPP_DYNAMIC_PTR_CAST(ConstraintSet, constraints()->copy()));
     assert(cs);
     path->constraints(cs);
   }
