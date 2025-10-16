@@ -52,7 +52,7 @@ KinodynamicPath::KinodynamicPath(const DevicePtr_t& device,
       vLim_(vLim) {
   assert(device);
   assert(length >= 0);
-  assert(!constraints());
+  assert(!Path::constraints());
   hppDout(notice, "Create kinodynamic path with values : ");
   hppDout(notice, "a1 = " << pinocchio::displayConfig(a1_));
   hppDout(notice, "t0 = " << pinocchio::displayConfig(t0_));
@@ -275,8 +275,14 @@ PathPtr_t KinodynamicPath::impl_extract(const interval_t& subInterval) const {
   value_type l = fabs(subInterval.second - subInterval.first);
   if (l <= 0) {
     hppDout(notice, "Call Extract with a length null");
-    return StraightPath::create(device_, (eval(subInterval.first, success)),
-                                (eval(subInterval.first, success)), 0.);
+    ConstraintSetPtr_t cs;
+    if (Path::constraints()) {
+      cs = HPP_DYNAMIC_PTR_CAST(ConstraintSet, Path::constraints()->copy());
+      assert(cs);
+    }
+    PathPtr_t result = StraightPath::create(device_, (eval(subInterval.first, success)),
+					    (eval(subInterval.first, success)), 0., cs);
+    return result;
   }
 
   hppDout(notice, "%% EXTRACT PATH : path interval : "
@@ -377,7 +383,7 @@ PathPtr_t KinodynamicPath::impl_extract(const interval_t& subInterval) const {
 
   }  // for all joints
   PathPtr_t result = KinodynamicPath::create(device_, q1, q2, l, a1, t0, t1, tv,
-                                             t2, vLim_, constraints());
+                                             t2, vLim_, Path::constraints());
   return result;
 }
 

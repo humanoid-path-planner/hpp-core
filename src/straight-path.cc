@@ -152,8 +152,12 @@ PathPtr_t StraightPath::impl_extract(const interval_t& subInterval) const {
   if (!success)
     throw projection_error(
         "Failed to apply constraints in StraightPath::extract");
+  ConstraintSetPtr_t cs;
+  if (constraints()) {
+    cs = HPP_DYNAMIC_PTR_CAST(ConstraintSet, constraints()->copy());
+  }
   StraightPathPtr_t result =
-      StraightPath::create(space_, q1, q2, interval_t(0, l), constraints());
+    StraightPath::create(space_, q1, q2, interval_t(0, l), cs);
   return result;
 }
 
