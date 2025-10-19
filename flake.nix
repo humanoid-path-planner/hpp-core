@@ -14,7 +14,23 @@
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
-      imports = [ inputs.gepetto.flakeModule ];
+      imports = [
+        inputs.gepetto.flakeModule
+        {
+          gepetto-pkgs.overlays = [
+            (final: prev: {
+              hpp-constraints = prev.hpp-constraints.overrideAttrs {
+                src = final.fetchFromGitHub {
+                  owner = "humanoid-path-planner";
+                  repo = "hpp-constraints";
+                  rev = "3da47f6366e2729a84b9ebbb3199fb42c53faf8b"; # pr/246 merge commit
+                  hash = "sha256-jZSki9Lbs3/nNUc556sA66x5vwdcTBKWnBrRpezAf5Q=";
+                };
+              };
+            })
+          ];
+        }
+      ];
       perSystem =
         {
           lib,
