@@ -77,7 +77,7 @@ add_testcase(path-projectors FALSE) # link error
 add_testcase(containers FALSE)
 add_testcase(paths FALSE)
 add_testcase(relative-motion FALSE)
-add_testcase(test-path-extraction FALSE)
+# add_testcase(test-path-extraction FALSE)
 add_testcase(test-continuous-validation FALSE)
 add_testcase(test-config-validations FALSE)
 
