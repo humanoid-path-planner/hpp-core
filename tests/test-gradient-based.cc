@@ -28,6 +28,8 @@
 // DAMAGE.
 
 #define BOOST_TEST_MODULE gradient_based
+#include <pinocchio/fwd.hpp>
+// include pinocchio first
 #include <coal/shape/geometric_shapes.h>
 
 #include <boost/test/included/unit_test.hpp>
@@ -43,7 +45,6 @@
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/urdf/util.hh>
 #include <pinocchio/algorithm/frames.hpp>
-#include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/fcl.hpp>
 #include <pinocchio/multibody/geometry.hpp>
 
