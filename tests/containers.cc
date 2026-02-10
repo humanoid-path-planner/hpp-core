@@ -27,6 +27,8 @@
 // DAMAGE.
 
 #define BOOST_TEST_MODULE containers
+#include <pinocchio/fwd.hpp>
+// include pinocchio first
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/core/container.hh>
 
