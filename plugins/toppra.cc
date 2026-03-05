@@ -37,7 +37,6 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/time-parameterization/piecewise-polynomial.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <pinocchio/multibody/model.hpp>
 #include <toppra/algorithm/toppra.hpp>
 #include <toppra/constraint/joint_torque/pinocchio.hpp>

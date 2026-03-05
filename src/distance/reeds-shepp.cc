@@ -32,7 +32,6 @@
 #include <hpp/core/steering-method/reeds-shepp.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <pinocchio/multibody/joint/joint-generic.hpp>
 

@@ -32,7 +32,6 @@
 #include <boost/random/normal_distribution.hpp>
 #include <hpp/core/configuration-shooter/gaussian.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/multibody/model.hpp>

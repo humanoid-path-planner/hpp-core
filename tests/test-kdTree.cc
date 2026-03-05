@@ -42,7 +42,6 @@
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/util/debug.hh>
 

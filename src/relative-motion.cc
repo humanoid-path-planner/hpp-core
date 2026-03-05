@@ -35,7 +35,6 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/relative-motion.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <pinocchio/multibody/model.hpp>
 

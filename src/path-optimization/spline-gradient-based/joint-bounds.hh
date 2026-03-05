@@ -30,7 +30,6 @@
 #define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_JOINT_BOUNDS_HH
 
 #include <hpp/core/path/spline.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 

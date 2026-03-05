@@ -33,7 +33,6 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/node.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/util/debug.hh>
 #include <iostream>

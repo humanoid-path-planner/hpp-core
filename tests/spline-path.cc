@@ -35,7 +35,6 @@
 #include <hpp/core/steering-method/spline.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/simple-device.hh>

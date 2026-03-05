@@ -77,7 +77,6 @@
 #include <hpp/core/visibility-prm-planner.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/collision-object.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
 #include <iterator>
