@@ -31,7 +31,6 @@
 #include <hpp/core/problem.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/pinocchio/device.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/liegroup.hh>
 #include <hpp/pinocchio/util.hh>

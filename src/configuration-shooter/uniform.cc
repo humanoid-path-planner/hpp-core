@@ -28,7 +28,6 @@
 // DAMAGE.
 
 #include <hpp/core/configuration-shooter/uniform.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
 namespace hpp {
