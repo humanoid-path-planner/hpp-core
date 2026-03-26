@@ -35,7 +35,7 @@
 #include <hpp/core/fwd.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device-data.hh>
-#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
+#include <pinocchio/collision/fcl-pinocchio-conversions.hpp>
 
 namespace hpp {
 namespace core {
