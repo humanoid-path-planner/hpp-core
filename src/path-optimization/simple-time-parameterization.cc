@@ -275,11 +275,10 @@ SimpleTimeParameterization::SimpleTimeParameterization(
     : PathOptimizer(problem),
       safety(problem->getParameter("SimpleTimeParameterization/safety")
                  .floatValue()),
-      order(problem->getParameter("SimpleTimeParameterization/order")
-                .intValue()),
+      order(
+          problem->getParameter("SimpleTimeParameterization/order").intValue()),
       maxAcceleration(
-          problem
-              ->getParameter("SimpleTimeParameterization/maxAcceleration")
+          problem->getParameter("SimpleTimeParameterization/maxAcceleration")
               .floatValue()) {}
 
 // ----------- Declare parameters ------------------------------------- //
