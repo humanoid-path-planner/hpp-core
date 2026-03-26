@@ -307,9 +307,8 @@ endif()
 pkg_config_append_libs("hpp-core")
 
 if(INSTALL_DOCUMENTATION)
-  install(
-    FILES doc/continuous-validation.pdf
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME}/doxygen-html)
+  install(FILES doc/continuous-validation.pdf
+          DESTINATION ${CMAKE_INSTALL_FULL_DOCDIR}/doxygen-html)
 endif(INSTALL_DOCUMENTATION)
 
 set(HPP_CORE_CMAKE_PLUGIN

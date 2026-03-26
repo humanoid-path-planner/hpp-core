@@ -3,6 +3,7 @@
 
   inputs = {
     gepetto.url = "github:gepetto/nix";
+    flakoboros.follows = "gepetto/flakoboros";
     gazebros2nix.follows = "gepetto/gazebros2nix";
     flake-parts.follows = "gepetto/flake-parts";
     nixpkgs.follows = "gepetto/nixpkgs";
@@ -20,7 +21,7 @@
         imports = [
           inputs.gepetto.flakeModule
           {
-            gazebros2nix.overrides.hpp-core = _final: {
+            flakoboros.overrideAttrs.hpp-core = _: {
               src = lib.fileset.toSource {
                 root = ./.;
                 fileset = lib.fileset.unions [
