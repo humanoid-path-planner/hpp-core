@@ -191,6 +191,14 @@ class HPP_CORE_DLLAPI SimpleTimeParameterization : public PathOptimizer {
   /// Optimize path
   virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
+  /// A scaling factor for the velocity bounds.
+  value_type safety;
+  /// The desired continuity order (0, 1, or 2).
+  size_type order;
+  /// The maximum acceleration for each degree of freedom.
+  /// Not considered if negative.
+  value_type maxAcceleration;
+
  protected:
   SimpleTimeParameterization(const ProblemConstPtr_t& problem);
 };  // class SimpleTimeParameterization
