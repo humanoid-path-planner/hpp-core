@@ -33,6 +33,7 @@
 #endif
 // ref https://github.com/boostorg/serialization/issues/219
 
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/set.hpp>

@@ -28,6 +28,7 @@
 // DAMAGE.
 
 #include <boost/serialization/weak_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <hpp/core/distance.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/weighed-distance.hh>
