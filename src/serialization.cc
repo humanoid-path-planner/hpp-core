@@ -33,10 +33,10 @@
 #endif
 // ref https://github.com/boostorg/serialization/issues/219
 
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/set.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/distance.hh>
