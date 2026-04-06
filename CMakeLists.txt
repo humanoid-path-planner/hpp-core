@@ -32,29 +32,38 @@ set(PROJECT_USE_CMAKE_EXPORT TRUE)
 
 set(PROJECT_NAME hpp-core)
 set(PROJECT_DESCRIPTION
-    "Implement basic classes for canonical path planning for kinematic chains.")
+    "Implement basic classes for canonical path planning for kinematic chains."
+)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
 if(EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
-  message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
+    message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
 else()
-  find_package(jrl-cmakemodules QUIET CONFIG)
-  if(jrl-cmakemodules_FOUND)
-    get_property(
-      JRL_CMAKE_MODULES
-      TARGET jrl-cmakemodules::jrl-cmakemodules
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}")
-  else()
-    message(STATUS "JRL cmakemodules not found. Let's fetch it.")
-    include(FetchContent)
-    FetchContent_Declare(
-      "jrl-cmakemodules"
-      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
-    FetchContent_MakeAvailable("jrl-cmakemodules")
-    FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
-  endif()
+    find_package(jrl-cmakemodules QUIET CONFIG)
+    if(jrl-cmakemodules_FOUND)
+        get_property(
+            JRL_CMAKE_MODULES
+            TARGET jrl-cmakemodules::jrl-cmakemodules
+            PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+        )
+        message(
+            STATUS
+            "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}"
+        )
+    else()
+        message(STATUS "JRL cmakemodules not found. Let's fetch it.")
+        include(FetchContent)
+        FetchContent_Declare(
+            "jrl-cmakemodules"
+            GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git"
+        )
+        FetchContent_MakeAvailable("jrl-cmakemodules")
+        FetchContent_GetProperties(
+            "jrl-cmakemodules"
+            SOURCE_DIR JRL_CMAKE_MODULES
+        )
+    endif()
 endif()
 
 include("${JRL_CMAKE_MODULES}/hpp.cmake")
@@ -175,7 +184,8 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/subchain-path.hh
     include/hpp/core/time-parameterization.hh
     include/hpp/core/time-parameterization/piecewise-polynomial.hh
-    include/hpp/core/time-parameterization/polynomial.hh)
+    include/hpp/core/time-parameterization/polynomial.hh
+)
 
 set(${PROJECT_NAME}_SOURCES
     src/astar.hh
@@ -274,50 +284,59 @@ set(${PROJECT_NAME}_SOURCES
     src/path-projector/global.cc
     src/path-projector.cc
     src/problem-target/goal-configurations.cc
-    src/problem-target/task-target.cc)
+    src/problem-target/task-target.cc
+)
 
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES}
-                                   ${${PROJECT_NAME}_HEADERS})
+add_library(
+    ${PROJECT_NAME}
+    SHARED
+    ${${PROJECT_NAME}_SOURCES}
+    ${${PROJECT_NAME}_HEADERS}
+)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    ${PROJECT_NAME}
+    PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(
-  ${PROJECT_NAME}
-  ${CMAKE_DL_LIBS}
-  hpp-util::hpp-util
-  pinocchio::pinocchio
-  hpp-statistics::hpp-statistics
-  hpp-constraints::hpp-constraints
-  proxsuite::proxsuite)
+    ${PROJECT_NAME}
+    ${CMAKE_DL_LIBS}
+    hpp-util::hpp-util
+    pinocchio::pinocchio
+    hpp-statistics::hpp-statistics
+    hpp-constraints::hpp-constraints
+    proxsuite::proxsuite
+)
 
-install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${TARGETS_EXPORT_NAME}
-  DESTINATION lib)
+install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
 
 add_subdirectory(plugins)
 if(BUILD_TESTING)
-  find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-  find_package(example-robot-data REQUIRED)
-  find_package(hpp-environments REQUIRED)
-  add_subdirectory(tests)
+    find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+    find_package(example-robot-data REQUIRED)
+    find_package(hpp-environments REQUIRED)
+    add_subdirectory(tests)
 endif()
 
 # Add dependency toward hpp-core library in pkg-config file.
 pkg_config_append_libs("hpp-core")
 
 if(INSTALL_DOCUMENTATION)
-  install(FILES doc/continuous-validation.pdf
-          DESTINATION ${CMAKE_INSTALL_FULL_DOCDIR}/doxygen-html)
+    install(
+        FILES doc/continuous-validation.pdf
+        DESTINATION ${CMAKE_INSTALL_FULL_DOCDIR}/doxygen-html
+    )
 endif(INSTALL_DOCUMENTATION)
 
 set(HPP_CORE_CMAKE_PLUGIN
     "${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}/${PROJECT_NAME}-plugin.cmake"
 )
 set(PKG_CONFIG_EXTRA
-    "${PKG_CONFIG_EXTRA}\ncmake_plugin=${HPP_CORE_CMAKE_PLUGIN}")
+    "${PKG_CONFIG_EXTRA}\ncmake_plugin=${HPP_CORE_CMAKE_PLUGIN}"
+)
 set(PACKAGE_EXTRA_MACROS "set(HPP_CORE_CMAKE_PLUGIN ${HPP_CORE_CMAKE_PLUGIN})")
 install(
-  FILES cmake-modules/hpp-core-plugin.cmake
-  DESTINATION lib/cmake/${PROJECT_NAME}
-  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+    FILES cmake-modules/hpp-core-plugin.cmake
+    DESTINATION lib/cmake/${PROJECT_NAME}
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
+)
