@@ -16,6 +16,7 @@ jobs:
   nix:
     runs-on: "${{ matrix.os }}-latest"
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu]
     steps:
