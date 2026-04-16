@@ -9,7 +9,6 @@
       { lib, ... }:
       {
         overrideAttrs.hpp-core = {
-          postPatch = "";
           src = lib.fileset.toSource {
             root = ./.;
             fileset = lib.fileset.unions [
