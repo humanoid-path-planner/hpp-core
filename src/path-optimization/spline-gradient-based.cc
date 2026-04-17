@@ -73,20 +73,23 @@ SplineGradientBased<_PB, _SO>::SplineGradientBased(
     : Base(problem),
       alphaInit(
           problem->getParameter("SplineGradientBased/alphaInit").floatValue()),
-      alwaysStopAtFirst(problem->getParameter("SplineGradientBased/alwaysStopAtFirst")
-                            .boolValue()),
+      alwaysStopAtFirst(
+          problem->getParameter("SplineGradientBased/alwaysStopAtFirst")
+              .boolValue()),
       costOrder(
           problem->getParameter("SplineGradientBased/costOrder").intValue()),
       usePathLengthAsWeights(
           problem->getParameter("SplineGradientBased/usePathLengthAsWeights")
               .boolValue()),
-      reorderIntervals(problem->getParameter("SplineGradientBased/reorderIntervals")
-                           .boolValue()),
+      reorderIntervals(
+          problem->getParameter("SplineGradientBased/reorderIntervals")
+              .boolValue()),
       linearizeAtEachStep(
           problem->getParameter("SplineGradientBased/linearizeAtEachStep")
               .boolValue()),
-      checkJointBound(problem->getParameter("SplineGradientBased/checkJointBound")
-                          .boolValue()),
+      checkJointBound(
+          problem->getParameter("SplineGradientBased/checkJointBound")
+              .boolValue()),
       returnOptimum(problem->getParameter("SplineGradientBased/returnOptimum")
                         .boolValue()),
       costThreshold(problem->getParameter("SplineGradientBased/costThreshold")
