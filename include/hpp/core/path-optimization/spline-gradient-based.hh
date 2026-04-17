@@ -72,6 +72,35 @@ class HPP_CORE_DLLAPI SplineGradientBased
   /// \li 7) - Build result path.
   virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
+  /// In [0,1]. Initial value when interpolating between non-colliding
+  /// current solution and the optimal colliding trajectory.
+  value_type alphaInit;
+  /// If true, consider only one (not all) collision constraint per iteration.
+  bool alwaysStopAtFirst;
+  /// Order of the derivative used for the optimized cost function
+  /// (most likely 1, 2, or 3).
+  size_type costOrder;
+  /// If true, the initial path length is used to weight the splines.
+  bool usePathLengthAsWeights;
+  /// If true, intervals in collision are checked first at the next iteration.
+  bool reorderIntervals;
+  /// If true, collision constraint will be re-linearized at each iteration.
+  bool linearizeAtEachStep;
+  /// If true, joint bounds are enforced.
+  bool checkJointBound;
+  /// (For debugging purpose) If true, returns the optimum regardless of
+  /// collision.
+  bool returnOptimum;
+  /// Stop optimizing if the cost improves less than this threshold between
+  /// two iterations.
+  value_type costThreshold;
+  /// Threshold used to check whether the Jacobian contains rows of zeros,
+  /// in which case the corresponding DoF is considered passive.
+  /// Negative disables the check.
+  value_type guessThreshold;
+  /// Accuracy of QP solver (only used by proxqp).
+  value_type QPAccuracy;
+
  protected:
   using Base::problem;
   using Base::robot_;
