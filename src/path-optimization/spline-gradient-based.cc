@@ -70,7 +70,32 @@ ConstVectorMap_t reshape(const Eigen::Matrix<value_type, NbRows, Eigen::Dynamic,
 template <int _PB, int _SO>
 SplineGradientBased<_PB, _SO>::SplineGradientBased(
     const ProblemConstPtr_t& problem)
-    : Base(problem), checkOptimum_(false) {}
+    : Base(problem),
+      alphaInit(
+          problem->getParameter("SplineGradientBased/alphaInit").floatValue()),
+      alwaysStopAtFirst(problem->getParameter("SplineGradientBased/alwaysStopAtFirst")
+                            .boolValue()),
+      costOrder(
+          problem->getParameter("SplineGradientBased/costOrder").intValue()),
+      usePathLengthAsWeights(
+          problem->getParameter("SplineGradientBased/usePathLengthAsWeights")
+              .boolValue()),
+      reorderIntervals(problem->getParameter("SplineGradientBased/reorderIntervals")
+                           .boolValue()),
+      linearizeAtEachStep(
+          problem->getParameter("SplineGradientBased/linearizeAtEachStep")
+              .boolValue()),
+      checkJointBound(problem->getParameter("SplineGradientBased/checkJointBound")
+                          .boolValue()),
+      returnOptimum(problem->getParameter("SplineGradientBased/returnOptimum")
+                        .boolValue()),
+      costThreshold(problem->getParameter("SplineGradientBased/costThreshold")
+                        .floatValue()),
+      guessThreshold(problem->getParameter("SplineGradientBased/guessThreshold")
+                         .floatValue()),
+      QPAccuracy(
+          problem->getParameter("SplineGradientBased/QPAccuracy").floatValue()),
+      checkOptimum_(false) {}
 
 // ----------- Convenience class -------------------------------------- //
 
@@ -202,10 +227,6 @@ void SplineGradientBased<_PB, _SO>::addProblemConstraintOnPath(
       const ExplicitConstraintSet& es = hs.explicitConstraintSet();
 
       // Get the active parameter row selection.
-      value_type guessThreshold =
-          problem()
-              ->getParameter("SplineGradientBased/guessThreshold")
-              .floatValue();
       Eigen::RowBlockIndices select =
           computeActiveParameters(path, hs, guessThreshold);
 
@@ -373,37 +394,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     const PathVectorPtr_t& path) {
   this->monitorExecution();
 
-  // Get some parameters
-  value_type alphaInit =
-      problem()->getParameter("SplineGradientBased/alphaInit").floatValue();
-  bool alwaysStopAtFirst =
-      problem()
-          ->getParameter("SplineGradientBased/alwaysStopAtFirst")
-          .boolValue();
-  size_type costOrder =
-      problem()->getParameter("SplineGradientBased/costOrder").intValue();
-  bool usePathLengthAsWeights =
-      problem()
-          ->getParameter("SplineGradientBased/usePathLengthAsWeights")
-          .boolValue();
-  bool reorderIntervals =
-      problem()
-          ->getParameter("SplineGradientBased/reorderIntervals")
-          .boolValue();
-  bool linearizeAtEachStep =
-      problem()
-          ->getParameter("SplineGradientBased/linearizeAtEachStep")
-          .boolValue();
-  bool checkJointBound =
-      problem()
-          ->getParameter("SplineGradientBased/checkJointBound")
-          .boolValue();
-  bool returnOptimum =
-      problem()->getParameter("SplineGradientBased/returnOptimum").boolValue();
-  value_type costThreshold =
-      problem()->getParameter("SplineGradientBased/costThreshold").floatValue();
-  value_type eps_abs(
-      problem()->getParameter("SplineGradientBased/QPAccuracy").floatValue());
+  value_type eps_abs(QPAccuracy);
   if (path->length() == 0) return path;
   PathVectorPtr_t input = Base::cleanInput(path);
 
