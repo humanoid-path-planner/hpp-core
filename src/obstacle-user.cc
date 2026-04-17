@@ -33,8 +33,8 @@
 #include <hpp/pinocchio/collision-object.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/util/exception-factory.hh>
+#include <pinocchio/collision/fcl-pinocchio-conversions.hpp>
 #include <pinocchio/multibody/geometry.hpp>
-#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
 
 namespace hpp {
 namespace core {

@@ -35,7 +35,7 @@
 #include <hpp/pinocchio/body.hh>
 #include <hpp/pinocchio/collision-object.hh>
 #include <limits>
-#include <pinocchio/spatial/fcl-pinocchio-conversions.hpp>
+#include <pinocchio/collision/fcl-pinocchio-conversions.hpp>
 
 namespace hpp {
 namespace core {

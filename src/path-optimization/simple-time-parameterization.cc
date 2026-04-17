@@ -163,14 +163,9 @@ PathVectorPtr_t SimpleTimeParameterization::optimize(
   }
   const value_type infinity = std::numeric_limits<value_type>::infinity();
 
-  const value_type safety =
-      problem()->getParameter("SimpleTimeParameterization/safety").floatValue();
-  const size_type order =
-      problem()->getParameter("SimpleTimeParameterization/order").intValue();
-  const value_type maxAcc =
-      problem()
-          ->getParameter("SimpleTimeParameterization/maxAcceleration")
-          .floatValue();
+  const value_type safety = this->safety;
+  const size_type order = this->order;
+  const value_type maxAcc = this->maxAcceleration;
   if (order <= 1 && maxAcc > 0) {
     throw std::invalid_argument(
         "Maximum acceleration cannot be set when order is <= to 1. Please set "
@@ -277,7 +272,14 @@ PathVectorPtr_t SimpleTimeParameterization::optimize(
 
 SimpleTimeParameterization::SimpleTimeParameterization(
     const ProblemConstPtr_t& problem)
-    : PathOptimizer(problem) {}
+    : PathOptimizer(problem),
+      safety(problem->getParameter("SimpleTimeParameterization/safety")
+                 .floatValue()),
+      order(
+          problem->getParameter("SimpleTimeParameterization/order").intValue()),
+      maxAcceleration(
+          problem->getParameter("SimpleTimeParameterization/maxAcceleration")
+              .floatValue()) {}
 
 // ----------- Declare parameters ------------------------------------- //
 

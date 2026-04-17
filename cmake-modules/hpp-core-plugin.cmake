@@ -23,34 +23,43 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 macro(HPP_ADD_PLUGIN PLUGIN_NAME)
-  set(options EXCLUDE_FROM_ALL)
-  set(oneValueArgs)
-  set(multiValueArgs SOURCES LINK_DEPENDENCIES PKG_CONFIG_DEPENDENCIES EXPORT)
-  cmake_parse_arguments(PLUGIN "${options}" "${oneValueArgs}"
-                        "${multiValueArgs}" ${ARGN})
-  if(PLUGIN_EXCLUDE_FROM_ALL)
-    set(_options ${_options} EXCLUDE_FROM_ALL)
-  endif()
-  add_library(${PLUGIN_NAME} MODULE ${_options} ${PLUGIN_SOURCES})
-  set_target_properties(${PLUGIN_NAME} PROPERTIES PREFIX ""
-                                                  BUILD_WITH_INSTALL_RPATH TRUE)
+    set(options EXCLUDE_FROM_ALL)
+    set(oneValueArgs)
+    set(multiValueArgs SOURCES LINK_DEPENDENCIES PKG_CONFIG_DEPENDENCIES EXPORT)
+    cmake_parse_arguments(
+        PLUGIN
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
+    )
+    if(PLUGIN_EXCLUDE_FROM_ALL)
+        set(_options ${_options} EXCLUDE_FROM_ALL)
+    endif()
+    add_library(${PLUGIN_NAME} MODULE ${_options} ${PLUGIN_SOURCES})
+    set_target_properties(
+        ${PLUGIN_NAME}
+        PROPERTIES PREFIX "" BUILD_WITH_INSTALL_RPATH TRUE
+    )
 
-  target_link_libraries(${PLUGIN_NAME} ${PLUGIN_LINK_DEPENDENCIES})
-  foreach(DEP ${PLUGIN_PKG_CONFIG_DEPENDENCIES})
-    pkg_config_use_dependency(${PLUGIN_NAME} ${DEP})
-  endforeach()
+    target_link_libraries(${PLUGIN_NAME} ${PLUGIN_LINK_DEPENDENCIES})
+    foreach(DEP ${PLUGIN_PKG_CONFIG_DEPENDENCIES})
+        pkg_config_use_dependency(${PLUGIN_NAME} ${DEP})
+    endforeach()
 
-  if(NOT PLUGIN_EXCLUDE_FROM_ALL)
-    install(
-      TARGETS ${PLUGIN_NAME}
-      EXPORT ${PLUGIN_EXPORT}
-      DESTINATION lib/hppPlugins)
-  endif()
+    if(NOT PLUGIN_EXCLUDE_FROM_ALL)
+        install(
+            TARGETS ${PLUGIN_NAME}
+            EXPORT ${PLUGIN_EXPORT}
+            DESTINATION lib/hppPlugins
+        )
+    endif()
 endmacro()
 
 macro(ADD_PLUGIN PLUGIN_NAME)
-  message(
-    AUTHOR_WARNING
-      "Macro ADD_PLUGIN is deprecated and should be replaced by HPP_ADD_PLUGIN")
-  hpp_add_plugin(${PLUGIN_NAME} ${ARGN})
+    message(
+        AUTHOR_WARNING
+        "Macro ADD_PLUGIN is deprecated and should be replaced by HPP_ADD_PLUGIN"
+    )
+    hpp_add_plugin(${PLUGIN_NAME} ${ARGN})
 endmacro()

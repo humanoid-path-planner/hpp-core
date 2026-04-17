@@ -33,26 +33,30 @@ hpp_add_plugin(
   spline-gradient-based.cc
   LINK_DEPENDENCIES
   PUBLIC
-  ${PROJECT_NAME})
+  ${PROJECT_NAME}
+)
 
 project_install_component(spline-gradient-based)
 
 option(BUILD_TOPPRA_PLUGIN "Build toppra plugin" OFF)
 if(BUILD_TOPPRA_PLUGIN)
-  add_project_dependency(toppra FOR_COMPONENT toppra)
-  message(STATUS "Found toppra ${toppra_VERSION}")
-  hpp_add_plugin(
-    toppra
-    EXPORT
-    toppraTargets
-    SOURCES
-    toppra
-    LINK_DEPENDENCIES
-    PUBLIC
-    ${PROJECT_NAME}
-    toppra::toppra)
+    add_project_dependency(toppra FOR_COMPONENT toppra)
+    message(STATUS "Found toppra ${toppra_VERSION}")
+    hpp_add_plugin(
+      toppra
+      EXPORT
+      toppraTargets
+      SOURCES
+      toppra
+      LINK_DEPENDENCIES
+      PUBLIC
+      ${PROJECT_NAME}
+      toppra::toppra
+    )
 
-  project_install_component(toppra)
-  install(FILES toppra.hh
-          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hpp/core/path-optimization/)
+    project_install_component(toppra)
+    install(
+        FILES toppra.hh
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hpp/core/path-optimization/
+    )
 endif()

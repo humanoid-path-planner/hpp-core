@@ -43,28 +43,31 @@ add_definitions(-DTEST_DIRECTORY="${CMAKE_SOURCE_DIR}/tests/data")
 #
 find_library(RT_LIB rt)
 macro(ADD_TESTCASE NAME GENERATED)
-  if(${GENERATED} STREQUAL TRUE)
-    add_unit_test(${NAME} ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.cc)
-  else()
-    add_unit_test(${NAME} ${NAME}.cc)
-  endif()
-  set_tests_properties(
-    ${NAME}
-    PROPERTIES
-      ENVIRONMENT
-      "ROS_PACKAGE_PATH=${hpp-environments_DIR}/../../../share:${example-robot-data_DIR}/../../../share"
-  )
-  target_include_directories(${NAME} PRIVATE ../src Boost::unit_test_framework)
-  if(RT_LIB)
-    target_link_libraries(${NAME} ${PROJECT_NAME} ${RT_LIB})
-  else()
-    target_link_libraries(${NAME} ${PROJECT_NAME})
-  endif()
+    if(${GENERATED} STREQUAL TRUE)
+        add_unit_test(${NAME} ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.cc)
+    else()
+        add_unit_test(${NAME} ${NAME}.cc)
+    endif()
+    set_tests_properties(
+        ${NAME}
+        PROPERTIES
+            ENVIRONMENT
+                "ROS_PACKAGE_PATH=${hpp-environments_DIR}/../../../share:${example-robot-data_DIR}/../../../share"
+    )
+    target_include_directories(
+        ${NAME}
+        PRIVATE ../src Boost::unit_test_framework
+    )
+    if(RT_LIB)
+        target_link_libraries(${NAME} ${PROJECT_NAME} ${RT_LIB})
+    else()
+        target_link_libraries(${NAME} ${PROJECT_NAME})
+    endif()
 endmacro(ADD_TESTCASE)
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
 add_testcase(test-kdTree FALSE)
@@ -83,9 +86,11 @@ add_testcase(test-config-validations FALSE)
 
 add_testcase(explicit-relative-transformation FALSE)
 set_property(
-  TARGET explicit-relative-transformation
-  APPEND_STRING
-  PROPERTY COMPILE_FLAGS " -DDATA_DIR=\\\"${CMAKE_CURRENT_SOURCE_DIR}/data\\\"")
+    TARGET explicit-relative-transformation
+    APPEND_STRING
+    PROPERTY
+        COMPILE_FLAGS " -DDATA_DIR=\\\"${CMAKE_CURRENT_SOURCE_DIR}/data\\\""
+)
 
 add_testcase(spline-path FALSE)
 add_testcase(problem FALSE)
