@@ -303,6 +303,9 @@ HPP_PREDEF_CLASS(RSTimeParameterization);
 typedef shared_ptr<RSTimeParameterization> RSTimeParameterizationPtr_t;
 HPP_PREDEF_CLASS(SimpleTimeParameterization);
 typedef shared_ptr<SimpleTimeParameterization> SimpleTimeParameterizationPtr_t;
+HPP_PREDEF_CLASS(TrapezoidalTimeParameterization);
+typedef shared_ptr<TrapezoidalTimeParameterization>
+    TrapezoidalTimeParameterizationPtr_t;
 HPP_PREDEF_CLASS(ConfigOptimization);
 typedef shared_ptr<ConfigOptimization> ConfigOptimizationPtr_t;
 }  // namespace pathOptimization
