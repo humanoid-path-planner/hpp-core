@@ -154,9 +154,9 @@ BOOST_AUTO_TEST_CASE(trapezoidal_time_parameterization) {
 
   pathOptimization::TrapezoidalTimeParameterizationPtr_t optimizer =
       pathOptimization::TrapezoidalTimeParameterization::create(problem);
-  optimizer->maxVelocity = 1.;
-  optimizer->maxAcceleration = 1.;
-  optimizer->minimumDuration = 0.;
+  optimizer->maxVelocity(1.);
+  optimizer->maxAcceleration(1.);
+  optimizer->minimumDuration(0.);
 
   Configuration_t q0(Configuration_t::Zero(robot->configSize()));
   Configuration_t q1(Configuration_t::Zero(robot->configSize()));
