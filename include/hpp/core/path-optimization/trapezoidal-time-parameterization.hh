@@ -44,7 +44,7 @@ namespace pathOptimization {
 /// velocity bound, no output degree of freedom exceeds the configured scalar
 /// limits.
 ///
-/// Public attributes:
+/// Parameters can be configured with the getter and setter methods:
 /// \li maxVelocity
 /// \li maxAcceleration
 /// \li minimumDuration
@@ -58,14 +58,33 @@ class HPP_CORE_DLLAPI TrapezoidalTimeParameterization : public PathOptimizer {
   virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
   /// Maximum velocity for each output degree of freedom.
-  value_type maxVelocity;
+  value_type maxVelocity() const { return maxVelocity_; }
+  /// Set maximum velocity for each output degree of freedom.
+  void maxVelocity(const value_type& maxVelocity) {
+    maxVelocity_ = maxVelocity;
+  }
+
   /// Maximum acceleration for each output degree of freedom.
-  value_type maxAcceleration;
+  value_type maxAcceleration() const { return maxAcceleration_; }
+  /// Set maximum acceleration for each output degree of freedom.
+  void maxAcceleration(const value_type& maxAcceleration) {
+    maxAcceleration_ = maxAcceleration;
+  }
+
   /// Minimum duration assigned to each non-empty subpath.
-  value_type minimumDuration;
+  value_type minimumDuration() const { return minimumDuration_; }
+  /// Set minimum duration assigned to each non-empty subpath.
+  void minimumDuration(const value_type& minimumDuration) {
+    minimumDuration_ = minimumDuration;
+  }
 
  protected:
   TrapezoidalTimeParameterization(const ProblemConstPtr_t& problem);
+
+ private:
+  value_type maxVelocity_;
+  value_type maxAcceleration_;
+  value_type minimumDuration_;
 };  // class TrapezoidalTimeParameterization
 /// \}
 }  // namespace pathOptimization

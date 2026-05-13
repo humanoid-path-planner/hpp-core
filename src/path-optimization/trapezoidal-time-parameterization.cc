@@ -205,8 +205,8 @@ PathVectorPtr_t TrapezoidalTimeParameterization::optimize(
     PathPtr_t pp = p->copy();
 
     const value_type derivativeBound = pathDerivativeBound(p, paramRange);
-    value_type paramMaxVelocity = maxVelocity;
-    value_type paramMaxAcceleration = maxAcceleration;
+    value_type paramMaxVelocity = maxVelocity_;
+    value_type paramMaxAcceleration = maxAcceleration_;
     if (derivativeBound > eps) {
       paramMaxVelocity /= derivativeBound;
       paramMaxAcceleration /= derivativeBound;
@@ -214,7 +214,7 @@ PathVectorPtr_t TrapezoidalTimeParameterization::optimize(
 
     TrapezoidalProfile* profile = new TrapezoidalProfile(
         paramRange.first, paramRange.second, paramMaxVelocity,
-        paramMaxAcceleration, minimumDuration);
+        paramMaxAcceleration, minimumDuration_);
     TimeParameterizationPtr_t tp(profile);
     pp->timeParameterization(tp, profile->definitionInterval());
     output->appendPath(pp);
@@ -225,9 +225,9 @@ PathVectorPtr_t TrapezoidalTimeParameterization::optimize(
 TrapezoidalTimeParameterization::TrapezoidalTimeParameterization(
     const ProblemConstPtr_t& problem)
     : PathOptimizer(problem),
-      maxVelocity(1.),
-      maxAcceleration(.5),
-      minimumDuration(.01) {}
+      maxVelocity_(1.),
+      maxAcceleration_(.5),
+      minimumDuration_(.01) {}
 }  // namespace pathOptimization
 }  // namespace core
 }  // namespace hpp
