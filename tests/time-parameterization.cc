@@ -28,16 +28,32 @@
 
 #define BOOST_TEST_MODULE time_parameterization
 #include <boost/test/included/unit_test.hpp>
+#include <hpp/core/path-optimization/trapezoidal-time-parameterization.hh>
+#include <hpp/core/path-vector.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/core/straight-path.hh>
 #include <hpp/core/time-parameterization/piecewise-polynomial.hh>
 #include <hpp/core/time-parameterization/polynomial.hh>
-#include <hpp/pinocchio/simple-device.hh>
+#include <hpp/pinocchio/urdf/util.hh>
 #include <pinocchio/fwd.hpp>
 
 using namespace hpp::core;
 using namespace hpp::pinocchio;
 
 DevicePtr_t createRobot() {
-  DevicePtr_t robot = unittest::makeDevice(unittest::ManipulatorArm2);
+  std::string urdf(
+      "<robot name='test'>"
+      "<link name='link0'/>"
+      "<joint name='joint0' type='prismatic'>"
+      "<parent link='link0'/>"
+      "<child  link='link1'/>"
+      "<limit effort='30' velocity='1.0' lower='-4' upper='4'/>"
+      "</joint>"
+      "<link name='link1'/>"
+      "</robot>");
+
+  DevicePtr_t robot = Device::create("test");
+  urdf::loadModelFromString(robot, 0, "", "anchor", urdf, "");
   return robot;
 }
 
@@ -126,6 +142,48 @@ BOOST_AUTO_TEST_CASE(degree5integration) {
     value_type integral = integrate(P, 1.53147);
     BOOST_CHECK_CLOSE(integral, 0.406237, prec);
   }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(path_optimizer)
+
+BOOST_AUTO_TEST_CASE(trapezoidal_time_parameterization) {
+  DevicePtr_t robot = createRobot();
+  ProblemPtr_t problem = Problem::create(robot);
+
+  pathOptimization::TrapezoidalTimeParameterizationPtr_t optimizer =
+      pathOptimization::TrapezoidalTimeParameterization::create(problem);
+  optimizer->maxVelocity = 1.;
+  optimizer->maxAcceleration = 1.;
+  optimizer->minimumDuration = 0.;
+
+  Configuration_t q0(Configuration_t::Zero(robot->configSize()));
+  Configuration_t q1(Configuration_t::Zero(robot->configSize()));
+  q1[0] = 1.;
+
+  PathVectorPtr_t path =
+      PathVector::create(robot->configSize(), robot->numberDof());
+  path->appendPath(StraightPath::create(robot, q0, q1, 1.));
+
+  PathVectorPtr_t result = optimizer->optimize(path);
+  BOOST_CHECK_CLOSE(result->length(), 2., 1e-10);
+
+  Configuration_t q(robot->configSize());
+  vector_t v(robot->numberDof());
+  BOOST_CHECK(result->eval(q, 0.));
+  BOOST_CHECK_SMALL((q - q0).norm(), 1e-12);
+  BOOST_CHECK(result->eval(q, 1.));
+  BOOST_CHECK_CLOSE(q[0], .5, 1e-10);
+  BOOST_CHECK(result->eval(q, 2.));
+  BOOST_CHECK_SMALL((q - q1).norm(), 1e-12);
+
+  result->derivative(v, 0., 1);
+  BOOST_CHECK_SMALL(v[0], 1e-12);
+  result->derivative(v, 1., 1);
+  BOOST_CHECK_CLOSE(v[0], 1., 1e-10);
+  result->derivative(v, 2., 1);
+  BOOST_CHECK_SMALL(v[0], 1e-12);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

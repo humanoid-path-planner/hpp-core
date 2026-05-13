@@ -133,6 +133,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/path-optimization/simple-time-parameterization.hh
     include/hpp/core/path-optimization/spline-gradient-based.hh
     include/hpp/core/path-optimization/spline-gradient-based-abstract.hh
+    include/hpp/core/path-optimization/trapezoidal-time-parameterization.hh
     include/hpp/core/path-optimizer.hh
     include/hpp/core/path-planner.hh
     include/hpp/core/path-planning-failed.hh
@@ -241,6 +242,7 @@ set(${PROJECT_NAME}_SOURCES
     src/path-optimization/rs-time-parameterization.cc
     src/path-optimization/simple-shortcut.cc
     src/path-optimization/simple-time-parameterization.cc #
+    src/path-optimization/trapezoidal-time-parameterization.cc
     src/path-planner.cc #
     src/path-planner/k-prm-star.cc
     src/path-planner/bi-rrt-star.cc
