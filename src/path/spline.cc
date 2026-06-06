@@ -371,8 +371,8 @@ bool Spline<_SplineType, _Order>::impl_compute(ConfigurationOut_t res,
   return true;
 }
 
-// For splines on configuration space that are not vector space, the second derivative is not
-// correct on the non-vector space parts.
+// For splines on configuration space that are not vector space, the second
+// derivative is not correct on the non-vector space parts.
 template <int _SplineType, int _Order>
 void Spline<_SplineType, _Order>::impl_derivative(vectorOut_t res,
                                                   const value_type& s,

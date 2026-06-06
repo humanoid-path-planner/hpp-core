@@ -321,7 +321,8 @@ class HPP_CORE_DLLAPI Spline : public Path {
 
   /// Compute the derivative of required order of the spline
   ///
-  /// \warning If the output space of the spline is not a vector space, derivatives of order
+  /// \warning If the output space of the spline is not a vector space,
+  /// derivatives of order
   ///          greater than 1 on the non-vertor space parts are wrong.
   void impl_derivative(vectorOut_t res, const value_type& t,
                        size_type order) const;
