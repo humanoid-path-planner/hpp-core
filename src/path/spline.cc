@@ -371,6 +371,8 @@ bool Spline<_SplineType, _Order>::impl_compute(ConfigurationOut_t res,
   return true;
 }
 
+// For splines on configuration space that are not vector space, the second
+// derivative is not correct on the non-vector space parts.
 template <int _SplineType, int _Order>
 void Spline<_SplineType, _Order>::impl_derivative(vectorOut_t res,
                                                   const value_type& s,
@@ -379,14 +381,13 @@ void Spline<_SplineType, _Order>::impl_derivative(vectorOut_t res,
   assert(order > 0);
   // For non vector space, it is not possible to compute the derivatives
   // at a higher order. At the d2+/dv2 is not available for SE(n) and SO(n).
-  assert(order == 1 || robot_->configSpace()->isVectorSpace());
   BasisFunctionVector_t basisFunc;
   const value_type u =
       (length() == 0 ? 0 : (s - paramRange().first) / paramLength());
   basisFunctionDerivative(order, u, basisFunc);
   res.noalias() = parameters_.transpose() * basisFunc;
 
-  if (!robot_->configSpace()->isVectorSpace()) {
+  if (!robot_->configSpace()->isVectorSpace() && order == 1) {
     basisFunctionDerivative(0, u, basisFunc);
     vector_t v(parameters_.transpose() * basisFunc);
     // true means: res <- Jdiff * res
