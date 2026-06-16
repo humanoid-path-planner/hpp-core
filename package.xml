@@ -1,37 +1,32 @@
-<?xml version="1.0"?>
-<package format="3">
-  <name>hpp-core</name>
+<?xml version='1.0'?>
+<package format='3'>
+  <name>hpp_core</name>
   <version>8.0.0</version>
-  <description>Implement basic classes for canonical path planning for kinematic chains. </description>
-
-  <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>
-
+  <description>Implement basic classes for canonical path planning for kinematic chains</description>
   <author>Joseph Mirabel</author>
-  <author>Florent Lamiraux et al.</author>
-
-  <license>BSD-2</license>
+  <author>Florent Lamiraux</author>
+  <maintainer email='guilhem.saurel@laas.fr'>Guilhem Saurel</maintainer>
+  <license>BSD-2-Clause</license>
 
   <url type="website">https://github.com/humanoid-path-planner/hpp-core</url>
   <url type="repository">https://github.com/humanoid-path-planner/hpp-core</url>
   <url type="bugtracker">https://github.com/humanoid-path-planner/hpp-core/issues</url>
 
-  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
-  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
-  <buildtool_depend>cmake</buildtool_depend>
-
-  <build_depend>doxygen</build_depend>
-
   <depend>coal</depend>
   <depend>boost</depend>
   <depend>eigen</depend>
-  <depend>hpp-constraints</depend>
-  <depend>hpp-pinocchio</depend>
-  <depend>hpp-statistics</depend>
-  <depend>hpp-util</depend>
+  <depend>hpp_constraints</depend>
+  <depend>hpp_pinocchio</depend>
+  <depend>hpp_statistics</depend>
+  <depend>hpp_util</depend>
   <depend>proxsuite</depend>
 
-  <test_depend>example-robot-data</test_depend>
-  <test_depend>hpp-environments</test_depend>
+  <test_depend>example_robot_data</test_depend>
+  <test_depend>hpp_environments</test_depend>
+
+  <buildtool_depend>cmake</buildtool_depend>
+  <build_depend>doxygen</build_depend>
+  <build_depend>jrl_cmakemodules</build_depend>
 
   <export>
     <build_type>cmake</build_type>
