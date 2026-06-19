@@ -12,6 +12,7 @@ jobs:
         env:
           - {ROS_DISTRO: rolling}
     env:
+      NOT_TEST_BUILD: true # TODO
       UPSTREAM_WORKSPACE: |
         github:gepetto/example-robot-data#devel
         github:humanoid-path-planner/hpp-constraints#devel
