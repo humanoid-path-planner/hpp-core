@@ -1,0 +1,12 @@
+[hpp-constraints]
+url = "github:humanoid-path-planner"
+
+[hpp-core]
+src_deps = ["hpp-constraints", "hpp-environments", "hpp-pinocchio", "hpp-statistics", "hpp-util", "proxsuite"]
+url = "."
+
+[proxsuite]
+# TODO: https://github.com/Simple-Robotics/proxsuite/pull/470
+apt_deps = ["libeigen3-dev", "libmatio-dev", "libsimde-dev", "python3-numpy", "python3-scipy"]
+src_deps = ["jrl-cmakemodules"]
+url = "github:simple-robotics"
