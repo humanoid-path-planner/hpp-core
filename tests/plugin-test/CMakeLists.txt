@@ -26,9 +26,7 @@
 add_library(example MODULE EXCLUDE_FROM_ALL example.cc)
 set_target_properties(
     example
-    PROPERTIES
-        PREFIX
-            "" # BUILD_WITH_INSTALL_RPATH TRUE
+    PROPERTIES PREFIX "" # BUILD_WITH_INSTALL_RPATH TRUE
 )
 
 target_link_libraries(example ${PROJECT_NAME})
