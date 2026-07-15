@@ -96,7 +96,6 @@ PathPtr_t BiRRTPlanner::extendInternal(const SteeringMethodPtr_t& sm,
                  : (*sm)(near->configuration(), target);
 }
 
-/// One step of extension.
 void BiRRTPlanner::startSolve() {
   PathPlanner::startSolve();
   startComponent_ = roadmap()->initNode()->connectedComponent();
