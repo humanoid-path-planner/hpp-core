@@ -27,9 +27,6 @@ version = "9.0.0"
 [tool.cmeel]
 has-sitelib = false
 
-[tool.ruff]
-extend-exclude = ["cmake"]
-
 [tool.ruff.lint]
 extend-select = ["I", "NPY", "RUF", "UP", "W"]
 
