@@ -1,29 +1,31 @@
 [build-system]
-build-backend = "cmeel.build"
+build-backend = "cmeel"
 requires = [
-  "cmeel-boost ~= 1.83.0",
+  "cmeel-boost[build] ~= 1.90.0",
   "cmeel[build]",
   "hpp-constraints[build]",
   "hpp-pinocchio[build]",
   "hpp-statistics[build]",
-  "hpp-util[build]"
+  "hpp-util[build]",
+  "proxsuite[build]"
 ]
 
 [project]
 dependencies = [
-  "cmeel-boost ~= 1.83.0",
+  "cmeel-boost ~= 1.90.0",
   "hpp-constraints",
   "hpp-pinocchio",
   "hpp-statistics",
-  "hpp-util"
+  "hpp-util",
+  "proxsuite"
 ]
-description = "Utility classes for testing (robust) equilibrium of a system in contact with the environment, and other centroidal dynamics methods."
+description = "Utility classes for testing (robust) equilibrium of a system in contact with the environment, and other centroidal dynamics methods"
 license = "BSD-2-Clause"
 name = "hpp-core"
 version = "9.0.0"
 
-[tool.ruff]
-extend-exclude = ["cmake"]
+[tool.cmeel]
+has-sitelib = false
 
 [tool.ruff.lint]
 extend-select = ["I", "NPY", "RUF", "UP", "W"]
