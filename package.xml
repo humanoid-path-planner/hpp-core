@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <package format='3'>
   <name>hpp_core</name>
-  <version>9.0.0</version>
+  <version>9.0.2</version>
   <description>Implement basic classes for canonical path planning for kinematic chains</description>
   <author>Joseph Mirabel</author>
   <author>Florent Lamiraux</author>
