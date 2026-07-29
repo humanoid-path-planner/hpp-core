@@ -47,11 +47,11 @@ class HPP_CORE_DLLAPI PlanAndOptimize : public PathPlanner {
  public:
   /// Return shared pointer to new object.
   static PlanAndOptimizePtr_t create(const PathPlannerPtr_t& pathPlanner);
-  /// Call internal path planner implementation
+  /// Initialize the wrapped path planner.
   virtual void startSolve();
-  /// One iteration of path planning or path optimization
+  /// Perform one iteration of the wrapped path planner.
   virtual void oneStep();
-  /// Optimize planned path
+  /// Apply the registered path optimizers in order.
   virtual PathVectorPtr_t finishSolve(const PathVectorPtr_t& path);
   void addPathOptimizer(const PathOptimizerPtr_t& optimizer);
 

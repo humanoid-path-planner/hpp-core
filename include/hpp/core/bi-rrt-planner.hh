@@ -47,9 +47,11 @@ class HPP_CORE_DLLAPI BiRRTPlanner : public PathPlanner {
                                              const RoadmapPtr_t& roadmap);
   /// Return shared pointer to new object.
   static BiRRTPlannerPtr_t create(const ProblemConstPtr_t& problem);
-  /// One step of extension.
+  /// Initialize the problem resolution.
+  /// Call the parent implementation and store the connected components that
+  /// contain the initial and goal nodes.
   virtual void startSolve();
-  /// One step of extension.
+  /// Extend the initial and goal components toward a sampled configuration.
   virtual void oneStep();
 
  protected:

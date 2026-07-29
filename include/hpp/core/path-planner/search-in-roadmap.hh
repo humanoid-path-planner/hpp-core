@@ -58,9 +58,10 @@ class SearchInRoadmap : public PathPlanner {
       const ProblemConstPtr_t& problem, const RoadmapPtr_t& roadmap) {
     return SearchInRoadmapPtr_t(new SearchInRoadmap(problem, roadmap));
   }
-  /// This methods does nothing
+  /// Do not try to connect the initial and goal configurations.
   virtual void tryConnectInitAndGoals() {}
-  /// This methods does nothing
+  /// Report that the supplied roadmap contains no solution.
+  /// Always throw path_planning_failed.
   virtual void oneStep() {
     throw path_planning_failed(
         "SearchInRoadmap: no goal configuration in the connected component"
