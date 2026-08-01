@@ -114,14 +114,13 @@ bool Progressive::validateStraightPath(
     if (nStep % 1000 == 0) {
       bpt::ptime progNow(bpt::microsec_clock::universal_time());
       double progElapsed =
-          static_cast<double>(
-              (progNow - progStart).total_milliseconds()) /
+          static_cast<double>((progNow - progStart).total_milliseconds()) /
           1000.0;
       if (progElapsed > progTimeOutSeconds) {
         hppDout(error, "Progressive::validateStraightPath timed out after "
-                            << nStep << " steps / " << progElapsed
-                            << "s without covering [" << tmin << ", " << tmax
-                            << "] (stuck near t=" << t << ")");
+                           << nStep << " steps / " << progElapsed
+                           << "s without covering [" << tmin << ", " << tmax
+                           << "] (stuck near t=" << t << ")");
         report = PathValidationReportPtr_t(new PathValidationReport(
             t, ValidationReportPtr_t(new ProjectionError())));
         valid = false;
