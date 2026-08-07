@@ -38,6 +38,8 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path/cost.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/core/roadmap.hh>
 #include <hpp/util/debug.hh>
 #include <limits>
 
@@ -54,10 +56,13 @@ class HPP_CORE_LOCAL Astar {
   Parent_t parent_;
   RoadmapPtr_t roadmap_;
   DistancePtr_t distance_;
+  double timeOut_;
 
  public:
-  Astar(const RoadmapPtr_t& roadmap, const DistancePtr_t distance)
-      : roadmap_(roadmap), distance_(distance) {}
+  Astar(const RoadmapPtr_t& roadmap, const ProblemConstPtr_t& problem)
+      : roadmap_(roadmap),
+        distance_(problem->distance()),
+        timeOut_(problem->getParameter("Astar/timeOut").floatValue()) {}
 
   void solution(PathVectorPtr_t sol) {
     NodePtr_t node = findPath();
@@ -110,14 +115,13 @@ class HPP_CORE_LOCAL Astar {
     // wall-clock bound; pathological roadmaps (open_/closed_ are
     // std::list, O(n) membership checks) could run indefinitely.
     bpt::ptime astarStart(bpt::microsec_clock::universal_time());
-    const double astarTimeOutSeconds = 30.0;
     open_.push_back(roadmap_->initNode());
     while (!open_.empty()) {
       bpt::ptime astarNow(bpt::microsec_clock::universal_time());
       double astarElapsed =
           static_cast<double>((astarNow - astarStart).total_milliseconds()) /
           1000.0;
-      if (astarElapsed > astarTimeOutSeconds) {
+      if (astarElapsed > timeOut_) {
         hppDout(error, "Astar::findPath timed out after "
                            << astarElapsed << "s, open=" << open_.size()
                            << " closed=" << closed_.size());

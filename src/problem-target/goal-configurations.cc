@@ -67,7 +67,7 @@ PathVectorPtr_t GoalConfigurations::computePath(
     const RoadmapPtr_t& roadmap) const {
   ProblemPtr_t problem(problem_.lock());
   assert(problem);
-  Astar astar(roadmap, problem->distance());
+  Astar astar(roadmap, problem);
   PathVectorPtr_t sol = PathVector::create(problem->robot()->configSize(),
                                            problem->robot()->numberDof());
   astar.solution(sol);
