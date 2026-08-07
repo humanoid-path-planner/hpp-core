@@ -33,7 +33,9 @@
 #include <coal/shape/geometric_shapes.h>
 
 #include <boost/test/included/unit_test.hpp>
+#include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/continuous-validation/solid-solid-collision.hh>
+#include <hpp/core/relative-motion.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/simple-device.hh>
@@ -43,6 +45,7 @@
 #include <pinocchio/multibody/model.hpp>
 
 using hpp::core::continuousValidation::CoefficientVelocities_t;
+using hpp::core::continuousValidation::Progressive;
 using hpp::core::continuousValidation::SolidSolidCollision;
 using hpp::core::continuousValidation::SolidSolidCollisionPtr_t;
 using hpp::pinocchio::BodyPtr_t;
@@ -196,6 +199,50 @@ BOOST_AUTO_TEST_CASE(virtual_parent) {
                          (radius + offset + root->maximalDistanceToParent()) *
                              joint_b->upperBoundAngularVelocity()),
                     1e-12);
+}
+
+BOOST_AUTO_TEST_CASE(security_margin_between_bodies) {
+  DevicePtr_t robot = createRobot();
+  JointPtr_t joint_a = robot->getJointByBodyName("lleg5_body");
+  JointPtr_t joint_b = robot->getJointByBodyName("rleg1_body");
+
+  Transform3s identity;
+  identity.setIdentity();
+  auto box = coal::make_shared<coal::Box>(.2, .4, .6);
+  GeomIndex id_a = robot->geomModel().addGeometryObject(
+      ::pinocchio::GeometryObject("body_a", joint_a->index(),
+                                  robot->model().getFrameId("lleg5_body"),
+                                  identity, box),
+      robot->model());
+  GeomIndex id_b = robot->geomModel().addGeometryObject(
+      ::pinocchio::GeometryObject("body_b", joint_b->index(),
+                                  robot->model().getFrameId("rleg1_body"),
+                                  identity, box),
+      robot->model());
+  robot->createGeomData();
+  CollisionObjectPtr_t object_a(
+      new CollisionObject(robot->geomModelPtr(), robot->geomDataPtr(), id_a));
+  CollisionObjectPtr_t object_b(
+      new CollisionObject(robot->geomModelPtr(), robot->geomDataPtr(), id_b));
+  SolidSolidCollisionPtr_t collision =
+      SolidSolidCollision::create(joint_a, joint_b, 0.001);
+  collision->addCollisionPair(object_a, object_b);
+
+  auto validation = Progressive::create(robot, 0.001);
+  validation->addIntervalValidation(collision);
+  RelativeMotion::matrix_type relativeMotion(RelativeMotion::matrix(robot));
+  relativeMotion(joint_a->index(), joint_b->index()) =
+      RelativeMotion::Constrained;
+  relativeMotion(joint_b->index(), joint_a->index()) =
+      RelativeMotion::Constrained;
+  validation->filterCollisionPairs(relativeMotion);
+
+  const value_type margin = 0.2;
+  validation->setSecurityMarginBetweenBodies("body_a", "body_b", margin);
+  BOOST_CHECK_EQUAL(collision->requests()[0].security_margin, margin);
+  BOOST_CHECK_THROW(validation->setSecurityMarginBetweenBodies(
+                        "unknown_a", "unknown_b", margin),
+                    std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
