@@ -30,6 +30,7 @@
 #ifndef HPP_CORE_ASTAR_HH
 #define HPP_CORE_ASTAR_HH
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <hpp/core/config.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/core/edge.hh>
@@ -37,6 +38,9 @@
 #include <hpp/core/node.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path/cost.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/core/roadmap.hh>
+#include <hpp/util/debug.hh>
 #include <limits>
 
 namespace hpp {
@@ -52,10 +56,13 @@ class HPP_CORE_LOCAL Astar {
   Parent_t parent_;
   RoadmapPtr_t roadmap_;
   DistancePtr_t distance_;
+  double timeOut_;
 
  public:
-  Astar(const RoadmapPtr_t& roadmap, const DistancePtr_t distance)
-      : roadmap_(roadmap), distance_(distance) {}
+  Astar(const RoadmapPtr_t& roadmap, const ProblemConstPtr_t& problem)
+      : roadmap_(roadmap),
+        distance_(problem->distance()),
+        timeOut_(problem->getParameter("Astar/timeOut").floatValue()) {}
 
   void solution(PathVectorPtr_t sol) {
     NodePtr_t node = findPath();
@@ -97,14 +104,30 @@ class HPP_CORE_LOCAL Astar {
   }
 
   NodePtr_t findPath() {
+    namespace bpt = boost::posix_time;
     closed_.clear();
     open_.clear();
     parent_.clear();
     estimatedCostToGoal_.clear();
     costFromStart_.clear();
 
+    // Unlike PathPlanner::solve(), this search had no iteration cap or
+    // wall-clock bound; pathological roadmaps (open_/closed_ are
+    // std::list, O(n) membership checks) could run indefinitely.
+    bpt::ptime astarStart(bpt::microsec_clock::universal_time());
     open_.push_back(roadmap_->initNode());
     while (!open_.empty()) {
+      bpt::ptime astarNow(bpt::microsec_clock::universal_time());
+      double astarElapsed =
+          static_cast<double>((astarNow - astarStart).total_milliseconds()) /
+          1000.0;
+      if (astarElapsed > timeOut_) {
+        hppDout(error, "Astar::findPath timed out after "
+                           << astarElapsed << "s, open=" << open_.size()
+                           << " closed=" << closed_.size());
+        throw std::runtime_error(
+            "A* timed out extracting the solution path from the roadmap.");
+      }
       open_.sort(SortFunctor(estimatedCostToGoal_));
       Nodes_t::iterator itv = open_.begin();
       NodePtr_t current(*itv);

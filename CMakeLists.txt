@@ -178,6 +178,7 @@ set(${PROJECT_NAME}_HEADERS
 
 set(${PROJECT_NAME}_SOURCES
     src/astar.hh
+    src/astar.cc
     src/bi-rrt-planner.cc
     src/collision-validation.cc
     src/configuration-shooter/uniform.cc

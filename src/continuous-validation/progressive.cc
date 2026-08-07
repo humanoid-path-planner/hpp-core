@@ -27,6 +27,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/path-vector.hh>
@@ -98,7 +99,33 @@ bool Progressive::validateStraightPath(
   // If the interval is of length 0, there is only one configuration to
   // validate.
   if (reverse ? t <= tmin : t >= tmax) finished++;
+  // The advancement step derives from the nearest collision pair's
+  // separation and can shrink toward zero near-tangent to an obstacle,
+  // making the iteration count to cover [tmin, tmax] unbounded in
+  // practice. Bound by wall-clock (checked every 1000 steps to keep the
+  // check itself cheap) rather than by iteration count, since per-step
+  // cost is exactly what varies here.
+  namespace bpt = boost::posix_time;
+  bpt::ptime progStart(bpt::microsec_clock::universal_time());
+  unsigned long int nStep = 0;
   while (finished < 2 && valid) {
+    ++nStep;
+    if (nStep % 1000 == 0) {
+      bpt::ptime progNow(bpt::microsec_clock::universal_time());
+      double progElapsed =
+          static_cast<double>((progNow - progStart).total_milliseconds()) /
+          1000.0;
+      if (progElapsed > timeOut_) {
+        hppDout(error, "Progressive::validateStraightPath timed out after "
+                           << nStep << " steps / " << progElapsed
+                           << "s without covering [" << tmin << ", " << tmax
+                           << "] (stuck near t=" << t << ")");
+        report = PathValidationReportPtr_t(new PathValidationReport(
+            t, ValidationReportPtr_t(new ProjectionError())));
+        valid = false;
+        break;
+      }
+    }
     bool success = path->eval(q, t);
     value_type tprev = t;
     if (!success) {
@@ -136,7 +163,7 @@ void Progressive::init(const ProgressiveWkPtr_t weak) {
 }
 
 Progressive::Progressive(const DevicePtr_t& robot, const value_type& tolerance)
-    : ContinuousValidation(robot, tolerance), weak_() {
+    : ContinuousValidation(robot, tolerance), weak_(), timeOut_(15.0) {
   if (tolerance <= 0) {
     throw std::runtime_error(
         "tolerance should be positive for"

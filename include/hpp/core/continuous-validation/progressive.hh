@@ -60,6 +60,11 @@ class HPP_CORE_DLLAPI Progressive : public ContinuousValidation {
                                  const value_type& tolerance);
   virtual ~Progressive();
 
+  /// Get wall-clock timeout (seconds) for validateStraightPath
+  value_type timeOut() const { return timeOut_; }
+  /// Set wall-clock timeout (seconds) for validateStraightPath
+  void timeOut(const value_type& timeOut) { timeOut_ = timeOut; }
+
  protected:
   /// Constructor
   /// \param robot the robot for which continuous validation is performed,
@@ -71,6 +76,8 @@ class HPP_CORE_DLLAPI Progressive : public ContinuousValidation {
  private:
   // Weak pointer to itself
   ProgressiveWkPtr_t weak_;
+  // Wall-clock timeout (seconds) for validateStraightPath, see timeOut()
+  value_type timeOut_;
   bool validateStraightPath(IntervalValidations_t& bodyPairCollisions,
                             const PathPtr_t& path, bool reverse,
                             PathPtr_t& validPart,

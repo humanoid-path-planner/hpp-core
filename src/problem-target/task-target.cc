@@ -81,7 +81,7 @@ NumericalConstraints_t TaskTarget::constraints() const {
 PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const {
   ProblemPtr_t problem(problem_.lock());
   assert(problem);
-  Astar astar(roadmap, problem->distance());
+  Astar astar(roadmap, problem);
   PathVectorPtr_t sol = PathVector::create(problem->robot()->configSize(),
                                            problem->robot()->numberDof());
   astar.solution(sol);
@@ -90,6 +90,9 @@ PathVectorPtr_t TaskTarget::computePath(const RoadmapPtr_t& roadmap) const {
     Configuration_t q(roadmap->initNode()->configuration());
     sol->appendPath((*problem->steeringMethod())(q, q));
   }
+  // Only reached on success: if astar.solution() throws (e.g. Astar/timeOut),
+  // the temporary goal nodes added by reached() are deliberately left in the
+  // roadmap rather than reset here.
   roadmap->resetGoalNodes();  // remove the temporary goal node
   return sol;
 }
