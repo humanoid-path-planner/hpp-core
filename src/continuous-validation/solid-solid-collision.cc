@@ -82,7 +82,7 @@ value_type SolidSolidCollision::computeMaximalVelocity(vector_t& Vb) const {
         Vb.segment(joint->rankInVelocity(), joint->numberDof()).norm();
   }
 
-  if (m_->joint_b) {
+  if (m_->joint_b && !m_->coefficients_reverse.empty()) {
     value_type maximalVelocity_b_a = 0;
     for (const auto& coeff : m_->coefficients_reverse) {
       const JointPtr_t& joint = coeff.joint_;
@@ -136,6 +136,23 @@ void SolidSolidCollision::addCollisionPair(
   requests().back().enable_cached_gjk_guess = true;
 }
 
+void SolidSolidCollision::setVirtualParent(const JointConstPtr_t& joint,
+                                           const JointConstPtr_t& parent,
+                                           value_type distance) {
+  bool update = false;
+  if (joint && (size_type)joint->index() == indexJointA()) {
+    m_->bound_a.joint = parent ? parent->index() : 0;
+    m_->bound_a.radius = m_->joint_a->linkedBody()->radius() + distance;
+    update = true;
+  } else if (joint && m_->joint_b &&
+             (size_type)joint->index() == indexJointB()) {
+    m_->bound_b.joint = parent ? parent->index() : 0;
+    m_->bound_b.radius = m_->joint_b->linkedBody()->radius() + distance;
+    update = true;
+  }
+  if (update) m_->setCoefficients();
+}
+
 std::string SolidSolidCollision::name() const {
   std::ostringstream oss;
   oss << "(" << m_->joint_a->name() << ",";
@@ -151,7 +168,8 @@ std::ostream& SolidSolidCollision::print(std::ostream& os) const {
   const pinocchio::Model& model = joint_a()->robot()->model();
   os << "SolidSolidCollision: " << m_->joint_a->name() << " - "
      << (m_->joint_b ? m_->joint_b->name() : model.names[0]) << '\n';
-  JointIndices_t joints = m_->computeSequenceOfJoints();
+  JointIndices_t joints =
+      m_->computeSequenceOfJoints(m_->bound_a.joint, m_->bound_b.joint);
   for (auto i : joints) os << model.names[i] << ", ";
   os << '\n';
   for (std::size_t i = 0; i < m_->coefficients.size(); ++i)
@@ -160,13 +178,12 @@ std::ostream& SolidSolidCollision::print(std::ostream& os) const {
 }
 
 SolidSolidCollision::JointIndices_t
-SolidSolidCollision::Model::computeSequenceOfJoints() const {
+SolidSolidCollision::Model::computeSequenceOfJoints(JointIndex id_a,
+                                                    JointIndex id_b) const {
   JointIndices_t joints;
 
   assert(joint_a);
   const pinocchio::Model& model = joint_a->robot()->model();
-  const JointIndex id_a = joint_a->index(),
-                   id_b = (joint_b ? joint_b->index() : 0);
   JointIndex ia = id_a, ib = id_b;
 
   std::vector<JointIndex> fromA, fromB;
@@ -193,21 +210,20 @@ SolidSolidCollision::Model::computeSequenceOfJoints() const {
   joints.insert(joints.end(), fromB.rbegin(), fromB.rend());
   assert(joints.front() == id_a);
   assert(joints.back() == id_b);
-  assert(joints.size() > 1);
   return joints;
 }
 
 CoefficientVelocities_t SolidSolidCollision::Model::computeCoefficients(
-    const JointIndices_t& joints) const {
+    const JointIndices_t& joints, value_type radius) const {
   const pinocchio::Model& model = joint_a->robot()->model();
 
   JointPtr_t child;
-  assert(joints.size() > 1);
   CoefficientVelocities_t coeff;
+  if (joints.size() < 2) return coeff;
   coeff.resize(joints.size() - 1);
   pinocchio::DevicePtr_t robot = joint_a->robot();
   // Store r0 + sum of T_{i/i+1} in a variable
-  value_type cumulativeLength = joint_a->linkedBody()->radius();
+  value_type cumulativeLength = radius;
   value_type distance;
   std::size_t i = 0;
   while (i + 1 < joints.size()) {
@@ -231,15 +247,16 @@ CoefficientVelocities_t SolidSolidCollision::Model::computeCoefficients(
   return coeff;
 }
 
-void SolidSolidCollision::Model::setCoefficients(const JointIndices_t& joints) {
+void SolidSolidCollision::Model::setCoefficients() {
+  JointIndices_t joints(computeSequenceOfJoints(bound_a.joint, bound_b.joint));
   // Compute coefficients going from joint a to joint b
-  coefficients = computeCoefficients(joints);
+  coefficients = computeCoefficients(joints, bound_a.radius);
 
   // Compute coefficients going from joint b to joint a
   if (joint_b) {
     JointIndices_t joints_reverse(joints);
     std::reverse(joints_reverse.begin(), joints_reverse.end());
-    coefficients_reverse = computeCoefficients(joints_reverse);
+    coefficients_reverse = computeCoefficients(joints_reverse, bound_b.radius);
   }
 }
 
@@ -267,9 +284,11 @@ SolidSolidCollision::SolidSolidCollision(const JointPtr_t& joint_a,
   if (joint_b) {
     assert(joint_b->linkedBody());
   }
-  // Find sequence of joints
-  JointIndices_t joints(m_->computeSequenceOfJoints());
-  m_->setCoefficients(joints);
+  m_->bound_a.joint = indexJointA();
+  m_->bound_a.radius = joint_a->linkedBody()->radius();
+  m_->bound_b.joint = indexJointB();
+  if (joint_b) m_->bound_b.radius = joint_b->linkedBody()->radius();
+  m_->setCoefficients();
 }
 
 SolidSolidCollision::SolidSolidCollision(
@@ -289,9 +308,9 @@ SolidSolidCollision::SolidSolidCollision(
       addCollisionPair(obj, *it);
     }
   }
-  // Find sequence of joints
-  JointIndices_t joints(m_->computeSequenceOfJoints());
-  m_->setCoefficients(joints);
+  m_->bound_a.joint = indexJointA();
+  m_->bound_a.radius = joint_a->linkedBody()->radius();
+  m_->setCoefficients();
 }
 
 void SolidSolidCollision::init(const SolidSolidCollisionWkPtr_t& weak) {

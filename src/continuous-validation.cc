@@ -332,24 +332,26 @@ void ContinuousValidation::setSecurityMargins(const matrix_t& securityMatrix) {
 void ContinuousValidation::setSecurityMarginBetweenBodies(
     const std::string& body_a, const std::string& body_b,
     const value_type& margin) {
-  // Loop over collision pairs and remove disabled ones.
-  bool found = true;
-  for (IntervalValidations_t::iterator _colPair(intervalValidations_.begin());
-       _colPair != intervalValidations_.end(); ++_colPair) {
-    BodyPairCollisionPtr_t bpc(
-        HPP_DYNAMIC_PTR_CAST(BodyPairCollision, *_colPair));
-    if (!bpc) continue;
-    const CollisionPairs_t& prs(bpc->pairs());
-    CollisionRequests_t& requests(bpc->requests());
-    for (std::size_t i = 0; i < prs.size(); ++i) {
-      const CollisionPair& pair(prs[i]);
-      if ((pair.first->name() == body_a && pair.second->name() == body_b) ||
-          (pair.first->name() == body_b && pair.second->name() == body_a)) {
-        requests[i].security_margin = margin;
-        found = true;
+  bool found = false;
+  auto setMargin = [&](const IntervalValidations_t& validations) {
+    for (const IntervalValidationPtr_t& validation : validations) {
+      BodyPairCollisionPtr_t bpc(
+          HPP_DYNAMIC_PTR_CAST(BodyPairCollision, validation));
+      if (!bpc) continue;
+      const CollisionPairs_t& pairs(bpc->pairs());
+      CollisionRequests_t& requests(bpc->requests());
+      for (std::size_t i = 0; i < pairs.size(); ++i) {
+        const CollisionPair& pair(pairs[i]);
+        if ((pair.first->name() == body_a && pair.second->name() == body_b) ||
+            (pair.first->name() == body_b && pair.second->name() == body_a)) {
+          requests[i].security_margin = margin;
+          found = true;
+        }
       }
     }
-  }
+  };
+  setMargin(intervalValidations_);
+  setMargin(disabledBodyPairCollisions_);
   if (!found)
     throw std::invalid_argument(
         "Could not find a collision pair between "
@@ -360,6 +362,18 @@ void ContinuousValidation::setSecurityMarginBetweenBodies(
   // moved outside, as suggested by a todo note.
   // To avoid a hard-to-find bug when the todo is adressed, this line is
   // kept.
+  bodyPairCollisionPool_.clear();
+}
+
+void ContinuousValidation::setVirtualParent(const JointConstPtr_t& joint,
+                                            const JointConstPtr_t& parent,
+                                            value_type distance) {
+  for (IntervalValidationPtr_t& validation : intervalValidations_) {
+    continuousValidation::SolidSolidCollisionPtr_t collision(
+        HPP_DYNAMIC_PTR_CAST(continuousValidation::SolidSolidCollision,
+                             validation));
+    if (collision) collision->setVirtualParent(joint, parent, distance);
+  }
   bodyPairCollisionPool_.clear();
 }
 

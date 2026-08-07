@@ -94,6 +94,13 @@ class HPP_CORE_DLLAPI SolidSolidCollision : public BodyPairCollision {
   void addCollisionPair(const CollisionObjectConstPtr_t& left,
                         const CollisionObjectConstPtr_t& right);
 
+  /// Use another joint as parent of a body for velocity bound computation.
+  ///
+  /// The collision pairs keep their physical joints. Only the kinematic chain
+  /// and the radius used to bound their relative velocity are modified.
+  void setVirtualParent(const JointConstPtr_t& joint,
+                        const JointConstPtr_t& parent, value_type distance);
+
   // Get coefficients and joints
   const CoefficientVelocities_t& coefficients() const {
     return m_->coefficients;
@@ -145,14 +152,22 @@ class HPP_CORE_DLLAPI SolidSolidCollision : public BodyPairCollision {
   typedef std::vector<JointIndex> JointIndices_t;
 
   struct Model {
+    struct Bound {
+      Bound() : joint(0), radius(0) {}
+      JointIndex joint;
+      value_type radius;
+    };
     JointPtr_t joint_a;
     JointPtr_t joint_b;
+    Bound bound_a;
+    Bound bound_b;
     CoefficientVelocities_t coefficients;
     CoefficientVelocities_t coefficients_reverse;
-    JointIndices_t computeSequenceOfJoints() const;
-    CoefficientVelocities_t computeCoefficients(
-        const JointIndices_t& joints) const;
-    void setCoefficients(const JointIndices_t& joints);
+    JointIndices_t computeSequenceOfJoints(JointIndex joint_a,
+                                           JointIndex joint_b) const;
+    CoefficientVelocities_t computeCoefficients(const JointIndices_t& joints,
+                                                value_type radius) const;
+    void setCoefficients();
   };
   shared_ptr<Model> m_;
   SolidSolidCollisionWkPtr_t weak_;
