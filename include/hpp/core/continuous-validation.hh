@@ -177,6 +177,10 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
                                               const std::string& body_b,
                                               const value_type& margin);
 
+  /// Set a virtual parent for velocity bound computation.
+  void setVirtualParent(const JointConstPtr_t& joint,
+                        const JointConstPtr_t& parent, value_type distance);
+
   /// \name Delegate
   /// \{
 

@@ -363,6 +363,18 @@ void ContinuousValidation::setSecurityMarginBetweenBodies(
   bodyPairCollisionPool_.clear();
 }
 
+void ContinuousValidation::setVirtualParent(const JointConstPtr_t& joint,
+                                            const JointConstPtr_t& parent,
+                                            value_type distance) {
+  for (IntervalValidationPtr_t& validation : intervalValidations_) {
+    continuousValidation::SolidSolidCollisionPtr_t collision(
+        HPP_DYNAMIC_PTR_CAST(continuousValidation::SolidSolidCollision,
+                             validation));
+    if (collision) collision->setVirtualParent(joint, parent, distance);
+  }
+  bodyPairCollisionPool_.clear();
+}
+
 template <>
 void ContinuousValidation::add<ContinuousValidation::AddObstacle>(
     const AddObstacle& delegate) {
