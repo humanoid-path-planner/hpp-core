@@ -193,13 +193,19 @@ void InterpolatedPath::impl_derivative(vectorOut_t result, const value_type& s,
 void InterpolatedPath::impl_velocityBound(vectorOut_t result,
                                           const value_type& t0,
                                           const value_type& t1) const {
-  InterpolationPoints_t::const_iterator next = configs_.lower_bound(t0);
-  InterpolationPoints_t::const_iterator current = next;
-  ++next;
-
   result.setZero();
+  if (configs_.size() < 2) return;
+
+  InterpolationPoints_t::const_iterator next = configs_.lower_bound(t0);
+  if (next == configs_.begin())
+    ++next;
+  else if (next == configs_.end())
+    --next;
+  InterpolationPoints_t::const_iterator current = next;
+  --current;
+
   vector_t tmp(result.size());
-  while (t1 > current->first) {
+  while (next != configs_.end() && current->first <= t1) {
     pinocchio::difference<hpp::pinocchio::RnxSOnLieGroupMap>(
         device_, next->second, current->second, tmp);
     const value_type T = next->first - current->first;
