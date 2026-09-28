@@ -21,7 +21,7 @@
   <depend>hpp_util</depend>
   <depend>proxsuite</depend>
 
-  <test_depend>example_robot_data</test_depend>
+  <test_depend>example_robot_descriptions</test_depend>
   <test_depend>hpp_environments</test_depend>
 
   <buildtool_depend>cmake</buildtool_depend>
