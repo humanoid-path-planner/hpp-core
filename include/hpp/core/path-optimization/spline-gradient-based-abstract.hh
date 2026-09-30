@@ -79,7 +79,8 @@ class HPP_CORE_DLLAPI SplineGradientBasedAbstract : public PathOptimizer {
   /// \name Spline creation
   /// \{
 
-  /// Flatten path and remove path of zero length.
+  /// Flatten the path, remove zero-length paths and split interpolation
+  /// intervals.
   static PathVectorPtr_t cleanInput(const PathVectorPtr_t& input);
 
   /// Spline steering method.

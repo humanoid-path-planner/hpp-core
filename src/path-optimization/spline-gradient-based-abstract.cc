@@ -129,12 +129,23 @@ PathVectorPtr_t SplineGradientBasedAbstract<_PB, _SO>::cleanInput(
   PathVectorPtr_t flat =
       PathVector::create(input->outputSize(), input->outputDerivativeSize());
   input->flatten(flat);
-  // Remove zero length path
+  // Split interpolation intervals before assigning one spline to each path.
   PathVectorPtr_t clean =
       PathVector::create(input->outputSize(), input->outputDerivativeSize());
   for (std::size_t i = 0; i < flat->numberPaths(); ++i) {
     PathPtr_t p = flat->pathAtRank(i);
-    if (p->length() > 0) clean->appendPath(p);
+    if (p->length() <= 0) continue;
+    InterpolatedPathPtr_t interpolated =
+        HPP_DYNAMIC_PTR_CAST(InterpolatedPath, p);
+    if (interpolated && interpolated->interpolationPoints().size() > 2) {
+      const auto& points = interpolated->interpolationPoints();
+      auto previous = points.begin();
+      auto next = previous;
+      for (++next; next != points.end(); ++previous, ++next)
+        clean->appendPath(p->extract(interval_t(previous->first, next->first)));
+    } else {
+      clean->appendPath(p);
+    }
   }
   return clean;
 }
