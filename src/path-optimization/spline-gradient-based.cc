@@ -98,6 +98,9 @@ SplineGradientBased<_PB, _SO>::SplineGradientBased(
                          .floatValue()),
       QPAccuracy(
           problem->getParameter("SplineGradientBased/QPAccuracy").floatValue()),
+      QPMaxIterations(
+          problem->getParameter("SplineGradientBased/QPMaxIterations")
+              .intValue()),
       checkOptimum_(false) {}
 
 // ----------- Convenience class -------------------------------------- //
@@ -473,6 +476,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
   QuadraticProgram QP(cost.inputDerivativeSize_);
   QP.accuracy(eps_abs);
+  QP.maxIterations(QPMaxIterations);
   value_type optimalCost, costLowerBound = 0;
   cost.value(optimalCost, splines);
   hppDout(info, "Initial cost is " << optimalCost);
@@ -483,6 +487,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
   QuadraticProgram QPc(QP, constraint);
   QPc.accuracy(eps_abs);
+  QPc.maxIterations(QPMaxIterations);
 
   if (QPc.H.rows() == 0)
     // There are no variables left for optimization.
@@ -701,6 +706,12 @@ Problem::declareParameter(
 Problem::declareParameter(ParameterDescription(
     Parameter::FLOAT, "SplineGradientBased/QPAccuracy",
     "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
+Problem::declareParameter(ParameterDescription(
+    Parameter::INT, "SplineGradientBased/QPMaxIterations",
+    "Iteration cap of the QP solver, per solve (only used by proxqp). 0 keeps "
+    "the solver's default, which does not bound a hard problem: a single solve "
+    "can then outlast PathOptimizer/timeOut.",
+    Parameter((size_type)0)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization
 }  // namespace core

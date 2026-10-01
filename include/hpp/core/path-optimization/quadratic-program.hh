@@ -70,7 +70,8 @@ struct QuadraticProgram {
         b(inputSize),
         dec(inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
         xStar(inputSize),
-        accuracy_(1e-4) {
+        accuracy_(1e-4),
+        maxIterations_(0) {
     H.setZero();
     b.setZero();
     bIsZero = true;
@@ -87,7 +88,8 @@ struct QuadraticProgram {
         dec(lc.PK.cols(), lc.PK.cols(),
             Eigen::ComputeThinU | Eigen::ComputeThinV),
         xStar(lc.PK.cols()),
-        accuracy_(1e-4) {
+        accuracy_(1e-4),
+        maxIterations_(QP.maxIterations_) {
     QP.reduced(lc, *this);
   }
 
@@ -97,7 +99,8 @@ struct QuadraticProgram {
         bIsZero(QP.bIsZero),
         dec(QP.dec),
         xStar(QP.xStar),
-        accuracy_(QP.accuracy_) {}
+        accuracy_(QP.accuracy_),
+        maxIterations_(QP.maxIterations_) {}
 
   ~QuadraticProgram();
 
@@ -114,6 +117,14 @@ struct QuadraticProgram {
   /// https://inria.hal.science/hal-03683733/file/Yet_another_QP_solver_for_robotics_and_beyond.pdf
   /// this paper \endlink (Equation (2)).
   value_type accuracy() const { return accuracy_; }
+  /// Set the internal QP solver's iteration cap
+  /// \param n the maximal number of iterations (outer and inner); 0 keeps
+  ///          the solver's default, which does not bound a hard problem
+  /// \note only used by proxqp. A capped solve that stops early reports
+  ///       PROXQP_MAX_ITER_REACHED, which solve() already handles.
+  void maxIterations(size_type n) { maxIterations_ = n; }
+  /// Get the internal QP solver's iteration cap (0: the solver's default)
+  size_type maxIterations() const { return maxIterations_; }
   void addRows(const std::size_t& nbRows) {
     H.conservativeResize(H.rows() + nbRows, H.cols());
     b.conservativeResize(b.rows() + nbRows, b.cols());
@@ -183,6 +194,7 @@ struct QuadraticProgram {
   vector_t xStar;
   /// \}
   value_type accuracy_;
+  size_type maxIterations_;
 };
 }  // namespace pathOptimization
 }  // namespace core
