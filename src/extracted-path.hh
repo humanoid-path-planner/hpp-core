@@ -90,7 +90,7 @@ class ExtractedPath : public Path {
   virtual void impl_derivative(vectorOut_t result, const value_type& s,
                                size_type order) const {
     if (reversed_) {
-      value_type param = (paramRange().second - s);
+      value_type param = sInOriginalPath(s);
       original_->impl_derivative(result, param, order);
       if (order % 2 == 1) result *= -1.;
     } else {
@@ -102,7 +102,7 @@ class ExtractedPath : public Path {
                           const value_type& t1) const override {
     value_type tmin = sInOriginalPath(t0), tmax = sInOriginalPath(t1);
     if (tmin > tmax) std::swap(tmin, tmax);
-    original_->velocityBound(result, tmin, tmax);
+    original_->impl_velocityBound(result, tmin, tmax);
   }
 
   virtual PathPtr_t impl_extract(const interval_t& subInterval) const {
@@ -115,25 +115,25 @@ class ExtractedPath : public Path {
     // ((!this->reversed_) && (reversed));
     path->timeParameterization(TimeParameterizationPtr_t(),
                                std::make_pair(tmin, tmax));
-    assert(path->timeRange().first >=
-           timeRange().first - std::numeric_limits<float>::epsilon());
-    assert(path->timeRange().second <=
-           timeRange().second + std::numeric_limits<float>::epsilon());
+    assert(path->paramRange().first >=
+           paramRange().first - std::numeric_limits<float>::epsilon());
+    assert(path->paramRange().second <=
+           paramRange().second + std::numeric_limits<float>::epsilon());
     return path;
   }
 
   /// Get the initial configuration
   inline Configuration_t initial() const {
     bool success;
-    return original_->eval(reversed_ ? timeRange().second : timeRange().first,
-                           success);
+    return original_->configAtParam(sInOriginalPath(paramRange().first),
+                                    success);
   }
 
   /// Get the final configuration
   inline Configuration_t end() const {
     bool success;
-    return original_->eval(reversed_ ? timeRange().first : timeRange().second,
-                           success);
+    return original_->configAtParam(sInOriginalPath(paramRange().second),
+                                    success);
   }
 
  protected:
@@ -165,8 +165,8 @@ class ExtractedPath : public Path {
       tr = subInterval;
     }
     timeRange(tr);
-    assert(timeRange().first >= original->timeRange().first);
-    assert(timeRange().second <= original->timeRange().second);
+    assert(paramRange().first >= original->paramRange().first);
+    assert(paramRange().second <= original->paramRange().second);
   }
 
   ExtractedPath(const ExtractedPath& path)
@@ -194,7 +194,7 @@ class ExtractedPath : public Path {
   inline value_type sInOriginalPath(const value_type& s) const {
     assert(paramRange().first <= s && s <= paramRange().second);
     if (!reversed_) return s;
-    return paramRange().second - s;
+    return paramRange().first + paramRange().second - s;
   }
 
   PathPtr_t original_;
