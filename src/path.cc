@@ -67,22 +67,65 @@ class HPP_CORE_LOCAL Shift : public TimeParameterization {
   Shift(TimeParameterizationPtr_t tp, value_type t, value_type s)
       : tp_(tp), t_(t), s_(s) {}
 
-  value_type value(const value_type& t) const {
+  value_type value(const value_type& t) const override {
     return tp_->value(t + t_) + s_;
   }
-  value_type derivative(const value_type& t, const size_type& order) const {
+  value_type derivative(const value_type& t,
+                        const size_type& order) const override {
+    if (order == 0) return value(t);
     return tp_->derivative(t + t_, order);
   }
-  value_type impl_derivativeBound(const value_type& l,
-                                  const value_type& u) const {
+  value_type derivativeBound(const value_type& l,
+                             const value_type& u) const override {
     return tp_->derivativeBound(l + t_, u + t_);
   }
 
-  TimeParameterizationPtr_t copy() const { return create(tp_->copy(), t_, s_); }
+  TimeParameterizationPtr_t copy() const override {
+    return create(tp_->copy(), t_, s_);
+  }
 
   TimeParameterizationPtr_t tp_;
   value_type t_;
   value_type s_;
+};
+
+class HPP_CORE_LOCAL Reverse : public TimeParameterization {
+ public:
+  Reverse(TimeParameterizationPtr_t tp, value_type sourceTime,
+          value_type resultTime, value_type sourceParam, value_type resultParam)
+      : tp_(tp),
+        sourceTime_(sourceTime),
+        resultTime_(resultTime),
+        sourceParam_(sourceParam),
+        resultParam_(resultParam) {}
+
+  value_type value(const value_type& t) const override {
+    return resultParam_ +
+           (sourceParam_ - tp_->value(sourceTime_ - (t - resultTime_)));
+  }
+  value_type derivative(const value_type& t,
+                        const size_type& order) const override {
+    if (order == 0) return value(t);
+    value_type d = tp_->derivative(sourceTime_ - (t - resultTime_), order);
+    return order % 2 ? d : -d;
+  }
+  value_type derivativeBound(const value_type& l,
+                             const value_type& u) const override {
+    return tp_->derivativeBound(sourceTime_ - (u - resultTime_),
+                                sourceTime_ - (l - resultTime_));
+  }
+
+  TimeParameterizationPtr_t copy() const override {
+    return TimeParameterizationPtr_t(new Reverse(
+        tp_->copy(), sourceTime_, resultTime_, sourceParam_, resultParam_));
+  }
+
+ private:
+  TimeParameterizationPtr_t tp_;
+  value_type sourceTime_;
+  value_type resultTime_;
+  value_type sourceParam_;
+  value_type resultParam_;
 };
 }  // namespace timeParameterization
 
@@ -179,9 +222,6 @@ PathPtr_t Path::extract(const interval_t& subInterval) const {
     interval_t paramInterval(timeParam_->value(subInterval.first),
                              timeParam_->value(subInterval.second));
     res = this->impl_extract(paramInterval);
-    // TODO Child class that reimplement impl_extract may return
-    // a path whose paramRange has been shifted to 0. We must then shift
-    // the time parameterization.
     value_type shift_t, shift_s;
     interval_t timeInterval;
     if (subInterval.first > subInterval.second) {
@@ -209,12 +249,21 @@ PathPtr_t Path::extract(const interval_t& subInterval) const {
         timeInterval = subInterval;
       }
     }
-    timeParameterization::Shift::createWithCheck(timeParam_, shift_t, shift_s);
+    TimeParameterizationPtr_t tp;
+    if (subInterval.first > subInterval.second) {
+      tp = TimeParameterizationPtr_t(new timeParameterization::Reverse(
+          timeParam_->copy(), subInterval.first, timeInterval.first,
+          paramInterval.first, res->paramRange().first));
+    } else {
+      tp = timeParameterization::Shift::createWithCheck(timeParam_->copy(),
+                                                        shift_t, shift_s);
+    }
 #ifndef NDEBUG
     interval_t pr = res->paramRange();
 #endif  // NDEBUG
-    res->timeParameterization(timeParam_->copy(), timeInterval);
-    assert(pr == res->paramRange());
+    res->timeParameterization(tp, timeInterval);
+    assert(std::abs(pr.first - res->paramRange().first) < 1e-12);
+    assert(std::abs(pr.second - res->paramRange().second) < 1e-12);
   } else {
     res = this->impl_extract(subInterval);
   }
