@@ -301,11 +301,11 @@ struct traits_hermite {
   static const char* _proj;
 };
 const value_type traits_progressive::projection_step = 0.1;
-const value_type traits_global ::projection_step = 0.1;
-const value_type traits_hermite ::projection_step = 2;
+const value_type traits_global::projection_step = 0.1;
+const value_type traits_hermite::projection_step = 2;
 const char* traits_progressive::_proj = "progressive";
-const char* traits_global ::_proj = "global";
-const char* traits_hermite ::_proj = "hermite";
+const char* traits_global::_proj = "global";
+const char* traits_hermite::_proj = "hermite";
 
 struct traits_global_circle : traits_global, traits_circle {};
 struct traits_global_parabola : traits_global, traits_parabola {};

@@ -278,15 +278,15 @@ ProblemSolver::ProblemSolver()
   });
   pathProjectors.add("Progressive",
                      [](const ProblemConstPtr_t& p, const value_type& v) {
-                       return pathProjector::Progressive ::create(p, v);
+                       return pathProjector::Progressive::create(p, v);
                      });
   pathProjectors.add("Dichotomy",
                      [](const ProblemConstPtr_t& p, const value_type& v) {
-                       return pathProjector::Dichotomy ::create(p, v);
+                       return pathProjector::Dichotomy::create(p, v);
                      });
   pathProjectors.add("Global",
                      [](const ProblemConstPtr_t& p, const value_type& v) {
-                       return pathProjector::Global ::create(p, v);
+                       return pathProjector::Global::create(p, v);
                      });
   pathProjectors.add("RecursiveHermite",
                      [](const ProblemConstPtr_t& p, const value_type& v) {

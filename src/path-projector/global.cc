@@ -245,8 +245,8 @@ bool Global::projectOneStep(ConfigProjector& p, Configs_t& q,
   /// First and last should not be updated
   const Configs_t::iterator begin = ++(q.begin());
   const Configs_t::iterator end = --(q.end());
-  Bools_t ::iterator itB = (b.begin());
-  Alphas_t ::iterator itA = (a.begin());
+  Bools_t::iterator itB = (b.begin());
+  Alphas_t::iterator itA = (a.begin());
   Lengths_t::iterator itL = (l.begin());
   Configs_t::iterator itCp = (q.begin());
   bool allAreSatisfied = true;
@@ -357,8 +357,8 @@ size_type Global::reinterpolate(const DevicePtr_t& robot, Configs_t& q,
   Configs_t::iterator begin = ++(q.begin());
   Configs_t::iterator end = last;
   ++end;
-  Bools_t ::iterator itB = (b.begin());
-  Alphas_t ::iterator itA = (a.begin());
+  Bools_t::iterator itB = (b.begin());
+  Alphas_t::iterator itA = (a.begin());
   Lengths_t::iterator itL = (l.begin());
   Configs_t::iterator itCp = (q.begin());
   Configuration_t newQ(robot->configSize());
@@ -468,7 +468,7 @@ bool Global::createPath(const DevicePtr_t& robot,
   value_type min = std::numeric_limits<value_type>::max(), max = 0;
   size_type nbWaypoints = 0;
   Lengths_t::const_iterator itL = (l.begin());
-  Bools_t ::const_iterator itB = (b.begin());
+  Bools_t::const_iterator itB = (b.begin());
   Configs_t::const_iterator itCl = (q.begin());
   bool fullyProjected = true;
   for (; itB != b.end(); ++itB) {
