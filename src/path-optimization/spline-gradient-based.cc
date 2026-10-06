@@ -26,6 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <cmath>
 #include <hpp/constraints/svd.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/config-projector.hh>
@@ -493,7 +494,9 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     // There are no variables left for optimization.
     return this->buildPathVector(splines);
   QPc.computeLLT();
-  QPc.solve(collisionReduced, boundConstraintReduced);
+  // A failed solve (e.g. capped by QPMaxIterations) leaves xStar unset.
+  if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
+    return this->buildPathVector(splines);
 
   while (!(noCollision && minimumReached) && !this->shouldStop()) {
     // 6.1
@@ -534,7 +537,9 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       if (linearizeAtEachStep) {
         collisionFunctions.linearize(splines, solvers, collision);
         constraint.reduceConstraint(collision, collisionReduced);
-        QPc.solve(collisionReduced, boundConstraintReduced);
+        // splines holds the last collision-free path.
+        if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
+          break;
         hppDout(info, "linearized");
         computeOptimum = true;
       }
@@ -584,7 +589,9 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
           computeInterpolatedSpline = true;
         } else {
-          QPc.solve(collisionReduced, boundConstraintReduced);
+          // splines holds the last collision-free path.
+          if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
+            break;
           hppDout(info, "Added " << reports.size()
                                  << " constraints. "
                                     "Constraints size "
@@ -708,10 +715,12 @@ Problem::declareParameter(ParameterDescription(
     "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
 Problem::declareParameter(ParameterDescription(
     Parameter::INT, "SplineGradientBased/QPMaxIterations",
-    "Iteration cap of the QP solver (only used by proxqp), applied to both "
-    "its outer iterations and the inner iterations of each outer one. 0 keeps "
-    "the solver's defaults (10000 outer, 1500 inner), with which a single "
-    "hard solve can run for minutes, far past PathOptimizer/timeOut.",
+    "Iteration cap of the QP solver (only used by proxqp): caps its outer "
+    "iterations, and the inner iterations of each outer one without raising "
+    "them above the solver's default. 0 keeps the solver's defaults (10000 "
+    "outer, 1500 inner), with which a single hard solve can run for minutes, "
+    "far past PathOptimizer/timeOut. A capped solve that fails ends the "
+    "optimization with the last collision-free path.",
     Parameter((size_type)0)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization
