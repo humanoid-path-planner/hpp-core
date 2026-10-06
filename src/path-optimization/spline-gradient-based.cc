@@ -708,9 +708,10 @@ Problem::declareParameter(ParameterDescription(
     "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
 Problem::declareParameter(ParameterDescription(
     Parameter::INT, "SplineGradientBased/QPMaxIterations",
-    "Iteration cap of the QP solver, per solve (only used by proxqp). 0 keeps "
-    "the solver's default, which does not bound a hard problem: a single solve "
-    "can then outlast PathOptimizer/timeOut.",
+    "Iteration cap of the QP solver (only used by proxqp), applied to both "
+    "its outer iterations and the inner iterations of each outer one. 0 keeps "
+    "the solver's defaults (10000 outer, 1500 inner), with which a single "
+    "hard solve can run for minutes, far past PathOptimizer/timeOut.",
     Parameter((size_type)0)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization

@@ -118,8 +118,10 @@ struct QuadraticProgram {
   /// this paper \endlink (Equation (2)).
   value_type accuracy() const { return accuracy_; }
   /// Set the internal QP solver's iteration cap
-  /// \param n the maximal number of iterations (outer and inner); 0 keeps
-  ///          the solver's default, which does not bound a hard problem
+  /// \param n the maximal number of outer iterations, and of inner
+  ///          iterations per outer one, so a solve runs at most n * n inner
+  ///          iterations; 0 keeps the solver's defaults (proxqp: 10000 outer,
+  ///          1500 inner), with which one hard solve can run for minutes
   /// \note only used by proxqp. A capped solve that stops early reports
   ///       PROXQP_MAX_ITER_REACHED, which solve() already handles.
   void maxIterations(size_type n) { maxIterations_ = n; }
