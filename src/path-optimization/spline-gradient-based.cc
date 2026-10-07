@@ -26,6 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <cmath>
 #include <hpp/constraints/svd.hh>
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/config-projector.hh>
@@ -98,6 +99,9 @@ SplineGradientBased<_PB, _SO>::SplineGradientBased(
                          .floatValue()),
       QPAccuracy(
           problem->getParameter("SplineGradientBased/QPAccuracy").floatValue()),
+      QPMaxIterations(
+          problem->getParameter("SplineGradientBased/QPMaxIterations")
+              .intValue()),
       checkOptimum_(false) {}
 
 // ----------- Convenience class -------------------------------------- //
@@ -473,6 +477,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
   QuadraticProgram QP(cost.inputDerivativeSize_);
   QP.accuracy(eps_abs);
+  QP.maxIterations(QPMaxIterations);
   value_type optimalCost, costLowerBound = 0;
   cost.value(optimalCost, splines);
   hppDout(info, "Initial cost is " << optimalCost);
@@ -483,12 +488,14 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
   QuadraticProgram QPc(QP, constraint);
   QPc.accuracy(eps_abs);
+  QPc.maxIterations(QPMaxIterations);
 
   if (QPc.H.rows() == 0)
     // There are no variables left for optimization.
     return this->buildPathVector(splines);
   QPc.computeLLT();
-  QPc.solve(collisionReduced, boundConstraintReduced);
+  if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
+    return this->buildPathVector(splines);
 
   while (!(noCollision && minimumReached) && !this->shouldStop()) {
     // 6.1
@@ -529,7 +536,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       if (linearizeAtEachStep) {
         collisionFunctions.linearize(splines, solvers, collision);
         constraint.reduceConstraint(collision, collisionReduced);
-        QPc.solve(collisionReduced, boundConstraintReduced);
+        if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
+          break;
         hppDout(info, "linearized");
         computeOptimum = true;
       }
@@ -579,7 +587,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
 
           computeInterpolatedSpline = true;
         } else {
-          QPc.solve(collisionReduced, boundConstraintReduced);
+          if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
+            break;
           hppDout(info, "Added " << reports.size()
                                  << " constraints. "
                                     "Constraints size "
@@ -701,6 +710,11 @@ Problem::declareParameter(
 Problem::declareParameter(ParameterDescription(
     Parameter::FLOAT, "SplineGradientBased/QPAccuracy",
     "Accuracy of QP solver (only used by proxqp.", Parameter(1e-4)));
+Problem::declareParameter(ParameterDescription(
+    Parameter::INT, "SplineGradientBased/QPMaxIterations",
+    "Maximal number of iterations of QP solver (only used by proxqp). 0 keeps "
+    "the solver's default.",
+    Parameter((size_type)0)));
 HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
 }  // namespace pathOptimization
 }  // namespace core

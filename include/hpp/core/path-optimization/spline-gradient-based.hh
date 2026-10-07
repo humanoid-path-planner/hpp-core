@@ -100,6 +100,8 @@ class HPP_CORE_DLLAPI SplineGradientBased
   value_type guessThreshold;
   /// Accuracy of QP solver (only used by proxqp).
   value_type QPAccuracy;
+  /// Maximal number of iterations of QP solver (only used by proxqp).
+  size_type QPMaxIterations;
 
  protected:
   using Base::problem;

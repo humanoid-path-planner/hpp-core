@@ -71,6 +71,11 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
   proxsuite::proxqp::sparse::QP<value_type, long long> qp{H.rows(), ce.b.size(),
                                                           ci.b.size()};
   qp.settings.eps_abs = accuracy_;
+  if (maxIterations_ > 0) {
+    qp.settings.max_iter = maxIterations_;
+    if (qp.settings.max_iter_in > maxIterations_)
+      qp.settings.max_iter_in = maxIterations_;
+  }
   vector_t u = ci.b;
   u.fill(std::numeric_limits<value_type>::infinity());
 
