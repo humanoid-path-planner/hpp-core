@@ -117,15 +117,11 @@ struct QuadraticProgram {
   /// https://inria.hal.science/hal-03683733/file/Yet_another_QP_solver_for_robotics_and_beyond.pdf
   /// this paper \endlink (Equation (2)).
   value_type accuracy() const { return accuracy_; }
-  /// Set the internal QP solver's iteration cap
-  /// \param n the maximal number of outer iterations, and of inner
-  ///          iterations per outer one (never above the solver's default);
-  ///          0 keeps the solver's defaults (proxqp: 10000 outer, 1500
-  ///          inner), with which one hard solve can run for minutes
-  /// \note only used by proxqp. A capped solve that stops early reports
-  ///       PROXQP_MAX_ITER_REACHED, which solve() already handles.
+  /// Set maximal number of iterations of internal QP solver
+  /// \param n the maximal number of iterations, 0 for the solver's default
+  /// \note only used by proxqp
   void maxIterations(size_type n) { maxIterations_ = n; }
-  /// Get the internal QP solver's iteration cap (0: the solver's default)
+  /// Get maximal number of iterations of internal QP solver
   size_type maxIterations() const { return maxIterations_; }
   void addRows(const std::size_t& nbRows) {
     H.conservativeResize(H.rows() + nbRows, H.cols());

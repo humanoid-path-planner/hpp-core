@@ -73,7 +73,6 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
   qp.settings.eps_abs = accuracy_;
   if (maxIterations_ > 0) {
     qp.settings.max_iter = maxIterations_;
-    // Cap the inner iterations too, but never above the solver's default.
     if (qp.settings.max_iter_in > maxIterations_)
       qp.settings.max_iter_in = maxIterations_;
   }
