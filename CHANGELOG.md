@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [9.1.0] - 2026-10-08
+
 - [core] Cap the QP solver's iterations in SplineGradientBased
 - [Path] Fix time-parameterized extraction and reversal
 - [SplineGradientBased] Split interpolated paths before smoothing
@@ -252,7 +254,8 @@ From this version on, hpp now depends on pinocchio package for all computations 
 
 ## [3.2] - 2017-03-17
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.2...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.1.0...HEAD
+[9.1.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.2...v9.1.0
 [9.0.2]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.0...v9.0.2
 [9.0.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v8.0.0...v9.0.0
 [8.0.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v7.0.0...v8.0.0

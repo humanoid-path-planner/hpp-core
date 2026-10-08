@@ -22,7 +22,7 @@ dependencies = [
 description = "Utility classes for testing (robust) equilibrium of a system in contact with the environment, and other centroidal dynamics methods"
 license = "BSD-2-Clause"
 name = "hpp-core"
-version = "9.0.2"
+version = "9.1.0"
 
 [tool.cmeel]
 has-sitelib = false
