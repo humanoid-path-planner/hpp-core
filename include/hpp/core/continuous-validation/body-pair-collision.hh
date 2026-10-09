@@ -114,19 +114,29 @@ class BodyPairCollision : public IntervalValidation {
   void securityMargin(const value_type& securityMargin) {
     for (auto& request : m_->requests) request.security_margin = securityMargin;
   }
+  /// Reject sampled configurations closer than this distance to the security
+  /// margin. Zero preserves collision-only validation.
+  void distanceLowerBoundThreshold(value_type distance) {
+    assert(distance >= 0);
+    distanceLowerBoundThr_ = distance;
+  }
   /// \}
  protected:
   /// Constructor of body pair collision
   ///
   /// \param tolerance allowed penetration should be positive
   BodyPairCollision(value_type tolerance)
-      : IntervalValidation(tolerance), m_(new Model), maximalVelocity_(0) {}
+      : IntervalValidation(tolerance),
+        m_(new Model),
+        maximalVelocity_(0),
+        distanceLowerBoundThr_(0) {}
 
   /// Copy constructor
   BodyPairCollision(const BodyPairCollision& other)
       : IntervalValidation(other),
         m_(other.m_),
-        maximalVelocity_(other.maximalVelocity_) {}
+        maximalVelocity_(other.maximalVelocity_),
+        distanceLowerBoundThr_(other.distanceLowerBoundThr_) {}
 
   virtual void setReport(ValidationReportPtr_t& report,
                          coal::CollisionResult result,
@@ -146,6 +156,7 @@ class BodyPairCollision : public IntervalValidation {
 
   mutable vector_t Vb_;
   value_type maximalVelocity_;
+  value_type distanceLowerBoundThr_;
 
   /// Compute maximal velocity for a given velocity bound
   /// \param Vb velocity

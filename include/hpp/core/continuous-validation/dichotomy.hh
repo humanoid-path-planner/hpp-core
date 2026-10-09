@@ -54,7 +54,11 @@ class HPP_CORE_DLLAPI Dichotomy : public ContinuousValidation {
  public:
   /// Create instance and return shared pointer
   /// \param robot the robot for which continuous validation is performed,
-  /// \param tolerance maximal penetration allowed.
+  /// \param tolerance opposite of the distance threshold relative to the
+  /// security margin. Zero preserves collision-only validation; a negative
+  /// value rejects sampled configurations closer than -tolerance to the margin.
+  /// The threshold must be smaller than the default break distance (0.01).
+  /// \sa ContinuousValidation::distanceLowerBoundThreshold
   static DichotomyPtr_t create(const DevicePtr_t& robot,
                                const value_type& tolerance);
 
@@ -63,7 +67,7 @@ class HPP_CORE_DLLAPI Dichotomy : public ContinuousValidation {
  protected:
   /// Constructor
   /// \param robot the robot for which continuous validation is performed,
-  /// \param tolerance maximal penetration allowed.
+  /// \param tolerance opposite of the distance threshold; see create().
   Dichotomy(const DevicePtr_t& robot, const value_type& tolerance);
   /// Store weak pointer to itself
   void init(const DichotomyWkPtr_t weak);
