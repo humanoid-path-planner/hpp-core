@@ -207,6 +207,52 @@ BOOST_AUTO_TEST_CASE(linear) {
   BOOST_CHECK_EQUAL(P.value(0), 1);
   BOOST_CHECK_EQUAL(P.value(1), 2);
   BOOST_CHECK_EQUAL(P.value(2), 1);
+  BOOST_CHECK_EQUAL(P.derivativeBound(0, 2), 1);
+}
+
+BOOST_AUTO_TEST_CASE(derivative_bound) {
+  typedef timeParameterization::PiecewisePolynomial<3> CubicPiecewisePolynomial;
+  CubicPiecewisePolynomial::ParameterMatrix_t M(4, 2);
+  vector_t ts(3);
+  M << 1, 0, 1, -2, 1, 0, -1, 0;
+  ts << 2, 3, 5;
+
+  CubicPiecewisePolynomial P(M, ts);
+  BOOST_CHECK_EQUAL(P.derivativeBound(2, 5), 20);
+
+  P.polynomialsStartAtZero(true);
+  BOOST_CHECK_CLOSE(P.derivativeBound(2, 2.5), 4. / 3, 1e-12);
+  BOOST_CHECK_EQUAL(P.derivativeBound(2, 3), 2);
+  BOOST_CHECK_EQUAL(P.derivativeBound(2, 5), 2);
+  BOOST_CHECK_EQUAL(P.derivativeBound(3, 3), 2);
+  BOOST_CHECK_EQUAL(P.derivativeBound(1, 6), 2);
+  BOOST_CHECK_THROW(P.derivativeBound(0, 1), std::invalid_argument);
+  BOOST_CHECK_THROW(P.derivativeBound(4, 3), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(generic_derivative_bound) {
+  typedef timeParameterization::PiecewisePolynomial<1>
+      ConstantPiecewisePolynomial;
+  ConstantPiecewisePolynomial::ParameterMatrix_t constantParameters(2, 1);
+  vector_t constantBreakpoints(2);
+  constantParameters << 2, 0;
+  constantBreakpoints << 0, 1;
+  ConstantPiecewisePolynomial constant(constantParameters, constantBreakpoints);
+  BOOST_CHECK_EQUAL(constant.derivativeBound(0, 1), 0);
+
+  typedef timeParameterization::PiecewisePolynomial<4>
+      QuarticPiecewisePolynomial;
+  QuarticPiecewisePolynomial::ParameterMatrix_t quarticParameters(5, 1);
+  vector_t quarticBreakpoints(2);
+  quarticParameters << 0, 1, -2, 3, -4;
+  quarticBreakpoints << -1, 2;
+  QuarticPiecewisePolynomial quartic(quarticParameters, quarticBreakpoints);
+  const value_type bound = quartic.derivativeBound(-1, 2);
+  BOOST_CHECK(std::isfinite(bound));
+  for (int i = 0; i <= 100; ++i) {
+    const value_type t = -1 + 3 * value_type(i) / 100;
+    BOOST_CHECK_LE(std::abs(quartic.derivative(t, 1)), bound);
+  }
 }
 
 template <int Order>
