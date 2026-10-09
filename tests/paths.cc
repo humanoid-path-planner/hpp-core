@@ -29,6 +29,8 @@
 #define BOOST_TEST_MODULE paths
 #include <boost/mpl/list.hpp>
 #include <boost/test/included/unit_test.hpp>
+#include <cmath>
+#include <limits>
 #include <pinocchio/fwd.hpp>
 
 // Boost version 1.54
@@ -38,9 +40,11 @@
 // the unit test framework
 // #include <boost/timer.hh>
 
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/subchain-path.hh>
+#include <hpp/core/time-parameterization/polynomial.hh>
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
@@ -170,4 +174,50 @@ BOOST_AUTO_TEST_CASE(subchain) {
   p2->eval(q, p1->length() * 0.5);
   BOOST_CHECK(q.head<3>().isApprox(Configuration_t::Ones(3) * 0.5));
   BOOST_CHECK(q.tail<3>().isApprox(-Configuration_t::Ones(3) * 0.5));
+}
+
+BOOST_AUTO_TEST_CASE(interpolated_velocity_bound) {
+  DevicePtr_t dev = createRobot();
+  Configuration_t q0(Configuration_t::Zero(1)), q1(1), q2(1);
+  q1 << 3;
+  q2 << 2;
+  InterpolatedPathPtr_t path = InterpolatedPath::create(dev, q0, q2, 2.);
+  path->insert(1., q1);
+  vector_t bound(1);
+
+  path->velocityBound(bound, .25, .75);
+  BOOST_CHECK_CLOSE(bound[0], 3., 1e-10);
+  path->velocityBound(bound, .75, 1.25);
+  BOOST_CHECK_CLOSE(bound[0], 3., 1e-10);
+  path->velocityBound(bound, 1.25, 1.75);
+  BOOST_CHECK_CLOSE(bound[0], 1., 1e-10);
+  path->velocityBound(bound, 1.75, 2.);
+  BOOST_CHECK_CLOSE(bound[0], 1., 1e-10);
+  path->velocityBound(bound, 0., 2.);
+  BOOST_CHECK_CLOSE(bound[0], 3., 1e-10);
+  path->velocityBound(bound, 2., 2.);
+  BOOST_CHECK_CLOSE(bound[0], 1., 1e-10);
+
+  InterpolatedPathPtr_t constant = InterpolatedPath::create(dev, q0, q0, 0.);
+  constant->velocityBound(bound, 0., 0.);
+  BOOST_CHECK_SMALL(bound[0], 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE(interpolated_velocity_bound_timed_endpoint) {
+  DevicePtr_t dev = createRobot();
+  Configuration_t q0(Configuration_t::Zero(1)), q1(Configuration_t::Ones(1));
+  InterpolatedPathPtr_t path = InterpolatedPath::create(dev, q0, q1, 1.);
+  const value_type scale =
+      std::nextafter(1., std::numeric_limits<value_type>::infinity());
+  vector_t coefficients(2);
+  coefficients << 0., scale;
+  path->timeParameterization(
+      TimeParameterizationPtr_t(
+          new timeParameterization::Polynomial(coefficients)),
+      interval_t(0., 1.));
+  vector_t bound(1);
+  path->velocityBound(bound, 0., 1.);
+  BOOST_CHECK_CLOSE(bound[0], scale, 1e-10);
+  path->velocityBound(bound, 1., 1.);
+  BOOST_CHECK_CLOSE(bound[0], scale, 1e-10);
 }
