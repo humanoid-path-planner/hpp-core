@@ -30,6 +30,8 @@
 #ifndef HPP_CORE_TIME_PARAMETERIZATION_PIECEWISE_POLYNOMIAL_HH
 #define HPP_CORE_TIME_PARAMETERIZATION_PIECEWISE_POLYNOMIAL_HH
 
+#include <algorithm>
+#include <cmath>
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/core/config.hh>
 #include <hpp/core/fwd.hh>
@@ -91,6 +93,64 @@ class HPP_CORE_DLLAPI PiecewisePolynomial : public TimeParameterization {
   /// Computes \f$ \sum_{i=1}^n i a_i t^{i-1} \f$
   value_type derivative(const value_type& t, const size_type& order) const {
     return Jac(t, order);
+  }
+
+  /// Compute a bound of the absolute value of the first derivative on
+  /// \f$ [ low, up ] \f$.
+  value_type derivativeBound(const value_type& low,
+                             const value_type& up) const override {
+    if (low > up)
+      throw std::invalid_argument(
+          "Derivative bound interval has reversed bounds.");
+
+    const value_type intervalLow = std::max(low, breakpoints_.front());
+    const value_type intervalUp = std::min(up, breakpoints_.back());
+    if (intervalLow > intervalUp)
+      throw std::invalid_argument(
+          "Derivative bound interval does not intersect the polynomial range.");
+
+    value_type result = 0;
+    for (size_type j = 0; j < parameters_.cols(); ++j) {
+      value_type segmentLow = std::max(intervalLow, breakpoints_[j]);
+      value_type segmentUp = std::min(intervalUp, breakpoints_[j + 1]);
+      if (segmentLow > segmentUp) continue;
+
+      if (startAtZero_) {
+        segmentLow -= breakpoints_[j];
+        segmentUp -= breakpoints_[j];
+      }
+      const auto coefficients = parameters_.col(j);
+      const auto derivativeAt = [&coefficients](const value_type& t) {
+        value_type derivative = 0;
+        value_type power = 1;
+        for (size_type i = 1; i < coefficients.size(); ++i) {
+          derivative += value_type(i) * coefficients[i] * power;
+          power *= t;
+        }
+        return derivative;
+      };
+
+      result = std::max(result, std::abs(derivativeAt(segmentLow)));
+      result = std::max(result, std::abs(derivativeAt(segmentUp)));
+
+      if (Order == 3 && coefficients[3] != 0) {
+        const value_type extremum = -coefficients[2] / (3 * coefficients[3]);
+        if (segmentLow < extremum && extremum < segmentUp)
+          result = std::max(result, std::abs(derivativeAt(extremum)));
+      } else if (Order > 3) {
+        const value_type radius =
+            std::max(std::abs(segmentLow), std::abs(segmentUp));
+        value_type conservativeBound = 0;
+        value_type power = 1;
+        for (size_type i = 1; i < coefficients.size(); ++i) {
+          conservativeBound +=
+              value_type(i) * std::abs(coefficients[i]) * power;
+          power *= radius;
+        }
+        result = std::max(result, conservativeBound);
+      }
+    }
+    return result;
   }
 
   /// Whether the polynomial should be shifted.

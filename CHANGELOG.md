@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [timeParameterization] Bound piecewise polynomial derivatives
+
 ## [9.1.0] - 2026-10-08
 
 - [core] Cap the QP solver's iterations in SplineGradientBased

@@ -95,8 +95,8 @@ class Extract : public TimeParameterization {
   }
 
   value_type derivativeBound(const value_type& low,
-                             const value_type& up) const {
-    return derivativeBound(low + dt_, up + dt_);
+                             const value_type& up) const override {
+    return inner_->derivativeBound(low + dt_, up + dt_);
   }
 
   TimeParameterizationPtr_t copy() const {
