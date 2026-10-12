@@ -223,6 +223,21 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   /// \sa value_type breakDistance() const
   void breakDistance(value_type distance);
 
+  /// Get the distance threshold relative to the security margin.
+  value_type distanceLowerBoundThreshold() const {
+    return distanceLowerBoundThr_;
+  }
+
+  /// Set the distance threshold relative to the security margin.
+  /// A positive threshold avoids very small validation intervals near contact
+  /// by reporting collisions at sampled configurations within this distance.
+  /// A collision-free path closer than the threshold may thus be rejected.
+  /// Zero (the default) preserves collision-only validation.
+  /// \param distance zero to disable, or a positive threshold strictly below
+  /// breakDistance().
+  /// \throw std::invalid_argument if distance is outside this range.
+  void distanceLowerBoundThreshold(value_type distance);
+
   DevicePtr_t robot() const { return robot_; }
   /// Iteratively call method doExecute of delegate classes Initialize
   /// \sa ContinuousValidation::add, ContinuousValidation::Initialize.
@@ -304,6 +319,7 @@ class HPP_CORE_DLLAPI ContinuousValidation : public PathValidation,
   DevicePtr_t robot_;
   value_type tolerance_;
   value_type breakDistance_;
+  value_type distanceLowerBoundThr_;
 
   /// Store weak pointer to itself.
   void init(ContinuousValidationWkPtr_t weak);

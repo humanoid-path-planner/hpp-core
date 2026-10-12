@@ -253,6 +253,11 @@ void ContinuousValidation::removeObstacleFromJoint(
 
 void ContinuousValidation::breakDistance(value_type distance) {
   assert(distance >= 0);
+  if (distanceLowerBoundThr_ > 0 && distance <= distanceLowerBoundThr_) {
+    throw std::invalid_argument(
+        "Break distance must be strictly greater than "
+        "the distance lower bound threshold.");
+  }
   breakDistance_ = distance;
 
   bodyPairCollisionPool_.clear();
@@ -260,6 +265,21 @@ void ContinuousValidation::breakDistance(value_type distance) {
     continuousValidation::SolidSolidCollisionPtr_t ss(
         HPP_DYNAMIC_PTR_CAST(continuousValidation::SolidSolidCollision, val));
     if (ss) ss->breakDistance(distance);
+  }
+}
+
+void ContinuousValidation::distanceLowerBoundThreshold(value_type distance) {
+  if (!(distance >= 0) || (distance > 0 && distance >= breakDistance_)) {
+    throw std::invalid_argument(
+        "Distance lower bound threshold must be nonnegative and "
+        "strictly smaller than the break distance.");
+  }
+  distanceLowerBoundThr_ = distance;
+
+  bodyPairCollisionPool_.clear();
+  for (IntervalValidationPtr_t& val : intervalValidations_) {
+    BodyPairCollisionPtr_t bp(HPP_DYNAMIC_PTR_CAST(BodyPairCollision, val));
+    if (bp) bp->distanceLowerBoundThreshold(distance);
   }
 }
 
@@ -405,6 +425,9 @@ void ContinuousValidation::init(ContinuousValidationWkPtr_t weak) {
 
 void ContinuousValidation::addIntervalValidation(
     const IntervalValidationPtr_t& intervalValidation) {
+  BodyPairCollisionPtr_t bp(
+      HPP_DYNAMIC_PTR_CAST(BodyPairCollision, intervalValidation));
+  if (bp) bp->distanceLowerBoundThreshold(distanceLowerBoundThr_);
   intervalValidations_.push_back(intervalValidation);
   bodyPairCollisionPool_.clear();
 }
@@ -423,6 +446,7 @@ ContinuousValidation::ContinuousValidation(const DevicePtr_t& robot,
     : robot_(robot),
       tolerance_(tolerance),
       breakDistance_(1e-2),
+      distanceLowerBoundThr_(0),
       intervalValidations_(),
       weak_() {
   if (tolerance < 0) {
