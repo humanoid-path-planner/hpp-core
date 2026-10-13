@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [timeParameterization] Bound piecewise polynomial derivatives
 - [ContinuousValidation] Add a distance lower bound threshold to Dichotomy
+- [SplineGradientBased] Store linear constraints and quadratic costs as sparse matrices; decompose constraints by independent groups of variables
 
 ## [9.1.0] - 2026-10-08
 

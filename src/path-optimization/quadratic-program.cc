@@ -48,14 +48,14 @@ QuadraticProgram::~QuadraticProgram() {
 
 void QuadraticProgram::decompose() {
   HPP_SCOPE_TIMECOUNTER(QuadraticProgram_decompose);
-  dec.compute(H);
+  dec.compute(matrix_t(H), Eigen::ComputeThinU | Eigen::ComputeThinV);
   assert(dec.rank() == H.rows());
 }
 
 void QuadraticProgram::computeLLT() {
   HPP_SCOPE_TIMECOUNTER(QuadraticProgram_computeLLT);
-  trace = H.trace();
-  llt.compute(H);
+  trace = H.diagonal().sum();
+  llt.compute(matrix_t(H));
 }
 
 double QuadraticProgram::solve(const LinearConstraint& ce,
@@ -79,13 +79,9 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
   vector_t u = ci.b;
   u.fill(std::numeric_limits<value_type>::infinity());
 
-  // Conversion to sparse types
-  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> H1(
-      H.sparseView());
-  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> A1(
-      ce.J.sparseView());
-  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> C1(
-      ci.J.sparseView());
+  // Conversion to the index type of proxsuite
+  Eigen::SparseMatrix<value_type, Eigen::ColMajor, long long> H1(H), A1(ce.J),
+      C1(ci.J);
   qp.init(H1, b, A1, ce.b, C1, ci.b, u);
   qp.solve();
   value_type res(0);
@@ -94,8 +90,8 @@ double QuadraticProgram::solve(const LinearConstraint& ce,
   switch (qp.results.info.status) {
     case QPSolverOutput::PROXQP_SOLVED:
       xStar = qp.results.x;
-      res += (.5 * xStar.transpose() * H * xStar)(0, 0);
-      res += (b.transpose() * xStar)(0);
+      res += .5 * xStar.dot(H * xStar);
+      res += b.dot(xStar);
       return res;
       break;
     case QPSolverOutput::PROXQP_MAX_ITER_REACHED:

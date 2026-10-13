@@ -101,8 +101,8 @@ static inline void setContinuityConstraint(
   lc.b.segment(row, rows).setZero();
   if (splineL) {
     for (size_type i = 0; i < SplineType::NbCoeffs; ++i) {
-      lc.J.block(row, c, rows, rDof).noalias() =
-          select.rview(-Bl(i) * matrix_t::Identity(rDof, rDof));
+      lc.setBlock(row, c,
+                  select.rview(-Bl(i) * matrix_t::Identity(rDof, rDof)));
       c += rDof;
     }
     if (Czero)
@@ -111,8 +111,7 @@ static inline void setContinuityConstraint(
   }
   if (splineR) {
     for (size_type i = 0; i < SplineType::NbCoeffs; ++i) {
-      lc.J.block(row, c, rows, rDof).noalias() =
-          select.rview(Br(i) * matrix_t::Identity(rDof, rDof));
+      lc.setBlock(row, c, select.rview(Br(i) * matrix_t::Identity(rDof, rDof)));
       c += rDof;
     }
     if (Czero)
@@ -411,7 +410,8 @@ std::size_t SplineGradientBasedAbstract<_PB, _SO>::addBoundConstraints(
     if (!activeConstraint[bci[i]]) {
       ++nbC;
       constraint.addRows(1);
-      constraint.J.template bottomRows<1>() = bc.J.row(bci[i]);
+      constraint.J.middleRows(constraint.J.rows() - 1, 1) =
+          bc.J.middleRows(bci[i], 1);
       constraint.b(constraint.b.size() - 1) = bc.b(bci[i]);
     }
   }
@@ -449,8 +449,6 @@ void SplineGradientBasedAbstract<_PB, _SO>::jointBoundConstraint(
   const size_type size = Spline::NbCoeffs * rows;
   lc.J.resize(splines.size() * size, splines.size() * cols);
   lc.b.resize(splines.size() * size);
-
-  lc.J.setZero();
   lc.b.setZero();
 
   for (std::size_t i = 0; i < splines.size(); ++i) {
@@ -458,7 +456,7 @@ void SplineGradientBasedAbstract<_PB, _SO>::jointBoundConstraint(
     for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
       const size_type row = i * size + k * rows;
       const size_type col = i * cols + k * rDof;
-      lc.J.block(row, col, rows, rDof) = -A;
+      lc.setBlock(row, col, -A);
       lc.b.segment(row, rows) = -b;
     }
   }

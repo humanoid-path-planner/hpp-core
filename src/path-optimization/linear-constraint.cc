@@ -30,11 +30,7 @@
 #include <hpp/pinocchio/util.hh>
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
-
-// #define USE_SVD
-#ifdef USE_SVD
-#include <hpp/constraints/svd.hh>
-#endif
+#include <numeric>
 
 namespace hpp {
 namespace core {
@@ -47,50 +43,85 @@ LinearConstraint::~LinearConstraint() {
 
 bool LinearConstraint::decompose(bool check, bool throwIfNotValid) {
   HPP_SCOPE_TIMECOUNTER(LinearConstraint_decompose);
+  const size_type n = J.cols();
+  J.makeCompressed();
 
-  if (J.rows() == 0) {  // No constraint
-    PK = matrix_t::Identity(J.cols(), J.cols());
-    xStar = vector_t::Zero(PK.rows());
-    return true;
+  // Group the variables coupled by a row of J.
+  std::vector<size_type> root(n);
+  std::iota(root.begin(), root.end(), 0);
+  auto find = [&root](size_type i) {
+    while (root[i] != i) i = root[i] = root[root[i]];
+    return i;
+  };
+  for (size_type r = 0; r < J.rows(); ++r) {
+    RowMajorSparseMatrix_t::InnerIterator it(J, r);
+    if (!it) continue;
+    const size_type first = find(it.col());
+    for (++it; it; ++it) root[find(it.col())] = first;
+  }
+  std::vector<size_type> component(n), local(n);
+  size_type nComponents = 0;
+  for (size_type i = 0; i < n; ++i)
+    if (find(i) == i) component[i] = nComponents++;
+  std::vector<std::vector<size_type> > columns(nComponents), rows(nComponents);
+  for (size_type i = 0; i < n; ++i) {
+    component[i] = component[find(i)];
+    local[i] = columns[component[i]].size();
+    columns[component[i]].push_back(i);
+  }
+  for (size_type r = 0; r < J.rows(); ++r) {
+    RowMajorSparseMatrix_t::InnerIterator it(J, r);
+    if (it) rows[component[it.col()]].push_back(r);
   }
 
-#ifdef USE_SVD
-  typedef Eigen::JacobiSVD<matrix_t> Decomposition_t;
-  Decomposition_t dec(J, Eigen::ComputeThinU | Eigen::ComputeFullV);
-  rank = dec.rank();
+  // Decompose each component.
+  rank = 0;
+  xStar = vector_t::Zero(n);
+  std::vector<Eigen::Triplet<value_type> > kernel;
+  size_type kernelCol = 0;
+  for (std::size_t c = 0; c < columns.size(); ++c) {
+    const std::vector<size_type>& cols = columns[c];
+    const size_type nc = cols.size();
+    if (rows[c].empty()) {
+      for (size_type i = 0; i < nc; ++i)
+        kernel.emplace_back(cols[i], kernelCol++, 1);
+      continue;
+    }
+    matrix_t Jc(matrix_t::Zero(rows[c].size(), nc));
+    vector_t bc(rows[c].size());
+    for (std::size_t i = 0; i < rows[c].size(); ++i) {
+      for (RowMajorSparseMatrix_t::InnerIterator it(J, rows[c][i]); it; ++it)
+        Jc(i, local[it.col()]) = it.value();
+      bc[i] = b[rows[c][i]];
+    }
+    Eigen::ColPivHouseholderQR<matrix_t> qr(Jc.transpose());
+    const size_type rc = qr.rank();
+    rank += rc;
 
-  PK.resize(J.cols(), J.cols() - rank);
-  xStar.resize(PK.rows());
-
-  xStar = dec.solve(b);
-
-  PK.noalias() = constraints::getV2(dec, rank);
-#else   // USE_SVD
-  Eigen::ColPivHouseholderQR<matrix_t> qr(J.transpose());
-  rank = qr.rank();
-
-  PK.resize(J.cols(), J.cols() - rank);
-  xStar.resize(PK.rows());
-
-  vector_t rhs((qr.colsPermutation().inverse() * b).head(rank));
-
-  vector_t z(J.cols());
-  z.head(rank).noalias() = qr.matrixR()
-                               .topLeftCorner(rank, rank)
+    vector_t rhs((qr.colsPermutation().inverse() * bc).head(rc));
+    vector_t z(vector_t::Zero(nc));
+    z.head(rc).noalias() = qr.matrixR()
+                               .topLeftCorner(rc, rc)
                                .triangularView<Eigen::Upper>()
                                .transpose()
                                .solve(rhs);
-  z.tail(J.cols() - rank).setZero();
-  xStar.noalias() = qr.householderQ() * z;
-
-  PK.noalias() =
-      qr.householderQ() *
-      matrix_t::Identity(J.cols(), J.cols()).rightCols(J.cols() - rank);
-#endif  // USE_SVD
+    vector_t xc(qr.householderQ() * z);
+    matrix_t PKc(qr.householderQ() *
+                 matrix_t::Identity(nc, nc).rightCols(nc - rc));
+    for (size_type i = 0; i < nc; ++i) {
+      xStar[cols[i]] = xc[i];
+      for (size_type j = 0; j < nc - rc; ++j)
+        if (PKc(i, j) != 0)
+          kernel.emplace_back(cols[i], kernelCol + j, PKc(i, j));
+    }
+    kernelCol += nc - rc;
+  }
+  PK.resize(n, kernelCol);
+  PK.setFromTriplets(kernel.begin(), kernel.end());
 
   if (check) {
     // check that the constraints are feasible
-    matrix_t error = J * xStar - b;
+    vector_t error = J * xStar - b;
     if (!error.isZero(1e-7)) {
       if (throwIfNotValid) {
         HPP_THROW(std::invalid_argument,
@@ -104,10 +135,15 @@ bool LinearConstraint::decompose(bool check, bool throwIfNotValid) {
   }
   return true;
 }
+
+void LinearConstraint::computeRank() {
+  if (J.size() == 0)
+    rank = 0;
+  else {
+    Eigen::FullPivLU<matrix_t> lu{matrix_t(J)};
+    rank = lu.rank();
+  }
+}
 }  // namespace pathOptimization
 }  // namespace core
 }  // namespace hpp
-
-#ifdef USE_SVD
-#undef USE_SVD
-#endif  // USE_SVD

@@ -68,11 +68,9 @@ struct QuadraticProgram {
   QuadraticProgram(size_type inputSize)
       : H(inputSize, inputSize),
         b(inputSize),
-        dec(inputSize, inputSize, Eigen::ComputeThinU | Eigen::ComputeThinV),
         xStar(inputSize),
         accuracy_(1e-4),
         maxIterations_(0) {
-    H.setZero();
     b.setZero();
     bIsZero = true;
   }
@@ -85,8 +83,6 @@ struct QuadraticProgram {
       : H(lc.PK.cols(), lc.PK.cols()),
         b(lc.PK.cols()),
         bIsZero(false),
-        dec(lc.PK.cols(), lc.PK.cols(),
-            Eigen::ComputeThinU | Eigen::ComputeThinV),
         xStar(lc.PK.cols()),
         accuracy_(1e-4),
         maxIterations_(QP.maxIterations_) {
@@ -126,8 +122,7 @@ struct QuadraticProgram {
   void addRows(const std::size_t& nbRows) {
     H.conservativeResize(H.rows() + nbRows, H.cols());
     b.conservativeResize(b.rows() + nbRows, b.cols());
-
-    H.bottomRows(nbRows).setZero();
+    b.tail(nbRows).setZero();
   }
 
   /// \name Program subject to linear equality constraints.
@@ -140,8 +135,8 @@ struct QuadraticProgram {
    *  \f}
    **/
   void reduced(const LinearConstraint& lc, QuadraticProgram& QPr) const {
-    matrix_t H_PK(H * lc.PK);
-    QPr.H.noalias() = lc.PK.transpose() * H_PK;
+    SparseMatrix_t H_PK(H * lc.PK);
+    QPr.H = lc.PK.transpose() * H_PK;
     QPr.b.noalias() = H_PK.transpose() * lc.xStar;
     if (!bIsZero) {
       QPr.b.noalias() += lc.PK.transpose() * b;
@@ -149,6 +144,7 @@ struct QuadraticProgram {
     QPr.bIsZero = false;
   }
 
+  /// \note \ref H is converted to a dense matrix.
   void decompose();
 
   void solve() { xStar.noalias() = -dec.solve(b); }
@@ -158,6 +154,9 @@ struct QuadraticProgram {
   /// \name Program subject to linear equality and inequality constraints.
   /// \{
 
+  /// \note \ref H is converted to a dense matrix. The solution of
+  /// \ref solve(const LinearConstraint&, const LinearConstraint&) does not
+  /// use this decomposition.
   void computeLLT();
 
   /// Compute solution using quadprog
@@ -165,7 +164,6 @@ struct QuadraticProgram {
   /// \param ci inequality constraints: \f$ ci.J * x \ge ci.b \f$
   /// \return the cost of the solution.
   ///
-  /// \note \ref computeLLT must have been called before.
   /// \note if the problem is ill-conditioned, member xStar is left unchanged.
   double solve(const LinearConstraint& ce, const LinearConstraint& ci);
 
@@ -173,7 +171,7 @@ struct QuadraticProgram {
 
   /// \name Model
   /// \{
-  matrix_t H;
+  SparseMatrix_t H;
   vector_t b;
   bool bIsZero;
   /// \}
