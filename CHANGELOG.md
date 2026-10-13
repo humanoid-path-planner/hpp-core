@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [9.2.0] - 2026-10-13
+
 - [timeParameterization] Bound piecewise polynomial derivatives
 - [ContinuousValidation] Add a distance lower bound threshold to Dichotomy
 - [SplineGradientBased] Store linear constraints and quadratic costs as sparse matrices; decompose constraints by independent groups of variables
@@ -258,7 +260,8 @@ From this version on, hpp now depends on pinocchio package for all computations 
 
 ## [3.2] - 2017-03-17
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.1.0...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.2.0...HEAD
+[9.2.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.1.0...v9.2.0
 [9.1.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.2...v9.1.0
 [9.0.2]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.0...v9.0.2
 [9.0.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v8.0.0...v9.0.0
