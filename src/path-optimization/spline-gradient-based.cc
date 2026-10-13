@@ -177,8 +177,7 @@ struct SplineGradientBased<_PB, _SO>::CollisionFunctions {
 
     const size_type col = splineIds[fIdx] * Spline::NbCoeffs * rDof;
     for (size_type i = 0; i < Spline::NbCoeffs; ++i)
-      lc.J.block(row, col + i * rDof, nbRows, rDof).noalias() =
-          paramDerivativeCoeff(i) * J;
+      lc.setBlock(row, col + i * rDof, paramDerivativeCoeff(i) * J);
 
     lc.b.segment(row, nbRows) =
         lc.J.block(row, col, nbRows, Spline::NbCoeffs * rDof) *
@@ -254,7 +253,7 @@ void SplineGradientBased<_PB, _SO>::addProblemConstraintOnPath(
       lc.addRows(Spline::NbCoeffs * nOutVar);
       matrix_t I = select.rview(matrix_t::Identity(rDof, rDof));
       for (size_type k = 0; k < Spline::NbCoeffs; ++k) {
-        lc.J.block(row + k * nOutVar, col + k * rDof, nOutVar, rDof) = I;
+        lc.setBlock(row + k * nOutVar, col + k * rDof, I);
         lc.b.segment(row + k * nOutVar, nOutVar) =
             I * spline->parameters().row(k).transpose();
       }
@@ -483,7 +482,7 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   hppDout(info, "Initial cost is " << optimalCost);
   cost.hessian(QP.H, splines);
 #ifndef NDEBUG
-  checkHessian(cost, QP.H, splines);
+  checkHessian(cost, matrix_t(QP.H), splines);
 #endif  // NDEBUG
 
   QuadraticProgram QPc(QP, constraint);
@@ -493,7 +492,6 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
   if (QPc.H.rows() == 0)
     // There are no variables left for optimization.
     return this->buildPathVector(splines);
-  QPc.computeLLT();
   if (std::isinf(QPc.solve(collisionReduced, boundConstraintReduced)))
     return this->buildPathVector(splines);
 

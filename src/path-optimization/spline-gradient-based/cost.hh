@@ -30,6 +30,7 @@
 #define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_COST_HH
 
 #include <hpp/core/path-optimization/cost.hh>
+#include <hpp/core/path-optimization/linear-constraint.hh>
 #include <hpp/core/path/spline.hh>
 #include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
@@ -99,47 +100,43 @@ struct HPP_CORE_LOCAL L2NormSquaredOfDerivative {
     }
   }
 
-  void hessian(matrixOut_t H, const Splines_t& splines) const {
-    assert(H.rows() == inputDerivativeSize_);
-    assert(H.cols() == inputDerivativeSize_);
+  void hessian(SparseMatrix_t& H, const Splines_t& splines) const {
     typename Spline::BasisFunctionIntegralMatrix_t Ic;
-
-    H.setZero();
+    std::vector<Eigen::Triplet<value_type> > coefficients;
+    coefficients.reserve(nSplines_ * Spline::NbCoeffs * Spline::NbCoeffs *
+                         paramSize_);
 
     for (std::size_t k = 0; k < nSplines_; ++k) {
       splines[k]->squaredNormBasisFunctionIntegral(derivativeOrder_, Ic);
       Ic *= 2;
       const size_type shift = k * Spline::NbCoeffs * paramSize_;
-      for (size_type i = 0; i < Spline::NbCoeffs; ++i) {
-        for (size_type j = 0; j < Spline::NbCoeffs; ++j) {
-          H.block(shift + i * paramSize_, shift + j * paramSize_, paramSize_,
-                  paramSize_)
-              .diagonal()
-              .setConstant(Ic(i, j) * lambda_[k]);
-        }
-      }
+      for (size_type i = 0; i < Spline::NbCoeffs; ++i)
+        for (size_type j = 0; j < Spline::NbCoeffs; ++j)
+          for (size_type d = 0; d < paramSize_; ++d)
+            coefficients.emplace_back(shift + i * paramSize_ + d,
+                                      shift + j * paramSize_ + d,
+                                      Ic(i, j) * lambda_[k]);
+    }
+    H.resize(inputDerivativeSize_, inputDerivativeSize_);
+    H.setFromTriplets(coefficients.begin(), coefficients.end());
 
 #ifndef NDEBUG
-      value_type res1 = 0.5 * splines[k]->rowParameters().transpose() *
-                        H.block(shift, shift, Spline::NbCoeffs * paramSize_,
-                                Spline::NbCoeffs * paramSize_) *
-                        splines[k]->rowParameters();
-
+    for (std::size_t k = 0; k < nSplines_; ++k) {
+      const size_type shift = k * Spline::NbCoeffs * paramSize_,
+                      size = Spline::NbCoeffs * paramSize_;
+      value_type res1 = 0.5 * splines[k]->rowParameters().dot(
+                                  H.block(shift, shift, size, size) *
+                                  splines[k]->rowParameters());
       value_type res2 =
           splines[k]->squaredNormIntegral(derivativeOrder_) * lambda_[k];
-
-      value_type diff = res1 - res2;
-
-      if (std::fabs(diff) > Eigen::NumTraits<value_type>::dummy_precision()) {
-        hppDout(error,
-                "Hessian seems wrong for spline "
-                    << k << ": " << res1 << " - " << res2 << " = "
-                    << res1 - res2 << '\n'
-                    << H.block(shift, shift, Spline::NbCoeffs * paramSize_,
-                               Spline::NbCoeffs * paramSize_));
+      if (std::fabs(res1 - res2) >
+          Eigen::NumTraits<value_type>::dummy_precision()) {
+        hppDout(error, "Hessian seems wrong for spline "
+                           << k << ": " << res1 << " - " << res2 << " = "
+                           << res1 - res2);
       }
-#endif  // NDEBUG
     }
+#endif  // NDEBUG
   }
 
   vector_t lambda_;

@@ -29,17 +29,24 @@
 #ifndef HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_LINEAR_CONSTRAINT_HH
 #define HPP_CORE_PATH_OPTIMIZATION_SPLINE_GRADIENT_BASED_LINEAR_CONSTRAINT_HH
 
+#include <Eigen/Sparse>
 #include <hpp/core/fwd.hh>
 #include <hpp/util/debug.hh>
 
 namespace hpp {
 namespace core {
 namespace pathOptimization {
+/// Sparse matrix types of the spline optimization problems.
+typedef Eigen::SparseMatrix<value_type, Eigen::RowMajor> RowMajorSparseMatrix_t;
+typedef Eigen::SparseMatrix<value_type, Eigen::ColMajor> SparseMatrix_t;
+
 /// A linear constraint \f$ J \times x = b \f$
+///
+/// \ref J is sparse: constraints on splines only involve the parameters of
+/// one or two consecutive splines.
 struct LinearConstraint {
   LinearConstraint(size_type inputSize, size_type outputSize)
       : J(outputSize, inputSize), b(outputSize), xSol(inputSize) {
-    J.setZero();
     b.setZero();
   }
 
@@ -47,28 +54,36 @@ struct LinearConstraint {
 
   void concatenate(const LinearConstraint& oc) {
     assert(oc.J.cols() == J.cols());
-    J.conservativeResize(J.rows() + oc.J.rows(), J.cols());
-    J.bottomRows(oc.J.rows()) = oc.J;
+    const size_type rows = J.rows();
+    J.conservativeResize(rows + oc.J.rows(), J.cols());
+    J.middleRows(rows, oc.J.rows()) = oc.J;
     b.conservativeResize(b.rows() + oc.b.rows());
     b.tail(oc.b.rows()) = oc.b;
   }
 
+  /// Set the block of \ref J starting at (row, col) to block.
+  /// Zero coefficients are stored only where \ref J already has a non-zero.
+  void setBlock(size_type row, size_type col, const matrix_t& block) {
+    for (size_type i = 0; i < block.rows(); ++i)
+      for (size_type j = 0; j < block.cols(); ++j)
+        if (block(i, j) != 0 || J.coeff(row + i, col + j) != 0)
+          J.coeffRef(row + i, col + j) = block(i, j);
+  }
+
   /// Compute one solution and a base of the kernel of matrix J.
   /// rank is also updated.
+  ///
+  /// The columns of J are split into the connected components of the
+  /// variables coupled by its rows, and each component is decomposed
+  /// separately: \ref PK is block diagonal up to a permutation of the
+  /// variables.
   /// \param check If true, checks whether the constraint is feasible.
   /// \return whether the constraint is feasible
   ///                 (alwys true when check is false)
   bool decompose(bool check = false, bool throwIfNotValid = false);
 
-  /// Compute rank of the constraint using a LU decomposition
-  void computeRank() {
-    if (J.size() == 0)
-      rank = 0;
-    else {
-      Eigen::FullPivLU<matrix_t> lu(J);
-      rank = lu.rank();
-    }
-  }
+  /// Compute rank of the constraint using a sparse QR decomposition
+  void computeRank();
 
   /// Reduced constraint into the set of solutions of this constraint.
   /// \param[in]  lc the full constraint
@@ -79,7 +94,7 @@ struct LinearConstraint {
   /// \note rank is computed using computeRank method.
   bool reduceConstraint(const LinearConstraint& lc, LinearConstraint& lcr,
                         bool computeRank = true) const {
-    lcr.J.noalias() = lc.J * PK;
+    lcr.J = lc.J * PK;
     lcr.b.noalias() = lc.b - lc.J * xStar;
 
     // Decompose
@@ -116,14 +131,13 @@ struct LinearConstraint {
     if (nbRows > 0) {
       J.conservativeResize(J.rows() + nbRows, J.cols());
       b.conservativeResize(b.rows() + nbRows);
-
-      J.bottomRows(nbRows).setZero();
+      b.tail(nbRows).setZero();
     }
   }
 
   /// \name Model
   /// \{
-  matrix_t J;
+  RowMajorSparseMatrix_t J;
   vector_t b;
   /// \}
 
@@ -136,7 +150,7 @@ struct LinearConstraint {
   size_type rank;
 
   /// Projector onto \f$ kernel(J) \f$
-  matrix_t PK;
+  SparseMatrix_t PK;
   /// \f$ x^* \f$ is a particular solution.
   vector_t xStar, xSol;
 
