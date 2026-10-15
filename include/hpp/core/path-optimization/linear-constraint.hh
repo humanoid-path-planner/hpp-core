@@ -82,7 +82,8 @@ struct LinearConstraint {
   ///                 (alwys true when check is false)
   bool decompose(bool check = false, bool throwIfNotValid = false);
 
-  /// Compute rank of the constraint using a sparse QR decomposition
+  /// Compute rank of the constraint using a LU decomposition of a dense copy
+  /// of \ref J
   void computeRank();
 
   /// Reduced constraint into the set of solutions of this constraint.
