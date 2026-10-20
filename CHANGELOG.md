@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 - [LinearConstraint] Fix the documentation of computeRank
+- [ContinuousValidation] Extract the valid part of Dichotomy at a projected parameter
 
 ## [9.2.0] - 2026-10-13
 

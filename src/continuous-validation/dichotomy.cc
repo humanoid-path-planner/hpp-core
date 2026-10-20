@@ -81,7 +81,10 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
   value_type t = first(tr, reverse);
   validSubset.unionInterval(std::make_pair(t, t));
   Configuration_t q(path->outputSize());
-  value_type t0, t1, tmin, tmax;
+  value_type t0, t1;
+  // Furthest parameter of the valid interval starting at the beginning of the
+  // path where the path has been projected.
+  value_type lastValidTime = t;
   int niters = 0;
   while (!finished) {
     ++niters;
@@ -98,6 +101,10 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
       valid = false;
     } else {
       validSubset.unionInterval(interval);
+      const interval_t& validStart(begin(validSubset.list(), reverse));
+      if (validStart.first <= t && t <= validStart.second &&
+          (reverse ? t < lastValidTime : t > lastValidTime))
+        lastValidTime = t;
     }
     finished = (!valid || validSubset.contains(tr));
     // Compute next parameter to check as middle of first non tested
@@ -111,14 +118,9 @@ bool Dichotomy::validateStraightPath(IntervalValidations_t& bodyPairCollisions,
   if (!valid) {
     assert(begin(validSubset.list(), reverse).first <= first(tr, reverse));
     assert(begin(validSubset.list(), reverse).second >= first(tr, reverse));
-    if (reverse) {
-      tmin = validSubset.list().rbegin()->first;
-      tmax = tr.second;
-    } else {
-      tmin = tr.first;
-      tmax = validSubset.list().begin()->second;
-    }
-    validPart = path->extract(tmin, tmax);
+    // Bounds of validSubset are not projected: projection may fail there.
+    validPart = reverse ? path->extract(lastValidTime, tr.second)
+                        : path->extract(tr.first, lastValidTime);
   } else {
     validPart = path;
   }
