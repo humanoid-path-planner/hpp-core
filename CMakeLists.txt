@@ -109,6 +109,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/core/path-validation/discretized.hh
     include/hpp/core/path-validation/discretized-collision-checking.hh
     include/hpp/core/path-validation/discretized-joint-bound.hh
+    include/hpp/core/path-validation/no-validation.hh
     include/hpp/core/node.hh
     include/hpp/core/parameter.hh
     include/hpp/core/path.hh
@@ -210,7 +211,6 @@ set(${PROJECT_NAME}_SOURCES
     src/path-validation/discretized.cc
     src/path-validation/discretized-collision-checking.cc
     src/path-validation/discretized-joint-bound.cc
-    src/path-validation/no-validation.hh
     src/nearest-neighbor/basic.hh #
     src/nearest-neighbor/basic.cc #
     src/nearest-neighbor/k-d-tree.cc #

@@ -27,6 +27,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#ifndef HPP_CORE_PATH_VALIDATION_NO_VALIDATION_HH
+#define HPP_CORE_PATH_VALIDATION_NO_VALIDATION_HH
+
 #include <hpp/core/collision-path-validation-report.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/config-validations.hh>
@@ -38,8 +41,6 @@
 namespace hpp {
 namespace core {
 namespace pathValidation {
-HPP_PREDEF_CLASS(NoValidation);
-typedef shared_ptr<NoValidation> NoValidationPtr_t;
 class NoValidation : public PathValidation {
  public:
   // Validate all paths
@@ -60,3 +61,5 @@ class NoValidation : public PathValidation {
 }  // namespace pathValidation
 }  // namespace core
 }  // namespace hpp
+
+#endif  // HPP_CORE_PATH_VALIDATION_NO_VALIDATION_HH

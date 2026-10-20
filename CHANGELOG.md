@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [LinearConstraint] Fix the documentation of computeRank
 - [ContinuousValidation] Extract the valid part of Dichotomy at a projected parameter
+- [core] Move the builder typedefs to fwd.hh and install path-validation/no-validation.hh
 
 ## [9.2.0] - 2026-10-13
 
