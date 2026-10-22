@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [9.3.0] - 2026-10-22
+
 - [LinearConstraint] Fix the documentation of computeRank
 - [ContinuousValidation] Extract the valid part of Dichotomy at a projected parameter
 - [core] Move the builder typedefs to fwd.hh and install path-validation/no-validation.hh
@@ -264,7 +266,8 @@ From this version on, hpp now depends on pinocchio package for all computations 
 
 ## [3.2] - 2017-03-17
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.2.0...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.3.0...HEAD
+[9.3.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.2.0...v9.3.0
 [9.2.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.1.0...v9.2.0
 [9.1.0]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.2...v9.1.0
 [9.0.2]: https://github.com/humanoid-path-planner/hpp-core/compare/v9.0.0...v9.0.2
