@@ -62,6 +62,7 @@
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/path-validation/discretized-collision-checking.hh>
 #include <hpp/core/path-validation/discretized-joint-bound.hh>
+#include <hpp/core/path-validation/no-validation.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem-solver.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
@@ -83,8 +84,6 @@
 #include <pinocchio/algorithm/frames.hpp>
 #include <pinocchio/multibody/fcl.hpp>
 #include <pinocchio/multibody/geometry.hpp>
-
-#include "../src/path-validation/no-validation.hh"
 
 namespace hpp {
 namespace core {

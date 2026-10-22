@@ -31,6 +31,7 @@
 #define HPP_CORE_FWD_HH
 
 #include <deque>
+#include <functional>
 #include <hpp/constraints/fwd.hh>
 #include <hpp/core/config.hh>
 #include <hpp/core/deprecated.hh>
@@ -322,6 +323,8 @@ typedef shared_ptr<PathValidations> PathValidationsPtr_t;
 namespace pathValidation {
 HPP_PREDEF_CLASS(Discretized);
 typedef shared_ptr<Discretized> DiscretizedPtr_t;
+HPP_PREDEF_CLASS(NoValidation);
+typedef shared_ptr<NoValidation> NoValidationPtr_t;
 }  // namespace pathValidation
 // Path validation reports
 struct PathValidationReport;
@@ -367,6 +370,26 @@ typedef shared_ptr<Uniform> UniformPtr_t;
 HPP_PREDEF_CLASS(Gaussian);
 typedef shared_ptr<Gaussian> GaussianPtr_t;
 }  // namespace configurationShooter
+
+typedef std::function<PathOptimizerPtr_t(const ProblemConstPtr_t&)>
+    PathOptimizerBuilder_t;
+typedef std::function<PathPlannerPtr_t(const ProblemConstPtr_t&,
+                                       const RoadmapPtr_t&)>
+    PathPlannerBuilder_t;
+typedef std::function<PathValidationPtr_t(const DevicePtr_t&,
+                                          const value_type&)>
+    PathValidationBuilder_t;
+typedef std::function<ConfigValidationPtr_t(const DevicePtr_t&)>
+    ConfigValidationBuilder_t;
+typedef std::function<PathProjectorPtr_t(const ProblemConstPtr_t&,
+                                         const value_type&)>
+    PathProjectorBuilder_t;
+typedef std::function<ConfigurationShooterPtr_t(const ProblemConstPtr_t&)>
+    ConfigurationShooterBuilder_t;
+typedef std::function<DistancePtr_t(const ProblemConstPtr_t&)>
+    DistanceBuilder_t;
+typedef std::function<SteeringMethodPtr_t(const ProblemConstPtr_t&)>
+    SteeringMethodBuilder_t;
 
 /// Plane polygon represented by its vertices
 /// Used to model contact surfaces for manipulation applications

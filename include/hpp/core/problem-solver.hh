@@ -47,25 +47,6 @@ class
     Member_lockedJoints_in_class_ProblemSolver_has_been_removed_use_member_numericalConstraints_instead {
 };
 typedef std::function<DevicePtr_t(const std::string&)> RobotBuilder_t;
-typedef std::function<PathOptimizerPtr_t(const ProblemConstPtr_t&)>
-    PathOptimizerBuilder_t;
-typedef std::function<PathPlannerPtr_t(const ProblemConstPtr_t&,
-                                       const RoadmapPtr_t&)>
-    PathPlannerBuilder_t;
-typedef std::function<PathValidationPtr_t(const DevicePtr_t&,
-                                          const value_type&)>
-    PathValidationBuilder_t;
-typedef std::function<ConfigValidationPtr_t(const DevicePtr_t&)>
-    ConfigValidationBuilder_t;
-typedef std::function<PathProjectorPtr_t(const ProblemConstPtr_t&,
-                                         const value_type&)>
-    PathProjectorBuilder_t;
-typedef std::function<ConfigurationShooterPtr_t(const ProblemConstPtr_t&)>
-    ConfigurationShooterBuilder_t;
-typedef std::function<DistancePtr_t(const ProblemConstPtr_t&)>
-    DistanceBuilder_t;
-typedef std::function<SteeringMethodPtr_t(const ProblemConstPtr_t&)>
-    SteeringMethodBuilder_t;
 typedef std::vector<std::pair<std::string, CollisionObjectPtr_t> >
     AffordanceObjects_t;
 typedef vector3_t AffordanceConfig_t;
