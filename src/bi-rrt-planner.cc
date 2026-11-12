@@ -99,6 +99,7 @@ PathPtr_t BiRRTPlanner::extendInternal(const SteeringMethodPtr_t& sm,
 void BiRRTPlanner::startSolve() {
   PathPlanner::startSolve();
   startComponent_ = roadmap()->initNode()->connectedComponent();
+  endComponents_.clear();
   for (NodeVector_t::const_iterator cit = roadmap()->goalNodes().begin();
        cit != roadmap()->goalNodes().end(); ++cit) {
     endComponents_.push_back((*cit)->connectedComponent());
