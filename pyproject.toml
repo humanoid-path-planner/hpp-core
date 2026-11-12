@@ -11,6 +11,10 @@ requires = [
 ]
 
 [project]
+authors = [
+  { name = "Florent Lamiraux" },
+  { name = "Joseph Mirabel" }
+]
 dependencies = [
   "cmeel-boost ~= 1.90.0",
   "hpp-constraints",
@@ -19,10 +23,18 @@ dependencies = [
   "hpp-util",
   "proxsuite"
 ]
-description = "Utility classes for testing (robust) equilibrium of a system in contact with the environment, and other centroidal dynamics methods"
+description = "Implement basic classes for canonical path planning for kinematic chains"
 license = "BSD-2-Clause"
+maintainers = [
+  { email = "guilhem.saurel@laas.fr", name = "Guilhem Saurel" }
+]
 name = "hpp-core"
 version = "9.3.0"
+
+[project.urls]
+homepage = "https://github.com/humanoid-path-planner/hpp-core"
+issues = "https://github.com/humanoid-path-planner/hpp-core/issues"
+repository = "https://github.com/humanoid-path-planner/hpp-core"
 
 [tool.cmeel]
 has-sitelib = false
