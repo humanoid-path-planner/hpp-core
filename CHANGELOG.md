@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [pyproject] Fix description, add authors, maintainers and project URLs
+
 ## [9.3.0] - 2026-10-22
 
 - [LinearConstraint] Fix the documentation of computeRank
