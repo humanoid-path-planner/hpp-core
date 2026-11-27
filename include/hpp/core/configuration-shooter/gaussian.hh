@@ -94,7 +94,7 @@ class HPP_CORE_DLLAPI Gaussian : public ConfigurationShooter {
   virtual void impl_shoot(Configuration_t& q) const;
 
  private:
-  const DevicePtr_t& robot_;
+  DevicePtr_t robot_;
   /// The mean value
   Configuration_t center_;
   /// The standard deviation
