@@ -65,7 +65,13 @@ class HPP_CORE_DLLAPI Gaussian : public ConfigurationShooter {
   void sigma(const value_type& factor);
 
   void sigmas(vectorIn_t s) {
-    assert(s.size() == robot_->numberDof());
+    if (s.size() != robot_->numberDof()) {
+      std::ostringstream os;
+      os << "hpp::core::ConfigurationShooter::Gaussian: vector provided as input is of size ";
+      os << s.size();
+      os << ", size should be equal to the robot number of dof: " << robot_->numberDof() << ".";
+      throw std::runtime_error(os.str().c_str());
+    }
     sigmas_ = s;
   }
   const vector_t& sigmas() const { return sigmas_; }
