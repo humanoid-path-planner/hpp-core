@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [configurationShooter::Gaussian] Change reference to shared pointer to Device by shared pointer as member type.
 - [pyproject] Fix description, add authors, maintainers and project URLs
 - [CMake] Set the install RPATH of the library, for relocatable installs (pip wheels)
 - [BiRRTPlanner] Clear the goal connected components when a solve starts
